@@ -96,13 +96,34 @@ def test_extract_keeps_only_claims_from_its_own_source() -> None:
     assert all(c.source_id == source.id for c in out.claims)
 
 
-def test_interview_fallback_builds_a_default_rubric() -> None:
+def test_interview_fallback_asks_the_next_question_in_default_order() -> None:
+    # US-05: the fallback keeps the interview going in default order instead of stopping at once.
     step = InterviewStage().fallback(
         C.InterviewTurn(state=_state()), C.StageContext(search_id="srch_test00001"), RuntimeError("boom")
     )
+    assert step.kind == "question"
+    assert step.question is not None
+    assert step.question.criterion_key == "cpu_performance"  # the highest default weight
+
+
+def test_interview_fallback_builds_a_default_rubric() -> None:
+    # Every question already asked (and skipped): the fallback finishes with the default weights.
+    state = _state()
+    skipped = [
+        C.AskedQuestion(
+            question=C.InterviewQuestion(id=f"q_{c.key}", criterion_key=c.key, text=f"About {c.label}?"),
+            status="skipped",
+        )
+        for c in state.criteria.criteria
+    ]
+    state = C.InterviewState.model_validate({**state.model_dump(), "history": [q.model_dump() for q in skipped]})
+    step = InterviewStage().fallback(
+        C.InterviewTurn(state=state), C.StageContext(search_id="srch_test00001"), RuntimeError("boom")
+    )
     assert step.kind == "finished"
     assert step.rubric is not None
-    assert {w.origin for w in step.rubric.weights} == {"default"}
+    defaults = {c.key: c.default_weight for c in state.criteria.criteria}
+    assert {w.key: w.weight for w in step.rubric.weights} == defaults
     assert step.rubric.hard_rules == ex.intent().hard_rules
 
 

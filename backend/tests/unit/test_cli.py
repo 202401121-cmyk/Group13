@@ -38,3 +38,29 @@ def test_cli_lists_the_criteria_with_their_definitions(capsys: pytest.CaptureFix
     assert "Criteria (fallback):" in out  # no LLM in tests, so the standing desk's own set
     assert "  - Height range: How low and high the desk goes" in out
     assert "  - Value for money: " in out
+
+
+def test_cli_skips_every_question_by_default_and_prints_the_rubric(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(["best laptop for coding under 70k"]) == 0
+    out = capsys.readouterr().out
+    assert "Q: How much do you care about processor speed?" in out
+    assert out.count("A: Skip") == 8  # the laptop set has 8 criteria
+    assert "Rubric (what matters to you):" in out
+    assert "  - Processor speed: 9/10, " in out and "(skipped)" in out
+
+
+def test_cli_interactive_reads_answers(capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch) -> None:
+    answers = iter(["High", "not sure", "3"])
+
+    def fake_input(prompt: str = "") -> str:
+        try:
+            return next(answers)
+        except StopIteration:
+            raise EOFError from None  # out of answers: the CLI treats the rest as skips
+
+    monkeypatch.setattr("builtins.input", fake_input)
+    assert main(["best laptop for coding under 70k", "--interactive"]) == 0
+    out = capsys.readouterr().out
+    assert "Please pick one of the buttons, or type a number from 0 to 10." in out
+    assert "  - Processor speed: 8/10, " in out and "(answered)" in out
+    assert "  - RAM and storage: 3/10, " in out

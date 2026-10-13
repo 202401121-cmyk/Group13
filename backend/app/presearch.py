@@ -15,6 +15,7 @@ from app.contracts import (
     CriteriaSet,
     IntakeInput,
     Intent,
+    InterviewState,
     InterviewStep,
     InterviewTurn,
     LLMClient,
@@ -46,23 +47,39 @@ def default_criteria_store() -> CriteriaStore:
     return FileCriteriaStore()
 
 
-def start_request(query: str, previous_reply: str | None = None, unclear_attempts: int = 0) -> Intent:
+def start_request(
+    query: str,
+    previous_reply: str | None = None,
+    unclear_attempts: int = 0,
+    llm: LLMClient | None = None,
+) -> Intent:
     """Understand the user's request, or their reply to our follow-up question (US-01, US-02)."""
     inp = IntakeInput(raw_query=query, previous_clarification_reply=previous_reply, unclear_attempts=unclear_attempts)
-    return _run(IntakeStage(default_llm()), inp)
+    return _run(IntakeStage(llm if llm is not None else default_llm()), inp)
 
 
-def make_criteria(intent: Intent) -> CriteriaSet:
+def make_criteria(intent: Intent, llm: LLMClient | None = None, store: CriteriaStore | None = None) -> CriteriaSet:
     """Criteria for the detected category. Only call once the intent is ready for research."""
     if intent.category is None or intent.category_label is None:
         raise ValueError("the request has no product category yet; ask the clarification question first")
     inp = CriteriaInput(category=intent.category, category_label=intent.category_label, use_case=intent.use_case)
-    return _run(CriteriaStage(default_llm(), default_criteria_store()), inp)
+    stage = CriteriaStage(
+        llm if llm is not None else default_llm(), store if store is not None else default_criteria_store()
+    )
+    return _run(stage, inp)
 
 
 def interview_turn(turn: InterviewTurn) -> InterviewStep:
-    """One interview turn: the user's reply (None on the first turn) in, the next step out."""
+    """One interview turn: the user's reply (None on the first turn) in, the next step out (US-05)."""
     return _run(InterviewStage(), turn)
+
+
+def interview_back(state: InterviewState, question_id: str) -> InterviewStep:
+    """Ask an earlier question again so the user can change the answer (US-05).
+
+    Raises ValueError if that question has not been answered yet.
+    """
+    return InterviewStage().go_back(state, question_id)
 
 
 def _run(stage: Stage[In, Out], inp: In) -> Out:
