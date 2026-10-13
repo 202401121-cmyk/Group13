@@ -1,0 +1,34 @@
+# Interview rules, Sprint 1 fixed order (US-05). Loaded and checked by app/interview/plan.py.
+#
+# Questions are asked one at a time in each category's default importance order (highest default_weight first).
+# The plan is worked out again from the criteria and the answers on every turn, so changing an earlier answer
+# updates the later questions by itself. US-04 replaces the order with a smarter one.
+
+# An answer at or below this weight settles its topic: the other not-yet-asked criteria in the same topic group
+# are not asked and take the same weight (marked less certain, so US-04 can still ask them later).
+low_answer_weight: 2
+
+# A criterion belongs to a group when its key or label contains one of the group's words as a whole word
+# ("support" does not match inside "supported"; "low_light" matches the words "low light").
+topic_groups:
+  - [weight, portability, size, carry]
+  - [battery, charging]
+  - [camera, video, low_light]
+  - [display, screen, brightness]
+  - [sound, audio, bass, noise]
+  - [build, durability]
+  - [warranty, after_sales, service]
+
+# Premium-tier questions are skipped when the budget's upper limit (in rupees) is below the category's
+# threshold, e.g. "under 30k" for a phone. Those criteria keep their default weight. Categories not listed have
+# no threshold. Every key must be a category slug from categories.yaml.
+budget_thresholds_inr:
+  laptop: 50000
+  smartphone: 30000
+  earbuds: 5000
+  headphones: 8000
+  smartwatch: 10000
+  television: 40000
+
+# A criterion is premium-tier when its key or label contains one of these (as whole words).
+premium_words: [premium, flagship, luxury, oled, wireless_charging, titanium, ceramic, leather]
