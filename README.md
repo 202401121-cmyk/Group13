@@ -5,7 +5,7 @@ you when it isn't sure.
 
 **AI-Powered Personalized Shopping Research Agent** · IT314 Software Engineering · Group 13
 
-[![CI](https://github.com/202401121-cmyk/AI-Powered-Personalized-Shopping-Research-Agent/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/202401121-cmyk/AI-Powered-Personalized-Shopping-Research-Agent/actions/workflows/ci.yml)
+[![CI](https://github.com/202401121-cmyk/Group13/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/202401121-cmyk/Group13/actions/workflows/ci.yml)
 
 ## What it does
 
@@ -94,8 +94,8 @@ On Windows, use Git Bash or PowerShell, and run `git config core.autocrlf false`
 ### Backend
 
 ```bash
-git clone https://github.com/202401121-cmyk/AI-Powered-Personalized-Shopping-Research-Agent.git
-cd AI-Powered-Personalized-Shopping-Research-Agent/backend
+git clone https://github.com/202401121-cmyk/Group13.git
+cd Group13/backend
 python -m venv .venv
 source .venv/bin/activate        # macOS and Linux
 source .venv/Scripts/activate    # Windows, Git Bash
