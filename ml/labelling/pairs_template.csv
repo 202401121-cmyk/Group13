@@ -1,0 +1,4 @@
+pair_id,left_title,right_title,category,product_family,label,labeller,labelled_at,notes
+p0001,"Nova Book 14 (16GB RAM, 512GB SSD, Silver)",Nova Book 14 Laptop - 16 GB / 512 GB SSD - Silver,laptop,nova-book,same,Alex,2026-10-25,only the wording differs
+p0002,"Orion X5 5G (8GB, 128GB, Blue)","Orion X5 5G (8GB, 128GB, Green)",smartphone,orion-x,variant,Alex,2026-10-25,colour differs
+p0003,Kestrel Buds 2 (Black),Kestrel Buds 2 Pro (Black),earbuds,kestrel-buds,different,Alex,2026-10-25,Pro is a different model

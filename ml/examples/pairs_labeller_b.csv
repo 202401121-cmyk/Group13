@@ -1,0 +1,51 @@
+pair_id,left_title,right_title,category,product_family,label,labeller,labelled_at,notes
+p0001,"Nova Book 14 (16GB RAM, 512GB SSD, Silver)",Nova Book 14 Laptop 16GB 512GB SSD Silver,laptop,nova-book,same,Sam,2026-10-25,
+p0002,"Nova Book 14 (16GB RAM, 512GB SSD)","Nova Book 14 (8GB RAM, 512GB SSD)",laptop,nova-book,variant,Sam,2026-10-25,RAM differs
+p0003,"Nova Book 14 (16GB, 512GB)","Nova Book 16 (16GB, 512GB)",laptop,nova-book,different,Sam,2026-10-25,14 and 16 are different models
+p0004,"Kestrel Slim 15 (16GB, 1TB SSD, Grey)",Kestrel Slim 15 Thin Laptop - 16GB / 1TB - Grey,laptop,kestrel-slim,same,Sam,2026-10-25,
+p0005,"Kestrel Slim 15 (16GB, 512GB SSD)","Kestrel Slim 15 (16GB, 1TB SSD)",laptop,kestrel-slim,variant,Sam,2026-10-25,storage differs
+p0006,"Kestrel Slim 15 (16GB, 512GB)","Orion Play 15 (16GB, 512GB)",laptop,kestrel-slim,different,Sam,2026-10-25,different brands
+p0007,"Orion Play 15 (16GB, 512GB, Black)",Orion Play 15 Gaming Laptop 16GB 512GB Shadow Black,laptop,orion-play,variant,Sam,2026-10-25,Shadow Black may be another colour
+p0008,"Orion Play 15 (16GB, 512GB)","Orion Play 17 (16GB, 512GB)",laptop,orion-play,different,Sam,2026-10-25,15 and 17 are different models
+p0009,"Aurora Air 13 (8GB, 256GB, Gold)","Aurora Air 13 Laptop (8 GB RAM, 256 GB SSD, Gold)",laptop,aurora-air,same,Sam,2026-10-25,
+p0010,"Aurora Air 13 (8GB, 256GB, Gold)","Aurora Air 13 (8GB, 256GB, Silver)",laptop,aurora-air,variant,Sam,2026-10-25,colour differs
+p0011,"Aurora Air 13 (8GB, 256GB)","Aurora Air 13 Pro (8GB, 256GB)",laptop,aurora-air,different,Sam,2026-10-25,Pro is a different model
+p0012,"Vela Pro 14 (32GB, 1TB)",Vela Pro 14 32GB RAM 1TB SSD Laptop,laptop,vela-pro,same,Sam,2026-10-25,
+p0013,"Vela Pro 14 (16GB, 1TB)","Vela Pro 14 (32GB, 1TB)",laptop,vela-pro,variant,Sam,2026-10-25,RAM differs
+p0014,"Vela Pro 14 (16GB, 512GB, India version)","Vela Pro 14 (16GB, 512GB, International version)",laptop,vela-pro,same,Sam,2026-10-25,
+p0015,"Vela Pro 14 (16GB, 512GB)","Nova Book 14 (16GB, 512GB)",laptop,vela-pro,different,Sam,2026-10-25,different brands
+p0016,"Nova Book 14 (16GB, 512GB, Silver)","Nova Book 14 2025 Edition (16GB, 512GB, Silver)",laptop,nova-book,unsure,Sam,2026-10-25,is 2025 Edition a new model?
+p0017,"Kestrel Slim 15 (16GB, 512GB, Grey)","Kestrel Slim 15 (8GB, 512GB, Grey)",laptop,kestrel-slim,variant,Sam,2026-10-25,RAM differs
+p0018,"Orion Play 15 (32GB, 1TB)","Orion Play 15 (16GB, 1TB)",laptop,orion-play,variant,Sam,2026-10-25,RAM differs
+p0019,"Orion X5 5G (8GB, 128GB, Blue)","Orion X5 5G Smartphone - 8GB RAM, 128GB Storage, Blue",smartphone,orion-x,same,Sam,2026-10-25,
+p0020,"Orion X5 5G (8GB, 128GB, Blue)","Orion X5 5G (8GB, 128GB, Green)",smartphone,orion-x,variant,Sam,2026-10-25,colour differs
+p0021,"Orion X5 5G (8GB, 128GB)","Orion X5 Max 5G (8GB, 128GB)",smartphone,orion-x,different,Sam,2026-10-25,Max is a different model
+p0022,"Orion X5 5G (8GB, 128GB, Blue)",Orion X5 5G Blue,smartphone,orion-x,unsure,Sam,2026-10-25,right title has no memory
+p0023,"Kestrel Swift 9 5G (8GB, 256GB)","Kestrel Swift 9 4G (8GB, 256GB)",smartphone,kestrel-swift,different,Sam,2026-10-25,4G and 5G are different phones
+p0024,"Kestrel Swift 9 (8GB, 256GB, Black)",Kestrel Swift 9 8GB 256GB Midnight Black,smartphone,kestrel-swift,same,Sam,2026-10-25,
+p0025,"Kestrel Swift 9 (8GB, 256GB)","Kestrel Swift 10 (8GB, 256GB)",smartphone,kestrel-swift,different,Sam,2026-10-25,9 and 10 are different models
+p0026,"Vela Edge 7 (8GB, 128GB, Silver)","Vela Edge 7 Phone, 8GB/128GB, Silver",smartphone,vela-edge,same,Sam,2026-10-25,
+p0027,"Vela Edge 7 (8GB, 128GB)","Vela Edge 7 (8GB, 256GB)",smartphone,vela-edge,variant,Sam,2026-10-25,storage differs
+p0028,"Vela Edge 7 (8GB, 128GB)","Aurora Mini 4 (8GB, 128GB)",smartphone,vela-edge,different,Sam,2026-10-25,different brands
+p0029,"Aurora Mini 4 (6GB, 128GB, Pink)",Aurora Mini 4 Smartphone 6GB 128GB Pink,smartphone,aurora-mini,same,Sam,2026-10-25,
+p0030,"Aurora Mini 4 (6GB, 128GB, Pink)","Aurora Mini 4 (6GB, 128GB, White)",smartphone,aurora-mini,variant,Sam,2026-10-25,colour differs
+p0031,"Aurora Mini 4 (6GB, 128GB)","Aurora Mini 4 Lite (6GB, 128GB)",smartphone,aurora-mini,unsure,Sam,2026-10-25,is Lite a separate model?
+p0032,"Nova One 12 (8GB, 256GB)","Nova One 12 (12GB, 256GB)",smartphone,nova-one,variant,Sam,2026-10-25,RAM differs
+p0033,"Nova One 12 (8GB, 256GB, Black)","Nova One 12 Smartphone (8 GB RAM, 256 GB, Black)",smartphone,nova-one,same,Sam,2026-10-25,
+p0034,"Nova One 12 (8GB, 256GB)","Nova One 12 Pro (8GB, 256GB)",smartphone,nova-one,different,Sam,2026-10-25,Pro is a different model
+p0035,"Kestrel Buds 2 True Wireless Earbuds, Black",Kestrel Buds 2 (Black),earbuds,kestrel-buds,same,Sam,2026-10-25,
+p0036,Kestrel Buds 2 (Black),Kestrel Buds 2 (White),earbuds,kestrel-buds,variant,Sam,2026-10-25,colour differs
+p0037,Kestrel Buds 2 (Black),Kestrel Buds 2 Pro (Black),earbuds,kestrel-buds,different,Sam,2026-10-25,Pro is a different model
+p0038,Nova Pods Air (White),Nova Pods Air Wireless Earbuds - White,earbuds,nova-pods,same,Sam,2026-10-25,
+p0039,Nova Pods Air (White),Nova Pods Air (Blue),earbuds,nova-pods,variant,Sam,2026-10-25,colour differs
+p0040,Nova Pods Air,Nova Pods Air 2,earbuds,nova-pods,different,Sam,2026-10-25,a new generation
+p0041,Orion Beat 3 (Black),"Orion Beat 3 ANC Earbuds, Black",earbuds,orion-beat,same,Sam,2026-10-25,
+p0042,Orion Beat 3,Orion Beat 3 (Limited Edition),earbuds,orion-beat,same,Sam,2026-10-25,Limited Edition looks like packaging only
+p0043,Orion Beat 3 (Black),Orion Beat 3 (Red),earbuds,orion-beat,variant,Sam,2026-10-25,colour differs
+p0044,Orion Beat 3,Vela Sound Lite,earbuds,orion-beat,different,Sam,2026-10-25,different brands
+p0045,Vela Sound Lite (Grey),Vela Sound Lite Bluetooth Earbuds Grey,earbuds,vela-sound,same,Sam,2026-10-25,
+p0046,Vela Sound Lite (Grey),Vela Sound Lite (Green),earbuds,vela-sound,variant,Sam,2026-10-25,colour differs
+p0047,Vela Sound Lite,Vela Sound Max,earbuds,vela-sound,different,Sam,2026-10-25,Max is a different model
+p0048,Aurora Tune 5 (Black),Aurora Tune 5 Earbuds (Black),earbuds,aurora-tune,same,Sam,2026-10-25,
+p0049,Aurora Tune 5 (Black),"Aurora Tune 5 (Black, Global Version)",earbuds,aurora-tune,unsure,Sam,2026-10-25,left title gives no region
+p0050,Aurora Tune 5,Aurora Tune 5 Pro,earbuds,aurora-tune,different,Sam,2026-10-25,Pro is a different model

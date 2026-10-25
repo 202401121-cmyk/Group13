@@ -30,6 +30,12 @@ frontend/src/types/contracts/
 *.onnx
 ml/checkpoints/
 ml/data/raw/
+ml/data/interim/
+ml/models/
+ml/**/*.pt
+ml/**/*.bin
+ml/**/*.safetensors
+ml/**/.ipynb_checkpoints/
 
 # OS / editors
 .DS_Store
