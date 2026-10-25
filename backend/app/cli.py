@@ -3,9 +3,12 @@
     python -m app.cli "best laptop for coding under 70k"
 
 Shows what it understood from the request (US-02) and the criteria it will compare (US-03), asks the follow-up
-question instead of searching when the product is unclear (US-01), answers the first interview question with
-"medium", runs the search pipeline and prints the shortlist. Works with no API keys: intake then uses its keyword
-rules and criteria use the product family's fallback set.
+question instead of searching when the product is unclear (US-01), runs the interview (US-05), prints the rubric,
+runs the search pipeline and prints the shortlist. Works with no API keys: intake then uses its keyword rules and
+criteria use the product family's fallback set.
+
+By default it answers "Skip" to every interview question, so the rubric uses the default weights. Add
+--interactive to answer the questions yourself.
 """
 
 from __future__ import annotations
@@ -19,19 +22,23 @@ from app.contracts import (
     CriteriaSet,
     Intent,
     InterviewState,
+    InterviewStep,
     InterviewTurn,
     Money,
+    Rubric,
     SearchRequest,
     SearchResult,
     Source,
 )
 from app.intake import EXAMPLE_REQUESTS
+from app.interview import QUICK_REPLIES
 from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
 from app.presearch import interview_turn, make_criteria, start_request
 
 CLI_SESSION_ID = "sess_cli0001"
-CLI_REPLY = "medium"
+SKIP_REPLY = "Skip"
 SOURCES_PER_PRODUCT = 2
+MAX_TURNS = 40  # a safety stop: 10 questions, each asked at most twice, plus corrections
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -42,7 +49,11 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser(prog="python -m app.cli", description="Run one ShopSense search.")
     parser.add_argument("query", help='what you want, e.g. "best laptop for coding under 70k"')
-    query: str = parser.parse_args(argv).query
+    parser.add_argument(
+        "--interactive", action="store_true", help="answer the interview questions yourself (default: skip them all)"
+    )
+    args = parser.parse_args(argv)
+    query: str = args.query
 
     intent = start_request(query)
     if not intent.ready_for_research:
@@ -52,20 +63,52 @@ def main(argv: list[str] | None = None) -> int:
 
     criteria = make_criteria(intent)
     print(criteria_block(criteria))
-    state = InterviewState(session_id=CLI_SESSION_ID, intent=intent, criteria=criteria)
-    step = interview_turn(InterviewTurn(state=state))
-    if step.question is not None:
-        print(f"Q: {step.message}")
-        print(f"A: {CLI_REPLY}")
-        step = interview_turn(InterviewTurn(state=step.state, reply_text=CLI_REPLY))
+    step = run_interview(InterviewState(session_id=CLI_SESSION_ID, intent=intent, criteria=criteria), args.interactive)
     if step.rubric is None:
         print("The interview did not finish, so there is nothing to search yet.")
         return 1
+    print(rubric_block(step.rubric, criteria))
 
     request = SearchRequest(session_id=CLI_SESSION_ID, raw_query=query, rubric=step.rubric)
     result = PipelineRunner(default_search_stages(), InMemoryResultStore()).run(request)
     print(render(result))
     return 0
+
+
+def run_interview(state: InterviewState, interactive: bool) -> InterviewStep:
+    """Ask every question in turn. Non-interactive runs answer "Skip", so the rubric keeps the default weights."""
+    step = interview_turn(InterviewTurn(state=state))
+    for _ in range(MAX_TURNS):
+        if step.kind == "finished" or step.question is None:
+            break
+        print(f"Q: {step.message}")
+        if interactive:
+            print(f"   ({' / '.join(QUICK_REPLIES)}, or a number from 0 to 10)")
+            answer = _read_answer()
+        else:
+            answer = SKIP_REPLY
+            print(f"A: {answer}")
+        step = interview_turn(InterviewTurn(state=step.state, reply_text=answer))
+    return step
+
+
+def _read_answer() -> str:
+    try:
+        answer = input("A: ").strip()[:500]
+    except EOFError:  # no terminal input left: treat as a skip rather than stop
+        return SKIP_REPLY
+    return answer or SKIP_REPLY
+
+
+def rubric_block(rubric: Rubric, criteria: CriteriaSet) -> str:
+    """Each criterion's weight, its share of the score, and where the weight came from."""
+    labels = {c.key: c.label for c in criteria.criteria}
+    lines = ["Rubric (what matters to you):"]
+    lines += [
+        f"  - {labels.get(w.key, w.key)}: {w.weight:g}/10, {w.normalized:.0%} of the score ({w.origin})"
+        for w in rubric.weights
+    ]
+    return "\n".join(lines)
 
 
 def describe(intent: Intent) -> str:
