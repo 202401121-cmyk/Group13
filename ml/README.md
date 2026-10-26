@@ -4,8 +4,12 @@ The ML track of ShopSense: labelled data, labelling tools and model cards for th
 matching first, then US-16, US-04, US-19, US-06, US-22 and the stretch US-36).
 
 The backend never imports anything from here. Trained models reach the app through the stage code in `backend/app/`,
-behind the same contracts and fallbacks as every other stage. The scripts here use the Python standard library only
-(Python 3.11 or newer, Windows included), so they run without the backend's virtual environment.
+behind the same contracts and fallbacks as every other stage. `check_labels.py` and `kappa.py` use the Python standard
+library only (Python 3.11 or newer, Windows included). The matching baseline also needs `ml/requirements.txt`
+(rapidfuzz and numpy, pinned).
+
+The matching evaluation (#13) lives in `ml/scripts/` and `ml/tests/`, not in the sprint plan's `evals/matching/`
+folder, because the CI `ml` job already lints, type-checks and tests those folders, with no new setup.
 
 > Note: `examples/pairs_labeller_a.csv` and `examples/pairs_labeller_b.csv` are synthetic, made up only to test the
 > scripts. They are NOT training data.
@@ -19,11 +23,16 @@ ml/
 ├── MODELS.md            # one card per model: story, owner, type, data, baseline, target, sprint
 ├── labelling/
 │   └── pairs_template.csv     # header row and 3 example rows; copy it to start labelling
+├── requirements.txt     # rapidfuzz and numpy for the matching baseline (pinned)
 ├── scripts/
 │   ├── check_labels.py  # checks labelling CSV files and prints a summary
-│   └── kappa.py         # Cohen's kappa between two labellers on the same pairs
+│   ├── kappa.py         # Cohen's kappa between two labellers on the same pairs
+│   ├── pairsets.py      # loads our pairs, WDC Products, Abt-Buy and Amazon-Google into one Pair type
+│   ├── match_metrics.py # precision, recall, F1 at every threshold; the threshold choice on dev
+│   └── match_baseline.py  # the fuzzy title baseline: python ml/scripts/match_baseline.py all
+├── results/             # small result files with numbers only, such as matching_baseline.json
 ├── examples/            # synthetic files for testing the scripts only (see the note above)
-├── tests/               # pytest tests for the scripts
+├── tests/               # pytest tests for the scripts; tests/fixtures/ holds tiny made-up files
 ├── data/                # local data; raw/ and interim/ are git-ignored (see data/README.md)
 └── models/              # local model checkpoints; git-ignored, never committed
 ```
@@ -39,7 +48,12 @@ python ml/scripts/check_labels.py ml/labelling/pairs_template.csv
 # Compare two labellers who labelled the same pairs. --min makes the exit code 1 if kappa is too low.
 python ml/scripts/kappa.py ml/examples/pairs_labeller_a.csv ml/examples/pairs_labeller_b.csv --min 0.8
 
-# Tests (pytest comes with the backend's dev install: cd backend && pip install -e ".[dev]")
+# The fuzzy title baseline on every pair set (needs the raw data, ml/DATA.md section 7.4). Exit code 2 = a file is missing.
+pip install -r ml/requirements.txt
+python ml/scripts/match_baseline.py all --out ml/results/matching_baseline.json
+python ml/scripts/match_baseline.py own ml/labelling/<file>.csv [<second labeller's file>.csv]
+
+# Tests (pytest comes with the backend's dev install: pip install -e "backend[dev]" -r ml/requirements.txt)
 python -m pytest ml/tests -q
 ```
 

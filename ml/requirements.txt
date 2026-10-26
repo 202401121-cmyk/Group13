@@ -1,0 +1,5 @@
+# The matching baseline (ml/scripts/match_baseline.py). Pinned exactly, like the backend dev tools, so CI cannot change
+# under us. check_labels.py and kappa.py still need nothing beyond the standard library.
+# numpy 2.5+ needs Python 3.12; CI runs 3.11. Move to 2.5 when CI does.
+numpy==2.4.6
+rapidfuzz==3.14.6

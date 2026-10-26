@@ -84,7 +84,7 @@ jobs:
           cache: pip
           cache-dependency-path: backend/pyproject.toml
       - name: Install
-        run: pip install -e "backend[dev]"
+        run: pip install -e "backend[dev]" -r ml/requirements.txt
       - name: Lint
         run: |
           ruff check --config backend/pyproject.toml ml

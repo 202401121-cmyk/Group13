@@ -1,0 +1,7 @@
+pair_id,left_title,right_title,category,product_family,label,labeller,labelled_at,notes
+p0001,"Nova Book 14 (16GB RAM, 512GB SSD, Silver)",Nova Book 14 Laptop 16GB 512GB SSD Silver,laptop,nova-book,same,Alex,2026-10-27,
+p0002,"Nova Book 14 (16GB RAM, 512GB SSD)","Nova Book 14 (8GB RAM, 512GB SSD)",laptop,nova-book,variant,Alex,2026-10-27,
+p0003,"Orion X5 5G (8GB, 128GB, Blue)",Orion X5 5G Blue,smartphone,orion-x,unsure,Alex,2026-10-27,
+p0004,Kestrel Buds 2 (Black),Kestrel Buds 2 Pro (Black),earbuds,kestrel-buds,same,Alex,2026-10-27,
+p0005,Vela Sound Lite (Grey),Aurora Tune 5 (Black),earbuds,vela-sound,different,Alex,2026-10-27,
+p0006,"Aurora Air 13 (8GB, 256GB, Gold)","Aurora Air 13 Laptop (8 GB RAM, 256 GB SSD, Gold)",laptop,aurora-air,same,Alex,2026-10-27,
