@@ -1,0 +1,2 @@
+# Keep these test files byte-exact: the Leipzig-format CSVs must stay CRLF and Latin-1, and gzip is binary.
+* -text
