@@ -1,5 +1,5 @@
 # Runs on every pull request and every push to main. Branch protection on main should require
-# the "backend" and "secrets" jobs (and "frontend" once the app exists) to pass before merging.
+# the "backend", "ml" and "secrets" jobs (and "frontend" once the app exists) to pass before merging.
 name: CI
 
 on:
@@ -65,6 +65,28 @@ jobs:
           git diff --exit-code -- ../shared/contracts || {
             echo "::error::shared/contracts is out of date. Run 'python -m scripts.export_contracts' and commit.";
             exit 1; }
+
+  # The ml/ workspace (ML-0): standard-library scripts checked with the backend's dev tools and settings.
+  # Runs from the repository root, so the backend's config is passed explicitly.
+  ml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - name: Install
+        run: pip install -e "backend[dev]"
+      - name: Lint
+        run: |
+          ruff check --config backend/pyproject.toml ml
+          ruff format --check --config backend/pyproject.toml ml
+      - name: Types
+        run: mypy --config-file backend/pyproject.toml --strict ml/scripts ml/tests
+      - name: Tests
+        run: python -m pytest ml/tests -q
 
   secrets:
     runs-on: ubuntu-latest
