@@ -14,6 +14,9 @@ dependencies = [
     "httpx>=0.27",
     "python-dotenv>=1.0",
     "pyyaml>=6.0",
+    # The Postgres request store (US-01). Pinned exactly: the driver decides how timeouts behave.
+    "psycopg[binary]==3.3.6",
+    "psycopg-pool==3.3.3",
 ]
 # Stories add their own libraries when they need them (for example praw, sentence-transformers,
 # rapidfuzz, pyahocorasick, numpy, slowapi). Add them here in the same pull request.

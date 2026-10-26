@@ -54,6 +54,8 @@ class RequestStore(Protocol):
 
     def health(self) -> DbHealth: ...
 
+    def close(self) -> None: ...
+
 
 class NullRequestStore:
     """The database is off (no DATABASE_URL): everything works and nothing is saved."""
@@ -63,6 +65,9 @@ class NullRequestStore:
 
     def health(self) -> DbHealth:
         return "off"
+
+    def close(self) -> None:
+        pass
 
 
 class InMemoryRequestStore:
@@ -86,3 +91,6 @@ class InMemoryRequestStore:
 
     def health(self) -> DbHealth:
         return "down" if self.fail else "ok"
+
+    def close(self) -> None:
+        pass
