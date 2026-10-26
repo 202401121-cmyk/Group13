@@ -87,6 +87,29 @@ jobs:
         run: mypy --config-file backend/pyproject.toml --strict ml/scripts ml/tests
       - name: Tests
         run: python -m pytest ml/tests -q
+      - name: Smoke runs
+        run: |
+          python ml/scripts/check_labels.py ml/labelling/pairs_template.csv ml/examples/pairs_labeller_a.csv ml/examples/pairs_labeller_b.csv
+          python ml/scripts/kappa.py ml/examples/pairs_labeller_a.csv ml/examples/pairs_labeller_b.csv --min 0.8
+      # git ls-files reads the index, so this also catches a file forced in with "git add -f" past .gitignore.
+      - name: No raw data or model files tracked
+        run: |
+          tracked=$(git ls-files -- ml/data/raw ml/models)
+          if [ -n "$tracked" ]; then
+            echo "::error::Raw data or model files are tracked. Untrack them with 'git rm --cached' (see ml/data/README.md):"
+            echo "$tracked"
+            exit 1
+          fi
+          limit=1048576  # 1 MiB
+          too_big=0
+          while IFS= read -r -d '' f; do
+            size=$(wc -c < "$f")
+            if [ "$size" -gt "$limit" ]; then
+              echo "::error file=$f::$f is $size bytes; tracked files under ml/ must be 1 MiB ($limit bytes) or less."
+              too_big=1
+            fi
+          done < <(git ls-files -z -- ml)
+          exit "$too_big"
 
   secrets:
     runs-on: ubuntu-latest
