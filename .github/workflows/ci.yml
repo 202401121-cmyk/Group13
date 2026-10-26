@@ -7,6 +7,11 @@ on:
   push:
     branches: [main]
 
+# Every job only reads the code: checkout fetches it, and TruffleHog scans that clone using the commit SHAs in
+# the event payload, without calling the GitHub API. So the token gets nothing else.
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -70,6 +75,7 @@ jobs:
   # Runs from the repository root, so the backend's config is passed explicitly.
   ml:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
