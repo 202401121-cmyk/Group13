@@ -40,6 +40,7 @@ testpaths = ["tests"]
 addopts = "-q --strict-markers"
 markers = [
     "live: calls a real external API; never runs in CI (use only in evals/online)",
+    "db: needs a Postgres from TEST_DATABASE_URL; skipped without it, failed without it when REQUIRE_DB_TESTS=1",
 ]
 
 [tool.ruff]
