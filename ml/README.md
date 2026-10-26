@@ -51,7 +51,10 @@ ruff check ../ml && ruff format --check ../ml
 mypy --strict ../ml/scripts
 ```
 
-CI does not run `ml/tests` yet.
+CI: the `ml` job in [.github/workflows/ci.yml](../.github/workflows/ci.yml) runs on every pull request and every
+push to main, on Python 3.11. It runs ruff, ruff format and mypy (with `backend/pyproject.toml`), the tests, both
+scripts on the example files, and a guard that fails if anything in `ml/data/raw/` or `ml/models/` is tracked or
+any tracked file under `ml/` is over 1 MiB.
 
 ## Rules
 
