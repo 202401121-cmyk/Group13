@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from app.cli import main
+from app.db import InMemoryRequestStore
 
 
 def test_cli_prints_a_ranked_list_with_sources(capsys: pytest.CaptureFixture[str]) -> None:
@@ -64,3 +65,51 @@ def test_cli_interactive_reads_answers(capsys: pytest.CaptureFixture[str], monke
     assert "Please pick one of the buttons, or type a number from 0 to 10." in out
     assert "  - Processor speed: 8/10, " in out and "(answered)" in out
     assert "  - RAM and storage: 3/10, " in out
+
+
+# --- saving the request (US-01); tests/conftest.py keeps the real database out -------------------------------
+
+
+def _store(monkeypatch: pytest.MonkeyPatch, fail: bool = False) -> InMemoryRequestStore:
+    store = InMemoryRequestStore(fail=fail)
+    monkeypatch.setattr("app.db.default_request_store", lambda: store)
+    return store
+
+
+def test_cli_saves_the_request_once_with_a_new_session_id(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    store = _store(monkeypatch)
+    assert main(["best laptop for coding under 70k"]) == 0
+    [row] = store.rows
+    assert f"Saved: yes (session {row.session_id})" in capsys.readouterr().out
+    assert row.request_text == "best laptop for coding under 70k"
+    assert row.intent is not None and row.intent.category == "laptop"
+    assert main(["best laptop for coding under 70k"]) == 0
+    assert store.rows[1].session_id != row.session_id  # every run is its own session
+
+
+def test_cli_no_db_does_not_save(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    store = _store(monkeypatch)
+    assert main(["best laptop for coding under 70k", "--no-db"]) == 0
+    assert "Saved: no, the database is off (no DATABASE_URL)" in capsys.readouterr().out
+    assert store.rows == []
+
+
+def test_cli_still_searches_when_the_database_is_down(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _store(monkeypatch, fail=True)
+    assert main(["best laptop for coding under 70k"]) == 0
+    out = capsys.readouterr().out
+    assert "Saved: no, the database could not be reached. The search goes on." in out
+    assert "1. Nova Book 14" in out
+
+
+def test_cli_saves_an_unclear_request_without_an_intent(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    store = _store(monkeypatch)
+    assert main(["watch under 5k"]) == 1
+    [row] = store.rows
+    assert row.intent is None and row.intent_source == "rules"

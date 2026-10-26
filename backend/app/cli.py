@@ -9,6 +9,9 @@ criteria use the product family's fallback set.
 
 By default it answers "Skip" to every interview question, so the rubric uses the default weights. Add
 --interactive to answer the questions yourself.
+
+The request is saved once, with a new session ID, when DATABASE_URL is set (US-01). A database that is off, down
+or slow never stops the search; --no-db skips it altogether.
 """
 
 from __future__ import annotations
@@ -17,6 +20,8 @@ import argparse
 import io
 import sys
 
+from app import db
+from app.api.sessions import new_session_id
 from app.contracts import (
     Budget,
     CriteriaSet,
@@ -35,7 +40,6 @@ from app.interview import QUICK_REPLIES
 from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
 from app.presearch import interview_turn, make_criteria, start_request
 
-CLI_SESSION_ID = "sess_cli0001"
 SKIP_REPLY = "Skip"
 SOURCES_PER_PRODUCT = 2
 MAX_TURNS = 40  # a safety stop: 10 questions, each asked at most twice, plus corrections
@@ -52,10 +56,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--interactive", action="store_true", help="answer the interview questions yourself (default: skip them all)"
     )
+    parser.add_argument("--no-db", action="store_true", help="do not save the request, even if DATABASE_URL is set")
     args = parser.parse_args(argv)
     query: str = args.query
+    store = db.NullRequestStore() if args.no_db else db.default_request_store()
+    try:
+        return run(query, args.interactive, store)
+    finally:
+        store.close()
 
+
+def run(query: str, interactive: bool, store: db.RequestStore) -> int:
+    session_id = new_session_id()
     intent = start_request(query)
+    print(saved_line(store.save_request(session_id, query, intent), session_id))
     if not intent.ready_for_research:
         print(clarification(intent))
         return 1  # no research until the category is known (US-01)
@@ -63,16 +77,25 @@ def main(argv: list[str] | None = None) -> int:
 
     criteria = make_criteria(intent)
     print(criteria_block(criteria))
-    step = run_interview(InterviewState(session_id=CLI_SESSION_ID, intent=intent, criteria=criteria), args.interactive)
+    step = run_interview(InterviewState(session_id=session_id, intent=intent, criteria=criteria), interactive)
     if step.rubric is None:
         print("The interview did not finish, so there is nothing to search yet.")
         return 1
     print(rubric_block(step.rubric, criteria))
 
-    request = SearchRequest(session_id=CLI_SESSION_ID, raw_query=query, rubric=step.rubric)
+    request = SearchRequest(session_id=session_id, raw_query=query, rubric=step.rubric)
     result = PipelineRunner(default_search_stages(), InMemoryResultStore()).run(request)
     print(render(result))
     return 0
+
+
+def saved_line(outcome: db.SaveOutcome, session_id: str) -> str:
+    """One line on whether the request reached the database. Never the URL or the error details."""
+    if outcome == "saved":
+        return f"Saved: yes (session {session_id})"
+    if outcome == "off":
+        return "Saved: no, the database is off (no DATABASE_URL)"
+    return "Saved: no, the database could not be reached. The search goes on."
 
 
 def run_interview(state: InterviewState, interactive: bool) -> InterviewStep:

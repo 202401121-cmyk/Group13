@@ -99,3 +99,9 @@ def test_the_default_store_is_off_without_a_url_and_postgres_with_one(monkeypatc
     assert built is real_default_request_store()  # one store per process
     built.close()
     real_default_request_store.cache_clear()
+
+
+def test_a_closed_store_fails_without_raising(store: PostgresRequestStore) -> None:
+    store.close()
+    assert store.save_request(SESSION, ex.QUERY, None) == "failed"
+    assert store.health() == "down"

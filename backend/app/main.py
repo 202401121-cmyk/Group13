@@ -1,7 +1,8 @@
 """The HTTP API: a health check, the search endpoint (US-52) and the pre-search routes (US-05).
 
 Run: uvicorn app.main:app --reload
-No auth and no database yet. CORS allows only FRONTEND_ORIGIN (default http://localhost:3000).
+No auth yet. Requests are saved to Postgres when DATABASE_URL is set (US-01); the health check reports the
+database as "ok", "off" or "down". CORS allows only FRONTEND_ORIGIN (default http://localhost:3000).
 """
 
 from __future__ import annotations
@@ -13,6 +14,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app import db
 from app.api import presearch_router
 from app.api.presearch import plain_validation_message
 from app.contracts import SCHEMA_VERSION, SearchRequest, SearchResult
@@ -24,7 +26,8 @@ store = InMemoryResultStore()
 
 
 def health() -> dict[str, str]:
-    return {"status": "ok", "schema_version": SCHEMA_VERSION}
+    # A plain `def`: the database check (at most DB_TIMEOUT_SECONDS) runs in the thread pool, not the event loop.
+    return {"status": "ok", "schema_version": SCHEMA_VERSION, "database": db.default_request_store().health()}
 
 
 def search(request: SearchRequest) -> SearchResult:

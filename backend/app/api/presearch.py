@@ -2,6 +2,8 @@
 
 The frontend (US-01's request box, Manu's chat window) calls these routes; docs/api/presearch.md documents them.
 Each route runs the same stages as the CLI, through app/presearch.py, so time limits and fallbacks apply.
+Each new request is saved once, with its session ID, through the request store (US-01); a database that is off,
+down or slow never stops the route (build rule 10).
 Dependencies come from small functions so tests can swap in fakes. Error messages are plain sentences: never a
 stack trace, a key or prompt text.
 """
@@ -14,6 +16,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from app import db
 from app import presearch as flow
 from app.contracts import CriteriaSet, Intent, InterviewState, InterviewStep, InterviewTurn, LLMClient
 from app.criteria import CriteriaStore
@@ -48,7 +51,12 @@ def get_session_store() -> SessionStore:
     return _sessions
 
 
+def get_request_store() -> db.RequestStore:
+    return db.default_request_store()
+
+
 Sessions = Annotated[SessionStore, Depends(get_session_store)]
+Requests = Annotated[db.RequestStore, Depends(get_request_store)]
 LLM = Annotated[LLMClient, Depends(get_llm)]
 Store = Annotated[CriteriaStore, Depends(get_criteria_store)]
 
@@ -91,22 +99,29 @@ class BackRequest(BaseModel):
 
 
 @router.post("/intake", response_model=IntakeResponse)
-def intake(body: IntakeRequest, sessions: Sessions, llm: LLM) -> IntakeResponse:
-    """A new request, or the reply to our clarification question (US-01, US-02)."""
+def intake(body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests) -> IntakeResponse:
+    """A new request, or the reply to our clarification question (US-01, US-02).
+
+    A new request is saved once with its session ID; a clarification reply is the same request, so no new row.
+    """
     session = _load(sessions, body.session_id) if body.session_id else None
+    session_id = session.session_id if session else new_session_id()
     if session is not None and session.intent is not None and session.intent.needs_clarification:
         request, attempts = session.request, session.unclear_attempts
         intent = flow.start_request(request, body.text[:MAX_REPLY_CHARS], attempts, llm=llm)
+        request_saved = session.request_saved
     else:
         request, attempts = body.text, 0  # a new search, or a fresh request in the same session
         intent = flow.start_request(request, llm=llm)
+        request_saved = requests.save_request(session_id, request, intent)  # never raises, never slow
     if intent.needs_clarification:
         attempts = min(attempts + 1, MAX_UNCLEAR_ATTEMPTS)  # the second unclear reply shows example requests
     saved = PresearchSession(
-        session_id=session.session_id if session else new_session_id(),
+        session_id=session_id,
         request=request,
         unclear_attempts=attempts,
         intent=intent,
+        request_saved=request_saved,
     )
     sessions.put(saved)
     return IntakeResponse(session_id=saved.session_id, intent=intent, ready_for_research=intent.ready_for_research)

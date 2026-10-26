@@ -74,7 +74,11 @@ class PostgresRequestStore:
         """Run `work` on a worker thread and wait at most DB_TIMEOUT_SECONDS. Never raises."""
         if not self.breaker.allow():
             return False
-        future = self._workers.submit(work)
+        try:
+            future = self._workers.submit(work)
+        except RuntimeError:  # the store was closed (the CLI closes it when it is done)
+            self.breaker.record_success()  # not a database failure: just give back the trial slot
+            return False
         try:
             future.result(timeout=self._timeout_s)
         except Exception as exc:  # a timeout, a refused connection, a bad password, a paused project, ...
