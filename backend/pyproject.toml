@@ -22,8 +22,9 @@ dependencies = [
 dev = [
     "pytest>=8",
     "pytest-cov>=5",
-    "ruff>=0.6",
-    "mypy>=1.11",
+    # Pinned so a new release can't turn CI red; upgrade them on purpose, in their own pull request.
+    "ruff==0.17.2",
+    "mypy==2.4.0",
 ]
 
 # Only `app` is installed. Listing it explicitly means other folders in backend/ (config/, scripts/, tests/,
