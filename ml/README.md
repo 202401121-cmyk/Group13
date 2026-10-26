@@ -57,6 +57,16 @@ python ml/scripts/match_baseline.py own ml/labelling/<file>.csv [<second labelle
 python -m pytest ml/tests -q
 ```
 
+On Windows, keep the virtual environment path short (for example `C:\venvs\shopsense`). Otherwise installing
+numpy fails with WinError 206 (path too long). The other fix is to turn on long paths once, in PowerShell as
+administrator:
+
+```powershell
+New-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name LongPathsEnabled -Value 1 -PropertyType DWORD -Force
+```
+
+then open a new terminal (restart Windows if it still fails).
+
 Lint and type checks use the backend's settings in `backend/pyproject.toml`, so run them from `backend/`:
 
 ```bash
