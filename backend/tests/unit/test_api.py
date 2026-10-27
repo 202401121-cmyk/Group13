@@ -14,7 +14,8 @@ client = TestClient(app)
 def test_health() -> None:
     response = client.get("/api/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "schema_version": C.SCHEMA_VERSION}
+    # Tests run with the database off (tests/conftest.py), so health reports it as "off".
+    assert response.json() == {"status": "ok", "schema_version": C.SCHEMA_VERSION, "database": "off"}
 
 
 def test_search_returns_a_valid_search_result() -> None:

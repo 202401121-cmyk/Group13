@@ -48,9 +48,11 @@ POST /api/presearch/{id}/interview/back   (any time) → ask an earlier question
 
 ### GET /api/health
 
-Checks the server is up.
+Checks the server is up, and whether the database can be reached (US-01).
 
-- **Response 200:** `{"status": "ok", "schema_version": "1.0.0"}`
+- **Response 200:** `{"status": "ok", "schema_version": "1.0.0", "database": "ok"}`
+- `database` is `"ok"`, `"off"` (no `DATABASE_URL`: nothing is saved, everything else works) or `"down"` (set up
+  but not reachable right now; searches still finish). Nothing else about the database is shown.
 
 ```bash
 curl -s http://localhost:8000/api/health
@@ -178,6 +180,10 @@ curl -s -X POST http://localhost:8000/api/presearch/$SID/interview/back \
 Everything about the session, for a page reload: `request`, `unclear_attempts`, `intent`, `criteria`,
 `interview` (the `InterviewState`) and `interview_step` (the latest step: redraw the current question, or the
 finished rubric). Fields not reached yet are `null`.
+
+`request_saved` says whether the request reached the database (US-01): `"saved"`, `"off"` (no database is set
+up) or `"failed"` (the database was down or slow; the search carries on). It is `null` until the first request.
+This is about the request only; `SearchResult.saved` is about saving search results, which comes later.
 
 - **Errors:** 404.
 

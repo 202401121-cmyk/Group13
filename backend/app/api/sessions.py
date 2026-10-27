@@ -18,6 +18,7 @@ from typing import Protocol
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.contracts import CriteriaSet, Intent, InterviewState, InterviewStep
+from app.db import SaveOutcome
 
 SESSION_TTL_S = 2 * 60 * 60  # a session not used for 2 hours expires
 MAX_SESSIONS = 1_000  # beyond this, the session unused for longest is dropped first
@@ -41,6 +42,9 @@ class PresearchSession(BaseModel):
     criteria: CriteriaSet | None = None
     interview: InterviewState | None = None
     interview_step: InterviewStep | None = Field(default=None, description="The latest step, for a page reload")
+    request_saved: SaveOutcome | None = Field(
+        default=None, description="Whether the request reached the database: saved, off (no database) or failed"
+    )
 
     def changed(self, **changes: object) -> PresearchSession:
         """A validated copy with some fields changed (the model is frozen)."""

@@ -1,7 +1,8 @@
 # Database migrations
 
 This folder holds every change to the database schema, as SQL files that run in order.
-It is empty for now: the first table arrives with US-30.
+The first table is `public.requests` (US-01, #14): one row per shopper request. See [docs/database.md](../../docs/database.md)
+for how migrations are applied to the Supabase project.
 
 ## How to add a change
 

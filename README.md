@@ -137,8 +137,8 @@ python -m evals.criteria.run_live    # generated criteria for six example briefs
 
 ## Configuration
 
-Copy `.env.example` to `.env` and fill in only what your story needs. Today the code reads only the four LLM
-keys, through `backend/config/models.yaml`; the rest are for stories still to come.
+Copy `.env.example` to `.env` and fill in only what your story needs. Today the code reads the four LLM keys,
+through `backend/config/models.yaml`, and the two database settings; the rest are for stories still to come.
 
 | Variable | What it is for | Read by code today |
 |---|---|---|
@@ -157,7 +157,8 @@ keys, through `backend/config/models.yaml`; the rest are for stories still to co
 | `SUPABASE_URL` | The team's Supabase project | No (US-30) |
 | `SUPABASE_ANON_KEY` | Supabase public key | No (US-30) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase admin key; backend only, never in the browser | No (US-30) |
-| `DATABASE_URL` | Postgres connection string from Supabase | No (US-30) |
+| `DATABASE_URL` | Supabase session-pooler connection string; empty = database off ([docs/database.md](docs/database.md)) | Yes (US-01) |
+| `DB_TIMEOUT_SECONDS` | How long one request save may take, default 2 | Yes (US-01) |
 | `NEXT_PUBLIC_API_URL` | Where the browser app finds the backend | No (frontend not built) |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project for browser login | No (US-30) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public key for browser login | No (US-30) |
