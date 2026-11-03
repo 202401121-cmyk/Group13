@@ -19,4 +19,4 @@ The timestamp keeps the files in the order they must run. Use a short, plain nam
 
 - **Never edit a migration that is already merged.** Other members' databases and the shared one have already
   run it, so a change to it would never reach them. Write a new migration that makes the change instead.
-- **The Data & Evaluation Engineer owns migrations.**
+- **The Backend Engineer who owns the database (Vaishvi Mehta) owns migrations.**
