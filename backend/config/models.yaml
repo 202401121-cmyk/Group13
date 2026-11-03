@@ -11,7 +11,8 @@
 # routes:    the providers each call may use, in order, by data class and difficulty (US-46). See below.
 #
 # Free-tier limits change without notice. Run `python -m scripts.smoke_llm` and copy what you see into
-# docs/api-setup.md, then remove the UNVERIFIED comment from each row you confirmed.
+# docs/api-setup.md, then remove the UNVERIFIED comment from each row you confirmed. The routing rules (data
+# classes, difficulties and why each provider is where it is) are written up in docs/api-setup.md.
 
 providers:
   # "Groq does not retain customer data for inference requests"; its services agreement (section 4.2) does not
