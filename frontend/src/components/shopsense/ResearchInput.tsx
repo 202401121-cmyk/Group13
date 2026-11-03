@@ -1,22 +1,26 @@
 import { useState, type FormEvent } from "react";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import { Card, PillButton } from "./ui";
 
+/**
+ * The home page request box. It starts the real flow: the request page receives the text and reads it at
+ * once. The text travels in the browser's history state, never in the address, because it may be personal.
+ */
 export function ResearchInput() {
+  const navigate = useNavigate();
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
-  const [submitted, setSubmitted] = useState<string | null>(null);
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     const q = value.trim();
     if (!q) {
       setError("Tell us a little about what you're looking for first.");
-      setSubmitted(null);
       return;
     }
     setError("");
-    setSubmitted(q);
+    void navigate({ to: "/research", state: (prev) => ({ ...prev, request: q }) });
   }
 
   return (
@@ -54,21 +58,6 @@ export function ResearchInput() {
             Start my research <ArrowRight className="h-4 w-4" />
           </PillButton>
         </div>
-        {submitted && (
-          <div
-            role="status"
-            className="mt-6 flex gap-3 rounded-2xl border border-primary/20 bg-accent p-5 text-accent-foreground"
-          >
-            <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
-            <div>
-              <p className="font-medium">Request captured</p>
-              <p className="mt-1 text-sm">"{submitted}"</p>
-              <p className="mt-2 text-xs opacity-80">
-                Live research isn't available yet — criteria refinement is coming next.
-              </p>
-            </div>
-          </div>
-        )}
       </form>
     </Card>
   );

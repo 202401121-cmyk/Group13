@@ -60,7 +60,8 @@
   --secondary: oklch(0.945 0.008 95);
   --secondary-foreground: oklch(0.331 0.031 166);
   --muted: oklch(0.945 0.008 95);
-  --muted-foreground: oklch(0.53 0.008 110); /* Secondary Text #777970 */
+  /* Secondary text #5E5E59: at least 4.5:1 on background, muted, secondary and accent (test/contrast.test.ts) */
+  --muted-foreground: oklch(0.48 0.008 110);
   --accent: oklch(0.895 0.017 133.8);
   --accent-foreground: oklch(0.38 0.045 158);
   --destructive: oklch(0.52 0.17 27);
@@ -96,7 +97,7 @@
   --secondary: oklch(0.32 0.02 155);
   --secondary-foreground: oklch(0.955 0.008 95);
   --muted: oklch(0.32 0.02 155);
-  --muted-foreground: oklch(0.72 0.015 140);
+  --muted-foreground: oklch(0.75 0.015 140); /* #A9B0A7: at least 4.5:1, as in light mode */
   --accent: oklch(0.37 0.03 155);
   --accent-foreground: oklch(0.9 0.03 150);
   --destructive: oklch(0.72 0.15 25);

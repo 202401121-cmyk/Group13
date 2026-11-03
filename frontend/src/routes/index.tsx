@@ -109,22 +109,23 @@ function Index() {
                 <div
                   key={a.value}
                   data-reveal
-                  className="interactive-card flex items-start gap-4 rounded-2xl border border-border bg-card p-6 shadow-soft"
+                  className="interactive-card grid grid-cols-[2.5rem_1fr] items-center gap-x-4 gap-y-1 rounded-2xl border border-border bg-card p-6 shadow-soft"
                 >
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-soft text-primary-soft-foreground">
-                    <a.icon className="h-4 w-4" aria-hidden />
-                  </span>
-                  <div className="flex flex-col-reverse">
-                    <dt className="mt-1 font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
-                      {a.label}
-                    </dt>
+                  {/* A div in a <dl> may hold only <dt> then <dd>: the grid shows the value first. */}
+                  <dt className="col-start-2 row-start-2 font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
+                    {a.label}
+                  </dt>
+                  <dd className="col-span-2 row-start-1 flex items-center gap-4">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-soft text-primary-soft-foreground">
+                      <a.icon className="h-4 w-4" aria-hidden />
+                    </span>
                     <Typewriter
-                      as="dd"
+                      as="span"
                       className="font-serif text-2xl text-foreground"
                       speed={60}
                       segments={[a.value]}
                     />
-                  </div>
+                  </dd>
                 </div>
               ))}
             </dl>

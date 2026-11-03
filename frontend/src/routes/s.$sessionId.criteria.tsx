@@ -6,6 +6,7 @@ import { BriefPanel } from "@/components/request/BriefPanel";
 import { InlineError, MissingSession, PageLoading } from "@/components/interview/shared";
 import { useInterview } from "@/lib/interview/useInterview";
 import { briefCriteria } from "@/lib/interview/view";
+import { inSentence } from "@/lib/text";
 
 export const Route = createFileRoute("/s/$sessionId/criteria")({
   head: () => ({
@@ -44,7 +45,7 @@ function CriteriaPage() {
       </PageShell>
     );
 
-  const category = (session.brief.product ?? "product").toLowerCase();
+  const category = inSentence(session.brief.product ?? "product");
   const loading = state.phase === "loading-criteria";
   const failed = state.phase === "criteria-error";
   const started = state.step !== null;

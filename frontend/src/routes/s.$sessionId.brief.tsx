@@ -13,6 +13,7 @@ import { saveSession } from "@/lib/session/store";
 import { rubricForBrief, weightRows } from "@/lib/results/rubric";
 import { researchServiceInfo, startResearch, useResearch } from "@/lib/results/controller";
 import { MOCK_SCENARIOS } from "@/lib/results/mockService";
+import { inSentence } from "@/lib/text";
 
 export const Route = createFileRoute("/s/$sessionId/brief")({
   head: () => ({
@@ -54,7 +55,7 @@ function BriefReview() {
       </PageShell>
     );
 
-  const category = (session.brief.product ?? "product").toLowerCase();
+  const category = inSentence(session.brief.product ?? "product");
   // Live mode shows the backend's own weights, which exist only once the interview is finished.
   const rubric = rubricForBrief(state, !info.isMock);
   const rows = weightRows(rubric ?? []);

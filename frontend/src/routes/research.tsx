@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useReducer, useRef, useState } from "react";
 import { PageShell } from "@/components/shopsense/PageShell";
 import { RequestForm } from "@/components/request/RequestForm";
@@ -63,6 +63,23 @@ function ResearchPage() {
     }
     setHydrated(true);
   }, []);
+
+  // A request typed in the home page box arrives in history state: read it once, as a fresh request.
+  const incoming = useLocation({ select: (l) => l.state.request });
+  useEffect(() => {
+    if (!hydrated || !incoming) return;
+    dispatch({ type: "USE_EXAMPLE", text: incoming });
+    dispatch({ type: "SUBMIT" });
+    // Clear it, so a reload or going back does not send it again.
+    void navigate({
+      to: "/research",
+      replace: true,
+      state: (prev) => {
+        const { request: _sent, ...rest } = prev;
+        return rest;
+      },
+    });
+  }, [hydrated, incoming, navigate]);
 
   useEffect(() => {
     if (!hydrated) return;

@@ -33,6 +33,7 @@ import {
 } from "@/lib/results/controller";
 import { formatElapsed, isStageDone, type ResearchState } from "@/lib/results/machine";
 import { RESEARCH_STAGES, type ResearchResult } from "@/lib/results/types";
+import { inSentence } from "@/lib/text";
 
 export const Route = createFileRoute("/s/$sessionId/results")({
   head: () => ({
@@ -90,7 +91,7 @@ function ResultsPage() {
       </PageShell>
     );
 
-  const category = (session.brief.product ?? "product").toLowerCase();
+  const category = inSentence(session.brief.product ?? "product");
   const rows = weightRows(rubricForBrief(interview, !researchServiceInfo().isMock) ?? []);
 
   function stop() {

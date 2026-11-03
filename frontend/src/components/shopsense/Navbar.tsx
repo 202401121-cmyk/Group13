@@ -9,8 +9,6 @@ import { cn } from "@/lib/utils";
 const links = [
   { to: "/", label: "Home" },
   { to: "/research", label: "Research" },
-  { to: "/searches", label: "My Searches" },
-  { to: "/saved", label: "Saved Products" },
 ] as const;
 
 const linkCls =
@@ -42,9 +40,6 @@ export function Navbar() {
         </ul>
         <div className="hidden items-center gap-1 md:flex">
           <ThemeToggle />
-          <Link to="/research" className={pillButton({ variant: "ghost", size: "sm" })}>
-            Sign in
-          </Link>
           <Link to="/research" className={pillButton({ size: "sm" })}>
             Get started
           </Link>
@@ -76,13 +71,6 @@ export function Navbar() {
             </Link>
           ))}
           <div className="mt-2 flex gap-2 border-t border-border pt-3">
-            <Link
-              to="/research"
-              onClick={() => setOpen(false)}
-              className={cn(pillButton({ variant: "outline", size: "sm" }), "flex-1")}
-            >
-              Sign in
-            </Link>
             <Link
               to="/research"
               onClick={() => setOpen(false)}

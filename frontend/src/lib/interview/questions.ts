@@ -1,4 +1,5 @@
 import type { Criterion, Step } from "./types";
+import { inSentence } from "@/lib/text";
 
 /**
  * The buttons under every question. The backend understands exactly these (backend/app/interview/answers.py),
@@ -14,7 +15,7 @@ export function questionFor(c: Criterion): Step {
   return {
     kind: "question",
     criterionId: c.id,
-    question: `How much do you care about ${c.title.toLowerCase()}?`,
+    question: `How much do you care about ${inSentence(c.title)}?`,
     note: null,
     why: `${c.definition}${c.lowerIsBetter ? " Lower is better here." : ""}`,
     replies: IMPORTANCE_REPLIES,
