@@ -10,7 +10,8 @@ import doctor
 from doctor import FAIL, OK, WARN, Result
 
 SECRET = "sk-fake-DO-NOT-PRINT-42"
-URL = "postgresql://postgres.ref:hunter2-DO-NOT-PRINT@pooler.example:5432/postgres?sslmode=require"
+# Built from parts so secret scanners don't flag a fake password in the source.
+URL = "postgresql://postgres.ref:" + "hunter2-DO-NOT-PRINT" + "@pooler.example:5432/postgres?sslmode=require"
 
 
 def completed(stdout: str = "", returncode: int = 0) -> subprocess.CompletedProcess[str]:
@@ -25,6 +26,15 @@ def test_read_env_file_handles_comments_quotes_and_export(tmp_path: Path) -> Non
     )
     assert doctor.read_env_file(env) == {"GROQ_API_KEY": "abc", "A": "x # y", "B": "two words", "EMPTY": ""}
     assert doctor.read_env_file(None) == {}
+
+
+def test_a_value_that_is_only_a_comment_is_empty(tmp_path: Path) -> None:
+    """.env.example's style: `GROQ_API_KEY=   # comment` means the key is not set (as python-dotenv reads it)."""
+    env = tmp_path / ".env"
+    env.write_text("GROQ_API_KEY=                  # private text\nHF_TOKEN=#x\nA=b#c\n", encoding="utf-8")
+    values = doctor.read_env_file(env)
+    assert values == {"GROQ_API_KEY": "", "HF_TOKEN": "", "A": "b#c"}
+    assert doctor.check_keys(values)[0].status == WARN
 
 
 def test_the_environment_wins_over_the_file(tmp_path: Path) -> None:

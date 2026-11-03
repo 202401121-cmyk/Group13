@@ -71,6 +71,8 @@ def read_env_file(path: Path | None) -> dict[str, str]:
         raw = raw.strip()
         if raw[:1] in ("'", '"') and raw[1:].find(raw[0]) >= 0:
             value = raw[1 : 1 + raw[1:].find(raw[0])]
+        elif raw.startswith("#"):  # `KEY=   # comment`, as in .env.example: no value at all
+            value = ""
         else:
             value = re.split(r"\s+#", raw, maxsplit=1)[0].strip()
         values[name] = value
