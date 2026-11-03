@@ -1,0 +1,3 @@
+# Shows each member under one identity in git log and git shortlog.
+# Format: <right name> <right email> <name in the commit> <email in the commit>
+JenishKavad <kavadjenish5699@gmail.com> Jenish Kavad <202401088@daiict.ac.in>
