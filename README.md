@@ -65,7 +65,7 @@ on `main`; "Pull request" means it is finished on its branch and waiting for rev
 | US-03 Category-specific criteria | Jhanvi Barot | Merged | #6 | |
 | US-05 One question at a time, and the pre-search API | Jenish Kavad | Merged; browser origins list and API docs: pull request (`fix/backend-gaps-round-1`) | #8 | [docs/api/presearch.md](docs/api/presearch.md) |
 | US-01 Describe the need in plain words: the request saved to the database | Vaishvi Mehta | Merged | #17, #21, #22 | [docs/database.md](docs/database.md) |
-| US-01 and the frontend: request box, interview, brief and results screens | Yashkumar Patel, Manu Pardhan | Merged; quality gate (F4) in progress | #24 | [frontend/README.md](frontend/README.md), [decision 0001](docs/decisions/0001-frontend-tanstack-start.md) |
+| US-01 and the frontend: request box, interview, brief and results screens | Yashkumar Patel, Manu Pardhan | Merged; quality gate (F4): pull request (`chore/FE-4-quality-gate`) | #24 | [frontend/README.md](frontend/README.md), [decision 0001](docs/decisions/0001-frontend-tanstack-start.md) |
 | ML workspace, public datasets and the matching baseline | Om Pandya, Rushiraj Navar, Palak Patel | Merged | #10, #13, #14, #15 | [ml/README.md](ml/README.md), [ml/MODELS.md](ml/MODELS.md) |
 | API sign-ups, smoke test and terms check | Jenish Kavad | Pull request (`chore/api-setup`) | | [docs/api-setup.md](docs/api-setup.md) |
 | Full-stack set-up: one-command run, doctor, live test | Pal Jalodara | Pull request (`chore/full-stack-setup`) | | [docs/setup.md](docs/setup.md) |
