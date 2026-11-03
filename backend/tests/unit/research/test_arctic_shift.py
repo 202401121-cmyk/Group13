@@ -91,6 +91,7 @@ def test_the_request_lists_a_subreddits_newest_posts_in_a_date_window_with_our_u
     assert dict(request.url.params) == {  # no title or query search: it is refused on busy subreddits
         "subreddit": "SuggestALaptop",
         "after": (NOW - timedelta(days=180)).date().isoformat(),
+        "before": "2026-11-01",  # two days before NOW: newer threads have no comments in the archive yet
         "limit": "100",
         "sort": "desc",
     }

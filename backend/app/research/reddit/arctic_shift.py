@@ -6,8 +6,9 @@ every request, and on HTTP 429 (or 422 "Timeout. Maybe slow down a bit") we wait
 30 s) and retry once. After 3 failures in a row it is paused for 10 minutes, then one trial request.
 
 Its copy lags Reddit by a few days and scores settle after about 36 hours, so results carry the coverage note
-"Reddit via archive: may miss posts from the last few days". Comments of a thread posted in the last day or two
-are often not in the archive yet.
+"Reddit via archive: may miss posts from the last few days". Comments reach the archive a day or two after their
+thread: on 3 Nov 2026, threads from 31 Oct had all their comments there and most threads from 1-2 Nov had none.
+So the listing stops 2 days before today (COMMENT_LAG): a thread is only worth reading once its replies are in.
 
 Threads are found by asking for a subreddit's newest 100 posts inside a date window and matching the query's
 words here. Arctic Shift's own keyword search (title, selftext, query) is "not supported with very active
@@ -33,6 +34,7 @@ from .settings import DEFAULT_ARCTIC_SHIFT_BASE_URL
 
 COVERAGE_NOTE = "Reddit via archive: may miss posts from the last few days"
 DEFAULT_WINDOW = timedelta(days=180)
+COMMENT_LAG = timedelta(days=2)
 BREAKER_FAILURES = 3
 BREAKER_COOLDOWN_S = 600.0
 
@@ -74,11 +76,21 @@ class ArcticShiftSource(ArchiveSource):
     def _since(self, after: datetime | None) -> str:
         return (after or self._now() - DEFAULT_WINDOW).date().isoformat()
 
+    def _until(self) -> str:
+        return (self._now() - COMMENT_LAG).date().isoformat()
+
     def listing_params(self, subreddit: str, query: str, after: datetime | None) -> dict[str, str | int]:
-        return {"subreddit": subreddit, "after": self._since(after), "limit": MAX_LIMIT, "sort": "desc"}
+        return {
+            "subreddit": subreddit,
+            "after": self._since(after),
+            "before": self._until(),
+            "limit": MAX_LIMIT,
+            "sort": "desc",
+        }
 
     def listing_key(self, subreddit: str, query: str, after: datetime | None) -> CacheKey:
-        return (self.name, "listing", subreddit.lower(), self._since(after))  # the query is matched here, not sent
+        # The query is matched here, not sent, so one listing serves every query.
+        return (self.name, "listing", subreddit.lower(), self._since(after), self._until())
 
     def comment_params(self, thread_id: str, size: int) -> dict[str, str | int]:
         return {"link_id": thread_id, "limit": size, "sort": "desc"}
