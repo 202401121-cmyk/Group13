@@ -23,7 +23,7 @@ export default defineConfig({
       // src/server.ts wraps TanStack Start's server entry with our own error page.
       server: { entry: "server" },
     }),
-    nitro({ config: { preset: "node-server" } }),
+    nitro({ preset: "node-server" }),
     viteReact(),
     tailwindcss(),
   ],
