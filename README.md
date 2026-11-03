@@ -82,6 +82,9 @@ merged; US-01 and US-05 are not on `main` yet.
 
 ## Quick start
 
+The full guide (install, every setting, `scripts/dev.py` to run everything, `scripts/doctor.py` to check your
+machine, the live test and troubleshooting) is [docs/setup.md](docs/setup.md).
+
 ### Prerequisites
 
 - Python 3.11 or newer
