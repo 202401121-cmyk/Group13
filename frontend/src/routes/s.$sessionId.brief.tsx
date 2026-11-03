@@ -91,7 +91,11 @@ function BriefReview() {
       });
     }
     saveSession({ ...session, stage: "research" });
-    void navigate({ to: "/s/$sessionId/results", params: { sessionId } });
+    // Paint the busy button first, then draw the results page in the next frame. The results page's code
+    // is already loaded, so drawing it inside this tap made the tap's response slow (INP).
+    requestAnimationFrame(() => {
+      setTimeout(() => void navigate({ to: "/s/$sessionId/results", params: { sessionId } }), 0);
+    });
   }
 
   return (
