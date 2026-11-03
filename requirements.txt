@@ -1,0 +1,19 @@
+# Everything Python for ShopSense, in one command. Needs Python 3.11 or newer. Run it from the repository root:
+#
+#     python -m venv .venv
+#     .venv\Scripts\activate            (Windows)
+#     source .venv/bin/activate         (macOS, Linux)
+#     pip install -r requirements.txt
+#
+# This file lists no versions of its own, so it can never disagree with the real lists:
+#   - the backend's libraries are in backend/pyproject.toml (add a new one there, in the same pull request);
+#   - the ML scripts' libraries are in ml/requirements.txt.
+# It installs the same as CI's ml job: pip install -e "backend[dev]" -r ml/requirements.txt
+# The frontend is not Python: install it with npm (cd frontend && npm ci).
+
+# The backend (FastAPI, pydantic, httpx, psycopg, praw, ...) and its dev tools (pytest, ruff, mypy), installed
+# in editable mode, so code changes need no reinstall. Same as `pip install -e ".[dev]"` from backend/.
+-e ./backend[dev]
+
+# The ML workspace's matching baseline (numpy, rapidfuzz), pinned in that file.
+-r ml/requirements.txt
