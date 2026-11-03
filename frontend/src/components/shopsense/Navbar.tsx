@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { BrandMark } from "./ui";
 import { pillButton } from "./pill-button";
@@ -17,6 +17,19 @@ const activeCls = "bg-accent text-accent-foreground font-medium";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+
+  // Escape closes the small-screen menu and puts focus back on its button.
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      menuButton.current?.focus();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
   return (
     <header className="sticky top-4 z-50 px-4">
       <nav
@@ -47,6 +60,7 @@ export function Navbar() {
         <div className="flex items-center md:hidden">
           <ThemeToggle />
           <button
+            ref={menuButton}
             className="grid h-11 w-11 place-items-center rounded-full hover:bg-secondary md:hidden"
             onClick={() => setOpen(!open)}
             aria-label={open ? "Close menu" : "Open menu"}

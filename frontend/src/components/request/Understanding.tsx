@@ -264,6 +264,15 @@ export function Understanding(p: Props) {
   const [confirmReset, setConfirmReset] = useState(false);
   useEffect(() => h1.current?.focus(), []);
 
+  // When an editor closes (Save, Cancel or Escape), focus goes back to that field's Edit button, not the page.
+  const editButtons = useRef<Partial<Record<FieldKey, HTMLButtonElement | null>>>({});
+  const lastEditing = useRef<FieldKey | null>(null);
+  useEffect(() => {
+    const closed = lastEditing.current;
+    lastEditing.current = p.editingField;
+    if (closed && p.editingField === null) editButtons.current[closed]?.focus();
+  }, [p.editingField]);
+
   function startOver() {
     if (p.edited) setConfirmReset(true);
     else p.onStartOver();
@@ -315,6 +324,9 @@ export function Understanding(p: Props) {
                 <dd className="sm:text-right">
                   <button
                     type="button"
+                    ref={(el) => {
+                      editButtons.current[f.key] = el;
+                    }}
                     onClick={() => p.onEdit(f.key)}
                     disabled={p.editingField !== null}
                     aria-label={`${v ? "Edit" : "Add"} ${f.name}`}
