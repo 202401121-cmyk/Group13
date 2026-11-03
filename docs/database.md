@@ -119,3 +119,28 @@ cd backend
 TEST_DATABASE_URL=postgresql://postgres:<local password>@127.0.0.1:55432/postgres pytest -m db -rs
 docker rm -f shopsense-pg17
 ```
+
+## Live check
+
+Run against the team's Supabase project on **3 Nov 2026** (US-01). No URL, host or password is recorded here.
+
+| Check | Result |
+|---|---|
+| Postgres version | **17.11** (`show server_version`); `major_version = 17` in `supabase/config.toml` already matched |
+| Migration | `npx supabase@2.120.0 db push`: "Remote database is up to date". `20261026170303 create_requests` is listed in `supabase_migrations.schema_migrations` |
+| Table | `public.requests` exists |
+| Row level security | `relrowsecurity` is true |
+| Data API roles | `has_table_privilege('anon', 'public.requests', 'select')` and `has_table_privilege('authenticated', 'public.requests', 'insert')` are both false |
+| Health | `GET /api/health` answered `"database": "ok"` |
+| Saving | One made-up request through the CLI and one through `POST /api/presearch/intake`: exactly 2 rows for their session IDs, both with `intent_source` `llm`. Both rows were then deleted by session ID; 0 remain |
+| Down drill (wrong password) | Health answered `"database": "down"`. The intake request still answered (HTTP 200 in 3.5 s) and a full CLI search finished (exit 0, about 13 s) with "Saved: no, the database could not be reached. The search goes on." Nothing was saved. The logs show only the host and the error type (`PoolTimeout`, `TimeoutError`, then "skipping the database for 30 s"): no traceback, URL or password |
+
+**Security Advisor** (Advisors > Security, read in the dashboard the same day):
+
+- `public.requests`: **RLS Enabled No Policy**. Row level security is on and has no policies on purpose, and the
+  table is revoked from `anon` and `authenticated`, so the Data API can neither read nor write it (the checks
+  above). This is the intended design, but it is a finding, not the empty list the setup step above asks for.
+  The team decides whether to keep it as is or add an explicit deny-all policy in a new migration.
+- `public.rls_auto_enable()`: **Public Can Execute SECURITY DEFINER Function** and **Signed-In Users Can Execute
+  SECURITY DEFINER Function**. Supabase added this function when "automatic RLS" was chosen at project creation.
+  Its execute rights are revoked by its own migration ("US-01: lock down the automatic RLS helper function").
