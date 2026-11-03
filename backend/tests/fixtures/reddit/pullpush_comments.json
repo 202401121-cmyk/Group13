@@ -1,0 +1,23 @@
+{
+  "_note": "Hand-written in the Pushshift-style shape PullPush is known to copy: GET /reddit/search/comment/?link_id=1kq2aaa (US-12). Unconfirmed. Every name and text is made up.",
+  "data": [
+    {
+      "id": "mq1aaa1",
+      "link_id": "t3_1kq2aaa",
+      "parent_id": "t3_1kq2aaa",
+      "subreddit": "SuggestALaptop",
+      "body": "I have used the Aurora Air 13 for a year of Android Studio. It stays cool and the battery is fine.",
+      "author": "made_up_pp_owner",
+      "created_utc": 1746921600
+    },
+    {
+      "id": "mq1aaa2",
+      "link_id": "t3_1kq2aaa",
+      "parent_id": "t1_mq1aaa1",
+      "subreddit": "SuggestALaptop",
+      "body": "[deleted]",
+      "author": "[deleted]",
+      "created_utc": 1747008000
+    }
+  ]
+}

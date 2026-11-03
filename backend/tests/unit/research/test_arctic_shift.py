@@ -13,7 +13,8 @@ import pytest
 from app.contracts import SourceTier, SourceType
 from app.db.breaker import CircuitBreaker
 from app.research.reddit import IntervalLimiter, RequestBudget
-from app.research.reddit.arctic_shift import COVERAGE_NOTE, ArcticShiftSource, comment_depth
+from app.research.reddit.archive import comment_depth
+from app.research.reddit.arctic_shift import COVERAGE_NOTE, ArcticShiftSource
 from app.research.reddit.cache import RedditCache
 from tests.fakes.reddit import NOW, Archive, Clock, fixture, ok
 

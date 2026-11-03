@@ -7,7 +7,7 @@ from time import monotonic
 import httpx
 
 from app.db.breaker import CircuitBreaker
-from app.research.reddit import IntervalLimiter, RequestBudget
+from app.research.reddit import ArchiveRedditSource, IntervalLimiter, PullPushSource, RequestBudget
 from app.research.reddit.arctic_shift import ArcticShiftSource
 from app.research.reddit.cache import RedditCache
 from tests.fakes.reddit import NOW, Archive, Clock
@@ -42,3 +42,27 @@ def test_arctic_shift_down_gives_a_clean_failure_then_stops_asking() -> None:
     assert later.failure is not None and "paused" in later.failure.detail
     assert len(archive.requests) == 3  # three failures opened the breaker; nothing more was sent
     assert budget.used == 3
+
+
+def test_both_archives_down_the_search_still_finishes_with_no_reddit_evidence() -> None:
+    clock = Clock()
+    arctic = Archive().on("/api/posts/search", httpx.Response(503))
+    pullpush = Archive().on("/reddit/search/submission/", httpx.Response(522))
+    chain = ArchiveRedditSource(
+        [
+            _arctic(arctic, clock),
+            PullPushSource(
+                pullpush.client(),
+                cache=RedditCache(folder=None, now=lambda: NOW),
+                limiter=IntervalLimiter(2.0, clock=clock, sleep=clock.sleep),
+                breaker=CircuitBreaker(3, 30, clock=clock),
+                now=lambda: NOW,
+                sleep=clock.sleep,
+            ),
+        ]
+    )
+    started = monotonic()
+    result = chain.search_threads("laptop for coding", ["SuggestALaptop"], budget=RequestBudget(10))
+    assert monotonic() - started < 1
+    assert result.sources == () and result.failure is not None
+    assert result.failure.detail == "Arctic Shift: HTTP 503; PullPush: HTTP 522"

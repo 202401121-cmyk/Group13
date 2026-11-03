@@ -58,7 +58,10 @@ class RedditResult:
 class RedditSource(Protocol):
     """Search threads in some subreddits, and read one thread's comments."""
 
-    name: RedditOrigin
+    @property
+    def name(self) -> str:
+        """For logs: arctic_shift, pullpush, official, or archive for the chain."""
+        ...
 
     def search_threads(
         self,
