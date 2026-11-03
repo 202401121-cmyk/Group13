@@ -9,7 +9,17 @@ from __future__ import annotations
 
 import logging
 
-from app.contracts import CriteriaInput, CriteriaSet, LLMClient, LLMTask, LLMUnavailable, StageContext, StageName
+from app.contracts import (
+    CriteriaInput,
+    CriteriaSet,
+    DataClass,
+    Difficulty,
+    LLMClient,
+    LLMTask,
+    LLMUnavailable,
+    StageContext,
+    StageName,
+)
 
 from .fallback import fallback_set
 from .parsing import RawCriteria, to_criteria_set
@@ -45,6 +55,8 @@ class CriteriaStage:
                     SYSTEM_PROMPT,
                     user_message(inp, retry=attempt > 0),
                     RawCriteria,
+                    data_class=DataClass.PRIVATE,
+                    difficulty=Difficulty.SHORT,
                     search_id=search_id,
                 )
             except LLMUnavailable:

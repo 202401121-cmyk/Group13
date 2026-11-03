@@ -6,7 +6,7 @@ from typing import TypeVar
 
 from pydantic import BaseModel
 
-from app.contracts import CriteriaInput, CriteriaSet, LLMTask, LLMUnavailable, StageContext
+from app.contracts import CriteriaInput, CriteriaSet, DataClass, Difficulty, LLMTask, LLMUnavailable, StageContext
 from app.criteria import CriteriaStage, InMemoryCriteriaStore, fallback_set
 from app.criteria.parsing import RawCriteria
 from app.criteria.prompts import RETRY_NOTE
@@ -51,6 +51,8 @@ class ScriptedLLM:
         user: str,
         schema: type[T],
         *,
+        data_class: DataClass,
+        difficulty: Difficulty,
         search_id: str | None = None,
         max_output_tokens: int = 1024,
     ) -> T:

@@ -1,4 +1,4 @@
-"""config/models.yaml loads and its rules hold (US-26)."""
+"""config/models.yaml loads and its rules hold (US-26, US-46)."""
 
 from __future__ import annotations
 
@@ -29,6 +29,7 @@ def test_the_real_config_loads() -> None:
         Provider.GEMINI,
         Provider.OPENROUTER,
         Provider.CEREBRAS,
+        Provider.MISTRAL,
     ]
     assert all(isinstance(m, ModelLimits) for m in config.models)
     assert all(p.base_url.startswith("https://") for p in config.providers)
@@ -42,6 +43,36 @@ def test_every_provider_has_a_model() -> None:
 def test_gemini_is_marked_as_training_on_the_free_tier() -> None:
     gemini = [m for m in load_llm_config().models if m.provider == Provider.GEMINI]
     assert gemini and all(m.trains_on_free_tier for m in gemini)
+
+
+def test_the_trains_on_inputs_flags_match_the_terms_we_read() -> None:
+    config = load_llm_config()
+    trains = {p.name: p.trains_on_inputs for p in config.providers}
+    assert trains == {
+        Provider.GROQ: False,
+        Provider.CEREBRAS: False,
+        Provider.GEMINI: True,
+        Provider.OPENROUTER: True,
+        Provider.MISTRAL: True,
+    }
+    assert all(m.trains_on_free_tier == trains[m.provider] for m in config.models)
+    assert all(p.terms_url.startswith("https://") and p.terms_checked.year >= 2026 for p in config.providers)
+
+
+def test_a_model_flag_that_disagrees_with_its_provider_fails(tmp_path: Path) -> None:
+    data = _raw()
+    for row in data["models"]:  # type: ignore[attr-defined]
+        if row["provider"] == "mistral":
+            row["trains_on_free_tier"] = False
+    with pytest.raises(LLMConfigError, match="must match the provider's trains_on_inputs"):
+        load_llm_config(_write(tmp_path, data))
+
+
+def test_a_provider_without_its_terms_fails(tmp_path: Path) -> None:
+    data = _raw()
+    del data["providers"][0]["trains_on_inputs"]  # type: ignore[index]
+    with pytest.raises(LLMConfigError, match="trains_on_inputs"):
+        load_llm_config(_write(tmp_path, data))
 
 
 def test_missing_provider_fails(tmp_path: Path) -> None:

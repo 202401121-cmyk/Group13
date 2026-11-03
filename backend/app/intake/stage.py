@@ -10,7 +10,17 @@ from __future__ import annotations
 import logging
 from collections.abc import Mapping
 
-from app.contracts import IntakeInput, Intent, LLMClient, LLMTask, LLMUnavailable, StageContext, StageName
+from app.contracts import (
+    DataClass,
+    Difficulty,
+    IntakeInput,
+    Intent,
+    LLMClient,
+    LLMTask,
+    LLMUnavailable,
+    StageContext,
+    StageName,
+)
 
 from .parsing import RawIntent, to_intent
 from .prompts import SYSTEM_PROMPT, user_message
@@ -52,8 +62,15 @@ class IntakeStage:
             return detect_by_rules(text, raw_query)
         search_id = ctx.search_id if ctx.search_id.startswith("srch_") else None
         try:
+            # The shopper's own words: private, so only providers that never train on inputs see them (US-46).
             raw = self.llm.complete(
-                LLMTask.DETECT_INTENT, SYSTEM_PROMPT, user_message(text), RawIntent, search_id=search_id
+                LLMTask.DETECT_INTENT,
+                SYSTEM_PROMPT,
+                user_message(text),
+                RawIntent,
+                data_class=DataClass.PRIVATE,
+                difficulty=Difficulty.SHORT,
+                search_id=search_id,
             )
         except LLMUnavailable:
             log.info("intake: no LLM provider answered; using the keyword rules")

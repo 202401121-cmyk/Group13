@@ -1334,7 +1334,7 @@
   "description": "Everything the results page needs, including what went wrong. Saved at the end (build rule 10).",
   "properties": {
     "schema_version": {
-      "default": "1.0.0",
+      "default": "1.1.0",
       "title": "Schema Version",
       "type": "string"
     },

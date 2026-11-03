@@ -22,7 +22,17 @@ import httpx
 from dotenv import load_dotenv
 from pydantic import BaseModel, ValidationError
 
-from app.contracts import PERSONAL_TASKS, LLMCallRecord, LLMClient, LLMTask, LLMUnavailable, ModelLimits, Provider
+from app.contracts import (
+    PERSONAL_TASKS,
+    DataClass,
+    Difficulty,
+    LLMCallRecord,
+    LLMClient,
+    LLMTask,
+    LLMUnavailable,
+    ModelLimits,
+    Provider,
+)
 
 from .config import LLMConfig, load_llm_config
 from .errors import AttemptOutcome, InvalidOutput, ProviderFailure
@@ -55,8 +65,9 @@ class InMemoryCallLog:
     def record(self, rec: LLMCallRecord) -> None:
         self.records.append(rec)
         log.info(
-            "llm call task=%s provider=%s model=%s outcome=%s fitted=%s in=%d out=%d ms=%d",
+            "llm call task=%s class=%s provider=%s model=%s outcome=%s fitted=%s in=%d out=%d ms=%d",
             rec.task.value,
+            rec.data_class.value,
             rec.provider.value,
             rec.model,
             rec.outcome,
@@ -76,11 +87,17 @@ def ordered_models(config: LLMConfig) -> list[ModelLimits]:
     return sorted(config.models, key=lambda m: order.index(m.provider))
 
 
-def allowed_for_task(models: Sequence[ModelLimits], task: LLMTask) -> list[ModelLimits]:
-    """Build rule 8: a task that may carry the user's own words never goes to a model that trains on it."""
-    if task in PERSONAL_TASKS:
-        return [m for m in models if not m.trains_on_free_tier]
-    return list(models)
+def check_data_class(task: LLMTask, data_class: DataClass) -> None:
+    """A task whose prompt always carries the shopper's words can only be private. Anything else is a bug."""
+    if task in PERSONAL_TASKS and data_class is not DataClass.PRIVATE:
+        raise ValueError(f"{task.value} always carries the shopper's words, so its data class must be private")
+
+
+def allowed_for_class(config: LLMConfig, models: Sequence[ModelLimits], data_class: DataClass) -> list[ModelLimits]:
+    """Build rule 8: private and Reddit text never go to a provider that may train on what we send."""
+    if data_class is DataClass.PUBLIC:
+        return list(models)
+    return [m for m in models if not m.trains_on_free_tier and not config.provider(m.provider).trains_on_inputs]
 
 
 def should_retry(outcome: AttemptOutcome, retries_done: int) -> bool:
@@ -92,7 +109,7 @@ def should_retry(outcome: AttemptOutcome, retries_done: int) -> bool:
 
 
 class WrapperLLMClient:
-    """Fallback across providers, personal-task routing, context fitting, one retry, and a call log."""
+    """Fallback across providers, routing by data class, context fitting, one retry, and a call log."""
 
     def __init__(
         self,
@@ -105,9 +122,9 @@ class WrapperLLMClient:
         self.call_log: CallLog = call_log if call_log is not None else InMemoryCallLog()
         self._reported_missing: set[Provider] = set()
 
-    def candidates(self, task: LLMTask) -> list[ModelLimits]:
-        """The models to try for this task, in order."""
-        return self._with_keys(allowed_for_task(ordered_models(self.config), task))
+    def candidates(self, data_class: DataClass) -> list[ModelLimits]:
+        """The models that may see a prompt of this class, in order."""
+        return self._with_keys(allowed_for_class(self.config, ordered_models(self.config), data_class))
 
     def complete(
         self,
@@ -116,12 +133,15 @@ class WrapperLLMClient:
         user: str,
         schema: type[T],
         *,
+        data_class: DataClass,
+        difficulty: Difficulty,
         search_id: str | None = None,
         max_output_tokens: int = 1024,
     ) -> T:
+        check_data_class(task, data_class)
         full_system = build_system_prompt(system, schema)
         chunkable = task in CHUNKABLE_TASKS
-        for model in self.candidates(task):
+        for model in self.candidates(data_class):
             reserve = reserve_output(model, max_output_tokens)
             try:
                 # Re-fit for every model, so a fallback to a smaller window trims or chunks again first.
@@ -131,7 +151,9 @@ class WrapperLLMClient:
                 continue
             retries = 0
             while True:
-                result, outcome = self._attempt(task, model, full_system, fitted, schema, reserve, search_id)
+                result, outcome = self._attempt(
+                    task, data_class, model, full_system, fitted, schema, reserve, search_id
+                )
                 if result is not None:
                     return result
                 if not should_retry(outcome, retries):
@@ -154,6 +176,7 @@ class WrapperLLMClient:
     def _attempt(
         self,
         task: LLMTask,
+        data_class: DataClass,
         model: ModelLimits,
         system: str,
         fitted: FitResult,
@@ -190,6 +213,7 @@ class WrapperLLMClient:
             LLMCallRecord(
                 search_id=search_id,
                 task=task,
+                data_class=data_class,
                 provider=model.provider,
                 model=model.model,
                 input_tokens=tokens_in + unanswered,

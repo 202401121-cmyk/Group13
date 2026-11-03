@@ -4,7 +4,17 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from app.contracts import STAGE_TIME_LIMITS_S, IntakeInput, Intent, LLMTask, StageContext, StageName, StageStatus
+from app.contracts import (
+    STAGE_TIME_LIMITS_S,
+    DataClass,
+    Difficulty,
+    IntakeInput,
+    Intent,
+    LLMTask,
+    StageContext,
+    StageName,
+    StageStatus,
+)
 from app.intake import IntakeStage
 from app.pipeline import run_stage
 
@@ -19,6 +29,8 @@ class _CrashingLLM:
         user: str,
         schema: type[BaseModel],
         *,
+        data_class: DataClass,
+        difficulty: Difficulty,
         search_id: str | None = None,
         max_output_tokens: int = 1024,
     ) -> BaseModel:

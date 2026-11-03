@@ -17,6 +17,7 @@ class Provider(StrEnum):
     GEMINI = "gemini"
     OPENROUTER = "openrouter"
     CEREBRAS = "cerebras"
+    MISTRAL = "mistral"
 
 
 class LLMTask(StrEnum):
@@ -33,11 +34,31 @@ class LLMTask(StrEnum):
     WRITE_EXPLANATION = "write_explanation"
 
 
-# Tasks that may carry a user's own words or preferences. Never routed to the Gemini free tier (build rule 8).
+class DataClass(StrEnum):
+    """What a prompt carries. Every call declares it, and it decides which providers may see the prompt (US-46).
+
+    Private and Reddit text only ever go to providers that do not train on what we send (build rule 8).
+    """
+
+    PRIVATE = "private"  # the shopper's own words or preferences
+    REDDIT = "reddit"  # posts and comments from Reddit
+    PUBLIC = "public"  # our own fixed text, or public web pages
+
+
+class Difficulty(StrEnum):
+    """How big the job is. With the data class it picks the provider chain in config/models.yaml (US-46)."""
+
+    SHORT = "short"  # a small prompt and a short answer
+    MEDIUM = "medium"  # a longer answer, such as an explanation
+    LONG = "long"  # a long input, such as many pages or comments
+
+
+# Tasks whose prompt always carries the shopper's own words, so their data class is always private and they are
+# never routed to a provider that trains on inputs (build rule 8). GENERATE_CRITERIA is not here: it is private
+# only when the prompt includes the shopper's use case, and public when it sends just our category label (US-46).
 PERSONAL_TASKS: frozenset[LLMTask] = frozenset(
     {
         LLMTask.DETECT_INTENT,
-        LLMTask.GENERATE_CRITERIA,  # the use case is the user's own words (team decision, #dev)
         LLMTask.CLASSIFY_REPLY,
         LLMTask.ANSWER_USER_QUESTION,
         LLMTask.WRITE_QUESTION,
@@ -53,7 +74,7 @@ class ModelLimits(Contract):
     model: str = Field(min_length=1, max_length=120)
     context_window_tokens: int = Field(gt=0)
     max_output_tokens: int = Field(gt=0)
-    trains_on_free_tier: bool = Field(description="True = never send personal tasks here")
+    trains_on_free_tier: bool = Field(description="True = the provider may train on prompts: public data only")
 
     def input_budget(self, reserve_output: int, margin: float = 0.10) -> int:
         """Largest input allowed: window minus the answer, minus a safety margin."""
@@ -68,6 +89,7 @@ class LLMCallRecord(Contract):
 
     search_id: str | None = None
     task: LLMTask
+    data_class: DataClass
     provider: Provider
     model: str
     input_tokens: int = Field(ge=0)
@@ -92,12 +114,15 @@ class LLMClient(Protocol):
         user: str,
         schema: type[T],
         *,
+        data_class: DataClass,
+        difficulty: Difficulty,
         search_id: str | None = None,
         max_output_tokens: int = 1024,
     ) -> T:
         """Return a validated instance of `schema`, or raise LLMUnavailable.
 
-        The wrapper, not the caller, handles: context-window fitting, provider order,
-        circuit breaking, personal-task routing, one retry on invalid output, and logging.
+        The caller says what the prompt carries (`data_class`) and how big the job is (`difficulty`). The wrapper,
+        not the caller, handles: the provider chain for that pair, context-window fitting, circuit breaking,
+        daily token budgets, one retry on invalid output, and logging.
         """
         ...

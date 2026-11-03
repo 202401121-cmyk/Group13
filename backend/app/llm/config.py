@@ -1,4 +1,4 @@
-"""Provider settings and model limits, loaded from config/models.yaml (US-26).
+"""Provider settings and model limits, loaded from config/models.yaml (US-26, US-46).
 
 The file is checked when it loads, so a bad config stops the app at startup rather than at the first call.
 """
@@ -6,6 +6,7 @@ The file is checked when it loads, so a bad config stops the app at startup rath
 from __future__ import annotations
 
 import re
+from datetime import date
 from pathlib import Path
 
 import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs; adding types-PyYAML is a dependency
@@ -29,12 +30,17 @@ class ProviderSettings(BaseModel):
     base_url: str
     api_key_env: str = Field(pattern=r"^[A-Z][A-Z0-9_]*$", description="Environment variable holding the key")
     request_timeout_s: float = Field(default=30, gt=0)
+    # Build rule 8 (US-46): may this provider, on the plan we use, train on what we send? True means public data
+    # only. Set from the provider's own terms page, with the date it was read, so a reviewer can check it again.
+    trains_on_inputs: bool
+    terms_url: str
+    terms_checked: date
 
-    @field_validator("base_url")
+    @field_validator("base_url", "terms_url")
     @classmethod
     def _https_only(cls, value: str) -> str:
         if not re.match(r"^https://[^\s/]+", value):
-            raise ValueError(f"base_url must be an https:// URL, got {value!r}")
+            raise ValueError(f"URLs must start with https://, got {value!r}")
         return value.rstrip("/")
 
 
@@ -68,6 +74,12 @@ class LLMConfig(BaseModel):
         unsafe = [m.model for m in self.models if m.provider == Provider.GEMINI and not m.trains_on_free_tier]
         if unsafe:
             raise ValueError(f"Gemini models must set trains_on_free_tier: true (build rule 8): {unsafe}")
+        trains = {p.name: p.trains_on_inputs for p in self.providers}
+        mismatched = sorted(
+            f"{m.provider.value}/{m.model}" for m in self.models if m.trains_on_free_tier != trains[m.provider]
+        )
+        if mismatched:
+            raise ValueError(f"trains_on_free_tier must match the provider's trains_on_inputs: {mismatched}")
         return self
 
     def provider(self, name: Provider) -> ProviderSettings:
