@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "format": "prettier --write .",
     "types:contracts": "node scripts/contract-types.mjs",
     "postinstall": "node scripts/contract-types.mjs"
@@ -42,7 +43,9 @@
     "vite-tsconfig-paths": "^6.0.2"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@eslint/js": "^9.32.0",
+    "@playwright/test": "1.64.1",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",
     "@types/node": "^22.16.5",
