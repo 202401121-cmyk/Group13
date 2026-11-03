@@ -48,7 +48,7 @@ from .llm import (
     Provider,
 )
 from .pipeline import ProductSummary, ProgressEvent, SearchRequest, SearchResult, Stage, StageContext
-from .research import ResearchInput, ResearchResult, Source, SourceFailure
+from .research import RedditOrigin, ResearchInput, ResearchResult, Source, SourceFailure
 from .rubric import Rubric, WeightedCriterion, normalize
 from .verify import CommunitySignal, ResolvedValue, ValueState, VerifyInput, VerifyResult
 
@@ -108,6 +108,7 @@ __all__ = [
     "ProgressEvent",
     "Provider",
     "RankedProduct",
+    "RedditOrigin",
     "RememberedPreference",
     "ReplyClassification",
     "ReplyType",
