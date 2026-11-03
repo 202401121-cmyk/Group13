@@ -40,7 +40,7 @@ async function recordVitals(page: Page) {
     for (const fn of ["onLCP", "onCLS", "onINP"])
       w.webVitals[fn]?.(keep, { reportAllChanges: true });
     // Which elements moved, for the report: every counted layout shift and the nodes it moved.
-    const shifts: { value: number; nodes: string[] }[] = [];
+    const shifts: { value: number; at: number; nodes: string[] }[] = [];
     (window as unknown as { __shifts: typeof shifts }).__shifts = shifts;
     new PerformanceObserver((list) => {
       for (const e of list.getEntries() as (PerformanceEntry & {
@@ -55,7 +55,7 @@ async function recordVitals(page: Page) {
           const label = el.id ? `#${el.id}` : (el.getAttribute("aria-labelledby") ?? el.className);
           return `${el.tagName.toLowerCase()}${label ? ` ${String(label).slice(0, 40)}` : ""}`;
         });
-        shifts.push({ value: e.value, nodes });
+        shifts.push({ value: e.value, at: e.startTime, nodes });
       }
     }).observe({ type: "layout-shift", buffered: true });
   });
@@ -64,14 +64,26 @@ async function recordVitals(page: Page) {
 const vitalsOf = (page: Page) =>
   page.evaluate(() => (window as unknown as { __vitals: Vitals }).__vitals);
 
-/** The largest counted layout shifts and what moved, one line each. */
-const shiftsOf = (page: Page) =>
-  page.evaluate(() =>
-    (window as unknown as { __shifts: { value: number; nodes: string[] }[] }).__shifts
-      .filter((s) => s.value >= 0.005)
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5)
-      .map((s) => `${s.value.toFixed(3)} ${s.nodes.join(" + ")}`),
+/** The largest counted layout shifts (after `since`, in page time) and what moved, one line each. */
+const shiftsOf = (page: Page, since = 0) =>
+  page.evaluate(
+    (from) =>
+      (window as unknown as { __shifts: { value: number; at: number; nodes: string[] }[] }).__shifts
+        .filter((s) => s.value >= 0.005 && s.at >= from)
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 5)
+        .map((s) => `${s.value.toFixed(3)} ${s.nodes.join(" + ")}`),
+    since,
+  );
+
+/** Total of the counted layout shifts after `since` (page time): the CLS of that part of the visit. */
+const shiftTotal = (page: Page, since: number) =>
+  page.evaluate(
+    (from) =>
+      (window as unknown as { __shifts: { value: number; at: number }[] }).__shifts
+        .filter((s) => s.at >= from)
+        .reduce((sum, s) => sum + s.value, 0),
+    since,
   );
 
 async function slowCpu(page: Page, rate: number) {
@@ -110,6 +122,8 @@ test.describe("web vitals", () => {
   }) => {
     await recordVitals(page);
     await reachQuestions(page);
+    // CLS counts from the first question on; the request and criteria pages before it are not part of this.
+    const start = await page.evaluate(() => performance.now());
     await slowCpu(page, 4);
     const composer = page.getByLabel("Or type your answer");
     await composer.tap();
@@ -130,12 +144,13 @@ test.describe("web vitals", () => {
       document.dispatchEvent(new Event("visibilitychange"));
     });
     const v = await vitalsOf(page);
+    const cls = await shiftTotal(page, start);
     console.log(
-      `[vitals] questions: INP ${Math.round(v.INP ?? -1)} ms, CLS ${(v.CLS ?? 0).toFixed(3)}; shifts: ${(await shiftsOf(page)).join("; ") || "none"}`,
+      `[vitals] questions: INP ${Math.round(v.INP ?? -1)} ms, CLS ${cls.toFixed(3)}; shifts: ${(await shiftsOf(page, start)).join("; ") || "none"}`,
     );
     expect(v.INP, "INP was measured").toBeDefined();
     expect.soft(v.INP!).toBeLessThanOrEqual(200);
-    expect.soft(v.CLS ?? 0).toBeLessThanOrEqual(0.1);
+    expect.soft(cls).toBeLessThanOrEqual(0.1);
   });
 });
 
@@ -148,17 +163,19 @@ test.describe("results arriving", () => {
   }) => {
     await recordVitals(page);
     await reachBrief(page);
+    // Only what happens from here on counts: the interview before it is measured in its own test.
+    const start = await page.evaluate(() => performance.now());
     await page.getByRole("button", { name: /Start research/ }).tap();
     // Real time on purpose: shifts within 0.5 s of a tap do not count, and research takes about 6 s.
     await expect(page.getByRole("heading", { name: "Best match" })).toBeVisible({
       timeout: 30_000,
     });
     await page.waitForTimeout(500);
-    const v = await vitalsOf(page);
+    const cls = await shiftTotal(page, start);
     console.log(
-      `[vitals] results arriving: CLS ${(v.CLS ?? 0).toFixed(3)}; shifts: ${(await shiftsOf(page)).join("; ") || "none"}`,
+      `[vitals] results arriving: CLS ${cls.toFixed(3)}; shifts: ${(await shiftsOf(page, start)).join("; ") || "none"}`,
     );
-    expect(v.CLS ?? 0).toBeLessThanOrEqual(0.1);
+    expect(cls).toBeLessThanOrEqual(0.1);
   });
 });
 

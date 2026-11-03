@@ -70,15 +70,30 @@ export async function axeViolations(page: Page): Promise<string[]> {
 
 /**
  * Runs axe while the page clock is paused (to hold a short loading state on screen). axe waits on its own
- * timers, so the clock is nudged forward 5 ms at a time until axe is done: at most 400 ms in all.
+ * timers, so the clock is nudged forward a millisecond at a time until axe is done.
  */
 async function axeWhilePaused(page: Page): Promise<string[]> {
   let done = false;
-  const result = axeViolations(page).finally(() => {
-    done = true;
-  });
-  for (let i = 0; i < 80 && !done; i++) await page.clock.runFor(5);
-  return result;
+  let failure: unknown = null;
+  let violations: string[] = [];
+  const run = axeViolations(page).then(
+    (v) => {
+      violations = v;
+      done = true;
+    },
+    (e: unknown) => {
+      failure = e;
+      done = true;
+    },
+  );
+  // 1 ms at a time, at most 150 ms per run, so a 600-700 ms mock wait is still on screen afterwards.
+  // axe opens and closes a helper page of its own; a nudge that races with that close is harmless.
+  let used = 0;
+  for (; used < 150 && !done; used++) await page.clock.runFor(1).catch(() => undefined);
+  await run;
+  console.log(`[a11y] (axe ran with the clock paused; it needed ${used} ms of page time)`);
+  if (failure) throw failure;
+  return violations;
 }
 
 /**
@@ -88,10 +103,10 @@ async function axeWhilePaused(page: Page): Promise<string[]> {
 export async function checkRow(
   page: Page,
   row: string,
-  { paused = false }: { paused?: boolean } = {},
+  { paused = false, themes = ["light", "dark"] }: { paused?: boolean; themes?: Theme[] } = {},
 ): Promise<AxeRow[]> {
   const out: AxeRow[] = [];
-  for (const theme of ["light", "dark"] as const) {
+  for (const theme of themes) {
     await setTheme(page, theme);
     const violations = paused ? await axeWhilePaused(page) : await axeViolations(page);
     console.log(`[a11y] ${row} | ${theme} | ${violations.length ? violations.join("; ") : "pass"}`);
@@ -104,10 +119,12 @@ export async function checkRow(
 
 /** The request page, submitted, up to "Here's what we understood". */
 export async function reachUnderstood(page: Page, request = LAPTOP_REQUEST) {
+  // The request page restores its last state from this tab; start from an empty box every time. The
+  // saved state is cleared before the page loads, because the page saves it again once it has hydrated.
+  if (page.url().startsWith("http")) {
+    await page.evaluate(() => sessionStorage.removeItem("shopsense.request.v1"));
+  }
   await page.goto("/research");
-  // The request page restores its last state from this tab; start from an empty box every time.
-  await page.evaluate(() => sessionStorage.removeItem("shopsense.request.v1"));
-  await page.reload();
   await waitForHydration(page, "#request-text");
   await page.getByLabel("Your request").fill(request);
   await page.getByRole("button", { name: /^Continue/ }).click();

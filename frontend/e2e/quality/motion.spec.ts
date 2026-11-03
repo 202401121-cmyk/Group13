@@ -138,7 +138,9 @@ test.describe("motion allowed", () => {
     await page.goto("/");
     // Let the typing effect finish so every letter is drawn.
     await expect(
-      page.locator("section").first().locator("[aria-hidden] .invisible").filter({ hasText: /./ }),
+      page
+        .locator("section h1 [aria-hidden] .invisible, section h1 + p [aria-hidden] .invisible")
+        .filter({ hasText: /./ }),
     ).toHaveCount(0, { timeout: 20_000 });
     const rows: string[] = [];
     for (const theme of ["light", "dark"] as const) {

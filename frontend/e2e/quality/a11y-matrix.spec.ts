@@ -176,23 +176,32 @@ test.describe("audit matrix: axe in light and dark mode", () => {
     await expect(page.getByText(/use the budget from your brief/).first()).toBeVisible();
     await checkRow(page, "questions, redirect");
 
+    // "Thinking about your answer" shows from 400 ms until the mock reply at 600 ms: too short for two axe
+    // runs, so it is checked in light mode on one answer and in dark mode on the next.
     const replies = page.getByRole("group", { name: /Quick replies/ });
-    await pauseClock(page);
-    await replies.getByRole("button", { name: "Yes, a lot" }).click();
-    await page.clock.runFor(450);
-    await expect(page.getByText("Thinking about your answer").first()).toBeVisible();
-    await checkRow(page, "questions, thinking", { paused: true });
-    await page.clock.resume();
-
-    await expect(page.getByText(/How much do you care about memory/).first()).toBeVisible();
+    for (const [theme, next] of [
+      ["light", /How much do you care about memory/],
+      ["dark", /How much do you care about battery life/],
+    ] as const) {
+      await pauseClock(page);
+      await replies.getByRole("button", { name: "High" }).click();
+      await page.clock.runFor(410);
+      await expect(page.getByText("Thinking about your answer").first()).toBeVisible();
+      await checkRow(page, "questions, thinking", { paused: true, themes: [theme] });
+      await page.clock.resume();
+      await expect(page.getByText(next).first()).toBeVisible();
+    }
+    // Memory depends on CPU and is answered now: changing CPU means memory has to be asked again.
     await page.getByRole("button", { name: "Change CPU performance" }).click();
     await replies.getByRole("button", { name: "Low" }).click();
     await expect(page.getByText("Later questions were updated").first()).toBeVisible();
     await checkRow(page, "questions, later questions updated");
 
+    // Part-way through: in mock mode the brief already shows weights from the answers so far. (The
+    // "Finish the questions first" notice is live mode only, so it can't be reached here.)
     await page.goto(`/s/${id}/brief`);
-    await expect(page.getByText(/Finish the questions first/)).toBeVisible();
-    await checkRow(page, "brief, questions not finished");
+    await expect(page.getByRole("heading", { level: 1, name: /Your brief for a/ })).toBeVisible();
+    await checkRow(page, "brief, part-way through the questions");
 
     await page.goto(`/s/${id}/questions`);
     const review = page.getByRole("link", { name: /Review your brief/ });
