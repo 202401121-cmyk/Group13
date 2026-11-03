@@ -166,7 +166,7 @@ stories:
     goal: my must-haves kept separate from my preferences
     benefit: a product breaking a must-have is never recommended however good it is otherwise
     criteria:
-      - The rubric has two lists: hard rules, and preferences weighted 0 to 10 that add up to 1
+      - "The rubric has two lists: hard rules, and preferences weighted 0 to 10 that add up to 1"
       - The user sees which of their statements became hard rules and can switch any of them
       - "[DR-08] Hard rules only filter products; preferences only change the order"
       - Criteria the interview did not ask about keep the category's default weight
@@ -242,7 +242,7 @@ stories:
     benefit: the answer is not one site's opinion
     criteria:
       - It builds 4 to 6 search queries from the rubric (category, use, budget, region), not from the raw text, and adds a comparison query ("X vs Y") once candidates are known
-      - It pulls from at least 3 source types: Reddit threads, web search results and review sites
+      - "It pulls from at least 3 source types: Reddit threads, web search results and review sites"
       - Sources run in parallel, and one failing source never stops the run
       - Near-duplicate threads (more than 60% title overlap) are merged
       - Every page or thread is stored with its URL and fetch time
