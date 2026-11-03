@@ -1,6 +1,7 @@
 """The LLM client (US-26, US-46): order, fallback, retry, routing by data class, fitting and the call log.
 
-Every provider is a FakeAdapter; no real API is called.
+Every provider is a FakeAdapter; no real API is called. These tests use the real config with every public route
+set to ORDER, so each test can name the order it expects. The real routes are tested in test_routing.py.
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ from pydantic import BaseModel
 
 from app.contracts import PERSONAL_TASKS, DataClass, Difficulty, LLMTask, LLMUnavailable, Provider
 from app.llm import InMemoryCallLog, WrapperLLMClient, build_llm_client, load_llm_config
-from app.llm.client import allowed_for_class, check_data_class, ordered_models, satisfies_contract, should_retry
+from app.llm.client import allowed_for_class, check_data_class, route_models, satisfies_contract, should_retry
 from app.llm.config import LLMConfig
 from app.llm.errors import (
     AuthFailed,
@@ -32,7 +33,7 @@ from app.llm.output import build_system_prompt
 from app.llm.providers import Adapter
 from tests.fakes.llm import FakeAdapter, FakeLLMClient
 
-ORDER = [Provider.GROQ, Provider.GEMINI, Provider.OPENROUTER, Provider.CEREBRAS, Provider.MISTRAL]
+ORDER = [Provider.GROQ, Provider.GEMINI, Provider.OPENROUTER, Provider.CEREBRAS, Provider.MISTRAL]  # public
 TRAINING = {Provider.GEMINI, Provider.OPENROUTER, Provider.MISTRAL}  # trains_on_inputs: true in models.yaml
 TASK = LLMTask.DISCOVER_ALIASES  # not personal, not chunkable, so every provider may be tried
 PUBLIC, SHORT = DataClass.PUBLIC, Difficulty.SHORT
@@ -55,7 +56,7 @@ def _client(
 ) -> WrapperLLMClient:
     typed: dict[Provider, Adapter] = dict(adapters)
     return WrapperLLMClient(
-        config or load_llm_config(),
+        config or _config_with(),
         typed,
         InMemoryCallLog(),
         health=health,
@@ -74,7 +75,7 @@ def _failing(provider: Provider, error: type[ProviderFailure] = ServerError, **k
 
 
 def _config_with(**limits: tuple[int, int]) -> LLMConfig:
-    """The real config with some models' (context window, max output) replaced."""
+    """The real config, every public route set to ORDER, and some models' (context window, max output) replaced."""
     base = load_llm_config()
     models = []
     for m in base.models:
@@ -82,7 +83,10 @@ def _config_with(**limits: tuple[int, int]) -> LLMConfig:
         if m.provider.value in limits:
             row["context_window_tokens"], row["max_output_tokens"] = limits[m.provider.value]
         models.append(row)
-    return LLMConfig.model_validate({"providers": [p.model_dump() for p in base.providers], "models": models})
+    routes = {**base.routes, DataClass.PUBLIC: dict.fromkeys(Difficulty, ORDER)}
+    return LLMConfig.model_validate(
+        {"providers": [p.model_dump() for p in base.providers], "models": models, "routes": routes}
+    )
 
 
 # --- order and fallback -------------------------------------------------------------------------
@@ -98,8 +102,8 @@ def test_providers_are_tried_in_order() -> None:
 
 
 def test_order_helpers() -> None:
-    config = load_llm_config()
-    models = ordered_models(config)
+    config = _config_with()
+    models = route_models(config, DataClass.PUBLIC, Difficulty.MEDIUM)
     assert [m.provider for m in models] == ORDER
     for data_class in (DataClass.PRIVATE, DataClass.REDDIT):
         allowed = {m.provider for m in allowed_for_class(config, models, data_class)}

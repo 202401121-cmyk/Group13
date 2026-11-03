@@ -21,10 +21,10 @@ class Claims(BaseModel):
 
 
 def test_dead_and_cooling_providers_are_skipped_quickly_and_the_call_gives_up_cleanly() -> None:
-    adapters: dict[Provider, Adapter] = {
-        Provider.GROQ: FakeAdapter(Provider.GROQ, replies=(AuthFailed(Provider.GROQ, "HTTP 401"),)),
-        Provider.CEREBRAS: FakeAdapter(Provider.CEREBRAS, replies=(NoCredit(Provider.CEREBRAS, "HTTP 402"),)),
+    adapters: dict[Provider, Adapter] = {  # the public/long route: gemini, mistral, cerebras (openrouter: no key)
         Provider.GEMINI: FakeAdapter(Provider.GEMINI, replies=(RateLimited(Provider.GEMINI, "HTTP 429"),)),
+        Provider.MISTRAL: FakeAdapter(Provider.MISTRAL, replies=(AuthFailed(Provider.MISTRAL, "HTTP 401"),)),
+        Provider.CEREBRAS: FakeAdapter(Provider.CEREBRAS, replies=(NoCredit(Provider.CEREBRAS, "HTTP 402"),)),
     }
     client = WrapperLLMClient(load_llm_config(), adapters, InMemoryCallLog(), limiters={})
     for _ in range(2):
@@ -44,9 +44,9 @@ def test_dead_and_cooling_providers_are_skipped_quickly_and_the_call_gives_up_cl
         )
     assert monotonic() - started < 0.5  # nothing is sent: every provider is dead or cooling down
     assert {p: len(a.calls) for p, a in adapters.items()} == {  # type: ignore[attr-defined]
-        Provider.GROQ: 1,
-        Provider.CEREBRAS: 1,
         Provider.GEMINI: 1,
+        Provider.MISTRAL: 1,
+        Provider.CEREBRAS: 1,
     }
 
 

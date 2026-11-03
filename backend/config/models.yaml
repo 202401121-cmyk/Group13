@@ -1,6 +1,6 @@
 # LLM providers and model limits (US-26, US-46). Loaded and checked at startup by app/llm/config.py.
 #
-# providers: tried in this order when a call fails (fallback order).
+# providers: how to reach each provider, and what its terms say.
 #            json_mode, requests_per_second, tokens_per_minute and daily_tokens are optional limits we hold
 #            ourselves to (US-46); daily_tokens is counted per UTC day, in memory.
 #            trains_on_inputs: may the provider, on the plan we use, train on what we send? true means public
@@ -8,6 +8,7 @@
 #            provider's own terms page (terms_url), read on terms_checked. Re-read it when the terms change.
 # models:    one row per model; each row has exactly the fields of app.contracts.ModelLimits.
 #            trains_on_free_tier must equal its provider's trains_on_inputs. Gemini must stay true.
+# routes:    the providers each call may use, in order, by data class and difficulty (US-46). See below.
 #
 # Free-tier limits change without notice. Run `python -m scripts.smoke_llm` and copy what you see into
 # docs/api-setup.md, then remove the UNVERIFIED comment from each row you confirmed.
@@ -103,3 +104,24 @@ models:
     context_window_tokens: 262144
     max_output_tokens: 4096
     trains_on_free_tier: true
+
+# Every call says what its prompt carries (data class) and how big the job is (difficulty); this table gives the
+# providers to try for that pair, in order. The loader refuses a private or reddit route that names a provider
+# with trains_on_inputs: true. Within a route, a provider that is cooling down, dead for the run, out of today's
+# budget or without a key is skipped. If none is left, the stage uses its own fallback.
+#   private: the shopper's own words.          reddit: posts and comments from Reddit.
+#   public:  our own fixed text, or public web pages.
+#   short: a small prompt and answer.  medium: a longer answer.  long: a long input (many pages or comments).
+routes:
+  private:
+    short: [groq, cerebras]
+    medium: [groq, cerebras]
+    long: [groq, cerebras]
+  reddit:
+    short: [groq, cerebras]
+    medium: [groq, cerebras]
+    long: [groq, cerebras]
+  public:
+    short: [mistral, groq]
+    medium: [mistral, gemini, groq, openrouter]
+    long: [gemini, mistral, cerebras, openrouter]

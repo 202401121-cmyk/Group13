@@ -1,6 +1,7 @@
 """The one LLM client every stage uses (US-26, US-46). Implements app.contracts.LLMClient.
 
-complete() tries the models that may see the prompt's data class, re-fitting the input to each model's window.
+complete() tries the providers that the routes table in models.yaml gives for the call's data class and
+difficulty, skipping any that may not see that class, and re-fits the input to each model's window.
 Before every call it checks the provider's daily token budget, its health (cool-downs and dead keys) and its
 rate limit. It retries invalid output once, moves on after any provider failure, and raises LLMUnavailable
 when no model answered. It never invents an answer: the calling stage's fallback decides what happens next.
@@ -81,10 +82,9 @@ class InMemoryCallLog:
 # --- decisions -----------------------------------------------------------------------------------
 
 
-def ordered_models(config: LLMConfig) -> list[ModelLimits]:
-    """Every model, in provider fallback order (the order of `providers` in models.yaml)."""
-    order = [p.name for p in config.providers]
-    return sorted(config.models, key=lambda m: order.index(m.provider))
+def route_models(config: LLMConfig, data_class: DataClass, difficulty: Difficulty) -> list[ModelLimits]:
+    """The models of each provider in the route, in route order (a provider's models in models.yaml order)."""
+    return [m for provider in config.chain(data_class, difficulty) for m in config.models if m.provider is provider]
 
 
 def check_data_class(task: LLMTask, data_class: DataClass) -> None:
@@ -145,9 +145,10 @@ class WrapperLLMClient:
         self.limiters = dict(limiters) if limiters is not None else default_limiters(config)
         self._reported_missing: set[Provider] = set()
 
-    def candidates(self, data_class: DataClass) -> list[ModelLimits]:
-        """The models that may see a prompt of this class, in order."""
-        return self._with_keys(allowed_for_class(self.config, ordered_models(self.config), data_class))
+    def candidates(self, data_class: DataClass, difficulty: Difficulty) -> list[ModelLimits]:
+        """The models to try, in order. The class filter runs again here, whatever the routes table says."""
+        routed = route_models(self.config, data_class, difficulty)
+        return self._with_keys(allowed_for_class(self.config, routed, data_class))
 
     def complete(
         self,
@@ -164,7 +165,7 @@ class WrapperLLMClient:
         check_data_class(task, data_class)
         full_system = build_system_prompt(system, schema)
         chunkable = task in CHUNKABLE_TASKS
-        for model in self.candidates(data_class):
+        for model in self.candidates(data_class, difficulty):
             reserve = reserve_output(model, max_output_tokens)
             try:
                 # Re-fit for every model, so a fallback to a smaller window trims or chunks again first.

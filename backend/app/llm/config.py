@@ -13,7 +13,7 @@ from pathlib import Path
 import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs; adding types-PyYAML is a dependency
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
-from app.contracts import ModelLimits, Provider
+from app.contracts import DataClass, Difficulty, ModelLimits, Provider
 
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "models.yaml"
 
@@ -50,13 +50,18 @@ class ProviderSettings(BaseModel):
         return value.rstrip("/")
 
 
+# Which providers a call may use, in order, by what its prompt carries and how big the job is (US-46).
+Routes = dict[DataClass, dict[Difficulty, list[Provider]]]
+
+
 class LLMConfig(BaseModel):
-    """Providers in fallback order, and the limits of every model."""
+    """How to reach each provider, the limits of every model, and the provider chain for every kind of call."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     providers: list[ProviderSettings] = Field(min_length=1)
     models: list[ModelLimits] = Field(min_length=1)
+    routes: Routes
 
     @model_validator(mode="after")
     def _check(self) -> LLMConfig:
@@ -86,7 +91,28 @@ class LLMConfig(BaseModel):
         )
         if mismatched:
             raise ValueError(f"trains_on_free_tier must match the provider's trains_on_inputs: {mismatched}")
+        self._check_routes(trains)
         return self
+
+    def _check_routes(self, trains: dict[Provider, bool]) -> None:
+        """Every class and difficulty has a chain; private and Reddit chains never name a training provider."""
+        missing = sorted(f"{c.value}/{d.value}" for c in DataClass for d in Difficulty if not self.chain(c, d))
+        if missing:
+            raise ValueError(f"every data class and difficulty needs a route with at least one provider: {missing}")
+        for data_class, by_difficulty in self.routes.items():
+            for difficulty, chain in by_difficulty.items():
+                where = f"{data_class.value}/{difficulty.value}"
+                if len(set(chain)) != len(chain):
+                    raise ValueError(f"route {where} names a provider twice: {[p.value for p in chain]}")
+                training = [p.value for p in chain if trains[p]]
+                if data_class is not DataClass.PUBLIC and training:
+                    raise ValueError(
+                        f"route {where} may not use providers that train on inputs (build rule 8): {training}"
+                    )
+
+    def chain(self, data_class: DataClass, difficulty: Difficulty) -> list[Provider]:
+        """The providers to try, in order, for one kind of call."""
+        return list(self.routes.get(data_class, {}).get(difficulty, []))
 
     def provider(self, name: Provider) -> ProviderSettings:
         return next(p for p in self.providers if p.name == name)
@@ -140,7 +166,7 @@ def with_env_overrides(config: LLMConfig, env: Mapping[str, str]) -> LLMConfig:
             except ValueError:
                 raise LLMConfigError(f"{var} must be a number") from None
     try:
-        return LLMConfig.model_validate({"providers": providers, "models": models})
+        return LLMConfig.model_validate({"providers": providers, "models": models, "routes": config.routes})
     except ValidationError as exc:
         used = sorted(var for variables in ENV_OVERRIDES.values() for var in variables if env.get(var, "").strip())
         raise LLMConfigError(f"invalid LLM settings from the environment ({', '.join(used)}):\n{exc}") from exc
