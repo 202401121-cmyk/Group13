@@ -27,27 +27,32 @@ providers:
     request_timeout_s: 30
 
 models:
-  # UNVERIFIED: confirm with scripts/smoke_llm.py
+  # The llama-3.3-70b models and gemini-2.5-flash stopped working for us by 3 Nov 2026 (HTTP 404: retired, or not
+  # offered to new keys). Windows below come from each provider's model list on that date. The reasoning models
+  # (gpt-oss, nemotron) spend some output tokens thinking before they answer, hence the 8192 output budget.
+  # Verified 3 Nov 2026 with scripts/smoke_llm.py: valid JSON back.
   - provider: groq
-    model: llama-3.3-70b-versatile
+    model: openai/gpt-oss-120b
     context_window_tokens: 131072
     max_output_tokens: 8192
     trains_on_free_tier: false
-  # UNVERIFIED: confirm with scripts/smoke_llm.py
+  # Verified 3 Nov 2026 with scripts/smoke_llm.py. The free tier sometimes answers HTTP 503 (busy); the wrapper
+  # then moves on to the next provider.
   - provider: gemini
-    model: gemini-2.5-flash
+    model: gemini-3.5-flash
     context_window_tokens: 1048576
     max_output_tokens: 8192
     trains_on_free_tier: true
-  # UNVERIFIED: confirm with scripts/smoke_llm.py
+  # Verified 3 Nov 2026 with scripts/smoke_llm.py. Slower (4 to 7 s); it is the third choice.
   - provider: openrouter
-    model: meta-llama/llama-3.3-70b-instruct:free
-    context_window_tokens: 65536
-    max_output_tokens: 4096
+    model: nvidia/nemotron-3.5-lightning:free
+    context_window_tokens: 1000000
+    max_output_tokens: 8192
     trains_on_free_tier: false
-  # UNVERIFIED: confirm with scripts/smoke_llm.py
+  # UNVERIFIED: on 3 Nov 2026 Cerebras listed only gpt-oss-120b and qwen-3.8-27b, and every call answered
+  # HTTP 402 (the account needs a plan or new credits). The window is a cautious guess until a call works.
   - provider: cerebras
-    model: llama-3.3-70b
-    context_window_tokens: 8192
-    max_output_tokens: 2048
+    model: gpt-oss-120b
+    context_window_tokens: 65536
+    max_output_tokens: 8192
     trains_on_free_tier: false
