@@ -120,6 +120,14 @@
     scroll-behavior: smooth;
     color-scheme: light;
     font-optical-sizing: auto;
+    /* Keeps focused elements and #anchors clear of the sticky header (WCAG 2.4.11). */
+    scroll-padding-top: 6rem;
+  }
+  /* Below the large breakpoint the answer box is fixed to the bottom of the screen: keep focus above it. */
+  @media (width < 64rem) {
+    html:has(#answer-input) {
+      scroll-padding-bottom: 7rem;
+    }
   }
   html.dark {
     color-scheme: dark;
