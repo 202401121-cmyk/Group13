@@ -12,11 +12,14 @@ from app.research.reddit import IntervalLimiter, RequestBudget
 from app.research.reddit.base import (
     author_hash,
     bare_id,
+    best_matches,
     is_bot,
     is_gone,
     make_source,
+    match_score,
     newest,
     permalink,
+    query_words,
     utc_from_epoch,
     valid_subreddit,
 )
@@ -132,3 +135,25 @@ def test_the_interval_limiter_spaces_requests() -> None:
     now[0] += 5
     limiter.wait()
     assert slept == [pytest.approx(0.75)]
+
+
+def test_query_words_drop_filler_and_repeats() -> None:
+    assert query_words("Best laptop for coding under 70k, laptop!") == ["laptop", "coding", "70k"]
+    assert query_words("for the best") == []
+
+
+def test_match_score_counts_words_and_their_longer_forms() -> None:
+    words = ["laptop", "coding"]
+    assert match_score(words, "Laptops for Coding?") == 2
+    assert match_score(words, "a gaming laptop") == 1
+    assert match_score(words, "lap top") == 0
+
+
+def test_best_matches_rank_by_words_then_newest() -> None:
+    old = _source(thread_id="1old", title="coding laptop", published_at=datetime(2026, 9, 1, tzinfo=UTC))
+    new = _source(thread_id="2new", title="laptop", text="laptop", published_at=datetime(2026, 11, 1, tzinfo=UTC))
+    newer = _source(thread_id="3new", title="laptop", text="laptop", published_at=datetime(2026, 11, 2, tzinfo=UTC))
+    off = _source(thread_id="4off", title="fridge", text="fridge")
+    ranked = best_matches([new, off, old, newer], ["laptop", "coding"], 3)  # type: ignore[list-item]
+    assert ranked == [old, newer, new]
+    assert best_matches([new, newer], [], 1) == [newer]  # type: ignore[list-item]

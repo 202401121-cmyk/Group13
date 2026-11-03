@@ -34,6 +34,14 @@ REDDIT_ID_PATTERN = re.compile(r"^[a-z0-9]{1,13}$")
 GONE = frozenset({"[deleted]", "[removed]", ""})  # what Reddit leaves when a post, comment or account is gone
 BOTS = frozenset({"automoderator"})
 DEFAULT_QUALITY = 0.5  # US-13 scores threads; until then every Reddit source is average
+# Words that say nothing about the product, so a thread is not matched on them.
+STOP_WORDS = frozenset(
+    (  # noqa: SIM905  # one readable line of words, not one word per line
+        "a an and any are at be best buy can do for from get good have help i in is it me my need of on one or "
+        "please should the to under vs want what which with"
+    ).split()
+)
+_WORD = re.compile(r"[a-z0-9]+")
 
 
 @dataclass(frozen=True)
@@ -203,6 +211,26 @@ def make_source(
         )
     except ValueError:  # pydantic's ValidationError is a ValueError: skip the item, never crash the search
         return None
+
+
+def query_words(query: str) -> list[str]:
+    """The query's words worth matching: lowercase letters and digits, two or more characters, no filler words."""
+    words = [w for w in _WORD.findall(query.lower()) if len(w) >= 2 and w not in STOP_WORDS]
+    return list(dict.fromkeys(words))
+
+
+def match_score(words: Sequence[str], text: str) -> int:
+    """How many of the words the text has. A word also matches longer forms of itself: laptop, laptops."""
+    tokens = _WORD.findall(text.lower())
+    return sum(1 for w in words if any(t.startswith(w) for t in tokens))
+
+
+def best_matches(sources: Sequence[Source], words: Sequence[str], limit: int) -> list[Source]:
+    """The sources that have the most query words, newest first among equals. With no words, just the newest."""
+    scored = [(match_score(words, f"{s.title}\n{s.text}") if words else 1, s) for s in sources]
+    kept = [(score, s) for score, s in scored if score > 0]
+    kept.sort(key=lambda pair: (pair[0], pair[1].published_at or datetime.min.replace(tzinfo=UTC)), reverse=True)
+    return [s for _, s in kept[:limit]]
 
 
 def newest(sources: Sequence[Source]) -> datetime | None:
