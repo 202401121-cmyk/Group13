@@ -115,7 +115,11 @@ function ResultsPage() {
   return (
     <PageShell>
       <div className="mx-auto grid max-w-6xl gap-8 px-4 pb-20 pt-10 sm:px-6 md:pt-14 lg:grid-cols-[minmax(0,760px)_20rem] lg:justify-between">
-        <div className="min-w-0">
+        {/*
+          At least one screen tall, so the brief summary and footer start below the fold while research runs
+          and do not jump when the results replace the progress list (CLS was 0.31 on a phone).
+        */}
+        <div className="min-h-svh min-w-0">
           {(research.status === "researching" || research.status === "starting") && (
             <Waiting
               state={research}
