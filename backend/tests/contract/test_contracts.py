@@ -371,15 +371,22 @@ def test_personal_tasks_include_everything_with_user_words() -> None:
     assert C.LLMTask.EXTRACT_CLAIMS not in C.PERSONAL_TASKS  # public web text only
 
 
-def test_generate_criteria_is_a_personal_task() -> None:
-    # The criteria request carries the user's own words as the use case, so it must stay off
-    # Gemini's free tier (build rule 8; team decision for US-03).
-    assert C.LLMTask.GENERATE_CRITERIA in C.PERSONAL_TASKS
+def test_generate_criteria_is_not_always_personal() -> None:
+    # US-46: the criteria call is private only when it carries the shopper's use case. With just our category
+    # label it is public, so the call site declares its class instead of the task deciding it.
+    assert C.LLMTask.GENERATE_CRITERIA not in C.PERSONAL_TASKS
+
+
+def test_data_classes_and_difficulties() -> None:
+    assert [c.value for c in C.DataClass] == ["private", "reddit", "public"]
+    assert [d.value for d in C.Difficulty] == ["short", "medium", "long"]
+    assert C.Provider("mistral") is C.Provider.MISTRAL
 
 
 def test_call_record_is_valid() -> None:
     rec = C.LLMCallRecord(
         task="extract_claims",
+        data_class="public",
         provider="gemini",
         model="flash",
         input_tokens=2900,
@@ -390,6 +397,24 @@ def test_call_record_is_valid() -> None:
         at=datetime.now(UTC),
     )
     assert rec.fitted == "trimmed"
+
+
+def test_call_record_needs_a_known_data_class() -> None:
+    row = {
+        "task": "detect_intent",
+        "provider": "groq",
+        "model": "m",
+        "input_tokens": 1,
+        "output_tokens": 1,
+        "duration_ms": 1,
+        "outcome": "ok",
+        "at": datetime.now(UTC),
+    }
+    with pytest.raises(ValidationError):
+        C.LLMCallRecord.model_validate(row)  # every call says what its prompt carried
+    with pytest.raises(ValidationError):
+        C.LLMCallRecord.model_validate({**row, "data_class": "secret"})
+    assert C.LLMCallRecord.model_validate({**row, "data_class": "private"}).data_class is C.DataClass.PRIVATE
 
 
 # --- US-12: where a Reddit source came from, and who wrote it (hashed) -----------------------------

@@ -1,5 +1,15 @@
 {
   "$defs": {
+    "DataClass": {
+      "description": "What a prompt carries. Every call declares it, and it decides which providers may see the prompt (US-46).\n\nPrivate and Reddit text only ever go to providers that do not train on what we send (build rule 8).",
+      "enum": [
+        "private",
+        "reddit",
+        "public"
+      ],
+      "title": "DataClass",
+      "type": "string"
+    },
     "LLMTask": {
       "description": "Every kind of call. Routing, token budgets and logging are keyed on this.",
       "enum": [
@@ -21,7 +31,8 @@
         "groq",
         "gemini",
         "openrouter",
-        "cerebras"
+        "cerebras",
+        "mistral"
       ],
       "title": "Provider",
       "type": "string"
@@ -44,6 +55,9 @@
     },
     "task": {
       "$ref": "#/$defs/LLMTask"
+    },
+    "data_class": {
+      "$ref": "#/$defs/DataClass"
     },
     "provider": {
       "$ref": "#/$defs/Provider"
@@ -98,6 +112,7 @@
   "required": [
     "search_id",
     "task",
+    "data_class",
     "provider",
     "model",
     "input_tokens",

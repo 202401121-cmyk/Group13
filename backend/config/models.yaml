@@ -1,53 +1,128 @@
-# LLM providers and model limits (US-26). Loaded and checked at startup by app/llm/config.py.
+# LLM providers and model limits (US-26, US-46). Loaded and checked at startup by app/llm/config.py.
 #
-# providers: tried in this order when a call fails (fallback order).
+# providers: how to reach each provider, and what its terms say.
+#            json_mode, requests_per_second, tokens_per_minute and daily_tokens are optional limits we hold
+#            ourselves to (US-46); daily_tokens is counted per UTC day, in memory.
+#            trains_on_inputs: may the provider, on the plan we use, train on what we send? true means public
+#            data only: private and Reddit text never go there (build rule 8). Each flag comes from the
+#            provider's own terms page (terms_url), read on terms_checked. Re-read it when the terms change.
 # models:    one row per model; each row has exactly the fields of app.contracts.ModelLimits.
-#            trains_on_free_tier: true means the free tier may train on prompts, so tasks in
-#            PERSONAL_TASKS are never sent there (build rule 8). Gemini must stay true.
+#            trains_on_free_tier must equal its provider's trains_on_inputs. Gemini must stay true.
+# routes:    the providers each call may use, in order, by data class and difficulty (US-46). See below.
 #
 # Free-tier limits change without notice. Run `python -m scripts.smoke_llm` and copy what you see into
-# docs/api-setup.md, then remove the UNVERIFIED comment from each row you confirmed.
+# docs/api-setup.md, then remove the UNVERIFIED comment from each row you confirmed. The routing rules (data
+# classes, difficulties and why each provider is where it is) are written up in docs/api-setup.md.
 
 providers:
+  # "Groq does not retain customer data for inference requests"; its services agreement (section 4.2) does not
+  # permit using inputs or outputs for training.
   - name: groq
     base_url: https://api.groq.com/openai/v1
     api_key_env: GROQ_API_KEY
     request_timeout_s: 30
+    trains_on_inputs: false
+    terms_url: https://console.groq.com/docs/your-data
+    terms_checked: 2026-11-03
+  # Unpaid services: prompts may be used to improve Google's products and machine learning, and people may read them.
   - name: gemini
     base_url: https://generativelanguage.googleapis.com/v1beta/openai
     api_key_env: GEMINI_API_KEY
     request_timeout_s: 30
+    trains_on_inputs: true
+    terms_url: https://aistudio.google.com/docs/terms
+    terms_checked: 2026-11-03
+  # Whether a :free model's host trains on prompts depends on that host, and we cannot confirm it for ours.
+  # Treated as training until someone can show otherwise.
   - name: openrouter
     base_url: https://openrouter.ai/api/v1
     api_key_env: OPENROUTER_API_KEY
     request_timeout_s: 30
+    trains_on_inputs: true
+    terms_url: https://openrouter.ai/docs/features/privacy-and-logging
+    terms_checked: 2026-11-03
+  # The terms give Cerebras no right to use our content for training, and the privacy policy (section 6) says it
+  # does not keep inputs and outputs.
   - name: cerebras
     base_url: https://api.cerebras.ai/v1
     api_key_env: CEREBRAS_API_KEY
     request_timeout_s: 30
+    trains_on_inputs: false
+    terms_url: https://cerebras.ai/terms-of-service
+    terms_checked: 2026-11-03
+  # The free plan ("Free mode") may use inputs and outputs to train. An opt-out exists, but we cannot confirm it is
+  # set for our key, so Mistral stays public data only.
+  - name: mistral
+    base_url: https://api.mistral.ai/v1
+    api_key_env: MISTRAL_API_KEY
+    request_timeout_s: 30
+    trains_on_inputs: true
+    terms_url: https://help.mistral.ai/en/articles/347617
+    terms_checked: 2026-11-03
+    json_mode: true
+    # Our own limits, below what the API reported on 3 Nov 2026 (188 requests a minute, 625,000 tokens a minute).
+    # The monthly allowance is shown only in Mistral's Admin Panel > API > Limits: set MISTRAL_DAILY_TOKENS in
+    # .env to that allowance / 31, less 10%. These three can also be set with MISTRAL_RPS, MISTRAL_TPM and
+    # MISTRAL_DAILY_TOKENS, and the model with MISTRAL_MODEL.
+    requests_per_second: 2
+    tokens_per_minute: 500000
+    daily_tokens: 1000000
 
 models:
-  # UNVERIFIED: confirm with scripts/smoke_llm.py
+  # The llama-3.3-70b models and gemini-2.5-flash stopped working for us by 3 Nov 2026 (HTTP 404: retired, or not
+  # offered to new keys). Windows below come from each provider's model list on that date. The reasoning models
+  # (gpt-oss, nemotron) spend some output tokens thinking before they answer, hence the 8192 output budget.
+  # Verified 3 Nov 2026 with scripts/smoke_llm.py: valid JSON back.
   - provider: groq
-    model: llama-3.3-70b-versatile
+    model: openai/gpt-oss-120b
     context_window_tokens: 131072
     max_output_tokens: 8192
     trains_on_free_tier: false
-  # UNVERIFIED: confirm with scripts/smoke_llm.py
+  # Verified 3 Nov 2026 with scripts/smoke_llm.py. The free tier sometimes answers HTTP 503 (busy); the wrapper
+  # then moves on to the next provider.
   - provider: gemini
-    model: gemini-2.5-flash
+    model: gemini-3.5-flash
     context_window_tokens: 1048576
     max_output_tokens: 8192
     trains_on_free_tier: true
-  # UNVERIFIED: confirm with scripts/smoke_llm.py
+  # Verified 3 Nov 2026 with scripts/smoke_llm.py. Slower (4 to 7 s); it is the third choice.
   - provider: openrouter
-    model: meta-llama/llama-3.3-70b-instruct:free
-    context_window_tokens: 65536
-    max_output_tokens: 4096
-    trains_on_free_tier: false
-  # UNVERIFIED: confirm with scripts/smoke_llm.py
+    model: nvidia/nemotron-3.5-lightning:free
+    context_window_tokens: 1000000
+    max_output_tokens: 8192
+    trains_on_free_tier: true
+  # UNVERIFIED: on 3 Nov 2026 Cerebras listed only gpt-oss-120b and qwen-3.8-27b, and every call answered
+  # HTTP 402 (the account needs a plan or new credits). The window is a cautious guess until a call works.
   - provider: cerebras
-    model: llama-3.3-70b
-    context_window_tokens: 8192
-    max_output_tokens: 2048
+    model: gpt-oss-120b
+    context_window_tokens: 65536
+    max_output_tokens: 8192
     trains_on_free_tier: false
+  # Verified 3 Nov 2026 with a live call: valid JSON back. Ministral 3 8B (ministral-8b-2512); the window is the
+  # one the API reports. mistral-small-latest answered HTTP 429 with a limit of 0 requests a minute on our key.
+  - provider: mistral
+    model: ministral-8b-latest
+    context_window_tokens: 262144
+    max_output_tokens: 4096
+    trains_on_free_tier: true
+
+# Every call says what its prompt carries (data class) and how big the job is (difficulty); this table gives the
+# providers to try for that pair, in order. The loader refuses a private or reddit route that names a provider
+# with trains_on_inputs: true. Within a route, a provider that is cooling down, dead for the run, out of today's
+# budget or without a key is skipped. If none is left, the stage uses its own fallback.
+#   private: the shopper's own words.          reddit: posts and comments from Reddit.
+#   public:  our own fixed text, or public web pages.
+#   short: a small prompt and answer.  medium: a longer answer.  long: a long input (many pages or comments).
+routes:
+  private:
+    short: [groq, cerebras]
+    medium: [groq, cerebras]
+    long: [groq, cerebras]
+  reddit:
+    short: [groq, cerebras]
+    medium: [groq, cerebras]
+    long: [groq, cerebras]
+  public:
+    short: [mistral, groq]
+    medium: [mistral, gemini, groq, openrouter]
+    long: [gemini, mistral, cerebras, openrouter]

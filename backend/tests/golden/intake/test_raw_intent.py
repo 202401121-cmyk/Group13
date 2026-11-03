@@ -12,7 +12,7 @@ from collections.abc import Callable
 
 import pytest
 
-from app.contracts import Intent, LLMTask, LLMUnavailable, Provider
+from app.contracts import DataClass, Difficulty, Intent, LLMTask, LLMUnavailable, Provider
 from app.intake.parsing import LLM_OPTIONS_QUESTION, RawIntent, to_intent
 from app.intake.prompts import SYSTEM_PROMPT, user_message
 from app.intake.rules import NO_CATEGORY_QUESTION, detect_by_rules
@@ -24,7 +24,14 @@ def detect(reply: str, text: str) -> Intent:
     """What the intake stage does with one LLM reply."""
     client = WrapperLLMClient(load_llm_config(), {Provider.GROQ: FakeAdapter(Provider.GROQ, replies=(reply,))})
     try:
-        raw = client.complete(LLMTask.DETECT_INTENT, SYSTEM_PROMPT, user_message(text), RawIntent)
+        raw = client.complete(
+            LLMTask.DETECT_INTENT,
+            SYSTEM_PROMPT,
+            user_message(text),
+            RawIntent,
+            data_class=DataClass.PRIVATE,
+            difficulty=Difficulty.SHORT,
+        )
     except LLMUnavailable:
         return detect_by_rules(text)
     return to_intent(raw, text, text)

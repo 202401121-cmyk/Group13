@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from typing import TypeVar
 
+import pytest
 from pydantic import BaseModel
 
-from app.contracts import CriteriaInput, CriteriaSet, LLMTask, LLMUnavailable, StageContext
+from app.contracts import CriteriaInput, CriteriaSet, DataClass, Difficulty, LLMTask, LLMUnavailable, StageContext
 from app.criteria import CriteriaStage, InMemoryCriteriaStore, fallback_set
 from app.criteria.parsing import RawCriteria
-from app.criteria.prompts import RETRY_NOTE
+from app.criteria.prompts import RETRY_NOTE, brief_data_class
 from tests.fakes.llm import FakeLLMClient
 
 CTX = StageContext(search_id="srch_test00001")
@@ -51,6 +52,8 @@ class ScriptedLLM:
         user: str,
         schema: type[T],
         *,
+        data_class: DataClass,
+        difficulty: Difficulty,
         search_id: str | None = None,
         max_output_tokens: int = 1024,
     ) -> T:
@@ -150,3 +153,23 @@ def test_an_unknown_category_still_gets_criteria() -> None:
     result = CriteriaStage().run(inp, CTX)
     assert isinstance(result, CriteriaSet)
     assert (result.category, result.source) == ("yoga_mat", "fallback")
+
+
+# --- what the brief carries decides where it may go (US-46) --------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("inp", "data_class"),
+    [
+        (CriteriaInput(category="laptop", category_label="Laptop"), DataClass.PUBLIC),  # only our own label
+        (GAMING, DataClass.PRIVATE),  # the shopper's use case
+        (CriteriaInput(category="kayak_paddle", category_label="Kayak paddle"), DataClass.PRIVATE),  # their words
+        (CriteriaInput(category="laptop", category_label="Lapptop for my son"), DataClass.PRIVATE),  # not our label
+    ],
+    ids=["known-category-only", "with-use-case", "unknown-category", "changed-label"],
+)
+def test_the_criteria_call_declares_what_its_brief_carries(inp: CriteriaInput, data_class: DataClass) -> None:
+    assert brief_data_class(inp) is data_class
+    fake = FakeLLMClient({LLMTask.GENERATE_CRITERIA: SEVEN})
+    CriteriaStage(fake, InMemoryCriteriaStore()).run(inp, CTX)
+    assert [(c.data_class, c.difficulty) for c in fake.calls] == [(data_class, Difficulty.SHORT)]

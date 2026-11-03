@@ -5,7 +5,8 @@
         "groq",
         "gemini",
         "openrouter",
-        "cerebras"
+        "cerebras",
+        "mistral"
       ],
       "title": "Provider",
       "type": "string"
@@ -34,7 +35,7 @@
       "type": "integer"
     },
     "trains_on_free_tier": {
-      "description": "True = never send personal tasks here",
+      "description": "True = the provider may train on prompts: public data only",
       "title": "Trains On Free Tier",
       "type": "boolean"
     }

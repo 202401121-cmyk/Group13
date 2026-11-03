@@ -12,7 +12,7 @@ from collections.abc import Callable
 
 import pytest
 
-from app.contracts import CriteriaInput, CriteriaSet, LLMTask, LLMUnavailable, Provider
+from app.contracts import CriteriaInput, CriteriaSet, DataClass, Difficulty, LLMTask, LLMUnavailable, Provider
 from app.criteria.fallback import fallback_criteria, fallback_set
 from app.criteria.parsing import RawCriteria, is_vague, to_criteria_set
 from app.criteria.prompts import SYSTEM_PROMPT, user_message
@@ -26,7 +26,14 @@ def generate(reply: str, inp: CriteriaInput = INP) -> CriteriaSet:
     """One LLM answer, cleaned, or the family fallback set (the stage's retry is tested in test_stage.py)."""
     client = WrapperLLMClient(load_llm_config(), {Provider.GROQ: FakeAdapter(Provider.GROQ, replies=(reply,))})
     try:
-        raw = client.complete(LLMTask.GENERATE_CRITERIA, SYSTEM_PROMPT, user_message(inp), RawCriteria)
+        raw = client.complete(
+            LLMTask.GENERATE_CRITERIA,
+            SYSTEM_PROMPT,
+            user_message(inp),
+            RawCriteria,
+            data_class=DataClass.PRIVATE,
+            difficulty=Difficulty.SHORT,
+        )
     except LLMUnavailable:
         return fallback_set(inp)
     return to_criteria_set(raw, inp) or fallback_set(inp)

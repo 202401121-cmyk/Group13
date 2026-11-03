@@ -1,7 +1,7 @@
 """One adapter for every provider, through their OpenAI-compatible chat completions API (US-26).
 
 This module and client.py are the only code that talks to an LLM provider (build rule 1). No provider SDK is
-used: Groq, Gemini, OpenRouter and Cerebras all accept the same request over plain HTTP.
+used: Groq, Gemini, OpenRouter, Cerebras and Mistral all accept the same request over plain HTTP.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import httpx
 
 from app.contracts import Provider
 
-from .errors import AuthFailed, ProviderError, ProviderTimeout, RateLimited, ServerError
+from .errors import AuthFailed, NoCredit, ProviderError, ProviderTimeout, RateLimited, ServerError
 from .fitting import estimate_tokens
 
 
@@ -36,24 +36,33 @@ class Adapter(Protocol):
 
 
 class OpenAICompatibleAdapter:
-    """POST {base_url}/chat/completions with a Bearer key. Used for all four providers."""
+    """POST {base_url}/chat/completions with a Bearer key. Used for every provider.
 
-    def __init__(self, provider: Provider, base_url: str, api_key: str, http: httpx.Client) -> None:
+    json_mode adds response_format {"type": "json_object"}, for providers that support it (Mistral). The reply is
+    still parsed and checked against the schema exactly as for the others.
+    """
+
+    def __init__(
+        self, provider: Provider, base_url: str, api_key: str, http: httpx.Client, json_mode: bool = False
+    ) -> None:
         self.provider = provider
         self._url = base_url.rstrip("/") + "/chat/completions"
         self._api_key = api_key
         self._http = http
+        self._json_mode = json_mode
 
     def __repr__(self) -> str:
         return f"OpenAICompatibleAdapter(provider={self.provider.value!r}, url={self._url!r})"  # never the key
 
     def call(self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float) -> RawCompletion:
-        payload = {
+        payload: dict[str, Any] = {
             "model": model,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "max_tokens": max_output_tokens,
             "temperature": 0,
         }
+        if self._json_mode:
+            payload["response_format"] = {"type": "json_object"}
         try:
             response = self._http.post(
                 self._url,
@@ -72,6 +81,8 @@ class OpenAICompatibleAdapter:
             raise RateLimited(self.provider, "HTTP 429 (rate limited)", limits)
         if status in (401, 403):
             raise AuthFailed(self.provider, f"HTTP {status} (key missing, wrong or not allowed)", limits)
+        if status == 402:
+            raise NoCredit(self.provider, "HTTP 402 (the account needs a plan or credits)", limits)
         if status >= 500:
             raise ServerError(self.provider, f"HTTP {status}", limits)
         if not 200 <= status < 300:
@@ -98,7 +109,10 @@ class OpenAICompatibleAdapter:
 
 
 def _ratelimit_headers(headers: httpx.Headers) -> dict[str, str]:
-    return {name: value for name, value in headers.items() if "ratelimit" in name.lower()}
+    """The rate-limit headers, and Retry-After: the wrapper reads them to time a cool-down."""
+    return {
+        name: value for name, value in headers.items() if "ratelimit" in name.lower() or name.lower() == "retry-after"
+    }
 
 
 def _int(value: object, fallback: int) -> int:

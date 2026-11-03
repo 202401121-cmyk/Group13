@@ -35,9 +35,20 @@ output. The old class becomes what its `fallback` calls. Never delete a baseline
 ## Calling the LLM
 
 ```python
-result = llm.complete(LLMTask.EXTRACT_CLAIMS, SYSTEM_PROMPT, wrap_as_data(source.text), RawExtraction)
+result = llm.complete(
+    LLMTask.EXTRACT_CLAIMS,
+    SYSTEM_PROMPT,
+    wrap_as_data(source.text),
+    RawExtraction,
+    data_class=DataClass.REDDIT if source.type is SourceType.REDDIT else DataClass.PUBLIC,
+    difficulty=Difficulty.LONG,
+)
 ```
 
+- Every call declares `data_class` (what the prompt carries: `PRIVATE` for the shopper's words, `REDDIT`, or
+  `PUBLIC`) and `difficulty` (`SHORT`, `MEDIUM`, `LONG`). Pick the most private class of anything in the prompt.
+  The routes table in `config/models.yaml` turns the pair into a provider chain (US-46; rules in
+  `docs/api-setup.md`).
 - `RawExtraction` is the lenient parsing model in `parsing.py`, not a contract.
 - Put untrusted text inside `wrap_as_data()` (added by US-28) so it is marked as data.
 - Catch `LLMUnavailable` and use the stage's fallback. Never retry in a loop yourself; the wrapper does it.

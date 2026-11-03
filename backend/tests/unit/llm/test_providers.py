@@ -1,4 +1,4 @@
-"""The OpenAI-compatible adapter (US-26), against httpx.MockTransport. No real API is called."""
+"""The OpenAI-compatible adapter (US-26, US-46), against httpx.MockTransport. No real API is called."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ import pytest
 from app.contracts import Provider
 from app.llm.errors import (
     AuthFailed,
+    NoCredit,
     ProviderError,
     ProviderFailure,
     ProviderTimeout,
@@ -89,6 +90,7 @@ FAILURES: list[tuple[str, Handler, type[ProviderFailure], str]] = [
     ("503", lambda r: httpx.Response(503), ServerError, "error"),
     ("401", lambda r: httpx.Response(401, json={"error": f"Invalid API key {FAKE_KEY}"}), AuthFailed, "error"),
     ("403", lambda r: httpx.Response(403, text=f"forbidden for {FAKE_KEY}"), AuthFailed, "error"),
+    ("402", lambda r: httpx.Response(402, json={"message": "payment required"}), NoCredit, "error"),
     ("400", lambda r: httpx.Response(400, text="bad request"), ProviderError, "error"),
     ("timeout", _raise_timeout, ProviderTimeout, "timeout"),
     ("network", _raise_connect, ProviderError, "error"),
@@ -130,3 +132,38 @@ def test_rate_limit_keeps_the_ratelimit_headers() -> None:
     with pytest.raises(RateLimited) as info:
         _call(adapter)
     assert info.value.ratelimit_headers == {"x-ratelimit-reset": "7s"}
+
+
+def test_rate_limit_keeps_retry_after_for_the_cool_down() -> None:
+    adapter = _adapter(lambda r: httpx.Response(429, headers={"Retry-After": "75"}))
+    with pytest.raises(RateLimited) as info:
+        _call(adapter)
+    assert info.value.ratelimit_headers == {"retry-after": "75"}
+
+
+def test_json_mode_asks_for_a_json_object() -> None:
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, json=_completion('{"ok": true}'))
+
+    http = httpx.Client(transport=httpx.MockTransport(handler))
+    adapter = OpenAICompatibleAdapter(Provider.MISTRAL, BASE_URL, FAKE_KEY, http, json_mode=True)
+    assert adapter.call("ministral-8b-latest", "be brief", "hello", max_output_tokens=64, timeout_s=5).text == (
+        '{"ok": true}'
+    )
+    body = json.loads(seen[0].content)
+    assert body["response_format"] == {"type": "json_object"}
+    assert body["model"] == "ministral-8b-latest"
+
+
+def test_without_json_mode_no_response_format_is_sent() -> None:
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, json=_completion('{"ok": true}'))
+
+    _call(_adapter(handler))
+    assert "response_format" not in json.loads(seen[0].content)

@@ -12,7 +12,7 @@ from typing import TypeVar
 
 from pydantic import BaseModel
 
-from app.contracts import LLMTask, LLMUnavailable, Provider
+from app.contracts import DataClass, Difficulty, LLMTask, LLMUnavailable, Provider
 from app.llm.errors import ProviderError
 from app.llm.fitting import estimate_tokens
 from app.llm.providers import RawCompletion
@@ -30,6 +30,8 @@ class FakeCall:
     user: str
     schema: str
     search_id: str | None
+    data_class: DataClass
+    difficulty: Difficulty
 
 
 class FakeLLMClient:
@@ -46,10 +48,12 @@ class FakeLLMClient:
         user: str,
         schema: type[T],
         *,
+        data_class: DataClass,
+        difficulty: Difficulty,
         search_id: str | None = None,
         max_output_tokens: int = 1024,
     ) -> T:
-        self.calls.append(FakeCall(task, system, user, schema.__name__, search_id))
+        self.calls.append(FakeCall(task, system, user, schema.__name__, search_id, data_class, difficulty))
         if task not in self.canned:
             raise LLMUnavailable(f"fake: no canned answer for {task.value}")
         answer = self.canned[task]
