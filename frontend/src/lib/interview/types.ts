@@ -1,4 +1,5 @@
 import type { Brief } from "@/lib/request/types";
+import type { RubricItem } from "@/lib/results/types";
 
 export interface Criterion {
   id: string;
@@ -47,17 +48,21 @@ export interface TurnInput {
   criteria: Criterion[];
   answers: Answers;
   turn?: Turn | undefined;
+  /** The session the backend keeps this interview in (live mode). */
+  sessionId?: string;
 }
 
 export interface TurnResult {
   step: Step;
   answers: Answers;
   laterChanged: boolean;
+  /** The weights the backend worked out, sent with the finished step (live mode only). */
+  rubric?: RubricItem[];
 }
 
 /** Swap the mock for a real backend by implementing this interface. */
 export interface InterviewService {
-  getCriteria(brief: Brief): Promise<CriteriaResult>;
+  getCriteria(brief: Brief, sessionId?: string): Promise<CriteriaResult>;
   turn(input: TurnInput): Promise<TurnResult>;
 }
 

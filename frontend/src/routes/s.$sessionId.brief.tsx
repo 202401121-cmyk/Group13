@@ -10,7 +10,7 @@ import { mustHavesOf } from "@/lib/results/view";
 import { useInterview } from "@/lib/interview/useInterview";
 import { interviewReducer, toInterviewSnapshot } from "@/lib/interview/reducer";
 import { saveSession } from "@/lib/session/store";
-import { rubricFromInterview, weightRows } from "@/lib/results/rubric";
+import { rubricForBrief, weightRows } from "@/lib/results/rubric";
 import { researchServiceInfo, startResearch, useResearch } from "@/lib/results/controller";
 import { MOCK_SCENARIOS } from "@/lib/results/mockService";
 
@@ -55,8 +55,9 @@ function BriefReview() {
     );
 
   const category = (session.brief.product ?? "product").toLowerCase();
-  const rubric = rubricFromInterview(state);
-  const rows = weightRows(rubric);
+  // Live mode shows the backend's own weights, which exist only once the interview is finished.
+  const rubric = rubricForBrief(state, !info.isMock);
+  const rows = weightRows(rubric ?? []);
   const active = research.status === "researching" || research.status === "starting";
 
   function change(criterionId: string) {
@@ -67,7 +68,7 @@ function BriefReview() {
   }
 
   function start() {
-    if (!session || starting) return;
+    if (!session || starting || !rubric) return;
     setStarting(true);
     if (!active) {
       startResearch({
@@ -100,6 +101,13 @@ function BriefReview() {
           <div className="mt-10">
             <BriefSections brief={session.brief} rows={rows} onChange={change} />
           </div>
+
+          {!rubric && (
+            <p role="status" className="mt-8 rounded-2xl bg-secondary px-4 py-3 text-foreground">
+              Finish the questions first. Then you'll see how much each one counts, and you can
+              start the research.
+            </p>
+          )}
 
           {info.isMock && (
             <div className="mt-10 rounded-2xl border border-dashed border-border bg-card/60 p-4">
@@ -134,7 +142,7 @@ function BriefReview() {
             </Link>
             <PillButton
               onClick={start}
-              disabled={starting}
+              disabled={starting || !rubric}
               aria-busy={starting}
               className="min-h-11"
             >

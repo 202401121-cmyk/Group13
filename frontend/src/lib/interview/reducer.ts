@@ -7,6 +7,7 @@ import {
   type Turn,
   type TurnResult,
 } from "./types";
+import type { RubricItem } from "@/lib/results/types";
 
 export type Phase =
   | "loading-criteria"
@@ -28,6 +29,8 @@ export interface InterviewState {
   revising: string | null;
   error: string | null;
   laterChanged: boolean;
+  /** The backend's weights once the interview is finished (live mode); null otherwise. */
+  rubric: RubricItem[] | null;
   requestId: number;
 }
 
@@ -53,6 +56,7 @@ export const initialInterview: InterviewState = {
   revising: null,
   error: null,
   laterChanged: false,
+  rubric: null,
   requestId: 0,
 };
 
@@ -66,6 +70,7 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
         phase: "criteria-ready",
         criteria: a.criteria,
         fallback: a.fallback,
+        rubric: null,
         error: null,
       };
     case "CRITERIA_FAILED":
@@ -104,6 +109,7 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
         pending: null,
         revising: stillRevising,
         laterChanged,
+        rubric: a.result.rubric ?? null,
       };
     }
     case "TURN_FAILED":
@@ -129,6 +135,7 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
         pending: null,
         error: null,
         laterChanged: false,
+        rubric: null, // the answer is changing, so the finished weights no longer hold
       };
     }
     case "RESTORE":
@@ -167,5 +174,6 @@ export function toInterviewSnapshot(s: InterviewState): Partial<InterviewState> 
     answers: s.answers,
     step: s.step,
     revising: s.revising,
+    rubric: s.rubric,
   };
 }

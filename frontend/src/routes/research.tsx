@@ -12,10 +12,10 @@ import {
 import { Understanding } from "@/components/request/Understanding";
 import { initialState, requestReducer, toSnapshot, type RequestState } from "@/lib/request/reducer";
 import { getRequestService } from "@/lib/request/service";
-import { createSession } from "@/lib/session/store";
+import { ApiError } from "@/lib/api/client";
+import { CONFIRMED_KEY, CONFIRMED_SESSION_KEY, createSession } from "@/lib/session/store";
 
 const STORAGE_KEY = "shopsense.request.v1";
-const CONFIRMED_KEY = "shopsense.brief.confirmed.v1";
 
 export const Route = createFileRoute("/research")({
   head: () => ({
@@ -80,7 +80,13 @@ function ResearchPage() {
     const p = state.pending;
     service
       .understand(
-        p.kind === "clarify" ? { text: p.text, clarification: p.answer } : { text: p.text },
+        p.kind === "clarify"
+          ? {
+              text: p.text,
+              clarification: p.answer,
+              ...(state.sessionId ? { sessionId: state.sessionId } : {}),
+            }
+          : { text: p.text },
       )
       .then((response) => !cancelled && dispatch({ type: "RESOLVED", response }))
       .catch(
@@ -111,16 +117,24 @@ function ResearchPage() {
   async function saveBrief(brief: NonNullable<RequestState["brief"]>) {
     dispatch({ type: "SAVE_START" });
     try {
-      dispatch({ type: "SAVE_DONE", brief: await service.saveBrief(brief) });
-    } catch {
-      dispatch({ type: "SAVE_FAILED", message: "We couldn't save that. Try again." });
+      const saved = await service.saveBrief(brief, {
+        sessionId: state.sessionId,
+        previous: state.brief,
+      });
+      dispatch({ type: "SAVE_DONE", brief: saved });
+    } catch (e) {
+      // The live service explains edits it can't send yet; anything else is a plain retry.
+      const message = e instanceof ApiError ? e.message : "We couldn't save that. Try again.";
+      dispatch({ type: "SAVE_FAILED", message });
     }
   }
 
   function confirm() {
     if (!state.brief) return;
     sessionStorage.setItem(CONFIRMED_KEY, JSON.stringify(state.brief));
-    const sessionId = createSession(state.brief);
+    // Live mode keeps the backend's session; mock mode makes one in the same format.
+    const sessionId = createSession(state.brief, state.sessionId ?? undefined);
+    if (state.sessionId) sessionStorage.setItem(CONFIRMED_SESSION_KEY, sessionId);
     navigate({ to: "/s/$sessionId/criteria", params: { sessionId } });
   }
 

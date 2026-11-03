@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PageShell } from "@/components/shopsense/PageShell";
 import { pillButton } from "@/components/shopsense/pill-button";
-import { createSession } from "@/lib/session/store";
+import { CONFIRMED_KEY, CONFIRMED_SESSION_KEY, createSession } from "@/lib/session/store";
 import type { Brief } from "@/lib/request/types";
 
 export const Route = createFileRoute("/criteria")({
@@ -25,9 +25,11 @@ function LegacyCriteria() {
   const [missing, setMissing] = useState(false);
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem("shopsense.brief.confirmed.v1");
+      const raw = sessionStorage.getItem(CONFIRMED_KEY);
       if (raw) {
-        const sessionId = createSession(JSON.parse(raw) as Brief);
+        // Live mode must reuse the backend's session; mock mode makes a new one.
+        const known = sessionStorage.getItem(CONFIRMED_SESSION_KEY) ?? undefined;
+        const sessionId = createSession(JSON.parse(raw) as Brief, known);
         navigate({ to: "/s/$sessionId/criteria", params: { sessionId }, replace: true });
         return;
       }

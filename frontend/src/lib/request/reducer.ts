@@ -23,6 +23,8 @@ export interface RequestState {
   inputError: string | null;
   error: string | null;
   pending: Pending | null;
+  /** The session this request belongs to (the backend's in live mode). */
+  sessionId: string | null;
   requestId: number;
 }
 
@@ -54,6 +56,7 @@ export const initialState: RequestState = {
   inputError: null,
   error: null,
   pending: null,
+  sessionId: null,
   requestId: 0,
 };
 
@@ -77,6 +80,7 @@ export function requestReducer(state: RequestState, action: Action): RequestStat
         inputError: null,
         error: null,
         pending: { kind: "submit", text },
+        sessionId: null, // a new request starts a new session
         requestId: state.requestId + 1,
       };
     }
@@ -97,10 +101,13 @@ export function requestReducer(state: RequestState, action: Action): RequestStat
     case "RESOLVED": {
       if (state.status !== "submitting") return state;
       const r = action.response;
-      if (r.kind === "follow-up") return { ...state, status: "follow-up", followUp: r.followUp };
-      if (r.kind === "examples") return { ...state, status: "examples", followUp: null };
+      const sessionId = r.sessionId ?? state.sessionId;
+      if (r.kind === "follow-up")
+        return { ...state, status: "follow-up", followUp: r.followUp, sessionId };
+      if (r.kind === "examples") return { ...state, status: "examples", followUp: null, sessionId };
       return {
         ...state,
+        sessionId,
         status: "understood",
         brief: r.brief,
         followUp: null,
@@ -163,5 +170,6 @@ export function toSnapshot(s: RequestState): Partial<RequestState> {
     followUp: status === "follow-up" ? s.followUp : null,
     brief: status === "understood" ? s.brief : null,
     edited: s.edited,
+    sessionId: status === "idle" ? null : s.sessionId,
   };
 }

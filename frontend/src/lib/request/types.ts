@@ -21,20 +21,32 @@ export interface FollowUp {
   options: string[];
 }
 
-export type UnderstandResponse =
+export type UnderstandResponse = (
   | { kind: "understood"; brief: Brief }
   | { kind: "follow-up"; followUp: FollowUp }
-  | { kind: "examples" };
+  | { kind: "examples" }
+) & {
+  /** The session this request belongs to: the backend's in live mode; the mock makes one in the same format. */
+  sessionId?: string;
+};
 
 export interface UnderstandInput {
   text: string;
   clarification?: string;
+  /** The session of the request being clarified. Left out for a new request, which starts a new session. */
+  sessionId?: string;
+}
+
+/** What saveBrief needs to send only the fields that changed, to the right session. */
+export interface SaveContext {
+  sessionId: string | null;
+  previous: Brief | null;
 }
 
 /** Swap the mock adapter for a real backend by implementing this interface. */
 export interface RequestService {
   understand(input: UnderstandInput): Promise<UnderstandResponse>;
-  saveBrief(brief: Brief): Promise<Brief>;
+  saveBrief(brief: Brief, context?: SaveContext): Promise<Brief>;
 }
 
 export const MAX_REQUEST_LENGTH = 1000;

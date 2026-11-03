@@ -34,7 +34,7 @@ export function useInterview(sessionId: string) {
   useEffect(() => {
     if (!ready || !session || state.phase !== "loading-criteria") return;
     let cancelled = false;
-    withTimeout(getInterviewService().getCriteria(session.brief), REQUEST_TIMEOUT_MS)
+    withTimeout(getInterviewService().getCriteria(session.brief, sessionId), REQUEST_TIMEOUT_MS)
       .then(
         (r) =>
           !cancelled &&
@@ -51,7 +51,7 @@ export function useInterview(sessionId: string) {
     return () => {
       cancelled = true;
     };
-  }, [ready, session, state.phase, criteriaNonce]);
+  }, [ready, session, sessionId, state.phase, criteriaNonce]);
 
   // Interview turns: one request per requestId; stale responses are ignored.
   useEffect(() => {
@@ -62,6 +62,7 @@ export function useInterview(sessionId: string) {
     const t = setTimeout(() => !cancelled && setThinking(true), THINKING_DELAY_MS);
     withTimeout(
       getInterviewService().turn({
+        sessionId,
         brief: session.brief,
         criteria: state.criteria,
         answers: state.answers,

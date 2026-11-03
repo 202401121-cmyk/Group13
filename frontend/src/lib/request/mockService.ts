@@ -6,6 +6,7 @@
  * - Text containing "network error" fails once, then succeeds on retry.
  * - Very short requests (< 20 chars) are marked as read by the backup reader.
  */
+import { newSessionId } from "@/lib/session/store";
 import type { Brief, FollowUp, RequestService, UnderstandInput, UnderstandResponse } from "./types";
 
 const PRODUCTS: { re: RegExp; name: string }[] = [
@@ -146,7 +147,7 @@ export function createMockService(latency = 700): RequestService {
         failedOnce.add(input.text);
         throw new Error("We couldn't reach ShopSense. Check your connection and try again.");
       }
-      return resolve(input);
+      return { ...resolve(input), sessionId: input.sessionId ?? newSessionId() };
     },
     async saveBrief(brief) {
       await delay(latency / 2);

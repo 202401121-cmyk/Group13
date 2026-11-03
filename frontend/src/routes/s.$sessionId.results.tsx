@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useInterview } from "@/lib/interview/useInterview";
 import { loadSession, saveSession, type Session } from "@/lib/session/store";
-import { rubricFromInterview, weightRows, type WeightRow } from "@/lib/results/rubric";
+import { rubricForBrief, weightRows, type WeightRow } from "@/lib/results/rubric";
 import {
   getResearchState,
   researchServiceInfo,
@@ -91,7 +91,7 @@ function ResultsPage() {
     );
 
   const category = (session.brief.product ?? "product").toLowerCase();
-  const rows = weightRows(rubricFromInterview(interview));
+  const rows = weightRows(rubricForBrief(interview, !researchServiceInfo().isMock) ?? []);
 
   function stop() {
     stopResearch(sessionId);
@@ -399,7 +399,10 @@ function Results({
             }
           >
             {result.relaxation.hint}{" "}
-            <span className="font-semibold">Must-have: {result.relaxation.mustHave}</span>
+            {/* Shown only when the backend names the rule; never a guess. */}
+            {result.relaxation.mustHave && (
+              <span className="font-semibold">Must-have: {result.relaxation.mustHave}</span>
+            )}
           </Notice>
         )}
       </div>

@@ -37,11 +37,15 @@ export function weightRows(rubric: RubricItem[]): WeightRow[] {
 }
 
 /**
- * Builds the rubric from the F2 interview. Only the three quick-reply
+ * Builds the rubric from the F2 interview in mock mode. Only the quick-reply
  * importance answers map to a weight; anything else (typed answers, skipped,
  * not asked) uses the standard weight, so no user choice is invented.
+ * In live mode the backend works out the weights itself (see rubricForBrief).
  */
 const ANSWER_WEIGHT: Record<string, number> = {
+  high: 3,
+  medium: 2,
+  low: 1,
   "very important": 3,
   "yes, a lot": 3,
   "somewhat important": 2,
@@ -65,6 +69,18 @@ export function rubricFromInterview(s: Pick<InterviewState, "criteria" | "answer
       origin,
     };
   });
+}
+
+/**
+ * The weights the brief and results pages show. Live mode shows only the backend's own rubric (null until
+ * the interview is finished), never weights guessed here; mock mode works them out from the answers.
+ */
+export function rubricForBrief(
+  s: Pick<InterviewState, "criteria" | "answers" | "rubric">,
+  live: boolean,
+): RubricItem[] | null {
+  if (live) return s.rubric;
+  return s.rubric ?? rubricFromInterview(s);
 }
 
 export const ORIGIN_LABEL: Record<WeightOrigin, string> = {
