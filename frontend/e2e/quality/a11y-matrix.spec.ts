@@ -225,8 +225,9 @@ test.describe("audit matrix: axe in light and dark mode", () => {
     // Waiting, then the leave-page dialog, then stopping. The clock is paused so research keeps running.
     await pauseClock(page);
     await page.getByRole("button", { name: /Start research/ }).click();
+    await page.clock.runFor(100); // the brief page opens the results page one frame after the tap
     await expect(page).toHaveURL(/\/results$/);
-    await page.clock.runFor(1_500);
+    await page.clock.runFor(1_400);
     await expect(page.getByRole("heading", { name: /What ShopSense is doing/ })).toBeVisible();
     await checkRow(page, "results, researching", { paused: true });
     await page
