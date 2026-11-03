@@ -53,7 +53,7 @@ export function Footer() {
                     <Link
                       to={link.to}
                       {...(link.hash ? { hash: link.hash } : {})}
-                      className="inline-flex min-h-11 items-center text-muted-foreground transition-colors hover:text-primary"
+                      className="inline-flex min-h-11 min-w-11 items-center text-muted-foreground transition-colors hover:text-primary"
                     >
                       {link.label}
                     </Link>
