@@ -16,6 +16,18 @@ dist-ssr
 .nitro
 *.local
 
+# Settings and secrets stay out of git; only the example is shared.
+.env
+.env.*
+!.env.example
+
+# Generated from shared/contracts/schema by scripts/contract-types.mjs
+src/types/contracts/
+
+# Playwright
+test-results/
+playwright-report/
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

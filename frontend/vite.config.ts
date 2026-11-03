@@ -1,7 +1,8 @@
 // Explicit Vite setup (it replaces Lovable's @lovable.dev/vite-tanstack-config wrapper).
 // TanStack Start builds the app and its server-side rendering; nitro turns that server into a plain
 // Node program in .output/ that `npm start` runs.
-import { defineConfig } from "vite";
+import { fileURLToPath } from "node:url";
+import { defineConfig, searchForWorkspaceRoot } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -13,8 +14,16 @@ export default defineConfig({
     // The backend only accepts browser calls from FRONTEND_ORIGIN, which defaults to http://localhost:3000.
     port: 3000,
     strictPort: true,
+    // Live mode checks answers against the contract schemas in ../shared/contracts (@contracts/...).
+    fs: {
+      allow: [
+        searchForWorkspaceRoot(process.cwd()),
+        fileURLToPath(new URL("../shared/contracts", import.meta.url)),
+      ],
+    },
   },
   resolve: {
+    alias: { "@contracts": fileURLToPath(new URL("../shared/contracts", import.meta.url)) },
     dedupe: ["react", "react-dom"],
   },
   plugins: [

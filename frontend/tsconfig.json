@@ -14,6 +14,7 @@
     "types": ["vite/client", "vitest/globals"],
 
     "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": false,
     "noEmit": true,
@@ -30,7 +31,8 @@
     "exactOptionalPropertyTypes": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@contracts/*": ["../shared/contracts/*"]
     }
   }
 }

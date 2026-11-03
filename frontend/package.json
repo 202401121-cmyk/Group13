@@ -13,7 +13,9 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "types:contracts": "node scripts/contract-types.mjs",
+    "postinstall": "node scripts/contract-types.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1"
@@ -26,6 +28,8 @@
     "@tanstack/react-router": "1.170.41",
     "@tanstack/react-start": "1.168.60",
     "@tanstack/router-plugin": "1.168.42",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",
@@ -52,6 +56,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
     "jsdom": "^20.0.3",
+    "json-schema-to-typescript": "15.0.4",
     "nitro": "3.0.260603-beta",
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",

@@ -11,6 +11,9 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
   },
   resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
+    alias: {
+      "@contracts": path.resolve(__dirname, "../shared/contracts"),
+      "@": path.resolve(__dirname, "./src"),
+    },
   },
 });
