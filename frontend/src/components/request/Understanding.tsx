@@ -40,7 +40,7 @@ function display(b: Brief, k: FieldKey): string | null {
 }
 
 const inputCls =
-  "w-full rounded-xl border border-input bg-surface px-4 py-2.5 text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15 aria-invalid:border-destructive";
+  "w-full rounded-xl border border-input bg-surface px-4 py-2.5 text-foreground outline-hidden focus:border-primary focus:ring-4 focus:ring-primary/15 aria-invalid:border-destructive";
 
 function FieldError({ id, msg }: { id: string; msg: string | null }) {
   if (!msg) return null;
