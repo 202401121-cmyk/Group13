@@ -35,7 +35,9 @@ export const RequestForm = forwardRef<HTMLTextAreaElement, Props>(function Reque
             onSubmit();
           }}
         >
-          <label htmlFor="request-text" className="text-sm font-semibold text-foreground">Your request</label>
+          <label htmlFor="request-text" className="text-sm font-semibold text-foreground">
+            Your request
+          </label>
           <textarea
             ref={ref}
             id="request-text"
@@ -51,7 +53,10 @@ export const RequestForm = forwardRef<HTMLTextAreaElement, Props>(function Reque
           />
           <div className="mt-2 flex flex-wrap items-start justify-between gap-2 text-sm">
             {error ? (
-              <p id="request-error" className="flex items-center gap-1.5 font-medium text-destructive">
+              <p
+                id="request-error"
+                className="flex items-center gap-1.5 font-medium text-destructive"
+              >
                 <span aria-hidden>⚠</span> {error}
               </p>
             ) : (
@@ -62,7 +67,9 @@ export const RequestForm = forwardRef<HTMLTextAreaElement, Props>(function Reque
             </p>
           </div>
           <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-muted-foreground">Enter to continue · Shift + Enter for a new line</p>
+            <p className="text-xs text-muted-foreground">
+              Enter to continue · Shift + Enter for a new line
+            </p>
             <PillButton type="submit" size="lg" className="w-full sm:w-auto">
               Continue <ArrowRight className="h-4 w-4" />
             </PillButton>

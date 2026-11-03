@@ -12,5 +12,7 @@ export const Route = createFileRoute("/searches")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <ComingSoon title="My Searches" text="Your past research sessions will appear here." />,
+  component: () => (
+    <ComingSoon title="My Searches" text="Your past research sessions will appear here." />
+  ),
 });

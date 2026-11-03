@@ -12,5 +12,10 @@ export const Route = createFileRoute("/privacy")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <ComingSoon title="Privacy Policy" text="How ShopSense handles your data will be documented here." />,
+  component: () => (
+    <ComingSoon
+      title="Privacy Policy"
+      text="How ShopSense handles your data will be documented here."
+    />
+  ),
 });

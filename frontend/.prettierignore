@@ -2,7 +2,7 @@ node_modules
 dist
 .output
 .vinxi
-pnpm-lock.yaml
+.nitro
 package-lock.json
-bun.lock
 routeTree.gen.ts
+src/types/contracts

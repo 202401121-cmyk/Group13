@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PageShell } from "@/components/shopsense/PageShell";
-import { pillButton } from "@/components/shopsense/ui";
+import { pillButton } from "@/components/shopsense/pill-button";
 import { createSession } from "@/lib/session/store";
 import type { Brief } from "@/lib/request/types";
 

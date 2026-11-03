@@ -8,7 +8,10 @@ export function formatINR(n: number): string {
 
 /** Keep digits only and regroup in Indian style while typing ("70000" -> "70,000"). */
 export function formatAmountInput(raw: string): string {
-  const digits = raw.replace(/\D/g, "").replace(/^0+(?=\d)/, "").slice(0, 10);
+  const digits = raw
+    .replace(/\D/g, "")
+    .replace(/^0+(?=\d)/, "")
+    .slice(0, 10);
   return digits ? inr.format(Number(digits)) : "";
 }
 

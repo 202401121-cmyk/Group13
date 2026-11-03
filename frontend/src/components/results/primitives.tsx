@@ -1,5 +1,15 @@
 import type { ReactNode } from "react";
-import { AlertTriangle, Check, ChevronDown, CircleHelp, Clock, Info, Tag, Ban, Calculator } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  ChevronDown,
+  CircleHelp,
+  Clock,
+  Info,
+  Tag,
+  Ban,
+  Calculator,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Confidence } from "@/lib/results/types";
 
@@ -100,7 +110,10 @@ export function Disclosure({
   defaultOpen?: boolean;
 }) {
   return (
-    <details className={cn("group rounded-2xl border border-border bg-card", className)} open={defaultOpen}>
+    <details
+      className={cn("group rounded-2xl border border-border bg-card", className)}
+      open={defaultOpen}
+    >
       <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-2.5 text-sm font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring [&::-webkit-details-marker]:hidden">
         <span className="min-w-0">{summary}</span>
         <ChevronDown
@@ -134,17 +147,13 @@ export function Notice({
       )}
     >
       <p className="flex min-w-0 flex-1 items-start gap-2">
-        <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", tone === "error" && "text-destructive")} aria-hidden />
+        <Icon
+          className={cn("mt-0.5 h-4 w-4 shrink-0", tone === "error" && "text-destructive")}
+          aria-hidden
+        />
         <span className="min-w-0">{children}</span>
       </p>
       {action}
     </div>
   );
-}
-
-export function formatCheckTime(iso: string | null | undefined) {
-  if (!iso) return null;
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
 }

@@ -1,7 +1,8 @@
 import { forwardRef, useState, type KeyboardEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, CheckCircle2, Loader2, Send } from "lucide-react";
-import { pillButton, PillButton } from "@/components/shopsense/ui";
+import { PillButton } from "@/components/shopsense/ui";
+import { pillButton } from "@/components/shopsense/pill-button";
 import { InlineError, StatusChip } from "./shared";
 import { noteContainsQuestion } from "@/lib/interview/view";
 import { statusOf, type InterviewState } from "@/lib/interview/reducer";
@@ -312,7 +313,9 @@ export function Completion({
           ] as const
         ).map(([k, v]) => (
           <div key={k} className="flex flex-col-reverse rounded-2xl bg-primary-soft/60 p-4">
-            <dt className="font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">{k}</dt>
+            <dt className="font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
+              {k}
+            </dt>
             <dd className="font-serif text-3xl text-foreground">{v}</dd>
           </div>
         ))}

@@ -54,7 +54,9 @@ function CriteriaPage() {
       <div className="relative">
         <div className="relative mx-auto grid max-w-6xl gap-10 px-5 pb-16 pt-14 sm:px-6 md:pt-20 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div className="min-w-0">
-            <p className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-primary">Step 2 of 3</p>
+            <p className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-primary">
+              Step 2 of 3
+            </p>
             <h1 className="mt-3 font-serif text-4xl leading-tight text-foreground md:text-5xl">
               What matters for a {category}
             </h1>

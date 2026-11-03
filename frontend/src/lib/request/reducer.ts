@@ -1,8 +1,16 @@
-import { MAX_REQUEST_LENGTH, type Brief, type FieldKey, type FollowUp, type UnderstandResponse } from "./types";
+import {
+  MAX_REQUEST_LENGTH,
+  type Brief,
+  type FieldKey,
+  type FollowUp,
+  type UnderstandResponse,
+} from "./types";
 
-export type Status = "idle" | "submitting" | "follow-up" | "examples" | "understood" | "editing" | "saving" | "error";
+export type Status =
+  "idle" | "submitting" | "follow-up" | "examples" | "understood" | "editing" | "saving" | "error";
 
-export type Pending = { kind: "submit"; text: string } | { kind: "clarify"; text: string; answer: string };
+export type Pending =
+  { kind: "submit"; text: string } | { kind: "clarify"; text: string; answer: string };
 
 export interface RequestState {
   status: Status;
@@ -91,7 +99,14 @@ export function requestReducer(state: RequestState, action: Action): RequestStat
       const r = action.response;
       if (r.kind === "follow-up") return { ...state, status: "follow-up", followUp: r.followUp };
       if (r.kind === "examples") return { ...state, status: "examples", followUp: null };
-      return { ...state, status: "understood", brief: r.brief, followUp: null, edited: false, pending: null };
+      return {
+        ...state,
+        status: "understood",
+        brief: r.brief,
+        followUp: null,
+        edited: false,
+        pending: null,
+      };
     }
     case "FAILED":
       if (state.status !== "submitting") return state;
@@ -100,7 +115,14 @@ export function requestReducer(state: RequestState, action: Action): RequestStat
       if (state.status !== "error" || !state.pending) return state;
       return { ...state, status: "submitting", error: null, requestId: state.requestId + 1 };
     case "BACK_TO_REQUEST":
-      return { ...state, status: "idle", followUp: null, error: null, pending: null, inputError: null };
+      return {
+        ...state,
+        status: "idle",
+        followUp: null,
+        error: null,
+        pending: null,
+        inputError: null,
+      };
     case "USE_EXAMPLE":
       return { ...initialState, requestId: state.requestId, text: action.text };
     case "EDIT_FIELD":
@@ -111,7 +133,13 @@ export function requestReducer(state: RequestState, action: Action): RequestStat
     case "SAVE_START":
       return state.status === "editing" ? { ...state, status: "saving" } : state;
     case "SAVE_DONE":
-      return { ...state, status: "understood", brief: action.brief, edited: true, editingField: null };
+      return {
+        ...state,
+        status: "understood",
+        brief: action.brief,
+        edited: true,
+        editingField: null,
+      };
     case "SAVE_FAILED":
       return { ...state, status: "editing", error: action.message };
     case "RESET":

@@ -52,11 +52,27 @@ function FieldError({ id, msg }: { id: string; msg: string | null }) {
   );
 }
 
-function Editor({ field, brief, saving, saveError, onCancel, onSave }: { field: (typeof FIELDS)[number]; brief: Brief; saving: boolean; saveError: string | null; onCancel: () => void; onSave: (b: Brief) => void }) {
+function Editor({
+  field,
+  brief,
+  saving,
+  saveError,
+  onCancel,
+  onSave,
+}: {
+  field: (typeof FIELDS)[number];
+  brief: Brief;
+  saving: boolean;
+  saveError: string | null;
+  onCancel: () => void;
+  onSave: (b: Brief) => void;
+}) {
   const k = field.key;
   const errId = `${k}-error`;
   const [error, setError] = useState<string | null>(null);
-  const [textVal, setTextVal] = useState(k === "product" || k === "usedFor" || k === "region" ? (brief[k] ?? "") : "");
+  const [textVal, setTextVal] = useState(
+    k === "product" || k === "usedFor" || k === "region" ? (brief[k] ?? "") : "",
+  );
   const [from, setFrom] = useState(brief.budget?.min != null ? formatINR(brief.budget.min) : "");
   const [upTo, setUpTo] = useState(brief.budget?.max != null ? formatINR(brief.budget.max) : "");
   const [musts, setMusts] = useState(brief.mustHaves.join("\n"));
@@ -75,7 +91,10 @@ function Editor({ field, brief, saving, saveError, onCancel, onSave }: { field: 
       if (!v.ok) return setError(v.error);
       next.budget = v.budget;
     } else if (k === "mustHaves") {
-      next.mustHaves = musts.split("\n").map((s) => s.trim()).filter(Boolean);
+      next.mustHaves = musts
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean);
     } else {
       const pending = newExcl.trim();
       next.exclusions = pending && !excl.includes(pending) ? [...excl, pending] : excl;
@@ -107,18 +126,40 @@ function Editor({ field, brief, saving, saveError, onCancel, onSave }: { field: 
     >
       {(k === "product" || k === "usedFor" || k === "region") && (
         <>
-          <label htmlFor={`edit-${k}`} className="sr-only">{field.label}</label>
-          <input id={`edit-${k}`} autoFocus value={textVal} onChange={(e) => setTextVal(e.target.value)} aria-invalid={!!msg} aria-describedby={described} className={inputCls} />
+          <label htmlFor={`edit-${k}`} className="sr-only">
+            {field.label}
+          </label>
+          <input
+            id={`edit-${k}`}
+            autoFocus
+            value={textVal}
+            onChange={(e) => setTextVal(e.target.value)}
+            aria-invalid={!!msg}
+            aria-describedby={described}
+            className={inputCls}
+          />
         </>
       )}
       {k === "budget" && (
         <>
           <div className="grid gap-3 sm:grid-cols-2">
-            {([["From", from, setFrom], ["Up to", upTo, setUpTo]] as const).map(([lbl, val, set], i) => (
+            {(
+              [
+                ["From", from, setFrom],
+                ["Up to", upTo, setUpTo],
+              ] as const
+            ).map(([lbl, val, set], i) => (
               <div key={lbl}>
-                <label htmlFor={`budget-${i}`} className="text-sm font-medium text-foreground">{lbl}</label>
+                <label htmlFor={`budget-${i}`} className="text-sm font-medium text-foreground">
+                  {lbl}
+                </label>
                 <div className="relative mt-1">
-                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden>₹</span>
+                  <span
+                    className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    aria-hidden
+                  >
+                    ₹
+                  </span>
                   <input
                     id={`budget-${i}`}
                     autoFocus={i === 0}
@@ -133,14 +174,28 @@ function Editor({ field, brief, saving, saveError, onCancel, onSave }: { field: 
               </div>
             ))}
           </div>
-          <p id="budget-help" className="mt-2 text-xs text-muted-foreground">Leave From empty if you only have a limit.</p>
+          <p id="budget-help" className="mt-2 text-xs text-muted-foreground">
+            Leave From empty if you only have a limit.
+          </p>
         </>
       )}
       {k === "mustHaves" && (
         <>
-          <label htmlFor="edit-musts" className="sr-only">Must-haves, one per line</label>
-          <textarea id="edit-musts" autoFocus rows={3} value={musts} onChange={(e) => setMusts(e.target.value)} aria-describedby="musts-help" className={inputCls} />
-          <p id="musts-help" className="mt-1 text-xs text-muted-foreground">One per line. We keep your wording.</p>
+          <label htmlFor="edit-musts" className="sr-only">
+            Must-haves, one per line
+          </label>
+          <textarea
+            id="edit-musts"
+            autoFocus
+            rows={3}
+            value={musts}
+            onChange={(e) => setMusts(e.target.value)}
+            aria-describedby="musts-help"
+            className={inputCls}
+          />
+          <p id="musts-help" className="mt-1 text-xs text-muted-foreground">
+            One per line. We keep your wording.
+          </p>
         </>
       )}
       {k === "exclusions" && (
@@ -148,9 +203,17 @@ function Editor({ field, brief, saving, saveError, onCancel, onSave }: { field: 
           {excl.length > 0 && (
             <ul className="mb-3 flex flex-wrap gap-2" aria-label="Things to leave out">
               {excl.map((x) => (
-                <li key={x} className="inline-flex items-center gap-1 rounded-full bg-accent py-1 pl-3 pr-1 text-sm text-accent-foreground">
+                <li
+                  key={x}
+                  className="inline-flex items-center gap-1 rounded-full bg-accent py-1 pl-3 pr-1 text-sm text-accent-foreground"
+                >
                   {x}
-                  <button type="button" onClick={() => setExcl(excl.filter((e) => e !== x))} aria-label={`Remove ${x}`} className="grid h-6 w-6 place-items-center rounded-full hover:bg-primary/10">
+                  <button
+                    type="button"
+                    onClick={() => setExcl(excl.filter((e) => e !== x))}
+                    aria-label={`Remove ${x}`}
+                    className="grid h-6 w-6 place-items-center rounded-full hover:bg-primary/10"
+                  >
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </li>
@@ -158,7 +221,9 @@ function Editor({ field, brief, saving, saveError, onCancel, onSave }: { field: 
             </ul>
           )}
           <div className="flex gap-2">
-            <label htmlFor="edit-excl" className="sr-only">Add something to leave out</label>
+            <label htmlFor="edit-excl" className="sr-only">
+              Add something to leave out
+            </label>
             <input
               id="edit-excl"
               autoFocus
@@ -175,14 +240,20 @@ function Editor({ field, brief, saving, saveError, onCancel, onSave }: { field: 
               aria-describedby={described}
               className={inputCls}
             />
-            <PillButton type="button" variant="outline" onClick={addExcl}>Add</PillButton>
+            <PillButton type="button" variant="outline" onClick={addExcl}>
+              Add
+            </PillButton>
           </div>
         </>
       )}
       <FieldError id={errId} msg={msg} />
       <div className="mt-3 flex gap-2">
-        <PillButton type="submit" size="sm" disabled={saving}>{saving ? "Saving…" : "Save"}</PillButton>
-        <PillButton type="button" size="sm" variant="ghost" onClick={onCancel} disabled={saving}>Cancel</PillButton>
+        <PillButton type="submit" size="sm" disabled={saving}>
+          {saving ? "Saving…" : "Save"}
+        </PillButton>
+        <PillButton type="button" size="sm" variant="ghost" onClick={onCancel} disabled={saving}>
+          Cancel
+        </PillButton>
       </div>
     </form>
   );
@@ -200,7 +271,14 @@ export function Understanding(p: Props) {
 
   return (
     <section aria-labelledby="understood-title">
-      <h1 id="understood-title" ref={h1} tabIndex={-1} className="font-serif text-4xl text-foreground outline-none md:text-5xl">Here's what we understood</h1>
+      <h1
+        id="understood-title"
+        ref={h1}
+        tabIndex={-1}
+        className="font-serif text-4xl text-foreground outline-none md:text-5xl"
+      >
+        Here's what we understood
+      </h1>
       <p className="mt-3 text-muted-foreground">Check the details and fix anything we got wrong.</p>
       {p.brief.source === "fallback" && (
         <p className="mt-5 flex items-start gap-2 rounded-2xl border border-border bg-secondary px-4 py-3 text-sm text-foreground">
@@ -217,9 +295,20 @@ export function Understanding(p: Props) {
               <dt className="text-sm font-semibold text-muted-foreground">{f.label}</dt>
               <dd className="min-w-0">
                 {editing ? (
-                  <Editor field={f} brief={p.brief} saving={p.saving} saveError={p.saveError} onCancel={p.onCancel} onSave={p.onSave} />
+                  <Editor
+                    field={f}
+                    brief={p.brief}
+                    saving={p.saving}
+                    saveError={p.saveError}
+                    onCancel={p.onCancel}
+                    onSave={p.onSave}
+                  />
                 ) : (
-                  <span className={v ? "break-words text-foreground" : "text-muted-foreground italic"}>{v ?? f.empty}</span>
+                  <span
+                    className={v ? "break-words text-foreground" : "text-muted-foreground italic"}
+                  >
+                    {v ?? f.empty}
+                  </span>
                 )}
               </dd>
               {!editing && (
@@ -240,20 +329,38 @@ export function Understanding(p: Props) {
         })}
       </dl>
       {confirmReset ? (
-        <div role="alertdialog" aria-labelledby="reset-q" className="mt-8 rounded-2xl border border-border bg-surface p-5">
-          <p id="reset-q" className="font-medium text-foreground">Discard your edits and start over?</p>
+        <div
+          role="alertdialog"
+          aria-labelledby="reset-q"
+          className="mt-8 rounded-2xl border border-border bg-surface p-5"
+        >
+          <p id="reset-q" className="font-medium text-foreground">
+            Discard your edits and start over?
+          </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <PillButton size="sm" onClick={p.onStartOver} autoFocus>Discard and start over</PillButton>
-            <PillButton size="sm" variant="ghost" onClick={() => setConfirmReset(false)}>Keep my edits</PillButton>
+            <PillButton size="sm" onClick={p.onStartOver} autoFocus>
+              Discard and start over
+            </PillButton>
+            <PillButton size="sm" variant="ghost" onClick={() => setConfirmReset(false)}>
+              Keep my edits
+            </PillButton>
           </div>
         </div>
       ) : (
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <PillButton size="lg" onClick={p.onConfirm} disabled={p.editingField !== null} className="w-full sm:w-auto">Looks right</PillButton>
-          <PillButton size="lg" variant="outline" onClick={startOver} className="w-full sm:w-auto">Start over</PillButton>
+          <PillButton
+            size="lg"
+            onClick={p.onConfirm}
+            disabled={p.editingField !== null}
+            className="w-full sm:w-auto"
+          >
+            Looks right
+          </PillButton>
+          <PillButton size="lg" variant="outline" onClick={startOver} className="w-full sm:w-auto">
+            Start over
+          </PillButton>
         </div>
       )}
     </section>
   );
 }
-

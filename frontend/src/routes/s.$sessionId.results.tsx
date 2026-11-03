@@ -3,11 +3,13 @@ import { createFileRoute, Link, useBlocker, useNavigate } from "@tanstack/react-
 import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { PageShell } from "@/components/shopsense/PageShell";
-import { PillButton, pillButton } from "@/components/shopsense/ui";
+import { PillButton } from "@/components/shopsense/ui";
+import { pillButton } from "@/components/shopsense/pill-button";
 import { MissingSession, PageLoading } from "@/components/interview/shared";
 import { BriefSections } from "@/components/results/BriefSections";
-import { Disclosure, Notice, StatusBadge, formatCheckTime } from "@/components/results/primitives";
-import { ResultCard, tiesFor } from "@/components/results/ResultCard";
+import { Disclosure, Notice, StatusBadge } from "@/components/results/primitives";
+import { ResultCard } from "@/components/results/ResultCard";
+import { formatCheckTime, tiesFor } from "@/lib/results/view";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -181,7 +183,10 @@ function ResultsPage() {
 function BriefSummary({ session, rows }: { session: Session; rows: WeightRow[] }) {
   return (
     <aside aria-label="Your brief" className="lg:sticky lg:top-28">
-      <Disclosure summary={<span className="font-serif text-xl font-normal">Your brief</span>} className="bg-surface shadow-soft">
+      <Disclosure
+        summary={<span className="font-serif text-xl font-normal">Your brief</span>}
+        className="bg-surface shadow-soft"
+      >
         <BriefSections brief={session.brief} rows={rows} compact />
         <Link
           to="/s/$sessionId/brief"
@@ -219,7 +224,10 @@ function Waiting({
 
   return (
     <section aria-labelledby="research-title">
-      <h1 id="research-title" className="break-words font-serif text-4xl leading-tight text-foreground md:text-5xl">
+      <h1
+        id="research-title"
+        className="break-words font-serif text-4xl leading-tight text-foreground md:text-5xl"
+      >
         Researching {category}s for you
       </h1>
       <p className="mt-3 text-muted-foreground md:text-lg">
@@ -301,12 +309,18 @@ function Failure({
 function Gone({ sessionId, hasBrief }: { sessionId: string; hasBrief: boolean }) {
   return (
     <section className="py-10">
-      <h1 className="font-serif text-4xl text-foreground md:text-5xl">These results aren't here any more</h1>
+      <h1 className="font-serif text-4xl text-foreground md:text-5xl">
+        These results aren't here any more
+      </h1>
       <p className="mt-4 text-lg text-muted-foreground">
         Results are only kept while this page is open. Your brief is still saved.
       </p>
       {hasBrief ? (
-        <Link to="/s/$sessionId/brief" params={{ sessionId }} className={`${pillButton()} mt-8 min-h-11`}>
+        <Link
+          to="/s/$sessionId/brief"
+          params={{ sessionId }}
+          className={`${pillButton()} mt-8 min-h-11`}
+        >
           Back to your brief
         </Link>
       ) : (
@@ -395,7 +409,12 @@ function Results({
           <h2 className="mt-10 font-serif text-2xl text-foreground">Best match</h2>
           <ol className="mt-4" aria-label="Best match">
             <li className="animate-rise-in">
-              <ResultCard product={best} tiedWith={tiesFor(result.products, best)} featured index={0} />
+              <ResultCard
+                product={best}
+                tiedWith={tiesFor(result.products, best)}
+                featured
+                index={0}
+              />
             </li>
           </ol>
           {others.length > 0 && (

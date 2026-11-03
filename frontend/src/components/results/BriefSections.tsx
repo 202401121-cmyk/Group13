@@ -1,13 +1,8 @@
 import type { ReactNode } from "react";
-import { describeBudget } from "@/lib/request/format";
 import type { Brief } from "@/lib/request/types";
 import { ORIGIN_LABEL, type WeightRow } from "@/lib/results/rubric";
+import { mustHavesOf } from "@/lib/results/view";
 import { Meter } from "./primitives";
-
-export function mustHavesOf(brief: Brief): string[] {
-  const budget = describeBudget(brief.budget);
-  return [...(budget ? [`Budget: ${budget}`] : []), ...brief.mustHaves];
-}
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -57,7 +52,9 @@ export function BriefSections({
                   <span className="font-medium text-foreground">{r.title}</span>
                   <span className="flex items-center gap-3">
                     {r.origin && (
-                      <span className="text-xs text-muted-foreground">{ORIGIN_LABEL[r.origin]}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {ORIGIN_LABEL[r.origin]}
+                      </span>
                     )}
                     {onChange && (
                       <button

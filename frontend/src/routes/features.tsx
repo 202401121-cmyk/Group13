@@ -12,5 +12,7 @@ export const Route = createFileRoute("/features")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <ComingSoon title="Features" text="A closer look at what ShopSense does is on its way." />,
+  component: () => (
+    <ComingSoon title="Features" text="A closer look at what ShopSense does is on its way." />
+  ),
 });

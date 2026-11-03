@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { EMPTY_MESSAGE, initialState, requestReducer, TOO_LONG_MESSAGE } from "@/lib/request/reducer";
+import {
+  EMPTY_MESSAGE,
+  initialState,
+  requestReducer,
+  TOO_LONG_MESSAGE,
+} from "@/lib/request/reducer";
 import { resolve, createMockService } from "@/lib/request/mockService";
 import { formatAmountInput, validateBudget, describeBudget } from "@/lib/request/format";
 
@@ -61,12 +66,16 @@ describe("mock request service", () => {
   });
   it("shows examples instead of guessing", () => {
     expect(resolve({ text: "hmm not sure" }).kind).toBe("examples");
-    expect(resolve({ text: "Something for my mom", clarification: "a nice thing" }).kind).toBe("examples");
+    expect(resolve({ text: "Something for my mom", clarification: "a nice thing" }).kind).toBe(
+      "examples",
+    );
   });
   it("simulated network error fails once then succeeds", async () => {
     const svc = createMockService(0);
     await expect(svc.understand({ text: "laptop network error" })).rejects.toThrow();
-    await expect(svc.understand({ text: "laptop network error" })).resolves.toMatchObject({ kind: "understood" });
+    await expect(svc.understand({ text: "laptop network error" })).resolves.toMatchObject({
+      kind: "understood",
+    });
   });
 });
 

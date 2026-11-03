@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef, useState, type ElementType } from "react";
-import { cn } from "@/lib/utils";
 
-export type TypeSegment = string | { text: string; as?: ElementType; className?: string } | { br: true };
+export type TypeSegment =
+  string | { text: string; as?: ElementType; className?: string } | { br: true };
 
 type Props = {
   as?: ElementType;
@@ -21,9 +21,19 @@ const norm = (s: TypeSegment) => (typeof s === "string" ? { text: s } : s);
  * from the start (untyped characters are visibility:hidden) so there is no layout shift.
  * Screen readers get the full text once; the animated copy is aria-hidden.
  */
-export function Typewriter({ as: Tag = "p", segments, className, speed = 28, start = true, onDone }: Props) {
+export function Typewriter({
+  as: Tag = "p",
+  segments,
+  className,
+  speed = 28,
+  start = true,
+  onDone,
+}: Props) {
   const ref = useRef<HTMLElement>(null);
-  const total = segments.reduce((n, s) => n + ("br" in norm(s) ? 0 : (norm(s) as { text: string }).text.length), 0);
+  const total = segments.reduce(
+    (n, s) => n + ("br" in norm(s) ? 0 : (norm(s) as { text: string }).text.length),
+    0,
+  );
   const [count, setCount] = useState(total); // SSR/no-JS: full text
   const [inView, setInView] = useState(false);
   const [phase, setPhase] = useState<"idle" | "typing" | "done">("idle");
@@ -86,7 +96,9 @@ export function Typewriter({ as: Tag = "p", segments, className, speed = 28, sta
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView, start, speed, total]);
 
-  const fullText = segments.map((s) => ("br" in norm(s) ? " " : (norm(s) as { text: string }).text)).join("");
+  const fullText = segments
+    .map((s) => ("br" in norm(s) ? " " : (norm(s) as { text: string }).text))
+    .join("");
   let remaining = count;
   let cursorPlaced = false;
   const showCursor = phase === "typing";
@@ -117,6 +129,3 @@ export function Typewriter({ as: Tag = "p", segments, className, speed = 28, sta
     </Tag>
   );
 }
-
-/** Classes kept for consumers that need to merge. */
-export const typewriterCn = cn;

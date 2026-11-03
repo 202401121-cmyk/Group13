@@ -1,7 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { BrandMark } from "./ui";
 
-type FooterLink = { label: string; to: "/" | "/research" | "/features" | "/about" | "/contact" | "/faq" | "/privacy"; hash?: string };
+type FooterLink = {
+  label: string;
+  to: "/" | "/research" | "/features" | "/about" | "/contact" | "/faq" | "/privacy";
+  hash?: string;
+};
 
 const footerGroups: { label: string; links: FooterLink[] }[] = [
   {

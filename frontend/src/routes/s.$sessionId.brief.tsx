@@ -2,9 +2,11 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/shopsense/PageShell";
-import { PillButton, pillButton } from "@/components/shopsense/ui";
+import { PillButton } from "@/components/shopsense/ui";
+import { pillButton } from "@/components/shopsense/pill-button";
 import { MissingSession, PageLoading } from "@/components/interview/shared";
-import { BriefSections, mustHavesOf } from "@/components/results/BriefSections";
+import { BriefSections } from "@/components/results/BriefSections";
+import { mustHavesOf } from "@/lib/results/view";
 import { useInterview } from "@/lib/interview/useInterview";
 import { interviewReducer, toInterviewSnapshot } from "@/lib/interview/reducer";
 import { saveSession } from "@/lib/session/store";
@@ -16,7 +18,10 @@ export const Route = createFileRoute("/s/$sessionId/brief")({
   head: () => ({
     meta: [
       { title: "Your brief — ShopSense" },
-      { name: "description", content: "Check your shopping brief before ShopSense starts research." },
+      {
+        name: "description",
+        content: "Check your shopping brief before ShopSense starts research.",
+      },
       { property: "og:title", content: "Your brief — ShopSense" },
       { property: "og:description", content: "Check your shopping brief before research starts." },
       { property: "og:type", content: "website" },
@@ -82,7 +87,9 @@ function BriefReview() {
     <PageShell>
       <div className="relative">
         <section className="relative mx-auto max-w-[760px] px-5 pb-20 pt-14 sm:px-6 md:pt-20">
-          <p className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-primary">Step 3 of 3</p>
+          <p className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-primary">
+            Step 3 of 3
+          </p>
           <h1 className="mt-3 break-words font-serif text-4xl leading-tight text-foreground md:text-5xl">
             Your brief for a {category}
           </h1>
@@ -97,7 +104,10 @@ function BriefReview() {
           {info.isMock && (
             <div className="mt-10 rounded-2xl border border-dashed border-border bg-card/60 p-4">
               <label htmlFor="scenario" className="text-sm font-semibold text-foreground">
-                Preview scenario <span className="font-normal text-muted-foreground">(mock data, no live search)</span>
+                Preview scenario{" "}
+                <span className="font-normal text-muted-foreground">
+                  (mock data, no live search)
+                </span>
               </label>
               <select
                 id="scenario"
@@ -122,7 +132,12 @@ function BriefReview() {
             >
               Back to the questions
             </Link>
-            <PillButton onClick={start} disabled={starting} aria-busy={starting} className="min-h-11">
+            <PillButton
+              onClick={start}
+              disabled={starting}
+              aria-busy={starting}
+              className="min-h-11"
+            >
               {starting ? (
                 <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden />
               ) : null}

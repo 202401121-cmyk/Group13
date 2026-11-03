@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { BrandMark, pillButton } from "./ui";
+import { BrandMark } from "./ui";
+import { pillButton } from "./pill-button";
 import { ThemeToggle } from "./ThemeToggle";
 import { cn } from "@/lib/utils";
 

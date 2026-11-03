@@ -76,7 +76,13 @@ function product(
         stale: false,
         url: rank === 1 ? "https://example.com/sample-product" : null,
       },
-      { store: "Sample Store Two", price: 66490 + rank * 3500, checkedAt: CHECKED, stale: false, url: null },
+      {
+        store: "Sample Store Two",
+        price: 66490 + rank * 3500,
+        checkedAt: CHECKED,
+        stale: false,
+        url: null,
+      },
     ],
     value: { calculated: true, text: rank === 1 ? "Good value" : "Fair value" },
   };
@@ -85,7 +91,11 @@ function product(
 export function buildMockResult(input: ResearchInput, scenario: string): ResearchResult {
   const cat = input.category;
   const r = input.rubric;
-  const products = [product("A", cat, 1, 86, r), product("B", cat, 2, 79, r), product("C", cat, 3, 71, r)];
+  const products = [
+    product("A", cat, 1, 86, r),
+    product("B", cat, 2, 79, r),
+    product("C", cat, 3, 71, r),
+  ];
   const res: ResearchResult = {
     products,
     leftOut: [],
@@ -124,7 +134,11 @@ export function buildMockResult(input: ResearchInput, scenario: string): Researc
       }
       break;
     case "estimated":
-      if (a.criteria[2]) Object.assign(a.criteria[2], { state: "estimated", value: "About 9 hours (sample estimate)" });
+      if (a.criteria[2])
+        Object.assign(a.criteria[2], {
+          state: "estimated",
+          value: "About 9 hours (sample estimate)",
+        });
       break;
     case "stale":
       a.offers[1] = { ...a.offers[1]!, stale: true, checkedAt: STALE };
@@ -141,11 +155,14 @@ export function buildMockResult(input: ResearchInput, scenario: string): Researc
       ];
       break;
     case "couldnt-check":
-      res.couldntCheck = [{ name: `Sample ${cat} F`, reason: "Store pages didn't list its specs." }];
+      res.couldntCheck = [
+        { name: `Sample ${cat} F`, reason: "Store pages didn't list its specs." },
+      ];
       break;
     case "partial":
       res.partial = true;
-      res.coverageNote = "Sample note: only two of the stores could be checked, so some options may be missing.";
+      res.coverageNote =
+        "Sample note: only two of the stores could be checked, so some options may be missing.";
       res.products = [a, b];
       break;
     case "relaxation":

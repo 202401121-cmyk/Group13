@@ -13,7 +13,9 @@ export interface Session {
 const key = (id: string) => `shopsense.session.${id}`;
 
 export function createSession(brief: Brief): string {
-  const id = (crypto.randomUUID?.() ?? `${Date.now()}${Math.random()}`).replace(/[^a-z0-9]/gi, "").slice(0, 10);
+  const id = (crypto.randomUUID?.() ?? `${Date.now()}${Math.random()}`)
+    .replace(/[^a-z0-9]/gi, "")
+    .slice(0, 10);
   saveSession({ id, brief });
   return id;
 }

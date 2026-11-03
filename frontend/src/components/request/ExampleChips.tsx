@@ -1,9 +1,17 @@
 import { EXAMPLE_REQUESTS } from "@/lib/request/types";
 
-export function ExampleChips({ onPick, label = "Or start from an example" }: { onPick: (text: string) => void; label?: string }) {
+export function ExampleChips({
+  onPick,
+  label = "Or start from an example",
+}: {
+  onPick: (text: string) => void;
+  label?: string;
+}) {
   return (
     <div>
-      <p id="examples-label" className="text-sm font-medium text-foreground">{label}</p>
+      <p id="examples-label" className="text-sm font-medium text-foreground">
+        {label}
+      </p>
       <ul className="mt-3 flex flex-wrap gap-2" aria-labelledby="examples-label">
         {EXAMPLE_REQUESTS.map((ex) => (
           <li key={ex} className="max-w-full">

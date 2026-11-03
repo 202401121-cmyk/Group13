@@ -1,5 +1,10 @@
 import { useSyncExternalStore } from "react";
-import { initialResearch, researchReducer, type ResearchAction, type ResearchState } from "./machine";
+import {
+  initialResearch,
+  researchReducer,
+  type ResearchAction,
+  type ResearchState,
+} from "./machine";
 import { getResearchService } from "./service";
 import { RESEARCH_TIMEOUT_MS, ResearchError, type ResearchInput } from "./types";
 
@@ -65,7 +70,10 @@ export function startResearch(input: ResearchInput): boolean {
   r.abort = abort;
   r.timer = setTimeout(() => dispatch(id, { type: "TIMEOUT", runId }), timeoutMs);
   getResearchService()
-    .run(input, { signal: abort.signal, onEvent: (event) => dispatch(id, { type: "EVENT", runId, event }) })
+    .run(input, {
+      signal: abort.signal,
+      onEvent: (event) => dispatch(id, { type: "EVENT", runId, event }),
+    })
     .then((result) => dispatch(id, { type: "DONE", runId, result }))
     .catch((e: unknown) => {
       if (abort.signal.aborted) return;

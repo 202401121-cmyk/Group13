@@ -23,18 +23,21 @@ export function useVisualMotion<T extends HTMLElement>() {
         });
         return;
       }
-      observer = new IntersectionObserver((entries) => {
-        entries.forEach(({ target, isIntersecting }) => {
-          if (target.hasAttribute("data-motion-loop")) {
-            target.classList.toggle("motion-visible", isIntersecting);
-          }
-          if (isIntersecting && target.hasAttribute("data-reveal")) {
-            target.classList.remove("reveal-pending");
-            target.classList.add("reveal-complete");
-            if (!target.hasAttribute("data-motion-loop")) observer?.unobserve(target);
-          }
-        });
-      }, { threshold: 0.12 });
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(({ target, isIntersecting }) => {
+            if (target.hasAttribute("data-motion-loop")) {
+              target.classList.toggle("motion-visible", isIntersecting);
+            }
+            if (isIntersecting && target.hasAttribute("data-reveal")) {
+              target.classList.remove("reveal-pending");
+              target.classList.add("reveal-complete");
+              if (!target.hasAttribute("data-motion-loop")) observer?.unobserve(target);
+            }
+          });
+        },
+        { threshold: 0.12 },
+      );
       elements.forEach((element) => {
         if (element.hasAttribute("data-reveal") && !element.classList.contains("reveal-complete")) {
           element.classList.add("reveal-pending");

@@ -43,29 +43,29 @@
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.973 0.007 97.4);          /* Warm Ivory #F7F6F1 */
-  --foreground: oklch(0.331 0.031 166);           /* Deep Forest #263B32 */
-  --surface: oklch(1 0 0);                      /* White: cards + navbar */
+  --background: oklch(0.973 0.007 97.4); /* Warm Ivory #F7F6F1 */
+  --foreground: oklch(0.331 0.031 166); /* Deep Forest #263B32 */
+  --surface: oklch(1 0 0); /* White: cards + navbar */
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.331 0.031 166);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.331 0.031 166);
-  --primary: oklch(0.531 0.047 160.4);            /* Natural Green #547563 */
+  --primary: oklch(0.531 0.047 160.4); /* Natural Green #547563 */
   --primary-foreground: oklch(0.978 0.005 95);
-  --primary-soft: oklch(0.895 0.017 133.8);       /* Soft Sage #D8DFD4 */
+  --primary-soft: oklch(0.895 0.017 133.8); /* Soft Sage #D8DFD4 */
   --primary-soft-foreground: oklch(0.38 0.045 158);
-  --champagne: oklch(0.935 0.028 62);           /* soft terracotta tint (warn states) */
+  --champagne: oklch(0.935 0.028 62); /* soft terracotta tint (warn states) */
   --champagne-foreground: oklch(0.47 0.075 50);
-  --terracotta: oklch(0.686 0.086 51.9);           /* Muted Clay #C58B68 — use sparingly */
+  --terracotta: oklch(0.686 0.086 51.9); /* Muted Clay #C58B68 — use sparingly */
   --secondary: oklch(0.945 0.008 95);
   --secondary-foreground: oklch(0.331 0.031 166);
   --muted: oklch(0.945 0.008 95);
-  --muted-foreground: oklch(0.53 0.008 110);    /* Secondary Text #777970 */
+  --muted-foreground: oklch(0.53 0.008 110); /* Secondary Text #777970 */
   --accent: oklch(0.895 0.017 133.8);
   --accent-foreground: oklch(0.38 0.045 158);
   --destructive: oklch(0.52 0.17 27);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.921 0.011 95.2);              /* #E7E5DD */
+  --border: oklch(0.921 0.011 95.2); /* #E7E5DD */
   --input: oklch(0.885 0.01 90);
   --ring: oklch(0.531 0.047 160.4);
   --shadow-soft: 0 1px 2px oklch(0.34 0.03 160 / 3%), 0 6px 16px -10px oklch(0.34 0.03 160 / 8%);
@@ -79,14 +79,14 @@
 }
 
 .dark {
-  --background: oklch(0.245 0.022 158);         /* deep ink green */
+  --background: oklch(0.245 0.022 158); /* deep ink green */
   --foreground: oklch(0.955 0.008 95);
   --surface: oklch(0.295 0.024 158);
   --card: oklch(0.295 0.024 158);
   --card-foreground: oklch(0.955 0.008 95);
   --popover: oklch(0.295 0.024 158);
   --popover-foreground: oklch(0.955 0.008 95);
-  --primary: oklch(0.74 0.06 155);              /* light sage */
+  --primary: oklch(0.74 0.06 155); /* light sage */
   --primary-foreground: oklch(0.22 0.03 158);
   --primary-soft: oklch(0.37 0.03 155);
   --primary-soft-foreground: oklch(0.9 0.03 150);
@@ -112,9 +112,17 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { scroll-behavior: smooth; color-scheme: light; font-optical-sizing: auto; }
-  html.dark { color-scheme: dark; }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+    color-scheme: light;
+    font-optical-sizing: auto;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -122,11 +130,18 @@
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
-  :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
 }
 
-@utility shadow-soft { box-shadow: var(--shadow-soft); }
-@utility shadow-lift { box-shadow: var(--shadow-lift); }
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+@utility shadow-lift {
+  box-shadow: var(--shadow-lift);
+}
 
 /* Subtle live background: two soft, low-contrast washes that drift slowly. */
 @utility bg-ambient {
@@ -136,8 +151,12 @@
 }
 
 @keyframes ambient-drift {
-  from { transform: translate3d(-1%, -1%, 0) scale(1.04); }
-  to { transform: translate3d(1%, 1%, 0) scale(1.07); }
+  from {
+    transform: translate3d(-1%, -1%, 0) scale(1.04);
+  }
+  to {
+    transform: translate3d(1%, 1%, 0) scale(1.07);
+  }
 }
 
 @utility animate-ambient {
@@ -156,29 +175,56 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .animate-ambient { animation: none; }
+  .animate-ambient {
+    animation: none;
+  }
 }
 
-@utility pb-safe { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
-@utility skeleton { background: var(--color-muted); border-radius: 0.5rem; animation: pulse 1.6s ease-in-out infinite; }
+@utility pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+@utility skeleton {
+  background: var(--color-muted);
+  border-radius: 0.5rem;
+  animation: pulse 1.6s ease-in-out infinite;
+}
 
 @keyframes rise-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 @keyframes fade-in-soft {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-@utility animate-rise-in { animation: rise-in 320ms ease-out both; }
-@utility animate-fade-soft { animation: fade-in-soft 320ms ease-out both; }
+@utility animate-rise-in {
+  animation: rise-in 320ms ease-out both;
+}
+@utility animate-fade-soft {
+  animation: fade-in-soft 320ms ease-out both;
+}
 @media (prefers-reduced-motion: reduce) {
-  .animate-rise-in, .animate-fade-soft { animation: none; }
+  .animate-rise-in,
+  .animate-fade-soft {
+    animation: none;
+  }
 }
 
 /* Typewriter cursor: zero-width so it never shifts layout */
@@ -198,33 +244,82 @@
   background: var(--primary);
   animation: type-blink 1s steps(1) infinite;
 }
-@keyframes type-blink { 50% { opacity: 0; } }
+@keyframes type-blink {
+  50% {
+    opacity: 0;
+  }
+}
 
 /* Additive motion: no geometry changes, and loops pause outside the viewport. */
 .interactive-card {
-  transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+  transition:
+    transform 250ms ease,
+    border-color 250ms ease,
+    box-shadow 250ms ease;
 }
-.shopsense-button { transition: transform 200ms ease, box-shadow 250ms ease, filter 200ms ease, background-color 200ms ease; }
-.shopsense-button:active:not(:disabled) { transform: scale(0.98); }
+.shopsense-button {
+  transition:
+    transform 200ms ease,
+    box-shadow 250ms ease,
+    filter 200ms ease,
+    background-color 200ms ease;
+}
+.shopsense-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
 @media (hover: hover) and (pointer: fine) {
   .interactive-card:hover {
     transform: translateY(-3px);
     border-color: color-mix(in oklab, var(--primary) 40%, var(--border));
     box-shadow: var(--shadow-lift);
   }
-  .primary-button:hover { box-shadow: var(--shadow-primary-glow); transform: translateY(-1px); }
-  .primary-button:active { transform: scale(0.98); }
+  .primary-button:hover {
+    box-shadow: var(--shadow-primary-glow);
+    transform: translateY(-1px);
+  }
+  .primary-button:active {
+    transform: scale(0.98);
+  }
 }
-.reveal-pending { opacity: 0; translate: 0 10px; }
-[data-reveal] { transition: opacity 550ms ease, translate 550ms ease; }
-[data-reveal].interactive-card { transition: opacity 550ms ease, translate 550ms ease, transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease; }
-.reveal-complete { opacity: 1; translate: 0 0; }
-.animate-ambient.motion-visible { animation-play-state: running; }
-.pipeline-stage { --stage-delay: 0s; }
-.pipeline-stage:nth-child(2) { --stage-delay: 1.8s; }
-.pipeline-stage:nth-child(3) { --stage-delay: 3.6s; }
-.pipeline-stage:nth-child(4) { --stage-delay: 5.4s; }
-.pipeline-stage:nth-child(5) { --stage-delay: 7.2s; }
+.reveal-pending {
+  opacity: 0;
+  translate: 0 10px;
+}
+[data-reveal] {
+  transition:
+    opacity 550ms ease,
+    translate 550ms ease;
+}
+[data-reveal].interactive-card {
+  transition:
+    opacity 550ms ease,
+    translate 550ms ease,
+    transform 250ms ease,
+    border-color 250ms ease,
+    box-shadow 250ms ease;
+}
+.reveal-complete {
+  opacity: 1;
+  translate: 0 0;
+}
+.animate-ambient.motion-visible {
+  animation-play-state: running;
+}
+.pipeline-stage {
+  --stage-delay: 0s;
+}
+.pipeline-stage:nth-child(2) {
+  --stage-delay: 1.8s;
+}
+.pipeline-stage:nth-child(3) {
+  --stage-delay: 3.6s;
+}
+.pipeline-stage:nth-child(4) {
+  --stage-delay: 5.4s;
+}
+.pipeline-stage:nth-child(5) {
+  --stage-delay: 7.2s;
+}
 .pipeline-icon {
   animation: pipeline-stage 9s ease-in-out infinite;
   animation-delay: var(--stage-delay);
@@ -245,7 +340,9 @@
   background: var(--border);
   overflow: hidden;
 }
-.pipeline-stage:last-child .pipeline-connector { display: none; }
+.pipeline-stage:last-child .pipeline-connector {
+  display: none;
+}
 .pipeline-connector::after {
   content: "";
   position: absolute;
@@ -256,29 +353,94 @@
   animation-delay: var(--stage-delay);
   animation-play-state: paused;
 }
-.motion-visible .pipeline-icon, .motion-visible .pipeline-indicator,
-.motion-visible .pipeline-connector::after, .motion-visible .product-float { animation-play-state: running; }
+.motion-visible .pipeline-icon,
+.motion-visible .pipeline-indicator,
+.motion-visible .pipeline-connector::after,
+.motion-visible .product-float {
+  animation-play-state: running;
+}
 @keyframes pipeline-stage {
-  0%, 20%, 100% { background: var(--card); border-color: var(--border); }
-  5%, 15% { background: var(--primary-soft); border-color: var(--primary); }
+  0%,
+  20%,
+  100% {
+    background: var(--card);
+    border-color: var(--border);
+  }
+  5%,
+  15% {
+    background: var(--primary-soft);
+    border-color: var(--primary);
+  }
 }
 @keyframes pipeline-status {
-  0%, 20%, 100% { opacity: 0.25; box-shadow: none; }
-  5%, 15% { opacity: 1; box-shadow: var(--shadow-status-glow); }
+  0%,
+  20%,
+  100% {
+    opacity: 0.25;
+    box-shadow: none;
+  }
+  5%,
+  15% {
+    opacity: 1;
+    box-shadow: var(--shadow-status-glow);
+  }
 }
 @keyframes pipeline-line {
-  0% { transform: translateX(-100%); opacity: 0; }
-  5% { opacity: 0.6; }
-  20%, 100% { transform: translateX(100%); opacity: 0; }
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.6;
+  }
+  20%,
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 }
-.product-float { animation: product-float 7s ease-in-out infinite; animation-play-state: paused; }
-[data-float-phase="1"] .product-float { animation-delay: -2s; }
-[data-float-phase="2"] .product-float { animation-delay: -4s; }
-@keyframes product-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-@media (min-width: 640px) { .pipeline-connector { top: 24px; } }
+.product-float {
+  animation: product-float 7s ease-in-out infinite;
+  animation-play-state: paused;
+}
+[data-float-phase="1"] .product-float {
+  animation-delay: -2s;
+}
+[data-float-phase="2"] .product-float {
+  animation-delay: -4s;
+}
+@keyframes product-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@media (min-width: 640px) {
+  .pipeline-connector {
+    top: 24px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  [data-reveal] { opacity: 1; translate: none; }
-  .animate-ambient, .pipeline-icon, .pipeline-indicator, .pipeline-connector::after, .product-float { animation: none; }
-  .pipeline-connector::after { display: none; }
-  .interactive-card:hover, .shopsense-button:hover, .shopsense-button:active { transform: none; }
+  [data-reveal] {
+    opacity: 1;
+    translate: none;
+  }
+  .animate-ambient,
+  .pipeline-icon,
+  .pipeline-indicator,
+  .pipeline-connector::after,
+  .product-float {
+    animation: none;
+  }
+  .pipeline-connector::after {
+    display: none;
+  }
+  .interactive-card:hover,
+  .shopsense-button:hover,
+  .shopsense-button:active {
+    transform: none;
+  }
 }

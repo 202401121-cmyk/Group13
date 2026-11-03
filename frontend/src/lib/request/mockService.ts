@@ -21,7 +21,8 @@ const PRODUCTS: { re: RegExp; name: string }[] = [
   { re: /\b(tv|television)s?\b/i, name: "TV" },
 ];
 
-const RECIPIENT_RE = /\bfor (?:my )?(mom|mum|mother|dad|father|wife|husband|sister|brother|friend|girlfriend|boyfriend)\b/i;
+const RECIPIENT_RE =
+  /\bfor (?:my )?(mom|mum|mother|dad|father|wife|husband|sister|brother|friend|girlfriend|boyfriend)\b/i;
 const AMBIGUOUS_RE = /\b(something|gift|present|anything)\b/i;
 const TERM = String.raw`(?=,|;|\.| and | but | under | below | within | not | with |$)`;
 
@@ -44,11 +45,19 @@ const AMT = String.raw`(?:₹|rs\.?|inr)?\s?([\d,]+(?:\.\d+)?)\s?(k|lakhs?|l)?\b
 
 export function parseBudget(text: string): Brief["budget"] {
   const between = new RegExp(String.raw`between\s+${AMT}\s+(?:and|to|-)\s+${AMT}`, "i").exec(text);
-  if (between) return { min: toAmount(between[1], between[2]), max: toAmount(between[3], between[4]) };
-  const upper = new RegExp(String.raw`(?:under|below|less than|up ?to|max(?:imum)?|within)\s+${AMT}`, "i").exec(text);
+  if (between)
+    return { min: toAmount(between[1], between[2]), max: toAmount(between[3], between[4]) };
+  const upper = new RegExp(
+    String.raw`(?:under|below|less than|up ?to|max(?:imum)?|within)\s+${AMT}`,
+    "i",
+  ).exec(text);
   if (upper) return { min: null, max: toAmount(upper[1], upper[2]) };
-  const lower = new RegExp(String.raw`(?:above|over|more than|at least|from)\s+${AMT}(?!\s?(?:gb|tb|mp|mah|hz|inch))`, "i").exec(text);
-  if (lower && /₹|rs|inr|k\b|lakh/i.test(lower[0])) return { min: toAmount(lower[1], lower[2]), max: null };
+  const lower = new RegExp(
+    String.raw`(?:above|over|more than|at least|from)\s+${AMT}(?!\s?(?:gb|tb|mp|mah|hz|inch))`,
+    "i",
+  ).exec(text);
+  if (lower && /₹|rs|inr|k\b|lakh/i.test(lower[0]))
+    return { min: toAmount(lower[1], lower[2]), max: null };
   return null;
 }
 
@@ -60,12 +69,19 @@ export function parseRequest(text: string, productHint?: string): Brief | null {
   const recipient = RECIPIENT_RE.exec(text);
   if (recipient) usedFor = `Gift for ${(recipient[1] ?? "").toLowerCase()}`;
   else {
-    const m = new RegExp(String.raw`\bfor (?:a |an |the |my )?([a-z][a-z ]*?)${TERM}`, "i").exec(text);
+    const m = new RegExp(String.raw`\bfor (?:a |an |the |my )?([a-z][a-z ]*?)${TERM}`, "i").exec(
+      text,
+    );
     if (m && !/^\d/.test(m[1] ?? "")) usedFor = cap((m[1] ?? "").trim());
   }
 
   const mustHaves = Array.from(
-    text.matchAll(new RegExp(String.raw`\b(at least [^,;]+?|not too [^,;]+?|with [^,;]+?|must have [^,;]+?|minimum [^,;]+?)${TERM}`, "gi")),
+    text.matchAll(
+      new RegExp(
+        String.raw`\b(at least [^,;]+?|not too [^,;]+?|with [^,;]+?|must have [^,;]+?|minimum [^,;]+?)${TERM}`,
+        "gi",
+      ),
+    ),
   )
     .map((m) => (m[1] ?? "").replace(/^(with|must have)\s+/i, "").trim())
     .filter(Boolean);
@@ -91,21 +107,33 @@ export function parseRequest(text: string, productHint?: string): Brief | null {
 function followUpFor(text: string): FollowUp {
   const r = RECIPIENT_RE.exec(text)?.[1]?.toLowerCase();
   if (r && /mom|mum|mother|wife|sister|girlfriend/.test(r))
-    return { question: `What kind of thing are you thinking of for your ${r}?`, options: ["Skincare", "Phone", "Handbag", "Health product"] };
+    return {
+      question: `What kind of thing are you thinking of for your ${r}?`,
+      options: ["Skincare", "Phone", "Handbag", "Health product"],
+    };
   if (r)
-    return { question: `What kind of thing are you thinking of for your ${r}?`, options: ["Smartwatch", "Phone", "Headphones", "Health product"] };
-  return { question: "What kind of product do you have in mind?", options: ["Headphones", "Smartwatch", "Skincare"] };
+    return {
+      question: `What kind of thing are you thinking of for your ${r}?`,
+      options: ["Smartwatch", "Phone", "Headphones", "Health product"],
+    };
+  return {
+    question: "What kind of product do you have in mind?",
+    options: ["Headphones", "Smartwatch", "Skincare"],
+  };
 }
 
 export function resolve(input: UnderstandInput): UnderstandResponse {
   const { text, clarification } = input;
   if (clarification !== undefined) {
     const brief = parseRequest(text, clarification);
-    return brief && detectProduct(clarification) ? { kind: "understood", brief } : { kind: "examples" };
+    return brief && detectProduct(clarification)
+      ? { kind: "understood", brief }
+      : { kind: "examples" };
   }
   const brief = parseRequest(text);
   if (brief) return { kind: "understood", brief };
-  if (RECIPIENT_RE.test(text) || AMBIGUOUS_RE.test(text)) return { kind: "follow-up", followUp: followUpFor(text) };
+  if (RECIPIENT_RE.test(text) || AMBIGUOUS_RE.test(text))
+    return { kind: "follow-up", followUp: followUpFor(text) };
   return { kind: "examples" };
 }
 

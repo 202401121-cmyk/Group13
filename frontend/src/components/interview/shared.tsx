@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { pillButton } from "@/components/shopsense/ui";
+import { pillButton } from "@/components/shopsense/pill-button";
 import type { CriterionStatus } from "@/lib/interview/reducer";
 import { cn } from "@/lib/utils";
 
-export const STATUS_LABEL: Record<CriterionStatus, string> = {
+const STATUS_LABEL: Record<CriterionStatus, string> = {
   answered: "Answered",
   skipped: "Skipped",
   remembered: "Remembered",

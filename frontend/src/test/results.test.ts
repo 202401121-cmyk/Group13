@@ -40,7 +40,9 @@ describe("research machine", () => {
     expect(researchReducer(started, { type: "START", at: 5 })).toBe(started);
   });
   it("ignores late results after stopping", () => {
-    const stopped = researchReducer(researchReducer(started, { type: "STOP" }), { type: "STOPPED" });
+    const stopped = researchReducer(researchReducer(started, { type: "STOP" }), {
+      type: "STOPPED",
+    });
     const late = researchReducer(stopped, { type: "DONE", runId: 1, result: {} as never });
     expect(late.status).toBe("briefReady");
   });
@@ -49,7 +51,11 @@ describe("research machine", () => {
     expect(researchReducer(done, { type: "TIMEOUT", runId: 1 })).toBe(done);
   });
   it("events from an old run are ignored", () => {
-    const s = researchReducer(started, { type: "EVENT", runId: 0, event: { type: "stage_done", stage: 0 } });
+    const s = researchReducer(started, {
+      type: "EVENT",
+      runId: 0,
+      event: { type: "stage_done", stage: 0 },
+    });
     expect(s).toBe(started);
   });
 });

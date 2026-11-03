@@ -3,7 +3,12 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import { PageShell } from "@/components/shopsense/PageShell";
 import { RequestForm } from "@/components/request/RequestForm";
 import { BriefPanel } from "@/components/request/BriefPanel";
-import { Clarification, ErrorState, ExamplesState, Submitting } from "@/components/request/StatusScreens";
+import {
+  Clarification,
+  ErrorState,
+  ExamplesState,
+  Submitting,
+} from "@/components/request/StatusScreens";
 import { Understanding } from "@/components/request/Understanding";
 import { initialState, requestReducer, toSnapshot, type RequestState } from "@/lib/request/reducer";
 import { getRequestService } from "@/lib/request/service";
@@ -16,9 +21,16 @@ export const Route = createFileRoute("/research")({
   head: () => ({
     meta: [
       { title: "What are you shopping for? — ShopSense" },
-      { name: "description", content: "Describe what you need in your own words and ShopSense turns it into a clear shopping brief." },
+      {
+        name: "description",
+        content:
+          "Describe what you need in your own words and ShopSense turns it into a clear shopping brief.",
+      },
       { property: "og:title", content: "What are you shopping for? — ShopSense" },
-      { property: "og:description", content: "Describe what you need and get a clear, editable shopping brief." },
+      {
+        property: "og:description",
+        content: "Describe what you need and get a clear, editable shopping brief.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -67,9 +79,18 @@ function ResearchPage() {
     let cancelled = false;
     const p = state.pending;
     service
-      .understand(p.kind === "clarify" ? { text: p.text, clarification: p.answer } : { text: p.text })
+      .understand(
+        p.kind === "clarify" ? { text: p.text, clarification: p.answer } : { text: p.text },
+      )
       .then((response) => !cancelled && dispatch({ type: "RESOLVED", response }))
-      .catch((e: unknown) => !cancelled && dispatch({ type: "FAILED", message: e instanceof Error ? e.message : "Please try again." }));
+      .catch(
+        (e: unknown) =>
+          !cancelled &&
+          dispatch({
+            type: "FAILED",
+            message: e instanceof Error ? e.message : "Please try again.",
+          }),
+      );
     return () => {
       cancelled = true;
     };
@@ -132,9 +153,12 @@ function ResearchPage() {
               />
             ) : (
               <>
-                <h1 className="font-serif text-4xl leading-tight text-foreground md:text-6xl">What are you shopping for?</h1>
+                <h1 className="font-serif text-4xl leading-tight text-foreground md:text-6xl">
+                  What are you shopping for?
+                </h1>
                 <p className="mt-3 max-w-xl text-muted-foreground md:text-lg">
-                  Describe it in your own words: what it's for, your budget, anything you don't want.
+                  Describe it in your own words: what it's for, your budget, anything you don't
+                  want.
                 </p>
                 <div className="mt-8">
                   {s === "idle" && (
@@ -187,7 +211,9 @@ function ResearchPage() {
           <BriefPanel brief={state.brief} />
         </div>
       </div>
-      <p className="sr-only" aria-live="polite">{ANNOUNCE[s] ?? ""}</p>
+      <p className="sr-only" aria-live="polite">
+        {ANNOUNCE[s] ?? ""}
+      </p>
     </PageShell>
   );
 }

@@ -1,24 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { cva, type VariantProps } from "class-variance-authority";
+import type { VariantProps } from "class-variance-authority";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
-
-export const pillButton = cva(
-  "shopsense-button inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none",
-  {
-    variants: {
-      variant: {
-        primary:
-          "primary-button bg-primary text-primary-foreground shadow-soft hover:brightness-105 active:brightness-95",
-        ghost: "text-foreground hover:bg-secondary",
-        outline: "border border-border bg-card text-foreground hover:border-primary/50",
-        link: "text-foreground hover:text-primary",
-      },
-      size: { sm: "h-9 px-4 text-sm", md: "h-11 px-6 text-sm", lg: "h-13 px-7 text-base" },
-    },
-    defaultVariants: { variant: "primary", size: "md" },
-  },
-);
+import { pillButton } from "./pill-button";
 
 type PillProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof pillButton>;
 export function PillButton({ className, variant, size, ...props }: PillProps) {
@@ -46,7 +30,9 @@ export function SectionHeading({
   return (
     <div className="max-w-2xl">
       {eyebrow && (
-        <p className="mb-3 font-mono text-xs font-medium tracking-[0.14em] text-muted-foreground">{eyebrow}</p>
+        <p className="mb-3 font-mono text-xs font-medium tracking-[0.14em] text-muted-foreground">
+          {eyebrow}
+        </p>
       )}
       <h2 className="font-serif text-4xl leading-tight text-foreground md:text-5xl">{title}</h2>
       {description && (
@@ -58,7 +44,12 @@ export function SectionHeading({
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={cn("interactive-card rounded-2xl border border-border bg-card p-7 shadow-soft", className)}>
+    <div
+      className={cn(
+        "interactive-card rounded-2xl border border-border bg-card p-7 shadow-soft",
+        className,
+      )}
+    >
       {children}
     </div>
   );
