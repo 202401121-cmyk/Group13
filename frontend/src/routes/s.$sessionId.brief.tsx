@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/shopsense/PageShell";
 import { PillButton } from "@/components/shopsense/ui";
@@ -36,11 +36,20 @@ export const Route = createFileRoute("/s/$sessionId/brief")({
 function BriefReview() {
   const { sessionId } = Route.useParams();
   const navigate = useNavigate();
+  const router = useRouter();
   const { session, ready, state } = useInterview(sessionId);
   const research = useResearch(sessionId);
   const [starting, setStarting] = useState(false);
   const [scenario, setScenario] = useState<string>("success");
   const info = researchServiceInfo();
+
+  // Fetch the results page's code while the shopper reads the brief. Otherwise, on a slow connection,
+  // "Start research" waits for it and the page then jumps well after the tap (CLS).
+  useEffect(() => {
+    void router.preloadRoute({ to: "/s/$sessionId/results", params: { sessionId } }).catch(() => {
+      /* a failed preload only means the page loads on click, as before */
+    });
+  }, [router, sessionId]);
 
   if (session === null)
     return (
