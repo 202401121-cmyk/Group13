@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from app.contracts import CriteriaInput
+from app.contracts import CriteriaInput, DataClass
+from app.intake.lexicon import load_lexicon
 
 SYSTEM_PROMPT = """You help a shopper compare products. Given a product category and how the shopper will use it,
 list the criteria a careful buyer of THAT product for THAT use would compare.
@@ -38,6 +39,15 @@ def user_message(inp: CriteriaInput, retry: bool = False) -> str:
     """The category and use case wrapped as data, plus a short note when asking a second time."""
     brief = f"<brief>\ncategory: {_clean(inp.category_label)}\nuse: {_clean(inp.use_case) or 'not stated'}\n</brief>"
     return f"{brief}\n{RETRY_NOTE}" if retry else brief
+
+
+def brief_data_class(inp: CriteriaInput) -> DataClass:
+    """What the brief carries (US-46). Public only when it is all our own text: a category label from our lexicon
+    and no use case. The shopper's use case, or a category name taken from their words, makes it private.
+    """
+    lexicon = load_lexicon()
+    ours = inp.category in lexicon.categories and inp.category_label == lexicon.label(inp.category)
+    return DataClass.PUBLIC if ours and not inp.use_case else DataClass.PRIVATE
 
 
 def _clean(value: str | None) -> str:

@@ -40,6 +40,8 @@ from .interview import (
 )
 from .llm import (
     PERSONAL_TASKS,
+    DataClass,
+    Difficulty,
     LLMCallRecord,
     LLMClient,
     LLMTask,
@@ -72,8 +74,10 @@ __all__ = [
     "CriteriaInput",
     "CriteriaSet",
     "Criterion",
+    "DataClass",
     "DecideInput",
     "DecideResult",
+    "Difficulty",
     "Direction",
     "EnrichInput",
     "EnrichResult",
