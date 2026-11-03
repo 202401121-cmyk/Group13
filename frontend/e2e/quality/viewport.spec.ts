@@ -41,7 +41,8 @@ async function checkSizes(page: Page, screen: string) {
 }
 
 test.describe("screen sizes", () => {
-  test.describe.configure({ timeout: 180_000 });
+  // The tests are independent (each starts its own search), so they can run side by side.
+  test.describe.configure({ mode: "parallel", timeout: 180_000 });
 
   test("information pages", async ({ page }) => {
     for (const [path, screen] of [

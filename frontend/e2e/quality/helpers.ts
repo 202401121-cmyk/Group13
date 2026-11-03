@@ -86,10 +86,19 @@ async function axeWhilePaused(page: Page): Promise<string[]> {
       done = true;
     },
   );
-  // 1 ms at a time, at most 150 ms per run, so a 600-700 ms mock wait is still on screen afterwards.
-  // axe opens and closes a helper page of its own; a nudge that races with that close is harmless.
+  // 1 ms of page time per 15 ms of real time, so axe has scheduled its next timer before each nudge. Most
+  // runs need about 35 ms of page time, well inside a 600-700 ms mock wait. axe opens and closes a helper
+  // page of its own; a nudge that races with that close is harmless.
   let used = 0;
-  for (; used < 150 && !done; used++) await page.clock.runFor(1).catch(() => undefined);
+  for (; used < 250 && !done; used++) {
+    await page.waitForTimeout(15);
+    await page.clock.runFor(1).catch(() => undefined);
+  }
+  if (!done) {
+    // Never hang: let time run so axe can finish, and say so (the held state may have ended meanwhile).
+    console.log("[a11y] (axe did not finish in 250 ms of page time; the clock was resumed)");
+    await page.clock.resume();
+  }
   await run;
   console.log(`[a11y] (axe ran with the clock paused; it needed ${used} ms of page time)`);
   if (failure) throw failure;

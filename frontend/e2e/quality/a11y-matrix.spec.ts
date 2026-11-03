@@ -5,6 +5,7 @@
  */
 import { expect, test, type Page } from "@playwright/test";
 import {
+  answerAll,
   checkRow,
   finishResearch,
   reachBrief,
@@ -25,7 +26,8 @@ async function pauseClock(page: Page) {
 }
 
 test.describe("audit matrix: axe in light and dark mode", () => {
-  test.describe.configure({ timeout: 240_000 });
+  // The tests are independent (each starts its own search), so they can run side by side.
+  test.describe.configure({ mode: "parallel", timeout: 240_000 });
 
   test.beforeEach(async ({ page }) => {
     await page.clock.install();
@@ -204,16 +206,7 @@ test.describe("audit matrix: axe in light and dark mode", () => {
     await checkRow(page, "brief, part-way through the questions");
 
     await page.goto(`/s/${id}/questions`);
-    const review = page.getByRole("link", { name: /Review your brief/ });
-    for (let i = 0; i < 12 && !(await review.isVisible()); i++) {
-      await page
-        .getByRole("group", { name: /Quick replies/ })
-        .getByRole("button")
-        .first()
-        .click();
-      await expect(review.or(page.getByRole("group", { name: /Quick replies/ }))).toBeVisible();
-    }
-    await expect(review).toBeVisible();
+    await answerAll(page);
     await checkRow(page, "questions, finished");
 
     await page.setViewportSize({ width: 390, height: 844 });
@@ -225,8 +218,8 @@ test.describe("audit matrix: axe in light and dark mode", () => {
     await checkRow(page, "questions, search not found");
   });
 
-  test("brief and results states", async ({ page }) => {
-    const id = await reachBrief(page);
+  test("brief and waiting states", async ({ page }) => {
+    await reachBrief(page);
     await checkRow(page, "brief, ready");
 
     // Waiting, then the leave-page dialog, then stopping. The clock is paused so research keeps running.
@@ -248,26 +241,41 @@ test.describe("audit matrix: axe in light and dark mode", () => {
     await expect(page).toHaveURL(/\/brief$/);
     await expect(page.getByText("Research stopped").first()).toBeVisible();
     await checkRow(page, "brief, research stopped message");
+  });
 
-    for (const scenario of RESULT_SCENARIOS) {
-      await startScenario(page, id, scenario);
-      await finishResearch(page);
-      await expect(page.getByRole("heading", { level: 1, name: /Results for your/ })).toBeVisible();
-      await checkRow(page, `results, ${scenario}`);
-      if (scenario === "disputed") {
-        await page.getByText("Show all criteria").first().click();
-        await checkRow(page, "results, disputed, all criteria open");
+  // The twelve result scenarios, in three groups so each test stays short.
+  for (const group of [
+    RESULT_SCENARIOS.slice(0, 4),
+    RESULT_SCENARIOS.slice(4, 8),
+    RESULT_SCENARIOS.slice(8),
+  ]) {
+    test(`results: ${group.join(", ")}`, async ({ page }) => {
+      const id = await reachBrief(page);
+      for (const scenario of group) {
+        await startScenario(page, id, scenario);
+        await finishResearch(page);
+        await expect(
+          page.getByRole("heading", { level: 1, name: /Results for your/ }),
+        ).toBeVisible();
+        await checkRow(page, `results, ${scenario}`);
+        if (scenario === "disputed") {
+          await page.getByText("Show all criteria").first().click();
+          await checkRow(page, "results, disputed, all criteria open");
+        }
+        if (scenario === "left-out") {
+          await page.getByText(/Left out \(/).click();
+          await checkRow(page, "results, left-out list open");
+        }
+        if (scenario === "success") {
+          await page.getByText("Your brief", { exact: true }).last().click();
+          await checkRow(page, "results, brief summary open");
+        }
       }
-      if (scenario === "left-out") {
-        await page.getByText(/Left out \(/).click();
-        await checkRow(page, "results, left-out list open");
-      }
-      if (scenario === "success") {
-        await page.getByText("Your brief", { exact: true }).last().click();
-        await checkRow(page, "results, brief summary open");
-      }
-    }
+    });
+  }
 
+  test("results: errors, timeout and gone", async ({ page }) => {
+    const id = await reachBrief(page);
     await startScenario(page, id, "network-retry");
     await page.clock.runFor(3_000);
     await expect(page.getByText(/lost the connection/).first()).toBeVisible();

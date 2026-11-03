@@ -43,7 +43,8 @@ async function everyScreen(page: Page, mode: string) {
 }
 
 test.describe("zoom and text spacing", () => {
-  test.describe.configure({ timeout: 240_000 });
+  // The tests are independent (each starts its own search), so they can run side by side.
+  test.describe.configure({ mode: "parallel", timeout: 240_000 });
 
   test.beforeEach(async ({ page }) => {
     await page.clock.install();

@@ -37,7 +37,8 @@ async function walkBothWays(page: Page, label: string) {
 }
 
 test.describe("keyboard only", () => {
-  test.describe.configure({ timeout: 180_000 });
+  // The tests are independent (each starts its own search), so they can run side by side.
+  test.describe.configure({ mode: "parallel", timeout: 180_000 });
 
   test.beforeEach(async ({ page }) => {
     await page.clock.install();
