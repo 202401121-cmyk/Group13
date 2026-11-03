@@ -11,6 +11,9 @@ from .rubric import Rubric
 
 MAX_SOURCE_CHARS = 12_000  # about 3,000 tokens; longer text is trimmed before it gets here
 
+# Where a Reddit source's text came from (US-12): one of the two archives, or Reddit's own API.
+RedditOrigin = Literal["arctic_shift", "pullpush", "official"]
+
 # Which tier a source type gets by default (US-16 can refine per site).
 DEFAULT_TIER: dict[SourceType, SourceTier] = {
     SourceType.MANUFACTURER: SourceTier.MANUFACTURER,
@@ -43,6 +46,14 @@ class Source(Contract):
     community: str | None = Field(default=None, max_length=80, description="e.g. 'r/SuggestALaptop'")
     quality: Fraction = Field(default=0.5, description="US-13 thread or page quality score")
     via: Literal["api", "direct", "jina", "search_snippet"]
+    source_detail: RedditOrigin | None = Field(
+        default=None, description="Reddit only: which archive or API the text came from (US-12)"
+    )
+    author_hash: str | None = Field(
+        default=None,
+        pattern=r"^[a-f0-9]{64}$",
+        description="Salted sha256 of the author's username, so US-13 can count distinct people. Never the name",
+    )
 
     @model_validator(mode="after")
     def _check(self) -> Source:
@@ -50,6 +61,8 @@ class Source(Contract):
             raise ValueError("Reddit sources must record their subreddit")
         if self.type == SourceType.REDDIT and self.tier != SourceTier.COMMUNITY:
             raise ValueError("Reddit is community evidence, never editorial (US-16)")
+        if self.source_detail is not None and self.type != SourceType.REDDIT:
+            raise ValueError("source_detail says which Reddit archive or API was used, so it is for Reddit only")
         return self
 
 

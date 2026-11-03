@@ -1,0 +1,96 @@
+{
+  "_note": "Hand-written in the shape of GET /api/comments/search?link_id=1qx7aaa (US-12). Every name and text is made up.",
+  "data": [
+    {
+      "id": "m1aaaa1",
+      "link_id": "t3_1qx7aaa",
+      "parent_id": "t3_1qx7aaa",
+      "subreddit": "SuggestALaptop",
+      "body": "I bought the Nova Book 14 last month. The battery lasts about 9 hours of coding and the keyboard is great.",
+      "author": "made_up_owner_one",
+      "created_utc": 1793318400,
+      "score": 12
+    },
+    {
+      "id": "m1aaaa2",
+      "link_id": "t3_1qx7aaa",
+      "parent_id": "t1_m1aaaa1",
+      "subreddit": "SuggestALaptop",
+      "body": "Same here, but mine gets warm when Docker is running.",
+      "author": "made_up_owner_two",
+      "created_utc": 1793232000
+    },
+    {
+      "id": "m1aaaa3",
+      "link_id": "t3_1qx7aaa",
+      "parent_id": "t1_m1aaaa2",
+      "subreddit": "SuggestALaptop",
+      "body": "A cooling pad fixed that for me.",
+      "author": "made_up_owner_one",
+      "created_utc": 1793232000
+    },
+    {
+      "id": "m1aaaa4",
+      "link_id": "t3_1qx7aaa",
+      "parent_id": "t1_m1aaaa3",
+      "subreddit": "SuggestALaptop",
+      "body": "Four replies deep: past the depth we read.",
+      "author": "made_up_owner_three",
+      "created_utc": 1793232000
+    },
+    {
+      "id": "m1aaaa5",
+      "link_id": "t3_1qx7aaa",
+      "parent_id": "t3_1qx7aaa",
+      "subreddit": "SuggestALaptop",
+      "body": "[deleted]",
+      "author": "[deleted]",
+      "created_utc": 1793232000
+    },
+    {
+      "id": "m1aaaa6",
+      "link_id": "t3_1qx7aaa",
+      "parent_id": "t3_1qx7aaa",
+      "subreddit": "SuggestALaptop",
+      "body": "[removed]",
+      "author": "made_up_five",
+      "created_utc": 1793232000
+    },
+    {
+      "id": "m1aaaa7",
+      "link_id": "t3_1qx7aaa",
+      "parent_id": "t3_1qx7aaa",
+      "subreddit": "SuggestALaptop",
+      "body": "Please read the rules before posting.",
+      "author": "AutoModerator",
+      "created_utc": 1793232000
+    },
+    {
+      "id": "m1aaaa8",
+      "link_id": "t3_9zz9zzz",
+      "parent_id": "t3_9zz9zzz",
+      "subreddit": "laptops",
+      "body": "A comment from a different thread.",
+      "author": "made_up_six",
+      "created_utc": 1793232000
+    },
+    {
+      "id": "m1aaaa9",
+      "link_id": "t3_1qx7aaa",
+      "parent_id": "t3_1qx7aaa",
+      "subreddit": "SuggestALaptop",
+      "body": "The account is gone, so this is skipped too.",
+      "author": "[deleted]",
+      "created_utc": 1793232000
+    },
+    {
+      "id": "m1aaab1",
+      "link_id": "t3_1qx7aaa",
+      "parent_id": "t1_m0zzzz9",
+      "subreddit": "SuggestALaptop",
+      "body": "A reply to a comment we were not sent: it counts as two deep.",
+      "author": "made_up_seven",
+      "created_utc": 1793145600
+    }
+  ]
+}

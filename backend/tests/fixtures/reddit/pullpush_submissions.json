@@ -1,0 +1,38 @@
+{
+  "_note": "Hand-written in the Pushshift-style shape PullPush is known to copy: GET /reddit/search/submission/ (US-12). Unconfirmed against PullPush's docs, which could not be read. Every name and text is made up.",
+  "data": [
+    {
+      "id": "1kq2aaa",
+      "subreddit": "SuggestALaptop",
+      "title": "Best laptop for coding around 65k?",
+      "selftext": "Mostly web development and a little Android Studio. Battery matters.",
+      "author": "made_up_pp_one",
+      "created_utc": 1746835200.0,
+      "over_18": false,
+      "removed_by_category": null,
+      "permalink": "/r/SuggestALaptop/comments/1kq2aaa/best_laptop_for_coding_around_65k/",
+      "num_comments": 9,
+      "score": 11
+    },
+    {
+      "id": "1kq2bbb",
+      "subreddit": "SuggestALaptop",
+      "title": "Coding laptop with a good keyboard",
+      "selftext": "[removed]",
+      "author": "made_up_pp_two",
+      "created_utc": 1745798400,
+      "over_18": false,
+      "removed_by_category": "reddit"
+    },
+    {
+      "id": "1kq2ccc",
+      "subreddit": "SuggestALaptop",
+      "title": "Laptop for coding and light gaming",
+      "selftext": "",
+      "author": "made_up_pp_three",
+      "created_utc": 1745798400,
+      "over_18": false
+    }
+  ],
+  "metadata": {"total_results": 3}
+}

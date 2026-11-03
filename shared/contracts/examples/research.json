@@ -16,7 +16,9 @@
       "published_at": null,
       "community": "r/developersIndia",
       "quality": 0.8,
-      "via": "api"
+      "via": "api",
+      "source_detail": null,
+      "author_hash": null
     },
     {
       "id": "src_37c43827cfe41e89",
@@ -30,7 +32,9 @@
       "published_at": null,
       "community": null,
       "quality": 0.8,
-      "via": "direct"
+      "via": "direct",
+      "source_detail": null,
+      "author_hash": null
     },
     {
       "id": "src_2958fd9d1b3643cf",
@@ -44,7 +48,9 @@
       "published_at": null,
       "community": null,
       "quality": 0.8,
-      "via": "direct"
+      "via": "direct",
+      "source_detail": null,
+      "author_hash": null
     }
   ],
   "failures": [

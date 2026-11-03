@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1.0",
+  "schema_version": "1.2.0",
   "search_id": "srch_demo0001",
   "request": {
     "session_id": "sess_demo0001",
@@ -839,7 +839,9 @@
       "published_at": null,
       "community": "r/developersIndia",
       "quality": 0.8,
-      "via": "api"
+      "via": "api",
+      "source_detail": null,
+      "author_hash": null
     },
     {
       "id": "src_37c43827cfe41e89",
@@ -853,7 +855,9 @@
       "published_at": null,
       "community": null,
       "quality": 0.8,
-      "via": "direct"
+      "via": "direct",
+      "source_detail": null,
+      "author_hash": null
     },
     {
       "id": "src_2958fd9d1b3643cf",
@@ -867,7 +871,9 @@
       "published_at": null,
       "community": null,
       "quality": 0.8,
-      "via": "direct"
+      "via": "direct",
+      "source_detail": null,
+      "author_hash": null
     }
   ],
   "stage_reports": [

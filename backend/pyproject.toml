@@ -17,8 +17,10 @@ dependencies = [
     # The Postgres request store (US-01). Pinned exactly: the driver decides how timeouts behave.
     "psycopg[binary]==3.3.6",
     "psycopg-pool==3.3.3",
+    # Reddit's own API (US-12), used only with REDDIT_SOURCE=official. Pinned exactly, like the database driver.
+    "praw==8.0.3",
 ]
-# Stories add their own libraries when they need them (for example praw, sentence-transformers,
+# Stories add their own libraries when they need them (for example sentence-transformers,
 # rapidfuzz, pyahocorasick, numpy, slowapi). Add them here in the same pull request.
 
 [project.optional-dependencies]

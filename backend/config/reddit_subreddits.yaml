@@ -1,0 +1,69 @@
+# Subreddits we search for each product category (US-12). Loaded and checked by app/research/reddit/subreddits.py.
+#
+# Every name was checked on 3 Nov 2026 through Arctic Shift (its newest post): all have posts from the last few
+# weeks. ipad and headphones are so busy that the archive answers only with a date window (after=...), which the
+# Reddit source always sends. Dropped because nothing was posted for over a year: webcams, BluetoothSpeakers,
+# IndianWatchCommunity, ceilingfan, electrictoothbrush, CarSeats.
+#
+# Ask the owner of US-12 before adding a subreddit, and check it the same way. Every category in
+# config/categories.yaml needs an entry (the loader refuses a missing one).
+
+checked: 2026-11-03
+
+categories:
+  laptop: [SuggestALaptop, laptops, GamingLaptops]
+  tablet: [tablets, AndroidTablets, ipad]
+  monitor: [Monitors, ultrawidemasterrace]
+  keyboard: [MechanicalKeyboards, keyboards]
+  mouse: [MouseReview]
+  printer: [printers]
+  router: [HomeNetworking, wifi]
+  webcam: [Logitech, streaming]
+  smartphone: [PickAnAndroidForMe, smartphones, Android]
+  power_bank: [Powerbanks, UsbCHardware]
+  gaming_console: [consoles, gaming]
+  earbuds: [Earbuds, HeadphoneAdvice]
+  headphones: [headphones, HeadphoneAdvice, BudgetAudiophile]
+  bluetooth_speaker: [audiophile, JBL, BudgetAudiophile]
+  home_theatre: [hometheater, Soundbars]
+  smart_speaker: [amazonecho, googlehome, smarthome]
+  smartwatch: [smartwatch, GalaxyWatch, Garmin]
+  fitness_band: [fitbit, amazfit]
+  analog_watch: [Watches, Seiko]
+  television: [4kTV, televisions, OLED]
+  projector: [projectors]
+  camera: [Cameras, photography]
+  refrigerator: [Appliances]
+  washing_machine: [laundry, Appliances]
+  air_conditioner: [hvacadvice]
+  water_purifier: [WaterTreatment]
+  geyser: [Plumbing]
+  dishwasher: [dishwashers]
+  air_purifier: [AirPurifiers]
+  ceiling_fan: [HomeImprovement]
+  vacuum_cleaner: [VacuumCleaners, RobotVacuums]
+  iron: [Appliances]
+  mixer_grinder: [IndianFood, Cooking]
+  microwave: [Appliances]
+  induction_cooktop: [inductioncooking]
+  electric_kettle: [tea, Coffee]
+  air_fryer: [airfryer]
+  kitchen_chimney: [Appliances]
+  trimmer: [malegrooming, wicked_edge]
+  hair_dryer: [HaircareScience]
+  electric_toothbrush: [Sonicare, Dentistry]
+  mattress: [Mattress]
+  office_chair: [OfficeChairs]
+  standing_desk: [StandingDesk]
+  running_shoes: [RunningShoeGeeks, running]
+  backpack: [onebag]
+  pram: [Strollers, beyondthebump]
+  car_seat: [BabyBumps, beyondthebump]
+  baby_monitor: [NewParents]
+
+# Added after a category's own subreddits, for every category in these product families (config/categories.yaml).
+shared:
+  - subreddits: [IndiaTech, IndianGaming]  # Indian prices, shops and warranty service
+    families: [computing, phone, generic, audio, wearable, tv_and_camera]
+  - subreddits: [BuyItForLife]  # what lasts
+    families: [large_appliance, home_comfort, kitchen_appliance, furniture, footwear_and_bags, baby]

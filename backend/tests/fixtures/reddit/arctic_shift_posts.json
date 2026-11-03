@@ -1,0 +1,74 @@
+{
+  "_note": "Hand-written in the shape of GET /api/posts/search?subreddit=...&after=...&limit=100&sort=desc (US-12). Every name and text is made up.",
+  "data": [
+    {
+      "id": "1qx7aaa",
+      "name": "t3_1qx7aaa",
+      "subreddit": "SuggestALaptop",
+      "title": "Laptop for coding under 70k?",
+      "selftext": "Budget is 70k INR. I code in Python and run Docker. Need 16 GB RAM and a good keyboard.",
+      "author": "made_up_coder_one",
+      "created_utc": 1793491200,
+      "over_18": false,
+      "removed_by_category": null,
+      "num_comments": 14,
+      "score": 21,
+      "permalink": "/r/SuggestALaptop/comments/1qx7aaa/laptop_for_coding_under_70k/"
+    },
+    {
+      "id": "1qx7bbb",
+      "name": "t3_1qx7bbb",
+      "subreddit": "SuggestALaptop",
+      "title": "Nova Book 14 or Kestrel Slim 15: which laptop for a CS student?",
+      "selftext": "",
+      "author": "made_up_student_two",
+      "created_utc": "1793145600",
+      "over_18": null,
+      "num_comments": 3,
+      "score": 4
+    },
+    {
+      "id": "1qx7ccc",
+      "subreddit": "SuggestALaptop",
+      "title": "Removed by the moderators",
+      "selftext": "[removed]",
+      "author": "made_up_three",
+      "created_utc": 1792454400,
+      "over_18": false,
+      "removed_by_category": "moderator"
+    },
+    {
+      "id": "1qx7ddd",
+      "subreddit": "SuggestALaptop",
+      "title": "Deleted by its author",
+      "selftext": "[deleted]",
+      "author": "[deleted]",
+      "created_utc": 1792454400,
+      "over_18": false
+    },
+    {
+      "id": "1qx7eee",
+      "subreddit": "SuggestALaptop",
+      "title": "An over-18 thread",
+      "selftext": "Not something we read.",
+      "author": "made_up_four",
+      "created_utc": 1792454400,
+      "over_18": true
+    },
+    {
+      "id": "1qx7fff",
+      "subreddit": "SuggestALaptop",
+      "title": "Weekly laptop questions thread",
+      "selftext": "Ask your questions here.",
+      "author": "AutoModerator",
+      "created_utc": 1792454400,
+      "over_18": false
+    },
+    {
+      "subreddit": "SuggestALaptop",
+      "title": "An item with no id is skipped",
+      "created_utc": 1792454400
+    },
+    "not an object"
+  ]
+}

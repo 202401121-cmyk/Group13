@@ -358,6 +358,38 @@
           ],
           "title": "Via",
           "type": "string"
+        },
+        "source_detail": {
+          "anyOf": [
+            {
+              "enum": [
+                "arctic_shift",
+                "pullpush",
+                "official"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reddit only: which archive or API the text came from (US-12)",
+          "title": "Source Detail"
+        },
+        "author_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Salted sha256 of the author's username, so US-13 can count distinct people. Never the name",
+          "title": "Author Hash"
         }
       },
       "required": [
@@ -372,7 +404,9 @@
         "published_at",
         "community",
         "quality",
-        "via"
+        "via",
+        "source_detail",
+        "author_hash"
       ],
       "title": "Source",
       "type": "object"

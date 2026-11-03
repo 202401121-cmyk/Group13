@@ -415,3 +415,33 @@ def test_call_record_needs_a_known_data_class() -> None:
     with pytest.raises(ValidationError):
         C.LLMCallRecord.model_validate({**row, "data_class": "secret"})
     assert C.LLMCallRecord.model_validate({**row, "data_class": "private"}).data_class is C.DataClass.PRIVATE
+
+
+# --- US-12: where a Reddit source came from, and who wrote it (hashed) -----------------------------
+
+
+def _reddit_source(**changes: object) -> C.Source:
+    reddit = next(s for s in ex.sources() if s.type == C.SourceType.REDDIT)
+    return C.Source.model_validate({**reddit.model_dump(), **changes})
+
+
+def test_a_reddit_source_records_which_archive_it_came_from() -> None:
+    for origin in ("arctic_shift", "pullpush", "official"):
+        assert _reddit_source(source_detail=origin).source_detail == origin
+    assert _reddit_source().source_detail is None  # older sources, recorded before US-12
+    with pytest.raises(ValidationError):
+        _reddit_source(source_detail="pushshift")
+
+
+def test_source_detail_is_for_reddit_only() -> None:
+    web = next(s for s in ex.sources() if s.type != C.SourceType.REDDIT)
+    with pytest.raises(ValidationError, match="Reddit only"):
+        C.Source.model_validate({**web.model_dump(), "source_detail": "arctic_shift"})
+
+
+def test_author_hash_is_a_sha256_never_a_username() -> None:
+    digest = "a" * 64
+    assert _reddit_source(author_hash=digest).author_hash == digest
+    for bad in ("throwaway_user_42", "A" * 64, "a" * 63):
+        with pytest.raises(ValidationError):
+            _reddit_source(author_hash=bad)
