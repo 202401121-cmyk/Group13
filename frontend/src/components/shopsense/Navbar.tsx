@@ -12,7 +12,7 @@ const links = [
 ] as const;
 
 const linkCls =
-  "rounded-full px-4 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground";
+  "inline-flex min-h-11 items-center rounded-full px-4 text-sm text-muted-foreground transition-colors hover:text-foreground";
 const activeCls = "bg-accent text-accent-foreground font-medium";
 
 export function Navbar() {
@@ -47,7 +47,7 @@ export function Navbar() {
         <div className="flex items-center md:hidden">
           <ThemeToggle />
           <button
-            className="grid h-10 w-10 place-items-center rounded-full hover:bg-secondary md:hidden"
+            className="grid h-11 w-11 place-items-center rounded-full hover:bg-secondary md:hidden"
             onClick={() => setOpen(!open)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
@@ -63,7 +63,7 @@ export function Navbar() {
               key={l.to}
               to={l.to}
               onClick={() => setOpen(false)}
-              className={cn(linkCls, "block")}
+              className={cn(linkCls, "flex")}
               activeProps={{ className: activeCls }}
               activeOptions={{ exact: true }}
             >

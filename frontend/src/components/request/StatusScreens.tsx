@@ -152,7 +152,7 @@ export function Clarification({
       <button
         type="button"
         onClick={onEdit}
-        className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        className="inline-flex min-h-11 items-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
       >
         Change my request instead
       </button>

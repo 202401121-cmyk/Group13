@@ -237,7 +237,7 @@ function QuestionsPage() {
             <>
               <a
                 href="#current-question"
-                className="sr-only focus:not-sr-only focus:self-start focus:rounded-full focus:bg-card focus:px-4 focus:py-2 focus:text-sm focus:text-primary"
+                className="sr-only focus:not-sr-only focus:inline-flex focus:min-h-11 focus:items-center focus:self-start focus:rounded-full focus:bg-card focus:px-4 focus:text-sm focus:text-primary"
               >
                 Jump to question
               </a>

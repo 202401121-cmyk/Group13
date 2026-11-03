@@ -205,14 +205,14 @@ function Editor({
               {excl.map((x) => (
                 <li
                   key={x}
-                  className="inline-flex items-center gap-1 rounded-full bg-accent py-1 pl-3 pr-1 text-sm text-accent-foreground"
+                  className="inline-flex min-h-11 items-center gap-1 rounded-full bg-accent pl-4 text-sm text-accent-foreground"
                 >
                   {x}
                   <button
                     type="button"
                     onClick={() => setExcl(excl.filter((e) => e !== x))}
                     aria-label={`Remove ${x}`}
-                    className="grid h-6 w-6 place-items-center rounded-full hover:bg-primary/10"
+                    className="grid h-11 w-11 place-items-center rounded-full hover:bg-primary/10"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -318,7 +318,7 @@ export function Understanding(p: Props) {
                     onClick={() => p.onEdit(f.key)}
                     disabled={p.editingField !== null}
                     aria-label={`${v ? "Edit" : "Add"} ${f.name}`}
-                    className="rounded-full px-3 py-1 text-sm font-medium text-primary hover:bg-accent disabled:opacity-40"
+                    className="min-h-11 rounded-full px-4 text-sm font-medium text-primary hover:bg-accent disabled:opacity-40"
                   >
                     {v ? "Edit" : "Add"}
                   </button>
