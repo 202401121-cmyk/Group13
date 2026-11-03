@@ -179,6 +179,50 @@ test.describe("results arriving", () => {
   });
 });
 
+test.describe("slow phone", () => {
+  test.describe.configure({ timeout: 240_000 });
+  test.use({ viewport: { width: 412, height: 823 }, isMobile: true, hasTouch: true });
+
+  test("session pages and the start of research do not jump on a slow connection (CLS)", async ({
+    page,
+  }) => {
+    await recordVitals(page);
+    const id = await reachBrief(page);
+    // Lighthouse's mobile settings: slow 4G (150 ms, 1.6 Mbit/s down) and a 4x slower CPU.
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Network.enable");
+    await cdp.send("Network.emulateNetworkConditions", {
+      offline: false,
+      latency: 150,
+      downloadThroughput: (1.6 * 1024 * 1024) / 8,
+      uploadThroughput: (750 * 1024) / 8,
+    });
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+    const rows: string[] = [];
+    for (const route of ["criteria", "questions", "brief", "results"]) {
+      await page.goto(`/s/${id}/${route}`, { waitUntil: "networkidle" });
+      await page.waitForTimeout(1_500);
+      const cls = await shiftTotal(page, 0);
+      rows.push(
+        `${route} ${cls.toFixed(3)}${cls > 0.005 ? ` (${(await shiftsOf(page)).join("; ")})` : ""}`,
+      );
+      expect.soft(cls, `CLS loading /s/[id]/${route}`).toBeLessThanOrEqual(0.1);
+    }
+    // From the brief page, measured from the tap on "Start research" to the results.
+    await page.goto(`/s/${id}/brief`, { waitUntil: "networkidle" });
+    const start = await page.evaluate(() => performance.now());
+    await page.getByRole("button", { name: /Start research/ }).tap();
+    await expect(page.getByRole("heading", { name: "Best match" })).toBeVisible({
+      timeout: 60_000,
+    });
+    await page.waitForTimeout(500);
+    const cls = await shiftTotal(page, start);
+    rows.push(`start research to results ${cls.toFixed(3)}`);
+    console.log(`[vitals] slow phone, CLS per page load: ${rows.join("; ")}`);
+    expect.soft(cls, "CLS from Start research to the results").toBeLessThanOrEqual(0.1);
+  });
+});
+
 test.describe("feedback", () => {
   test.describe.configure({ timeout: 120_000 });
 
