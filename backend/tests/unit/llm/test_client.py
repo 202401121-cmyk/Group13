@@ -154,7 +154,7 @@ def test_call_records_carry_the_details() -> None:
     assert isinstance(client.call_log, InMemoryCallLog)
     (rec,) = client.call_log.records
     assert rec.task is TASK
-    assert (rec.provider, rec.model) == (Provider.GROQ, "llama-3.3-70b-versatile")
+    assert (rec.provider, rec.model) == (Provider.GROQ, "openai/gpt-oss-120b")
     assert rec.search_id == "srch_abc123def4"
     assert (rec.outcome, rec.fitted) == ("ok", "as_is")
     assert rec.input_tokens > 0 and rec.output_tokens > 0
@@ -220,7 +220,8 @@ def test_oversized_extraction_input_is_chunked_and_merged() -> None:
 
 
 def test_falling_back_to_a_smaller_window_refits_the_input() -> None:
-    config = load_llm_config()  # groq 131072 tokens, cerebras 8192
+    # Its own windows, so the test does not depend on the models in config/models.yaml.
+    config = _config_with(groq=(131072, 8192), cerebras=(8192, 2048))
     groq = _failing(Provider.GROQ, RateLimited)
     cerebras = FakeAdapter(Provider.CEREBRAS, context_window=8192)
     client = _client({Provider.GROQ: groq, Provider.CEREBRAS: cerebras}, config)
