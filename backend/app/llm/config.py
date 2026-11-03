@@ -6,6 +6,7 @@ The file is checked when it loads, so a bad config stops the app at startup rath
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 from datetime import date
 from pathlib import Path
 
@@ -35,6 +36,11 @@ class ProviderSettings(BaseModel):
     trains_on_inputs: bool
     terms_url: str
     terms_checked: date
+    # Limits we hold ourselves to (US-46). None = no limit of our own; the provider's limits still apply.
+    json_mode: bool = Field(default=False, description="Send response_format json_object (Mistral supports it)")
+    requests_per_second: float | None = Field(default=None, gt=0)
+    tokens_per_minute: int | None = Field(default=None, gt=0)
+    daily_tokens: int | None = Field(default=None, gt=0, description="Tokens per UTC day, counted in memory")
 
     @field_validator("base_url", "terms_url")
     @classmethod
@@ -97,3 +103,44 @@ def load_llm_config(path: Path | str | None = None) -> LLMConfig:
         return LLMConfig.model_validate(raw)
     except ValidationError as exc:
         raise LLMConfigError(f"invalid LLM config {where}:\n{exc}") from exc
+
+
+# Settings a member may change in .env without editing models.yaml (US-46). Unset or empty keeps the file's value.
+ENV_OVERRIDES: dict[Provider, dict[str, str]] = {
+    Provider.MISTRAL: {
+        "MISTRAL_MODEL": "model",
+        "MISTRAL_RPS": "requests_per_second",
+        "MISTRAL_TPM": "tokens_per_minute",
+        "MISTRAL_DAILY_TOKENS": "daily_tokens",
+    },
+}
+
+
+def with_env_overrides(config: LLMConfig, env: Mapping[str, str]) -> LLMConfig:
+    """The config with any ENV_OVERRIDES values from `env` applied, checked again. Raises LLMConfigError.
+
+    The model override renames the provider's first model and keeps its limits: if you pick a model with a
+    smaller window, change its row in models.yaml too.
+    """
+    providers = [p.model_dump() for p in config.providers]
+    models = [m.model_dump() for m in config.models]
+    for provider, variables in ENV_OVERRIDES.items():
+        for var, field in variables.items():
+            text = env.get(var, "").strip()
+            if not text:
+                continue
+            if field == "model":
+                row = next((m for m in models if m["provider"] == provider), None)
+                if row is not None:
+                    row["model"] = text
+                continue
+            settings = next(p for p in providers if p["name"] == provider)
+            try:
+                settings[field] = float(text) if field == "requests_per_second" else int(text)
+            except ValueError:
+                raise LLMConfigError(f"{var} must be a number") from None
+    try:
+        return LLMConfig.model_validate({"providers": providers, "models": models})
+    except ValidationError as exc:
+        used = sorted(var for variables in ENV_OVERRIDES.values() for var in variables if env.get(var, "").strip())
+        raise LLMConfigError(f"invalid LLM settings from the environment ({', '.join(used)}):\n{exc}") from exc

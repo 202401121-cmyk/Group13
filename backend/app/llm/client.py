@@ -1,11 +1,9 @@
-"""The one LLM client every stage uses (US-26). Implements app.contracts.LLMClient.
+"""The one LLM client every stage uses (US-26, US-46). Implements app.contracts.LLMClient.
 
-complete() tries the configured models in provider order, re-fitting the input to each model's window. It
-retries invalid output once, moves on after any provider failure, and raises LLMUnavailable when every
-model failed. It never invents an answer: the calling stage's fallback decides what happens next.
-
-The ordering, filtering and retry decisions are small functions, so US-46 can add the circuit breaker,
-round-robin rotation and daily token budgets around them without rewriting complete().
+complete() tries the models that may see the prompt's data class, re-fitting the input to each model's window.
+Before every call it checks the provider's daily token budget, its health (cool-downs and dead keys) and its
+rate limit. It retries invalid output once, moves on after any provider failure, and raises LLMUnavailable
+when no model answered. It never invents an answer: the calling stage's fallback decides what happens next.
 """
 
 from __future__ import annotations
@@ -34,9 +32,11 @@ from app.contracts import (
     Provider,
 )
 
-from .config import LLMConfig, load_llm_config
+from .config import LLMConfig, load_llm_config, with_env_overrides
 from .errors import AttemptOutcome, InvalidOutput, ProviderFailure
 from .fitting import CHUNKABLE_TASKS, FitResult, estimate_tokens, fit, merge_chunk_results, reserve_output
+from .health import ProviderHealth
+from .limits import DailyTokenBudget, RateLimiter
 from .output import build_system_prompt, parse_output
 from .providers import Adapter, OpenAICompatibleAdapter
 
@@ -78,7 +78,7 @@ class InMemoryCallLog:
         )
 
 
-# --- decisions (the seams US-46 builds on) ------------------------------------------------------
+# --- decisions -----------------------------------------------------------------------------------
 
 
 def ordered_models(config: LLMConfig) -> list[ModelLimits]:
@@ -105,21 +105,44 @@ def should_retry(outcome: AttemptOutcome, retries_done: int) -> bool:
     return outcome == "invalid_output" and retries_done < MAX_INVALID_OUTPUT_RETRIES
 
 
+def planned_tokens(system: str, fitted: FitResult, reserve: int) -> int:
+    """The most one attempt may use: every chunk's input plus the output kept free for its answer."""
+    return sum(estimate_tokens(system) + estimate_tokens(text) + reserve for text in fitted.texts)
+
+
+def default_limiters(config: LLMConfig) -> dict[Provider, RateLimiter]:
+    """One rate limiter for each provider that has a limit of our own in models.yaml (or .env)."""
+    return {
+        p.name: RateLimiter(p.requests_per_second, p.tokens_per_minute)
+        for p in config.providers
+        if p.requests_per_second is not None or p.tokens_per_minute is not None
+    }
+
+
 # --- the client ---------------------------------------------------------------------------------
 
 
 class WrapperLLMClient:
-    """Fallback across providers, routing by data class, context fitting, one retry, and a call log."""
+    """Routing by data class, fallback, provider health, token budgets, context fitting, one retry, a call log."""
 
     def __init__(
         self,
         config: LLMConfig,
         adapters: Mapping[Provider, Adapter],
         call_log: CallLog | None = None,
+        *,
+        health: ProviderHealth | None = None,
+        budget: DailyTokenBudget | None = None,
+        limiters: Mapping[Provider, RateLimiter] | None = None,
     ) -> None:
         self.config = config
         self.adapters = dict(adapters)
         self.call_log: CallLog = call_log if call_log is not None else InMemoryCallLog()
+        self.health = health if health is not None else ProviderHealth()
+        if budget is None:
+            budget = DailyTokenBudget({p.name: p.daily_tokens for p in config.providers})
+        self.budget = budget
+        self.limiters = dict(limiters) if limiters is not None else default_limiters(config)
         self._reported_missing: set[Provider] = set()
 
     def candidates(self, data_class: DataClass) -> list[ModelLimits]:
@@ -149,8 +172,9 @@ class WrapperLLMClient:
             except ValueError as exc:
                 log.info("llm %s skipped for %s: %s", model.provider.value, task.value, exc)
                 continue
+            planned = planned_tokens(full_system, fitted, reserve)
             retries = 0
-            while True:
+            while self._may_call(task, data_class, model, fitted, planned, search_id):
                 result, outcome = self._attempt(
                     task, data_class, model, full_system, fitted, schema, reserve, search_id
                 )
@@ -173,6 +197,32 @@ class WrapperLLMClient:
                 log.info("llm provider %s skipped: %s is not set", model.provider.value, env_var)
         return kept
 
+    def _may_call(
+        self,
+        task: LLMTask,
+        data_class: DataClass,
+        model: ModelLimits,
+        fitted: FitResult,
+        planned: int,
+        search_id: str | None,
+    ) -> bool:
+        """Budget, health and rate limit, checked before every call. A call that fails one is never sent."""
+        provider = model.provider
+        if not self.budget.allows(provider, planned):
+            log.info("llm %s skipped: today's token budget is spent", provider.value)
+            self._record(task, data_class, model, "skipped_budget", fitted, search_id)
+            return False
+        if not self.health.allow(provider):
+            log.info("llm %s skipped: %s", provider.value, self.health.state(provider))
+            return False
+        limiter = self.limiters.get(provider)
+        if limiter is not None and not limiter.acquire(planned):
+            self.health.release(provider)
+            log.info("llm %s skipped: no room in its rate limit within %gs", provider.value, limiter.max_wait_s)
+            self._record(task, data_class, model, "rate_limited", fitted, search_id)
+            return False
+        return True
+
     def _attempt(
         self,
         task: LLMTask,
@@ -192,6 +242,7 @@ class WrapperLLMClient:
         unanswered = 0  # estimated input of a chunk whose call failed: it was still sent
         result: T | None = None
         outcome: AttemptOutcome = "ok"
+        error: Exception | None = None
         try:
             answers: list[T] = []
             for text in fitted.texts:
@@ -203,12 +254,35 @@ class WrapperLLMClient:
                 answers.append(parse_output(raw.text, schema))
             result = merge_chunk_results(answers, schema) if fitted.mode == "chunked" else answers[0]
         except (InvalidOutput, ValidationError):
-            outcome = "invalid_output"
+            outcome = "invalid_output"  # the provider did answer, so its health is fine
         except ProviderFailure as exc:
-            outcome = exc.outcome
+            outcome, error = exc.outcome, exc
         except Exception as exc:  # an adapter bug must not crash the search (build rule 9)
             log.warning("llm %s raised %s; trying the next model", model.provider.value, type(exc).__name__)
-            outcome = "error"
+            outcome, error = "error", exc
+        if error is None:
+            self.health.record_success(model.provider)
+        else:
+            self.health.record_failure(model.provider, error)
+        self.budget.spend(model.provider, tokens_in + unanswered + tokens_out)
+        duration_ms = int((monotonic() - started) * 1000)
+        self._record(
+            task, data_class, model, outcome, fitted, search_id, tokens_in + unanswered, tokens_out, duration_ms
+        )
+        return result, outcome
+
+    def _record(
+        self,
+        task: LLMTask,
+        data_class: DataClass,
+        model: ModelLimits,
+        outcome: AttemptOutcome,
+        fitted: FitResult,
+        search_id: str | None,
+        input_tokens: int = 0,
+        output_tokens: int = 0,
+        duration_ms: int = 0,
+    ) -> None:
         self.call_log.record(
             LLMCallRecord(
                 search_id=search_id,
@@ -216,15 +290,14 @@ class WrapperLLMClient:
                 data_class=data_class,
                 provider=model.provider,
                 model=model.model,
-                input_tokens=tokens_in + unanswered,
-                output_tokens=tokens_out,
-                duration_ms=int((monotonic() - started) * 1000),
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                duration_ms=duration_ms,
                 outcome=outcome,
                 fitted=fitted.mode,
                 at=datetime.now(UTC),
             )
         )
-        return result, outcome
 
 
 def build_llm_client(
@@ -232,21 +305,23 @@ def build_llm_client(
     env: Mapping[str, str] | None = None,
     call_log: CallLog | None = None,
 ) -> WrapperLLMClient:
-    """The real client: models.yaml plus keys from the environment.
+    """The real client: models.yaml, any overrides from the environment (such as MISTRAL_MODEL), and the keys.
 
     With no `env`, python-dotenv loads .env if there is one (existing environment variables win), then
     os.environ is used. Providers without a key get no adapter and are skipped.
     """
-    config = load_llm_config(config_path)
     if env is None:
         load_dotenv()
         env = os.environ
+    config = with_env_overrides(load_llm_config(config_path), env)
     http = httpx.Client()
     adapters: dict[Provider, Adapter] = {}
     for settings in config.providers:
         key = env.get(settings.api_key_env, "").strip()
         if key:
-            adapters[settings.name] = OpenAICompatibleAdapter(settings.name, settings.base_url, key, http)
+            adapters[settings.name] = OpenAICompatibleAdapter(
+                settings.name, settings.base_url, key, http, json_mode=settings.json_mode
+            )
     return WrapperLLMClient(config, adapters, call_log)
 
 

@@ -11,8 +11,8 @@ from typing import Literal
 
 from app.contracts import Provider
 
-# The LLMCallRecord outcomes a single attempt can end with.
-AttemptOutcome = Literal["ok", "invalid_output", "rate_limited", "timeout", "error"]
+# The LLMCallRecord outcomes a single attempt can end with. skipped_budget: not sent, the daily budget was spent.
+AttemptOutcome = Literal["ok", "invalid_output", "rate_limited", "timeout", "error", "skipped_budget"]
 
 
 class ProviderFailure(Exception):
@@ -44,6 +44,10 @@ class ServerError(ProviderFailure):
 
 class AuthFailed(ProviderFailure):
     """HTTP 401 or 403: the key is missing, wrong or not allowed to use this model."""
+
+
+class NoCredit(ProviderFailure):
+    """HTTP 402: the account needs a plan or more credits before it answers again."""
 
 
 class ProviderError(ProviderFailure):

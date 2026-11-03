@@ -1,6 +1,8 @@
 # LLM providers and model limits (US-26, US-46). Loaded and checked at startup by app/llm/config.py.
 #
 # providers: tried in this order when a call fails (fallback order).
+#            json_mode, requests_per_second, tokens_per_minute and daily_tokens are optional limits we hold
+#            ourselves to (US-46); daily_tokens is counted per UTC day, in memory.
 #            trains_on_inputs: may the provider, on the plan we use, train on what we send? true means public
 #            data only: private and Reddit text never go there (build rule 8). Each flag comes from the
 #            provider's own terms page (terms_url), read on terms_checked. Re-read it when the terms change.
@@ -55,6 +57,14 @@ providers:
     trains_on_inputs: true
     terms_url: https://help.mistral.ai/en/articles/347617
     terms_checked: 2026-11-03
+    json_mode: true
+    # Our own limits, below what the API reported on 3 Nov 2026 (188 requests a minute, 625,000 tokens a minute).
+    # The monthly allowance is shown only in Mistral's Admin Panel > API > Limits: set MISTRAL_DAILY_TOKENS in
+    # .env to that allowance / 31, less 10%. These three can also be set with MISTRAL_RPS, MISTRAL_TPM and
+    # MISTRAL_DAILY_TOKENS, and the model with MISTRAL_MODEL.
+    requests_per_second: 2
+    tokens_per_minute: 500000
+    daily_tokens: 1000000
 
 models:
   # The llama-3.3-70b models and gemini-2.5-flash stopped working for us by 3 Nov 2026 (HTTP 404: retired, or not

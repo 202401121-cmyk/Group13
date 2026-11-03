@@ -8,7 +8,7 @@ import pytest
 import yaml  # type: ignore[import-untyped]
 
 from app.contracts import ModelLimits, Provider
-from app.llm.config import DEFAULT_CONFIG_PATH, LLMConfigError, load_llm_config
+from app.llm.config import DEFAULT_CONFIG_PATH, LLMConfigError, load_llm_config, with_env_overrides
 
 
 def _raw() -> dict[str, object]:
@@ -126,3 +126,37 @@ def test_missing_file_fails_clearly(tmp_path: Path) -> None:
 
 def test_provider_lookup() -> None:
     assert load_llm_config().provider(Provider.CEREBRAS).api_key_env == "CEREBRAS_API_KEY"
+
+
+def test_mistral_limits_come_from_models_yaml() -> None:
+    mistral = load_llm_config().provider(Provider.MISTRAL)
+    assert mistral.json_mode
+    assert (mistral.requests_per_second, mistral.tokens_per_minute, mistral.daily_tokens) == (2, 500_000, 1_000_000)
+    groq = load_llm_config().provider(Provider.GROQ)
+    assert (groq.json_mode, groq.requests_per_second, groq.daily_tokens) == (False, None, None)
+
+
+def test_env_overrides_change_only_what_is_set() -> None:
+    config = load_llm_config()
+    assert with_env_overrides(config, {}) == config
+    assert with_env_overrides(config, {"MISTRAL_MODEL": "  ", "MISTRAL_RPS": ""}) == config
+    changed = with_env_overrides(config, {"MISTRAL_DAILY_TOKENS": "250000", "MISTRAL_MODEL": "ministral-3b-latest"})
+    assert changed.provider(Provider.MISTRAL).daily_tokens == 250_000
+    assert changed.provider(Provider.MISTRAL).requests_per_second == 2  # unchanged
+    mistral_models = [m for m in changed.models if m.provider is Provider.MISTRAL]
+    assert [m.model for m in mistral_models] == ["ministral-3b-latest"]
+    assert mistral_models[0].context_window_tokens == 262144  # the limits stay with the row
+
+
+@pytest.mark.parametrize(
+    ("env", "message"),
+    [
+        ({"MISTRAL_RPS": "fast"}, "MISTRAL_RPS must be a number"),
+        ({"MISTRAL_DAILY_TOKENS": "1.5e6"}, "MISTRAL_DAILY_TOKENS must be a number"),
+        ({"MISTRAL_TPM": "0"}, "MISTRAL_TPM"),
+        ({"MISTRAL_DAILY_TOKENS": "-5"}, "MISTRAL_DAILY_TOKENS"),
+    ],
+)
+def test_a_bad_env_override_fails_clearly(env: dict[str, str], message: str) -> None:
+    with pytest.raises(LLMConfigError, match=message):
+        with_env_overrides(load_llm_config(), env)

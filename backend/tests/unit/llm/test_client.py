@@ -16,8 +16,18 @@ from app.contracts import PERSONAL_TASKS, DataClass, Difficulty, LLMTask, LLMUna
 from app.llm import InMemoryCallLog, WrapperLLMClient, build_llm_client, load_llm_config
 from app.llm.client import allowed_for_class, check_data_class, ordered_models, satisfies_contract, should_retry
 from app.llm.config import LLMConfig
-from app.llm.errors import AuthFailed, ProviderError, ProviderFailure, ProviderTimeout, RateLimited, ServerError
+from app.llm.errors import (
+    AuthFailed,
+    NoCredit,
+    ProviderError,
+    ProviderFailure,
+    ProviderTimeout,
+    RateLimited,
+    ServerError,
+)
 from app.llm.fitting import estimate_tokens, input_budget_for
+from app.llm.health import ProviderHealth
+from app.llm.limits import DailyTokenBudget, RateLimiter
 from app.llm.output import build_system_prompt
 from app.llm.providers import Adapter
 from tests.fakes.llm import FakeAdapter, FakeLLMClient
@@ -35,9 +45,23 @@ class Answer(BaseModel):
     claims: list[str] = []
 
 
-def _client(adapters: dict[Provider, FakeAdapter], config: LLMConfig | None = None) -> WrapperLLMClient:
+def _client(
+    adapters: dict[Provider, FakeAdapter],
+    config: LLMConfig | None = None,
+    *,
+    health: ProviderHealth | None = None,
+    budget: DailyTokenBudget | None = None,
+    limiters: dict[Provider, RateLimiter] | None = None,
+) -> WrapperLLMClient:
     typed: dict[Provider, Adapter] = dict(adapters)
-    return WrapperLLMClient(config or load_llm_config(), typed, InMemoryCallLog())
+    return WrapperLLMClient(
+        config or load_llm_config(),
+        typed,
+        InMemoryCallLog(),
+        health=health,
+        budget=budget,
+        limiters=limiters if limiters is not None else {},  # no real waiting in tests
+    )
 
 
 def _records(client: WrapperLLMClient) -> list[tuple[Provider, str, str]]:
@@ -285,6 +309,109 @@ def test_a_model_whose_window_cannot_hold_the_system_prompt_is_skipped() -> None
     assert (len(groq.calls), len(gemini.calls)) == (0, 1)
 
 
+# --- provider health, budgets and rate limits (US-46) ------------------------------------------
+
+
+class Clock:
+    def __init__(self) -> None:
+        self.now = 0.0
+
+    def __call__(self) -> float:
+        return self.now
+
+
+def test_a_rate_limited_provider_is_skipped_until_its_cool_down_ends() -> None:
+    clock = Clock()
+    groq = FakeAdapter(Provider.GROQ, replies=(RateLimited(Provider.GROQ, "HTTP 429", {"retry-after": "70"}), OK))
+    gemini = FakeAdapter(Provider.GEMINI)
+    client = _client({Provider.GROQ: groq, Provider.GEMINI: gemini}, health=ProviderHealth(clock))
+    for _ in range(3):
+        client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
+    assert (len(groq.calls), len(gemini.calls)) == (1, 3)  # groq is not asked again while it cools down
+    clock.now += 71
+    client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
+    assert (len(groq.calls), len(gemini.calls)) == (2, 3)  # and comes back after it
+
+
+@pytest.mark.parametrize("error", [AuthFailed, NoCredit])
+def test_a_bad_key_is_never_tried_again_in_the_run(error: type[ProviderFailure]) -> None:
+    clock = Clock()
+    groq = _failing(Provider.GROQ, error)
+    adapters = {Provider.GROQ: groq, Provider.GEMINI: FakeAdapter(Provider.GEMINI)}
+    client = _client(adapters, health=ProviderHealth(clock))
+    client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
+    clock.now += 86_400
+    client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
+    assert len(groq.calls) == 1
+    assert client.health.state(Provider.GROQ) == "dead"
+
+
+def test_three_server_errors_switch_a_provider_off() -> None:
+    groq = _failing(Provider.GROQ, ServerError)
+    client = _client({Provider.GROQ: groq, Provider.GEMINI: FakeAdapter(Provider.GEMINI)})
+    for _ in range(5):
+        client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
+    assert len(groq.calls) == 3
+    assert client.health.state(Provider.GROQ) == "cooling"
+
+
+def test_invalid_output_does_not_count_against_a_provider() -> None:
+    groq = FakeAdapter(Provider.GROQ, replies=("not json",))
+    client = _client({Provider.GROQ: groq, Provider.GEMINI: FakeAdapter(Provider.GEMINI)})
+    for _ in range(3):
+        client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
+    assert len(groq.calls) == 6  # asked twice every time (the retry), never cooled down
+    assert client.health.state(Provider.GROQ) == "ok"
+
+
+def test_a_spent_daily_budget_skips_the_provider_and_is_logged() -> None:
+    groq = FakeAdapter(Provider.GROQ)
+    gemini = FakeAdapter(Provider.GEMINI)
+    budget = DailyTokenBudget({Provider.GROQ: 50})
+    client = _client({Provider.GROQ: groq, Provider.GEMINI: gemini}, budget=budget)
+    client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT, max_output_tokens=10)
+    assert groq.calls == []
+    assert _records(client) == [(Provider.GROQ, "skipped_budget", "as_is"), (Provider.GEMINI, "ok", "as_is")]
+    assert isinstance(client.call_log, InMemoryCallLog)
+    assert client.call_log.records[0].input_tokens == 0  # nothing was sent
+
+
+def test_every_call_is_counted_against_the_budget() -> None:
+    budget = DailyTokenBudget({Provider.GROQ: 1_000_000})
+    client = _client({Provider.GROQ: FakeAdapter(Provider.GROQ)}, budget=budget)
+    client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
+    assert isinstance(client.call_log, InMemoryCallLog)
+    (rec,) = client.call_log.records
+    assert budget.remaining(Provider.GROQ) == 1_000_000 - rec.input_tokens - rec.output_tokens
+
+
+def test_a_full_rate_limiter_moves_on_without_sending() -> None:
+    limiter = RateLimiter(tokens_per_minute=10, max_wait_s=0)  # no prompt fits in 10 tokens
+    mistral = FakeAdapter(Provider.MISTRAL)
+    client = _client({Provider.MISTRAL: mistral}, limiters={Provider.MISTRAL: limiter})
+    with pytest.raises(LLMUnavailable):
+        client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
+    assert mistral.calls == []
+    assert _records(client) == [(Provider.MISTRAL, "rate_limited", "as_is")]
+    assert client.health.state(Provider.MISTRAL) == "ok"  # our own limit says nothing about Mistral's health
+
+
+def test_the_real_client_limits_mistral() -> None:
+    client = WrapperLLMClient(load_llm_config(), {})
+    limiter = client.limiters[Provider.MISTRAL]
+    assert (limiter.requests_per_second, limiter.tokens_per_minute) == (2, 500_000)
+    assert set(client.limiters) == {Provider.MISTRAL}
+    assert client.budget.remaining(Provider.MISTRAL) == 1_000_000
+    assert client.budget.remaining(Provider.GROQ) is None
+
+
+def test_mistral_invalid_json_is_retried_once() -> None:
+    mistral = FakeAdapter(Provider.MISTRAL, replies=('{"product": ', OK))
+    client = _client({Provider.MISTRAL: mistral})
+    assert client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT).product == "Nova Book 14"
+    assert _records(client) == [(Provider.MISTRAL, "invalid_output", "as_is"), (Provider.MISTRAL, "ok", "as_is")]
+
+
 # --- building the real client --------------------------------------------------------------------
 
 
@@ -293,6 +420,22 @@ def test_build_uses_only_providers_with_a_key() -> None:
     assert set(client.adapters) == {Provider.GROQ}
     assert "sk-fake-groq" not in repr(client.adapters[Provider.GROQ])
     assert satisfies_contract(client) is client
+
+
+def test_build_applies_the_mistral_settings_from_the_environment() -> None:
+    env = {
+        "MISTRAL_API_KEY": "sk-fake-mistral",
+        "MISTRAL_MODEL": "ministral-3b-latest",
+        "MISTRAL_RPS": "0.5",
+        "MISTRAL_TPM": "1000",
+        "MISTRAL_DAILY_TOKENS": "5000",
+    }
+    client = build_llm_client(env=env)
+    assert set(client.adapters) == {Provider.MISTRAL}
+    assert [m.model for m in client.config.models if m.provider is Provider.MISTRAL] == ["ministral-3b-latest"]
+    limiter = client.limiters[Provider.MISTRAL]
+    assert (limiter.requests_per_second, limiter.tokens_per_minute) == (0.5, 1000)
+    assert client.budget.remaining(Provider.MISTRAL) == 5000
 
 
 # --- the fake client for stage tests -------------------------------------------------------------
