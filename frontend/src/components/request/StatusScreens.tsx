@@ -139,7 +139,7 @@ export function Clarification({
             className="w-full rounded-full border border-input bg-surface px-5 py-3 text-foreground outline-hidden focus:border-primary focus:ring-4 focus:ring-primary/15"
           />
           {error && (
-            <p id="custom-error" className="text-sm font-medium text-destructive">
+            <p id="custom-error" role="alert" className="text-sm font-medium text-destructive">
               <span aria-hidden>⚠ </span>
               {error}
             </p>

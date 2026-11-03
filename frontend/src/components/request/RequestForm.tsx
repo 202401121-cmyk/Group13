@@ -55,6 +55,7 @@ export const RequestForm = forwardRef<HTMLTextAreaElement, Props>(function Reque
             {error ? (
               <p
                 id="request-error"
+                role="alert"
                 className="flex items-center gap-1.5 font-medium text-destructive"
               >
                 <span aria-hidden>⚠</span> {error}

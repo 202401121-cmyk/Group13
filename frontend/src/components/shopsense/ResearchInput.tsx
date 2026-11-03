@@ -46,7 +46,7 @@ export function ResearchInput() {
           className="mt-6 w-full resize-none rounded-2xl border border-input bg-card p-5 text-base text-foreground shadow-soft outline-hidden transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
         {error && (
-          <p id="research-error" className="mt-2 text-sm text-destructive">
+          <p id="research-error" role="alert" className="mt-2 text-sm text-destructive">
             {error}
           </p>
         )}

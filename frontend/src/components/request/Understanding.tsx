@@ -45,7 +45,7 @@ const inputCls =
 function FieldError({ id, msg }: { id: string; msg: string | null }) {
   if (!msg) return null;
   return (
-    <p id={id} className="mt-2 text-sm font-medium text-destructive">
+    <p id={id} role="alert" className="mt-2 text-sm font-medium text-destructive">
       <span aria-hidden>⚠ </span>
       {msg}
     </p>
