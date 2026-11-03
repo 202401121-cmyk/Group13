@@ -141,26 +141,11 @@ class ArchiveSource:
         return sources, None
 
     def _post(self, post: RawPost) -> Source | None:
-        """A thread as a Source, or None if it is gone, removed, over 18 or by a bot. Its details are remembered."""
+        """A thread as a Source (see post_to_source). Its details are remembered for reading its comments."""
         thread_id = bare_id(post.id)
-        if thread_id is None:
-            return None
-        self._threads[thread_id] = ThreadInfo(post.subreddit, post.title, bool(post.over_18))
-        if post.over_18 or post.removed_by_category or is_gone(post.author) or is_bot(post.author):
-            return None
-        if is_gone(post.title) or (post.selftext or "").strip().lower() in ("[deleted]", "[removed]"):
-            return None
-        selftext = (post.selftext or "").strip()
-        return make_source(
-            origin=self.name,
-            subreddit=post.subreddit,
-            thread_id=thread_id,
-            title=post.title,
-            text=f"{post.title.strip()}\n\n{selftext}" if selftext else post.title,
-            published_at=utc_from_epoch(post.created_utc),
-            author_digest=author_hash(post.author, self.salt),
-            fetched_at=self._now(),
-        )
+        if thread_id is not None:
+            self._threads[thread_id] = ThreadInfo(post.subreddit, post.title, bool(post.over_18))
+        return post_to_source(post, self.name, self.salt, self._now())
 
     def _remember(self, source: Source) -> None:
         """Rebuild a thread's details from its cached Source, so its comments need no extra request."""
@@ -207,6 +192,28 @@ class ArchiveSource:
                 self._post(post)
                 return self._threads.get(tid), None
         return None, failure("not_found", f"{self.label}: no such thread")
+
+
+def post_to_source(post: RawPost, origin: RedditOrigin, salt: str | None, fetched_at: datetime) -> Source | None:
+    """A thread as a Source: its title, then its text. None if it is gone, removed, over 18 or by a bot."""
+    thread_id = bare_id(post.id)
+    if thread_id is None:
+        return None
+    if post.over_18 or post.removed_by_category or is_gone(post.author) or is_bot(post.author):
+        return None
+    if is_gone(post.title) or (post.selftext or "").strip().lower() in ("[deleted]", "[removed]"):
+        return None
+    selftext = (post.selftext or "").strip()
+    return make_source(
+        origin=origin,
+        subreddit=post.subreddit,
+        thread_id=thread_id,
+        title=post.title,
+        text=f"{post.title.strip()}\n\n{selftext}" if selftext else post.title,
+        published_at=utc_from_epoch(post.created_utc),
+        author_digest=author_hash(post.author, salt),
+        fetched_at=fetched_at,
+    )
 
 
 def comments_to_sources(

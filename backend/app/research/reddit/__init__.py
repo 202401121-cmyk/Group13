@@ -11,6 +11,7 @@ from .archive import ArchiveRedditSource
 from .arctic_shift import ArcticShiftSource
 from .base import IntervalLimiter, RedditResult, RedditSource, RequestBudget, ThreadInfo
 from .factory import build_reddit_source
+from .official import OfficialRedditSource
 from .pullpush import PullPushSource
 from .settings import RedditSettings, load_reddit_settings
 from .subreddits import SubredditConfigError, load_subreddits, subreddits_for
@@ -19,6 +20,7 @@ __all__ = [
     "ArchiveRedditSource",
     "ArcticShiftSource",
     "IntervalLimiter",
+    "OfficialRedditSource",
     "PullPushSource",
     "RedditResult",
     "RedditSettings",
