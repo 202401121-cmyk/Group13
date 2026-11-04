@@ -1,0 +1,77 @@
+API routes (OpenAPI):
+  GET   /api/health
+  POST  /api/presearch/intake
+  GET   /api/presearch/{session_id}
+  POST  /api/presearch/{session_id}/criteria
+  PUT   /api/presearch/{session_id}/intent
+  POST  /api/presearch/{session_id}/interview/back
+  POST  /api/presearch/{session_id}/interview/reply
+  POST  /api/presearch/{session_id}/interview/start
+  POST  /api/search
+
+Search stages (global limit 150 s):
+  research  app.research.stage.ResearchStage    limit 40 s  placeholder (US-52 stub)
+  extract   app.extract.stage.ExtractStage     limit 15 s  placeholder (US-52 stub)
+  match     app.entities.stage.MatchStage       limit 5 s  placeholder (US-52 stub)
+  verify    app.verify.stage.VerifyStage      limit 2 s  placeholder (US-52 stub)
+  enrich    app.enrich.stage.EnrichStage      limit 20 s  placeholder (US-52 stub)
+  decide    app.decide.stage.DecideStage      limit 2 s  placeholder (US-52 stub)
+  explain   app.explain.stage.ExplainStage     limit 15 s  placeholder (US-52 stub)
+  commerce  app.commerce.stage.CommerceStage    limit 15 s  placeholder (US-52 stub)
+
+Pre-search stages:
+  intake    app.intake.stage.IntakeStage  limit 5 s  real (Stage 1, intake (US-01, US-02): the user's request in, a validated Intent out.)
+  criteria  app.criteria.stage.CriteriaStage  limit 10 s  real (Stage 2, criteria (US-03, DR-07): category and use in, a CriteriaSet out.)
+  interview app.interview.stage.InterviewStage  limit 5 s  real (Stage 3, interview (US-05): one question at a time, in fixed order, adapted to e)
+
+LLM tasks (personal = always private):
+  detect_intent          personal=yes
+  generate_criteria      personal=no
+  classify_reply         personal=yes
+  answer_user_question   personal=yes
+  write_question         personal=yes
+  extract_claims         personal=no
+  discover_aliases       personal=no
+  enrich_extract         personal=no
+  write_explanation      personal=yes
+  Called by Sprint 1 code: detect_intent (app/intake/stage.py, private), generate_criteria (app/criteria/stage.py, private with a use case, public without)
+
+Providers (models.yaml):
+  groq        key GROQ_API_KEY         trains_on_inputs=False  model openai/gpt-oss-120b
+  gemini      key GEMINI_API_KEY       trains_on_inputs=True  model gemini-3.5-flash
+  openrouter  key OPENROUTER_API_KEY   trains_on_inputs=True  model nvidia/nemotron-3.5-lightning:free
+  cerebras    key CEREBRAS_API_KEY     trains_on_inputs=False  model gpt-oss-120b
+  mistral     key MISTRAL_API_KEY      trains_on_inputs=True  model ministral-8b-latest
+
+Routes (data class -> difficulty -> provider order):
+  private  short   ['groq', 'cerebras']
+  private  medium  ['groq', 'cerebras']
+  private  long    ['groq', 'cerebras']
+  reddit   short   ['groq', 'cerebras']
+  reddit   medium  ['groq', 'cerebras']
+  reddit   long    ['groq', 'cerebras']
+  public   short   ['mistral', 'groq']
+  public   medium  ['mistral', 'gemini', 'groq', 'openrouter']
+  public   long    ['gemini', 'mistral', 'cerebras', 'openrouter']
+
+Contract schemas in shared/contracts/schema: 56
+
+Frontend routes (frontend/src/routes):
+  __root.tsx
+  about.tsx
+  contact.tsx
+  criteria.tsx
+  faq.tsx
+  features.tsx
+  index.tsx
+  privacy.tsx
+  research.tsx
+  s.$sessionId.brief.tsx
+  s.$sessionId.criteria.tsx
+  s.$sessionId.questions.tsx
+  s.$sessionId.results.tsx
+
+Migrations (supabase/migrations):
+  20261026170303_create_requests.sql
+  20261103102906_lock_rls_auto_enable.sql
+  README.md

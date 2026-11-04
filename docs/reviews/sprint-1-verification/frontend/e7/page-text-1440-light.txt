@@ -1,0 +1,4041 @@
+===== home (http://localhost:3110/)
+ShopSense
+Home
+Research
+Get started
+AI-POWERED SHOPPING RESEARCH
+Find the right product, with evidence.
+Find the right product,
+with evidence.
+
+Stop jumping between reviews, product pages and comparison videos. ShopSense researches products against your needs, compares the differences that matter and shows where every fact came from.
+Stop jumping between reviews, product pages and comparison videos. ShopSense researches products against your needs, compares the differences that matter and shows where every fact came from.
+
+Start researching
+See how it works
+LINKED TO ITS SOURCE
+Every fact
+Every fact
+CHECKED BEFORE YOU BUY
+Prices
+Prices
+STATED, NOT HIDDEN
+Trade-offs
+Trade-offs
+
+HOW IT WORKS
+
+Better research. Clearer decisions.
+Better research. Clearer decisions.
+
+Three steps from a vague need to a decision you can defend — with the evidence one click away.
+Three steps from a vague need to a decision you can defend — with the evidence one click away.
+
+STEP 01
+Tell us what matters
+Tell us what matters
+
+Describe what you need, your budget and the features you care about — in your own words.
+
+STEP 02
+Research and compare
+Research and compare
+
+We read reviews, Reddit and stores, then compare the real trade-offs against your criteria.
+
+STEP 03
+Choose with confidence
+Choose with confidence
+
+Get a clear best match, the reasons behind it, and a source for every fact.
+
+WORKFLOW ILLUSTRATION · NOT LIVE RESEARCH
+
+Intake
+Research
+Verify
+Match
+Decide
+What are you looking for?
+
+Start with a product, a problem or a budget. Refine the details as you go.
+
+Describe what you're looking for
+
+You'll be able to refine your criteria in the next step.
+
+Start my research
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== home, empty request error (http://localhost:3110/)
+ShopSense
+Home
+Research
+Get started
+AI-POWERED SHOPPING RESEARCH
+Find the right product, with evidence.
+Find the right product,
+with evidence.
+
+Stop jumping between reviews, product pages and comparison videos. ShopSense researches products against your needs, compares the differences that matter and shows where every fact came from.
+Stop jumping between reviews, product pages and comparison videos. ShopSense researches products against your needs, compares the differences that matter and shows where every fact came from.
+
+Start researching
+See how it works
+LINKED TO ITS SOURCE
+Every fact
+Every fact
+CHECKED BEFORE YOU BUY
+Prices
+Prices
+STATED, NOT HIDDEN
+Trade-offs
+Trade-offs
+
+HOW IT WORKS
+
+Better research. Clearer decisions.
+Better research. Clearer decisions.
+
+Three steps from a vague need to a decision you can defend — with the evidence one click away.
+Three steps from a vague need to a decision you can defend — with the evidence one click away.
+
+STEP 01
+Tell us what matters
+Tell us what matters
+
+Describe what you need, your budget and the features you care about — in your own words.
+
+STEP 02
+Research and compare
+Research and compare
+
+We read reviews, Reddit and stores, then compare the real trade-offs against your criteria.
+
+STEP 03
+Choose with confidence
+Choose with confidence
+
+Get a clear best match, the reasons behind it, and a source for every fact.
+
+WORKFLOW ILLUSTRATION · NOT LIVE RESEARCH
+
+Intake
+Research
+Verify
+Match
+Decide
+What are you looking for?
+
+Start with a product, a problem or a budget. Refine the details as you go.
+
+Describe what you're looking for
+
+Tell us a little about what you're looking for first.
+
+You'll be able to refine your criteria in the next step.
+
+Start my research
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== about (http://localhost:3110/about)
+ShopSense
+Home
+Research
+Get started
+
+COMING SOON
+
+About ShopSense
+
+ShopSense helps you research products against your needs and buy with evidence.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== contact (http://localhost:3110/contact)
+ShopSense
+Home
+Research
+Get started
+
+COMING SOON
+
+Contact
+
+A way to reach the ShopSense team is on its way.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== faq (http://localhost:3110/faq)
+ShopSense
+Home
+Research
+Get started
+
+COMING SOON
+
+FAQ
+
+Answers to common questions are on their way.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== features (http://localhost:3110/features)
+ShopSense
+Home
+Research
+Get started
+
+COMING SOON
+
+Features
+
+A closer look at what ShopSense does is on its way.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== privacy (http://localhost:3110/privacy)
+ShopSense
+Home
+Research
+Get started
+Privacy
+
+ShopSense is a student project. Here is exactly what it keeps when you search.
+
+What we save
+
+When you send a request, the ShopSense server saves one record with:
+
+what you typed, exactly as you typed it;
+a session ID: a random code that links the steps of one search;
+what we understood (the product, what it's for, your budget, must-haves and things to leave out), once it was clear enough to research;
+whether our AI or our simple keyword rules worked that out;
+when it was saved.
+
+We use these records to learn what people really ask for and to test ShopSense. Only the ShopSense server can read them.
+
+What we don't save
+
+You don't need an account. We never ask for your name, email address or a password, and we don't save your IP address or which browser you use.
+
+While you search
+
+The server keeps your answers to our questions in its memory, not in the database. They are deleted 2 hours after your last step.
+
+To understand your request, we may send it to an AI service that does not use it to train its models. We never send it to one that might.
+
+In your browser
+
+Your brief and your answers are kept in this browser tab, so reloading the page doesn't lose them. They are gone when you close the tab. Your light or dark theme choice is kept in this browser.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== old /criteria link, no brief (http://localhost:3110/criteria)
+ShopSense
+Home
+Research
+Get started
+No brief yet
+
+Tell us what you're shopping for first.
+
+Describe what you need
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== page not found (http://localhost:3110/no-such-page)
+404
+Page not found
+
+The page you're looking for doesn't exist or has been moved.
+
+Go home
+
+===== research, empty (http://localhost:3110/research)
+ShopSense
+Home
+Research
+Get started
+What are you shopping for?
+
+Describe it in your own words: what it's for, your budget, anything you don't want.
+
+Your request
+
+0 of 1,000 characters
+
+Enter to continue · Shift + Enter for a new line
+
+Continue
+
+Or start from an example
+
+Laptop for coding under ₹70,000
+Earbuds for the gym under ₹3,000
+Pram for a newborn
+Phone with a good camera under ₹30,000
+
+ShopSense reads reviews, Reddit and stores, and shows where every fact came from.
+
+Your brief
+
+Nothing yet. Details appear here as we understand your request.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== research, empty request error (http://localhost:3110/research)
+ShopSense
+Home
+Research
+Get started
+What are you shopping for?
+
+Describe it in your own words: what it's for, your budget, anything you don't want.
+
+Your request
+
+⚠
+Type what you're looking for first.
+
+0 of 1,000 characters
+
+Enter to continue · Shift + Enter for a new line
+
+Continue
+
+Or start from an example
+
+Laptop for coding under ₹70,000
+Earbuds for the gym under ₹3,000
+Pram for a newborn
+Phone with a good camera under ₹30,000
+
+ShopSense reads reviews, Reddit and stores, and shows where every fact came from.
+
+Your brief
+
+Nothing yet. Details appear here as we understand your request.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== research, understood (http://localhost:3110/research)
+ShopSense
+Home
+Research
+Get started
+Here's what we understood
+
+Check the details and fix anything we got wrong.
+
+Product
+Laptop
+Edit
+Used for
+Coding
+Edit
+Budget
+Up to ₹70,000
+Edit
+Region
+India
+Edit
+Must-haves
+No must-haves given
+Add
+Leave out
+None specified
+Add
+Looks right
+Start over
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+
+Here's what we understood.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== research, editing the budget (http://localhost:3110/research)
+ShopSense
+Home
+Research
+Get started
+Here's what we understood
+
+Check the details and fix anything we got wrong.
+
+Product
+Laptop
+Edit
+Used for
+Coding
+Edit
+Budget
+From
+₹
+Up to
+₹
+
+Leave From empty if you only have a limit.
+
+Save
+Cancel
+Region
+India
+Edit
+Must-haves
+No must-haves given
+Add
+Leave out
+None specified
+Add
+Looks right
+Start over
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== research, budget error (http://localhost:3110/research)
+ShopSense
+Home
+Research
+Get started
+Here's what we understood
+
+Check the details and fix anything we got wrong.
+
+Product
+Laptop
+Edit
+Used for
+Coding
+Edit
+Budget
+From
+₹
+Up to
+₹
+
+Leave From empty if you only have a limit.
+
+⚠ From can't be more than Up to.
+
+Save
+Cancel
+Region
+India
+Edit
+Must-haves
+No must-haves given
+Add
+Leave out
+None specified
+Add
+Looks right
+Start over
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== research, understood by the backup reader (http://localhost:3110/research)
+ShopSense
+Home
+Research
+Get started
+Here's what we understood
+
+Check the details and fix anything we got wrong.
+
+Our backup reader filled this in. Please check it.
+
+Product
+Laptop
+Edit
+Used for
+No use given
+Add
+Budget
+Up to ₹50,000
+Edit
+Region
+India
+Edit
+Must-haves
+No must-haves given
+Add
+Leave out
+None specified
+Add
+Looks right
+Start over
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Not given
+BUDGET
+Up to ₹50,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+
+Here's what we understood.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== research, follow-up question (http://localhost:3110/research)
+ShopSense
+Home
+Research
+Get started
+What are you shopping for?
+
+Describe it in your own words: what it's for, your budget, anything you don't want.
+
+YOU ASKED
+
+"a gift for my mom"
+
+What kind of thing are you thinking of for your mom?
+
+Pick one so we don't have to guess.
+
+Skincare
+Phone
+Handbag
+Health product
+Something else
+Change my request instead
+Your brief
+
+Nothing yet. Details appear here as we understand your request.
+
+We need one more detail.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== research, examples (http://localhost:3110/research)
+ShopSense
+Home
+Research
+Get started
+What are you shopping for?
+
+Describe it in your own words: what it's for, your budget, anything you don't want.
+
+We couldn't tell what kind of product you mean
+
+Pick an example to start from, or describe the product in a few words.
+
+Examples
+
+Laptop for coding under ₹70,000
+Earbuds for the gym under ₹3,000
+Pram for a newborn
+Phone with a good camera under ₹30,000
+Describe it in my own words
+Your brief
+
+Nothing yet. Details appear here as we understand your request.
+
+We couldn't tell what kind of product you mean.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== research, network error (http://localhost:3110/research)
+ShopSense
+Home
+Research
+Get started
+What are you shopping for?
+
+Describe it in your own words: what it's for, your budget, anything you don't want.
+
+YOU ASKED
+
+"laptop network error test"
+
+Something went wrong
+
+We couldn't reach ShopSense. Check your connection and try again.
+
+Retry
+Edit request
+Your brief
+
+Nothing yet. Details appear here as we understand your request.
+
+Something went wrong. You can retry.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== criteria, ready (http://localhost:3110/s/sess_<id>/criteria)
+ShopSense
+Home
+Research
+Get started
+
+STEP 2 OF 3
+
+What matters for a laptop
+
+You'll answer up to 10 short questions about these. You can skip any of them.
+
+CPU performance
+
+How quickly it compiles code and runs tools like Docker.
+
+Memory
+
+How well it handles multiple applications at once.
+
+Battery life
+
+How long it lasts away from a charger.
+
+Weight
+
+How easy it is to carry around.
+
+Lower is better
+Display quality
+
+How clear and comfortable the screen is.
+
+Value for money
+Value for money
+
+How much useful performance you get for the price.
+
+Start the questions
+Change my request
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+COMPARING ON
+CPU performance
+Not asked yet
+Memory
+Not asked yet
+Battery life
+Not asked yet
+Weight
+Not asked yet
+Display quality
+Not asked yet
+Value for money
+Not asked yet
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== criteria, standard list (http://localhost:3110/s/sess_<id>/criteria)
+ShopSense
+Home
+Research
+Get started
+
+STEP 2 OF 3
+
+What matters for a TV
+
+You'll answer up to 10 short questions about these. You can skip any of them.
+
+We're using a standard list for this kind of product.
+
+Build quality
+
+How well it's made and how long it should last.
+
+Features
+
+Whether it does the things you need.
+
+Ease of use
+
+How simple it is to use day to day.
+
+Owner reviews
+
+What people who bought it say.
+
+Warranty and support
+
+How well the brand handles problems.
+
+Value for money
+Value for money
+
+How much useful quality you get for the price.
+
+Start the questions
+Change my request
+Your brief
+PRODUCT
+TV
+USED FOR
+Living room
+BUDGET
+Up to ₹40,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+COMPARING ON
+Build quality
+Not asked yet
+Features
+Not asked yet
+Ease of use
+Not asked yet
+Owner reviews
+Not asked yet
+Warranty and support
+Not asked yet
+Value for money
+Not asked yet
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== criteria, could not load (http://localhost:3110/s/sess_<id>/criteria)
+ShopSense
+Home
+Research
+Get started
+
+STEP 2 OF 3
+
+What matters for a test error
+
+You'll answer up to 10 short questions about these. You can skip any of them.
+
+We couldn't load the criteria.
+
+Try again
+Start the questions
+Change my request
+Your brief
+PRODUCT
+Test error
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== criteria, search not found (http://localhost:3110/s/sess_<id>/criteria)
+ShopSense
+Home
+Research
+Get started
+We couldn't find this search
+
+It may have expired when the browser tab was closed. Start again by telling us what you're shopping for.
+
+Describe what you need
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== questions, first question (http://localhost:3110/s/sess_<id>/questions)
+ShopSense
+Home
+Research
+Get started
+Criteria
+
+Question 1 up to 10
+
+0 of 6 settled
+How much do you care about CPU performance?
+Why this question?
+1
+Low
+2
+Medium
+3
+High
+Skip this question
+Answers so far (0)
+
+Your answers will appear here.
+
+Jump to question
+Or type your answer
+Send
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+COMPARING ON
+0 of 6 settled
+CPU performance
+Not asked yet
+Memory
+Not asked yet
+Battery life
+Not asked yet
+Weight
+Not asked yet
+Display quality
+Not asked yet
+Value for money
+Not asked yet
+
+How much do you care about CPU performance?
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== questions, why this question open (http://localhost:3110/s/sess_<id>/questions)
+ShopSense
+Home
+Research
+Get started
+Criteria
+
+Question 1 up to 10
+
+0 of 6 settled
+How much do you care about CPU performance?
+Why this question?
+
+How quickly it compiles code and runs tools like Docker.
+
+1
+Low
+2
+Medium
+3
+High
+Skip this question
+Answers so far (0)
+
+Your answers will appear here.
+
+Jump to question
+Or type your answer
+Send
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+COMPARING ON
+0 of 6 settled
+CPU performance
+Not asked yet
+Memory
+Not asked yet
+Battery life
+Not asked yet
+Weight
+Not asked yet
+Display quality
+Not asked yet
+Value for money
+Not asked yet
+
+How much do you care about CPU performance?
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== questions, answer then repeat (http://localhost:3110/s/sess_<id>/questions)
+ShopSense
+Home
+Research
+Get started
+Criteria
+
+Question 1 up to 10
+
+0 of 6 settled
+
+Good question. How quickly it compiles code and runs tools like Docker.
+
+How much do you care about CPU performance?
+Why this question?
+1
+Low
+2
+Medium
+3
+High
+Skip this question
+Answers so far (0)
+
+Your answers will appear here.
+
+Jump to question
+Or type your answer
+Send
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+COMPARING ON
+0 of 6 settled
+CPU performance
+Not asked yet
+Memory
+Not asked yet
+Battery life
+Not asked yet
+Weight
+Not asked yet
+Display quality
+Not asked yet
+Value for money
+Not asked yet
+
+Good question. How quickly it compiles code and runs tools like Docker. How much do you care about CPU performance?
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== questions, asked another way (rephrase) (http://localhost:3110/s/sess_<id>/questions)
+ShopSense
+Home
+Research
+Get started
+Criteria
+
+Question 1 up to 10
+
+0 of 6 settled
+
+ASKED ANOTHER WAY
+
+Put simply: would a worse CPU performance bother you?
+Why this question?
+1
+Yes, a lot
+2
+A little
+3
+Not really
+Skip this question
+Answers so far (0)
+
+Your answers will appear here.
+
+Jump to question
+Or type your answer
+Send
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+COMPARING ON
+0 of 6 settled
+CPU performance
+Not asked yet
+Memory
+Not asked yet
+Battery life
+Not asked yet
+Weight
+Not asked yet
+Display quality
+Not asked yet
+Value for money
+Not asked yet
+
+Put simply: would a worse CPU performance bother you?
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== questions, redirect (http://localhost:3110/s/sess_<id>/questions)
+ShopSense
+Home
+Research
+Get started
+Criteria
+
+Question 1 up to 10
+
+0 of 6 settled
+
+We'll use the budget from your brief when comparing prices. For now, let's stick to this one.
+
+How much do you care about CPU performance?
+Why this question?
+1
+Low
+2
+Medium
+3
+High
+Skip this question
+Answers so far (0)
+
+Your answers will appear here.
+
+Jump to question
+Or type your answer
+Send
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+COMPARING ON
+0 of 6 settled
+CPU performance
+Not asked yet
+Memory
+Not asked yet
+Battery life
+Not asked yet
+Weight
+Not asked yet
+Display quality
+Not asked yet
+Value for money
+Not asked yet
+
+We'll use the budget from your brief when comparing prices. For now, let's stick to this one. How much do you care about CPU performance?
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== questions, after a skip (http://localhost:3110/s/sess_<id>/questions)
+ShopSense
+Home
+Research
+Get started
+Criteria
+
+Question 2 up to 10
+
+1 of 6 settled
+How much do you care about memory?
+Why this question?
+1
+Low
+2
+Medium
+3
+High
+Skip this question
+Answers so far (1)
+CPU performance
+Skipped
+Skipped
+Answer
+Jump to question
+Or type your answer
+Send
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+COMPARING ON
+1 of 6 settled
+CPU performance
+Skipped
+Memory
+Not asked yet
+Battery life
+Not asked yet
+Weight
+Not asked yet
+Display quality
+Not asked yet
+Value for money
+Not asked yet
+
+How much do you care about memory?
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== questions, finished (http://localhost:3110/s/sess_<id>/questions)
+ShopSense
+Home
+Research
+Get started
+Criteria
+Your brief is ready
+ANSWERED
+4
+SKIPPED
+1
+REMEMBERED
+1
+Review your brief
+Answers so far (6)
+CPU performance
+Skipped
+Skipped
+Answer
+Memory
+High
+Answered
+Change
+Battery life
+High
+Answered
+Change
+Weight
+Remembered: under 1.5 kg
+Remembered
+Change
+Display quality
+High
+Answered
+Change
+Value for money
+High
+Answered
+Change
+Your brief
+PRODUCT
+Laptop
+USED FOR
+Coding
+BUDGET
+Up to ₹70,000
+REGION
+India
+MUST-HAVES
+Not given
+LEAVE OUT
+Not given
+COMPARING ON
+6 of 6 settled
+CPU performance
+Skipped
+Memory
+High
+Answered
+Battery life
+High
+Answered
+Weight
+under 1.5 kg
+Remembered
+Display quality
+High
+Answered
+Value for money
+High
+Answered
+
+Your brief is ready.
+
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== questions, search not found (http://localhost:3110/s/sess_<id>/questions)
+ShopSense
+Home
+Research
+Get started
+We couldn't find this search
+
+It may have expired when the browser tab was closed. Start again by telling us what you're shopping for.
+
+Describe what you need
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== brief, ready (http://localhost:3110/s/sess_<id>/brief)
+ShopSense
+Home
+Research
+Get started
+
+STEP 3 OF 3
+
+Your brief for a laptop
+
+Check this before we start. Research takes up to 2½ minutes.
+
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+Change
+19%
+Battery life
+From your answer
+Change
+19%
+Display quality
+From your answer
+Change
+19%
+Value for money
+From your answer
+Change
+19%
+CPU performance
+Standard
+Change
+12%
+Weight
+Standard
+Change
+12%
+Preview scenario (mock data, no live search)
+Ranked products
+Tie between products
+Sources disagree
+Unverified specs
+Estimated values
+Old prices
+No store offers
+Products left out
+Couldn't check some
+Partial results
+Relaxation hint
+No results
+Research timeout
+Network error, then retry
+Back to the questions
+Start research
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, researching (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Researching laptops for you
+
+This can take up to 2½ minutes. You can keep this page in the background.
+
+Preview: simulated progress from mock data
+
+What ShopSense is doing
+
+Elapsed time:
+1 s
+
+Finding products that fit your must-haves
+Done
+2
+Checking prices across stores
+3
+Reading specs and reviews
+4
+Scoring each option against your brief
+
+Finding products that fit your must-haves: done. 1 of 4 steps done.
+
+Stop research
+Your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, leave page dialog (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Researching laptops for you
+
+This can take up to 2½ minutes. You can keep this page in the background.
+
+Preview: simulated progress from mock data
+
+What ShopSense is doing
+
+Elapsed time:
+1 s
+
+Finding products that fit your must-haves
+Done
+2
+Checking prices across stores
+3
+Reading specs and reviews
+4
+Scoring each option against your brief
+
+Finding products that fit your must-haves: done. 1 of 4 steps done.
+
+Stop research
+Your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+Stop research?
+
+Leaving this page stops the research. Your brief and answers are kept.
+
+Keep researching
+Stop research
+
+===== brief, research stopped message (http://localhost:3110/s/sess_<id>/brief)
+ShopSense
+Home
+Research
+Get started
+
+STEP 3 OF 3
+
+Your brief for a laptop
+
+Check this before we start. Research takes up to 2½ minutes.
+
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+Change
+19%
+Battery life
+From your answer
+Change
+19%
+Display quality
+From your answer
+Change
+19%
+Value for money
+From your answer
+Change
+19%
+CPU performance
+Standard
+Change
+12%
+Weight
+Standard
+Change
+12%
+Preview scenario (mock data, no live search)
+Ranked products
+Tie between products
+Sources disagree
+Unverified specs
+Estimated values
+Old prices
+No store offers
+Products left out
+Couldn't check some
+Partial results
+Relaxation hint
+No results
+Research timeout
+Network error, then retry
+Back to the questions
+Start research
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+Research stopped
+
+===== results, success (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. 3 options, best match Sample laptop A.
+
+This result isn't saved. It will be gone if you close this page.
+
+Best match
+
+BEST MATCH
+
+Rank 1:
+Sample laptop A
+#1
+Score 86
+High confidence
+Best pick chance 62%
+Checked 6 of 6 criteria
+Good value
+WHY IT RANKS HERE
+
+Sample explanation: A scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹68,490
+View at Sample Store One
+(opens in a new tab)
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹69,990
+Show all criteria
+CPU performance
+Sample rating 7 / 10
+Memory
+Sample rating 6 / 10
+Battery life
+Sample rating 9 / 10
+Weight
+Sample rating 8 / 10
+Display quality
+Sample rating 7 / 10
+Value for money
+Sample rating 6 / 10
+Other options
+Rank 2:
+Sample laptop B
+#2
+Score 79
+Medium confidence
+Best pick chance 27%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: B scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹71,990
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹73,490
+Show all criteria
+CPU performance
+Sample rating 8 / 10
+Memory
+Sample rating 7 / 10
+Battery life
+Sample rating 6 / 10
+Weight
+Sample rating 9 / 10
+Display quality
+Sample rating 8 / 10
+Value for money
+Sample rating 7 / 10
+Rank 3:
+Sample laptop C
+#3
+Score 71
+Low confidence
+Best pick chance 11%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: C scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹75,490
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹76,990
+Show all criteria
+CPU performance
+Sample rating 9 / 10
+Memory
+Sample rating 8 / 10
+Battery life
+Sample rating 7 / 10
+Weight
+Sample rating 6 / 10
+Display quality
+Sample rating 9 / 10
+Value for money
+Sample rating 8 / 10
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, tie (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. 3 options, best match Sample laptop A.
+
+This result isn't saved. It will be gone if you close this page.
+
+Best match
+
+BEST MATCH
+
+Rank 1:
+Sample laptop A
+#1
+Score 86
+High confidence
+Best pick chance 62%
+Checked 6 of 6 criteria
+Good value
+WHY IT RANKS HERE
+
+Sample explanation: A scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹68,490
+View at Sample Store One
+(opens in a new tab)
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹69,990
+Show all criteria
+CPU performance
+Sample rating 7 / 10
+Memory
+Sample rating 6 / 10
+Battery life
+Sample rating 9 / 10
+Weight
+Sample rating 8 / 10
+Display quality
+Sample rating 7 / 10
+Value for money
+Sample rating 6 / 10
+Other options
+Rank =2:
+Sample laptop B
+#=2
+Score 79
+Tied with Sample laptop C
+Medium confidence
+Best pick chance 27%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: B scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹71,990
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹73,490
+Show all criteria
+CPU performance
+Sample rating 8 / 10
+Memory
+Sample rating 7 / 10
+Battery life
+Sample rating 6 / 10
+Weight
+Sample rating 9 / 10
+Display quality
+Sample rating 8 / 10
+Value for money
+Sample rating 7 / 10
+Rank =2:
+Sample laptop C
+#=2
+Score 79
+Tied with Sample laptop B
+Low confidence
+Best pick chance 11%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: C scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹75,490
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹76,990
+Show all criteria
+CPU performance
+Sample rating 9 / 10
+Memory
+Sample rating 8 / 10
+Battery life
+Sample rating 7 / 10
+Weight
+Sample rating 6 / 10
+Display quality
+Sample rating 9 / 10
+Value for money
+Sample rating 8 / 10
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, disputed (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. 3 options, best match Sample laptop A.
+
+This result isn't saved. It will be gone if you close this page.
+
+Best match
+
+BEST MATCH
+
+Rank 1:
+Sample laptop A
+#1
+Score 86
+Medium confidence
+Best pick chance 62%
+Checked 6 of 6 criteria
+Good value
+WHY IT RANKS HERE
+
+Sample explanation: A scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹68,490
+View at Sample Store One
+(opens in a new tab)
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹69,990
+Show all criteria
+CPU performance
+Sample rating 7 / 10
+Memory
+Sources disagree
+Sample Store One listing: 16 GB
+Sample maker spec sheet: 8 GB
+Battery life
+Sample rating 9 / 10
+Weight
+Sample rating 8 / 10
+Display quality
+Sample rating 7 / 10
+Value for money
+Sample rating 6 / 10
+Other options
+Rank 2:
+Sample laptop B
+#2
+Score 79
+Medium confidence
+Best pick chance 27%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: B scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹71,990
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹73,490
+Show all criteria
+CPU performance
+Sample rating 8 / 10
+Memory
+Sample rating 7 / 10
+Battery life
+Sample rating 6 / 10
+Weight
+Sample rating 9 / 10
+Display quality
+Sample rating 8 / 10
+Value for money
+Sample rating 7 / 10
+Rank 3:
+Sample laptop C
+#3
+Score 71
+Low confidence
+Best pick chance 11%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: C scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹75,490
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹76,990
+Show all criteria
+CPU performance
+Sample rating 9 / 10
+Memory
+Sample rating 8 / 10
+Battery life
+Sample rating 7 / 10
+Weight
+Sample rating 6 / 10
+Display quality
+Sample rating 9 / 10
+Value for money
+Sample rating 8 / 10
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, unknown (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. 3 options, best match Sample laptop A.
+
+This result isn't saved. It will be gone if you close this page.
+
+Best match
+
+BEST MATCH
+
+Rank 1:
+Sample laptop A
+#1
+Score 86
+High confidence
+Best pick chance 62%
+Checked 5 of 6 criteria
+Good value
+WHY IT RANKS HERE
+
+Sample explanation: A scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹68,490
+View at Sample Store One
+(opens in a new tab)
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹69,990
+Show all criteria
+CPU performance
+Sample rating 7 / 10
+Memory
+Sample rating 6 / 10
+Battery life
+Sample rating 9 / 10
+Weight
+Sample rating 8 / 10
+Display quality
+Sample rating 7 / 10
+Value for money
+Not verified
+Other options
+Rank 2:
+Sample laptop B
+#2
+Score 79
+Medium confidence
+Best pick chance 27%
+Checked 5 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: B scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹71,990
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹73,490
+Show all criteria
+CPU performance
+Sample rating 8 / 10
+Memory
+Sample rating 7 / 10
+Battery life
+Sample rating 6 / 10
+Weight
+Sample rating 9 / 10
+Display quality
+Sample rating 8 / 10
+Value for money
+Not verified
+Rank 3:
+Sample laptop C
+#3
+Score 71
+Low confidence
+Best pick chance 11%
+Checked 5 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: C scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹75,490
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹76,990
+Show all criteria
+CPU performance
+Sample rating 9 / 10
+Memory
+Sample rating 8 / 10
+Battery life
+Sample rating 7 / 10
+Weight
+Sample rating 6 / 10
+Display quality
+Sample rating 9 / 10
+Value for money
+Not verified
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, estimated (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. 3 options, best match Sample laptop A.
+
+This result isn't saved. It will be gone if you close this page.
+
+Best match
+
+BEST MATCH
+
+Rank 1:
+Sample laptop A
+#1
+Score 86
+High confidence
+Best pick chance 62%
+Checked 6 of 6 criteria
+Good value
+WHY IT RANKS HERE
+
+Sample explanation: A scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹68,490
+View at Sample Store One
+(opens in a new tab)
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹69,990
+Show all criteria
+CPU performance
+Sample rating 7 / 10
+Memory
+Sample rating 6 / 10
+Battery life
+About 9 hours (sample estimate)
+Estimated
+Weight
+Sample rating 8 / 10
+Display quality
+Sample rating 7 / 10
+Value for money
+Sample rating 6 / 10
+Other options
+Rank 2:
+Sample laptop B
+#2
+Score 79
+Medium confidence
+Best pick chance 27%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: B scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹71,990
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹73,490
+Show all criteria
+CPU performance
+Sample rating 8 / 10
+Memory
+Sample rating 7 / 10
+Battery life
+Sample rating 6 / 10
+Weight
+Sample rating 9 / 10
+Display quality
+Sample rating 8 / 10
+Value for money
+Sample rating 7 / 10
+Rank 3:
+Sample laptop C
+#3
+Score 71
+Low confidence
+Best pick chance 11%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: C scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹75,490
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹76,990
+Show all criteria
+CPU performance
+Sample rating 9 / 10
+Memory
+Sample rating 8 / 10
+Battery life
+Sample rating 7 / 10
+Weight
+Sample rating 6 / 10
+Display quality
+Sample rating 9 / 10
+Value for money
+Sample rating 8 / 10
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, stale (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. 3 options, best match Sample laptop A.
+
+This result isn't saved. It will be gone if you close this page.
+
+Best match
+
+BEST MATCH
+
+Rank 1:
+Sample laptop A
+#1
+Score 86
+High confidence
+Best pick chance 62%
+Checked 6 of 6 criteria
+Good value
+WHY IT RANKS HERE
+
+Sample explanation: A scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹68,490
+View at Sample Store One
+(opens in a new tab)
+
+Sample Store Two
+
+Old price, checked 19 Oct, 7:35 pm
+
+₹69,990
+Show all criteria
+CPU performance
+Sample rating 7 / 10
+Memory
+Sample rating 6 / 10
+Battery life
+Sample rating 9 / 10
+Weight
+Sample rating 8 / 10
+Display quality
+Sample rating 7 / 10
+Value for money
+Sample rating 6 / 10
+Other options
+Rank 2:
+Sample laptop B
+#2
+Score 79
+Medium confidence
+Best pick chance 27%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: B scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Old price, checked 19 Oct, 7:35 pm
+
+₹71,990
+
+Sample Store Two
+
+Old price, checked 19 Oct, 7:35 pm
+
+₹73,490
+Show all criteria
+CPU performance
+Sample rating 8 / 10
+Memory
+Sample rating 7 / 10
+Battery life
+Sample rating 6 / 10
+Weight
+Sample rating 9 / 10
+Display quality
+Sample rating 8 / 10
+Value for money
+Sample rating 7 / 10
+Rank 3:
+Sample laptop C
+#3
+Score 71
+Low confidence
+Best pick chance 11%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: C scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹75,490
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹76,990
+Show all criteria
+CPU performance
+Sample rating 9 / 10
+Memory
+Sample rating 8 / 10
+Battery life
+Sample rating 7 / 10
+Weight
+Sample rating 6 / 10
+Display quality
+Sample rating 9 / 10
+Value for money
+Sample rating 8 / 10
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, no-offer (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. 3 options, best match Sample laptop A.
+
+This result isn't saved. It will be gone if you close this page.
+
+Best match
+
+BEST MATCH
+
+Rank 1:
+Sample laptop A
+#1
+Score 86
+High confidence
+Best pick chance 62%
+Checked 6 of 6 criteria
+Good value
+WHY IT RANKS HERE
+
+Sample explanation: A scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹68,490
+View at Sample Store One
+(opens in a new tab)
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹69,990
+Show all criteria
+CPU performance
+Sample rating 7 / 10
+Memory
+Sample rating 6 / 10
+Battery life
+Sample rating 9 / 10
+Weight
+Sample rating 8 / 10
+Display quality
+Sample rating 7 / 10
+Value for money
+Sample rating 6 / 10
+Other options
+Rank 2:
+Sample laptop B
+#2
+Score 79
+Medium confidence
+Best pick chance 27%
+Checked 6 of 6 criteria
+Value not worked out: No price was found, so value can't be worked out.
+WHY IT RANKS HERE
+
+Sample explanation: B scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+No price found
+
+Show all criteria
+CPU performance
+Sample rating 8 / 10
+Memory
+Sample rating 7 / 10
+Battery life
+Sample rating 6 / 10
+Weight
+Sample rating 9 / 10
+Display quality
+Sample rating 8 / 10
+Value for money
+Sample rating 7 / 10
+Rank 3:
+Sample laptop C
+#3
+Score 71
+Low confidence
+Best pick chance 11%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: C scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹75,490
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹76,990
+Show all criteria
+CPU performance
+Sample rating 9 / 10
+Memory
+Sample rating 8 / 10
+Battery life
+Sample rating 7 / 10
+Weight
+Sample rating 6 / 10
+Display quality
+Sample rating 9 / 10
+Value for money
+Sample rating 8 / 10
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, left-out (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. 3 options, best match Sample laptop A.
+
+This result isn't saved. It will be gone if you close this page.
+
+Best match
+
+BEST MATCH
+
+Rank 1:
+Sample laptop A
+#1
+Score 86
+High confidence
+Best pick chance 62%
+Checked 6 of 6 criteria
+Good value
+WHY IT RANKS HERE
+
+Sample explanation: A scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹68,490
+View at Sample Store One
+(opens in a new tab)
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹69,990
+Show all criteria
+CPU performance
+Sample rating 7 / 10
+Memory
+Sample rating 6 / 10
+Battery life
+Sample rating 9 / 10
+Weight
+Sample rating 8 / 10
+Display quality
+Sample rating 7 / 10
+Value for money
+Sample rating 6 / 10
+Other options
+Rank 2:
+Sample laptop B
+#2
+Score 79
+Medium confidence
+Best pick chance 27%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: B scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹71,990
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹73,490
+Show all criteria
+CPU performance
+Sample rating 8 / 10
+Memory
+Sample rating 7 / 10
+Battery life
+Sample rating 6 / 10
+Weight
+Sample rating 9 / 10
+Display quality
+Sample rating 8 / 10
+Value for money
+Sample rating 7 / 10
+Rank 3:
+Sample laptop C
+#3
+Score 71
+Low confidence
+Best pick chance 11%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: C scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹75,490
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹76,990
+Show all criteria
+CPU performance
+Sample rating 9 / 10
+Memory
+Sample rating 8 / 10
+Battery life
+Sample rating 7 / 10
+Weight
+Sample rating 6 / 10
+Display quality
+Sample rating 9 / 10
+Value for money
+Sample rating 8 / 10
+Left out (2)
+Sample laptop D
+Over your budget at every store checked.
+Sample laptop E
+Matches something you asked to leave out.
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, couldnt-check (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. 3 options, best match Sample laptop A.
+
+This result isn't saved. It will be gone if you close this page.
+
+Best match
+
+BEST MATCH
+
+Rank 1:
+Sample laptop A
+#1
+Score 86
+High confidence
+Best pick chance 62%
+Checked 6 of 6 criteria
+Good value
+WHY IT RANKS HERE
+
+Sample explanation: A scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹68,490
+View at Sample Store One
+(opens in a new tab)
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹69,990
+Show all criteria
+CPU performance
+Sample rating 7 / 10
+Memory
+Sample rating 6 / 10
+Battery life
+Sample rating 9 / 10
+Weight
+Sample rating 8 / 10
+Display quality
+Sample rating 7 / 10
+Value for money
+Sample rating 6 / 10
+Other options
+Rank 2:
+Sample laptop B
+#2
+Score 79
+Medium confidence
+Best pick chance 27%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: B scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹71,990
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹73,490
+Show all criteria
+CPU performance
+Sample rating 8 / 10
+Memory
+Sample rating 7 / 10
+Battery life
+Sample rating 6 / 10
+Weight
+Sample rating 9 / 10
+Display quality
+Sample rating 8 / 10
+Value for money
+Sample rating 7 / 10
+Rank 3:
+Sample laptop C
+#3
+Score 71
+Low confidence
+Best pick chance 11%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: C scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹75,490
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹76,990
+Show all criteria
+CPU performance
+Sample rating 9 / 10
+Memory
+Sample rating 8 / 10
+Battery life
+Sample rating 7 / 10
+Weight
+Sample rating 6 / 10
+Display quality
+Sample rating 9 / 10
+Value for money
+Sample rating 8 / 10
+Couldn't check (1)
+Sample laptop F
+Store pages didn't list its specs.
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, partial (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. 2 options, best match Sample laptop A.
+
+This result isn't saved. It will be gone if you close this page.
+
+Sample note: only two of the stores could be checked, so some options may be missing.
+
+Best match
+
+BEST MATCH
+
+Rank 1:
+Sample laptop A
+#1
+Score 86
+High confidence
+Best pick chance 62%
+Checked 6 of 6 criteria
+Good value
+WHY IT RANKS HERE
+
+Sample explanation: A scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹68,490
+View at Sample Store One
+(opens in a new tab)
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹69,990
+Show all criteria
+CPU performance
+Sample rating 7 / 10
+Memory
+Sample rating 6 / 10
+Battery life
+Sample rating 9 / 10
+Weight
+Sample rating 8 / 10
+Display quality
+Sample rating 7 / 10
+Value for money
+Sample rating 6 / 10
+Other options
+Rank 2:
+Sample laptop B
+#2
+Score 79
+Medium confidence
+Best pick chance 27%
+Checked 6 of 6 criteria
+Fair value
+WHY IT RANKS HERE
+
+Sample explanation: B scores well on the criteria you weighted most, within your must-haves.
+
+Strongest
+CPU performance
+Memory
+Weakest
+Value for money
+STORE OFFERS
+
+Sample Store One
+
+Price checked 27 Oct, 3:10 pm
+
+₹71,990
+
+Sample Store Two
+
+Price checked 27 Oct, 3:10 pm
+
+₹73,490
+Show all criteria
+CPU performance
+Sample rating 8 / 10
+Memory
+Sample rating 7 / 10
+Battery life
+Sample rating 6 / 10
+Weight
+Sample rating 9 / 10
+Display quality
+Sample rating 8 / 10
+Value for money
+Sample rating 7 / 10
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, relaxation (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. No options matched.
+
+This result isn't saved. It will be gone if you close this page.
+
+Sample hint: no option met every must-have. Loosening one may help. Must-have: Budget: Up to ₹70,000
+
+Change must-haves
+
+No option matched your brief this time.
+
+Left out (1)
+Sample laptop D
+Doesn't meet a must-have.
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, empty (every section open) (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Results for your laptop
+
+Preview: mock data, not a live search
+
+Results ready. No options matched.
+
+This result isn't saved. It will be gone if you close this page.
+
+No option matched your brief this time.
+
+Left out (1)
+Sample laptop D
+Doesn't meet a must-have.
+
+Prices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.
+
+Your brief
+Must have
+Budget: Up to ₹70,000
+What counts most
+Memory
+From your answer
+19%
+Battery life
+From your answer
+19%
+Display quality
+From your answer
+19%
+Value for money
+From your answer
+19%
+CPU performance
+Standard
+12%
+Weight
+Standard
+12%
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, network error (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Researching laptops for you
+
+We lost the connection while researching. Your brief is safe.
+
+Try again
+Back to your brief
+Your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, research timed out (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+Researching laptops for you
+
+Research took too long. Your brief is safe. Try again, or try again later.
+
+Try again
+Back to your brief
+Your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, gone after reload (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+These results aren't here any more
+
+Results are only kept while this page is open. Your brief is still saved.
+
+Back to your brief
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+
+===== results, search not found (http://localhost:3110/s/sess_<id>/results)
+ShopSense
+Home
+Research
+Get started
+We couldn't find this search
+
+It may have expired when the browser tab was closed. Start again by telling us what you're shopping for.
+
+Describe what you need
+ShopSense
+
+Research smarter. Choose confidently.
+
+PRODUCT
+Home
+How It Works
+Research
+Features
+COMPANY
+About
+Contact
+FAQ
+Privacy Policy
+
+© 2026 ShopSense. All rights reserved.
+

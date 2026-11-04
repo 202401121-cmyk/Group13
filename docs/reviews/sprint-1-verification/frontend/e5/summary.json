@@ -1,0 +1,2421 @@
+{
+  "axe": {
+    "runs": 612,
+    "statesPerConfig": {
+      "default-1440-dark": 50,
+      "default-1440-light": 50,
+      "default-390-dark": 52,
+      "default-390-light": 52,
+      "reduce-1440-dark": 50,
+      "reduce-1440-light": 50,
+      "reduce-390-dark": 52,
+      "reduce-390-light": 52,
+      "settled-1440-dark": 50,
+      "settled-1440-light": 50,
+      "settled-390-dark": 52,
+      "settled-390-light": 52
+    },
+    "violationRows": 52,
+    "byRule": {
+      "color-contrast": {
+        "impact": "serious",
+        "states": [
+          "brief, research stopped message",
+          "home",
+          "home, empty request error",
+          "home, menu open",
+          "results, couldnt-check (every section open)",
+          "results, disputed (every section open)",
+          "results, estimated (every section open)",
+          "results, leave page dialog",
+          "results, left-out (every section open)",
+          "results, no-offer (every section open)",
+          "results, stale (every section open)",
+          "results, success (every section open)",
+          "results, tie (every section open)",
+          "results, unknown (every section open)"
+        ],
+        "configs": [
+          "default-1440-dark",
+          "default-1440-light",
+          "default-390-dark",
+          "default-390-light"
+        ],
+        "nodesTotal": 1210
+      }
+    },
+    "seriousOrCritical": [
+      [
+        "default-1440-dark",
+        "home",
+        "color-contrast",
+        "serious",
+        16
+      ],
+      [
+        "default-1440-dark",
+        "home, empty request error",
+        "color-contrast",
+        "serious",
+        5
+      ],
+      [
+        "default-1440-dark",
+        "brief, research stopped message",
+        "color-contrast",
+        "serious",
+        1
+      ],
+      [
+        "default-1440-dark",
+        "results, success (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-1440-dark",
+        "results, tie (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-1440-dark",
+        "results, disputed (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-1440-dark",
+        "results, unknown (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-1440-dark",
+        "results, estimated (every section open)",
+        "color-contrast",
+        "serious",
+        11
+      ],
+      [
+        "default-1440-dark",
+        "results, stale (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-1440-dark",
+        "results, no-offer (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-1440-dark",
+        "results, left-out (every section open)",
+        "color-contrast",
+        "serious",
+        11
+      ],
+      [
+        "default-1440-dark",
+        "results, couldnt-check (every section open)",
+        "color-contrast",
+        "serious",
+        11
+      ],
+      [
+        "default-1440-light",
+        "home",
+        "color-contrast",
+        "serious",
+        16
+      ],
+      [
+        "default-1440-light",
+        "home, empty request error",
+        "color-contrast",
+        "serious",
+        5
+      ],
+      [
+        "default-1440-light",
+        "results, leave page dialog",
+        "color-contrast",
+        "serious",
+        1
+      ],
+      [
+        "default-1440-light",
+        "brief, research stopped message",
+        "color-contrast",
+        "serious",
+        1
+      ],
+      [
+        "default-1440-light",
+        "results, success (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-1440-light",
+        "results, tie (every section open)",
+        "color-contrast",
+        "serious",
+        35
+      ],
+      [
+        "default-1440-light",
+        "results, disputed (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-1440-light",
+        "results, unknown (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-1440-light",
+        "results, estimated (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-1440-light",
+        "results, stale (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-1440-light",
+        "results, no-offer (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-1440-light",
+        "results, left-out (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-1440-light",
+        "results, couldnt-check (every section open)",
+        "color-contrast",
+        "serious",
+        11
+      ],
+      [
+        "default-390-dark",
+        "home",
+        "color-contrast",
+        "serious",
+        11
+      ],
+      [
+        "default-390-dark",
+        "home, empty request error",
+        "color-contrast",
+        "serious",
+        5
+      ],
+      [
+        "default-390-dark",
+        "home, menu open",
+        "color-contrast",
+        "serious",
+        2
+      ],
+      [
+        "default-390-dark",
+        "brief, research stopped message",
+        "color-contrast",
+        "serious",
+        1
+      ],
+      [
+        "default-390-dark",
+        "results, success (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-390-dark",
+        "results, tie (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-390-dark",
+        "results, disputed (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-390-dark",
+        "results, unknown (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-390-dark",
+        "results, estimated (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-390-dark",
+        "results, stale (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-390-dark",
+        "results, no-offer (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-390-dark",
+        "results, left-out (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-390-dark",
+        "results, couldnt-check (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-390-light",
+        "home",
+        "color-contrast",
+        "serious",
+        16
+      ],
+      [
+        "default-390-light",
+        "home, empty request error",
+        "color-contrast",
+        "serious",
+        5
+      ],
+      [
+        "default-390-light",
+        "home, menu open",
+        "color-contrast",
+        "serious",
+        2
+      ],
+      [
+        "default-390-light",
+        "results, leave page dialog",
+        "color-contrast",
+        "serious",
+        1
+      ],
+      [
+        "default-390-light",
+        "brief, research stopped message",
+        "color-contrast",
+        "serious",
+        1
+      ],
+      [
+        "default-390-light",
+        "results, success (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-390-light",
+        "results, tie (every section open)",
+        "color-contrast",
+        "serious",
+        35
+      ],
+      [
+        "default-390-light",
+        "results, disputed (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-390-light",
+        "results, unknown (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-390-light",
+        "results, estimated (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-390-light",
+        "results, stale (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-390-light",
+        "results, no-offer (every section open)",
+        "color-contrast",
+        "serious",
+        34
+      ],
+      [
+        "default-390-light",
+        "results, left-out (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ],
+      [
+        "default-390-light",
+        "results, couldnt-check (every section open)",
+        "color-contrast",
+        "serious",
+        33
+      ]
+    ],
+    "blocked": {
+      "default-1440-dark": [],
+      "default-1440-light": [],
+      "default-390-dark": [],
+      "default-390-light": [],
+      "reduce-1440-dark": [],
+      "reduce-1440-light": [],
+      "reduce-390-dark": [],
+      "reduce-390-light": [],
+      "settled-1440-dark": [],
+      "settled-1440-light": [],
+      "settled-390-dark": [],
+      "settled-390-light": []
+    },
+    "themeMismatch": {
+      "default-1440-dark": [],
+      "default-1440-light": [],
+      "default-390-dark": [],
+      "default-390-light": [],
+      "reduce-1440-dark": [],
+      "reduce-1440-light": [],
+      "reduce-390-dark": [],
+      "reduce-390-light": [],
+      "settled-1440-dark": [],
+      "settled-1440-light": [],
+      "settled-390-dark": [],
+      "settled-390-light": []
+    },
+    "colorContrastNodes": {
+      "total": 1210,
+      "opacityBelow1": 59,
+      "insideRevealPending": 59,
+      "byMode": {
+        "default": {
+          "nodes": 1210,
+          "opacityBelow1": 59,
+          "fullyOpaque": 1151
+        },
+        "reduce": {
+          "nodes": 0,
+          "opacityBelow1": 0,
+          "fullyOpaque": 0
+        },
+        "settled": {
+          "nodes": 0,
+          "opacityBelow1": 0,
+          "fullyOpaque": 0
+        }
+      }
+    },
+    "byModeRule": {
+      "default": {
+        "color-contrast": {
+          "impact": "serious",
+          "rows": 52,
+          "nodes": 1210,
+          "states": [
+            "brief, research stopped message",
+            "home",
+            "home, empty request error",
+            "home, menu open",
+            "results, couldnt-check (every section open)",
+            "results, disputed (every section open)",
+            "results, estimated (every section open)",
+            "results, leave page dialog",
+            "results, left-out (every section open)",
+            "results, no-offer (every section open)",
+            "results, stale (every section open)",
+            "results, success (every section open)",
+            "results, tie (every section open)",
+            "results, unknown (every section open)"
+          ]
+        }
+      }
+    },
+    "note": "Every flagged node, with what axe measured and its opacity: color-contrast-nodes.txt. Every violation row: axe-violations.txt."
+  },
+  "smallTargets": [],
+  "sideways": [
+    [
+      "default-1440-dark",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px"
+      ]
+    ],
+    [
+      "default-1440-dark",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px"
+      ]
+    ],
+    [
+      "default-1440-light",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px"
+      ]
+    ],
+    [
+      "default-1440-light",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px"
+      ]
+    ],
+    [
+      "default-390-dark",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px"
+      ]
+    ],
+    [
+      "320 (from default-390-dark)",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px"
+      ]
+    ],
+    [
+      "default-390-dark",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px"
+      ]
+    ],
+    [
+      "320 (from default-390-dark)",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px"
+      ]
+    ],
+    [
+      "default-390-dark",
+      "home, menu open",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px"
+      ]
+    ],
+    [
+      "320 (from default-390-dark)",
+      "home, menu open",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px"
+      ]
+    ],
+    [
+      "default-390-light",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px"
+      ]
+    ],
+    [
+      "320 (from default-390-light)",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px"
+      ]
+    ],
+    [
+      "default-390-light",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px"
+      ]
+    ],
+    [
+      "320 (from default-390-light)",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px"
+      ]
+    ],
+    [
+      "default-390-light",
+      "home, menu open",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px"
+      ]
+    ],
+    [
+      "320 (from default-390-light)",
+      "home, menu open",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px"
+      ]
+    ],
+    [
+      "settled-1440-dark",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px"
+      ]
+    ],
+    [
+      "settled-1440-dark",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -43..1458 of 1440px"
+      ]
+    ],
+    [
+      "settled-1440-light",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px"
+      ]
+    ],
+    [
+      "settled-1440-light",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -43..1456 of 1440px"
+      ]
+    ],
+    [
+      "settled-390-dark",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px"
+      ]
+    ],
+    [
+      "320 (from settled-390-dark)",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px"
+      ]
+    ],
+    [
+      "settled-390-dark",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -12..395 of 390px"
+      ]
+    ],
+    [
+      "320 (from settled-390-dark)",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -10..324 of 320px"
+      ]
+    ],
+    [
+      "settled-390-dark",
+      "home, menu open",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -11..396 of 390px"
+      ]
+    ],
+    [
+      "320 (from settled-390-dark)",
+      "home, menu open",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -9..325 of 320px"
+      ]
+    ],
+    [
+      "settled-390-light",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px"
+      ]
+    ],
+    [
+      "320 (from settled-390-light)",
+      "home",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px"
+      ]
+    ],
+    [
+      "settled-390-light",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -12..395 of 390px"
+      ]
+    ],
+    [
+      "320 (from settled-390-light)",
+      "home, empty request error",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -10..324 of 320px"
+      ]
+    ],
+    [
+      "settled-390-light",
+      "home, menu open",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -11..396 of 390px"
+      ]
+    ],
+    [
+      "320 (from settled-390-light)",
+      "home, menu open",
+      [
+        "div.pointer-events-none absolute inset-0 bg- spans -9..325 of 320px"
+      ]
+    ]
+  ],
+  "contrast": {
+    "checked": 19053,
+    "below45": [
+      {
+        "cfg": "default-1440-dark",
+        "text": "Edit",
+        "ratio": 2.2,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "default-1440-dark",
+        "text": "Add",
+        "ratio": 2.2,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "default-1440-dark",
+        "text": "Looks right",
+        "ratio": 2.63,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 2
+      },
+      {
+        "cfg": "default-1440-dark",
+        "text": "Start the questions",
+        "ratio": 2.63,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 1
+      },
+      {
+        "cfg": "default-1440-dark",
+        "text": "Send",
+        "ratio": 2.63,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 6
+      },
+      {
+        "cfg": "default-1440-light",
+        "text": "Edit",
+        "ratio": 1.73,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "default-1440-light",
+        "text": "Add",
+        "ratio": 1.73,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "default-1440-light",
+        "text": "Looks right",
+        "ratio": 2.43,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 2
+      },
+      {
+        "cfg": "default-1440-light",
+        "text": "Start the questions",
+        "ratio": 2.43,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 1
+      },
+      {
+        "cfg": "default-1440-light",
+        "text": "Send",
+        "ratio": 2.43,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 6
+      },
+      {
+        "cfg": "reduce-1440-dark",
+        "text": "Edit",
+        "ratio": 2.2,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "reduce-1440-dark",
+        "text": "Add",
+        "ratio": 2.2,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "reduce-1440-dark",
+        "text": "Looks right",
+        "ratio": 2.63,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 2
+      },
+      {
+        "cfg": "reduce-1440-dark",
+        "text": "Start the questions",
+        "ratio": 2.63,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 1
+      },
+      {
+        "cfg": "reduce-1440-dark",
+        "text": "Send",
+        "ratio": 2.63,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 6
+      },
+      {
+        "cfg": "reduce-1440-light",
+        "text": "Edit",
+        "ratio": 1.73,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "reduce-1440-light",
+        "text": "Add",
+        "ratio": 1.73,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "reduce-1440-light",
+        "text": "Looks right",
+        "ratio": 2.43,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 2
+      },
+      {
+        "cfg": "reduce-1440-light",
+        "text": "Start the questions",
+        "ratio": 2.43,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 1
+      },
+      {
+        "cfg": "reduce-1440-light",
+        "text": "Send",
+        "ratio": 2.43,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 6
+      },
+      {
+        "cfg": "settled-1440-dark",
+        "text": "Edit",
+        "ratio": 2.2,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "settled-1440-dark",
+        "text": "Add",
+        "ratio": 2.2,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "settled-1440-dark",
+        "text": "Looks right",
+        "ratio": 2.63,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 2
+      },
+      {
+        "cfg": "settled-1440-dark",
+        "text": "Start the questions",
+        "ratio": 2.63,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 1
+      },
+      {
+        "cfg": "settled-1440-dark",
+        "text": "Send",
+        "ratio": 2.63,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 6
+      },
+      {
+        "cfg": "settled-1440-light",
+        "text": "Edit",
+        "ratio": 1.73,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "settled-1440-light",
+        "text": "Add",
+        "ratio": 1.73,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.4,
+        "states": 2
+      },
+      {
+        "cfg": "settled-1440-light",
+        "text": "Looks right",
+        "ratio": 2.43,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 2
+      },
+      {
+        "cfg": "settled-1440-light",
+        "text": "Start the questions",
+        "ratio": 2.43,
+        "size": 16,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 1
+      },
+      {
+        "cfg": "settled-1440-light",
+        "text": "Send",
+        "ratio": 2.43,
+        "size": 14,
+        "large": false,
+        "bgImage": false,
+        "opacity": 0.5,
+        "states": 6
+      }
+    ]
+  },
+  "copy": {
+    "textsChecked": 612,
+    "forbidden": [
+      {
+        "token": "404",
+        "context": "404 | Page not found |  | The page you're looking for doesn",
+        "where": [
+          "default-1440-dark: page not found",
+          "default-1440-light: page not found",
+          "default-390-dark: page not found",
+          "default-390-light: page not found",
+          "reduce-1440-dark: page not found",
+          "reduce-1440-light: page not found"
+        ],
+        "count": 12
+      }
+    ],
+    "badRupees": [],
+    "lowerAcronyms": [],
+    "lowerCasedTitleLines": 6
+  },
+  "keyboard": {
+    "1440-dark": {
+      "stops": 420,
+      "unique": 150,
+      "problems": 0,
+      "small": 0,
+      "traps": [],
+      "events": [
+        "understood: the h1 has focus on arrival",
+        "understood: Enter opens the budget editor with focus in From; Escape closes it and focus returns to Edit budget",
+        "questions: Enter opens Why this question",
+        "questions: every question answered with Tab + Space on High",
+        "brief: ArrowDown on the scenario picker gave \"tie\", ArrowUp gave \"success\"",
+        "dialog: focus starts on Keep researching; Tab and Shift+Tab stay inside = true; Escape closes it, URL still results = true, focus on a \"Home\"",
+        "results: the h1 has focus when results arrive = true",
+        "results: Enter on Show all criteria opened it = true; Space closed it again = true"
+      ],
+      "log": 0
+    },
+    "1440-light": {
+      "stops": 420,
+      "unique": 150,
+      "problems": 0,
+      "small": 0,
+      "traps": [],
+      "events": [
+        "understood: the h1 has focus on arrival",
+        "understood: Enter opens the budget editor with focus in From; Escape closes it and focus returns to Edit budget",
+        "questions: Enter opens Why this question",
+        "questions: every question answered with Tab + Space on High",
+        "brief: ArrowDown on the scenario picker gave \"tie\", ArrowUp gave \"success\"",
+        "dialog: focus starts on Keep researching; Tab and Shift+Tab stay inside = true; Escape closes it, URL still results = true, focus on a \"Home\"",
+        "results: the h1 has focus when results arrive = true",
+        "results: Enter on Show all criteria opened it = true; Space closed it again = true"
+      ],
+      "log": 0
+    },
+    "390-dark": {
+      "stops": 406,
+      "unique": 162,
+      "problems": 1,
+      "small": 0,
+      "traps": [],
+      "events": [
+        "problem picture e5/keyboard-390-dark-problem-1.jpg: home, menu open, Shift+Tab to button \"Start my research\", obscured fully by header \"ShopSense Home Research Get started\" (sticky)",
+        "menu: Escape closed it = true, focus on button \"Open menu\"",
+        "menu: Enter opens, Escape closes and gives focus back to Open menu",
+        "understood: the h1 has focus on arrival",
+        "understood: Enter opens the budget editor with focus in From; Escape closes it and focus returns to Edit budget",
+        "questions: Enter opens Why this question",
+        "questions: every question answered with Tab + Space on High",
+        "brief: ArrowDown on the scenario picker gave \"tie\", ArrowUp gave \"success\"",
+        "dialog: focus starts on Keep researching; Tab and Shift+Tab stay inside = true; Escape closes it, URL still results = true, focus on body",
+        "results: the h1 has focus when results arrive = true",
+        "results: Enter on Show all criteria opened it = true; Space closed it again = true"
+      ],
+      "log": 0
+    },
+    "390-light": {
+      "stops": 406,
+      "unique": 162,
+      "problems": 1,
+      "small": 0,
+      "traps": [],
+      "events": [
+        "problem picture e5/keyboard-390-light-problem-1.jpg: home, menu open, Shift+Tab to button \"Start my research\", obscured fully by header \"ShopSense Home Research Get started\" (sticky)",
+        "menu: Escape closed it = true, focus on button \"Open menu\"",
+        "menu: Enter opens, Escape closes and gives focus back to Open menu",
+        "understood: the h1 has focus on arrival",
+        "understood: Enter opens the budget editor with focus in From; Escape closes it and focus returns to Edit budget",
+        "questions: Enter opens Why this question",
+        "questions: every question answered with Tab + Space on High",
+        "brief: ArrowDown on the scenario picker gave \"tie\", ArrowUp gave \"success\"",
+        "dialog: focus starts on Keep researching; Tab and Shift+Tab stay inside = true; Escape closes it, URL still results = true, focus on body",
+        "results: the h1 has focus when results arrive = true",
+        "results: Enter on Show all criteria opened it = true; Space closed it again = true"
+      ],
+      "log": 0
+    }
+  },
+  "logs": {
+    "default-1440-dark": [
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      }
+    ],
+    "default-1440-light": [
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      }
+    ],
+    "default-390-dark": [
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      }
+    ],
+    "default-390-light": [
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      }
+    ],
+    "reduce-1440-dark": [
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/",
+        "step": "start"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/",
+        "step": "start"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/",
+        "step": "start"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/",
+        "step": "start"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/",
+        "step": "home"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/",
+        "step": "home"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/",
+        "step": "home"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/",
+        "step": "home, empty request error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/",
+        "step": "home, empty request error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/",
+        "step": "home, empty request error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/about",
+        "step": "home, empty request error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/about",
+        "step": "home, empty request error"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/about",
+        "step": "about"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/about",
+        "step": "about"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/about",
+        "step": "about"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/contact",
+        "step": "about"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/contact",
+        "step": "about"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/contact",
+        "step": "contact"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/contact",
+        "step": "contact"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/contact",
+        "step": "contact"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/faq",
+        "step": "contact"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/faq",
+        "step": "contact"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/faq",
+        "step": "faq"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/faq",
+        "step": "faq"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/faq",
+        "step": "faq"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/features",
+        "step": "faq"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/features",
+        "step": "faq"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/features",
+        "step": "features"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/features",
+        "step": "features"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/features",
+        "step": "features"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/privacy",
+        "step": "features"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/privacy",
+        "step": "features"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/privacy",
+        "step": "privacy"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/privacy",
+        "step": "privacy"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/privacy",
+        "step": "privacy"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/criteria",
+        "step": "privacy"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/criteria",
+        "step": "privacy"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "page not found"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "page not found"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "page not found"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "page not found"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "page not found"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, empty"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, empty"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, empty"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, empty request error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, empty request error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, empty request error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, empty request error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, empty request error"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, editing the budget"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, editing the budget"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, editing the budget"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, budget error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, budget error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, budget error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, budget error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, budget error"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood by the backup reader"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood by the backup reader"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood by the backup reader"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood by the backup reader"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood by the backup reader"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, follow-up question"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, follow-up question"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, follow-up question"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, follow-up question"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, follow-up question"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, examples"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, examples"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, examples"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, examples"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, examples"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, network error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, network error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, network error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, network error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, network error"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_0d8b49a4a1597a92a67a0abb/criteria",
+        "step": "criteria, ready"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0d8b49a4a1597a92a67a0abb/criteria",
+        "step": "criteria, ready"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0d8b49a4a1597a92a67a0abb/criteria",
+        "step": "criteria, ready"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "criteria, ready"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "criteria, ready"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_3a4d28993eb531dd116ebf86/criteria",
+        "step": "criteria, standard list"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_3a4d28993eb531dd116ebf86/criteria",
+        "step": "criteria, standard list"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_3a4d28993eb531dd116ebf86/criteria",
+        "step": "criteria, standard list"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "criteria, standard list"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "criteria, standard list"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_ecd4c248942227fb70975602/criteria",
+        "step": "criteria, could not load"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_ecd4c248942227fb70975602/criteria",
+        "step": "criteria, could not load"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_ecd4c248942227fb70975602/criteria",
+        "step": "criteria, could not load"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/criteria",
+        "step": "criteria, could not load"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/criteria",
+        "step": "criteria, could not load"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/criteria",
+        "step": "criteria, search not found"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/criteria",
+        "step": "criteria, search not found"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/criteria",
+        "step": "criteria, search not found"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "criteria, search not found"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "criteria, search not found"
+      }
+    ],
+    "reduce-1440-light": [
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  Error: Preload assets timed out.\n    at eval (eval at evaluate (:370:30), <anonymous>:24605:25)\n    at ClockController._callFirstTimer (<anonymous>:285:20)\n    at ClockController._runTo (<anonymous>:120:33)\n    at <anonymous>:168:38",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, partial (every section open)"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_ABORTED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, partial (every section open)"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/brief",
+        "step": "results, partial (every section open)"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/brief",
+        "step": "results, partial (every section open)"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, relaxation (every section open)"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_CONNECTION_CLOSED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, relaxation (every section open)"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_CONNECTION_CLOSED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, relaxation (every section open)"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/brief",
+        "step": "results, relaxation (every section open)"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/brief",
+        "step": "results, relaxation (every section open)"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, empty (every section open)"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, empty (every section open)"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, empty (every section open)"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/brief",
+        "step": "results, empty (every section open)"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/brief",
+        "step": "results, empty (every section open)"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, network error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, network error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, network error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/brief",
+        "step": "results, network error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/brief",
+        "step": "results, network error"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, research timed out"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, research timed out"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, research timed out"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, research timed out"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, research timed out"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, gone after reload"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, gone after reload"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_0994db98cb9d336e08a02050/results",
+        "step": "results, gone after reload"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/results",
+        "step": "results, gone after reload"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/results",
+        "step": "results, gone after reload"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/results",
+        "step": "results, search not found"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/results",
+        "step": "results, search not found"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/results",
+        "step": "results, search not found"
+      }
+    ],
+    "reduce-390-dark": [
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      }
+    ],
+    "reduce-390-light": [
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, editing the budget"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, editing the budget"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, editing the budget"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, budget error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, budget error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, budget error"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood by the backup reader"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood by the backup reader"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, understood by the backup reader"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, follow-up question"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, follow-up question"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, follow-up question"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, examples"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, examples"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, examples"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/research",
+        "step": "research, network error"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, network error"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/research",
+        "step": "research, network error"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_ce5c623a9a42b614f14bd190/criteria",
+        "step": "criteria, ready"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_ce5c623a9a42b614f14bd190/criteria",
+        "step": "criteria, ready"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_ce5c623a9a42b614f14bd190/criteria",
+        "step": "criteria, ready"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_dca54aabb61ddf474903b06c/criteria",
+        "step": "criteria, standard list"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_dca54aabb61ddf474903b06c/criteria",
+        "step": "criteria, standard list"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_dca54aabb61ddf474903b06c/criteria",
+        "step": "criteria, standard list"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_accd834cf460259cb33f2ba3/criteria",
+        "step": "criteria, could not load"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_accd834cf460259cb33f2ba3/criteria",
+        "step": "criteria, could not load"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_accd834cf460259cb33f2ba3/criteria",
+        "step": "criteria, could not load"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/criteria",
+        "step": "criteria, search not found"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/criteria",
+        "step": "criteria, search not found"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_000000000000000000000000/criteria",
+        "step": "criteria, search not found"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, first question"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, first question"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, first question"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, why this question open"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, why this question open"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, why this question open"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, answer then repeat"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, answer then repeat"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, answer then repeat"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, asked another way (rephrase)"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, asked another way (rephrase)"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_NAME_NOT_RESOLVED",
+        "url": "http://localhost:3110/s/sess_e3b8676ab826f737d50a462d/questions",
+        "step": "questions, asked another way (rephrase)"
+      }
+    ],
+    "settled-1440-dark": [
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  Error: Preload assets timed out.\n    at eval (eval at evaluate (:370:30), <anonymous>:24605:25)\n    at ClockController._callFirstTimer (<anonymous>:285:20)\n    at ClockController._runTo (<anonymous>:120:33)\n    at <anonymous>:168:38",
+        "url": "http://localhost:3110/s/sess_46be49229a8c304b10c40056/questions",
+        "step": "questions, first question"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_ABORTED",
+        "url": "http://localhost:3110/s/sess_46be49229a8c304b10c40056/questions",
+        "step": "questions, first question"
+      },
+      {
+        "kind": "console-warning",
+        "text": "Couldn't load preload assets:  ProgressEvent",
+        "url": "http://localhost:3110/s/sess_46be49229a8c304b10c40056/questions",
+        "step": "questions, why this question open"
+      },
+      {
+        "kind": "requestfailed",
+        "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_QUIC_PROTOCOL_ERROR.QUIC_NETWORK_IDLE_TIMEOUT",
+        "url": "http://localhost:3110/s/sess_46be49229a8c304b10c40056/questions",
+        "step": "questions, why this question open"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: net::ERR_QUIC_PROTOCOL_ERROR.QUIC_NETWORK_IDLE_TIMEOUT",
+        "url": "http://localhost:3110/s/sess_46be49229a8c304b10c40056/questions",
+        "step": "questions, why this question open"
+      }
+    ],
+    "settled-1440-light": [
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      }
+    ],
+    "settled-390-dark": [
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      }
+    ],
+    "settled-390-light": [
+      {
+        "kind": "http-error",
+        "text": "404 http://localhost:3110/no-such-page",
+        "url": "http://localhost:3110/criteria",
+        "step": "old /criteria link, no brief"
+      },
+      {
+        "kind": "console-error",
+        "text": "Failed to load resource: the server responded with a status of 404 ()",
+        "url": "http://localhost:3110/no-such-page",
+        "step": "old /criteria link, no brief"
+      }
+    ]
+  }
+}

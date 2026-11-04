@@ -1,0 +1,15 @@
+B2 one live call of each Sprint 1 LLM task through the app's code path (start_request, make_criteria), database off, 2026-11-04 17:43 UTC
+  log: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=612 out=163 ms=703
+  log: llm call task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=757 out=2374 ms=5141
+== 'Gaming laptop under 80k'
+  intent (1.0 s): detected_by=llm category=laptop label='Laptop' use='gaming' budget={"min": null, "max": {"amount": 80000.0, "currency": "INR"}} region=IN
+  criteria (5.3 s): source=generated count=9
+    - gpu_score | GPU Benchmark Score | vfm=False | Measures the graphics card's performance using a standard benchmark; higher scores mean smoother gameplay and higher settings.
+    - cpu_score | CPU Benchmark Score | vfm=False | Evaluates the processor's ability to handle game logic and AI via a standard test; higher scores improve frame rates.
+    - refresh_rate | Display Refresh Rate | vfm=False | Indicates how many times per second the screen updates, measured in hertz; higher rates reduce motion blur in fast games.
+    - resolution | Screen Resolution | vfm=False | Counts total pixels on the display; more pixels provide sharper images, enhancing visual detail in games.
+    - temperature_under_load | Load Temperature | vfm=False | Records the CPU/GPU temperature while gaming, in degrees Celsius; lower temperatures mean better cooling and sustained performance.
+    - storage_speed | SSD Read Speed | vfm=False | Measures how quickly the solid‑state drive reads data, in megabytes per second; faster speeds shorten load times.
+    - battery_life | Battery Life | vfm=False | Shows how many hours the laptop can run games on battery alone; longer life offers more portable play.
+    - weight | Laptop Weight | vfm=False | Indicates the total mass of the laptop in kilograms; lighter units make it easier to transport for LAN events.
+    - value_for_money | Value for Money | vfm=True | Compares the laptop's overall gaming performance and features to its price; higher ratios mean better cost efficiency.

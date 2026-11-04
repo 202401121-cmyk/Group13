@@ -1,0 +1,42 @@
+G2 credit and US-25 repository settings, 2026-11-04, about 18:40 UTC, read with gh 2.76.2 (signed in as Om-5640, push access, not admin).
+
+$ gh api "repos/202401121-cmyk/Group13/commits?sha=72d0433…&per_page=100" --paginate --jq ".[] | [(.author.login // \"UNLINKED\"), .commit.author.name, (.parents|length)]"
+commits: 165 (git rev-list --count 72d0433: 165)
+-- commits that are not merges, by GitHub login | author name (UNLINKED = the address is not on any GitHub account)
+     24 JhanviBarot | Jhanvi Barot
+     21 manupardhan05 | Manu Pardhan
+     15 Palak178-creator | Palak Patel
+     12 Om-5640 | Om Pandya
+     11 UNLINKED | Jenish Kavad
+      8 VaishviMehta346 | Vaishvi Mehta
+      7 paljalodara | paljalodara
+      6 yashpatel4239 | Yash Patel
+      6 JenishKavad | JenishKavad
+      5 UNLINKED | Pal Jalodara
+      5 Rushinavar18 | Rushiraj Navar
+      4 Om-5640 | Om-5640
+      4 202401121-cmyk | Harsh Kodavala
+-- merge commits by GitHub login | author name
+     36 Om-5640 | Om Pandya
+      1 UNLINKED | Jenish Kavad
+(the unlinked merge is b974654 'US-12: merge main … into the Reddit source'; the root commit 727cbdd is Om-5640's)
+
+$ gh pr list --state merged --limit 100 --json number,author,mergedBy,reviews
+merged pull requests: 36; opened by: Om-5640 36; merged by: Om-5640 36; with an approving review: 0
+
+$ gh api repos/202401121-cmyk/Group13/branches/main --jq "{protected, protection}"
+{"protected":false,"protection_enabled":false,"required_checks":[]}
+$ gh api repos/202401121-cmyk/Group13/branches/main/protection
+{"message":"Not Found","documentation_url":"https://docs.github.com/rest/branches/branch-protection#get-branch-protection","status":"404"}gh: Not Found (HTTP 404)
+
+$ gh api repos/202401121-cmyk/Group13/rulesets
+{"message":"Upgrade to GitHub Pro or make this repository public to enable this feature.","documentation_url":"https://docs.github.com/rest/repos/rules#get-all-repository-rulesets","status":"403"}gh: Upgrade to GitHub Pro or make this repository public to enable this feature. (HTTP 403)
+$ gh api "repos/202401121-cmyk/Group13/collaborators?per_page=100" --jq length
+10
+$ gh api repos/202401121-cmyk/Group13 --jq "{visibility, secret scanning}"
+{"secret_scanning":null,"visibility":"private"}
+$ gh secret list (names only)
+secrets listed: 0. ci.yml uses no secrets: 0 references
+$ gh project list --owner 202401121-cmyk
+error: your authentication token is missing required scopes [read:project]
+Slack: the Slack workspace connected on this machine lists no ShopSense channels, so the team's Slack could not be checked from here.

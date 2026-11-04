@@ -1,0 +1,11 @@
+A2 contract drift, 2026-11-04 17:31 UTC
+$ python -m scripts.export_contracts (from backend/)
+wrote 56 schemas and 12 examples to <repo>/shared\contracts
+$ git diff --exit-code -- shared/contracts
+no drift (exit 0)
+
+$ bash scripts/gen-frontend-types.sh  (types as npm ci's postinstall made them are kept for comparison)
+Generated 56 type files in <repo path>
+took 656 s
+$ diff -r <postinstall types> frontend/src/types/contracts
+identical: the build uses exactly the script's output (56 files)

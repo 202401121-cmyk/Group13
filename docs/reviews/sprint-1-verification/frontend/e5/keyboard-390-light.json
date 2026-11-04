@@ -1,0 +1,46 @@
+{
+  "config": {
+    "width": 390,
+    "height": 844,
+    "theme": "light"
+  },
+  "stopsRecorded": 406,
+  "uniqueStops": 162,
+  "problems": [
+    {
+      "page": "home, menu open",
+      "key": "Shift+Tab",
+      "name": "button \"Start my research\"",
+      "body": false,
+      "indicator": true,
+      "how": "outline 2px solid, box-shadow",
+      "focusVisible": true,
+      "obscured": "fully",
+      "by": "header \"ShopSense Home Research Get started\" (sticky)",
+      "coveredPct": 100,
+      "inView": true,
+      "w": 276,
+      "h": 52,
+      "path": "div:0/main:1/div:0/section:2/div:0/form:0/div:4/button:1"
+    }
+  ],
+  "smallStops": [],
+  "traps": [],
+  "events": [
+    "problem picture e5/keyboard-390-light-problem-1.jpg: home, menu open, Shift+Tab to button \"Start my research\", obscured fully by header \"ShopSense Home Research Get started\" (sticky)",
+    "menu: Escape closed it = true, focus on button \"Open menu\"",
+    "menu: Enter opens, Escape closes and gives focus back to Open menu",
+    "understood: the h1 has focus on arrival",
+    "understood: Enter opens the budget editor with focus in From; Escape closes it and focus returns to Edit budget",
+    "questions: Enter opens Why this question",
+    "questions: every question answered with Tab + Space on High",
+    "brief: ArrowDown on the scenario picker gave \"tie\", ArrowUp gave \"success\"",
+    "dialog: focus starts on Keep researching; Tab and Shift+Tab stay inside = true; Escape closes it, URL still results = true, focus on body",
+    "results: the h1 has focus when results arrive = true",
+    "results: Enter on Show all criteria opened it = true; Space closed it again = true"
+  ],
+  "pics": [
+    "home, menu open: button \"Start my research\""
+  ],
+  "log": []
+}

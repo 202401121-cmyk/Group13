@@ -1,0 +1,15 @@
+S0.2 environment, recorded 2026-11-04 17:27 UTC
+commit: 72d0433773f2e217ec96bd8d51f4466cbd71b6e8
+os: Microsoft Windows [Version 10.0.26300.9818] (Git Bash)
+python: Python 3.11.15
+node: v22.18.0; npm: 11.12.1
+docker: Docker version 29.1.2, build 890dcca
+playwright: Version 1.64.1
+
+CI run for 72d0433: 41871458849
+run conclusion: success (event push)
+  secrets: success
+  backend: success
+  backend-windows: success
+  frontend: success
+  ml: success

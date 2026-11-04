@@ -1,0 +1,300 @@
+home	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+home	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+home	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+home	Tab	a "Start researching"	outline 2px solid, box-shadow	no	in view	212x52
+home	Tab	a "See how it works"	outline 2px solid	no	in view	207.5x52
+home	Tab	textarea#research-query "e.g. A lightweight laptop for coding under ₹7"	box-shadow	no	OFF SCREEN	276x138
+home	Tab	button "Start my research"	outline 2px solid, box-shadow	no	OFF SCREEN	276x52
+home	Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+home	Shift+Tab	button "Start my research"	outline 2px solid, box-shadow	no	OFF SCREEN	276x52
+home	Shift+Tab	textarea#research-query "e.g. A lightweight laptop for coding under ₹7"	box-shadow	no	OFF SCREEN	276x138
+home	Shift+Tab	a "See how it works"	outline 2px solid	no	in view	207.5x52
+home	Shift+Tab	a "Start researching"	outline 2px solid, box-shadow	no	in view	212x52
+home	Shift+Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+home	Shift+Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+home	Shift+Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+home	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+home	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+home	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+home, menu open	Tab	a "Home"	outline 2px solid	no	in view	332x44
+home, menu open	Tab	a "Research"	outline 2px solid	no	in view	332x44
+home, menu open	Tab	a "Get started"	outline 2px solid, box-shadow	no	in view	332x44
+home, menu open	Tab	a "Start researching"	outline 2px solid, box-shadow	no	in view	212x52
+home, menu open	Tab	a "See how it works"	outline 2px solid	no	OFF SCREEN	207.5x52
+home, menu open	Tab	textarea#research-query "e.g. A lightweight laptop for coding under ₹7"	box-shadow	no	OFF SCREEN	276x138
+home, menu open	Tab	button "Start my research"	outline 2px solid, box-shadow	no	OFF SCREEN	276x52
+home, menu open	Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+home, menu open	Tab	a "Home"	outline 2px solid	no	OFF SCREEN	44x44
+home, menu open	Shift+Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+home, menu open	Shift+Tab	button "Start my research"	outline 2px solid, box-shadow	no	OFF SCREEN	276x52
+home, menu open	Shift+Tab	textarea#research-query "e.g. A lightweight laptop for coding under ₹7"	box-shadow	no	OFF SCREEN	276x138
+home, menu open	Shift+Tab	a "See how it works"	outline 2px solid	no	OFF SCREEN	207.5x52
+home, menu open	Shift+Tab	a "Start researching"	outline 2px solid, box-shadow	no	in view	212x52
+home, menu open	Shift+Tab	a "Get started"	outline 2px solid, box-shadow	no	in view	332x44
+home, menu open	Shift+Tab	a "Research"	outline 2px solid	no	in view	332x44
+home, menu open	Shift+Tab	a "Home"	outline 2px solid	no	in view	332x44
+home, menu open	Shift+Tab	button "Close menu"	outline 2px solid	no	in view	44x44
+home, menu open	Shift+Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+home, menu open	Shift+Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+home, menu open	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+home, menu open	Tab	button "Close menu"	outline 2px solid	no	in view	44x44
+home	Tab	a "Start researching"	outline 2px solid, box-shadow	no	in view	212x52
+home	Tab	a "See how it works"	outline 2px solid	no	in view	207.5x52
+home	Tab	textarea#research-query "e.g. A lightweight laptop for coding under ₹7"	box-shadow	no	OFF SCREEN	276x138
+home	Tab	button "Start my research"	outline 2px solid, box-shadow	no	OFF SCREEN	276x52
+what we understood	Tab	button "Edit product"	outline 2px solid	no	in view	57.3x44
+what we understood	Tab	button "Edit use"	outline 2px solid	no	in view	57.3x44
+what we understood	Tab	button "Edit budget"	outline 2px solid	no	in view	57.3x44
+what we understood	Tab	button "Edit region"	outline 2px solid	no	in view	57.3x44
+what we understood	Tab	button "Add must-haves"	outline 2px solid	no	OFF SCREEN	58.3x44
+what we understood	Tab	button "Add exclusions"	outline 2px solid	no	OFF SCREEN	58.3x44
+what we understood	Tab	button "Looks right"	outline 2px solid, box-shadow	no	OFF SCREEN	350x52
+what we understood	Tab	button "Start over"	outline 2px solid	no	OFF SCREEN	350x52
+what we understood	Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+what we understood	Tab	a "Home"	outline 2px solid	no	OFF SCREEN	44x44
+what we understood	Tab	a "How It Works"	outline 2px solid	no	OFF SCREEN	85x44
+what we understood	Tab	a "Research"	outline 2px solid	no	OFF SCREEN	60x44
+what we understood	Tab	a "Features"	outline 2px solid	no	OFF SCREEN	56x44
+what we understood	Tab	a "About"	outline 2px solid	no	OFF SCREEN	44x44
+what we understood	Tab	a "Contact"	outline 2px solid	no	OFF SCREEN	50.9x44
+what we understood	Tab	a "FAQ"	outline 2px solid	no	OFF SCREEN	44x44
+what we understood	Tab	a "Privacy Policy"	outline 2px solid	no	OFF SCREEN	88.6x44
+what we understood	Shift+Tab	a "Privacy Policy"	outline 2px solid	no	OFF SCREEN	88.6x44
+what we understood	Shift+Tab	a "FAQ"	outline 2px solid	no	OFF SCREEN	44x44
+what we understood	Shift+Tab	a "Contact"	outline 2px solid	no	OFF SCREEN	50.9x44
+what we understood	Shift+Tab	a "About"	outline 2px solid	no	OFF SCREEN	44x44
+what we understood	Shift+Tab	a "Features"	outline 2px solid	no	OFF SCREEN	56x44
+what we understood	Shift+Tab	a "Research"	outline 2px solid	no	OFF SCREEN	60x44
+what we understood	Shift+Tab	a "How It Works"	outline 2px solid	no	OFF SCREEN	85x44
+what we understood	Shift+Tab	a "Home"	outline 2px solid	no	OFF SCREEN	44x44
+what we understood	Shift+Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+what we understood	Shift+Tab	button "Start over"	outline 2px solid	no	OFF SCREEN	350x52
+what we understood	Shift+Tab	button "Looks right"	outline 2px solid, box-shadow	no	OFF SCREEN	350x52
+what we understood	Shift+Tab	button "Add exclusions"	outline 2px solid	no	OFF SCREEN	58.3x44
+what we understood	Shift+Tab	button "Add must-haves"	outline 2px solid	no	in view	58.3x44
+what we understood	Shift+Tab	button "Edit region"	outline 2px solid	no	in view	57.3x44
+what we understood	Shift+Tab	button "Edit budget"	outline 2px solid	no	in view	57.3x44
+what we understood	Shift+Tab	button "Edit use"	outline 2px solid	no	in view	57.3x44
+what we understood	Shift+Tab	button "Edit product"	outline 2px solid	no	in view	57.3x44
+what we understood	Shift+Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+what we understood	Shift+Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+what we understood	Shift+Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+what we understood	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+what we understood	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+what we understood	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+what we understood	Tab	button "Edit product"	outline 2px solid	no	in view	57.3x44
+what we understood	Tab	button "Edit use"	outline 2px solid	no	in view	57.3x44
+what we understood	Tab	button "Edit budget"	outline 2px solid	no	in view	57.3x44
+what we understood	Tab	button "Edit region"	outline 2px solid	no	in view	57.3x44
+what we understood	Tab	button "Add must-haves"	outline 2px solid	no	OFF SCREEN	58.3x44
+what we understood	Tab	button "Add exclusions"	outline 2px solid	no	OFF SCREEN	58.3x44
+what we understood	Tab	button "Looks right"	outline 2px solid, box-shadow	no	OFF SCREEN	350x52
+criteria	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+criteria	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+criteria	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+criteria	Tab	button "Start the questions"	outline 2px solid, box-shadow	no	OFF SCREEN	225.7x52
+criteria	Tab	a "Change my request"	outline 2px solid	no	OFF SCREEN	127.2x44
+criteria	Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+criteria	Shift+Tab	a "Change my request"	outline 2px solid	no	OFF SCREEN	127.2x44
+criteria	Shift+Tab	button "Start the questions"	outline 2px solid, box-shadow	no	OFF SCREEN	225.7x52
+criteria	Shift+Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+criteria	Shift+Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+criteria	Shift+Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+criteria	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+criteria	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+criteria	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+criteria	Tab	button "Start the questions"	outline 2px solid, box-shadow	no	OFF SCREEN	225.7x52
+questions	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+questions	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+questions	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+questions	Tab	a "Criteria"	outline 2px solid	no	in view	70x44
+questions	Tab	button "Why this question?"	outline 2px solid	no	in view	144.9x44
+questions	Tab	button "1 Low"	outline 2px solid	no	in view	308x50
+questions	Tab	button "2 Medium"	outline 2px solid	no	in view	308x50
+questions	Tab	button "3 High"	outline 2px solid	no	in view	308x50
+questions	Tab	button "Skip this question"	outline 2px solid	no	in view	141.8x44
+questions	Tab	button "Answers so far (0)"	outline 2px solid	no	in view	316x44
+questions	Tab	a "Jump to question"	outline 2px solid	partly by form "Or type your answer"	in view	144.4x44
+questions	Tab	textarea#answer-input "Or type your answer"	outline 2px solid	no	in view	284x46
+questions	Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+questions	Shift+Tab	textarea#answer-input "Or type your answer"	outline 2px solid	no	in view	284x46
+questions	Shift+Tab	a "Jump to question"	outline 2px solid	partly by form "Or type your answer"	in view	144.4x44
+questions	Shift+Tab	button "Answers so far (0)"	outline 2px solid	no	in view	316x44
+questions	Shift+Tab	button "Skip this question"	outline 2px solid	no	in view	141.8x44
+questions	Shift+Tab	button "3 High"	outline 2px solid	no	in view	308x50
+questions	Shift+Tab	button "2 Medium"	outline 2px solid	no	in view	308x50
+questions	Shift+Tab	button "1 Low"	outline 2px solid	no	in view	308x50
+questions	Shift+Tab	button "Why this question?"	outline 2px solid	no	in view	144.9x44
+questions	Shift+Tab	a "Criteria"	outline 2px solid	no	in view	70x44
+questions	Shift+Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+questions	Shift+Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+questions	Shift+Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+questions	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+questions	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+questions	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+questions	Tab	a "Criteria"	outline 2px solid	no	in view	70x44
+questions	Tab	button "Why this question?"	outline 2px solid	no	in view	144.9x44
+questions	Tab	button "1 Low"	outline 2px solid	no	in view	308x50
+questions	Tab	button "2 Medium"	outline 2px solid	no	in view	308x50
+questions	Tab	button "3 High"	outline 2px solid	no	in view	308x50
+questions	Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+questions	Tab	a "Home"	outline 2px solid	no	OFF SCREEN	44x44
+questions	Tab	a "How It Works"	outline 2px solid	no	OFF SCREEN	85x44
+questions	Tab	a "Research"	outline 2px solid	no	OFF SCREEN	60x44
+questions	Tab	a "Features"	outline 2px solid	no	OFF SCREEN	56x44
+questions	Tab	a "About"	outline 2px solid	no	OFF SCREEN	44x44
+questions	Tab	a "Contact"	outline 2px solid	no	OFF SCREEN	50.9x44
+questions	Tab	a "FAQ"	outline 2px solid	no	OFF SCREEN	44x44
+questions	Tab	a "Privacy Policy"	outline 2px solid	no	OFF SCREEN	88.6x44
+questions	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+questions	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+questions	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+questions	Tab	a "Criteria"	outline 2px solid	partly by header "ShopSense"	in view	70x44
+questions	Tab	button "Why this question?"	outline 2px solid	no	in view	144.9x44
+questions	Tab	button "1 Low"	outline 2px solid	no	in view	308x50
+questions	Tab	button "2 Medium"	outline 2px solid	no	in view	308x50
+questions	Tab	button "3 High"	outline 2px solid	no	in view	308x50
+questions	Tab	button "Why this question?"	outline 2px solid	no	in view	144.9x44
+questions	Tab	button "1 Low"	outline 2px solid	no	in view	308x50
+questions	Tab	button "2 Medium"	outline 2px solid	no	in view	308x50
+questions	Tab	button "3 High"	outline 2px solid	no	in view	308x50
+questions	Tab	button "Why this question?"	outline 2px solid	no	in view	144.9x44
+questions	Tab	button "1 Low"	outline 2px solid	no	in view	308x50
+questions	Tab	button "2 Medium"	outline 2px solid	no	in view	308x50
+questions	Tab	button "3 High"	outline 2px solid	no	in view	308x50
+questions	Tab	button "Why this question?"	outline 2px solid	no	in view	144.9x44
+questions	Tab	button "1 Low"	outline 2px solid	no	in view	308x50
+questions	Tab	button "2 Medium"	outline 2px solid	no	in view	308x50
+questions	Tab	button "3 High"	outline 2px solid	no	in view	308x50
+questions finished	Tab	a "Review your brief"	outline 2px solid, box-shadow	no	in view	188.1x52
+questions finished	Tab	button "Answers so far (6)"	outline 2px solid	no	in view	316x44
+questions finished	Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+questions finished	Tab	a "Home"	outline 2px solid	no	OFF SCREEN	44x44
+questions finished	Tab	a "How It Works"	outline 2px solid	no	OFF SCREEN	85x44
+questions finished	Tab	a "Research"	outline 2px solid	no	OFF SCREEN	60x44
+questions finished	Tab	a "Features"	outline 2px solid	no	OFF SCREEN	56x44
+questions finished	Tab	a "About"	outline 2px solid	no	OFF SCREEN	44x44
+questions finished	Tab	a "Contact"	outline 2px solid	no	OFF SCREEN	50.9x44
+questions finished	Tab	a "FAQ"	outline 2px solid	no	OFF SCREEN	44x44
+questions finished	Tab	a "Privacy Policy"	outline 2px solid	no	OFF SCREEN	88.6x44
+questions finished	Shift+Tab	a "Privacy Policy"	outline 2px solid	no	OFF SCREEN	88.6x44
+questions finished	Shift+Tab	a "FAQ"	outline 2px solid	no	OFF SCREEN	44x44
+questions finished	Shift+Tab	a "Contact"	outline 2px solid	no	OFF SCREEN	50.9x44
+questions finished	Shift+Tab	a "About"	outline 2px solid	no	OFF SCREEN	44x44
+questions finished	Shift+Tab	a "Features"	outline 2px solid	no	OFF SCREEN	56x44
+questions finished	Shift+Tab	a "Research"	outline 2px solid	no	OFF SCREEN	60x44
+questions finished	Shift+Tab	a "How It Works"	outline 2px solid	no	OFF SCREEN	85x44
+questions finished	Shift+Tab	a "Home"	outline 2px solid	no	OFF SCREEN	44x44
+questions finished	Shift+Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+questions finished	Shift+Tab	button "Answers so far (6)"	outline 2px solid	no	in view	316x44
+questions finished	Shift+Tab	a "Review your brief"	outline 2px solid, box-shadow	no	in view	188.1x52
+questions finished	Shift+Tab	a "Criteria"	outline 2px solid	no	OFF SCREEN	70x44
+questions finished	Shift+Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+questions finished	Shift+Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+questions finished	Shift+Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+questions finished	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+questions finished	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+questions finished	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+questions finished	Tab	a "Criteria"	outline 2px solid	no	OFF SCREEN	70x44
+questions finished	Tab	a "Review your brief"	outline 2px solid, box-shadow	no	in view	188.1x52
+brief	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+brief	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+brief	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+brief	Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+brief	Shift+Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+brief	Shift+Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+brief	Shift+Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+brief	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+brief	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+brief	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+brief	Tab	button "Change CPU performance"	outline 2px solid	no	in view	66.5x44
+brief	Tab	button "Change Memory"	outline 2px solid	no	in view	66.5x44
+brief	Tab	button "Change Battery life"	outline 2px solid	no	in view	66.5x44
+brief	Tab	button "Change Display quality"	outline 2px solid	no	in view	66.5x44
+brief	Tab	button "Change Value for money"	outline 2px solid	no	OFF SCREEN	66.5x44
+brief	Tab	button "Change Weight"	outline 2px solid	no	OFF SCREEN	66.5x44
+brief	Tab	select#scenario "Ranked products Tie between products Sources "	outline 2px solid	no	OFF SCREEN	316x44
+brief	Tab	a "Back to the questions"	outline 2px solid	no	OFF SCREEN	350x44
+brief	Tab	button "Start research"	outline 2px solid, box-shadow	no	OFF SCREEN	350x44
+researching	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+researching	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+researching	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+researching, menu open	Tab	a "Home"	outline 2px solid	no	in view	332x44
+stop research dialog	Tab	button "Stop research"	box-shadow	fully by div	in view	324.2x42
+stop research dialog	Shift+Tab	button#keep-researching "Keep researching"	box-shadow	fully by div	in view	329.9x42.7
+stop research dialog	Tab	button "Stop research"	box-shadow	fully by div	in view	332.8x43.1
+stop research dialog	Shift+Tab	button#keep-researching "Keep researching"	box-shadow	fully by div	in view	335x43.4
+stop research dialog	Tab	button "Stop research"	box-shadow	fully by div	in view	336.6x43.6
+stop research dialog	Shift+Tab	button#keep-researching "Keep researching"	box-shadow	fully by div	in view	337.9x43.7
+results	Tab	a "View at Sample Store One (opens in a new tab)"	outline 2px solid	no	OFF SCREEN	226.4x44
+results	Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	306x44
+results	Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	314x44
+results	Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	314x44
+results	Tab	summary "Your brief"	outline 2px solid	no	OFF SCREEN	356x48
+results	Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+results	Tab	a "Home"	outline 2px solid	no	OFF SCREEN	44x44
+results	Tab	a "How It Works"	outline 2px solid	no	OFF SCREEN	85x44
+results	Tab	a "Research"	outline 2px solid	no	OFF SCREEN	60x44
+results	Tab	a "Features"	outline 2px solid	no	OFF SCREEN	56x44
+results	Tab	a "About"	outline 2px solid	no	OFF SCREEN	44x44
+results	Tab	a "Contact"	outline 2px solid	no	OFF SCREEN	50.9x44
+results	Tab	a "FAQ"	outline 2px solid	no	OFF SCREEN	44x44
+results	Tab	a "Privacy Policy"	outline 2px solid	no	OFF SCREEN	88.6x44
+results	Shift+Tab	a "Privacy Policy"	outline 2px solid	no	OFF SCREEN	88.6x44
+results	Shift+Tab	a "FAQ"	outline 2px solid	no	OFF SCREEN	44x44
+results	Shift+Tab	a "Contact"	outline 2px solid	no	OFF SCREEN	50.9x44
+results	Shift+Tab	a "About"	outline 2px solid	no	OFF SCREEN	44x44
+results	Shift+Tab	a "Features"	outline 2px solid	no	OFF SCREEN	56x44
+results	Shift+Tab	a "Research"	outline 2px solid	no	OFF SCREEN	60x44
+results	Shift+Tab	a "How It Works"	outline 2px solid	no	OFF SCREEN	85x44
+results	Shift+Tab	a "Home"	outline 2px solid	no	OFF SCREEN	44x44
+results	Shift+Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+results	Shift+Tab	summary "Your brief"	outline 2px solid	no	OFF SCREEN	356x48
+results	Shift+Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	314x44
+results	Shift+Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	314x44
+results	Shift+Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	306x44
+results	Shift+Tab	a "View at Sample Store One (opens in a new tab)"	outline 2px solid	no	OFF SCREEN	226.4x44
+results	Shift+Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+results	Shift+Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+results	Shift+Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+results	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+results	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+results	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+results	Tab	a "View at Sample Store One (opens in a new tab)"	outline 2px solid	no	OFF SCREEN	226.4x44
+results	Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	306x44
+results, after the disclosure	Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	314x44
+results, after the disclosure	Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	314x44
+results, after the disclosure	Tab	summary "Your brief"	outline 2px solid	no	OFF SCREEN	356x48
+results, after the disclosure	Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+results, after the disclosure	Tab	a "Home"	outline 2px solid	no	OFF SCREEN	44x44
+results, after the disclosure	Tab	a "How It Works"	outline 2px solid	no	OFF SCREEN	85x44
+results, after the disclosure	Tab	a "Research"	outline 2px solid	no	OFF SCREEN	60x44
+results, after the disclosure	Tab	a "Features"	outline 2px solid	no	OFF SCREEN	56x44
+results, after the disclosure	Tab	a "About"	outline 2px solid	no	OFF SCREEN	44x44
+results, after the disclosure	Tab	a "Contact"	outline 2px solid	no	OFF SCREEN	50.9x44
+results, after the disclosure	Tab	a "FAQ"	outline 2px solid	no	OFF SCREEN	44x44
+results, after the disclosure	Tab	a "Privacy Policy"	outline 2px solid	no	OFF SCREEN	88.6x44
+results, after the disclosure	Shift+Tab	a "Privacy Policy"	outline 2px solid	no	OFF SCREEN	88.6x44
+results, after the disclosure	Shift+Tab	a "FAQ"	outline 2px solid	no	OFF SCREEN	44x44
+results, after the disclosure	Shift+Tab	a "Contact"	outline 2px solid	no	OFF SCREEN	50.9x44
+results, after the disclosure	Shift+Tab	a "About"	outline 2px solid	no	OFF SCREEN	44x44
+results, after the disclosure	Shift+Tab	a "Features"	outline 2px solid	no	OFF SCREEN	56x44
+results, after the disclosure	Shift+Tab	a "Research"	outline 2px solid	no	OFF SCREEN	60x44
+results, after the disclosure	Shift+Tab	a "How It Works"	outline 2px solid	no	OFF SCREEN	85x44
+results, after the disclosure	Shift+Tab	a "Home"	outline 2px solid	no	OFF SCREEN	44x44
+results, after the disclosure	Shift+Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+results, after the disclosure	Shift+Tab	summary "Your brief"	outline 2px solid	no	OFF SCREEN	356x48
+results, after the disclosure	Shift+Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	314x44
+results, after the disclosure	Shift+Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	314x44
+results, after the disclosure	Shift+Tab	summary "Show all criteria"	outline 2px solid	no	OFF SCREEN	306x44
+results, after the disclosure	Shift+Tab	a "View at Sample Store One (opens in a new tab)"	outline 2px solid	no	in view	226.4x44
+results, after the disclosure	Shift+Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+results, after the disclosure	Shift+Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+results, after the disclosure	Shift+Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+privacy	Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44
+privacy	Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+privacy	Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+privacy	Tab	a "ShopSense home"	outline 2px solid	no	OFF SCREEN	320x44
+privacy	Shift+Tab	button "Open menu"	outline 2px solid	no	in view	44x44
+privacy	Shift+Tab	button "Switch to light mode"	outline 2px solid	no	in view	44x44
+privacy	Shift+Tab	a "ShopSense home"	outline 2px solid	no	in view	143.9x44

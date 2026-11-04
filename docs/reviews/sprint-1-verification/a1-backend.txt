@@ -1,0 +1,27 @@
+A1 backend, 2026-11-04 17:28 UTC, commit 72d0433, new Python 3.11 venv
+
+$ ruff check .
+All checks passed!
+$ ruff format --check .
+191 files already formatted
+$ mypy app
+Success: no issues found in 86 source files
+
+$ pytest -q -rs --cov --cov-report=term  (no TEST_DATABASE_URL, as on a member's laptop)
+TOTAL                                  4470    112    97%
+Required test coverage of 70.0% reached. Total coverage: 97.49%
+SKIPPED [1] tests\integration\test_requests_table.py:78: TEST_DATABASE_URL is not set (see docs/database.md, 'Tests')
+SKIPPED [1] tests\integration\test_requests_table.py:94: TEST_DATABASE_URL is not set (see docs/database.md, 'Tests')
+SKIPPED [1] tests\integration\test_requests_table.py:104: TEST_DATABASE_URL is not set (see docs/database.md, 'Tests')
+SKIPPED [1] tests\integration\test_requests_table.py:116: TEST_DATABASE_URL is not set (see docs/database.md, 'Tests')
+SKIPPED [1] tests\integration\test_requests_table.py:131: TEST_DATABASE_URL is not set (see docs/database.md, 'Tests')
+SKIPPED [1] tests\live\test_reddit_archives_live.py:37: live: set RUN_LIVE_TESTS=1 to run
+SKIPPED [1] tests\live\test_reddit_archives_live.py:42: live: set RUN_LIVE_TESTS=1 to run
+SKIPPED [1] tests\live\test_smoke_apis_live.py:25: live: set RUN_LIVE_TESTS=1 to run
+1020 passed, 8 skipped, 1 warning in 92.01s (0:01:32)
+
+$ pytest -q -m 'not live' (the CI marker)
+1020 passed, 5 skipped, 3 deselected, 1 warning in 42.37s
+
+$ pytest tests/contract -q
+95 passed in 1.29s

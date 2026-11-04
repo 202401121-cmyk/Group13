@@ -1,0 +1,22 @@
+B3 privacy routing, 2026-11-04 17:49 UTC
+
+From the call log of every live run so far (B2, B4, B7): task, data class -> providers that received it
+  2 detect_intent private cerebras error
+  9 detect_intent private groq ok
+  1 detect_intent private groq rate_limited
+  8 generate_criteria private groq ok
+  1 generate_criteria public mistral ok
+
+Personal tasks (always private) reaching gemini, mistral or openrouter: 0
+Private-class calls reaching gemini, mistral or openrouter: 0
+Public-class calls (generate_criteria with only a lexicon category label, no shopper text): 1
+
+$ the tests that prove it
+  1   PASSED tests/contract/test_contracts.py::test_personal_tasks_include_everything_with_user_words
+  10   PASSED tests/unit/llm/test_client.py::test_a_task_with_the_shoppers_words_must_be_private
+  8   PASSED tests/unit/llm/test_client.py::test_private_and_reddit_text_never_reach_a_training_provider
+  1   PASSED tests/unit/llm/test_config.py::test_gemini_is_marked_as_training_on_the_free_tier
+  1   PASSED tests/unit/llm/test_routing.py::test_criteria_with_a_use_case_is_private_and_without_one_is_public
+  2   PASSED tests/unit/llm/test_routing.py::test_even_a_bad_route_cannot_send_private_text_to_a_training_provider
+  1   PASSED tests/unit/llm/test_routing.py::test_intake_sends_the_shoppers_words_only_to_non_training_providers
+  1 24 passed in 1.42s

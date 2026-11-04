@@ -1,0 +1,59 @@
+{
+  "editorFields": {
+    "from": "1,00,000",
+    "upTo": "10,00,000"
+  },
+  "seen": [
+    {
+      "where": "understood: \"Laptop for video editing under 1.5 lakh\"",
+      "amounts": [
+        "₹1,50,000"
+      ],
+      "budgetLine": "Up to ₹1,50,000"
+    },
+    {
+      "where": "understood: \"Laptop for coding under ₹2,50,000\"",
+      "amounts": [
+        "₹2,50,000"
+      ],
+      "budgetLine": "Up to ₹2,50,000"
+    },
+    {
+      "where": "understood: \"Laptop for gaming under 125000\"",
+      "amounts": [
+        "₹1,25,000"
+      ],
+      "budgetLine": "Up to ₹1,25,000"
+    },
+    {
+      "where": "understood, budget edited to 100000 and 1000000",
+      "amounts": [
+        "₹1,25,000"
+      ],
+      "budgetLine": "Up to ₹1,25,000"
+    },
+    {
+      "where": "brief",
+      "amounts": [
+        "₹1,00,000",
+        "₹10,00,000"
+      ],
+      "budgetLine": "Budget: ₹1,00,000 – ₹10,00,000"
+    },
+    {
+      "where": "results, brief summary open",
+      "amounts": [
+        "₹68,490",
+        "₹69,990",
+        "₹71,990",
+        "₹73,490",
+        "₹75,490",
+        "₹76,990",
+        "₹1,00,000",
+        "₹10,00,000"
+      ],
+      "budgetLine": "Budget: ₹1,00,000 – ₹10,00,000"
+    }
+  ],
+  "log": []
+}

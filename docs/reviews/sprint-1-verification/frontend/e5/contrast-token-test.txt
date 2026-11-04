@@ -1,0 +1,20 @@
+
+ RUN  v4.1.12 <repo>/frontend
+
+ ✓ src/test/contrast.test.ts > muted text contrast > matches known WCAG ratios (black on white is 21:1) 2ms
+ ✓ src/test/contrast.test.ts > muted text contrast > is at least 4.5:1 on --background in light mode 1ms
+ ✓ src/test/contrast.test.ts > muted text contrast > is at least 4.5:1 on --muted in light mode 0ms
+ ✓ src/test/contrast.test.ts > muted text contrast > is at least 4.5:1 on --secondary in light mode 0ms
+ ✓ src/test/contrast.test.ts > muted text contrast > is at least 4.5:1 on --accent in light mode 0ms
+ ✓ src/test/contrast.test.ts > muted text contrast > is at least 4.5:1 on --card in light mode 0ms
+ ✓ src/test/contrast.test.ts > muted text contrast > is at least 4.5:1 on --background in dark mode 0ms
+ ✓ src/test/contrast.test.ts > muted text contrast > is at least 4.5:1 on --muted in dark mode 0ms
+ ✓ src/test/contrast.test.ts > muted text contrast > is at least 4.5:1 on --secondary in dark mode 1ms
+ ✓ src/test/contrast.test.ts > muted text contrast > is at least 4.5:1 on --accent in dark mode 0ms
+ ✓ src/test/contrast.test.ts > muted text contrast > is at least 4.5:1 on --card in dark mode 0ms
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  23:24:51
+   Duration  2.11s (transform 48ms, setup 349ms, import 24ms, tests 7ms, environment 1.43s)
+

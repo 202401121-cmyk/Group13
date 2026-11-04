@@ -1,0 +1,77 @@
+D5 US-52 search through the API, backend A (keys on, database off), 2026-11-04 17:56 UTC
+health: 200 {'status': 'ok', 'schema_version': '1.2.0', 'database': 'off'}
+intake 'best laptop for coding under 70k': 200 (1063 ms) session=sess_4a1d578aabaaafbd88848c29 id format ok=True by=llm category=laptop use='coding' budget=min None max 70000.0 region=IN hard_rules=[] exclusions=[] needs_clarification=False
+criteria: 200 (15 ms) source=cached count=9
+interview: 9 replies, finished=True
+session request_saved=off
+search: 200 (16 ms)
+  SearchResult schema: valid; saved=True partial=False coverage_note='YouTube timed out.'
+  stage reports (8): research=ok/0ms, extract=ok/0ms, match=ok/0ms, verify=ok/0ms, enrich=ok/0ms, decide=ok/0ms, explain=ok/0ms, commerce=ok/0ms
+  ranked: [('prd_nova_book_14', 78.3), ('prd_kestrel_slim_15', 75.9), ('prd_orion_play_15', 67.0)]; products 5; sources 3
+  filtered products missing from products: []
+  result criterion keys match the session's criteria: n/a (session 9, result [])
+
+non-2xx responses seen: 0
+error-shape or leak problems: 0
+
+CLI: python -m app.cli "best laptop for coding under 70k" (database off)
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Laptop · use coding · budget up to ₹70,000 · region IN · detected by llm
+Criteria (cached):
+  - Single‑Core CPU Score: Measures the processor's single‑core benchmark points, important for compile speed and responsive coding environments.
+  - Multi‑Core CPU Score: Measures multi‑core benchmark performance, affecting parallel builds, virtualization, and running multiple development tools simultaneously.
+  - RAM Capacity: Amount of system memory in gigabytes, enabling large codebases, multiple IDEs, and virtual machines without slowdown.
+  - SSD Capacity: Total solid‑state drive space in gigabytes, allowing fast project loading, quick builds, and ample data storage.
+  - Keyboard Travel: Average key travel distance in millimeters, influencing typing comfort and accuracy during long coding sessions.
+  - Battery Life: Estimated runtime on a full charge in hours while running typical development tools, important for mobility.
+  - Laptop Weight: Total laptop mass in kilograms, affecting portability and ease of carrying to meetings or coworking spaces.
+  - Screen Resolution: Number of display pixels horizontally and vertically, impacting code readability and amount of information visible simultaneously.
+  - Value for Money: Ratio of price to overall performance and features, indicating how cost‑effective the laptop is for coding work.
+Q: How much do you care about single‑core CPU score?
+A: Skip
+Q: How much do you care about multi‑core CPU score?
+A: Skip
+Q: How much do you care about RAM capacity?
+A: Skip
+Q: How much do you care about SSD capacity?
+A: Skip
+Q: How much do you care about keyboard travel?
+A: Skip
+Q: How much do you care about battery life?
+A: Skip
+Q: How much do you care about laptop weight?
+A: Skip
+Q: How much do you care about value for money?
+A: Skip
+Q: How much do you care about screen resolution?
+A: Skip
+Rubric (what matters to you):
+  - Single‑Core CPU Score: 9/10, 18% of the score (skipped)
+  - Multi‑Core CPU Score: 8/10, 16% of the score (skipped)
+  - RAM Capacity: 7/10, 14% of the score (skipped)
+  - SSD Capacity: 6/10, 12% of the score (skipped)
+  - Keyboard Travel: 5/10, 10% of the score (skipped)
+  - Battery Life: 5/10, 10% of the score (skipped)
+  - Laptop Weight: 4/10, 8% of the score (skipped)
+  - Screen Resolution: 3/10, 6% of the score (skipped)
+  - Value for Money: 4/10, 8% of the score (skipped)
+exit 0
+
+CLI, ranked list with sources (no keys, so 0 LLM calls): tail of python -m app.cli "best laptop for coding under 70k"
+Ranked:
+  1. Nova Book 14: score 78.3, coverage 100%, chance of being first 46%
+       source: https://example-reviews.in/kestrel-slim-15-review
+       source: https://www.reddit.com/r/developersIndia/comments/abc123/
+  2. Kestrel Slim 15: score 75.9, coverage 100%, chance of being first 41%
+       source: https://kestrel.example.com/slim-15/specs
+       source: https://example-reviews.in/kestrel-slim-15-review
+  3. Orion Play 15: score 67.0, coverage 90%, chance of being first 13%
+       source: https://example-reviews.in/kestrel-slim-15-review
+
+Filtered out:
+  - Aurora Air 13: ₹84,990 is above your ₹70,000 budget
+
+Can't tell:
+  - Vela Pro 14: We couldn't confirm it has at least 16 GB RAM
+
+Coverage note: YouTube timed out.

@@ -1,0 +1,57 @@
+B7 criteria with a use case, five categories, fresh in-memory store each time, database off, 40 s apart (Groq's free tier allows 8,000 tokens a minute), 2026-11-04 17:45 UTC
+  log: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=614 out=185 ms=953
+  log: llm call task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=757 out=1432 ms=3264
+== 'laptop for travel under 60k'
+  intent (1.2 s): detected_by=llm category=laptop label='Laptop' use='travel' budget={"min": null, "max": {"amount": 60000.0, "currency": "INR"}} region=IN
+  criteria (3.5 s): source=generated count=8
+    - weight | Weight | vfm=False | Measures the laptop's total mass in kilograms; lighter weight makes it easier to carry during frequent travel.
+    - battery_life | Battery Life | vfm=False | Measures how many hours the laptop runs on a single charge; longer battery life reduces need for outlets on the road.
+    - durability_rating | Durability Rating | vfm=False | Measures the score from standardized drop and vibration tests; higher rating indicates the laptop can survive rough handling while traveling.
+    - screen_size | Screen Size | vfm=False | Measures the diagonal length of the display in inches; smaller screens keep the laptop more compact for backpacks.
+    - thermal_performance | Thermal Performance | vfm=False | Measures the highest CPU temperature in degrees Celsius during typical workloads; lower temperatures prevent discomfort and throttling on the go.
+    - connectivity_ports | Connectivity Ports | vfm=False | Counts the number of useful external ports like USB‑C, HDMI, and card readers; more ports reduce reliance on adapters while traveling.
+    - noise_level | Noise Level | vfm=False | Measures the loudness of the fan in decibels during normal use; quieter operation is less disruptive in confined spaces like planes.
+    - value_for_money | Value for Money | vfm=True | Compares the laptop's price to its overall travel‑focused features; higher scores mean better cost efficiency for the intended use.
+  log: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=613 out=210 ms=1343
+  log: llm call task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=757 out=2127 ms=4938
+== 'phone for photography under 30000'
+  intent (1.7 s): detected_by=llm category=smartphone label='Smartphone' use='photography' budget={"min": null, "max": {"amount": 30000.0, "currency": "INR"}} region=IN
+  criteria (5.2 s): source=generated count=8
+    - sensor_megapixels | Megapixels count | vfm=False | Measures the number of million pixels the camera sensor captures, affecting detail resolution in photos.
+    - aperture_f_number | Lens aperture | vfm=False | Indicates the widest f‑stop of the lens; lower numbers let in more light, improving depth‑of‑field control.
+    - optical_image_stabilization | OIS effectiveness | vfm=False | Quantifies how many stops of shake reduction the OIS provides, helping keep images sharp in low light.
+    - low_light_iso | Low‑light ISO | vfm=False | Highest ISO value that still yields acceptable noise levels, showing sensor performance in dim environments.
+    - dynamic_range_ev | Dynamic range | vfm=False | Measures the range of light (in EV) the sensor can capture from shadows to highlights without clipping.
+    - lens_distortion_percent | Lens distortion | vfm=False | Percentage of barrel or pincushion distortion at the frame edges; lower values mean more accurate geometry.
+    - video_resolution | Video resolution | vfm=False | Maximum video capture resolution, indicating detail level for moving subjects and multimedia use.
+    - value_for_money | Value for money | vfm=True | Compares the overall photography performance relative to the phone’s price, showing cost efficiency.
+  log: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=613 out=189 ms=1031
+== 'monitor for programming under 25000'
+  intent (1.3 s): detected_by=llm category=None label=None use='programming' budget={"min": null, "max": {"amount": 25000.0, "currency": "INR"}} region=IN
+  needs_clarification: 'Which kind of monitor do you mean?' options=['Computer monitor', 'Baby monitor'] examples=False
+  log: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=614 out=233 ms=1141
+  log: llm call task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=758 out=2149 ms=4796
+== 'earbuds for running under 4000'
+  intent (1.4 s): detected_by=llm category=earbuds label='Earbuds' use='running' budget={"min": null, "max": {"amount": 4000.0, "currency": "INR"}} region=IN
+  criteria (5.0 s): source=generated count=8
+    - secure_fit_score | Secure Fit | vfm=False | Measures how well the earbuds stay in place during vigorous movement, preventing them from falling out while running.
+    - sweat_resistance_ip | Sweat Resistance | vfm=False | Indicates the IPX rating that shows how much moisture the earbuds can tolerate without malfunctioning during sweaty runs.
+    - battery_life | Battery Life | vfm=False | Total playback time on a single charge measured in hours, important for long training sessions without recharging.
+    - weight | Weight | vfm=False | Mass of the earbuds in grams, lighter models reduce ear fatigue during extended runs.
+    - sound_isolation | Sound Isolation | vfm=False | Amount of external noise blocked measured in decibels, helping runners stay focused without turning volume up.
+    - bluetooth_latency | Bluetooth Latency | vfm=False | Delay between audio signal and playback measured in milliseconds, lower latency prevents echo when listening to live cues.
+    - bluetooth_range | Bluetooth Range | vfm=False | Maximum distance between earbuds and source device in meters before connection drops, useful for outdoor runs.
+    - value_for_money | Value for Money | vfm=True | Compares the overall cost to the performance and features offered, indicating whether the price is justified.
+  log: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=617 out=250 ms=1125
+  log: llm call task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=759 out=988 ms=2609
+== 'standing desk for a small home office under 20000'
+  intent (1.4 s): detected_by=llm category=standing_desk label='Standing desk' use='home office' budget={"min": null, "max": {"amount": 20000.0, "currency": "INR"}} region=IN
+  criteria (2.8 s): source=generated count=8
+    - height_adjustment_range | Height Adjustment Range | vfm=False | Measures the total vertical travel in centimeters, ensuring the desk can accommodate sitting and standing positions comfortably.
+    - stability | Stability | vfm=False | Measures maximum lateral sway in millimeters under load, indicating how steady the desk feels while you work.
+    - weight_capacity | Weight Capacity | vfm=False | Maximum load the desk can support in kilograms, important for holding monitors, laptops, and accessories safely.
+    - motor_noise | Motor Noise Level | vfm=False | Sound produced by the lifting motor measured in decibels, affecting how quiet the desk is during adjustments.
+    - surface_area | Desktop Surface Area | vfm=False | Total usable top space in square centimeters, determining how much equipment and paperwork can fit comfortably.
+    - ease_of_assembly | Ease of Assembly | vfm=False | Estimated time in minutes required to assemble the desk from box, reflecting how simple the setup process is.
+    - cable_management | Cable Management | vfm=False | Number of built‑in grommets or channels for routing cords, helping keep a tidy workspace.
+    - value_for_money | Value for Money | vfm=True | Overall cost relative to the desk’s features and durability, indicating how much you pay per usable benefit.

@@ -1,0 +1,14 @@
+D6 known backend gaps from the frontend import, re-checked on 72d0433, 2026-11-04 17:56 UTC
+
+reply idempotency: question being answered was 'cpu_multi_core_score'; after the reply: [('cpu_single_core_score', 8.0), ('cpu_multi_core_score', 5.0)]; after resending the same reply: [('cpu_single_core_score', 8.0), ('cpu_multi_core_score', 5.0), ('ram_capacity', 5.0)]
+  -> the resend answered the NEXT question too (no idempotency)
+placeholder results use the session's criterion keys: False; session keys ['battery_life', 'cpu_multi_core_score', 'cpu_single_core_score', 'keyboard_travel', 'ram_capacity', 'screen_resolution', 'storage_capacity', 'value_for_money', 'weight']; result keys ['battery_life', 'build_durability', 'cpu_performance', 'display_quality', 'keyboard_comfort', 'ram_gb', 'value_for_money', 'weight']
+placeholder results labelled as sample results anywhere in the SearchResult: False
+saved=True (results are kept only in server memory)
+filtered products missing from products: []
+
+docs/frontend-api.md: exists ; documents POST /api/search: 1 section(s)
+IntakeResponse / PresearchSession in shared/contracts/schema: 0 of 2
+progress stream route in OpenAPI (events or SSE): 0
+cancel route in OpenAPI: 0
+session store: app/api/sessions.py line 62 (in memory only; a restart loses every session)

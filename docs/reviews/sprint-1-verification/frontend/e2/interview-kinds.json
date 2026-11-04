@@ -1,0 +1,73 @@
+{
+  "out": {
+    "question": {
+      "text": "How much do you care about CPU performance?\nWhy this question?\n1\nLow\n2\nMedium\n3\nHigh\nSkip this question",
+      "replies": [
+        "1\nLow",
+        "2\nMedium",
+        "3\nHigh"
+      ],
+      "skip": 1,
+      "el": {
+        "file": "e2/interview-question.jpg",
+        "kb": 16
+      }
+    },
+    "answer_then_repeat": {
+      "text": "Good question. How quickly it compiles code and runs tools like Docker.\n\nHow much do you care about CPU performance?\nWhy this question?\n1\nLow\n2\nMedium\n3\nHigh\nSkip this question",
+      "replies": [
+        "1\nLow",
+        "2\nMedium",
+        "3\nHigh"
+      ],
+      "el": {
+        "file": "e2/interview-answer-then-repeat.jpg",
+        "kb": 21
+      }
+    },
+    "rephrase": {
+      "text": "ASKED ANOTHER WAY\n\nPut simply: would a worse CPU performance bother you?\nWhy this question?\n1\nYes, a lot\n2\nA little\n3\nNot really\nSkip this question",
+      "replies": [
+        "1\nYes, a lot",
+        "2\nA little",
+        "3\nNot really"
+      ],
+      "el": {
+        "file": "e2/interview-rephrase.jpg",
+        "kb": 19
+      }
+    },
+    "redirect": {
+      "text": "We'll use the budget from your brief when comparing prices. For now, let's stick to this one.\n\nHow much do you care about CPU performance?\nWhy this question?\n1\nLow\n2\nMedium\n3\nHigh\nSkip this question",
+      "replies": [
+        "1\nLow",
+        "2\nMedium",
+        "3\nHigh"
+      ],
+      "el": {
+        "file": "e2/interview-redirect.jpg",
+        "kb": 22
+      }
+    },
+    "skipped": {
+      "skippedQuestion": "How much do you care about CPU performance?",
+      "next": "How much do you care about memory?",
+      "page": "ShopSense\nHome\nResearch\nGet started\nCriteria\n\nQuestion 2 up to 10\n\n1 of 6 settled\nHow much do you care about memory?\nWhy this question?\n1\nLow\n2\nMedium\n3\nHigh\nSkip this question\nAnswers so far (1)\nCPU performance\nSkipped\nSkipped\nAnswer\nJump to question\nOr type your answer\nSend\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nCOMPARING ON\n1 of 6 settled\nCPU performance\nSkipped\nMemory\nNot asked yet\nBattery life\nNot asked yet\nWeight\nNot asked yet\nDisplay quality\nNot asked yet\nValue for money\nNot asked yet\n\nHow much do you care about memory?\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "shot": {
+        "file": "e2/interview-after-skip.jpg",
+        "kb": 70,
+        "quality": 70,
+        "fullPage": true
+      }
+    },
+    "finished": {
+      "text": "Your brief is ready\nANSWERED\n4\nSKIPPED\n1\nREMEMBERED\n1\nReview your brief",
+      "page": "ShopSense\nHome\nResearch\nGet started\nCriteria\nYour brief is ready\nANSWERED\n4\nSKIPPED\n1\nREMEMBERED\n1\nReview your brief\nAnswers so far (6)\nCPU performance\nSkipped\nSkipped\nAnswer\nMemory\nHigh\nAnswered\nChange\nBattery life\nHigh\nAnswered\nChange\nWeight\nRemembered: under 1.5 kg\nRemembered\nChange\nDisplay quality\nHigh\nAnswered\nChange\nValue for money\nHigh\nAnswered\nChange\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nCOMPARING ON\n6 of 6 settled\nCPU performance\nSkipped\nMemory\nHigh\nAnswered\nBattery life\nHigh\nAnswered\nWeight\nunder 1.5 kg\nRemembered\nDisplay quality\nHigh\nAnswered\nValue for money\nHigh\nAnswered\n\nYour brief is ready.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "el": {
+        "file": "e2/interview-finished.jpg",
+        "kb": 14
+      }
+    }
+  },
+  "log": []
+}

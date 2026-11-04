@@ -1,0 +1,10 @@
+C3 database off: backend A ran with DATABASE_URL set to an empty value in its own environment (the .env untouched).
+
+- GET /api/health on backend A: {"status": "ok", "schema_version": "1.2.0", "database": "off"} (d1-us01.txt, d5-search.txt)
+- The whole flow completed: intake, criteria, a 9-question interview and POST /api/search returned 200 with a valid
+  SearchResult (d5-search.txt).
+- The session reported request_saved = off (d5-search.txt: "session request_saved=off").
+- Nothing was written: backend A served 25 intake requests, and afterwards public.requests held exactly 1 row, the
+  one created by backend C in C2 (read-only count through the Supabase dashboard API, 17:58 UTC).
+- No response from backend A contained a stack trace, file path, connection string or database detail (C5; the
+  only 5xx was the whitespace-only intake, D1, whose body is the plain text "Internal Server Error").

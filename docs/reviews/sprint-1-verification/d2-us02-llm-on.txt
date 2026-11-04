@@ -1,0 +1,22 @@
+D2 US-02 against backend A (keys on, database off), 8 s between requests, 2026-11-04 17:52 UTC
+'Gaming laptop under 80k': 200 (1047 ms) by=llm category=laptop use='gaming' budget=min None max 80000.0 region=IN hard_rules=[] exclusions=[] needs_clarification=False | question=None | code parser max=80000.0 region_for=IN -> budget equals parser: True
+'gaming laptop under ₹80,000': 200 (781 ms) by=llm category=laptop use='gaming' budget=min None max 80000.0 region=IN hard_rules=[] exclusions=[] needs_clarification=False | question=None | code parser max=80000.0 region_for=IN -> budget equals parser: True
+'laptop under 1.5 lakh': 200 (812 ms) by=llm category=laptop use=None budget=min None max 150000.0 region=IN hard_rules=[] exclusions=[] needs_clarification=False | question=None | code parser max=150000.0 region_for=IN -> budget equals parser: True
+'phone 20k tak': 200 (1328 ms) by=llm category=smartphone use=None budget=min None max 20000.0 region=IN hard_rules=[] exclusions=[] needs_clarification=False | question=None | code parser max=20000.0 region_for=IN -> budget equals parser: True
+'laptop for coding': 200 (907 ms) by=llm category=laptop use='coding' budget=min None max None region=IN hard_rules=[] exclusions=[] needs_clarification=False | question=None | code parser max=None region_for=IN -> budget equals parser: True
+'watch': 200 (765 ms) by=llm category=None use=None budget=min None max None region=IN hard_rules=[] exclusions=[] needs_clarification=True | question='Which kind of watch do you mean?' | code parser max=None region_for=IN -> budget equals parser: True
+'laptop under 70k, at least 16 GB RAM, no refurbished': 200 (1485 ms) by=llm category=laptop use=None budget=min None max 70000.0 region=IN hard_rules=[(None, '>=', 16.0)] exclusions=['refurbished'] needs_clarification=False | question=None | code parser max=70000.0 region_for=IN -> budget equals parser: True
+PUT /intent {"use_case": "gaming"}: 200 {"raw_query": "laptop for coding under 70k", "category": "laptop", "category_label": "Laptop", "use_case": "gaming", "budget": {"min": null, "max": {"amount": 70000.0, "c
+PUT /intent {"budget": {"max": {"amount": 60000, "currency": "INR"}}}: 200 {"raw_query": "laptop for coding under 70k", "category": "laptop", "category_label": "Laptop", "use_case": "gaming", "budget": {"min": null, "max": {"amount": 60000.0, "c
+PUT /intent {"region": "US"}: 200 {"raw_query": "laptop for coding under 70k", "category": "laptop", "category_label": "Laptop", "use_case": "gaming", "budget": {"min": null, "max": {"amount": 60000.0, "c
+PUT /intent {"budget": {"max": {"amount": -5, "currency": "INR"}}}: 422 {"detail": "That change doesn't work: budget.max.amount - Input should be greater than or equal to 0."}
+PUT /intent {"category": "smartphone"}: 200 {"raw_query": "laptop for coding under 70k", "category": "smartphone", "category_label": "Laptop", "use_case": "gaming", "budget": {"min": null, "max": {"amount": 60000.0
+PUT /intent {"hard_rules": [{"criterion": "ram", "op": ">=", "value": 16}]}: 422 {"detail": "That change doesn't work: hard_rules.0.attribute - Field required."}
+PUT /intent {"exclusions": ["refurbished"]}: 422 {"detail": "That change doesn't work: exclusions.0 - Input should be a valid dictionary or instance of Exclusion."}
+GET session after edits: use='gaming' budget={"min": null, "max": {"amount": 60000.0, "currency": "INR"}} region=US category=smartphone
+
+non-2xx responses seen: 3
+  422 PUT /api/presearch/sess_111068c541369b43fb8d2f5f/intent: shape ok; leak none; detail={"detail": "That change doesn't work: budget.max.amount - Input should be greater than or equal to 0."}
+  422 PUT /api/presearch/sess_111068c541369b43fb8d2f5f/intent: shape ok; leak none; detail={"detail": "That change doesn't work: hard_rules.0.attribute - Field required."}
+  422 PUT /api/presearch/sess_111068c541369b43fb8d2f5f/intent: shape ok; leak none; detail={"detail": "That change doesn't work: exclusions.0 - Input should be a valid dictionary or instance of Exclusion."}
+error-shape or leak problems: 0

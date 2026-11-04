@@ -1,0 +1,25 @@
+18:30:58Z cli home round 1 cpu-load-before 8% node/chrome/python processes 28
+18:31:34Z cli home round 1 exit 0
+18:31:34Z cli research round 1 cpu-load-before 26% node/chrome/python processes 28
+18:32:03Z cli research round 1 exit 0
+18:32:03Z cli results round 1 cpu-load-before 10% node/chrome/python processes 28
+18:32:32Z cli results round 1 exit 0
+18:32:33Z cli home round 2 cpu-load-before 32% node/chrome/python processes 28
+18:33:04Z cli home round 2 exit 0
+18:33:04Z cli research round 2 cpu-load-before 5% node/chrome/python processes 28
+18:33:33Z cli research round 2 exit 0
+18:33:34Z cli results round 2 cpu-load-before 33% node/chrome/python processes 28
+18:34:04Z cli results round 2 exit 0
+18:34:04Z cli home round 3 cpu-load-before 16% node/chrome/python processes 28
+18:34:35Z cli home round 3 exit 0
+18:34:35Z cli research round 3 cpu-load-before 27% node/chrome/python processes 28
+18:35:05Z cli research round 3 exit 0
+18:35:05Z cli results round 3 cpu-load-before 51% node/chrome/python processes 27
+18:35:34Z cli results round 3 exit 0
+18:35:34Z flow round 1 cpu-load-before 10% node/chrome/python processes 28
+18:36:23Z flow round 1 exit 0
+18:36:24Z flow round 2 cpu-load-before 3% node/chrome/python processes 28
+18:37:13Z flow round 2 exit 0
+18:37:13Z flow round 3 cpu-load-before 18% node/chrome/python processes 27
+18:38:03Z flow round 3 exit 0
+done

@@ -1,0 +1,1456 @@
+{
+  "out": {
+    "pageNow": "2026-11-04T17:46:51.289Z",
+    "success": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [
+        {
+          "name": "Rank 1: Sample laptop A",
+          "text": "BEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10",
+          "links": [
+            {
+              "text": "View at Sample Store One\n(opens in a new tab)",
+              "href": "https://example.com/sample-product"
+            }
+          ]
+        },
+        {
+          "name": "Rank 2: Sample laptop B",
+          "text": "Rank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10",
+          "links": []
+        },
+        {
+          "name": "Rank 3: Sample laptop C",
+          "text": "Rank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10",
+          "links": []
+        }
+      ],
+      "rows": [
+        {
+          "product": "Sample laptop A",
+          "label": "CPU performance",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Memory",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Battery life",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Weight",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Display quality",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Value for money",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "CPU performance",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Memory",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Battery life",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Weight",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Display quality",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Value for money",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "CPU performance",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Memory",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Battery life",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Weight",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Display quality",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Value for money",
+          "value": "Sample rating 8 / 10"
+        }
+      ],
+      "shot": {
+        "file": "e2/results-success.jpg",
+        "kb": 202,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page."
+      ],
+      "noticeShot": {
+        "file": "e2/el-success-notices.jpg",
+        "kb": 4
+      }
+    },
+    "tie": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank =2:\nSample laptop B\n#=2\nScore 79\nTied with Sample laptop C\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank =2:\nSample laptop C\n#=2\nScore 79\nTied with Sample laptop B\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [
+        {
+          "name": "Rank 1: Sample laptop A",
+          "text": "BEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10",
+          "links": [
+            {
+              "text": "View at Sample Store One\n(opens in a new tab)",
+              "href": "https://example.com/sample-product"
+            }
+          ]
+        },
+        {
+          "name": "Rank =2: Sample laptop B",
+          "text": "Rank =2:\nSample laptop B\n#=2\nScore 79\nTied with Sample laptop C\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10",
+          "links": []
+        },
+        {
+          "name": "Rank =2: Sample laptop C",
+          "text": "Rank =2:\nSample laptop C\n#=2\nScore 79\nTied with Sample laptop B\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10",
+          "links": []
+        }
+      ],
+      "rows": [
+        {
+          "product": "Sample laptop A",
+          "label": "CPU performance",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Memory",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Battery life",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Weight",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Display quality",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Value for money",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "CPU performance",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Memory",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Battery life",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Weight",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Display quality",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Value for money",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "CPU performance",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Memory",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Battery life",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Weight",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Display quality",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Value for money",
+          "value": "Sample rating 8 / 10"
+        }
+      ],
+      "shot": {
+        "file": "e2/results-tie.jpg",
+        "kb": 205,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page."
+      ],
+      "noticeShot": {
+        "file": "e2/el-tie-notices.jpg",
+        "kb": 4
+      },
+      "el": {
+        "file": "e2/el-tie-card-b.jpg",
+        "kb": 5
+      },
+      "el2": {
+        "file": "e2/el-tie-card-c.jpg",
+        "kb": 5
+      }
+    },
+    "disputed": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nMedium confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSources disagree\nSample Store One listing: 16 GB\nSample maker spec sheet: 8 GB\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [
+        {
+          "name": "Rank 1: Sample laptop A",
+          "text": "BEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nMedium confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSources disagree\nSample Store One listing: 16 GB\nSample maker spec sheet: 8 GB\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10",
+          "links": [
+            {
+              "text": "View at Sample Store One\n(opens in a new tab)",
+              "href": "https://example.com/sample-product"
+            }
+          ]
+        },
+        {
+          "name": "Rank 2: Sample laptop B",
+          "text": "Rank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10",
+          "links": []
+        },
+        {
+          "name": "Rank 3: Sample laptop C",
+          "text": "Rank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10",
+          "links": []
+        }
+      ],
+      "rows": [
+        {
+          "product": "Sample laptop A",
+          "label": "CPU performance",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Memory",
+          "value": "Sources disagree\nSample Store One listing: 16 GB\nSample maker spec sheet: 8 GB"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "16 GB",
+          "value": ""
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "8 GB",
+          "value": ""
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Battery life",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Weight",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Display quality",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Value for money",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "CPU performance",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Memory",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Battery life",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Weight",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Display quality",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Value for money",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "CPU performance",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Memory",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Battery life",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Weight",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Display quality",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Value for money",
+          "value": "Sample rating 8 / 10"
+        }
+      ],
+      "shot": {
+        "file": "e2/results-disputed.jpg",
+        "kb": 207,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page."
+      ],
+      "noticeShot": {
+        "file": "e2/el-disputed-notices.jpg",
+        "kb": 4
+      },
+      "disputedRow": "Memory\nSources disagree\nSample Store One listing: 16 GB\nSample maker spec sheet: 8 GB",
+      "disputedSources": [
+        "Sample Store One listing: 16 GB",
+        "Sample maker spec sheet: 8 GB"
+      ],
+      "el": {
+        "file": "e2/el-disputed-row.jpg",
+        "kb": 6
+      }
+    },
+    "unknown": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 5 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nNot verified\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 5 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nNot verified\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 5 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nNot verified\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [
+        {
+          "name": "Rank 1: Sample laptop A",
+          "text": "BEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 5 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nNot verified",
+          "links": [
+            {
+              "text": "View at Sample Store One\n(opens in a new tab)",
+              "href": "https://example.com/sample-product"
+            }
+          ]
+        },
+        {
+          "name": "Rank 2: Sample laptop B",
+          "text": "Rank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 5 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nNot verified",
+          "links": []
+        },
+        {
+          "name": "Rank 3: Sample laptop C",
+          "text": "Rank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 5 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nNot verified",
+          "links": []
+        }
+      ],
+      "rows": [
+        {
+          "product": "Sample laptop A",
+          "label": "CPU performance",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Memory",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Battery life",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Weight",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Display quality",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Value for money",
+          "value": "Not verified"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "CPU performance",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Memory",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Battery life",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Weight",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Display quality",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Value for money",
+          "value": "Not verified"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "CPU performance",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Memory",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Battery life",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Weight",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Display quality",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Value for money",
+          "value": "Not verified"
+        }
+      ],
+      "shot": {
+        "file": "e2/results-unknown.jpg",
+        "kb": 203,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page."
+      ],
+      "noticeShot": {
+        "file": "e2/el-unknown-notices.jpg",
+        "kb": 4
+      },
+      "unknownCount": 3,
+      "el": {
+        "file": "e2/el-unknown-row.jpg",
+        "kb": 3
+      }
+    },
+    "estimated": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nAbout 9 hours (sample estimate)\nEstimated\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [
+        {
+          "name": "Rank 1: Sample laptop A",
+          "text": "BEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nAbout 9 hours (sample estimate)\nEstimated\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10",
+          "links": [
+            {
+              "text": "View at Sample Store One\n(opens in a new tab)",
+              "href": "https://example.com/sample-product"
+            }
+          ]
+        },
+        {
+          "name": "Rank 2: Sample laptop B",
+          "text": "Rank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10",
+          "links": []
+        },
+        {
+          "name": "Rank 3: Sample laptop C",
+          "text": "Rank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10",
+          "links": []
+        }
+      ],
+      "rows": [
+        {
+          "product": "Sample laptop A",
+          "label": "CPU performance",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Memory",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Battery life",
+          "value": "About 9 hours (sample estimate)\nEstimated"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Weight",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Display quality",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Value for money",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "CPU performance",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Memory",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Battery life",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Weight",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Display quality",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Value for money",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "CPU performance",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Memory",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Battery life",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Weight",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Display quality",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Value for money",
+          "value": "Sample rating 8 / 10"
+        }
+      ],
+      "shot": {
+        "file": "e2/results-estimated.jpg",
+        "kb": 204,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page."
+      ],
+      "noticeShot": {
+        "file": "e2/el-estimated-notices.jpg",
+        "kb": 4
+      },
+      "estimatedRow": "Battery life\nAbout 9 hours (sample estimate)\nEstimated",
+      "el": {
+        "file": "e2/el-estimated-row.jpg",
+        "kb": 5
+      },
+      "firstCardMeta": "High confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value"
+    },
+    "stale": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nOld price, checked 19 Oct, 7:35 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nOld price, checked 19 Oct, 7:35 pm\n\n₹71,990\n\nSample Store Two\n\nOld price, checked 19 Oct, 7:35 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [
+        {
+          "name": "Rank 1: Sample laptop A",
+          "text": "BEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nOld price, checked 19 Oct, 7:35 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10",
+          "links": [
+            {
+              "text": "View at Sample Store One\n(opens in a new tab)",
+              "href": "https://example.com/sample-product"
+            }
+          ]
+        },
+        {
+          "name": "Rank 2: Sample laptop B",
+          "text": "Rank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nOld price, checked 19 Oct, 7:35 pm\n\n₹71,990\n\nSample Store Two\n\nOld price, checked 19 Oct, 7:35 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10",
+          "links": []
+        },
+        {
+          "name": "Rank 3: Sample laptop C",
+          "text": "Rank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10",
+          "links": []
+        }
+      ],
+      "rows": [
+        {
+          "product": "Sample laptop A",
+          "label": "CPU performance",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Memory",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Battery life",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Weight",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Display quality",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Value for money",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "CPU performance",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Memory",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Battery life",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Weight",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Display quality",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Value for money",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "CPU performance",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Memory",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Battery life",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Weight",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Display quality",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Value for money",
+          "value": "Sample rating 8 / 10"
+        }
+      ],
+      "shot": {
+        "file": "e2/results-stale.jpg",
+        "kb": 207,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page."
+      ],
+      "noticeShot": {
+        "file": "e2/el-stale-notices.jpg",
+        "kb": 4
+      },
+      "el": {
+        "file": "e2/el-stale-offers-a.jpg",
+        "kb": 11
+      },
+      "el2": {
+        "file": "e2/el-stale-offers-b.jpg",
+        "kb": 10
+      }
+    },
+    "no-offer": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nValue not worked out: No price was found, so value can't be worked out.\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nNo price found\n\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [
+        {
+          "name": "Rank 1: Sample laptop A",
+          "text": "BEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10",
+          "links": [
+            {
+              "text": "View at Sample Store One\n(opens in a new tab)",
+              "href": "https://example.com/sample-product"
+            }
+          ]
+        },
+        {
+          "name": "Rank 2: Sample laptop B",
+          "text": "Rank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nValue not worked out: No price was found, so value can't be worked out.\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nNo price found\n\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10",
+          "links": []
+        },
+        {
+          "name": "Rank 3: Sample laptop C",
+          "text": "Rank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10",
+          "links": []
+        }
+      ],
+      "rows": [
+        {
+          "product": "Sample laptop A",
+          "label": "CPU performance",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Memory",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Battery life",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Weight",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Display quality",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Value for money",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "CPU performance",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Memory",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Battery life",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Weight",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Display quality",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Value for money",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "CPU performance",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Memory",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Battery life",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Weight",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Display quality",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Value for money",
+          "value": "Sample rating 8 / 10"
+        }
+      ],
+      "shot": {
+        "file": "e2/results-no-offer.jpg",
+        "kb": 199,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page."
+      ],
+      "noticeShot": {
+        "file": "e2/el-no-offer-notices.jpg",
+        "kb": 4
+      },
+      "noOfferSection": "STORE OFFERS\n\nNo price found",
+      "noOfferLinks": 0,
+      "el": {
+        "file": "e2/el-no-offer-b.jpg",
+        "kb": 2
+      }
+    },
+    "left-out": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\nLeft out (2)\nSample laptop D\nOver your budget at every store checked.\nSample laptop E\nMatches something you asked to leave out.\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [
+        {
+          "name": "Rank 1: Sample laptop A",
+          "text": "BEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10",
+          "links": [
+            {
+              "text": "View at Sample Store One\n(opens in a new tab)",
+              "href": "https://example.com/sample-product"
+            }
+          ]
+        },
+        {
+          "name": "Rank 2: Sample laptop B",
+          "text": "Rank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10",
+          "links": []
+        },
+        {
+          "name": "Rank 3: Sample laptop C",
+          "text": "Rank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10",
+          "links": []
+        }
+      ],
+      "rows": [
+        {
+          "product": "Sample laptop A",
+          "label": "CPU performance",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Memory",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Battery life",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Weight",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Display quality",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Value for money",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "CPU performance",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Memory",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Battery life",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Weight",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Display quality",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Value for money",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "CPU performance",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Memory",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Battery life",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Weight",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Display quality",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Value for money",
+          "value": "Sample rating 8 / 10"
+        }
+      ],
+      "shot": {
+        "file": "e2/results-left-out.jpg",
+        "kb": 212,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page."
+      ],
+      "noticeShot": {
+        "file": "e2/el-left-out-notices.jpg",
+        "kb": 4
+      },
+      "leftOut": "Left out (2)\nSample laptop D\nOver your budget at every store checked.\nSample laptop E\nMatches something you asked to leave out.",
+      "el": {
+        "file": "e2/el-left-out-left-out.jpg",
+        "kb": 10
+      }
+    },
+    "couldnt-check": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\nCouldn't check (1)\nSample laptop F\nStore pages didn't list its specs.\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [
+        {
+          "name": "Rank 1: Sample laptop A",
+          "text": "BEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10",
+          "links": [
+            {
+              "text": "View at Sample Store One\n(opens in a new tab)",
+              "href": "https://example.com/sample-product"
+            }
+          ]
+        },
+        {
+          "name": "Rank 2: Sample laptop B",
+          "text": "Rank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10",
+          "links": []
+        },
+        {
+          "name": "Rank 3: Sample laptop C",
+          "text": "Rank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10",
+          "links": []
+        }
+      ],
+      "rows": [
+        {
+          "product": "Sample laptop A",
+          "label": "CPU performance",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Memory",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Battery life",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Weight",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Display quality",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Value for money",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "CPU performance",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Memory",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Battery life",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Weight",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Display quality",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Value for money",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "CPU performance",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Memory",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Battery life",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Weight",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Display quality",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop C",
+          "label": "Value for money",
+          "value": "Sample rating 8 / 10"
+        }
+      ],
+      "shot": {
+        "file": "e2/results-couldnt-check.jpg",
+        "kb": 209,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page."
+      ],
+      "noticeShot": {
+        "file": "e2/el-couldnt-check-notices.jpg",
+        "kb": 4
+      },
+      "couldntCheck": "Couldn't check (1)\nSample laptop F\nStore pages didn't list its specs.",
+      "couldntCheckLinks": 0,
+      "el": {
+        "file": "e2/el-couldnt-check.jpg",
+        "kb": 7
+      }
+    },
+    "partial": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 2 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nSample note: only two of the stores could be checked, so some options may be missing.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [
+        {
+          "name": "Rank 1: Sample laptop A",
+          "text": "BEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10",
+          "links": [
+            {
+              "text": "View at Sample Store One\n(opens in a new tab)",
+              "href": "https://example.com/sample-product"
+            }
+          ]
+        },
+        {
+          "name": "Rank 2: Sample laptop B",
+          "text": "Rank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10",
+          "links": []
+        }
+      ],
+      "rows": [
+        {
+          "product": "Sample laptop A",
+          "label": "CPU performance",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Memory",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Battery life",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Weight",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Display quality",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop A",
+          "label": "Value for money",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "CPU performance",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Memory",
+          "value": "Sample rating 7 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Battery life",
+          "value": "Sample rating 6 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Weight",
+          "value": "Sample rating 9 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Display quality",
+          "value": "Sample rating 8 / 10"
+        },
+        {
+          "product": "Sample laptop B",
+          "label": "Value for money",
+          "value": "Sample rating 7 / 10"
+        }
+      ],
+      "shot": {
+        "file": "e2/results-partial.jpg",
+        "kb": 161,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page.",
+        "Sample note: only two of the stores could be checked, so some options may be missing."
+      ],
+      "noticeShot": {
+        "file": "e2/el-partial-notices.jpg",
+        "kb": 9
+      },
+      "shot1440": {
+        "file": "e2/results-partial-top-1440.jpg",
+        "kb": 75,
+        "quality": 70,
+        "fullPage": false
+      },
+      "shot390": {
+        "file": "e2/results-partial-top-390.jpg",
+        "kb": 34,
+        "quality": 70,
+        "fullPage": false
+      },
+      "position": {
+        "390": {
+          "noteTop": 340,
+          "noteBottom": 380,
+          "bestMatchTop": 432,
+          "viewportHeight": 844,
+          "inFirstScreen": true,
+          "aboveProducts": true
+        },
+        "1440": {
+          "noteTop": 306,
+          "noteBottom": 326,
+          "bestMatchTop": 378,
+          "viewportHeight": 900,
+          "inFirstScreen": true,
+          "aboveProducts": true
+        }
+      },
+      "noteStyle": {
+        "background": "oklch(0.935 0.028 62)",
+        "color": "oklch(0.47 0.075 50)",
+        "fontSize": "14px"
+      }
+    },
+    "relaxation": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. No options matched.\n\nThis result isn't saved. It will be gone if you close this page.\n\nSample hint: no option met every must-have. Loosening one may help. Must-have: Budget: Up to ₹70,000\n\nChange must-haves\n\nNo option matched your brief this time.\n\nLeft out (1)\nSample laptop D\nDoesn't meet a must-have.\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [],
+      "rows": [],
+      "shot": {
+        "file": "e2/results-relaxation.jpg",
+        "kb": 78,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page.",
+        "Sample hint: no option met every must-have. Loosening one may help. Must-have: Budget: Up to ₹70,000\n\nChange must-haves"
+      ],
+      "noticeShot": {
+        "file": "e2/el-relaxation-notices.jpg",
+        "kb": 11
+      },
+      "leftOut": "Left out (1)\nSample laptop D\nDoesn't meet a must-have.",
+      "el": {
+        "file": "e2/el-relaxation-left-out.jpg",
+        "kb": 6
+      }
+    },
+    "empty": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. No options matched.\n\nThis result isn't saved. It will be gone if you close this page.\n\nNo option matched your brief this time.\n\nLeft out (1)\nSample laptop D\nDoesn't meet a must-have.\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nCPU performance\nFrom your answer\n18%\nMemory\nFrom your answer\n18%\nBattery life\nFrom your answer\n18%\nDisplay quality\nFrom your answer\n17%\nValue for money\nFrom your answer\n17%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "cards": [],
+      "rows": [],
+      "shot": {
+        "file": "e2/results-empty.jpg",
+        "kb": 71,
+        "quality": 70,
+        "fullPage": true
+      },
+      "notices": [
+        "This result isn't saved. It will be gone if you close this page."
+      ],
+      "noticeShot": {
+        "file": "e2/el-empty-notices.jpg",
+        "kb": 4
+      },
+      "leftOut": "Left out (1)\nSample laptop D\nDoesn't meet a must-have.",
+      "el": {
+        "file": "e2/el-empty-left-out.jpg",
+        "kb": 6
+      }
+    },
+    "network-error": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResearching laptops for you\n\nWe lost the connection while researching. Your brief is safe.\n\nTry again\nBack to your brief\nYour brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "shot": {
+        "file": "e2/results-network-error.jpg",
+        "kb": 46,
+        "quality": 70,
+        "fullPage": true
+      }
+    },
+    "network-retry-after": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    "timeout": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nResearching laptops for you\n\nResearch took too long. Your brief is safe. Try again, or try again later.\n\nTry again\nBack to your brief\nYour brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "shot": {
+        "file": "e2/results-timeout.jpg",
+        "kb": 46,
+        "quality": 70,
+        "fullPage": true
+      }
+    },
+    "gone": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nThese results aren't here any more\n\nResults are only kept while this page is open. Your brief is still saved.\n\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "shot": {
+        "file": "e2/results-gone-after-reload.jpg",
+        "kb": 42,
+        "quality": 70,
+        "fullPage": true
+      }
+    },
+    "missing": {
+      "text": "ShopSense\nHome\nResearch\nGet started\nWe couldn't find this search\n\nIt may have expired when the browser tab was closed. Start again by telling us what you're shopping for.\n\nDescribe what you need\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.",
+      "shot": {
+        "file": "e2/results-search-not-found.jpg",
+        "kb": 39,
+        "quality": 70,
+        "fullPage": true
+      }
+    }
+  },
+  "log": []
+}

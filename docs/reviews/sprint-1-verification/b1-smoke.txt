@@ -1,0 +1,24 @@
+B1 smoke test, as docs/api-setup.md documents it, 2026-11-04 17:42 UTC. Fixed public prompt; keys never printed.
+$ python -m scripts.smoke_apis --only groq,gemini,openrouter,cerebras,mistral
+service      status    latency  note
+groq         ok        1266 ms  openai/gpt-oss-120b (replied only with 200 output tokens: it reasons first)
+gemini       ok        2781 ms  gemini-3.5-flash (replied only with 200 output tokens: it reasons first)
+openrouter   ok        3610 ms  nvidia/nemotron-3.5-lightning:free (replied only with 200 output tokens: it reasons first)
+cerebras     failed     718 ms  cerebras: HTTP 402 (the account needs a plan or credits)
+mistral      ok         454 ms  ministral-8b-latest
+
+groq rate-limit headers:
+  x-ratelimit-limit-requests: 1000
+  x-ratelimit-limit-tokens: 8000
+  x-ratelimit-remaining-requests: 998
+  x-ratelimit-remaining-tokens: 7669
+  x-ratelimit-reset-requests: 2m52.8s
+  x-ratelimit-reset-tokens: 2.482s
+
+mistral rate-limit headers:
+  x-ratelimit-limit-req-minute: 188
+  x-ratelimit-limit-tokens-minute: 625000
+  x-ratelimit-remaining-req-minute: 187
+  x-ratelimit-remaining-tokens-minute: 624976
+  x-ratelimit-tokens-query-cost: 24
+exit 1

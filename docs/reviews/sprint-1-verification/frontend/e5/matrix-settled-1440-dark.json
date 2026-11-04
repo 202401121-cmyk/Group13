@@ -1,0 +1,1183 @@
+{
+  "mode": "settled",
+  "config": {
+    "width": 1440,
+    "height": 900,
+    "theme": "dark"
+  },
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21aa",
+    "wcag22aa"
+  ],
+  "rows": [
+    {
+      "state": "home",
+      "url": "http://localhost:3110/",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 18,
+      "smallTargets": [],
+      "sideways": [
+        "div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px"
+      ],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 51,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nAI-POWERED SHOPPING RESEARCH\nFind the right product, with evidence.\nFind the right product,\nwith evidence.\n\nStop jumping between reviews, product pages and comparison videos. ShopSense researches products against your needs, compares the differences that matter and shows where every fact came from.\nStop jumping between reviews, product pages and \n\nStart researching\nSee how it works\nLINKED TO ITS SOURCE\nEvery fact\nEvery fact\nCHECKED BEFORE YOU BUY\nPrices\nPrices\nSTATED, NOT HIDDEN\nTrade-offs\nTrade-offs\n\nHOW IT WORKS\n\nBetter research. Clearer decisions.\nBetter research. Clearer decisions.\n\nThree steps from a vague need to a decision you can defend — with the evidence one click away.\nThree steps from a vague need to a decision you c\n\nSTEP 01\nTell us what matters\nTell us what matters\n\nDescribe what you need, your budget and the features you care about — in your own words.\n\nSTEP 02\nResearch and compare\nResearch and compare\n\nWe read reviews, Reddit and stores, then compare the real trade-offs against your criteria.\n\nSTEP 03\nChoose with confidence\nChoose with confidence\n\nGet a clear best match, the reasons behind it, and a source for every fact.\n\nWORKFLOW ILLUSTRATION · NOT LIVE RESEARCH\n\nIntake\nResearch\nVerify\nMatch\nDecide\nWhat are you looking for?\n\nStart with a product, a problem or a budget. Refine the details as you go.\n\nDescribe what you're looking for\n\nYou'll be able to refine your criteria in the next step.\n\nStart my research\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "home, empty request error",
+      "url": "http://localhost:3110/",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 18,
+      "smallTargets": [],
+      "sideways": [
+        "div.pointer-events-none absolute inset-0 bg- spans -43..1458 of 1440px"
+      ],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 52,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nAI-POWERED SHOPPING RESEARCH\nFind the right product, with evidence.\nFind the right product,\nwith evidence.\n\nStop jumping between reviews, product pages and comparison videos. ShopSense researches products against your needs, compares the differences that matter and shows where every fact came from.\nStop jumping between reviews, product pages and comparison videos. ShopSense researches products against your needs, compares the differences that matter and shows where every fact came from.\n\nStart researching\nSee how it works\nLINKED TO ITS SOURCE\nEvery fact\nEvery fact\nCHECKED BEFORE YOU BUY\nPrices\nPrices\nSTATED, NOT HIDDEN\nTrade-offs\nTrade-offs\n\nHOW IT WORKS\n\nBetter research. Clearer decisions.\nBetter research. Clearer decisions.\n\nThree steps from a vague need to a decision you can defend — with the evidence one click away.\nThree steps from a vague need to a decision you can defend — with the evidence one click away.\n\nSTEP 01\nTell us what matters\nTell us what matters\n\nDescribe what you need, your budget and the features you care about — in your own words.\n\nSTEP 02\nResearch and compare\nResearch and compare\n\nWe read reviews, Reddit and stores, then compare the real trade-offs against your criteria.\n\nSTEP 03\nChoose with confidence\nChoose with confidence\n\nGet a clear best match, the reasons behind it, and a source for every fact.\n\nWORKFLOW ILLUSTRATION · NOT LIVE RESEARCH\n\nIntake\nResearch\nVerify\nMatch\nDecide\nWhat are you looking for?\n\nStart with a product, a problem or a budget. Refine the details as you go.\n\nDescribe what you're looking for\n\nTell us a little about what you're looking for first.\n\nYou'll be able to refine your criteria in the next step.\n\nStart my research\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "about",
+      "url": "http://localhost:3110/about",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 14,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 20,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\n\nCOMING SOON\n\nAbout ShopSense\n\nShopSense helps you research products against your needs and buy with evidence.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "contact",
+      "url": "http://localhost:3110/contact",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 14,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 20,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\n\nCOMING SOON\n\nContact\n\nA way to reach the ShopSense team is on its way.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "faq",
+      "url": "http://localhost:3110/faq",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 14,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 20,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\n\nCOMING SOON\n\nFAQ\n\nAnswers to common questions are on their way.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "features",
+      "url": "http://localhost:3110/features",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 14,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 20,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\n\nCOMING SOON\n\nFeatures\n\nA closer look at what ShopSense does is on its way.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "privacy",
+      "url": "http://localhost:3110/privacy",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 14,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 34,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nPrivacy\n\nShopSense is a student project. Here is exactly what it keeps when you search.\n\nWhat we save\n\nWhen you send a request, the ShopSense server saves one record with:\n\nwhat you typed, exactly as you typed it;\na session ID: a random code that links the steps of one search;\nwhat we understood (the product, what it's for, your budget, must-haves and things to leave out), once it was clear enough to research;\nwhether our AI or our simple keyword rules worked that out;\nwhen it was saved.\n\nWe use these records to learn what people really ask for and to test ShopSense. Only the ShopSense server can read them.\n\nWhat we don't save\n\nYou don't need an account. We never ask for your name, email address or a password, and we don't save your IP address or which browser you use.\n\nWhile you search\n\nThe server keeps your answers to our questions in its memory, not in the database. They are deleted 2 hours after your last step.\n\nTo understand your request, we may send it to an AI service that does not use it to train its models. We never send it to one that might.\n\nIn your browser\n\nYour brief and your answers are kept in this browser tab, so reloading the page doesn't lose them. They are gone when you close the tab. Your light or dark theme choice is kept in this browser.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "old /criteria link, no brief",
+      "url": "http://localhost:3110/criteria",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 15,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 20,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nNo brief yet\n\nTell us what you're shopping for first.\n\nDescribe what you need\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "page not found",
+      "url": "http://localhost:3110/no-such-page",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 1,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 4,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "404\nPage not found\n\nThe page you're looking for doesn't exist or has been moved.\n\nGo home"
+    },
+    {
+      "state": "research, empty",
+      "url": "http://localhost:3110/research",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 20,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 31,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nWhat are you shopping for?\n\nDescribe it in your own words: what it's for, your budget, anything you don't want.\n\nYour request\n\n0 of 1,000 characters\n\nEnter to continue · Shift + Enter for a new line\n\nContinue\n\nOr start from an example\n\nLaptop for coding under ₹70,000\nEarbuds for the gym under ₹3,000\nPram for a newborn\nPhone with a good camera under ₹30,000\n\nShopSense reads reviews, Reddit and stores, and shows where every fact came from.\n\nYour brief\n\nNothing yet. Details appear here as we understand your request.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "research, empty request error",
+      "url": "http://localhost:3110/research",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 20,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 33,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nWhat are you shopping for?\n\nDescribe it in your own words: what it's for, your budget, anything you don't want.\n\nYour request\n\n⚠\nType what you're looking for first.\n\n0 of 1,000 characters\n\nEnter to continue · Shift + Enter for a new line\n\nContinue\n\nOr start from an example\n\nLaptop for coding under ₹70,000\nEarbuds for the gym under ₹3,000\nPram for a newborn\nPhone with a good camera under ₹30,000\n\nShopSense reads reviews, Reddit and stores, and shows where every fact came from.\n\nYour brief\n\nNothing yet. Details appear here as we understand your request.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "research, understood",
+      "url": "http://localhost:3110/research",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 22,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 52,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nHere's what we understood\n\nCheck the details and fix anything we got wrong.\n\nProduct\nLaptop\nEdit\nUsed for\nCoding\nEdit\nBudget\nUp to ₹70,000\nEdit\nRegion\nIndia\nEdit\nMust-haves\nNo must-haves given\nAdd\nLeave out\nNone specified\nAdd\nLooks right\nStart over\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\n\nHere's what we understood.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "research, editing the budget",
+      "url": "http://localhost:3110/research",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 25,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 57,
+        "unparsed": 0,
+        "below45": [
+          {
+            "text": "Edit",
+            "ratio": 2.2,
+            "fg": "rgb(77,102,86)",
+            "bg": "rgb(35,48,40)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.4
+          },
+          {
+            "text": "Edit",
+            "ratio": 2.2,
+            "fg": "rgb(77,102,86)",
+            "bg": "rgb(35,48,40)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.4
+          },
+          {
+            "text": "Edit",
+            "ratio": 2.2,
+            "fg": "rgb(77,102,86)",
+            "bg": "rgb(35,48,40)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.4
+          },
+          {
+            "text": "Add",
+            "ratio": 2.2,
+            "fg": "rgb(77,102,86)",
+            "bg": "rgb(35,48,40)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.4
+          },
+          {
+            "text": "Add",
+            "ratio": 2.2,
+            "fg": "rgb(77,102,86)",
+            "bg": "rgb(35,48,40)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.4
+          },
+          {
+            "text": "Looks right",
+            "ratio": 2.63,
+            "fg": "rgb(78,107,88)",
+            "bg": "rgb(141,183,154)",
+            "size": 16,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.5
+          }
+        ],
+        "minBelow45": 2.2
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nHere's what we understood\n\nCheck the details and fix anything we got wrong.\n\nProduct\nLaptop\nEdit\nUsed for\nCoding\nEdit\nBudget\nFrom\n₹\nUp to\n₹\n\nLeave From empty if you only have a limit.\n\nSave\nCancel\nRegion\nIndia\nEdit\nMust-haves\nNo must-haves given\nAdd\nLeave out\nNone specified\nAdd\nLooks right\nStart over\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "research, budget error",
+      "url": "http://localhost:3110/research",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 25,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 59,
+        "unparsed": 0,
+        "below45": [
+          {
+            "text": "Edit",
+            "ratio": 2.2,
+            "fg": "rgb(77,102,86)",
+            "bg": "rgb(35,48,40)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.4
+          },
+          {
+            "text": "Edit",
+            "ratio": 2.2,
+            "fg": "rgb(77,102,86)",
+            "bg": "rgb(35,48,40)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.4
+          },
+          {
+            "text": "Edit",
+            "ratio": 2.2,
+            "fg": "rgb(77,102,86)",
+            "bg": "rgb(35,48,40)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.4
+          },
+          {
+            "text": "Add",
+            "ratio": 2.2,
+            "fg": "rgb(77,102,86)",
+            "bg": "rgb(35,48,40)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.4
+          },
+          {
+            "text": "Add",
+            "ratio": 2.2,
+            "fg": "rgb(77,102,86)",
+            "bg": "rgb(35,48,40)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.4
+          },
+          {
+            "text": "Looks right",
+            "ratio": 2.63,
+            "fg": "rgb(78,107,88)",
+            "bg": "rgb(141,183,154)",
+            "size": 16,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.5
+          }
+        ],
+        "minBelow45": 2.2
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nHere's what we understood\n\nCheck the details and fix anything we got wrong.\n\nProduct\nLaptop\nEdit\nUsed for\nCoding\nEdit\nBudget\nFrom\n₹\nUp to\n₹\n\nLeave From empty if you only have a limit.\n\n⚠ From can't be more than Up to.\n\nSave\nCancel\nRegion\nIndia\nEdit\nMust-haves\nNo must-haves given\nAdd\nLeave out\nNone specified\nAdd\nLooks right\nStart over\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "research, understood by the backup reader",
+      "url": "http://localhost:3110/research",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 22,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 53,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nHere's what we understood\n\nCheck the details and fix anything we got wrong.\n\nOur backup reader filled this in. Please check it.\n\nProduct\nLaptop\nEdit\nUsed for\nNo use given\nAdd\nBudget\nUp to ₹50,000\nEdit\nRegion\nIndia\nEdit\nMust-haves\nNo must-haves given\nAdd\nLeave out\nNone specified\nAdd\nLooks right\nStart over\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nNot given\nBUDGET\nUp to ₹50,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\n\nHere's what we understood.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "research, follow-up question",
+      "url": "http://localhost:3110/research",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 20,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 31,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nWhat are you shopping for?\n\nDescribe it in your own words: what it's for, your budget, anything you don't want.\n\nYOU ASKED\n\n\"a gift for my mom\"\n\nWhat kind of thing are you thinking of for your mom?\n\nPick one so we don't have to guess.\n\nSkincare\nPhone\nHandbag\nHealth product\nSomething else\nChange my request instead\nYour brief\n\nNothing yet. Details appear here as we understand your request.\n\nWe need one more detail.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "research, examples",
+      "url": "http://localhost:3110/research",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 19,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 29,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nWhat are you shopping for?\n\nDescribe it in your own words: what it's for, your budget, anything you don't want.\n\nWe couldn't tell what kind of product you mean\n\nPick an example to start from, or describe the product in a few words.\n\nExamples\n\nLaptop for coding under ₹70,000\nEarbuds for the gym under ₹3,000\nPram for a newborn\nPhone with a good camera under ₹30,000\nDescribe it in my own words\nYour brief\n\nNothing yet. Details appear here as we understand your request.\n\nWe couldn't tell what kind of product you mean.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "research, network error",
+      "url": "http://localhost:3110/research",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 16,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 27,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nWhat are you shopping for?\n\nDescribe it in your own words: what it's for, your budget, anything you don't want.\n\nYOU ASKED\n\n\"laptop network error test\"\n\nSomething went wrong\n\nWe couldn't reach ShopSense. Check your connection and try again.\n\nRetry\nEdit request\nYour brief\n\nNothing yet. Details appear here as we understand your request.\n\nSomething went wrong. You can retry.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "criteria, ready",
+      "url": "http://localhost:3110/s/sess_<id>/criteria",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 16,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 62,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\n\nSTEP 2 OF 3\n\nWhat matters for a laptop\n\nYou'll answer up to 10 short questions about these. You can skip any of them.\n\nCPU performance\n\nHow quickly it compiles code and runs tools like Docker.\n\nMemory\n\nHow well it handles multiple applications at once.\n\nBattery life\n\nHow long it lasts away from a charger.\n\nWeight\n\nHow easy it is to carry around.\n\nLower is better\nDisplay quality\n\nHow clear and comfortable the screen is.\n\nValue for money\nValue for money\n\nHow much useful performance you get for the price.\n\nStart the questions\nChange my request\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nCOMPARING ON\nCPU performance\nNot asked yet\nMemory\nNot asked yet\nBattery life\nNot asked yet\nWeight\nNot asked yet\nDisplay quality\nNot asked yet\nValue for money\nNot asked yet\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "criteria, standard list",
+      "url": "http://localhost:3110/s/sess_<id>/criteria",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 16,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 62,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\n\nSTEP 2 OF 3\n\nWhat matters for a TV\n\nYou'll answer up to 10 short questions about these. You can skip any of them.\n\nWe're using a standard list for this kind of product.\n\nBuild quality\n\nHow well it's made and how long it should last.\n\nFeatures\n\nWhether it does the things you need.\n\nEase of use\n\nHow simple it is to use day to day.\n\nOwner reviews\n\nWhat people who bought it say.\n\nWarranty and support\n\nHow well the brand handles problems.\n\nValue for money\nValue for money\n\nHow much useful quality you get for the price.\n\nStart the questions\nChange my request\nYour brief\nPRODUCT\nTV\nUSED FOR\nLiving room\nBUDGET\nUp to ₹40,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nCOMPARING ON\nBuild quality\nNot asked yet\nFeatures\nNot asked yet\nEase of use\nNot asked yet\nOwner reviews\nNot asked yet\nWarranty and support\nNot asked yet\nValue for money\nNot asked yet\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "criteria, could not load",
+      "url": "http://localhost:3110/s/sess_<id>/criteria",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 17,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 37,
+        "unparsed": 0,
+        "below45": [
+          {
+            "text": "Start the questions",
+            "ratio": 2.63,
+            "fg": "rgb(78,107,88)",
+            "bg": "rgb(141,183,154)",
+            "size": 16,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.5
+          }
+        ],
+        "minBelow45": 2.63
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\n\nSTEP 2 OF 3\n\nWhat matters for a test error\n\nYou'll answer up to 10 short questions about these. You can skip any of them.\n\nWe couldn't load the criteria.\n\nTry again\nStart the questions\nChange my request\nYour brief\nPRODUCT\nTest error\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "criteria, search not found",
+      "url": "http://localhost:3110/s/sess_<id>/criteria",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 15,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 20,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nWe couldn't find this search\n\nIt may have expired when the browser tab was closed. Start again by telling us what you're shopping for.\n\nDescribe what you need\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "questions, first question",
+      "url": "http://localhost:3110/s/sess_<id>/questions",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 23,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 61,
+        "unparsed": 0,
+        "below45": [
+          {
+            "text": "Send",
+            "ratio": 2.63,
+            "fg": "rgb(78,107,88)",
+            "bg": "rgb(141,183,154)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.5
+          }
+        ],
+        "minBelow45": 2.63
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nCriteria\n\nQuestion 1 up to 10\n\n0 of 6 settled\nHow much do you care about CPU performance?\nWhy this question?\n1\nLow\n2\nMedium\n3\nHigh\nSkip this question\nAnswers so far (0)\n\nYour answers will appear here.\n\nJump to question\nOr type your answer\nSend\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nCOMPARING ON\n0 of 6 settled\nCPU performance\nNot asked yet\nMemory\nNot asked yet\nBattery life\nNot asked yet\nWeight\nNot asked yet\nDisplay quality\nNot asked yet\nValue for money\nNot asked yet\n\nHow much do you care about CPU performance?\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "questions, why this question open",
+      "url": "http://localhost:3110/s/sess_<id>/questions",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 23,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 62,
+        "unparsed": 0,
+        "below45": [
+          {
+            "text": "Send",
+            "ratio": 2.63,
+            "fg": "rgb(78,107,88)",
+            "bg": "rgb(141,183,154)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.5
+          }
+        ],
+        "minBelow45": 2.63
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nCriteria\n\nQuestion 1 up to 10\n\n0 of 6 settled\nHow much do you care about CPU performance?\nWhy this question?\n\nHow quickly it compiles code and runs tools like Docker.\n\n1\nLow\n2\nMedium\n3\nHigh\nSkip this question\nAnswers so far (0)\n\nYour answers will appear here.\n\nJump to question\nOr type your answer\nSend\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nCOMPARING ON\n0 of 6 settled\nCPU performance\nNot asked yet\nMemory\nNot asked yet\nBattery life\nNot asked yet\nWeight\nNot asked yet\nDisplay quality\nNot asked yet\nValue for money\nNot asked yet\n\nHow much do you care about CPU performance?\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "questions, answer then repeat",
+      "url": "http://localhost:3110/s/sess_<id>/questions",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 23,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 62,
+        "unparsed": 0,
+        "below45": [
+          {
+            "text": "Send",
+            "ratio": 2.63,
+            "fg": "rgb(78,107,88)",
+            "bg": "rgb(141,183,154)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.5
+          }
+        ],
+        "minBelow45": 2.63
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nCriteria\n\nQuestion 1 up to 10\n\n0 of 6 settled\n\nGood question. How quickly it compiles code and runs tools like Docker.\n\nHow much do you care about CPU performance?\nWhy this question?\n1\nLow\n2\nMedium\n3\nHigh\nSkip this question\nAnswers so far (0)\n\nYour answers will appear here.\n\nJump to question\nOr type your answer\nSend\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nCOMPARING ON\n0 of 6 settled\nCPU performance\nNot asked yet\nMemory\nNot asked yet\nBattery life\nNot asked yet\nWeight\nNot asked yet\nDisplay quality\nNot asked yet\nValue for money\nNot asked yet\n\nGood question. How quickly it compiles code and runs tools like Docker. How much do you care about CPU performance?\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "questions, asked another way (rephrase)",
+      "url": "http://localhost:3110/s/sess_<id>/questions",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 23,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 62,
+        "unparsed": 0,
+        "below45": [
+          {
+            "text": "Send",
+            "ratio": 2.63,
+            "fg": "rgb(78,107,88)",
+            "bg": "rgb(141,183,154)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.5
+          }
+        ],
+        "minBelow45": 2.63
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nCriteria\n\nQuestion 1 up to 10\n\n0 of 6 settled\n\nASKED ANOTHER WAY\n\nPut simply: would a worse CPU performance bother you?\nWhy this question?\n1\nYes, a lot\n2\nA little\n3\nNot really\nSkip this question\nAnswers so far (0)\n\nYour answers will appear here.\n\nJump to question\nOr type your answer\nSend\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nCOMPARING ON\n0 of 6 settled\nCPU performance\nNot asked yet\nMemory\nNot asked yet\nBattery life\nNot asked yet\nWeight\nNot asked yet\nDisplay quality\nNot asked yet\nValue for money\nNot asked yet\n\nPut simply: would a worse CPU performance bother you?\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "questions, redirect",
+      "url": "http://localhost:3110/s/sess_<id>/questions",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 23,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 62,
+        "unparsed": 0,
+        "below45": [
+          {
+            "text": "Send",
+            "ratio": 2.63,
+            "fg": "rgb(78,107,88)",
+            "bg": "rgb(141,183,154)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.5
+          }
+        ],
+        "minBelow45": 2.63
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nCriteria\n\nQuestion 1 up to 10\n\n0 of 6 settled\n\nWe'll use the budget from your brief when comparing prices. For now, let's stick to this one.\n\nHow much do you care about CPU performance?\nWhy this question?\n1\nLow\n2\nMedium\n3\nHigh\nSkip this question\nAnswers so far (0)\n\nYour answers will appear here.\n\nJump to question\nOr type your answer\nSend\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nCOMPARING ON\n0 of 6 settled\nCPU performance\nNot asked yet\nMemory\nNot asked yet\nBattery life\nNot asked yet\nWeight\nNot asked yet\nDisplay quality\nNot asked yet\nValue for money\nNot asked yet\n\nWe'll use the budget from your brief when comparing prices. For now, let's stick to this one. How much do you care about CPU performance?\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "questions, after a skip",
+      "url": "http://localhost:3110/s/sess_<id>/questions",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 24,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 64,
+        "unparsed": 0,
+        "below45": [
+          {
+            "text": "Send",
+            "ratio": 2.63,
+            "fg": "rgb(78,107,88)",
+            "bg": "rgb(141,183,154)",
+            "size": 14,
+            "weight": 500,
+            "large": false,
+            "bgImage": false,
+            "opacity": 0.5
+          }
+        ],
+        "minBelow45": 2.63
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nCriteria\n\nQuestion 2 up to 10\n\n1 of 6 settled\nHow much do you care about memory?\nWhy this question?\n1\nLow\n2\nMedium\n3\nHigh\nSkip this question\nAnswers so far (1)\nCPU performance\nSkipped\nSkipped\nAnswer\nJump to question\nOr type your answer\nSend\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nCOMPARING ON\n1 of 6 settled\nCPU performance\nSkipped\nMemory\nNot asked yet\nBattery life\nNot asked yet\nWeight\nNot asked yet\nDisplay quality\nNot asked yet\nValue for money\nNot asked yet\n\nHow much do you care about memory?\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "questions, finished",
+      "url": "http://localhost:3110/s/sess_<id>/questions",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 23,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 84,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nCriteria\nYour brief is ready\nANSWERED\n4\nSKIPPED\n1\nREMEMBERED\n1\nReview your brief\nAnswers so far (6)\nCPU performance\nSkipped\nSkipped\nAnswer\nMemory\nHigh\nAnswered\nChange\nBattery life\nHigh\nAnswered\nChange\nWeight\nRemembered: under 1.5 kg\nRemembered\nChange\nDisplay quality\nHigh\nAnswered\nChange\nValue for money\nHigh\nAnswered\nChange\nYour brief\nPRODUCT\nLaptop\nUSED FOR\nCoding\nBUDGET\nUp to ₹70,000\nREGION\nIndia\nMUST-HAVES\nNot given\nLEAVE OUT\nNot given\nCOMPARING ON\n6 of 6 settled\nCPU performance\nSkipped\nMemory\nHigh\nAnswered\nBattery life\nHigh\nAnswered\nWeight\nunder 1.5 kg\nRemembered\nDisplay quality\nHigh\nAnswered\nValue for money\nHigh\nAnswered\n\nYour brief is ready.\n\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "questions, search not found",
+      "url": "http://localhost:3110/s/sess_<id>/questions",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 15,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 20,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nWe couldn't find this search\n\nIt may have expired when the browser tab was closed. Start again by telling us what you're shopping for.\n\nDescribe what you need\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "brief, ready",
+      "url": "http://localhost:3110/s/sess_<id>/brief",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 23,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 51,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\n\nSTEP 3 OF 3\n\nYour brief for a laptop\n\nCheck this before we start. Research takes up to 2½ minutes.\n\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\nChange\n19%\nBattery life\nFrom your answer\nChange\n19%\nDisplay quality\nFrom your answer\nChange\n19%\nValue for money\nFrom your answer\nChange\n19%\nCPU performance\nStandard\nChange\n12%\nWeight\nStandard\nChange\n12%\nPreview scenario (mock data, no live search)\nRanked products\nTie between products\nSources disagree\nUnverified specs\nEstimated values\nOld prices\nNo store offers\nProducts left out\nCouldn't check some\nPartial results\nRelaxation hint\nNo results\nResearch timeout\nNetwork error, then retry\nBack to the questions\nStart research\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, researching",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 17,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 54,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResearching laptops for you\n\nThis can take up to 2½ minutes. You can keep this page in the background.\n\nPreview: simulated progress from mock data\n\nWhat ShopSense is doing\n\nElapsed time:\n1 s\n\nFinding products that fit your must-haves\nDone\n2\nChecking prices across stores\n3\nReading specs and reviews\n4\nScoring each option against your brief\n\nFinding products that fit your must-haves: done. 1 of 4 steps done.\n\nStop research\nYour brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, leave page dialog",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 19,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 58,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResearching laptops for you\n\nThis can take up to 2½ minutes. You can keep this page in the background.\n\nPreview: simulated progress from mock data\n\nWhat ShopSense is doing\n\nElapsed time:\n1 s\n\nFinding products that fit your must-haves\nDone\n2\nChecking prices across stores\n3\nReading specs and reviews\n4\nScoring each option against your brief\n\nFinding products that fit your must-haves: done. 1 of 4 steps done.\n\nStop research\nYour brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.\n\nStop research?\n\nLeaving this page stops the research. Your brief and answers are kept.\n\nKeep researching\nStop research"
+    },
+    {
+      "state": "brief, research stopped message",
+      "url": "http://localhost:3110/s/sess_<id>/brief",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 24,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 52,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\n\nSTEP 3 OF 3\n\nYour brief for a laptop\n\nCheck this before we start. Research takes up to 2½ minutes.\n\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\nChange\n19%\nBattery life\nFrom your answer\nChange\n19%\nDisplay quality\nFrom your answer\nChange\n19%\nValue for money\nFrom your answer\nChange\n19%\nCPU performance\nStandard\nChange\n12%\nWeight\nStandard\nChange\n12%\nPreview scenario (mock data, no live search)\nRanked products\nTie between products\nSources disagree\nUnverified specs\nEstimated values\nOld prices\nNo store offers\nProducts left out\nCouldn't check some\nPartial results\nRelaxation hint\nNo results\nResearch timeout\nNetwork error, then retry\nBack to the questions\nStart research\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved.\n\nResearch stopped"
+    },
+    {
+      "state": "results, success (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 20,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 150,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, tie (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 20,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 152,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank =2:\nSample laptop B\n#=2\nScore 79\nTied with Sample laptop C\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank =2:\nSample laptop C\n#=2\nScore 79\nTied with Sample laptop B\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, disputed (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 20,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 154,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nMedium confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSources disagree\nSample Store One listing: 16 GB\nSample maker spec sheet: 8 GB\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, unknown (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 20,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 150,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 5 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nNot verified\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 5 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nNot verified\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 5 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nNot verified\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, estimated (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 20,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 151,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nAbout 9 hours (sample estimate)\nEstimated\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, stale (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 20,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 150,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nOld price, checked 19 Oct, 7:35 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nOld price, checked 19 Oct, 7:35 pm\n\n₹71,990\n\nSample Store Two\n\nOld price, checked 19 Oct, 7:35 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, no-offer (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 20,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 145,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nValue not worked out: No price was found, so value can't be worked out.\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nNo price found\n\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, left-out (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 21,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 155,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\nLeft out (2)\nSample laptop D\nOver your budget at every store checked.\nSample laptop E\nMatches something you asked to leave out.\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, couldnt-check (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 21,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 153,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 3 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\nRank 3:\nSample laptop C\n#3\nScore 71\nLow confidence\nBest pick chance 11%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: C scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹75,490\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹76,990\nShow all criteria\nCPU performance\nSample rating 9 / 10\nMemory\nSample rating 8 / 10\nBattery life\nSample rating 7 / 10\nWeight\nSample rating 6 / 10\nDisplay quality\nSample rating 9 / 10\nValue for money\nSample rating 8 / 10\nCouldn't check (1)\nSample laptop F\nStore pages didn't list its specs.\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, partial (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 19,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 117,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. 2 options, best match Sample laptop A.\n\nThis result isn't saved. It will be gone if you close this page.\n\nSample note: only two of the stores could be checked, so some options may be missing.\n\nBest match\n\nBEST MATCH\n\nRank 1:\nSample laptop A\n#1\nScore 86\nHigh confidence\nBest pick chance 62%\nChecked 6 of 6 criteria\nGood value\nWHY IT RANKS HERE\n\nSample explanation: A scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹68,490\nView at Sample Store One\n(opens in a new tab)\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹69,990\nShow all criteria\nCPU performance\nSample rating 7 / 10\nMemory\nSample rating 6 / 10\nBattery life\nSample rating 9 / 10\nWeight\nSample rating 8 / 10\nDisplay quality\nSample rating 7 / 10\nValue for money\nSample rating 6 / 10\nOther options\nRank 2:\nSample laptop B\n#2\nScore 79\nMedium confidence\nBest pick chance 27%\nChecked 6 of 6 criteria\nFair value\nWHY IT RANKS HERE\n\nSample explanation: B scores well on the criteria you weighted most, within your must-haves.\n\nStrongest\nCPU performance\nMemory\nWeakest\nValue for money\nSTORE OFFERS\n\nSample Store One\n\nPrice checked 27 Oct, 3:10 pm\n\n₹71,990\n\nSample Store Two\n\nPrice checked 27 Oct, 3:10 pm\n\n₹73,490\nShow all criteria\nCPU performance\nSample rating 8 / 10\nMemory\nSample rating 7 / 10\nBattery life\nSample rating 6 / 10\nWeight\nSample rating 9 / 10\nDisplay quality\nSample rating 8 / 10\nValue for money\nSample rating 7 / 10\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, relaxation (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 18,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 51,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. No options matched.\n\nThis result isn't saved. It will be gone if you close this page.\n\nSample hint: no option met every must-have. Loosening one may help. Must-have: Budget: Up to ₹70,000\n\nChange must-haves\n\nNo option matched your brief this time.\n\nLeft out (1)\nSample laptop D\nDoesn't meet a must-have.\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, empty (every section open)",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 17,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 48,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResults for your laptop\n\nPreview: mock data, not a live search\n\nResults ready. No options matched.\n\nThis result isn't saved. It will be gone if you close this page.\n\nNo option matched your brief this time.\n\nLeft out (1)\nSample laptop D\nDoesn't meet a must-have.\n\nPrices checked 27 Oct, 3:10 pm. Prices can change. Check the store before you buy.\n\nYour brief\nMust have\nBudget: Up to ₹70,000\nWhat counts most\nMemory\nFrom your answer\n19%\nBattery life\nFrom your answer\n19%\nDisplay quality\nFrom your answer\n19%\nValue for money\nFrom your answer\n19%\nCPU performance\nStandard\n12%\nWeight\nStandard\n12%\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, network error",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 18,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 44,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResearching laptops for you\n\nWe lost the connection while researching. Your brief is safe.\n\nTry again\nBack to your brief\nYour brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, research timed out",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 18,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 44,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nResearching laptops for you\n\nResearch took too long. Your brief is safe. Try again, or try again later.\n\nTry again\nBack to your brief\nYour brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, gone after reload",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 15,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 20,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nThese results aren't here any more\n\nResults are only kept while this page is open. Your brief is still saved.\n\nBack to your brief\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    },
+    {
+      "state": "results, search not found",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "themeOk": true,
+      "violations": [],
+      "targetsChecked": 15,
+      "smallTargets": [],
+      "sideways": [],
+      "sideways320": null,
+      "smallTargets320": null,
+      "contrast": {
+        "checked": 20,
+        "unparsed": 0,
+        "below45": [],
+        "minBelow45": null
+      },
+      "text": "ShopSense\nHome\nResearch\nGet started\nWe couldn't find this search\n\nIt may have expired when the browser tab was closed. Start again by telling us what you're shopping for.\n\nDescribe what you need\nShopSense\n\nResearch smarter. Choose confidently.\n\nPRODUCT\nHome\nHow It Works\nResearch\nFeatures\nCOMPANY\nAbout\nContact\nFAQ\nPrivacy Policy\n\n© 2026 ShopSense. All rights reserved."
+    }
+  ],
+  "blocked": [],
+  "log": [
+    {
+      "kind": "http-error",
+      "text": "404 http://localhost:3110/no-such-page",
+      "url": "http://localhost:3110/criteria",
+      "step": "old /criteria link, no brief"
+    },
+    {
+      "kind": "console-error",
+      "text": "Failed to load resource: the server responded with a status of 404 ()",
+      "url": "http://localhost:3110/no-such-page",
+      "step": "old /criteria link, no brief"
+    },
+    {
+      "kind": "console-warning",
+      "text": "Couldn't load preload assets:  Error: Preload assets timed out.\n    at eval (eval at evaluate (:370:30), <anonymous>:24605:25)\n    at ClockController._callFirstTimer (<anonymous>:285:20)\n    at ClockController._runTo (<anonymous>:120:33)\n    at <anonymous>:168:38",
+      "url": "http://localhost:3110/s/sess_46be49229a8c304b10c40056/questions",
+      "step": "questions, first question"
+    },
+    {
+      "kind": "requestfailed",
+      "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_ABORTED",
+      "url": "http://localhost:3110/s/sess_46be49229a8c304b10c40056/questions",
+      "step": "questions, first question"
+    },
+    {
+      "kind": "console-warning",
+      "text": "Couldn't load preload assets:  ProgressEvent",
+      "url": "http://localhost:3110/s/sess_46be49229a8c304b10c40056/questions",
+      "step": "questions, why this question open"
+    },
+    {
+      "kind": "requestfailed",
+      "text": "GET https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap net::ERR_QUIC_PROTOCOL_ERROR.QUIC_NETWORK_IDLE_TIMEOUT",
+      "url": "http://localhost:3110/s/sess_46be49229a8c304b10c40056/questions",
+      "step": "questions, why this question open"
+    },
+    {
+      "kind": "console-error",
+      "text": "Failed to load resource: net::ERR_QUIC_PROTOCOL_ERROR.QUIC_NETWORK_IDLE_TIMEOUT",
+      "url": "http://localhost:3110/s/sess_46be49229a8c304b10c40056/questions",
+      "step": "questions, why this question open"
+    }
+  ]
+}

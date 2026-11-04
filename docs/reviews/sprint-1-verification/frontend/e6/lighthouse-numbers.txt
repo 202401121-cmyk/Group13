@@ -1,0 +1,46 @@
+Lighthouse 13.5.0, default mobile settings (simulated slow 4G, 4x CPU slowdown), Chromium 156.0.8078.4 headless=new.
+Served: the mock-mode production build on http://localhost:3110. Full JSON reports were kept in a temporary folder outside the repository and deleted; only these numbers are kept.
+Every run warned: 'The tested device appears to have a slower CPU than Lighthouse expects' (benchmark index 790 to 920; other verification work was running on the machine).
+
+CLI runs (page | round | Performance | Accessibility | Best Practices | SEO | FCP ms | LCP ms | TBT ms | CLS | benchmark index | fetch time UTC)
+home | 1 | 70 | 100 | 100 | 100 | 4595 | 4595 | 0 | 0.0003 | 790.5 | 2026-11-04T18:31:19.411Z
+home | 2 | 72 | 100 | 100 | 100 | 4503 | 4503 | 0 | 0.0003 | 900 | 2026-11-04T18:32:50.285Z
+home | 3 | 73 | 100 | 100 | 100 | 4410 | 4410 | 0 | 0.0003 | 887 | 2026-11-04T18:34:21.867Z
+research | 1 | 79 | 100 | 100 | 100 | 3882 | 3959 | 50 | 0.0001 | 840.5 | 2026-11-04T18:31:51.984Z
+research | 2 | 79 | 100 | 100 | 100 | 3711 | 3861 | 66 | 0.0001 | 889 | 2026-11-04T18:33:21.790Z
+research | 3 | 80 | 100 | 100 | 100 | 3786 | 3798 | 10 | 0.0000 | 920.5 | 2026-11-04T18:34:53.302Z
+results | 1 | 80 | 100 | 100 | 63 | 3552 | 3552 | 18 | 0.0942 | 909.5 | 2026-11-04T18:32:21.214Z
+results | 2 | 79 | 100 | 100 | 63 | 3604 | 3679 | 0 | 0.0942 | 797 | 2026-11-04T18:33:52.626Z
+results | 3 | 81 | 100 | 100 | 63 | 3499 | 3521 | 12 | 0.0942 | 871 | 2026-11-04T18:35:22.702Z
+
+Medians of 3 (page | Performance | Accessibility | Best Practices | LCP ms | CLS | TBT ms | FCP ms)
+home | 72 | 100 | 100 | 4503 | 0.0003 | 0 | 4503
+research | 79 | 100 | 100 | 3861 | 0.0001 | 50 | 3786
+results | 80 | 100 | 100 | 3552 | 0.0942 | 12 | 3552
+
+LCP element per CLI run
+home | 1 | section.relative > div.relative > div.max-w-3xl > p.mt-7 | 'Stop jumping between reviews, product pages and comparison videos. ShopSense re…' | Time to first byte 12 ms, Element render delay 2784 ms
+home | 2 | section.relative > div.relative > div.max-w-3xl > p.mt-7 | 'Stop jumping between reviews, product pages and comparison videos. ShopSense re…' | Time to first byte 13 ms, Element render delay 2135 ms
+home | 3 | section.relative > div.relative > div.max-w-3xl > p.mt-7 | 'Stop jumping between reviews, product pages and comparison videos. ShopSense re…' | Time to first byte 14 ms, Element render delay 2154 ms
+research | 1 | div.relative > div.relative > div.min-w-0 > h1.font-serif | 'What are you shopping for?' | Time to first byte 13 ms, Element render delay 1409 ms
+research | 2 | div.relative > div.relative > div.min-w-0 > h1.font-serif | 'What are you shopping for?' | Time to first byte 13 ms, Element render delay 1432 ms
+research | 3 | div.relative > div.relative > div.min-w-0 > h1.font-serif | 'What are you shopping for?' | Time to first byte 12 ms, Element render delay 1341 ms
+results | 1 | div.min-h-screen > main > section.mx-auto > h1.font-serif | 'We couldn't find this search' | Time to first byte 13 ms, Element render delay 1393 ms
+results | 2 | div.min-h-screen > main > section.mx-auto > h1.font-serif | 'We couldn't find this search' | Time to first byte 12 ms, Element render delay 1321 ms
+results | 3 | div.min-h-screen > main > section.mx-auto > h1.font-serif | 'We couldn't find this search' | Time to first byte 11 ms, Element render delay 1260 ms
+
+User flow (3 runs): file | step | gather mode | categories | TBT ms | CLS | LCP ms | FCP ms
+flow-1.json | Start research to results shown | timespan | {'performance': 71, 'best-practices': 100} | 636 | 0.0007 | None | None
+flow-1.json | Results shown | snapshot | {'performance': 0, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100} | None | None | None | None
+flow-1.json | Results address reloaded | navigation | {'performance': 88, 'accessibility': 100, 'best-practices': 100, 'seo': 63, 'agentic-browsing': 100} | 53 | 0 | 3518 | 2362
+flow-2.json | Start research to results shown | timespan | {'performance': 71, 'best-practices': 100} | 642 | 0.0007 | None | None
+flow-2.json | Results shown | snapshot | {'performance': 0, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100} | None | None | None | None
+flow-2.json | Results address reloaded | navigation | {'performance': 87, 'accessibility': 100, 'best-practices': 100, 'seo': 63, 'agentic-browsing': 100} | 70 | 0 | 3542 | 2360
+flow-3.json | Start research to results shown | timespan | {'performance': 72, 'best-practices': 100} | 618 | 0.0007 | None | None
+flow-3.json | Results shown | snapshot | {'performance': 0, 'accessibility': 100, 'best-practices': 100, 'seo': 100, 'agentic-browsing': 100} | None | None | None | None
+flow-3.json | Results address reloaded | navigation | {'performance': 87, 'accessibility': 100, 'best-practices': 100, 'seo': 63, 'agentic-browsing': 100} | 109 | 0 | 3562 | 2367
+
+User flow medians (the snapshot's performance number is not a real score: a snapshot has no metrics)
+Start research to results shown | performance 71 | accessibility None | best practices 100 | TBT 636 | CLS 0.0007388530565526466 | LCP None
+Results shown | performance 0 | accessibility 100 | best practices 100 | TBT None | CLS None | LCP None
+Results address reloaded | performance 87 | accessibility 100 | best practices 100 | TBT 70 | CLS 0 | LCP 3542

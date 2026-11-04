@@ -1,0 +1,34 @@
+States where the page scrolls sideways or an element sticks out past the viewport edge.
+
+default-1440-dark | home | div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px
+default-1440-dark | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px
+default-1440-light | home | div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px
+default-1440-light | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px
+default-390-dark | home | div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px
+320 (from default-390-dark) | home | div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px
+default-390-dark | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px
+320 (from default-390-dark) | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px
+default-390-dark | home, menu open | div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px
+320 (from default-390-dark) | home, menu open | div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px
+default-390-light | home | div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px
+320 (from default-390-light) | home | div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px
+default-390-light | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px
+320 (from default-390-light) | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px
+default-390-light | home, menu open | div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px
+320 (from default-390-light) | home, menu open | div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px
+settled-1440-dark | home | div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px
+settled-1440-dark | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -43..1458 of 1440px
+settled-1440-light | home | div.pointer-events-none absolute inset-0 bg- spans -43..1455 of 1440px
+settled-1440-light | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -43..1456 of 1440px
+settled-390-dark | home | div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px
+320 (from settled-390-dark) | home | div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px
+settled-390-dark | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -12..395 of 390px
+320 (from settled-390-dark) | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -10..324 of 320px
+settled-390-dark | home, menu open | div.pointer-events-none absolute inset-0 bg- spans -11..396 of 390px
+320 (from settled-390-dark) | home, menu open | div.pointer-events-none absolute inset-0 bg- spans -9..325 of 320px
+settled-390-light | home | div.pointer-events-none absolute inset-0 bg- spans -12..394 of 390px
+320 (from settled-390-light) | home | div.pointer-events-none absolute inset-0 bg- spans -10..323 of 320px
+settled-390-light | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -12..395 of 390px
+320 (from settled-390-light) | home, empty request error | div.pointer-events-none absolute inset-0 bg- spans -10..324 of 320px
+settled-390-light | home, menu open | div.pointer-events-none absolute inset-0 bg- spans -11..396 of 390px
+320 (from settled-390-light) | home, menu open | div.pointer-events-none absolute inset-0 bg- spans -9..325 of 320px

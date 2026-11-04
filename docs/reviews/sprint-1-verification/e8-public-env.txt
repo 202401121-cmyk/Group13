@@ -1,0 +1,12 @@
+E8 public build variables, 72d0433, 2026-11-04, about 18:40 UTC.
+
+$ grep -rhoE "import\.meta\.env\.[A-Z_]+|VITE_[A-Z_]+" frontend/src frontend/vite.config.*   (count, name)
+      5 VITE_API_BASE_URL
+      9 VITE_API_MODE
+$ grep -rhoE "VITE_[A-Z_]+" <clean clone>/frontend/.output/public   (the live-mode build of E3/E4)
+      2 VITE_API_BASE_URL
+      2 VITE_API_MODE
+$ files in that bundle matching sk-…, gsk_…, AIza…, or a postgres:// URL: 0
+
+Only two public variables, VITE_API_MODE and VITE_API_BASE_URL, and neither is a secret. The comparison with the
+actual .env values is BLOCKED, as in A7.

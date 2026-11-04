@@ -1,0 +1,18 @@
+C2 database on (backend C, the root .env's DATABASE_URL), 2026-11-04 17:57 UTC
+health: 200 {'status': 'ok', 'schema_version': '1.2.0', 'database': 'ok'}
+intake 'best laptop for coding under 70k': 200 (1515 ms) session=sess_ec2591affc503695df73f5e6 id format ok=True by=llm category=laptop use='coding' budget=min None max 70000.0 region=IN hard_rules=[] exclusions=[] needs_clarification=False
+criteria: 200 (16 ms) source=cached count=9
+interview: 9 replies, finished=True
+session request_saved=saved
+search: 200 (16 ms)
+  SearchResult schema: valid; saved=True partial=False coverage_note='YouTube timed out.'
+  stage reports (8): research=ok/0ms, extract=ok/0ms, match=ok/0ms, verify=ok/0ms, enrich=ok/0ms, decide=ok/16ms, explain=ok/0ms, commerce=ok/0ms
+  ranked: [('prd_nova_book_14', 78.3), ('prd_kestrel_slim_15', 75.9), ('prd_orion_play_15', 67.0)]; products 5; sources 3
+  filtered products missing from products: []
+
+non-2xx responses seen: 0
+error-shape or leak problems: 0
+
+$ python scripts/check_request_saved.py sess_ec2591affc503695df73f5e6
+saved
+exit 0

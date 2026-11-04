@@ -1,0 +1,47 @@
+B6 wrapper behaviour, proved by tests (US-26), 2026-11-04 18:08 UTC
+
+## context fitting (US-26.2, .3, .5, .10)
+  tests/unit/llm/test_client.py::test_falling_back_to_a_smaller_window_refits_the_input
+  tests/unit/llm/test_client.py::test_oversized_extraction_input_is_chunked_and_merged
+  tests/unit/llm/test_client.py::test_oversized_input_is_trimmed_for_a_normal_task
+  tests/unit/llm/test_fitting.py::test_an_oversized_block_is_split_across_chunks
+  tests/unit/llm/test_fitting.py::test_chunking_returns_several_chunks_each_under_budget
+  tests/unit/llm/test_fitting.py::test_only_extraction_tasks_are_chunked
+  tests/unit/llm/test_fitting.py::test_trimming_drops_trailing_blocks_and_keeps_the_first
+
+## invalid output retried once, then the next provider, then a safe default (US-26.7)
+  tests/golden/llm/test_output_parsing.py::test_invalid_output_message_does_not_repeat_the_reply
+  tests/unit/llm/test_client.py::test_a_provider_failure_moves_to_the_next_provider
+  tests/unit/llm/test_client.py::test_a_retry_that_succeeds_stays_on_the_same_provider
+  tests/unit/llm/test_client.py::test_invalid_output_does_not_count_against_a_provider
+  tests/unit/llm/test_client.py::test_invalid_output_is_retried_once_then_the_next_provider
+  tests/unit/llm/test_client.py::test_mistral_invalid_json_is_retried_once
+  tests/unit/llm/test_providers.py::test_rate_limit_keeps_retry_after_for_the_cool_down
+  tests/unit/llm/test_routing.py::test_mistral_bad_json_is_retried_once_then_the_next_provider_answers
+
+## provider failures move on (US-26.6; data-class routes replaced the fixed order in US-46)
+  tests/faults/llm/test_provider_limits.py::test_dead_and_cooling_providers_are_skipped_quickly_and_the_call_gives_up_cleanly
+  tests/unit/llm/test_client.py::test_a_full_rate_limiter_moves_on_without_sending
+  tests/unit/llm/test_client.py::test_a_provider_failure_moves_to_the_next_provider
+  tests/unit/llm/test_client.py::test_a_rate_limited_provider_is_skipped_until_its_cool_down_ends
+  tests/unit/llm/test_client.py::test_an_unexpected_adapter_error_also_moves_on
+  tests/unit/llm/test_client.py::test_generate_criteria_may_be_public
+  tests/unit/llm/test_client.py::test_three_server_errors_switch_a_provider_off
+  tests/unit/llm/test_health.py::test_a_bad_key_or_an_account_without_credit_is_dead_for_the_run
+  tests/unit/llm/test_health.py::test_a_rate_limit_cools_down_then_comes_back
+  tests/unit/llm/test_health.py::test_after_a_cool_down_only_one_trial_goes_through_and_a_failed_trial_cools_again
+  tests/unit/llm/test_health.py::test_cooldown_from_headers
+  tests/unit/llm/test_health.py::test_providers_are_tracked_separately
+
+## the call log records provider, tokens, time and outcome (US-26.8)
+  tests/faults/llm/test_all_providers_down.py::test_all_providers_down_raises_llm_unavailable_and_logs_every_attempt
+  tests/unit/llm/test_client.py::test_a_spent_daily_budget_skips_the_provider_and_is_logged
+  tests/unit/llm/test_client.py::test_call_records_carry_the_details
+  tests/unit/llm/test_client.py::test_fake_llm_client_returns_canned_answers_and_records_calls
+  tests/unit/llm/test_client.py::test_the_call_log_line_has_no_prompt_text
+  tests/unit/llm/test_limits.py::test_tokens_per_minute_waits_for_old_calls_to_leave_the_window
+  tests/unit/llm/test_providers.py::test_success_without_usage_estimates_tokens
+  tests/unit/llm/test_routing.py::test_call_records_carry_class_and_tokens_but_never_the_prompt
+
+$ pytest tests/unit/llm tests/faults/llm tests/golden/llm -q
+226 passed in 3.15s
