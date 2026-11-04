@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import app.contracts as C
@@ -48,3 +49,23 @@ def test_export_matches_committed_shared_contracts(tmp_path: Path) -> None:
     assert fresh.keys() == committed.keys()
     changed = sorted(name for name in fresh if fresh[name] != committed[name])
     assert not changed, f"shared/contracts is out of date: {changed}"
+
+
+def test_a_second_export_leaves_unchanged_files_alone(tmp_path: Path) -> None:
+    """Rewriting identical files moved their timestamps ahead of the generated frontend types, so scripts/doctor.py
+    reported the types as stale after every CI export (Sprint 1 review check). Only changed files are written now."""
+    main(tmp_path)
+    files = [*tmp_path.glob("schema/*.json"), *tmp_path.glob("examples/*.json"), tmp_path / "VERSION"]
+    long_ago = 1_000_000_000  # 2001: any real write would be newer
+    for path in files:
+        os.utime(path, (long_ago, long_ago))
+    main(tmp_path)
+    assert all(path.stat().st_mtime == long_ago for path in files)
+
+
+def test_a_changed_file_is_still_rewritten(tmp_path: Path) -> None:
+    main(tmp_path)
+    stale = tmp_path / "schema" / "Intent.json"
+    stale.write_text("{}\n", encoding="utf-8")
+    main(tmp_path)
+    assert json.loads(stale.read_text(encoding="utf-8")) == C.Intent.model_json_schema(mode="serialization")
