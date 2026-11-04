@@ -109,7 +109,7 @@ def test_the_call_uses_generate_criteria_and_the_search_id() -> None:
 
 
 def test_the_call_leaves_room_for_a_reasoning_model_to_finish_its_answer() -> None:
-    """gpt-oss thinks before it answers: at the 1,024-token default its JSON was cut off, so every use case fell back."""
+    """gpt-oss thinks before it answers: at the 1,024-token default its JSON was cut off and use cases fell back."""
     llm = ScriptedLLM(SEVEN)
     CriteriaStage(llm).run(GAMING, CTX)
     assert llm.limits == [CRITERIA_MAX_OUTPUT_TOKENS]
