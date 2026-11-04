@@ -1,0 +1,50 @@
+checked: 91f5904 = main 99f92c1 + fix/US-01-clear-test-rows fix/s1-stage-fallback-tests fix/s1-export-unchanged-files fix/s1-criteria-output-limit 
+date: 2026-11-04 16:19 UTC; Windows 11; new Python 3.11 venv; npm ci
+
+$ backend: ruff, ruff format, mypy
+All checks passed!
+191 files already formatted
+Success: no issues found in 86 source files
+
+$ backend: pytest -m 'not live' --cov (postgres:17, REQUIRE_DB_TESTS=1)
+Required test coverage of 70.0% reached. Total coverage: 97.63%
+1025 passed, 3 deselected, 1 warning in 46.04s
+
+$ EXIT 2: pytest tests/faults -v (each search stage forced to fail)
+  PASSED test_any_failing_search_stage_falls_back_and_the_search_finishes[research]
+  PASSED test_any_failing_search_stage_falls_back_and_the_search_finishes[extract]
+  PASSED test_any_failing_search_stage_falls_back_and_the_search_finishes[match]
+  PASSED test_any_failing_search_stage_falls_back_and_the_search_finishes[verify]
+  PASSED test_any_failing_search_stage_falls_back_and_the_search_finishes[enrich]
+  PASSED test_any_failing_search_stage_falls_back_and_the_search_finishes[decide]
+  PASSED test_any_failing_search_stage_falls_back_and_the_search_finishes[explain]
+  PASSED test_any_failing_search_stage_falls_back_and_the_search_finishes[commerce]
+============================= 12 passed in 0.14s ==============================
+
+$ EXIT 4 / #5: the criteria stage, live, for three categories with a use case (one never seen); database off
+llm call task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=759 out=2005 ms=4719
+llm call task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=757 out=2150 ms=6156
+llm call task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=758 out=1150 ms=3765
+RESULT Telescope for stargazing: generated, 8 criteria, 4.9 s; e.g. Aperture Diameter: Measures the primary lens or mirror diameter in millimeters, indicatin
+RESULT Laptop for gaming: generated, 9 criteria, 6.2 s; e.g. GPU Benchmark Score: Measures the graphics card's rendering ability using standard benchmar
+RESULT Earbuds for gym: generated, 8 criteria, 3.8 s; e.g. Sweat Resistance: Measures the IP rating indicating how well the earbuds stay functional
+
+$ EXIT 4 / #5: the fallback set still appears when generation fails (every LLM key off)
+What kind of product are you looking for?
+Understood: Earbuds · budget up to ₹5,000 · region IN · detected by rules
+Criteria (fallback):
+
+$ SET-UP: the CI contract export, then scripts/doctor.py (types not regenerated in between)
+wrote 56 schemas and 12 examples to <repo>\shared\contracts
+no drift
+Database                 OK      reachable, Postgres 17
+Contracts in sync        OK      68 files match the models
+Frontend contract types  OK      56 up to date
+Nothing failed.
+
+$ frontend: lint, typecheck, tests
+lint: exit 0
+typecheck: exit 0
+      Tests  107 passed (107)
+
+done
