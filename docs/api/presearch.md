@@ -27,8 +27,9 @@ uvicorn app.main:app --port 8000
 | 409 | A step was called out of order (the message says which step comes first). |
 | 422 | The body or an edit is not valid (the message names the field). |
 
-- **CORS:** only the origin in the `FRONTEND_ORIGIN` environment variable may call the API from a browser
-  (default `http://localhost:3000`).
+- **CORS:** only the origins in the `FRONTEND_ORIGINS` environment variable (comma-separated, default
+  `http://localhost:3000`) may call the API from a browser. `*` is never allowed. The older `FRONTEND_ORIGIN` (one
+  origin) still works when `FRONTEND_ORIGINS` is not set.
 - **No LLM key?** Everything still works: intake uses its keyword rules and criteria use fixed sets.
 
 ## The flow

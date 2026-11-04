@@ -2,13 +2,16 @@
 
 Run: uvicorn app.main:app --reload
 No auth yet. Requests are saved to Postgres when DATABASE_URL is set (US-01); the health check reports the
-database as "ok", "off" or "down". CORS allows only FRONTEND_ORIGIN (default http://localhost:3000).
+database as "ok", "off" or "down". CORS allows only the origins in FRONTEND_ORIGINS (default http://localhost:3000).
 """
 
 from __future__ import annotations
 
+import logging
 import os
+from collections.abc import Mapping
 
+from dotenv import dotenv_values, find_dotenv
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,9 +23,31 @@ from app.api.presearch import plain_validation_message
 from app.contracts import SCHEMA_VERSION, SearchRequest, SearchResult
 from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
 
-DEFAULT_FRONTEND_ORIGIN = "http://localhost:3000"
+log = logging.getLogger(__name__)
+
+DEFAULT_FRONTEND_ORIGINS = ("http://localhost:3000",)  # the frontend's dev server (npm run dev)
 
 store = InMemoryResultStore()
+
+
+def allowed_origins(env: Mapping[str, str] | None = None) -> list[str]:
+    """The browser origins that may call the API (D-35), from FRONTEND_ORIGINS (comma-separated).
+
+    FRONTEND_ORIGIN, the older one-origin name, still works when FRONTEND_ORIGINS is not set. "*" is never allowed:
+    the API serves only our own frontend, so a wildcard is dropped with a warning. With no `env`, the root .env is
+    read (without changing os.environ) and real environment variables win.
+    """
+    if env is None:
+        env = {**{k: v for k, v in dotenv_values(find_dotenv()).items() if v is not None}, **os.environ}
+    raw = env.get("FRONTEND_ORIGINS") or env.get("FRONTEND_ORIGIN") or ""
+    origins = []
+    for part in raw.split(","):
+        origin = part.strip().rstrip("/")
+        if origin == "*":
+            log.warning("FRONTEND_ORIGINS may not contain '*'; it was ignored")
+        elif origin and origin not in origins:
+            origins.append(origin)
+    return origins or list(DEFAULT_FRONTEND_ORIGINS)
 
 
 def health() -> dict[str, str]:
@@ -40,13 +65,13 @@ async def plain_validation_error(request: Request, exc: RequestValidationError) 
     return JSONResponse(status_code=422, content={"detail": plain_validation_message(exc.errors(), "Please check")})
 
 
-def create_app() -> FastAPI:
-    """Build the app. FRONTEND_ORIGIN is read here, so tests can build one with a different origin."""
+def create_app(env: Mapping[str, str] | None = None) -> FastAPI:
+    """Build the app. The allowed origins are read here, so tests can pass their own environment."""
     app = FastAPI(title="ShopSense", version=SCHEMA_VERSION)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[os.environ.get("FRONTEND_ORIGIN", DEFAULT_FRONTEND_ORIGIN)],
-        allow_methods=["GET", "POST", "PUT"],
+        allow_origins=allowed_origins(env),
+        allow_methods=["GET", "POST", "PUT"],  # only what the frontend calls
         allow_headers=["Content-Type"],
     )
     app.add_exception_handler(RequestValidationError, plain_validation_error)  # type: ignore[arg-type]

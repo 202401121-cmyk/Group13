@@ -24,9 +24,8 @@ FRONTEND = "http://localhost:3000"
 
 
 @pytest.fixture
-def client(monkeypatch: pytest.MonkeyPatch) -> Iterator[TestClient]:
-    monkeypatch.delenv("FRONTEND_ORIGIN", raising=False)
-    app = create_app()
+def client() -> Iterator[TestClient]:
+    app = create_app(env={})  # the default origins, whatever a developer's .env says
     store = InMemorySessionStore()
     app.dependency_overrides[get_session_store] = lambda: store
     with TestClient(app) as test_client:
@@ -256,9 +255,8 @@ def test_cors_allows_only_the_frontend_origin(client: TestClient) -> None:
     assert preflight.headers.get("access-control-allow-origin") == FRONTEND
 
 
-def test_cors_follows_frontend_origin_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("FRONTEND_ORIGIN", "https://shopsense.example.org")
-    with TestClient(create_app()) as custom:
+def test_cors_follows_frontend_origins_from_the_environment() -> None:
+    with TestClient(create_app(env={"FRONTEND_ORIGINS": "https://shopsense.example.org"})) as custom:
         allowed = custom.get("/api/health", headers={"Origin": "https://shopsense.example.org"})
         assert allowed.headers.get("access-control-allow-origin") == "https://shopsense.example.org"
         local = custom.get("/api/health", headers={"Origin": FRONTEND})
