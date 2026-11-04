@@ -11,6 +11,7 @@ from app.contracts import CriteriaInput, CriteriaSet, DataClass, Difficulty, LLM
 from app.criteria import CriteriaStage, InMemoryCriteriaStore, fallback_set
 from app.criteria.parsing import RawCriteria
 from app.criteria.prompts import RETRY_NOTE, brief_data_class
+from app.criteria.stage import CRITERIA_MAX_OUTPUT_TOKENS
 from tests.fakes.llm import FakeLLMClient
 
 CTX = StageContext(search_id="srch_test00001")
@@ -44,6 +45,7 @@ class ScriptedLLM:
     def __init__(self, *answers: RawCriteria | Exception) -> None:
         self.answers = answers
         self.calls: list[tuple[LLMTask, str, str | None]] = []
+        self.limits: list[int] = []
 
     def complete(
         self,
@@ -58,6 +60,7 @@ class ScriptedLLM:
         max_output_tokens: int = 1024,
     ) -> T:
         self.calls.append((task, user, search_id))
+        self.limits.append(max_output_tokens)
         reply = self.answers[min(len(self.calls), len(self.answers)) - 1]
         if isinstance(reply, Exception):
             raise reply
@@ -103,6 +106,14 @@ def test_the_call_uses_generate_criteria_and_the_search_id() -> None:
     assert task is LLMTask.GENERATE_CRITERIA
     assert search_id == "srch_test00001"
     assert "category: Laptop" in user
+
+
+def test_the_call_leaves_room_for_a_reasoning_model_to_finish_its_answer() -> None:
+    """gpt-oss thinks before it answers: at the 1,024-token default its JSON was cut off and use cases fell back."""
+    llm = ScriptedLLM(SEVEN)
+    CriteriaStage(llm).run(GAMING, CTX)
+    assert llm.limits == [CRITERIA_MAX_OUTPUT_TOKENS]
+    assert CRITERIA_MAX_OUTPUT_TOKENS >= 4096
 
 
 def test_too_few_criteria_retries_exactly_once_then_succeeds() -> None:
