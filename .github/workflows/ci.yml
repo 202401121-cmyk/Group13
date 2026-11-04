@@ -22,6 +22,24 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    # A throwaway Postgres that lives for this job only, so the db-marked tests (the requests table migrations and
+    # the Postgres request store) run on every pull request. Same major version as the Supabase project (17).
+    # Service containers only run on Linux runners, so backend-windows keeps skipping these tests (pytest -rs).
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      REQUIRE_DB_TESTS: "1" # a broken database set-up fails the job instead of skipping the tests
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
