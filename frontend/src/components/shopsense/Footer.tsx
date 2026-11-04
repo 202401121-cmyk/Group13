@@ -47,13 +47,13 @@ export function Footer() {
               <h2 className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
                 {group.label}
               </h2>
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-2">
                 {group.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       to={link.to}
                       {...(link.hash ? { hash: link.hash } : {})}
-                      className="text-muted-foreground transition-colors hover:text-primary"
+                      className="inline-flex min-h-11 min-w-11 items-center text-muted-foreground transition-colors hover:text-primary"
                     >
                       {link.label}
                     </Link>

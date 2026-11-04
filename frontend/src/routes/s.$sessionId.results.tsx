@@ -10,16 +10,6 @@ import { BriefSections } from "@/components/results/BriefSections";
 import { Disclosure, Notice, StatusBadge } from "@/components/results/primitives";
 import { ResultCard } from "@/components/results/ResultCard";
 import { formatCheckTime, tiesFor } from "@/lib/results/view";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useInterview } from "@/lib/interview/useInterview";
 import { loadSession, saveSession, type Session } from "@/lib/session/store";
 import { rubricForBrief, weightRows, type WeightRow } from "@/lib/results/rubric";
@@ -34,6 +24,10 @@ import {
 import { formatElapsed, isStageDone, type ResearchState } from "@/lib/results/machine";
 import { RESEARCH_STAGES, type ResearchResult } from "@/lib/results/types";
 import { inSentence } from "@/lib/text";
+
+// Loaded on demand: the dialog library is only needed if the shopper tries to leave during research.
+const loadStopDialog = () => import("@/components/results/StopResearchDialog");
+type StopDialog = Awaited<ReturnType<typeof loadStopDialog>>["default"];
 
 export const Route = createFileRoute("/s/$sessionId/results")({
   head: () => ({
@@ -78,6 +72,19 @@ function ResultsPage() {
     if (s && s.stage !== "results") saveSession({ ...s, stage: "results" });
   }, [research.status, sessionId]);
 
+  // Fetch the "Stop research?" dialog as soon as research runs, so it opens at once if the shopper tries to
+  // leave. It is kept in state rather than React.lazy, so there is no Suspense delay when it opens.
+  const [StopResearchDialog, setStopResearchDialog] = useState<StopDialog | null>(null);
+  const researching = research.status === "researching" || research.status === "starting";
+  useEffect(() => {
+    if (!researching || StopResearchDialog) return;
+    let live = true;
+    void loadStopDialog().then((m) => live && setStopResearchDialog(() => m.default));
+    return () => {
+      live = false;
+    };
+  }, [researching, StopResearchDialog]);
+
   if (session === null)
     return (
       <PageShell>
@@ -108,7 +115,11 @@ function ResultsPage() {
   return (
     <PageShell>
       <div className="mx-auto grid max-w-6xl gap-8 px-4 pb-20 pt-10 sm:px-6 md:pt-14 lg:grid-cols-[minmax(0,760px)_20rem] lg:justify-between">
-        <div className="min-w-0">
+        {/*
+          At least one screen tall, so the brief summary and footer start below the fold while research runs
+          and do not jump when the results replace the progress list (CLS was 0.31 on a phone).
+        */}
+        <div className="min-h-svh min-w-0">
           {(research.status === "researching" || research.status === "starting") && (
             <Waiting
               state={research}
@@ -149,34 +160,15 @@ function ResultsPage() {
         {research.status !== "briefReady" && <div className="min-w-0 lg:pt-2">{summary}</div>}
       </div>
 
-      <AlertDialog open={blocker.status === "blocked"}>
-        <AlertDialogContent
-          onOpenAutoFocus={(e) => {
-            e.preventDefault();
-            document.getElementById("keep-researching")?.focus();
+      {blocker.status === "blocked" && StopResearchDialog && (
+        <StopResearchDialog
+          onKeep={() => blocker.reset?.()}
+          onStop={() => {
+            stop();
+            blocker.proceed?.();
           }}
-        >
-          <AlertDialogHeader>
-            <AlertDialogTitle>Stop research?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Leaving this page stops the research. Your brief and answers are kept.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel id="keep-researching" onClick={() => blocker.reset?.()}>
-              Keep researching
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                stop();
-                blocker.proceed?.();
-              }}
-            >
-              Stop research
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        />
+      )}
     </PageShell>
   );
 }

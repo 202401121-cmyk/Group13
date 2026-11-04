@@ -229,7 +229,7 @@ function ResearchPage() {
                           dispatch({ type: "BACK_TO_REQUEST" });
                           requestAnimationFrame(() => textRef.current?.focus());
                         }}
-                        className="mt-4 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                        className="mt-4 inline-flex min-h-11 items-center text-sm font-medium text-primary underline-offset-4 hover:underline"
                       >
                         Describe it in my own words
                       </button>

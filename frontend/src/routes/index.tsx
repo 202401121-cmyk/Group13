@@ -132,7 +132,7 @@ function Index() {
           </div>
         </section>
 
-        <section id="how" className="scroll-mt-28 border-y border-border bg-secondary/60">
+        <section id="how" className="border-y border-border bg-secondary/60">
           <div className="mx-auto max-w-6xl px-6 py-24">
             <div data-reveal className="grid gap-6 md:grid-cols-[1.2fr_1fr] md:items-end">
               <SectionHeading
@@ -189,7 +189,7 @@ function Index() {
           </div>
         </section>
 
-        <section id="start" data-reveal className="mx-auto max-w-4xl scroll-mt-28 px-6 py-20">
+        <section id="start" data-reveal className="mx-auto max-w-4xl px-6 py-20">
           <ResearchInput />
         </section>
       </div>

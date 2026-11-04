@@ -67,9 +67,17 @@ export function MissingSession() {
   );
 }
 
+/**
+ * Shown until the session is read from this tab. It is one screen tall, like the questions and results
+ * columns, so the footer starts off screen and does not jump when the page fills in (CLS).
+ */
 export function PageLoading() {
   return (
-    <div className="mx-auto max-w-3xl space-y-4 px-6 py-24" aria-busy="true" aria-label="Loading">
+    <div
+      className="mx-auto min-h-svh max-w-3xl space-y-4 px-6 py-24"
+      aria-busy="true"
+      aria-label="Loading"
+    >
       <div className="skeleton h-10 w-2/3" />
       <div className="skeleton h-5 w-1/2" />
     </div>

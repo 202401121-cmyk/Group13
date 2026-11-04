@@ -6,13 +6,15 @@ export const pillButton = cva(
   {
     variants: {
       variant: {
+        // The transparent border is invisible normally and becomes the button's edge in forced-colours mode.
         primary:
-          "primary-button bg-primary text-primary-foreground shadow-soft hover:brightness-105 active:brightness-95",
+          "primary-button border border-transparent bg-primary text-primary-foreground shadow-soft hover:brightness-105 active:brightness-95",
         ghost: "text-foreground hover:bg-secondary",
         outline: "border border-border bg-card text-foreground hover:border-primary/50",
         link: "text-foreground hover:text-primary",
       },
-      size: { sm: "h-9 px-4 text-sm", md: "h-11 px-6 text-sm", lg: "h-13 px-7 text-base" },
+      // Every size is at least 44 px tall: the smallest touch target ShopSense allows.
+      size: { sm: "h-11 px-4 text-sm", md: "h-11 px-6 text-sm", lg: "h-13 px-7 text-base" },
     },
     defaultVariants: { variant: "primary", size: "md" },
   },

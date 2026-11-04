@@ -5,8 +5,11 @@ import { getInterviewService } from "./service";
 import { REQUEST_TIMEOUT_MS } from "./types";
 import { saveSession, useSession } from "@/lib/session/store";
 
-/** Delay before "Thinking about your answer" appears, so fast replies don't flash it. */
-export const THINKING_DELAY_MS = 700;
+/**
+ * Delay before "Thinking about your answer" appears. The design asks for a status message once a wait passes
+ * 400 ms; shorter replies never flash it.
+ */
+export const THINKING_DELAY_MS = 400;
 
 /**
  * Owns one interview: restores it from the session, persists every change,

@@ -132,7 +132,11 @@ function QuestionsPage() {
   return (
     <PageShell>
       <div className="mx-auto grid max-w-6xl gap-8 px-4 pb-44 pt-10 sm:px-6 md:pt-14 lg:grid-cols-[minmax(0,1fr)_20rem] lg:pb-16">
-        <div className="flex min-w-0 flex-col gap-5">
+        {/*
+          At least one screen tall, so the brief panel and footer below start off screen and do not jump each
+          time a new question is a different height (CLS was 0.38 on a phone).
+        */}
+        <div className="flex min-h-svh min-w-0 flex-col gap-5">
           <div>
             <Link
               to="/s/$sessionId/criteria"
@@ -237,7 +241,7 @@ function QuestionsPage() {
             <>
               <a
                 href="#current-question"
-                className="sr-only focus:not-sr-only focus:self-start focus:rounded-full focus:bg-card focus:px-4 focus:py-2 focus:text-sm focus:text-primary"
+                className="sr-only focus:not-sr-only focus:inline-flex focus:min-h-11 focus:items-center focus:self-start focus:rounded-full focus:bg-card focus:px-4 focus:text-sm focus:text-primary"
               >
                 Jump to question
               </a>

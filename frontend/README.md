@@ -50,17 +50,18 @@ Both are read at build time and end up in the browser, so neither may ever hold 
 
 ## Scripts
 
-| Script                    | What it does                                                                                                                                                           |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`             | Dev server on port 3000                                                                                                                                                |
-| `npm run build`           | Builds the app and its Node server into `.output/`                                                                                                                     |
-| `npm start`               | Runs the built server: `node .output/server/index.mjs` (set `PORT` to change the port)                                                                                 |
-| `npm run lint`            | ESLint, with Prettier as a rule                                                                                                                                        |
-| `npm run typecheck`       | `tsc --noEmit`                                                                                                                                                         |
-| `npm test`                | Vitest unit tests (no network)                                                                                                                                         |
-| `npm run test:e2e`        | Builds, starts the server on port 3100 and runs the Playwright flow test in mock mode, with axe on every page. Needs a browser once: `npx playwright install chromium` |
-| `npm run format`          | Prettier over everything                                                                                                                                               |
-| `npm run types:contracts` | Regenerates the contract types (add `-- --force` to redo them even when up to date)                                                                                    |
+| Script                    | What it does                                                                                                                                                                                   |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`             | Dev server on port 3000                                                                                                                                                                        |
+| `npm run build`           | Builds the app and its Node server into `.output/`                                                                                                                                             |
+| `npm start`               | Runs the built server: `node .output/server/index.mjs` (set `PORT` to change the port)                                                                                                         |
+| `npm run lint`            | ESLint, with Prettier as a rule                                                                                                                                                                |
+| `npm run typecheck`       | `tsc --noEmit`                                                                                                                                                                                 |
+| `npm test`                | Vitest unit tests (no network)                                                                                                                                                                 |
+| `npm run test:e2e`        | Builds, starts the server on port 3100 and runs every Playwright test in mock mode: the flow test and the quality specs. Needs a browser once: `npx playwright install chromium`               |
+| `npm run test:quality`    | Only the quality specs in `e2e/quality/` (axe on every screen and state, keyboard, screen sizes, zoom, motion, forced colours, Web Vitals, bundle size). See `docs/frontend-quality-report.md` |
+| `npm run format`          | Prettier over everything                                                                                                                                                                       |
+| `npm run types:contracts` | Regenerates the contract types (add `-- --force` to redo them even when up to date)                                                                                                            |
 
 ## Contract types
 
@@ -95,7 +96,7 @@ src/
     session/store.ts      session IDs ("sess_" + 24 hex, as the backend makes them) and session storage
   test/                   Vitest tests, helpers/ with a fake backend
   types/contracts/        generated, git-ignored
-e2e/                      Playwright flow test
+e2e/                      Playwright flow test; quality/ holds the FE-4 quality specs
 scripts/contract-types.mjs
 ```
 

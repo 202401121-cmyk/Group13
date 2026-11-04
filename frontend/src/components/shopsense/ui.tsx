@@ -57,7 +57,7 @@ export function Card({ className, children }: { className?: string; children: Re
 
 export function BrandMark({ to = "/" as const }: { to?: "/" }) {
   return (
-    <Link to={to} className="flex items-center gap-2.5" aria-label="ShopSense home">
+    <Link to={to} className="flex min-h-11 items-center gap-2.5" aria-label="ShopSense home">
       <span className="grid h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground">
         <svg
           viewBox="0 0 24 24"

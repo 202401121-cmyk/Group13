@@ -32,7 +32,12 @@ export default defineConfig({
       // src/server.ts wraps TanStack Start's server entry with our own error page.
       server: { entry: "server" },
     }),
-    nitro({ preset: "node-server" }),
+    nitro({
+      preset: "node-server",
+      // Pre-compress the built files (gzip and brotli) so `npm start` serves them compressed: about 70%
+      // less to download on a phone. Found by the FE-4 Lighthouse runs (uses-text-compression).
+      compressPublicAssets: { gzip: true, brotli: true },
+    }),
     viteReact(),
     tailwindcss(),
   ],

@@ -36,7 +36,7 @@ export const FocusCard = forwardRef<
       id="current-question"
       tabIndex={-1}
       aria-labelledby="question-text"
-      className="rounded-2xl border border-border bg-card p-6 shadow-soft outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-8"
+      className="rounded-2xl border border-border bg-card p-6 shadow-soft outline-hidden focus-visible:ring-2 focus-visible:ring-ring sm:p-8"
     >
       {step.note && (
         <p className="mb-5 rounded-2xl bg-primary-soft px-4 py-3 text-sm leading-relaxed text-primary-soft-foreground">

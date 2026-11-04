@@ -40,12 +40,12 @@ function display(b: Brief, k: FieldKey): string | null {
 }
 
 const inputCls =
-  "w-full rounded-xl border border-input bg-surface px-4 py-2.5 text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15 aria-invalid:border-destructive";
+  "w-full rounded-xl border border-input bg-surface px-4 py-2.5 text-foreground outline-hidden focus:border-primary focus:ring-4 focus:ring-primary/15 aria-invalid:border-destructive";
 
 function FieldError({ id, msg }: { id: string; msg: string | null }) {
   if (!msg) return null;
   return (
-    <p id={id} className="mt-2 text-sm font-medium text-destructive">
+    <p id={id} role="alert" className="mt-2 text-sm font-medium text-destructive">
       <span aria-hidden>⚠ </span>
       {msg}
     </p>
@@ -205,14 +205,14 @@ function Editor({
               {excl.map((x) => (
                 <li
                   key={x}
-                  className="inline-flex items-center gap-1 rounded-full bg-accent py-1 pl-3 pr-1 text-sm text-accent-foreground"
+                  className="inline-flex min-h-11 items-center gap-1 rounded-full bg-accent pl-4 text-sm text-accent-foreground"
                 >
                   {x}
                   <button
                     type="button"
                     onClick={() => setExcl(excl.filter((e) => e !== x))}
                     aria-label={`Remove ${x}`}
-                    className="grid h-6 w-6 place-items-center rounded-full hover:bg-primary/10"
+                    className="grid h-11 w-11 place-items-center rounded-full hover:bg-primary/10"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -263,6 +263,15 @@ export function Understanding(p: Props) {
   const h1 = useRef<HTMLHeadingElement>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   useEffect(() => h1.current?.focus(), []);
+
+  // When an editor closes (Save, Cancel or Escape), focus goes back to that field's Edit button, not the page.
+  const editButtons = useRef<Partial<Record<FieldKey, HTMLButtonElement | null>>>({});
+  const lastEditing = useRef<FieldKey | null>(null);
+  useEffect(() => {
+    const closed = lastEditing.current;
+    lastEditing.current = p.editingField;
+    if (closed && p.editingField === null) editButtons.current[closed]?.focus();
+  }, [p.editingField]);
 
   function startOver() {
     if (p.edited) setConfirmReset(true);
@@ -315,10 +324,13 @@ export function Understanding(p: Props) {
                 <dd className="sm:text-right">
                   <button
                     type="button"
+                    ref={(el) => {
+                      editButtons.current[f.key] = el;
+                    }}
                     onClick={() => p.onEdit(f.key)}
                     disabled={p.editingField !== null}
                     aria-label={`${v ? "Edit" : "Add"} ${f.name}`}
-                    className="rounded-full px-3 py-1 text-sm font-medium text-primary hover:bg-accent disabled:opacity-40"
+                    className="min-h-11 rounded-full px-4 text-sm font-medium text-primary hover:bg-accent disabled:opacity-40"
                   >
                     {v ? "Edit" : "Add"}
                   </button>

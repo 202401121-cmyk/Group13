@@ -136,10 +136,10 @@ export function Clarification({
             onChange={(e) => setCustom(e.target.value)}
             aria-invalid={!!error}
             aria-describedby={error ? "custom-error" : undefined}
-            className="w-full rounded-full border border-input bg-surface px-5 py-3 text-foreground outline-none focus:border-primary focus:ring-4 focus:ring-primary/15"
+            className="w-full rounded-full border border-input bg-surface px-5 py-3 text-foreground outline-hidden focus:border-primary focus:ring-4 focus:ring-primary/15"
           />
           {error && (
-            <p id="custom-error" className="text-sm font-medium text-destructive">
+            <p id="custom-error" role="alert" className="text-sm font-medium text-destructive">
               <span aria-hidden>⚠ </span>
               {error}
             </p>
@@ -152,7 +152,7 @@ export function Clarification({
       <button
         type="button"
         onClick={onEdit}
-        className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        className="inline-flex min-h-11 items-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
       >
         Change my request instead
       </button>

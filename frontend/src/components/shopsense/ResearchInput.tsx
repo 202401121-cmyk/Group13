@@ -43,10 +43,10 @@ export function ResearchInput() {
           placeholder="e.g. A lightweight laptop for coding under ₹70,000…"
           aria-invalid={!!error}
           aria-describedby="research-help research-error"
-          className="mt-6 w-full resize-none rounded-2xl border border-input bg-card p-5 text-base text-foreground shadow-soft outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-4 focus:ring-primary/10"
+          className="mt-6 w-full resize-none rounded-2xl border border-input bg-card p-5 text-base text-foreground shadow-soft outline-hidden transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-4 focus:ring-primary/10"
         />
         {error && (
-          <p id="research-error" className="mt-2 text-sm text-destructive">
+          <p id="research-error" role="alert" className="mt-2 text-sm text-destructive">
             {error}
           </p>
         )}

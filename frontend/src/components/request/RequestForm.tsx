@@ -49,12 +49,13 @@ export const RequestForm = forwardRef<HTMLTextAreaElement, Props>(function Reque
             placeholder="e.g. laptop for coding under 70k, at least 16 GB RAM, not too heavy"
             aria-invalid={!!error}
             aria-describedby={`request-count${error ? " request-error" : ""}`}
-            className="mt-3 w-full resize-y rounded-2xl border border-input bg-surface p-4 text-base leading-relaxed text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-4 focus:ring-primary/15 aria-invalid:border-destructive"
+            className="mt-3 w-full resize-y rounded-2xl border border-input bg-surface p-4 text-base leading-relaxed text-foreground outline-hidden transition placeholder:text-muted-foreground/70 focus:border-primary focus:ring-4 focus:ring-primary/15 aria-invalid:border-destructive"
           />
           <div className="mt-2 flex flex-wrap items-start justify-between gap-2 text-sm">
             {error ? (
               <p
                 id="request-error"
+                role="alert"
                 className="flex items-center gap-1.5 font-medium text-destructive"
               >
                 <span aria-hidden>⚠</span> {error}
