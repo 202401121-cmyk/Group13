@@ -1,0 +1,246 @@
+$ python -m app.cli "Gaming laptop under 80k"
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Laptop · use gaming · budget up to ₹80,000 · region IN · detected by llm
+Criteria (fallback):
+  - Processor speed: How fast the processor handles heavy work such as coding, video editing or many open apps without slowing down.
+  - RAM and storage: How much RAM and SSD space it has, so many apps stay open and your files fit without running out of room.
+  - Battery life: How many hours it runs on one charge during real work, so you can use it away from a plug.
+  - Display quality: How sharp, bright and easy on the eyes the screen is for long hours, including use near a sunny window.
+  - Keyboard comfort: How pleasant and accurate the keys feel during long typing sessions, including a backlight for dim rooms.
+  - Weight: How heavy it is to carry every day in a bag; a lighter laptop is easier for travel and college.
+  - Build durability: How well the body, hinge and ports hold up to daily carrying, opening and closing over several years.
+  - Value for money: How much laptop you get for the price you pay, compared with other models at the same budget.
+Q: How much do you care about processor speed?
+A: Skip
+Q: How much do you care about RAM and storage?
+A: Skip
+Q: How much do you care about battery life?
+A: Skip
+Q: How much do you care about display quality?
+A: Skip
+Q: How much do you care about keyboard comfort?
+A: Skip
+Q: How much do you care about value for money?
+A: Skip
+Q: How much do you care about weight?
+A: Skip
+Q: How much do you care about build durability?
+A: Skip
+Rubric (what matters to you):
+  - Processor speed: 9/10, 18% of the score (skipped)
+  - RAM and storage: 7/10, 14% of the score (skipped)
+  - Battery life: 7/10, 14% of the score (skipped)
+  - Display quality: 6/10, 12% of the score (skipped)
+  - Keyboard comfort: 6/10, 12% of the score (skipped)
+  - Weight: 5/10, 10% of the score (skipped)
+  - Build durability: 5/10, 10% of the score (skipped)
+  - Value for money: 6/10, 12% of the score (skipped)
+
+Results for: Gaming laptop under 80k
+
+Ranked:
+  1. Nova Book 14: score 78.3, coverage 100%, chance of being first 46%
+       source: https://example-reviews.in/kestrel-slim-15-review
+       source: https://www.reddit.com/r/developersIndia/comments/abc123/
+  2. Kestrel Slim 15: score 75.9, coverage 100%, chance of being first 41%
+       source: https://kestrel.example.com/slim-15/specs
+       source: https://example-reviews.in/kestrel-slim-15-review
+  3. Orion Play 15: score 67.0, coverage 90%, chance of being first 13%
+       source: https://example-reviews.in/kestrel-slim-15-review
+
+Filtered out:
+  - Aurora Air 13: ₹84,990 is above your ₹70,000 budget
+
+Can't tell:
+  - Vela Pro 14: We couldn't confirm it has at least 16 GB RAM
+
+Coverage note: YouTube timed out.
+(exit 0, 9 s)
+
+$ python -m app.cli "watch"
+Saved: no, the database is off (no DATABASE_URL)
+Which kind of watch do you mean?
+  1. Smartwatch
+  2. Fitness band
+  3. Analog watch
+(exit 1, 2 s)
+
+$ python -m app.cli "noise cancelling earbuds for the gym under 5000"
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Earbuds · use gym · budget up to ₹5,000 · 1 must-haves · region IN · detected by llm
+Criteria (fallback):
+  - Sound quality: How clear, balanced and detailed music and voices sound through the earbuds, from deep bass to crisp high notes.
+  - Noise cancellation: How well the earbuds block traffic, office chatter and other outside noise, so you can listen at a lower volume.
+  - Battery life: How many hours the earbuds play on one charge, plus the extra charges stored in the case.
+  - Fit and comfort: How securely and comfortably the earbuds sit in your ears for hours, even while walking or working out.
+  - Call quality: How clearly people hear your voice on calls, even on a busy street or in a windy place.
+  - Connection stability: How reliably the earbuds stay connected to your phone without drops, delays or trouble pairing.
+  - Water resistance: How well the earbuds survive sweat and rain, shown by their IPX rating, which matters for gym and outdoor use.
+  - Value for money: How much you get from these earbuds for the price you pay, compared with others at the same budget.
+Q: How much do you care about sound quality?
+A: Skip
+Q: How much do you care about fit and comfort?
+A: Skip
+Q: How much do you care about noise cancellation?
+A: Skip
+Q: How much do you care about battery life?
+A: Skip
+Q: How much do you care about value for money?
+A: Skip
+Q: How much do you care about call quality?
+A: Skip
+Q: How much do you care about connection stability?
+A: Skip
+Q: How much do you care about water resistance?
+A: Skip
+Rubric (what matters to you):
+  - Sound quality: 8/10, 17% of the score (skipped)
+  - Noise cancellation: 6/10, 13% of the score (skipped)
+  - Battery life: 6/10, 13% of the score (skipped)
+  - Fit and comfort: 7/10, 15% of the score (skipped)
+  - Call quality: 5/10, 11% of the score (skipped)
+  - Connection stability: 5/10, 11% of the score (skipped)
+  - Water resistance: 4/10, 9% of the score (skipped)
+  - Value for money: 6/10, 13% of the score (skipped)
+
+Results for: noise cancelling earbuds for the gym under 5000
+
+Ranked:
+  1. Nova Book 14: score 78.3, coverage 100%, chance of being first 46%
+       source: https://example-reviews.in/kestrel-slim-15-review
+       source: https://www.reddit.com/r/developersIndia/comments/abc123/
+  2. Kestrel Slim 15: score 75.9, coverage 100%, chance of being first 41%
+       source: https://kestrel.example.com/slim-15/specs
+       source: https://example-reviews.in/kestrel-slim-15-review
+  3. Orion Play 15: score 67.0, coverage 90%, chance of being first 13%
+       source: https://example-reviews.in/kestrel-slim-15-review
+
+Filtered out:
+  - Aurora Air 13: ₹84,990 is above your ₹70,000 budget
+
+Can't tell:
+  - Vela Pro 14: We couldn't confirm it has at least 16 GB RAM
+
+Coverage note: YouTube timed out.
+(exit 0, 9 s)
+
+$ python -m app.cli "aquarium for a small bedroom under 15000"
+Saved: no, the database is off (no DATABASE_URL)
+What kind of product are you looking for?
+  1. Smartphone
+  2. Laptop
+  3. Mixer grinder
+  4. Smartwatch
+(Noted: budget up to ₹15,000.)
+(exit 1, 2 s)
+
+$ python -m app.cli "telescope for stargazing under 30000"
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Telescope · use stargazing · budget up to ₹30,000 · region IN · detected by llm
+Criteria (fallback):
+  - Effectiveness: How well it does the main job you are buying it for, in real everyday use at home.
+  - Reliability: How rarely it breaks down or stops working properly, based on what owners report over months of use.
+  - Ease of use: How simple it is to set up, learn and use every day, without confusing steps.
+  - Build durability: How well it holds up to daily use and keeps working for years without wearing out.
+  - Safety: How well it protects you and your home from harm, such as burns, electric shocks or sharp edges.
+  - After-sales service: How easy it is to get help, repairs, spare parts and warranty service from the seller or brand.
+  - Value for money: How much you get for the price you pay, compared with other choices at the same budget.
+Q: How much do you care about effectiveness?
+A: Skip
+Q: How much do you care about reliability?
+A: Skip
+Q: How much do you care about ease of use?
+A: Skip
+Q: How much do you care about build durability?
+A: Skip
+Q: How much do you care about safety?
+A: Skip
+Q: How much do you care about value for money?
+A: Skip
+Q: How much do you care about after-sales service?
+A: Skip
+Rubric (what matters to you):
+  - Effectiveness: 9/10, 20% of the score (skipped)
+  - Reliability: 7/10, 16% of the score (skipped)
+  - Ease of use: 6/10, 14% of the score (skipped)
+  - Build durability: 6/10, 14% of the score (skipped)
+  - Safety: 6/10, 14% of the score (skipped)
+  - After-sales service: 4/10, 9% of the score (skipped)
+  - Value for money: 6/10, 14% of the score (skipped)
+
+Results for: telescope for stargazing under 30000
+
+Ranked:
+  1. Nova Book 14: score 78.3, coverage 100%, chance of being first 46%
+       source: https://example-reviews.in/kestrel-slim-15-review
+       source: https://www.reddit.com/r/developersIndia/comments/abc123/
+  2. Kestrel Slim 15: score 75.9, coverage 100%, chance of being first 41%
+       source: https://kestrel.example.com/slim-15/specs
+       source: https://example-reviews.in/kestrel-slim-15-review
+  3. Orion Play 15: score 67.0, coverage 90%, chance of being first 13%
+       source: https://example-reviews.in/kestrel-slim-15-review
+
+Filtered out:
+  - Aurora Air 13: ₹84,990 is above your ₹70,000 budget
+
+Can't tell:
+  - Vela Pro 14: We couldn't confirm it has at least 16 GB RAM
+
+Coverage note: YouTube timed out.
+(exit 0, 9 s)
+
+$ python -m app.cli "treadmill for home workouts under 40000"
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Treadmill · use home workouts · budget up to ₹40,000 · region IN · detected by llm
+Criteria (fallback):
+  - Effectiveness: How well it does the main job you are buying it for, in real everyday use at home.
+  - Reliability: How rarely it breaks down or stops working properly, based on what owners report over months of use.
+  - Ease of use: How simple it is to set up, learn and use every day, without confusing steps.
+  - Build durability: How well it holds up to daily use and keeps working for years without wearing out.
+  - Safety: How well it protects you and your home from harm, such as burns, electric shocks or sharp edges.
+  - After-sales service: How easy it is to get help, repairs, spare parts and warranty service from the seller or brand.
+  - Value for money: How much you get for the price you pay, compared with other choices at the same budget.
+Q: How much do you care about effectiveness?
+A: Skip
+Q: How much do you care about reliability?
+A: Skip
+Q: How much do you care about ease of use?
+A: Skip
+Q: How much do you care about build durability?
+A: Skip
+Q: How much do you care about safety?
+A: Skip
+Q: How much do you care about value for money?
+A: Skip
+Q: How much do you care about after-sales service?
+A: Skip
+Rubric (what matters to you):
+  - Effectiveness: 9/10, 20% of the score (skipped)
+  - Reliability: 7/10, 16% of the score (skipped)
+  - Ease of use: 6/10, 14% of the score (skipped)
+  - Build durability: 6/10, 14% of the score (skipped)
+  - Safety: 6/10, 14% of the score (skipped)
+  - After-sales service: 4/10, 9% of the score (skipped)
+  - Value for money: 6/10, 14% of the score (skipped)
+
+Results for: treadmill for home workouts under 40000
+
+Ranked:
+  1. Nova Book 14: score 78.3, coverage 100%, chance of being first 46%
+       source: https://example-reviews.in/kestrel-slim-15-review
+       source: https://www.reddit.com/r/developersIndia/comments/abc123/
+  2. Kestrel Slim 15: score 75.9, coverage 100%, chance of being first 41%
+       source: https://kestrel.example.com/slim-15/specs
+       source: https://example-reviews.in/kestrel-slim-15-review
+  3. Orion Play 15: score 67.0, coverage 90%, chance of being first 13%
+       source: https://example-reviews.in/kestrel-slim-15-review
+
+Filtered out:
+  - Aurora Air 13: ₹84,990 is above your ₹70,000 budget
+
+Can't tell:
+  - Vela Pro 14: We couldn't confirm it has at least 16 GB RAM
+
+Coverage note: YouTube timed out.
+(exit 0, 8 s)
+

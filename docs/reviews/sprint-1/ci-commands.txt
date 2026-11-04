@@ -1,0 +1,47 @@
+commit: 99f92c1 Merge pull request #32 from 202401121-cmyk/chore/FE-4-quality-gate
+date: 2026-11-04 15:41 UTC  os: Windows 11, Git Bash; Python 3.11.15; Node v22.18.0
+
+$ actionlint .github/workflows/ci.yml
+0 errors
+
+$ backend: ruff check . && ruff format --check .
+All checks passed!
+191 files already formatted
+
+$ backend: mypy app
+Success: no issues found in 86 source files
+
+$ backend: pytest -m 'not live' --cov  (TEST_DATABASE_URL = throwaway postgres:17 on 127.0.0.1:55432, REQUIRE_DB_TESTS=1)
+Required test coverage of 70.0% reached. Total coverage: 97.63%
+1014 passed, 3 deselected, 1 warning in 35.21s
+
+$ backend: pytest tests/contract -q
+95 passed in 0.37s
+
+$ backend: pytest tests/faults -q
+20 passed, 1 warning in 7.63s
+
+$ backend: python -m scripts.export_contracts && git diff --exit-code -- ../shared/contracts
+wrote 56 schemas and 12 examples to <repo>\shared\contracts
+no drift
+
+$ ml: ruff, mypy --strict, pytest ml/tests, check_labels, kappa
+All checks passed!
+16 files already formatted
+Success: no issues found in 11 source files
+118 passed in 2.54s
+OK: 3 files, 103 rows checked, no errors.
+PASS: four-class kappa 0.859 is at least 0.800.
+tracked raw data or model files: 0
+
+$ frontend: npm run lint && npm run typecheck && npm test && npm run build
+lint: exit 0
+typecheck: exit 0
+      Tests  107 passed (107)
+✓ built in 1.15s
+
+$ frontend: npm run test:e2e  (mock mode, axe on every page, the FE-4 quality specs)
+  2 skipped
+  36 passed (2.4m)
+
+done

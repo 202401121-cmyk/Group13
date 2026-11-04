@@ -1,0 +1,14 @@
+intake: 860 ms, ready_for_research=True
+criteria: 4984 ms, source=fallback, 8 criteria
+start: 31 ms, kind=question
+turn 1: 0 ms, kind=question
+turn 2: 31 ms, kind=question
+turn 3: 0 ms, kind=question
+turn 4: 16 ms, kind=question
+turn 5: 16 ms, kind=question
+turn 6: 15 ms, kind=question
+turn 7: 16 ms, kind=question
+turn 8: 16 ms, kind=finished
+turns timed: 8; slowest 31 ms; mean 14 ms
+stored in the session: interview state keys = ['criteria', 'history', 'intent', 'manual_weights', 'remembered', 'session_id']; answers recorded = 8
+finished with a rubric: True
