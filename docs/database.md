@@ -132,7 +132,7 @@ Run against the team's Supabase project on **3 Nov 2026** (US-01). No URL, host 
 | Row level security | `relrowsecurity` is true |
 | Data API roles | `has_table_privilege('anon', 'public.requests', 'select')` and `has_table_privilege('authenticated', 'public.requests', 'insert')` are both false |
 | Health | `GET /api/health` answered `"database": "ok"` |
-| Saving | One made-up request through the CLI and one through `POST /api/presearch/intake`: exactly 2 rows for their session IDs, both with `intent_source` `llm`. Both rows were then deleted by session ID; 0 remain |
+| Saving | One made-up request through the CLI and one through `POST /api/presearch/intake`: exactly 2 rows for their session IDs, both with `intent_source` `llm`. They stayed in the table until the follow-up below deleted them |
 | Down drill (wrong password) | Health answered `"database": "down"`. The intake request still answered (HTTP 200 in 3.5 s) and a full CLI search finished (exit 0, about 13 s) with "Saved: no, the database could not be reached. The search goes on." Nothing was saved. The logs show only the host and the error type (`PoolTimeout`, `TimeoutError`, then "skipping the database for 30 s"): no traceback, URL or password |
 
 **Security Advisor** (Advisors > Security, read in the dashboard the same day):
@@ -144,3 +144,19 @@ Run against the team's Supabase project on **3 Nov 2026** (US-01). No URL, host 
 - `public.rls_auto_enable()`: **Public Can Execute SECURITY DEFINER Function** and **Signed-In Users Can Execute
   SECURITY DEFINER Function**. Supabase added this function when "automatic RLS" was chosen at project creation.
   Its execute rights are revoked by its own migration ("US-01: lock down the automatic RLS helper function").
+
+### Follow-up, 4 Nov 2026 (W1b)
+
+- **Helper locked:** migration `20261103102906_lock_rls_auto_enable` revoked execute on `public.rls_auto_enable()` from
+  `public`, `anon`, `authenticated` and `service_role`. `has_function_privilege('anon', 'public.rls_auto_enable()',
+  'execute')` is false.
+- **Test rows deleted:** the table held exactly five rows, all made-up test requests. They were the two from the
+  check above and three from the full-stack live test and the Sprint 1 review check (3 Nov 17:56 and 17:57 UTC,
+  4 Nov 15:47 UTC). Only `session_id` and `created_at` were read. They were deleted by their five session IDs, and
+  `select count(*) from public.requests` now returns **0**.
+- **Security Advisor**, read the same day: one finding, **RLS Enabled No Policy** on `public.requests` (INFO). The two
+  `rls_auto_enable()` warnings are gone. That remaining finding is the intended design: row level security is on,
+  there are no policies, and `anon` and `authenticated` have no access, so only the backend (through
+  `DATABASE_URL`) can read or write the table.
+- **Every later live test** run with the database on adds one row for its session. Delete such rows by session ID
+  the same way (read only `session_id` and `created_at` first).
