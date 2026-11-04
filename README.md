@@ -16,6 +16,13 @@ exact quotes, matches different names for the same product, and checks the evide
 with the reasons each product fits, how confident the ranking is, the source behind every claim, and current
 prices with buy links. When a service fails or a fact can't be found, it keeps going and says what is missing.
 
+**At the end of Sprint 1** the whole path runs, in the browser and in the terminal: you type a request, ShopSense
+says what it understood (product, use, budget, region and rules), shows the criteria it will compare with a
+definition for each, interviews you one question at a time, and turns your answers into a brief. The research and
+ranking stages are still placeholders, so every search returns the same example laptops; the real research,
+matching and ranking arrive in Sprints 2 and 3. The request is saved to the database when one is set up, and
+everything still works without it, or without any API key.
+
 ## How a search works
 
 ```mermaid
@@ -31,68 +38,54 @@ time limit and a fallback, so one failure never stops the search.
 |---|---|---|---|---|---|
 | 1 | intake | Reads the product type, use, budget, region, must-haves and exclusions | Keyword rules for product type, budget and region | 5 s | Built (US-02) |
 | 2 | criteria | Picks 7 to 10 criteria for that product and use, each with a one-line definition | A fixed set for the category or its product family | 10 s | Built (US-03) |
-| 3 | interview | Asks one question at a time and turns the answers into weighted priorities | Finishes with each criterion's default weight | 5 s per turn | Stub (US-05) |
-| 4 | research | Searches Reddit, YouTube, review sites and the web in parallel | One query and no sources | 40 s | Stub (US-12) |
-| 5 | extract | Pulls product mentions and claims, each with its exact quote | Nothing taken from that source | 15 s per source | Stub (US-14) |
-| 6 | match | Groups different names and variants of the same product | Example products | 5 s | Stub (US-15) |
-| 7 | verify | Settles one value per product and criterion; marks disputed and unknown values | Example values, sources ranked by tier | 2 s | Stub (US-16) |
-| 8 | enrich | Looks up missing important facts for the top products | Nothing looked up | 20 s | Stub (US-41) |
-| 9 | decide | Filters by must-haves and ranks by your priorities, in plain code | Example ranking | 2 s | Stub (US-17, US-18) |
-| 10 | explain | Explains why each top product fits, citing its claims | One template sentence per product | 15 s | Stub (US-20) |
-| 11 | commerce | Finds a current price and buy link for the exact model | No offers | 15 s | Stub (US-24) |
+| 3 | interview | Asks one question at a time and turns the answers into weighted priorities | Finishes with each criterion's default weight | 5 s per turn | Built (US-05) |
+| 4 | research | Searches Reddit, YouTube, review sites and the web in parallel | One query and no sources | 40 s | Placeholder; the Reddit source is built (US-12) |
+| 5 | extract | Pulls product mentions and claims, each with its exact quote | Nothing taken from that source | 15 s per source | Placeholder (US-14) |
+| 6 | match | Groups different names and variants of the same product | Example products | 5 s | Placeholder (US-15) |
+| 7 | verify | Settles one value per product and criterion; marks disputed and unknown values | Example values, sources ranked by tier | 2 s | Placeholder (US-16) |
+| 8 | enrich | Looks up missing important facts for the top products | Nothing looked up | 20 s | Placeholder (US-41) |
+| 9 | decide | Filters by must-haves and ranks by your priorities, in plain code | Example ranking | 2 s | Placeholder (US-17, US-18) |
+| 10 | explain | Explains why each top product fits, citing its claims | One template sentence per product | 15 s | Placeholder (US-20) |
+| 11 | commerce | Finds a current price and buy link for the exact model | No offers | 15 s | Placeholder (US-24) |
 
 A whole search stops after 150 seconds and returns the best result so far, marked as partial. The pipeline keeps
-its state in memory and never needs the database to finish; results are saved at the end.
+its state in memory and never needs the database to finish.
 
-## Project status
+## Sprint 1 status
 
-As of 25 October 2026, commit `dc1187c`.
+Checked against `main` and the open pull requests on 3 November 2026. "Merged" means the code and its tests are
+on `main`; "Pull request" means it is finished on its branch and waiting for review.
 
-| Area | Status | Story | Sprint |
-|---|---|---|---|
-| Repository, CI and secret scanning | Built | US-25 | 1 |
-| Pipeline runner, 11 stage stubs, CLI and search API | Built | US-52 | 1 |
-| LLM wrapper: four providers, fallback, context fitting | Built | US-26 | 1 |
-| Intake: product type, use, budget and must-haves | Built | US-02 | 1 |
-| Criteria with definitions, saved once, with fallback sets | Built | US-03 | 1 |
-| Interview, one question at a time, and pre-search API | In progress | US-05 | 1 |
-| Request box in the browser | Planned | US-01 | 1 |
-| Research across sources, Reddit quality scores | Planned | US-12, US-13, US-27 | 2 |
-| Claim extraction with exact quotes | Planned | US-14 | 2 |
-| LLM circuit breaker and provider rotation | Planned | US-46 | 2 |
-| Product matching (ML) | Planned | US-15 | 3 |
-| Source trust, disputes and unsourced products (ML) | Planned | US-16, US-40 | 3 |
-| Filtering and ranking | Planned | US-17, US-18 | 3 |
-| Results page with clickable sources | Planned | US-21 | 3 |
-| Smart interview (ML) | Planned | US-04 | 4 |
-| Honest confidence and ties (ML) | Planned | US-19 | 4 |
-| Explanations | Planned | US-20 | 4 |
-| Database and login (Supabase) | Planned | US-30 | 4 |
-| Recorded-run replay and CI quality gate | Planned | US-49 | 4 |
-| Memory across searches (ML) | Planned | US-06 | 5 |
-| Checked explanations (ML) | Planned | US-22 | 5 |
-| Compare products and re-rank instantly | Planned | US-23 | 5 |
-| Prices and buy links | Planned | US-24 | 5 |
-| YouTube and hard-to-read pages | Planned | US-38 | 5 |
-| Missing-fact lookup | Planned | US-41 | 5 |
-| Worst-case test suite | Planned | US-50 | 6 |
+| Story or task | Owner | Status | Pull requests | Docs |
+|---|---|---|---|---|
+| US-52 Walking skeleton: pipeline runner, 11 stage placeholders, CLI and search API | Pal Jalodara | Merged | #1, #7 | [docs/frontend-api.md](docs/frontend-api.md) |
+| US-25 Repository, CI and secret scanning | Palak Patel | Merged; database tests in CI: pull request (`chore/CI-postgres`) | #2, #3, #9, #12, #16 | [CI workflow](.github/workflows/ci.yml) |
+| US-26 One LLM wrapper with fallback and context fitting | Jhanvi Barot | Merged | #4, #18 | [docs/api-setup.md](docs/api-setup.md) |
+| US-02 Detect category, use, budget and rules | Jhanvi Barot | Merged | #5 | |
+| US-03 Category-specific criteria | Jhanvi Barot | Merged | #6 | |
+| US-05 One question at a time, and the pre-search API | Jenish Kavad | Merged; browser origins list and API docs: pull request (`fix/backend-gaps-round-1`) | #8 | [docs/api/presearch.md](docs/api/presearch.md) |
+| US-01 Describe the need in plain words: the request saved to the database | Vaishvi Mehta | Merged | #17, #21, #22 | [docs/database.md](docs/database.md) |
+| US-01 and the frontend: request box, interview, brief and results screens | Yashkumar Patel, Manu Pardhan | Merged; quality gate (F4): pull request (`chore/FE-4-quality-gate`) | #24 | [frontend/README.md](frontend/README.md), [decision 0001](docs/decisions/0001-frontend-tanstack-start.md) |
+| ML workspace, public datasets and the matching baseline | Om Pandya, Rushiraj Navar, Palak Patel | Merged | #10, #13, #14, #15 | [ml/README.md](ml/README.md), [ml/MODELS.md](ml/MODELS.md) |
+| API sign-ups, smoke test and terms check | Jenish Kavad | Pull request (`chore/api-setup`) | | [docs/api-setup.md](docs/api-setup.md) |
+| Full-stack set-up: one-command run, doctor, live test | Pal Jalodara | Pull request (`chore/full-stack-setup-v3`) | | [docs/setup.md](docs/setup.md) |
+| Elicitation: survey, interviews, observation, expert interview, write-up | Jhanvi, Om, Rushiraj, Jenish, Harshkumar, Pal | In progress | | [docs/elicitation-kit.md](docs/elicitation-kit.md) |
+| Sprint 1 review check and close-out | Palak Patel, Om Pandya | After the merges | | |
 
-On the baseline calendar, 25 October falls in Sprint 3 (19 Oct – 1 Nov). Five of the seven Sprint 1 stories are
-merged; US-01 and US-05 are not on `main` yet.
+Merged ahead of plan (Sprint 2 stories): US-46 LLM routing by data class (#19), and the Reddit source of US-12
+(#20; the rest of US-12 is Sprint 2).
 
 ## Quick start
 
-The full guide (install, every setting, `scripts/dev.py` to run everything, `scripts/doctor.py` to check your
-machine, the live test and troubleshooting) is [docs/setup.md](docs/setup.md).
+The full guide, with every setting, the drills and troubleshooting, is [docs/setup.md](docs/setup.md). Keys:
+[docs/api-setup.md](docs/api-setup.md). The database: [docs/database.md](docs/database.md).
 
 ### Prerequisites
 
-- Python 3.11 or newer
-- Git
-- Node 20 or newer, only once the frontend app exists (it does not yet)
-
-On Windows, use Git Bash or PowerShell, and run `git config core.autocrlf false` after cloning. The repository's
-`.gitattributes` keeps line endings consistent.
+- Git, Python 3.11 or newer, and Node 20.19 or newer.
+- On Windows, use Git Bash or PowerShell, and run `git config core.autocrlf false` after cloning (the repository's
+  `.gitattributes` keeps line endings consistent). Keep the clone and its virtual environment in a short path,
+  such as `C:\dev\Group13`: installing numpy fails under long paths ([ml/README.md](ml/README.md) has the other fix).
 
 ### Backend
 
@@ -100,181 +93,139 @@ On Windows, use Git Bash or PowerShell, and run `git config core.autocrlf false`
 git clone https://github.com/202401121-cmyk/Group13.git
 cd Group13/backend
 python -m venv .venv
-source .venv/bin/activate        # macOS and Linux
-source .venv/Scripts/activate    # Windows, Git Bash
-.venv\Scripts\Activate.ps1       # Windows, PowerShell
+source .venv/Scripts/activate    # Windows, Git Bash  (macOS and Linux: source .venv/bin/activate)
+                                 # Windows, PowerShell: .venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
-cp ../.env.example ../.env       # then fill in only the keys your story needs
+cp ../.env.example ../.env       # optional: add only the keys you need
+python -m app.cli "best laptop for coding under 70k"   # one search in the terminal
+uvicorn app.main:app --port 8000                       # the API on http://localhost:8000
 ```
 
-Then, from `backend/`:
+You need no API keys to develop. Without keys, intake uses its keyword rules and criteria use the fixed sets, and
+without `DATABASE_URL` nothing is saved; the CLI, the API and every test still work.
+
+### Frontend
 
 ```bash
-pytest -q                                              # all tests
-ruff check . && ruff format --check .                  # lint
-mypy app                                               # strict type check
-python -m app.cli "best laptop for coding under 70k"   # one search, end to end
-uvicorn app.main:app --reload                          # the API on http://localhost:8000
+cd frontend
+npm ci              # also generates the contract types
+npm run dev         # http://localhost:3000, mock mode: built-in sample data, nothing sent anywhere
 ```
 
-The CLI prints what it understood, the criteria it will compare with their definitions, one interview question
-(the interview is still a stub), and a shortlist. Most stages are still stubs, so the shortlist is fixed example
-data for now. With the API running, `GET /api/health`
-answers `{"status": "ok", ...}` and `POST /api/search` runs a search.
+For live mode against your local backend, copy `frontend/.env.example` to `frontend/.env.local` (it sets
+`VITE_API_MODE=live` and `VITE_API_BASE_URL=http://localhost:8000`), or use `scripts/dev.py` below.
 
-You need no API keys to develop. Without keys, intake uses its keyword rules and criteria use the fixed sets,
-so the CLI, the API and every test still work. Tests never call a live API: `backend/tests/conftest.py` swaps in
-a fake LLM client for every test.
+### ML workspace
 
-### Optional live checks
-
-These call real providers with the keys in your own `.env`. They never run in CI, never print a key, and skip
-cleanly when no key is set.
+From the repository root, with the backend's virtual environment active:
 
 ```bash
-python -m scripts.smoke_llm          # one tiny call per LLM provider; prints limits and latency
-python -m evals.criteria.run_live    # generated criteria for six example briefs
+pip install -r ml/requirements.txt
+python ml/scripts/check_labels.py ml/labelling/pairs_template.csv
+python ml/scripts/kappa.py ml/examples/pairs_labeller_a.csv ml/examples/pairs_labeller_b.csv --min 0.8
+python ml/scripts/match_baseline.py all --out ml/results/matching_baseline.json   # needs the raw data: ml/DATA.md
 ```
 
-`python -m evals.intake.run_rules_eval` needs no keys: it scores the keyword rules on 40 labelled requests.
+### Everything at once
 
-## Configuration
+From the repository root, with the backend's virtual environment active:
 
-Copy `.env.example` to `.env` and fill in only what your story needs. Today the code reads the four LLM keys,
-through `backend/config/models.yaml`, and the two database settings; the rest are for stories still to come.
+```bash
+python scripts/doctor.py     # checks this machine: versions, installs, settings, database, ports; prints fixes
+python scripts/dev.py        # backend and frontend together, live mode; Ctrl+C stops both
+python scripts/dev.py --no-db    # the same, with the database off
+python scripts/dev.py --mock     # the frontend alone, with sample data
+```
 
-| Variable | What it is for | Read by code today |
+## Tests and checks
+
+The same commands CI runs ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). Tests never call a live API.
+
+```bash
+# backend (from backend/)
+ruff check . && ruff format --check .
+mypy app
+pytest -q -m "not live" --cov          # coverage must stay at 70% or more
+python -m scripts.export_contracts && git diff --exit-code -- ../shared/contracts
+
+# frontend (from frontend/)
+npm ci && npm run lint && npm run typecheck && npm test && npm run build
+npm run test:e2e                       # the whole flow in mock mode, with an accessibility check on every page
+
+# ml (from the root)
+pip install -e "backend[dev]" -r ml/requirements.txt && python -m pytest ml/tests -q
+```
+
+| CI job | Runs on | Checks |
 |---|---|---|
-| `APP_ENV` | Which environment the app runs in: development, test or production | No |
-| `LOG_LEVEL` | How much the backend logs, for example INFO | No |
-| `GROQ_API_KEY` | Groq, the first LLM provider tried | Yes |
-| `GEMINI_API_KEY` | Google Gemini, the second; its free tier may train on prompts | Yes |
-| `OPENROUTER_API_KEY` | OpenRouter, the third | Yes |
-| `CEREBRAS_API_KEY` | Cerebras, the fourth | Yes |
-| `SERPER_API_KEY` | Web and shopping search | No (US-12) |
-| `REDDIT_CLIENT_ID` | Reddit API app id | No (US-12) |
-| `REDDIT_CLIENT_SECRET` | Reddit API app secret | No (US-12) |
-| `REDDIT_USER_AGENT` | How the app names itself to Reddit | No (US-12) |
-| `YOUTUBE_API_KEY` | YouTube Data API | No (US-38) |
-| `JINA_API_KEY` | Optional; raises Jina Reader's free rate limit for reading pages | No |
-| `SUPABASE_URL` | The team's Supabase project | No (US-30) |
-| `SUPABASE_ANON_KEY` | Supabase public key | No (US-30) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase admin key; backend only, never in the browser | No (US-30) |
-| `DATABASE_URL` | Supabase session-pooler connection string; empty = database off ([docs/database.md](docs/database.md)) | Yes (US-01) |
-| `DB_TIMEOUT_SECONDS` | How long one request save may take, default 2 | Yes (US-01) |
-| `NEXT_PUBLIC_API_URL` | Where the browser app finds the backend | No (frontend not built) |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project for browser login | No (US-30) |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public key for browser login | No (US-30) |
+| `backend` | Ubuntu, Python 3.11, with a throwaway Postgres 17 | ruff lint and format, strict mypy, tests (including the database tests) with coverage, contracts up to date |
+| `backend-windows` | Windows, Python 3.13 | tests, contracts up to date |
+| `ml` | Ubuntu, Python 3.11 | lint, strict mypy, tests, the labelling and kappa scripts, no raw data or model files tracked |
+| `secrets` | Ubuntu | TruffleHog scan of the whole history for leaked keys |
+| `frontend` | Ubuntu, Node 20 | install, lint, type check and tests |
 
-Keys are never committed. Tasks that carry the shopper's own words (`PERSONAL_TASKS`) are never sent to a free
-tier that may train on prompts; the LLM wrapper enforces this in `backend/app/llm/client.py`. How to get each key
-and what to check: [docs/api-setup.md](docs/api-setup.md).
+The badge at the top shows whether `main` is green. Calls to real services are separate and never run in CI:
+`python -m scripts.smoke_apis` (from `backend/`) checks every configured key, and the live end-to-end test is in
+[docs/setup.md](docs/setup.md).
 
-## Architecture
+### Test folders
 
-Stages talk to each other only through contracts: strict, frozen Pydantic models in `backend/app/contracts/`.
-The contracts are exported to JSON Schema in `shared/contracts/`, and from there to TypeScript for the frontend,
-so both sides always agree on the same shapes. Every stage implements the same small interface, `run` and
-`fallback`. A better version of a stage is a new class with the same input and output ("replace, never
-rewrite"), and the old version becomes its fallback. Code decides: the LLM never filters, scores or ranks
-products, and every claim keeps its source. The ten build rules are in [CLAUDE.md](CLAUDE.md).
+| Folder | What it proves |
+|---|---|
+| `backend/tests/unit/` | The logic of each module, the API, the CLI and the set-up scripts |
+| `backend/tests/contract/` | Every contract rule, and each stage's input and output |
+| `backend/tests/golden/` | Malformed LLM replies end in valid output or a clean fallback, never a crash |
+| `backend/tests/faults/` | Forcing a stage to fail triggers its fallback |
+| `backend/tests/integration/` | The requests table on a real Postgres (marker `db`) |
+| `backend/tests/live/` | Real services, only with `RUN_LIVE_TESTS=1` |
+| `frontend/src/test/` | The API client, adapters, routing, screens and the colour contrast of the design tokens |
+| `frontend/e2e/` | The whole flow in a browser, with an accessibility check (and, on purpose only, the live flow) |
+| `ml/tests/` | The labelling checks, kappa, the matching metrics and baseline, and the pair-set loaders |
+
+Any new LLM parser needs golden tests, and any new fallback needs a fault test. The team rule asks for 80% coverage
+on `backend/app/decide/` once it is built.
+
+## Layout
+
+Stages talk to each other only through contracts: strict, frozen Pydantic models in `backend/app/contracts/`,
+exported to JSON Schema in `shared/contracts/` and from there to TypeScript for the frontend. Code decides: the LLM
+never filters, scores or ranks products, and every claim keeps its source. The ten build rules are in
+[CLAUDE.md](CLAUDE.md).
 
 ```
 .
-├── backend/
-│   ├── app/
-│   │   ├── contracts/       # typed input and output of every stage, plus one example search
-│   │   ├── <stage>/         # one folder per stage: intake, criteria, interview, research, extract,
-│   │   │                    #   entities (match), verify, enrich, decide, explain, commerce
-│   │   ├── llm/             # the one LLM wrapper: providers, fitting, output parsing, fallback
-│   │   ├── pipeline.py      # runs the search stages with time limits and fallbacks
-│   │   ├── presearch.py     # intake, criteria and interview, one turn at a time
-│   │   ├── cli.py           # python -m app.cli
-│   │   └── main.py          # FastAPI app: /api/health and /api/search
-│   ├── config/              # product categories, fallback criteria, LLM models
-│   ├── evals/               # intake and criteria evaluation scripts
-│   ├── scripts/             # contract export, LLM smoke test
-│   └── tests/               # unit, contract, golden and fault tests, plus fakes
-├── backlog/stories.yaml     # all 51 user stories with points, sprint and tier
-├── docs/                    # API setup, elicitation kit, Sprint 1 kickoff
-├── frontend/                # the Next.js app (US-01); only its CLAUDE.md so far
-├── scripts/                 # GitHub issue creation, TypeScript type generation
-├── shared/contracts/        # JSON Schemas and example data exported from the contracts
-├── supabase/migrations/     # database migrations (none yet)
-└── .github/                 # CI workflow, pull request and issue templates
+├── backend/             # FastAPI app and the 11 search stages (app/), configs, evals, scripts and tests
+├── frontend/            # the web app: TanStack Start, Vite, React and Tailwind, with mock and live modes
+├── ml/                  # labelling tools, public datasets, the matching baseline and model cards
+├── shared/contracts/    # JSON Schemas and example data exported from the backend's contracts
+├── supabase/            # database migrations for the team's Supabase project
+├── scripts/             # dev.py, doctor.py, the saved-request check, contract type generation, issue creation
+├── docs/                # set-up, API keys and terms, the database, the frontend's API, decisions, elicitation
+├── backlog/             # stories.yaml: all 51 user stories with points, sprint and tier
+└── .github/             # the CI workflow, the pull request template and the issue templates
 ```
-
-## Development workflow
-
-- One branch per story, named `feature/US-xx-short-name`, from a fresh `main`.
-- Commit messages start with the story ID, for example `US-12: build queries from the rubric`.
-- The person who did the work makes the commit, under their own name. The course checks this.
-- Every change goes through a pull request with one review and green CI. Nobody pushes to `main`.
-- Contract changes are team decisions, agreed in `#dev` first.
-- The Definition of Done and the review checklist are in [CONTRIBUTING.md](CONTRIBUTING.md).
-
-### CI jobs
-
-Every pull request and every push to `main` runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
-
-| Job | Runs on | Checks |
-|---|---|---|
-| `backend` | Ubuntu, Python 3.11 | ruff lint and format, strict mypy, tests without live APIs with coverage, shared contracts up to date |
-| `backend-windows` | Windows, Python 3.13 | tests without live APIs, shared contracts up to date |
-| `secrets` | Ubuntu | TruffleHog scan of the whole history for leaked keys |
-| `frontend` | Ubuntu, Node 20 | skips until the frontend app exists; then install, lint, type check and tests |
-
-### Contracts and types
-
-After any contract change, regenerate the shared files and commit them in the same pull request:
-
-```bash
-cd backend && python -m scripts.export_contracts    # writes shared/contracts/
-bash scripts/gen-frontend-types.sh                  # from the repo root (takes several minutes); writes frontend/src/types/contracts/
-```
-
-CI runs the export again and fails if `shared/contracts/` changes, so the frontend can never drift from the
-backend. The TypeScript types are generated on each machine and not committed.
-
-## Testing
-
-| Folder | What it proves | Tests |
-|---|---|---|
-| `backend/tests/unit/` | The logic of each module: parsers, lexicon, LLM wrapper, pipeline, CLI, API | 398 |
-| `backend/tests/contract/` | Every contract rule, and each stage's input and output | 88 |
-| `backend/tests/golden/` | Malformed LLM replies end in valid output or a clean fallback, never a crash | 70 |
-| `backend/tests/faults/` | Forcing a stage to fail triggers its fallback | 8 |
-| `backend/tests/fakes/` | A fake LLM client and provider for tests (helpers, no tests) | — |
-
-```bash
-pytest -q                  # all 564 tests
-pytest tests/contract -q   # contract tests only
-pytest -q --cov            # with coverage
-```
-
-Coverage must stay at 70% or more for `backend/app/` (`fail_under` in `backend/pyproject.toml`). The team rule
-in [CLAUDE.md](CLAUDE.md) asks for 80% on `app/decide/` once it is built. Any new LLM parser needs golden tests,
-and any new fallback needs a fault test.
 
 ## Team
 
-| Member | Role |
-|---|---|
-| Om Pandya | ML Engineer, Product Owner, group leader |
-| Rushiraj Navar | ML Engineer |
-| Jhanvi Barot | AI Engineer (LLM integration) |
-| Harshkumar Kodavala | Data & Evaluation Engineer |
-| Palak Patel | QA Engineer |
-| Pal Jalodara | Backend Engineer |
-| Vaishvi Mehta | Backend Engineer |
-| Jenish Kavad | Backend Engineer |
-| Yashkumar Patel | Frontend Engineer |
-| Manu Pardhan | Frontend Engineer & Testing |
+| Member | Role | Main areas |
+|---|---|---|
+| Om Pandya | ML Engineer, Product Owner, group leader | The backlog, reviews and merges; product matching, the adaptive interview, preference memory |
+| Rushiraj Navar | ML Engineer | Source trust, ranking confidence, the citation check, evaluation runners |
+| Jhanvi Barot | AI Engineer (LLM integration) | The LLM wrapper, intent detection, criteria, claim extraction, explanations |
+| Harshkumar Kodavala | Data & Evaluation Engineer | Test data, recorded-run replay and the quality gate, login and data isolation, metrics |
+| Palak Patel | QA Engineer | CI, golden tests, the worst-case suite, sprint review checks |
+| Pal Jalodara | Backend Engineer | The walking skeleton, untrusted content, the rubric, failure handling, caching |
+| Vaishvi Mehta | Backend Engineer | The database and migrations, Reddit quality, filtering and ranking, rate limits |
+| Jenish Kavad | Backend Engineer | The interview and pre-search API, research and fetching, exclusions, the evidence API, prices |
+| Yashkumar Patel | Frontend Engineer | The app shell, request box, research progress, results page, login, compare |
+| Manu Pardhan | Frontend Engineer & Testing | The interview chat, rubric editor, confidence and explanation views, accessibility |
 
 Scrum Master rotates each sprint: 1 Jhanvi Barot · 2 Yashkumar Patel · 3 Vaishvi Mehta · 4 Harshkumar Kodavala ·
 5 Pal Jalodara · 6 Palak Patel.
 
-## Roadmap
+## Calendar
+
+### Original plan (re-planned at the Sprint 1 review)
 
 Six two-week sprints. The backlog has 51 stories worth 239 points: 216 core, 15 Plus and 8 Stretch.
 
@@ -287,20 +238,39 @@ Six two-week sprints. The backlog has 51 stories worth 239 points: 216 core, 15 
 | 5 | 16 – 29 Nov | Memory, enrichment, checked citations, compare, prices, YouTube | 36 (+5 Plus) |
 | 6 | 30 Nov – 13 Dec | Worst-case proof, measurement and presentation | 31 (+10 Plus, +8 Stretch) |
 
-Dates are the baseline; the team adjusts them at sprint reviews.
+Sprint 1 ran past its planned dates; the new dates are set at the Sprint 1 review and replace this table.
+
+## How we work
+
+- One branch per story or task: `feature/US-xx-short-name` for a story, `fix/...`, `chore/...` or `docs/...` for
+  the rest, always from a fresh `main`.
+- Commit messages start with the story ID or the task prefix, for example `US-12: build queries from the rubric`,
+  `CI: ...`, `S1: ...`, `docs: ...` or `fix: ...`.
+- The person who did the work makes the commit, under their own name. The course checks this.
+- Every change goes through a pull request with green CI and one review from the area owner; Om merges. Nobody
+  pushes to `main`.
+- Contract changes are team decisions: the model, the exported schemas and the regenerated frontend types go in
+  one pull request.
+- Nobody commits keys or `.env` files. Keys live only in your own root `.env`.
+- The Definition of Done and the review checklist are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Documentation
 
-- [CONTRIBUTING.md](CONTRIBUTING.md): setup, how to build a story, review checklist, Definition of Done
-- [CLAUDE.md](CLAUDE.md): the ten build rules and the conventions every Claude Code session follows
-- [backend/CLAUDE.md](backend/CLAUDE.md): the stage folder layout and how to test a stage
-- [frontend/CLAUDE.md](frontend/CLAUDE.md): generated types, mock data and the states every screen must show
-- [docs/api-setup.md](docs/api-setup.md): every API key, where to get it and what to check
+- [docs/setup.md](docs/setup.md): install, every setting, run everything, check your machine, drills, troubleshooting
+- [docs/api-setup.md](docs/api-setup.md): every outside service, its key, free limits, terms and fallback
+- [docs/database.md](docs/database.md): the optional database, its table, security and live check
+- [docs/frontend-api.md](docs/frontend-api.md): every route the frontend calls, and what the backend can't do yet
+- [docs/api/presearch.md](docs/api/presearch.md): the pre-search routes in detail, with examples
+- [docs/decisions/](docs/decisions/): recorded decisions, such as the frontend's stack
 - [docs/elicitation-kit.md](docs/elicitation-kit.md): survey, interview, observation and expert templates
-- [docs/sprint-1-kickoff.md](docs/sprint-1-kickoff.md): Sprint 1 checklist, planning agenda and contract review
+- [docs/sprint-1-kickoff.md](docs/sprint-1-kickoff.md): the Sprint 1 checklist and planning agenda
+- [CONTRIBUTING.md](CONTRIBUTING.md): setup, how to build a story, review checklist, Definition of Done
+- [CLAUDE.md](CLAUDE.md), [backend/CLAUDE.md](backend/CLAUDE.md), [frontend/CLAUDE.md](frontend/CLAUDE.md): the build
+  rules and conventions for each part
+- [ml/README.md](ml/README.md): the ML workspace, its data rules and commands
 - [supabase/migrations/README.md](supabase/migrations/README.md): how to add a database migration
 - [backlog/stories.yaml](backlog/stories.yaml): all user stories, front and back of the card
-- [shared/contracts/](shared/contracts/): exported JSON Schemas and example data for the frontend
+- [shared/contracts/](shared/contracts/): exported JSON Schemas and example data
 - [.github/pull_request_template.md](.github/pull_request_template.md): the checklist on every pull request
 
 Project plan and product document: shared in the team's Slack (#general).
