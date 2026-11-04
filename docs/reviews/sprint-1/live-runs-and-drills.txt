@@ -1,0 +1,46 @@
+Live end-to-end test (frontend/e2e/live/full-flow.spec.ts) against scripts/dev.py on the checkout of main (99f92c1).
+Windows 11; backend on port 8001 and frontend on 3001 (8000 and 3000 were in use on this laptop). Made-up request: "Laptop for coding under 80k".
+Step times in ms. Each drill changed the environment of that one dev.py run only, never the .env file.
+
+== Run 1, database on (python scripts/dev.py)
+  Frontend  http://localhost:3001  (live mode)
+  Backend   http://localhost:8001  (database: ok)
+  LLM providers with a key: 5 of 5
+
+== Run 2, database off (python scripts/dev.py --no-db)
+  Frontend  http://localhost:3001  (live mode)
+  Backend   http://localhost:8001  (database: off)
+  LLM providers with a key: 5 of 5
+
+== Drill, Groq key off (GROQ_API_KEY= ... --no-db)
+  Frontend  http://localhost:3001  (live mode)
+  Backend   http://localhost:8001  (database: off)
+  LLM providers with a key: 4 of 5
+
+== Drill, Mistral key off (MISTRAL_API_KEY= ... --no-db)
+  Frontend  http://localhost:3001  (live mode)
+  Backend   http://localhost:8001  (database: off)
+  LLM providers with a key: 4 of 5
+
+== Drill, every LLM key off (all five keys blank, --no-db)
+  Frontend  http://localhost:3001  (live mode)
+  Backend   http://localhost:8001  (database: off)
+  LLM providers with a key: 0 of 5
+
+== Drill, database down (DATABASE_URL at 127.0.0.1:9)
+  Frontend  http://localhost:3001  (live mode)
+  Backend   http://localhost:8001  (database: down)
+  LLM providers with a key: 5 of 5
+
+Results of the live test (each "1 passed"):
+
+| Run | Health | Session | Understood | Criteria | Interview | Brief | Results | Saved check |
+|---|---|---|---|---|---|---|---|---|
+| Run 1, database on | ok | sess_7f618af8bafd6bb1f17639a5 | 6,101 | 196 | 8,696 (8 answers) | 158 | 314 | saved |
+| Run 2, database off | off | sess_0289c829645443192aebc02e | 5,362 | 152 | 8,670 (8 answers) | 154 | 326 | not found |
+| Groq key off | off | sess_27bc9e8d68b5e7a709cea3ba | 4,679 | 160 | 3,408 (9 answers) | 147 | 309 | (database off) |
+| Mistral key off | off | sess_b208672527112ea5f50f47cc | 5,169 | 147 | 9,804 (8 answers) | 163 | 361 | (database off) |
+| Every LLM key off | off | sess_1778bd1b970ca5e74d727c67 | 4,400 | 176 | 3,435 (9 answers) | 148 | 328 | (database off) |
+| Database down | down | sess_340beb9de656c6f1602a0f6e | 6,759 | 446 | 9,381 (8 answers) | 163 | 371 | (database down) |
+
+At 390 px the results page is 390 px wide (no sideways scrolling). Screenshots: results-390.png, results-1440.png.

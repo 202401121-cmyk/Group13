@@ -1,0 +1,24 @@
+== Groq key off: python -m app.cli "best laptop for coding under 70k"  (exit 0, 7 s)
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Laptop · budget up to ₹70,000 · region IN · detected by rules
+Criteria (generated):
+shortlist lines: 3
+== Mistral key off: python -m app.cli "best laptop for coding under 70k"  (exit 0, 10 s)
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Laptop · use coding · budget up to ₹70,000 · region IN · detected by llm
+Criteria (fallback):
+shortlist lines: 3
+== every LLM key off: python -m app.cli "Gaming laptop under 80k"  (exit 0, 1 s)
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Laptop · budget up to ₹80,000 · region IN · detected by rules
+Criteria (cached):
+shortlist lines: 3
+== every LLM key off: python -m app.cli "watch"  (exit 1, 1 s)
+Saved: no, the database is off (no DATABASE_URL)
+Which kind of watch do you mean?
+shortlist lines: 3
+== database down (DATABASE_URL at a closed port): python -m app.cli "best laptop for coding under 70k"  (exit 0, 11 s)
+Saved: no, the database could not be reached. The search goes on.
+Understood: Laptop · use coding · budget up to ₹70,000 · region IN · detected by llm
+Criteria (fallback):
+ranked products: 3

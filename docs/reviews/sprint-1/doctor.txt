@@ -1,0 +1,27 @@
+python scripts/doctor.py on the checkout of main (99f92c1), Windows 11, 4 Nov 2026.
+First run, right after the CI commands (which run the contract export):
+  Frontend contract types  FAIL  56 of 56 missing or older than their schema
+After the fix the doctor itself prints (cd frontend && npm run types:contracts):
+
+check                    status  detail
+Python                   OK      3.11
+Node                     OK      22.18
+Backend installed        OK      with python.exe
+Frontend installed       OK      node_modules present
+Root .env                OK      found above the checkout (<repo>); ignored by git
+No backend/.env          OK      none
+LLM keys                 OK      5 of 5 set: GROQ_API_KEY, GEMINI_API_KEY, OPENROUTER_API_KEY, CEREBRAS_API_KEY, MISTRAL_API_KEY
+Other keys               OK      set: SERPER_API_KEY, YOUTUBE_API_KEY, JINA_API_KEY; missing: HF_TOKEN, REDDIT_USER_SALT (all optional in Sprint 1)
+Database                 OK      reachable, Postgres 17
+Contracts in sync        OK      68 files match the models
+Frontend contract types  OK      56 up to date
+Frontend settings        WARN    VITE_API_MODE is mock: npm run dev alone shows sample data
+CORS                     OK      http://localhost:3000 is allowed
+Backend port             WARN    8000 is in use
+Frontend port            OK      3000 is free
+
+How to fix:
+  Frontend settings: scripts/dev.py starts it in live mode for you; or set VITE_API_MODE=live in frontend/.env.local
+  Backend port: Stop whatever runs on port 8000 before scripts/dev.py
+
+Nothing failed.
