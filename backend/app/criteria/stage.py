@@ -28,6 +28,9 @@ from .store import CriteriaStore, InMemoryCriteriaStore
 log = logging.getLogger(__name__)
 
 LLM_ATTEMPTS = 2  # the first answer, plus one retry when fewer than 6 usable criteria come back (US-03)
+# Room for the whole answer. Reasoning models (gpt-oss on Groq) spend part of it thinking first: at the wrapper's
+# 1,024-token default the JSON was cut off, so every request with a use case fell back (Sprint 1 review check).
+CRITERIA_MAX_OUTPUT_TOKENS = 4096
 
 
 class CriteriaStage:
@@ -58,6 +61,7 @@ class CriteriaStage:
                     data_class=data_class,
                     difficulty=Difficulty.SHORT,
                     search_id=search_id,
+                    max_output_tokens=CRITERIA_MAX_OUTPUT_TOKENS,
                 )
             except LLMUnavailable:
                 log.info("criteria: no LLM provider answered; using the %s fallback set", inp.category)
