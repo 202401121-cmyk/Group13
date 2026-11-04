@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from typing import Any
+
+import pytest
+
 import app.contracts as C
 from app.contracts import examples as ex
 from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
@@ -78,3 +82,35 @@ def test_a_failed_fallback_stops_the_search_with_a_partial_result() -> None:
     assert result.products == []
     assert result.decision is None
     assert result.coverage_note is not None and "Match failed" in result.coverage_note
+
+
+SEARCH_STAGES = ["research", "extract", "match", "verify", "enrich", "decide", "explain", "commerce"]
+
+
+class _AlwaysFails:
+    """Any search stage with a run() that always raises; its fallback is the real stage's own."""
+
+    def __init__(self, real: Any) -> None:
+        self.real = real
+        self.name = real.name
+
+    def run(self, inp: Any, ctx: C.StageContext) -> Any:
+        raise RuntimeError(f"simulated {self.name.value} failure")
+
+    def fallback(self, inp: Any, ctx: C.StageContext, error: Exception) -> Any:
+        return self.real.fallback(inp, ctx, error)
+
+
+@pytest.mark.parametrize("field", SEARCH_STAGES)
+def test_any_failing_search_stage_falls_back_and_the_search_finishes(field: str) -> None:
+    stages = default_search_stages()
+    setattr(stages, field, _AlwaysFails(getattr(stages, field)))
+    result = PipelineRunner(stages, InMemoryResultStore()).run(_request())
+
+    report = _report(result, C.StageName(field))
+    assert report.status is C.StageStatus.FALLBACK
+    assert report.fallback_reason == f"simulated {field} failure"
+    assert not result.partial
+    assert result.stage_reports[-1].stage is C.StageName.COMMERCE  # every later stage still had its turn
+    assert C.SearchResult.model_validate_json(result.model_dump_json()) == result
+    assert result.coverage_note is not None
