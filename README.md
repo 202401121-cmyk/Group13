@@ -68,7 +68,7 @@ on `main`; "Pull request" means it is finished on its branch and waiting for rev
 | US-01 and the frontend: request box, interview, brief and results screens | Yashkumar Patel, Manu Pardhan | Merged; quality gate (F4): pull request (`chore/FE-4-quality-gate`) | #24 | [frontend/README.md](frontend/README.md), [decision 0001](docs/decisions/0001-frontend-tanstack-start.md) |
 | ML workspace, public datasets and the matching baseline | Om Pandya, Rushiraj Navar, Palak Patel | Merged | #10, #13, #14, #15 | [ml/README.md](ml/README.md), [ml/MODELS.md](ml/MODELS.md) |
 | API sign-ups, smoke test and terms check | Jenish Kavad | Pull request (`chore/api-setup`) | | [docs/api-setup.md](docs/api-setup.md) |
-| Full-stack set-up: one-command run, doctor, live test | Pal Jalodara | Pull request (`chore/full-stack-setup`) | | [docs/setup.md](docs/setup.md) |
+| Full-stack set-up: one-command run, doctor, live test | Pal Jalodara | Pull request (`chore/full-stack-setup-v3`) | | [docs/setup.md](docs/setup.md) |
 | Elicitation: survey, interviews, observation, expert interview, write-up | Jhanvi, Om, Rushiraj, Jenish, Harshkumar, Pal | In progress | | [docs/elicitation-kit.md](docs/elicitation-kit.md) |
 | Sprint 1 review check and close-out | Palak Patel, Om Pandya | After the merges | | |
 
