@@ -32,7 +32,12 @@ def _dump(obj: object) -> object:
 def _write(path: Path, text: str) -> None:
     # Always UTF-8 with LF, whatever the OS default: the examples contain the rupee sign, and the
     # committed files must come out byte-identical on Windows and Linux.
-    path.write_text(text, encoding="utf-8", newline="\n")
+    data = text.encode("utf-8")
+    # A file that is already right is left alone, so its timestamp stays older than the frontend types made from
+    # it (scripts/doctor.py and the frontend's contract-types script compare the two).
+    if path.is_file() and path.read_bytes() == data:
+        return
+    path.write_bytes(data)
 
 
 def main(out: Path = OUT) -> int:
