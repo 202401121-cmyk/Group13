@@ -73,7 +73,7 @@ def test_the_first_turn_asks_the_most_important_question() -> None:
     assert step.kind == "question"
     assert step.question is not None
     assert step.question.criterion_key == "cpu_performance"
-    assert step.message == step.question.text == "How much do you care about CPU performance?"
+    assert step.message == step.question.text == "CPU performance: how much does it matter to you?"
     assert step.question.quick_replies == ["Low", "Medium", "High", "Skip"]
     assert step.questions_asked == 1
     assert [e.status for e in step.state.history] == ["pending"]
@@ -228,7 +228,7 @@ def test_cooking_results_reads_correctly() -> None:
     inp = CriteriaInput(category="mixer_grinder", category_label="Mixer grinder")
     step = start(fallback_set(inp))
     assert step.question is not None
-    assert step.question.text == "How much do you care about cooking results?"
+    assert step.question.text == "Cooking results: how much does it matter to you?"
 
 
 def test_every_step_uses_fixed_order() -> None:
