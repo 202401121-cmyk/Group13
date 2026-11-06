@@ -129,6 +129,8 @@ These came with the Lovable project. They explain why the code is laid out as it
 - **Motion:**
   - Background washes appear only on the home page hero (`bg-ambient` + `animate-ambient`: slow, low contrast and
     off for reduced motion). The research, questions, brief and results pages have no background effects.
+    The wash starts moving only after the page has loaded, and it drifts without zooming: a zoom makes the browser
+    redraw the whole layer, which blocked the main thread for seconds on a slow processor.
   - `Typewriter` (`src/components/shopsense/Typewriter.tsx`) lays out the full text first, with the untyped letters
     invisible. It types once when scrolled into view, skips for reduced motion and gives screen readers the full
     text, so nothing shifts.

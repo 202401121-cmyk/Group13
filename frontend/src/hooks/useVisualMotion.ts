@@ -14,12 +14,20 @@ export function useVisualMotion<T extends HTMLElement>() {
     const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
     let observer: IntersectionObserver | undefined;
 
+    /** Decorative loops start once the page has loaded, so they never compete with its first frames. */
+    function startLoops() {
+      elements.forEach((element) => {
+        if (element.hasAttribute("data-motion-loop")) element.classList.add("motion-ready");
+      });
+    }
+
     function configure() {
       observer?.disconnect();
+      window.removeEventListener("load", startLoops);
       if (preference.matches || !("IntersectionObserver" in window)) {
         elements.forEach((element) => {
-          element.classList.remove("reveal-pending", "motion-visible");
-          element.classList.add("reveal-complete");
+          element.classList.remove("reveal-pending", "motion-ready", "motion-visible");
+          if (element.hasAttribute("data-reveal")) element.classList.add("reveal-complete");
         });
         return;
       }
@@ -44,12 +52,15 @@ export function useVisualMotion<T extends HTMLElement>() {
         }
         observer?.observe(element);
       });
+      if (document.readyState === "complete") startLoops();
+      else window.addEventListener("load", startLoops);
     }
 
     configure();
     preference.addEventListener("change", configure);
     return () => {
       observer?.disconnect();
+      window.removeEventListener("load", startLoops);
       preference.removeEventListener("change", configure);
     };
   }, []);
