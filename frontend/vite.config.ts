@@ -41,9 +41,8 @@ export default defineConfig({
               groups: [
                 {
                   name: "framework",
-                  test: /node_modules\/(react|react-dom|scheduler|@tanstack|tailwind-merge|clsx|class-variance-authority)\//,
+                  test: /node_modules\/(react|react-dom|scheduler|@tanstack|tailwind-merge|clsx|class-variance-authority|lucide-react)\/|\/src\/components\/shopsense\/PageShell|\/src\/hooks\/useVisualMotion/,
                 },
-                { name: "icons", test: /node_modules\/lucide-react\// },
               ],
             },
           },
