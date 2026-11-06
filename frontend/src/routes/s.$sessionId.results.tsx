@@ -7,7 +7,7 @@ import { PillButton } from "@/components/shopsense/ui";
 import { pillButton } from "@/components/shopsense/pill-button";
 import { MissingSession, PageLoading } from "@/components/interview/shared";
 import { BriefSections } from "@/components/results/BriefSections";
-import { Disclosure, Notice, StatusBadge } from "@/components/results/primitives";
+import { Disclosure, NotSavedNotice, Notice, StatusBadge } from "@/components/results/primitives";
 import { CouldntCheckItem, ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
 import { formatCheckTime, tieGroups, tiesFor } from "@/lib/results/view";
 import { useInterview } from "@/lib/interview/useInterview";
@@ -310,7 +310,8 @@ function Gone({ sessionId, hasBrief }: { sessionId: string; hasBrief: boolean })
         These results aren't here any more
       </h1>
       <p className="mt-4 text-lg text-muted-foreground">
-        Results are only kept while this page is open. Your brief is still saved.
+        This page can't load results again once it has been closed or reloaded. Your brief is still
+        here, so you can run the research again.
       </p>
       {hasBrief ? (
         <Link
@@ -398,9 +399,7 @@ function Results({
       </p>
 
       <div className="mt-6 space-y-3">
-        {!result.saved && (
-          <Notice>This result isn't saved. It will be gone if you close this page.</Notice>
-        )}
+        <NotSavedNotice saved={result.saved} />
         {result.coverageNote ? (
           <Notice tone="warn">{result.coverageNote}</Notice>
         ) : result.partial ? (

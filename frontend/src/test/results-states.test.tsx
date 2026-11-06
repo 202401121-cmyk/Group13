@@ -6,6 +6,7 @@ import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import searchExample from "@contracts/examples/search_result.json";
+import { NotSavedNotice } from "@/components/results/primitives";
 import { CouldntCheckItem, ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
 import { resultFromSearch } from "@/lib/results/liveAdapter";
 import { buildMockResult } from "@/lib/results/mockService";
@@ -478,5 +479,26 @@ describe("focus after the stop-research dialog", () => {
     page();
     giveFocusBack(null);
     expect(document.querySelector("h1")).toHaveFocus();
+  });
+});
+
+describe("the saved banner", () => {
+  const BANNER = "This result isn't saved. It will be gone if you close this page.";
+  const banner = (saved: boolean) => {
+    const r = resultFromSearch({ ...example, saved }, rubric, T0);
+    return show(<NotSavedNotice saved={r.saved} />);
+  };
+
+  it("shows when the backend says the result was not saved", () => {
+    expect(banner(false)).toHaveTextContent(BANNER);
+  });
+
+  it("does not show when the row was committed", () => {
+    expect(banner(true)).toHaveTextContent("");
+    expect(banner(true).textContent).toBe("");
+  });
+
+  it("the mock never claims a save", () => {
+    expect(buildMockResult(mockInput, "success").saved).toBe(false);
   });
 });
