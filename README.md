@@ -264,7 +264,7 @@ Sprint 1 ran past its planned dates; the new dates are set at the Sprint 1 revie
 - [docs/setup.md](docs/setup.md): install, every setting, run everything, check your machine, drills, troubleshooting
 - [docs/api-setup.md](docs/api-setup.md): every outside service, its key, free limits, terms and fallback
 - [docs/database.md](docs/database.md): the optional database, its table, security and live check
-- [docs/frontend-api.md](docs/frontend-api.md): every route the frontend calls, and what the backend can't do yet
+- [docs/frontend-api.md](docs/frontend-api.md): every route the backend serves, and what it can't do yet
 - [docs/api/presearch.md](docs/api/presearch.md): the pre-search routes in detail, with examples
 - [docs/decisions/](docs/decisions/): recorded decisions, such as the frontend's stack
 - [docs/elicitation-kit.md](docs/elicitation-kit.md): survey, interview, observation and expert templates

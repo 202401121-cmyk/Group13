@@ -1,6 +1,6 @@
 # Backend API for the frontend
 
-The one page to read before calling the backend from `frontend/`. It lists every route the app calls, documents
+The one page to read before calling the backend from `frontend/`. It lists every route the backend serves, documents
 the search route in full, and says what the backend cannot do yet, so the screens never invent it.
 
 The pre-search routes (intake, criteria, interview) have their own detailed page: [api/presearch.md](api/presearch.md).
@@ -8,7 +8,7 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
 ## The basics
 
 - **Base URL:** `VITE_API_BASE_URL` in `frontend/.env.local` (default `http://localhost:8000`). Every route is under `/api`.
-  Start the backend from `backend/` with `uvicorn app.main:app --port 8000`.
+  Start the backend from `backend/`, with its virtual environment active: `uvicorn app.main:app --port 8000`.
 - **CORS:** the backend accepts browser calls only from the origins in `FRONTEND_ORIGINS` (comma-separated, in the
   root `.env`; default `http://localhost:3000`, the frontend's dev server). `*` is never allowed. If the browser
   console shows a CORS error, add the page's origin there and restart the backend.
@@ -19,19 +19,37 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
   and the TypeScript types are generated from them into `frontend/src/types/contracts/` (`npm ci` does it). Never
   write these types by hand.
 
-## Every route the frontend calls
+## Every route the backend serves
 
-| Route | What it does | Response | Details |
-|---|---|---|---|
-| `GET /api/health` | Is the backend up; is the database `ok`, `off` or `down` | `{"status", "schema_version", "database"}` | [presearch.md](api/presearch.md#get-apihealth) |
-| `POST /api/presearch/intake` | Reads the shopper's request; starts a session | `session_id`, `intent`, `ready_for_research`, … | [presearch.md](api/presearch.md#post-apipresearchintake) |
-| `PUT /api/presearch/{session_id}/intent` | Changes what we understood (category, budget, …) | the session's new `Intent` | [presearch.md](api/presearch.md#put-apipresearchsession_idintent) |
-| `POST /api/presearch/{session_id}/criteria` | The criteria to compare | `CriteriaSet` | [presearch.md](api/presearch.md#post-apipresearchsession_idcriteria) |
-| `POST /api/presearch/{session_id}/interview/start` | The first question | `InterviewStep` | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewstart) |
-| `POST /api/presearch/{session_id}/interview/reply` | Answers the current question | `InterviewStep` (next question, rephrase, or finished with the rubric) | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewreply) |
-| `POST /api/presearch/{session_id}/interview/back` | Asks an earlier question again | `InterviewStep` | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewback) |
-| `GET /api/presearch/{session_id}` | Everything about the session, for a page reload | the session | [presearch.md](api/presearch.md#get-apipresearchsession_id) |
-| `POST /api/search` | Runs the search with the finished rubric | `SearchResult` | below |
+These nine routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). The frontend calls
+all of them except `GET /api/health`, which `scripts/dev.py` uses to see that the backend is up.
+
+| Route | What it does | Request body | Response 200 | Errors | Details |
+|---|---|---|---|---|---|
+| `GET /api/health` | Is the backend up; is the database `ok`, `off` or `down` | none | `{"status", "schema_version", "database"}` | none | [presearch.md](api/presearch.md#get-apihealth) |
+| `POST /api/presearch/intake` | Reads the shopper's request; starts a session | `text` (1 to 1,000 characters); `session_id` (optional) | `session_id`, `intent`, `ready_for_research` | 404, 422 | [presearch.md](api/presearch.md#post-apipresearchintake) |
+| `PUT /api/presearch/{session_id}/intent` | Changes what we understood (category, budget, …) | `changes` (the `Intent` fields to change) | the session's new `Intent` | 404, 409, 422 | [presearch.md](api/presearch.md#put-apipresearchsession_idintent) |
+| `POST /api/presearch/{session_id}/criteria` | The criteria to compare | none | `CriteriaSet` | 404, 409 | [presearch.md](api/presearch.md#post-apipresearchsession_idcriteria) |
+| `POST /api/presearch/{session_id}/interview/start` | The first question | none | `InterviewStep` | 404, 409 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewstart) |
+| `POST /api/presearch/{session_id}/interview/reply` | Answers the current question | `reply_text` (1 to 500 characters) | `InterviewStep` (next question, rephrase, or finished with the rubric) | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewreply) |
+| `POST /api/presearch/{session_id}/interview/back` | Asks an earlier question again | `question_id` (1 to 64 characters) | `InterviewStep` | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewback) |
+| `GET /api/presearch/{session_id}` | Everything about the session, for a page reload | none | the session | 404 | [presearch.md](api/presearch.md#get-apipresearchsession_id) |
+| `POST /api/search` | Runs the search with the finished rubric | `SearchRequest` | `SearchResult` | 422 | below |
+
+What each error means:
+
+| Status | When | `detail` |
+|---|---|---|
+| 404 | The session is unknown or has expired | `This session has expired. Please start a new search.` |
+| 409 | A step was called out of order | Says which step comes first |
+| 422 | The body is not valid | Names the field, and never repeats what was typed |
+
+Trust this page for errors, not the OpenAPI. The OpenAPI lists no 404 or 409, and it shows 422 as FastAPI's list of
+errors, when the real answer is the one plain sentence above.
+
+FastAPI also serves its own pages, `GET /docs` and `GET /redoc`, which show the OpenAPI. They describe the API and are
+not part of it. A path that doesn't exist answers 404 with `Not Found`, and a route called with the wrong method
+answers 405 with `Method Not Allowed`, both in `detail`.
 
 ## POST /api/search
 
@@ -52,7 +70,7 @@ finished interview and returns the ranked results. It answers once, at the end: 
 
 | Field | What the screen does with it |
 |---|---|
-| `search_id`, `request`, `started_at`, `finished_at` | Identify the search; `request` echoes what was sent. |
+| `search_id`, `request`, `started_at`, `finished_at`, `schema_version` | Identify the search; `request` echoes what was sent, and `schema_version` is the version of the contracts. |
 | `products` | One `ProductSummary` per product that was looked at: the product, its resolved values and community signal. Look up names here by product ID. |
 | `decision` | The ranking: `ranked` (in order, with `score`, `coverage` and `tied_with`) and `filtered` (dropped by a hard rule, with the reason). Every ranked product is in `products`. |
 | `explanations` | Why each product is where it is, up to 8 sentences each; every sentence lists the claims it rests on (`claim_ids`), and `unverified` names the criteria we could not check. |
