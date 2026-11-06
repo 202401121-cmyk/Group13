@@ -1,0 +1,32 @@
+{
+  "additionalProperties": false,
+  "description": "The body of POST /api/presearch/{session_id}/interview/reply.\n\nquestion_id says which question the reply is for, so a repeated reply cannot answer the next question. It is\noptional so that a client that does not send it keeps working; docs/api/presearch.md has the rules.",
+  "properties": {
+    "reply_text": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Reply Text",
+      "type": "string"
+    },
+    "question_id": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "InterviewQuestion.id of the question being answered",
+      "title": "Question Id"
+    }
+  },
+  "required": [
+    "reply_text"
+  ],
+  "title": "ReplyRequest",
+  "type": "object"
+}

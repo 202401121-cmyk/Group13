@@ -50,6 +50,7 @@ from .llm import (
     Provider,
 )
 from .pipeline import ProductSummary, ProgressEvent, SearchRequest, SearchResult, Stage, StageContext
+from .presearch import ReplyRequest
 from .research import RedditOrigin, ResearchInput, ResearchResult, Source, SourceFailure
 from .rubric import Rubric, WeightedCriterion, normalize
 from .verify import CommunitySignal, ResolvedValue, ValueState, VerifyInput, VerifyResult
@@ -115,6 +116,7 @@ __all__ = [
     "RedditOrigin",
     "RememberedPreference",
     "ReplyClassification",
+    "ReplyRequest",
     "ReplyType",
     "ResearchInput",
     "ResearchResult",

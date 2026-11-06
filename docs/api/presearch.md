@@ -148,19 +148,34 @@ curl -s -X POST http://localhost:8000/api/presearch/$SID/interview/start
 
 Sends the user's reply to the current question.
 
-- **Body:** `{"reply_text": "<1 to 500 characters>"}`. Understood: the buttons `Low` (2), `Medium` (5), `High` (8),
-  `Skip`, and a whole number from 0 to 10 (also `7/10`).
+- **Body:** `{"reply_text": "<1 to 500 characters>", "question_id": "<optional>"}`. Understood: the buttons `Low` (2),
+  `Medium` (5), `High` (8), `Skip`, and a whole number from 0 to 10 (also `7/10`).
+- **`question_id`** is the `question.id` of the question being answered, such as `q_battery_life`. Send it with every
+  reply: then a network retry or a double click can never answer the next question by mistake.
+
+  | `question_id` | What happens |
+  |---|---|
+  | Left out, or `null` | The reply goes to the current question. |
+  | The current question | The reply goes to it. |
+  | A question already answered, with the same answer | A safe repeat. Nothing changes, and you get 200 with the latest `InterviewStep`, even after the interview has finished. |
+  | A question already answered, with a different answer | Nothing changes. 409: go back to that question first (`interview/back`). |
+  | A question this session has not asked | Nothing changes. The same 409. |
+
+  "The same answer" ignores capitals, extra spaces and a closing `.` or `!`. A question reopened with
+  `interview/back` is the current question again. Two replies at the same moment are handled one after the other,
+  so identical ones apply once.
 - **Response 200:** `InterviewStep`, by `kind`:
   - `question`: the next question.
   - `rephrase`: the reply was unclear; show `message` ("Please pick one of the buttons, or type a number from 0
     to 10.") with the same question's buttons. After two unclear replies the question is skipped.
   - `finished`: no questions left. `rubric` holds a weight for every criterion; send it in a `SearchRequest`.
-- **Errors:** 404; 409 (interview not started, or already finished); 422 (empty or too long `reply_text`).
+- **Errors:** 404; 409 (interview not started, already finished, or `question_id` as in the table above); 422 (empty
+  or too long `reply_text`, or a `question_id` that is empty or over 64 characters).
 
 ```bash
 curl -s -X POST http://localhost:8000/api/presearch/$SID/interview/reply \
   -H "Content-Type: application/json" \
-  -d '{"reply_text": "High"}'
+  -d '{"reply_text": "High", "question_id": "q_processor_speed"}'
 ```
 
 ### POST /api/presearch/{session_id}/interview/back

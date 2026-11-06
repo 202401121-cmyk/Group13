@@ -12,7 +12,9 @@ import secrets
 import threading
 import time
 from collections import OrderedDict
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import AbstractContextManager, contextmanager
+from dataclasses import dataclass, field
 from typing import Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -58,6 +60,16 @@ class SessionStore(Protocol):
 
     def delete(self, session_id: str) -> None: ...
 
+    def lock(self, session_id: str) -> AbstractContextManager[None]:
+        """Hold one session while a route reads it, checks it and writes it back."""
+        ...
+
+
+@dataclass
+class _SessionLock:
+    lock: threading.Lock = field(default_factory=threading.Lock)
+    users: int = 0  # the requests holding it or waiting for it
+
 
 class InMemorySessionStore:
     """Thread-safe. A session expires 2 hours after it was last used; at most 1,000 are kept."""
@@ -73,6 +85,7 @@ class InMemorySessionStore:
         self._clock = clock
         self._lock = threading.Lock()
         self._sessions: OrderedDict[str, tuple[float, PresearchSession]] = OrderedDict()
+        self._session_locks: dict[str, _SessionLock] = {}
 
     def get(self, session_id: str) -> PresearchSession | None:
         with self._lock:
@@ -100,6 +113,29 @@ class InMemorySessionStore:
     def delete(self, session_id: str) -> None:
         with self._lock:
             self._sessions.pop(session_id, None)
+
+    @contextmanager
+    def lock(self, session_id: str) -> Iterator[None]:
+        """One request at a time for a session; different sessions never wait for each other.
+
+        Routes are plain `def`s, so two requests can run at the same moment in different threads. A lock lasts only
+        while it is in use, so the session IDs that clients send can never fill this table.
+        """
+        with self._lock:
+            entry = self._session_locks.setdefault(session_id, _SessionLock())
+            entry.users += 1
+        try:
+            with entry.lock:
+                yield
+        finally:
+            with self._lock:
+                entry.users -= 1
+                if entry.users == 0:
+                    del self._session_locks[session_id]
+
+    def locks_in_use(self) -> int:
+        with self._lock:
+            return len(self._session_locks)
 
     def __len__(self) -> int:
         with self._lock:
