@@ -17,40 +17,15 @@ from contextlib import AbstractContextManager, contextmanager
 from dataclasses import dataclass, field
 from typing import Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
-
-from app.contracts import CriteriaSet, Intent, InterviewState, InterviewStep
-from app.db import SaveOutcome
+from app.contracts import PresearchSession
 
 SESSION_TTL_S = 2 * 60 * 60  # a session not used for 2 hours expires
 MAX_SESSIONS = 1_000  # beyond this, the session unused for longest is dropped first
-MAX_UNCLEAR_ATTEMPTS = 2  # IntakeInput.unclear_attempts limit
 SESSION_ID_PATTERN = r"^sess_[A-Za-z0-9]{6,40}$"  # the contract's SessionId
 
 
 def new_session_id() -> str:
     return "sess_" + secrets.token_hex(12)
-
-
-class PresearchSession(BaseModel):
-    """Everything the pre-search API knows about one shopper. Not a contract: it never leaves this API."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    session_id: str = Field(pattern=SESSION_ID_PATTERN)
-    request: str = Field(max_length=1000, description="The request as first typed, trimmed. Empty until there is one")
-    unclear_attempts: int = Field(default=0, ge=0, le=MAX_UNCLEAR_ATTEMPTS)
-    intent: Intent | None = None
-    criteria: CriteriaSet | None = None
-    interview: InterviewState | None = None
-    interview_step: InterviewStep | None = Field(default=None, description="The latest step, for a page reload")
-    request_saved: SaveOutcome | None = Field(
-        default=None, description="Whether the request reached the database: saved, off (no database) or failed"
-    )
-
-    def changed(self, **changes: object) -> PresearchSession:
-        """A validated copy with some fields changed (the model is frozen)."""
-        return PresearchSession.model_validate({**self.model_dump(), **changes})
 
 
 class SessionStore(Protocol):

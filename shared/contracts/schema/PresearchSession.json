@@ -1,0 +1,1059 @@
+{
+  "$defs": {
+    "AskedQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "question": {
+          "$ref": "#/$defs/InterviewQuestion"
+        },
+        "reply_text": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reply Text"
+        },
+        "classification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReplyClassification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "answered",
+            "skipped",
+            "remembered"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "unclear_count": {
+          "default": 0,
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Unclear Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "question",
+        "reply_text",
+        "classification",
+        "status",
+        "unclear_count"
+      ],
+      "title": "AskedQuestion",
+      "type": "object"
+    },
+    "Budget": {
+      "additionalProperties": false,
+      "properties": {
+        "min": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "title": "Budget",
+      "type": "object"
+    },
+    "CriteriaSet": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Category",
+          "type": "string"
+        },
+        "use_case": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Use Case"
+        },
+        "criteria": {
+          "items": {
+            "$ref": "#/$defs/Criterion"
+          },
+          "maxItems": 10,
+          "minItems": 6,
+          "title": "Criteria",
+          "type": "array"
+        },
+        "source": {
+          "enum": [
+            "generated",
+            "cached",
+            "fallback"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "category",
+        "use_case",
+        "criteria",
+        "source"
+      ],
+      "title": "CriteriaSet",
+      "type": "object"
+    },
+    "Criterion": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "description": "Stable id, e.g. 'battery_life'",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Key",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 60,
+          "minLength": 2,
+          "title": "Label",
+          "type": "string"
+        },
+        "definition": {
+          "description": "One plain-English line, also used to answer 'what is X?' in the interview",
+          "maxLength": 300,
+          "minLength": 10,
+          "title": "Definition",
+          "type": "string"
+        },
+        "direction": {
+          "$ref": "#/$defs/Direction",
+          "default": "higher_is_better"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "default_weight": {
+          "default": 5.0,
+          "maximum": 10.0,
+          "minimum": 0.0,
+          "title": "Default Weight",
+          "type": "number"
+        },
+        "is_value_for_money": {
+          "default": false,
+          "title": "Is Value For Money",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "key",
+        "label",
+        "definition",
+        "direction",
+        "unit",
+        "default_weight",
+        "is_value_for_money"
+      ],
+      "title": "Criterion",
+      "type": "object"
+    },
+    "Direction": {
+      "enum": [
+        "higher_is_better",
+        "lower_is_better"
+      ],
+      "title": "Direction",
+      "type": "string"
+    },
+    "Exclusion": {
+      "additionalProperties": false,
+      "description": "Something the user never wants to see (FR-10).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "brand",
+            "model",
+            "feature",
+            "seller"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        },
+        "always": {
+          "default": false,
+          "description": "True = save to memory for future searches",
+          "title": "Always",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "value",
+        "always"
+      ],
+      "title": "Exclusion",
+      "type": "object"
+    },
+    "HardRule": {
+      "additionalProperties": false,
+      "description": "A must-have. Hard rules only filter products; they never change the order (DR-08).",
+      "properties": {
+        "attribute": {
+          "description": "Criterion or spec key, e.g. 'weight_kg' or 'has_ois'",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Attribute",
+          "type": "string"
+        },
+        "operator": {
+          "enum": [
+            "<=",
+            ">=",
+            "==",
+            "!=",
+            "in",
+            "not_in",
+            "contains"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "source_text": {
+          "description": "What the user actually said",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Source Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "attribute",
+        "operator",
+        "value",
+        "unit",
+        "source_text"
+      ],
+      "title": "HardRule",
+      "type": "object"
+    },
+    "Intent": {
+      "additionalProperties": false,
+      "description": "Everything understood from the request. Research never starts without a category.",
+      "properties": {
+        "raw_query": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Raw Query",
+          "type": "string"
+        },
+        "category": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category"
+        },
+        "category_label": {
+          "anyOf": [
+            {
+              "maxLength": 60,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category Label"
+        },
+        "use_case": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Use Case"
+        },
+        "budget": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Budget"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "region": {
+          "default": "IN",
+          "pattern": "^(?:[A-Z]{2}|GLOBAL)$",
+          "title": "Region",
+          "type": "string"
+        },
+        "hard_rules": {
+          "items": {
+            "$ref": "#/$defs/HardRule"
+          },
+          "maxItems": 20,
+          "title": "Hard Rules",
+          "type": "array"
+        },
+        "exclusions": {
+          "items": {
+            "$ref": "#/$defs/Exclusion"
+          },
+          "maxItems": 30,
+          "title": "Exclusions",
+          "type": "array"
+        },
+        "needs_clarification": {
+          "default": false,
+          "title": "Needs Clarification",
+          "type": "boolean"
+        },
+        "clarification_question": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clarification Question"
+        },
+        "clarification_options": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "title": "Clarification Options",
+          "type": "array"
+        },
+        "show_example_requests": {
+          "default": false,
+          "description": "US-01: second unclear reply -> show examples, never guess",
+          "title": "Show Example Requests",
+          "type": "boolean"
+        },
+        "detected_by": {
+          "enum": [
+            "llm",
+            "rules"
+          ],
+          "title": "Detected By",
+          "type": "string"
+        }
+      },
+      "required": [
+        "raw_query",
+        "category",
+        "category_label",
+        "use_case",
+        "budget",
+        "region",
+        "hard_rules",
+        "exclusions",
+        "needs_clarification",
+        "clarification_question",
+        "clarification_options",
+        "show_example_requests",
+        "detected_by"
+      ],
+      "title": "Intent",
+      "type": "object"
+    },
+    "InterviewQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^q_[a-z0-9_]{1,40}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "criterion_key": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Criterion Key",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 300,
+          "minLength": 5,
+          "title": "Text",
+          "type": "string"
+        },
+        "quick_replies": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "title": "Quick Replies",
+          "type": "array"
+        },
+        "why_asking": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Why Asking"
+        }
+      },
+      "required": [
+        "id",
+        "criterion_key",
+        "text",
+        "quick_replies",
+        "why_asking"
+      ],
+      "title": "InterviewQuestion",
+      "type": "object"
+    },
+    "InterviewState": {
+      "additionalProperties": false,
+      "description": "The whole interview so far. The server stores it; each turn returns a new copy.",
+      "properties": {
+        "session_id": {
+          "pattern": "^sess_[A-Za-z0-9]{6,40}$",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "intent": {
+          "$ref": "#/$defs/Intent"
+        },
+        "criteria": {
+          "$ref": "#/$defs/CriteriaSet"
+        },
+        "history": {
+          "items": {
+            "$ref": "#/$defs/AskedQuestion"
+          },
+          "maxItems": 40,
+          "title": "History",
+          "type": "array"
+        },
+        "remembered": {
+          "items": {
+            "$ref": "#/$defs/RememberedPreference"
+          },
+          "maxItems": 5,
+          "title": "Remembered",
+          "type": "array"
+        },
+        "manual_weights": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Manual Weights",
+          "type": "object"
+        }
+      },
+      "required": [
+        "session_id",
+        "intent",
+        "criteria",
+        "history",
+        "remembered",
+        "manual_weights"
+      ],
+      "title": "InterviewState",
+      "type": "object"
+    },
+    "InterviewStep": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "question",
+            "answer_then_repeat",
+            "rephrase",
+            "redirect",
+            "finished"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "message": {
+          "description": "Exactly what the chat shows",
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "question": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InterviewQuestion"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "answer_source": {
+          "anyOf": [
+            {
+              "enum": [
+                "definition",
+                "llm"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For answer_then_repeat: saved definition first, LLM only if needed",
+          "title": "Answer Source"
+        },
+        "rubric": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Rubric"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "state": {
+          "$ref": "#/$defs/InterviewState"
+        },
+        "questions_asked": {
+          "maximum": 10,
+          "minimum": 0,
+          "title": "Questions Asked",
+          "type": "integer"
+        },
+        "ordering": {
+          "default": "fixed_order",
+          "enum": [
+            "information_gain",
+            "fixed_order"
+          ],
+          "title": "Ordering",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "message",
+        "question",
+        "answer_source",
+        "rubric",
+        "state",
+        "questions_asked",
+        "ordering"
+      ],
+      "title": "InterviewStep",
+      "type": "object"
+    },
+    "Money": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "minimum": 0,
+          "title": "Amount",
+          "type": "number"
+        },
+        "currency": {
+          "default": "INR",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "title": "Money",
+      "type": "object"
+    },
+    "RememberedPreference": {
+      "additionalProperties": false,
+      "description": "A past preference found by meaning (US-06). Shown as 'remembered', changeable in one click.",
+      "properties": {
+        "text": {
+          "maxLength": 200,
+          "title": "Text",
+          "type": "string"
+        },
+        "criterion_key": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Criterion Key"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "maximum": 10.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weight"
+        },
+        "similarity": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Similarity",
+          "type": "number"
+        },
+        "age_days": {
+          "minimum": 0,
+          "title": "Age Days",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "text",
+        "criterion_key",
+        "weight",
+        "similarity",
+        "age_days"
+      ],
+      "title": "RememberedPreference",
+      "type": "object"
+    },
+    "ReplyClassification": {
+      "additionalProperties": false,
+      "properties": {
+        "reply_type": {
+          "$ref": "#/$defs/ReplyType"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "maximum": 10.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Weight implied by the answer, if any",
+          "title": "Weight"
+        },
+        "user_question": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "User Question"
+        },
+        "corrects_question_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Corrects Question Id"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "classified_by": {
+          "default": "llm",
+          "enum": [
+            "llm",
+            "fallback"
+          ],
+          "title": "Classified By",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reply_type",
+        "weight",
+        "user_question",
+        "corrects_question_id",
+        "confidence",
+        "classified_by"
+      ],
+      "title": "ReplyClassification",
+      "type": "object"
+    },
+    "ReplyType": {
+      "enum": [
+        "answer",
+        "question",
+        "answer_with_question",
+        "skip",
+        "correction",
+        "off_topic",
+        "unclear"
+      ],
+      "title": "ReplyType",
+      "type": "string"
+    },
+    "Rubric": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Category",
+          "type": "string"
+        },
+        "use_case": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Use Case"
+        },
+        "region": {
+          "default": "IN",
+          "pattern": "^(?:[A-Z]{2}|GLOBAL)$",
+          "title": "Region",
+          "type": "string"
+        },
+        "budget": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Budget"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "hard_rules": {
+          "items": {
+            "$ref": "#/$defs/HardRule"
+          },
+          "maxItems": 20,
+          "title": "Hard Rules",
+          "type": "array"
+        },
+        "exclusions": {
+          "items": {
+            "$ref": "#/$defs/Exclusion"
+          },
+          "maxItems": 30,
+          "title": "Exclusions",
+          "type": "array"
+        },
+        "weights": {
+          "items": {
+            "$ref": "#/$defs/WeightedCriterion"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Weights",
+          "type": "array"
+        }
+      },
+      "required": [
+        "category",
+        "use_case",
+        "region",
+        "budget",
+        "hard_rules",
+        "exclusions",
+        "weights"
+      ],
+      "title": "Rubric",
+      "type": "object"
+    },
+    "WeightedCriterion": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Key",
+          "type": "string"
+        },
+        "weight": {
+          "description": "0 to 10, as the user sees it",
+          "maximum": 10.0,
+          "minimum": 0.0,
+          "title": "Weight",
+          "type": "number"
+        },
+        "normalized": {
+          "description": "Share of the total; all normalized values add up to 1",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Normalized",
+          "type": "number"
+        },
+        "origin": {
+          "enum": [
+            "answered",
+            "remembered",
+            "default",
+            "skipped",
+            "manual"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "uncertainty": {
+          "default": 0.5,
+          "description": "How unsure we are of this weight; used by the interview and simulations",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Uncertainty",
+          "type": "number"
+        }
+      },
+      "required": [
+        "key",
+        "weight",
+        "normalized",
+        "origin",
+        "uncertainty"
+      ],
+      "title": "WeightedCriterion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Everything the pre-search API knows about one shopper. GET /api/presearch/{session_id} returns it whole.",
+  "properties": {
+    "session_id": {
+      "pattern": "^sess_[A-Za-z0-9]{6,40}$",
+      "title": "Session Id",
+      "type": "string"
+    },
+    "request": {
+      "description": "The request as first typed, trimmed. Empty until there is one",
+      "maxLength": 1000,
+      "title": "Request",
+      "type": "string"
+    },
+    "unclear_attempts": {
+      "default": 0,
+      "maximum": 2,
+      "minimum": 0,
+      "title": "Unclear Attempts",
+      "type": "integer"
+    },
+    "intent": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Intent"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "criteria": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CriteriaSet"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "interview": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/InterviewState"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "interview_step": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/InterviewStep"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The latest step, for a page reload"
+    },
+    "request_saved": {
+      "anyOf": [
+        {
+          "enum": [
+            "saved",
+            "off",
+            "failed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Whether the request reached the database: saved, off (no database) or failed",
+      "title": "Request Saved"
+    }
+  },
+  "required": [
+    "session_id",
+    "request",
+    "unclear_attempts",
+    "intent",
+    "criteria",
+    "interview",
+    "interview_step",
+    "request_saved"
+  ],
+  "title": "PresearchSession",
+  "type": "object"
+}

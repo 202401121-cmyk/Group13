@@ -14,8 +14,9 @@ uvicorn app.main:app --port 8000
 
 - **Base URL:** `http://localhost:8000`. Every route is under `/api`.
 - **JSON in, JSON out.** Send `Content-Type: application/json`.
-- **Types:** `Intent`, `CriteriaSet`, `InterviewStep` and the rest are the contract models. Their TypeScript
-  types come from `shared/contracts/schema/*.json` (see `frontend/CLAUDE.md`); never redefine them by hand.
+- **Types:** `IntakeResponse`, `Intent`, `CriteriaSet`, `ReplyRequest`, `InterviewStep`, `PresearchSession` and the
+  rest are the contract models. Their TypeScript types come from `shared/contracts/schema/*.json` (see
+  `frontend/CLAUDE.md`); never redefine them by hand.
 - **Sessions:** the first `intake` call returns a `session_id` (like `sess_3f9a…`). Send it with every later
   call. A session not used for 2 hours expires; the server keeps at most 1,000 at a time.
 - **Errors** are always `{"detail": "<one plain sentence>"}`, never a stack trace. Show `detail` to the user.
@@ -75,7 +76,7 @@ Reads a new request, or the reply to our clarification question.
     product are you looking for?" with its options), or example requests the second time. Nothing is saved, and a
     request already in the session stays as it is. With no request yet, the next `text` in that session is the
     request. `intent.raw_query` in this one answer is `(nothing typed)`.
-- **Response 200:** `{"session_id": "sess_…", "intent": Intent, "ready_for_research": true}`
+- **Response 200:** `IntakeResponse`: `{"session_id": "sess_…", "intent": Intent, "ready_for_research": true}`
   - `ready_for_research: false` → show `intent.clarification_question` with `intent.clarification_options` as
     buttons, or example requests when `intent.show_example_requests` is true.
 - **Errors:** 404 (unknown or expired `session_id`), 422 (`text` missing, not a string, or over 1,000 characters).
@@ -197,9 +198,9 @@ curl -s -X POST http://localhost:8000/api/presearch/$SID/interview/back \
 
 ### GET /api/presearch/{session_id}
 
-Everything about the session, for a page reload: `request`, `unclear_attempts`, `intent`, `criteria`,
-`interview` (the `InterviewState`) and `interview_step` (the latest step: redraw the current question, or the
-finished rubric). Fields not reached yet are `null`; `request` is `""` until the shopper has typed one.
+Everything about the session, as a `PresearchSession`, for a page reload: `request`, `unclear_attempts`, `intent`,
+`criteria`, `interview` (the `InterviewState`) and `interview_step` (the latest step: redraw the current question,
+or the finished rubric). Fields not reached yet are `null`; `request` is `""` until the shopper has typed one.
 
 `request_saved` says whether the request reached the database (US-01): `"saved"`, `"off"` (no database is set
 up) or `"failed"` (the database was down or slow; the search carries on). It is `null` until the first request.

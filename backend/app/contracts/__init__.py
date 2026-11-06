@@ -50,13 +50,14 @@ from .llm import (
     Provider,
 )
 from .pipeline import ProductSummary, ProgressEvent, SearchRequest, SearchResult, Stage, StageContext
-from .presearch import ReplyRequest
+from .presearch import MAX_UNCLEAR_ATTEMPTS, IntakeResponse, PresearchSession, ReplyRequest
 from .research import RedditOrigin, ResearchInput, ResearchResult, Source, SourceFailure
 from .rubric import Rubric, WeightedCriterion, normalize
 from .verify import CommunitySignal, ResolvedValue, ValueState, VerifyInput, VerifyResult
 
 __all__ = [
     "MAX_QUESTIONS",
+    "MAX_UNCLEAR_ATTEMPTS",
     "MAX_UNCLEAR_PER_QUESTION",
     "PERSONAL_TASKS",
     "PRICE_STALE_AFTER",
@@ -93,6 +94,7 @@ __all__ = [
     "FilteredProduct",
     "HardRule",
     "IntakeInput",
+    "IntakeResponse",
     "Intent",
     "InterviewQuestion",
     "InterviewState",
@@ -107,6 +109,7 @@ __all__ = [
     "ModelLimits",
     "Money",
     "Offer",
+    "PresearchSession",
     "Product",
     "ProductMention",
     "ProductSummary",

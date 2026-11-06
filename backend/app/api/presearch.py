@@ -18,12 +18,23 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, Field, ValidationErr
 
 from app import db
 from app import presearch as flow
-from app.contracts import CriteriaSet, Intent, InterviewState, InterviewStep, InterviewTurn, LLMClient, ReplyRequest
+from app.contracts import (
+    MAX_UNCLEAR_ATTEMPTS,
+    CriteriaSet,
+    IntakeResponse,
+    Intent,
+    InterviewState,
+    InterviewStep,
+    InterviewTurn,
+    LLMClient,
+    PresearchSession,
+    ReplyRequest,
+)
 from app.criteria import CriteriaStore
 from app.intake import revise_intent
 from app.interview import place_reply
 
-from .sessions import MAX_UNCLEAR_ATTEMPTS, InMemorySessionStore, PresearchSession, SessionStore, new_session_id
+from .sessions import InMemorySessionStore, SessionStore, new_session_id
 
 EXPIRED = "This session has expired. Please start a new search."
 NOT_READY = "Tell us what kind of product first."
@@ -80,12 +91,6 @@ class IntakeRequest(BaseModel):
         Field(max_length=1000, description="The request, or the reply to our question"),
         AfterValidator(_trim),
     ]
-
-
-class IntakeResponse(BaseModel):
-    session_id: str
-    intent: Intent
-    ready_for_research: bool
 
 
 class IntentEdit(BaseModel):
