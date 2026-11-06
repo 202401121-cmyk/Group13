@@ -40,10 +40,10 @@ POST /api/presearch/intake               {"text": "best laptop for coding under 
   └─ ready_for_research false? show intent.clarification_question and its options (or, if
      intent.show_example_requests, a few example requests), then POST /intake again with the reply
      and the same session_id
-POST /api/presearch/{id}/criteria
-POST /api/presearch/{id}/interview/start            → first question
-POST /api/presearch/{id}/interview/reply  (repeat)  → next question, a rephrase, or "finished" + rubric
-POST /api/presearch/{id}/interview/back   (any time) → ask an earlier question again
+POST /api/presearch/{session_id}/criteria
+POST /api/presearch/{session_id}/interview/start            → first question
+POST /api/presearch/{session_id}/interview/reply  (repeat)  → next question, a rephrase, or "finished" + rubric
+POST /api/presearch/{session_id}/interview/back   (any time) → ask an earlier question again
 ```
 
 ## Routes
@@ -224,14 +224,40 @@ curl -s http://localhost:8000/api/presearch/$SID
 
 ## A whole interview in one go (Git Bash)
 
+The number of questions changes from one interview to the next: it depends on the criteria and on the answers. So
+this example keeps answering until the step's `kind` is `finished`, then shows the rubric. If the server sends an
+error, the answer has no `kind`, so the loop stops and prints the error. It leaves `SID` and `RUBRIC` set, ready for
+[`POST /api/search`](../frontend-api.md#post-apisearch).
+
 ```bash
 BASE=http://localhost:8000/api/presearch
+# Prints one field of the JSON it is given: text as it is, anything else as JSON, nothing if the field is missing.
+field() {
+  python -X utf8 -c "import json,sys; v=json.load(sys.stdin).get('$1',''); print(v if isinstance(v,str) else json.dumps(v))"
+}
+
 SID=$(curl -s -X POST $BASE/intake -H "Content-Type: application/json" \
-  -d '{"text": "best laptop for coding under 70k"}' | python -c "import json,sys; print(json.load(sys.stdin)['session_id'])")
+  -d '{"text": "best laptop for coding under 70k"}' | field session_id)
 curl -s -X POST $BASE/$SID/criteria > /dev/null
-curl -s -X POST $BASE/$SID/interview/start
-for answer in High Medium 7 Skip Low High Medium Medium; do
-  curl -s -X POST $BASE/$SID/interview/reply -H "Content-Type: application/json" \
-    -d "{\"reply_text\": \"$answer\"}"; echo
+STEP=$(curl -s -X POST $BASE/$SID/interview/start)
+KIND=$(echo "$STEP" | field kind)
+
+ANSWERS=(High Medium 7 Skip Low)
+TURN=0
+while [ -n "$KIND" ] && [ "$KIND" != "finished" ]; do
+  ANSWER=${ANSWERS[$((TURN % ${#ANSWERS[@]}))]}
+  TURN=$((TURN + 1))
+  echo "$(echo "$STEP" | field message) -> $ANSWER"
+  STEP=$(curl -s -X POST $BASE/$SID/interview/reply -H "Content-Type: application/json" \
+    -d "{\"reply_text\": \"$ANSWER\"}")
+  KIND=$(echo "$STEP" | field kind)
 done
+
+if [ "$KIND" = "finished" ]; then
+  echo "$STEP" | field message
+  RUBRIC=$(echo "$STEP" | field rubric)
+  echo "$RUBRIC" | python -m json.tool
+else
+  echo "Stopped early: $STEP"
+fi
 ```

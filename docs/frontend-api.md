@@ -84,7 +84,9 @@ has its own limit, and a stage that runs out falls back instead of failing. The 
 A stage that fails never makes the search fail: it falls back, and `stage_reports` and `coverage_note` say so. A
 save that fails never does either: the answer is the same result with `saved` set to `false`.
 
-**Try it** (Git Bash, backend running, `RUBRIC` holding the `rubric` JSON from a finished interview):
+**Try it** (Git Bash, backend running). First run
+[A whole interview in one go](api/presearch.md#a-whole-interview-in-one-go-git-bash) in the same terminal: it sets
+`SID` and `RUBRIC`.
 
 ```bash
 curl -s -X POST http://localhost:8000/api/search \
