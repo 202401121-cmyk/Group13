@@ -668,6 +668,7 @@ def search_result() -> SearchResult:
         ],
         coverage_note="YouTube didn't respond in time, and one value is estimated. Results use Reddit, "
         "a review site and the maker's page.",
+        saved=True,  # the normal case: the frontend's mock results cover the "not saved" notice
     )
 
 

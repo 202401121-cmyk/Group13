@@ -420,6 +420,7 @@ class _Search:
             sources=self.research_out.sources if self.research_out else [],
             stage_reports=self.reports,
             coverage_note=build_coverage_note(self.reports, failures, partial),
+            saved=True,  # what the stored row must say; the runner returns a saved=False copy if it is not committed
         )
 
 

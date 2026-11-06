@@ -61,7 +61,13 @@ class Stage(Protocol[InT, OutT]):
 
 class SearchRequest(Contract):
     session_id: SessionId
-    user_id: str | None = Field(default=None, description="None for guests; nothing is saved for guests")
+    user_id: str | None = Field(
+        default=None,
+        description=(
+            "The signed-in owner's ID once login exists (US-30). None for guests: a guest's request and search are "
+            "stored only under the anonymous session ID and are never linked to an account."
+        ),
+    )
     raw_query: str = Field(min_length=1, max_length=1000)
     rubric: Rubric
 
@@ -90,7 +96,13 @@ class SearchResult(Contract):
     sources: list[Source] = Field(default_factory=list)
     stage_reports: list[StageReport] = Field(default_factory=list)
     coverage_note: str | None = Field(default=None, max_length=400, description="e.g. 'Reddit was unavailable'")
-    saved: bool = Field(default=True, description="False if the database was down (banner in the UI)")
+    saved: bool = Field(
+        default=False,
+        description=(
+            "True only when this result's row was committed to the database. False when the database is off, down, "
+            "slow or failing (the UI then says the result isn't saved)."
+        ),
+    )
 
     @model_validator(mode="after")
     def _check(self) -> SearchResult:

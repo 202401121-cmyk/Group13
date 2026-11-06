@@ -349,6 +349,18 @@ def test_search_cannot_finish_before_it_starts() -> None:
         rebuild(r, finished_at=r.started_at - timedelta(seconds=1))
 
 
+def test_a_result_built_without_saved_is_not_saved() -> None:
+    """D-27: saved means the row was committed, so a result never claims it by default."""
+    data = ex.search_result().model_dump()
+    del data["saved"]
+    assert C.SearchResult.model_validate(data).saved is False
+
+
+def test_the_exported_schema_gives_saved_the_same_default() -> None:
+    saved = C.SearchResult.model_json_schema(mode="serialization")["properties"]["saved"]
+    assert saved["default"] is False
+
+
 # --- LLM wrapper interface ----------------------------------------------------------------------
 
 
