@@ -1,17 +1,16 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
-  createRootRouteWithContext,
+  createRootRoute,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { Suspense, lazy, useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { Toaster } from "@/components/ui/sonner";
 import { SHELL_FONTS } from "@/lib/fonts";
 
 function NotFoundComponent() {
@@ -70,7 +69,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -112,14 +111,35 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
+const Toaster = lazy(() =>
+  import("@/components/ui/sonner").then(({ Toaster }) => ({ default: Toaster })),
+);
 
+/**
+ * Only the pages of a search raise toasts, so the library is fetched there and never on a first visit. Once fetched it
+ * stays mounted, because a toast has to outlive the page that raised it.
+ */
+function Toasts() {
+  const inSearch = useRouterState({ select: (s) => s.location.pathname.startsWith("/s/") });
+  const [needed, setNeeded] = useState(false);
+  useEffect(() => {
+    if (inSearch) setNeeded(true);
+  }, [inSearch]);
+
+  if (!needed) return null;
   return (
-    <QueryClientProvider client={queryClient}>
+    <Suspense fallback={null}>
+      <Toaster position="bottom-center" />
+    </Suspense>
+  );
+}
+
+function RootComponent() {
+  return (
+    <>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
-      <Toaster position="bottom-center" />
-    </QueryClientProvider>
+      <Toasts />
+    </>
   );
 }

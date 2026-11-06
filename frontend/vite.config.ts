@@ -26,6 +26,27 @@ export default defineConfig({
     alias: { "@contracts": fileURLToPath(new URL("../shared/contracts", import.meta.url)) },
     dedupe: ["react", "react-dom"],
   },
+  environments: {
+    client: {
+      build: {
+        rolldownOptions: {
+          output: {
+            // Left alone, the bundler cuts what every page needs into about 20 small files, and a phone pays a
+            // round trip for each. These load on every page anyway, so they travel together. Pages stay split.
+            codeSplitting: {
+              groups: [
+                {
+                  name: "framework",
+                  test: /node_modules\/(react|react-dom|scheduler|@tanstack|tailwind-merge|clsx|class-variance-authority)\//,
+                },
+                { name: "icons", test: /node_modules\/lucide-react\// },
+              ],
+            },
+          },
+        },
+      },
+    },
+  },
   plugins: [
     tsConfigPaths(),
     tanstackStart({
