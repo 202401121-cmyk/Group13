@@ -1,13 +1,15 @@
 """Search pipeline runner (US-52): research, extract, match, verify, enrich, decide, explain, commerce.
 
 Every stage runs through `run_stage`, which enforces its time limit and swaps in its fallback when it fails,
-so no stage can hang or crash a search (build rule 9). State stays in memory and is saved once at the end;
-a failed save only sets `saved=False` (build rule 10).
+so no stage can hang or crash a search (build rule 9). State stays in memory and is saved once at the end, inside
+the search's time limit (D-21). `saved` is true only when the row was committed (D-27), and a save that does not
+happen only sets `saved=False` (build rule 10).
 """
 
 from __future__ import annotations
 
 import logging
+import os
 from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor, wait
 from dataclasses import dataclass
@@ -16,6 +18,7 @@ from time import monotonic
 from typing import Protocol, TypeVar
 from uuid import uuid4
 
+from app import db
 from app.commerce import CommerceStage
 from app.contracts import (
     SEARCH_TIME_LIMIT_S,
@@ -106,13 +109,17 @@ FAILURE_WORDS = {
 
 
 class ResultStore(Protocol):
-    """Where a finished search is saved. Returns False (or raises) when saving did not work."""
+    """Where a finished search is saved. Returns False (or raises) when saving did not work.
+
+    A store whose save can block also has `time_limit_s`, the longest one save may take. The runner sets that time
+    aside from the search's limit. A store without it is taken to be instant.
+    """
 
     def save(self, result: SearchResult) -> bool: ...
 
 
 class InMemoryResultStore:
-    """Keeps results in a list. Enough until the database story lands; the pipeline never needs more."""
+    """Keeps results in a list, for tests. The API and the CLI use DatabaseResultStore."""
 
     def __init__(self) -> None:
         self.results: list[SearchResult] = []
@@ -120,6 +127,26 @@ class InMemoryResultStore:
     def save(self, result: SearchResult) -> bool:
         self.results.append(result)
         return True
+
+
+class DatabaseResultStore:
+    """Saves a finished search through the database module, so `saved` tells the truth (D-27).
+
+    save_search() answers True only when the row was committed, never raises, and gives up after DB_TIMEOUT_SECONDS.
+    A database that is off, down, slow or failing answers False, and the search still finishes (build rule 10).
+    """
+
+    def __init__(self, requests: db.RequestStore, time_limit_s: float | None = None) -> None:
+        self.requests = requests
+        # os.environ, because the default also loads .env: default_request_store() has done that if it was needed.
+        self.time_limit_s = db.load_settings(os.environ).timeout_s if time_limit_s is None else time_limit_s
+
+    def save(self, result: SearchResult) -> bool:
+        request = result.request
+        # mode="json": a plain dump holds datetimes and URLs, which the database module refuses.
+        return self.requests.save_search(
+            request.session_id, request.rubric.model_dump(mode="json"), result.model_dump(mode="json")
+        )
 
 
 # --- stages -------------------------------------------------------------------------------------
@@ -220,7 +247,7 @@ def _require(value: Out | None, what: str) -> Out:
 
 
 class PipelineRunner:
-    """Runs the eight search stages in order and always returns a valid SearchResult."""
+    """Runs the eight search stages in order, saves the result and always returns a valid SearchResult."""
 
     def __init__(
         self,
@@ -233,9 +260,13 @@ class PipelineRunner:
         self.store = store
         self.time_limits = {**STAGE_TIME_LIMITS_S, **(time_limits or {})}
         self.search_time_limit_s = search_time_limit_s
+        self.save_time_s: float = getattr(store, "time_limit_s", 0.0)
 
     def run(self, request: SearchRequest) -> SearchResult:
-        ctx = StageContext(search_id="srch_" + uuid4().hex[:12], time_limit_s=self.search_time_limit_s)
+        # D-21: the limit covers the save too, so the stages stop early enough to leave the store its time. That way
+        # a search that runs out of time still gets saved.
+        stage_time_s = max(0.0, self.search_time_limit_s - self.save_time_s)
+        ctx = StageContext(search_id="srch_" + uuid4().hex[:12], time_limit_s=stage_time_s)
         started_at = datetime.now(UTC)
         search = _Search(self.stages, self.time_limits, request, ctx)
 
@@ -254,17 +285,37 @@ class PipelineRunner:
                 break
 
         result = search.result(started_at, partial or search.out_of_time)
-        return self._save(result)
+        return self._save(result, self.search_time_limit_s - (monotonic() - ctx.started_at))
 
-    def _save(self, result: SearchResult) -> SearchResult:
-        try:
-            saved = bool(self.store.save(result))
-        except Exception as exc:
-            log.error("could not save search %s: %s", result.search_id, _short(exc))
-            saved = False
-        if saved:
+    def _save(self, result: SearchResult, seconds_left: float) -> SearchResult:
+        """`result` says saved=True, so the stored row and the response agree. If no row was committed, say so."""
+        if self._committed(result, seconds_left):
             return result
         return SearchResult.model_validate({**result.model_dump(), "saved": False})
+
+    def _committed(self, result: SearchResult, seconds_left: float) -> bool:
+        """True only when the store reports the row committed. Never raises, and never waits past the search's limit.
+
+        The store has its own, shorter time limit (D-28). This wait is what holds the 150 seconds whatever the store
+        does; like a timed-out stage, a save cut off here finishes in the background, and nobody waits for it.
+        """
+        if seconds_left <= 0:
+            log.warning("search %s not saved: no time was left", result.search_id)
+            return False
+        pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="result-save")
+        future = pool.submit(self.store.save, result)
+        try:
+            done, _ = wait([future], timeout=seconds_left)
+        finally:
+            pool.shutdown(wait=False, cancel_futures=True)
+        if not done:
+            log.warning("search %s not saved: the save ran past the time limit", result.search_id)
+            return False
+        try:
+            return bool(future.result())
+        except Exception as exc:  # only the error's type: its text could hold a connection string
+            log.error("could not save search %s: %s", result.search_id, type(exc).__name__)
+            return False
 
 
 class _Search:

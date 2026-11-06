@@ -1,8 +1,9 @@
 """The HTTP API: a health check, the search endpoint (US-52) and the pre-search routes (US-05).
 
 Run: uvicorn app.main:app --reload
-No auth yet. Requests are saved to Postgres when DATABASE_URL is set (US-01); the health check reports the
-database as "ok", "off" or "down". CORS allows only the origins in FRONTEND_ORIGINS (default http://localhost:3000).
+No auth yet. Requests and finished searches are saved to Postgres when DATABASE_URL is set (US-01, US-52); the health
+check reports the database as "ok", "off" or "down". CORS allows only the origins in FRONTEND_ORIGINS (default
+http://localhost:3000).
 """
 
 from __future__ import annotations
@@ -21,13 +22,11 @@ from app import db
 from app.api import presearch_router
 from app.api.presearch import plain_validation_message
 from app.contracts import SCHEMA_VERSION, SearchRequest, SearchResult
-from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
+from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
 
 log = logging.getLogger(__name__)
 
 DEFAULT_FRONTEND_ORIGINS = ("http://localhost:3000",)  # the frontend's dev server (npm run dev)
-
-store = InMemoryResultStore()
 
 
 def allowed_origins(env: Mapping[str, str] | None = None) -> list[str]:
@@ -57,7 +56,7 @@ def health() -> dict[str, str]:
 
 def search(request: SearchRequest) -> SearchResult:
     # A plain `def`, so FastAPI runs the (blocking) pipeline in its thread pool, not on the event loop.
-    return PipelineRunner(default_search_stages(), store).run(request)
+    return PipelineRunner(default_search_stages(), DatabaseResultStore(db.default_request_store())).run(request)
 
 
 async def plain_validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
