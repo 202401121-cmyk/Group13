@@ -3,6 +3,9 @@
  * POST /{id}/criteria, and each turn is POST /{id}/interview/start, /reply or /back. This file is the only
  * place the backend's CriteriaSet and InterviewStep become the screens' Criterion, Step and Answers.
  * Values the backend does not send (a criterion's tip, which criterion depends on which) stay empty.
+ *
+ * Every reply names its question (question_id), so a retry can never answer the next question. When the
+ * backend refuses a reply as out of date (409), the screen catches up from GET /{id} instead of failing.
  */
 import { ApiError, MESSAGES, SESSION_ID_PATTERN, TIMEOUTS, type ApiClient } from "@/lib/api/client";
 import { checkContract } from "@/lib/api/schemas";
@@ -10,6 +13,7 @@ import type { RubricItem, WeightOrigin } from "@/lib/results/types";
 import { keyInWords } from "@/lib/text";
 import type { CriteriaSet } from "@/types/contracts/CriteriaSet";
 import type { InterviewState, InterviewStep, Rubric } from "@/types/contracts/InterviewStep";
+import { ALREADY_ANSWERED } from "./questions";
 import type {
   Answers,
   CriteriaResult,
@@ -40,6 +44,7 @@ export function viewStep(step: InterviewStep): Step {
   return {
     kind: step.kind,
     criterionId: q?.criterion_key ?? null,
+    questionId: q?.id ?? null,
     question: q?.text ?? null,
     note: step.message,
     why: q?.why_asking ?? null,
@@ -91,7 +96,10 @@ export function laterChanged(before: Answers, after: Answers, revised: string): 
   );
 }
 
-/** The backend's id for a criterion's question, from the last state it sent, else its naming rule. */
+/**
+ * The backend's id for a criterion's question, from the last state it sent, else its naming rule. A turn
+ * normally carries the id itself; this covers "Go back", which is local, and a tab reloaded mid-interview.
+ */
 function questionId(criterionId: string, last: InterviewState | undefined): string {
   const asked = last?.history.find((e) => e.question.criterion_key === criterionId);
   return (
@@ -121,6 +129,16 @@ export function createLiveInterviewService(client: ApiClient): InterviewService 
     return checked;
   }
 
+  /** The step the backend is on now, or null when this session has no interview to show. */
+  async function latestStep(sessionId: string): Promise<InterviewStep | null> {
+    const raw = await client.get(`/api/presearch/${sessionId}`, opts);
+    const interviewStep = (raw as { interview_step?: unknown } | null)?.interview_step ?? null;
+    if (interviewStep === null) return null;
+    const checked = await checkContract("InterviewStep", interviewStep);
+    lastState.set(sessionId, checked.state);
+    return checked;
+  }
+
   return {
     async getCriteria(_brief, sessionId) {
       const id = checkedSessionId(sessionId);
@@ -131,19 +149,30 @@ export function createLiveInterviewService(client: ApiClient): InterviewService 
       const id = checkedSessionId(input.sessionId);
       const t = input.turn;
       let result: InterviewStep;
+      let outOfDate = false;
       if (!t) {
         result = await step(id, "start");
       } else {
-        // "Go back" is local until the next reply: then the backend reopens the question and takes the answer.
-        if (t.revise)
-          await step(id, "back", { question_id: questionId(t.criterionId, lastState.get(id)) });
-        result = await step(id, "reply", { reply_text: t.text ?? SKIP_REPLY });
+        const question_id = t.questionId ?? questionId(t.criterionId, lastState.get(id));
+        try {
+          // "Go back" is local until the next reply: then the backend reopens the question and takes the answer.
+          if (t.revise) await step(id, "back", { question_id });
+          result = await step(id, "reply", { reply_text: t.text ?? SKIP_REPLY, question_id });
+        } catch (e) {
+          const latest =
+            e instanceof ApiError && e.kind === "conflict" ? await latestStep(id) : null;
+          if (!latest) throw e;
+          result = latest;
+          outOfDate = true;
+        }
       }
       const answers = answersFromState(result.state);
       return {
         step: viewStep(result),
         answers,
-        laterChanged: t?.revise ? laterChanged(input.answers, answers, t.criterionId) : false,
+        laterChanged:
+          t?.revise && !outOfDate ? laterChanged(input.answers, answers, t.criterionId) : false,
+        ...(outOfDate ? { notice: ALREADY_ANSWERED } : {}),
         ...(result.kind === "finished" && result.rubric
           ? { rubric: rubricItems(result.rubric, input.criteria) }
           : {}),

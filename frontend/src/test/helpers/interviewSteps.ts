@@ -65,3 +65,20 @@ export function stepOf(
     ordering: "fixed_order",
   };
 }
+
+/** The whole session, as GET /api/presearch/{id} answers it, around one step. */
+export function sessionWith(
+  step: InterviewStep | null,
+  request = "best laptop for coding under 70k",
+) {
+  return {
+    session_id: SID,
+    request,
+    unclear_attempts: 0,
+    intent,
+    criteria,
+    interview: step?.state ?? null,
+    interview_step: step,
+    request_saved: "saved",
+  };
+}

@@ -4,9 +4,11 @@ import {
   interviewReducer,
   statusOf,
   counts,
+  toInterviewSnapshot,
   type InterviewState,
 } from "@/lib/interview/reducer";
 import { criteriaFor, runTurn } from "@/lib/interview/mockService";
+import { ALREADY_ANSWERED } from "@/lib/interview/questions";
 import { noteContainsQuestion } from "@/lib/interview/view";
 import type { Brief } from "@/lib/request/types";
 
@@ -108,6 +110,32 @@ describe("sending rules", () => {
     s = interviewReducer(s, { type: "RETRY" });
     expect(s.phase).toBe("sending");
     expect(s.pending?.text).toBe("Very important");
+  });
+  it("keeps the step's question id with the pending answer, through a retry", () => {
+    const asking = started();
+    const step = { ...asking.step!, questionId: "q_cpu" };
+    let s = interviewReducer({ ...asking, step }, { type: "SEND", text: "Very important" });
+    expect(s.pending?.questionId).toBe("q_cpu");
+    s = interviewReducer(s, { type: "TURN_FAILED", message: "x" });
+    s = interviewReducer(s, { type: "RETRY" });
+    expect(s.pending?.questionId).toBe("q_cpu");
+  });
+  it("a notice shows until the next reply or going back, and is never saved", () => {
+    const sending = interviewReducer(started(), { type: "SEND", text: "test a conflict" });
+    const result = runTurn({
+      brief: brief("Laptop"),
+      criteria: sending.criteria,
+      answers: sending.answers,
+      turn: sending.pending!,
+    });
+    expect(result.notice).toBe(ALREADY_ANSWERED);
+    expect(result.answers).toEqual({});
+
+    const s = interviewReducer(sending, { type: "TURN_OK", result });
+    expect(s).toMatchObject({ phase: "asking", notice: ALREADY_ANSWERED });
+    expect(toInterviewSnapshot(s)).not.toHaveProperty("notice");
+    expect(interviewReducer(s, { type: "SEND", text: "High" }).notice).toBeNull();
+    expect(interviewReducer(s, { type: "GO_BACK", criterionId: "cpu" }).notice).toBeNull();
   });
   it("caps typed answers at 500 characters", () => {
     const s = interviewReducer(started(), { type: "SEND", text: "a".repeat(600) });

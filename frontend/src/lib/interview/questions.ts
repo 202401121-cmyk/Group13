@@ -6,6 +6,9 @@ import type { Criterion, Step } from "./types";
  */
 export const IMPORTANCE_REPLIES = ["Low", "Medium", "High"];
 
+/** Shown when the backend refuses a reply as out of date and the screen has caught up with it. */
+export const ALREADY_ANSWERED = "This question was already answered. Here is where you are.";
+
 /**
  * A question worded the way the backend words it (backend/app/interview/questions.py), so a question asked
  * again after "Go back" looks the same in mock and live mode. The title opens the sentence, so it stands

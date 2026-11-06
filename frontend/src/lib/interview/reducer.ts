@@ -29,6 +29,8 @@ export interface InterviewState {
   revising: string | null;
   error: string | null;
   laterChanged: boolean;
+  /** A message about the last turn, such as a reply that came too late. Gone after the next reply. */
+  notice: string | null;
   /** The backend's weights once the interview is finished (live mode); null otherwise. */
   rubric: RubricItem[] | null;
   requestId: number;
@@ -56,6 +58,7 @@ export const initialInterview: InterviewState = {
   revising: null,
   error: null,
   laterChanged: false,
+  notice: null,
   rubric: null,
   requestId: 0,
 };
@@ -85,12 +88,20 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
       const text = a.text === null ? null : a.text.trim().slice(0, MAX_ANSWER_LENGTH);
       if (text === "") return s;
       const id = s.step.criterionId;
+      const { questionId } = s.step;
       return {
         ...s,
         phase: "sending",
-        pending: { criterionId: id, text, revise: s.revising === id },
+        // Kept with the reply, so "Try again" after a timeout sends the same question_id.
+        pending: {
+          criterionId: id,
+          text,
+          revise: s.revising === id,
+          ...(questionId ? { questionId } : {}),
+        },
         error: null,
         laterChanged: false,
+        notice: null,
         requestId: s.requestId + 1,
       };
     }
@@ -109,6 +120,7 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
         pending: null,
         revising: stillRevising,
         laterChanged,
+        notice: a.result.notice ?? null,
         rubric: a.result.rubric ?? null,
       };
     }
@@ -135,6 +147,7 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
         pending: null,
         error: null,
         laterChanged: false,
+        notice: null,
         rubric: null, // the answer is changing, so the finished weights no longer hold
       };
     }
