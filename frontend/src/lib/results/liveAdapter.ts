@@ -110,6 +110,7 @@ export function resultFromSearch(
         checked: rows.filter((c) => c.state === "verified" || c.state === "disputed").length,
         total: rows.length,
       },
+      dataCoverage: Math.round(r.coverage * 100),
       explanation: text || null,
       contributions: r.contributions.map((c) => ({
         criterionId: c.criterion_key,
@@ -139,6 +140,10 @@ export function resultFromSearch(
       .map((f) => ({
         name: summaries.get(f.product_id)?.product.name ?? f.product_id,
         reason: f.reasons.join("; "),
+        // The criterion's name, not the shopper's own words for the rule: this goes in a search link.
+        ...(group === "cant_tell" && f.rule_attribute
+          ? { criterion: label(f.rule_attribute) }
+          : {}),
       }));
 
   const hint = result.decision?.relaxation_hint ?? null;

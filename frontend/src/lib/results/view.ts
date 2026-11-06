@@ -16,6 +16,13 @@ export function isPriceStale(asOf: string | null | undefined, now: number): bool
   return now - checked > PRICE_STALE_AFTER_MS;
 }
 
+/** A product's data coverage in words. A missing figure is never shown as 0%. */
+export function coverageText(percent: number | null | undefined): string {
+  return percent == null || !Number.isFinite(percent)
+    ? "Coverage not known"
+    : `Data coverage ${Math.round(percent)}%`;
+}
+
 export function mustHavesOf(brief: Brief): string[] {
   const budget = describeBudget(brief.budget);
   return [...(budget ? [`Budget: ${budget}`] : []), ...brief.mustHaves];

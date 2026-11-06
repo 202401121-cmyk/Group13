@@ -135,7 +135,11 @@ describe("SearchResult -> results page", () => {
       { name: "Aurora Air 13", reason: "₹84,990 is above your ₹70,000 budget" },
     ]);
     expect(r.couldntCheck).toEqual([
-      { name: "Vela Pro 14", reason: "We couldn't confirm it has at least 16 GB RAM" },
+      {
+        name: "Vela Pro 14",
+        reason: "We couldn't confirm it has at least 16 GB RAM",
+        criterion: "Ram gb",
+      },
     ]);
   });
 

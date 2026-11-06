@@ -8,7 +8,7 @@ import { pillButton } from "@/components/shopsense/pill-button";
 import { MissingSession, PageLoading } from "@/components/interview/shared";
 import { BriefSections } from "@/components/results/BriefSections";
 import { Disclosure, Notice, StatusBadge } from "@/components/results/primitives";
-import { ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
+import { CouldntCheckItem, ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
 import { formatCheckTime, tieGroups, tiesFor } from "@/lib/results/view";
 import { useInterview } from "@/lib/interview/useInterview";
 import { loadSession, saveSession, type Session } from "@/lib/session/store";
@@ -466,10 +466,7 @@ function Results({
           <Disclosure summary={`Couldn't check (${result.couldntCheck.length})`}>
             <ul className="divide-y divide-border">
               {result.couldntCheck.map((p) => (
-                <li key={p.name} className="py-2.5 text-sm">
-                  <span className="font-medium text-foreground">{p.name}</span>
-                  <span className="block text-muted-foreground">{p.reason}</span>
-                </li>
+                <CouldntCheckItem key={p.name} product={p} />
               ))}
             </ul>
           </Disclosure>

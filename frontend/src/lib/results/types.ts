@@ -69,6 +69,8 @@ export interface ProductResult {
   confidence?: Confidence | null;
   chanceFirst?: number | null;
   coverage?: { checked: number; total: number } | null;
+  /** Whole percent of the score backed by real evidence (the contract's RankedProduct.coverage). */
+  dataCoverage?: number | null;
   explanation?: string | null;
   contributions?: Contribution[];
   criteria: CriterionValue[];
@@ -81,6 +83,8 @@ export interface ProductResult {
 export interface ExcludedProduct {
   name: string;
   reason: string;
+  /** In "Couldn't check": the criterion that couldn't be confirmed, when the result names one. */
+  criterion?: string | null;
 }
 
 export interface ResearchResult {
