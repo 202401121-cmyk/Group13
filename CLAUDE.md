@@ -19,6 +19,7 @@ start in.
 5. End with the hand-over report: commits with hash, author and committer; each acceptance criterion with its
    evidence; every check with its result; deviations and why; gaps with an owner; whether the branch was pushed.
 6. When unsure about contracts, the build rules or anything touching user data, ask rather than guess.
+7. If the permission system refuses a command, never find another way to do the same thing; stop and ask.
 
 ## Architecture in one paragraph
 
