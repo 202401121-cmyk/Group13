@@ -31,7 +31,7 @@ from app.contracts import (
     ReplyRequest,
 )
 from app.criteria import CriteriaStore
-from app.intake import revise_intent
+from app.intake import EDIT_REFUSED, revise_intent
 from app.interview import place_reply
 
 from .sessions import InMemorySessionStore, SessionStore, new_session_id
@@ -150,11 +150,12 @@ def edit_intent(session_id: str, body: IntentEdit, sessions: Sessions) -> Intent
         intent = revise_intent(session.intent, body.changes)
     except ValidationError as exc:
         errors = exc.errors(include_input=False, include_url=False)
+        if errors[0]["type"] == EDIT_REFUSED:
+            raise HTTPException(422, errors[0]["msg"]) from None
         raise HTTPException(422, plain_validation_message(errors, "That change doesn't work")) from None
-    # The interview copies the intent, so any edit restarts it; a new category or use also needs new criteria.
-    new_product = (intent.category, intent.use_case) != (session.intent.category, session.intent.use_case)
+    # The interview copies the intent, so any edit restarts it; a new use also needs new criteria.
     reset: dict[str, object] = {"interview": None, "interview_step": None}
-    if new_product:
+    if intent.use_case != session.intent.use_case:
         reset["criteria"] = None
     sessions.put(session.changed(intent=intent, **reset))
     return intent
@@ -181,7 +182,7 @@ def start_interview(session_id: str, sessions: Sessions) -> InterviewStep:
         try:
             state = InterviewState(session_id=session.session_id, intent=session.intent, criteria=session.criteria)
         except ValidationError:
-            raise HTTPException(409, NO_CRITERIA) from None  # e.g. the intent changed category after the criteria
+            raise HTTPException(409, NO_CRITERIA) from None  # a safety net: intent and criteria must share a category
         return _save_step(sessions, session, flow.interview_turn(InterviewTurn(state=state)))
 
 

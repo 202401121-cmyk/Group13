@@ -10,6 +10,9 @@ from __future__ import annotations
 import logging
 from collections.abc import Mapping
 
+from pydantic import ValidationError
+from pydantic_core import InitErrorDetails, PydanticCustomError
+
 from app.contracts import (
     DataClass,
     Difficulty,
@@ -38,6 +41,19 @@ EXAMPLE_REQUESTS = [
 
 # Intent.raw_query must hold text, so the answer to blank text carries this. It is never saved or sent to an LLM.
 BLANK_REQUEST = "(nothing typed)"
+
+# What a shopper's edit may change (US-02). Everything else stays as intake set it, so an edit can never leave the
+# Intent disagreeing with itself. Code decides this; no LLM is asked.
+EDITABLE_FIELDS = frozenset({"use_case", "budget", "region"})
+EDIT_REFUSED = "intent_edit_refused"  # the error type of a refused edit; its message is a sentence to show as it is
+PRODUCT_EDIT_REFUSED = "To change the product, start a new request."
+RULES_EDIT_REFUSED = "Must-haves and leave-outs can't be changed here yet. Start a new request with the change instead."
+_REFUSALS = {
+    "category": PRODUCT_EDIT_REFUSED,
+    "category_label": PRODUCT_EDIT_REFUSED,
+    "hard_rules": RULES_EDIT_REFUSED,
+    "exclusions": RULES_EDIT_REFUSED,
+}
 
 
 class IntakeStage:
@@ -113,6 +129,30 @@ def apply_clarification_rules(intent: Intent, inp: IntakeInput) -> Intent:
 def revise_intent(intent: Intent, changes: Mapping[str, object]) -> Intent:
     """Apply a user's edits to the detected intent, with full validation (US-05 exposes this over HTTP).
 
-    Raises pydantic.ValidationError if the edited intent breaks a contract rule.
+    Only EDITABLE_FIELDS may change. A new product needs a new request, because the criteria and the interview
+    depend on it; must-haves and leave-outs wait for US-09 and US-10. Repeating a current value is not a change.
+
+    Raises pydantic.ValidationError if the edit is refused (error type EDIT_REFUSED) or breaks a contract rule.
     """
+    for field in Intent.model_fields:
+        if field in changes and field not in EDITABLE_FIELDS and _is_a_change(intent, field, changes[field]):
+            raise _refused(field)
     return Intent.model_validate({**intent.model_dump(), **changes})
+
+
+def _is_a_change(intent: Intent, field: str, value: object) -> bool:
+    """Compare after the contract has cleaned the value (spaces, left-out defaults), so a repeat is never refused."""
+    try:
+        repeat = Intent.model_validate({**intent.model_dump(), field: value})
+    except ValidationError:
+        return True  # not even valid, so it can't be the current value
+    return bool(getattr(repeat, field) != getattr(intent, field))
+
+
+def _refused(field: str) -> ValidationError:
+    """A ValidationError, like any other bad edit, so a caller that misses the type still answers with a 422."""
+    message = _REFUSALS.get(
+        field, f"That change doesn't work: {field} - only the use, budget and region can be edited."
+    )
+    error: InitErrorDetails = {"type": PydanticCustomError(EDIT_REFUSED, message), "loc": (field,), "input": None}
+    return ValidationError.from_exception_data("Intent", [error])

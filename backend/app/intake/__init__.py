@@ -3,9 +3,10 @@
 from .budget import parse_budget, region_for
 from .lexicon import load_lexicon
 from .rules import detect_by_rules
-from .stage import EXAMPLE_REQUESTS, IntakeStage, blank_request_intent, revise_intent
+from .stage import EDIT_REFUSED, EXAMPLE_REQUESTS, IntakeStage, blank_request_intent, revise_intent
 
 __all__ = [
+    "EDIT_REFUSED",
     "EXAMPLE_REQUESTS",
     "IntakeStage",
     "blank_request_intent",
