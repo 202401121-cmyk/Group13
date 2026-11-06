@@ -62,6 +62,8 @@ export interface ProductResult {
   name: string;
   imageUrl?: string | null;
   rank: number | null;
+  /** Title of the criterion that separates this product from those it is tied with. */
+  separatingCriterion?: string | null;
   score?: number | null;
   confidence?: Confidence | null;
   chanceFirst?: number | null;

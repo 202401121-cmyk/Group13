@@ -8,8 +8,8 @@ import { pillButton } from "@/components/shopsense/pill-button";
 import { MissingSession, PageLoading } from "@/components/interview/shared";
 import { BriefSections } from "@/components/results/BriefSections";
 import { Disclosure, Notice, StatusBadge } from "@/components/results/primitives";
-import { ResultCard } from "@/components/results/ResultCard";
-import { formatCheckTime, tiesFor } from "@/lib/results/view";
+import { ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
+import { formatCheckTime, tieGroups, tiesFor } from "@/lib/results/view";
 import { useInterview } from "@/lib/interview/useInterview";
 import { loadSession, saveSession, type Session } from "@/lib/session/store";
 import { rubricForBrief, weightRows, type WeightRow } from "@/lib/results/rubric";
@@ -22,8 +22,8 @@ import {
   useResearch,
 } from "@/lib/results/controller";
 import { formatElapsed, isStageDone, type ResearchState } from "@/lib/results/machine";
-import { RESEARCH_STAGES, type ResearchResult } from "@/lib/results/types";
-import { inSentence } from "@/lib/text";
+import { RESEARCH_STAGES, type ProductResult, type ResearchResult } from "@/lib/results/types";
+import { inSentence, listInWords } from "@/lib/text";
 
 // Loaded on demand: the dialog library is only needed if the shopper tries to leave during research.
 const loadStopDialog = () => import("@/components/results/StopResearchDialog");
@@ -336,17 +336,41 @@ function Results({
 }) {
   const h1 = useRef<HTMLHeadingElement>(null);
   const [announce, setAnnounce] = useState("");
-  const [best, ...others] = result.products;
+  const best = result.products[0];
+  const ties = tieGroups(result.products);
+  // A tie for first has no single best match, so every tied product stands together at the top.
+  const firstTie = ties.find((t) => t.products[0] === best);
+  const leaders = firstTie?.products ?? (best ? [best] : []);
+  const others = result.products.filter((p) => !leaders.includes(p));
 
   useEffect(() => {
     h1.current?.focus();
+    const count = `Results ready. ${result.products.length} options`;
     setAnnounce(
-      best
-        ? `Results ready. ${result.products.length} options, best match ${best.name}.`
-        : "Results ready. No options matched.",
+      firstTie
+        ? `${count}. ${listInWords(leaders.map((p) => p.name))} are too close to call.`
+        : best
+          ? `${count}, best match ${best.name}.`
+          : "Results ready. No options matched.",
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // A tie's one card sits just above the first product in it.
+  const ranked = (p: ProductResult, index: number, featured: boolean, className?: string) => {
+    const tie = ties.find((t) => t.products[0] === p);
+    return (
+      <li key={p.id} className={className}>
+        {tie && <TooCloseToCall tie={tie} />}
+        <ResultCard
+          product={p}
+          tiedWith={tiesFor(result.products, p)}
+          featured={featured}
+          index={index}
+        />
+      </li>
+    );
+  };
 
   const pricesTime = formatCheckTime(result.pricesCheckedAt);
 
@@ -403,25 +427,18 @@ function Results({
       {best ? (
         <>
           <h2 className="mt-10 font-serif text-2xl text-foreground">Best match</h2>
-          <ol className="mt-4" aria-label="Best match">
-            <li className="animate-rise-in">
-              <ResultCard
-                product={best}
-                tiedWith={tiesFor(result.products, best)}
-                featured
-                index={0}
-              />
-            </li>
+          <ol className="mt-4 space-y-5" aria-label="Best match">
+            {leaders.map((p, i) => ranked(p, i, true, "animate-rise-in"))}
           </ol>
           {others.length > 0 && (
             <>
               <h2 className="mt-12 font-serif text-2xl text-foreground">Other options</h2>
-              <ol className="mt-4 space-y-5 animate-fade-soft" start={2} aria-label="Other options">
-                {others.map((p, i) => (
-                  <li key={p.id}>
-                    <ResultCard product={p} tiedWith={tiesFor(result.products, p)} index={i + 1} />
-                  </li>
-                ))}
+              <ol
+                className="mt-4 space-y-5 animate-fade-soft"
+                start={leaders.length + 1}
+                aria-label="Other options"
+              >
+                {others.map((p, i) => ranked(p, leaders.length + i, false))}
               </ol>
             </>
           )}

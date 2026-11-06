@@ -104,6 +104,7 @@ export function resultFromSearch(
       name: summary?.product.name ?? r.product_id,
       imageUrl: null,
       rank: shownRank.get(r.product_id) ?? r.rank,
+      separatingCriterion: r.separating_criterion ? label(r.separating_criterion) : null,
       score: r.score,
       confidence: r.confidence,
       chanceFirst: r.chance_first === null ? null : Math.round(r.chance_first * 100),

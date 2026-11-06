@@ -25,3 +25,33 @@ export function tiesFor(products: ProductResult[], p: ProductResult) {
   if (p.rank == null) return [];
   return products.filter((o) => o !== p && o.rank === p.rank).map((o) => o.name);
 }
+
+export interface TieGroup {
+  rank: number;
+  products: ProductResult[];
+  /** Every criterion the tied products name, so none is picked over another. Empty when none is named. */
+  criteria: string[];
+}
+
+/** The products that share a rank, one group per rank, best rank first. */
+export function tieGroups(products: ProductResult[]): TieGroup[] {
+  const byRank = new Map<number, ProductResult[]>();
+  for (const p of products) {
+    if (p.rank != null) byRank.set(p.rank, [...(byRank.get(p.rank) ?? []), p]);
+  }
+  return [...byRank]
+    .filter(([, group]) => group.length > 1)
+    .sort(([a], [b]) => a - b)
+    .map(([rank, group]) => ({
+      rank,
+      products: group,
+      criteria: [...new Set(group.flatMap((p) => p.separatingCriterion ?? []))],
+    }));
+}
+
+/** 1 -> "1st", 2 -> "2nd", 11 -> "11th", 23 -> "23rd". */
+export function ordinal(n: number): string {
+  const lastTwo = n % 100;
+  if (lastTwo >= 11 && lastTwo <= 13) return `${n}th`;
+  return `${n}${["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
+}

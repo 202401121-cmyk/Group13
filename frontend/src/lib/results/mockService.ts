@@ -16,6 +16,7 @@ import { ResearchError } from "./types";
 export const MOCK_SCENARIOS = [
   { id: "success", label: "Ranked products" },
   { id: "tie", label: "Tie between products" },
+  { id: "tie-first", label: "Tie for best match" },
   { id: "disputed", label: "Sources disagree" },
   { id: "unknown", label: "Unverified specs" },
   { id: "estimated", label: "Estimated values" },
@@ -107,10 +108,17 @@ export function buildMockResult(input: ResearchInput, scenario: string): Researc
   const a = products[0]!;
   const b = products[1]!;
   const c = products[2]!;
+  const tie = (x: ProductResult, y: ProductResult, rank: number, score: number) => {
+    x.rank = y.rank = rank;
+    x.score = y.score = score;
+    x.separatingCriterion = y.separatingCriterion = r[0]?.title ?? null;
+  };
   switch (scenario) {
     case "tie":
-      b.score = c.score = 79;
-      b.rank = c.rank = 2;
+      tie(b, c, 2, 79);
+      break;
+    case "tie-first":
+      tie(a, b, 1, 84);
       break;
     case "disputed":
       if (a.criteria[1]) {
