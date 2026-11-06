@@ -126,6 +126,10 @@ These came with the Lovable project. They explain why the code is laid out as it
   declares only the Latin and Latin Extended files, because the rupee sign (₹) sits in Latin Extended, plus resized
   stand-ins so nothing moves when a font arrives. `src/lib/fonts.ts` lists what each first screen preloads. Never link
   a font service: it holds up the first paint and shows every shopper's IP address to a third party.
+  A page normally downloads only the small files in `src/assets/fonts/` (53 KB, against 219 KB for the packaged ones),
+  which hold the characters and weights our text uses. The packaged files stay declared behind them for anything else.
+  `scripts/subset_fonts.py` makes the small files: run it after updating a font package, or after changing the home
+  page's italic text (a unit test tells you when). A heavier Fraunces weight would load the bigger packaged file.
 - **Motion:**
   - Background washes appear only on the home page hero (`bg-ambient` + `animate-ambient`: slow, low contrast and
     off for reduced motion). The research, questions, brief and results pages have no background effects.

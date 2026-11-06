@@ -17,6 +17,12 @@ const faces = [...css.matchAll(/@font-face \{([\s\S]*?)\n\}/g)]
 
 const field = (body: string, name: string) => new RegExp(`${name}:\\s*([^;]+);`).exec(body)?.[1];
 const fileOf = (body: string) => /url\("([^"]+)"\)/.exec(body)![1]!;
+const isSmall = (body: string) => fileOf(body).startsWith("./assets/fonts/");
+const uprightOf = (family: string) =>
+  faces.filter(
+    (face) =>
+      field(face, "font-family") === `"${family}"` && field(face, "font-style") === "normal",
+  );
 
 function covers(body: string, codePoint: number): boolean {
   return (field(body, "unicode-range") ?? "").split(",").some((part) => {
@@ -42,12 +48,47 @@ describe("fonts", () => {
     expect(using).toEqual([]);
   });
 
-  it("every file exists in its pinned package, and only Latin subsets are declared", () => {
-    expect(faces).toHaveLength(7);
+  it("every file exists, and only Latin subsets of the pinned packages are declared", () => {
+    expect(faces).toHaveLength(16);
     for (const face of faces) {
-      expect(existsSync(join("node_modules", fileOf(face))), fileOf(face)).toBe(true);
-      expect(fileOf(face)).toMatch(/-latin(-ext)?-/);
+      const file = fileOf(face);
+      if (isSmall(face)) {
+        expect(existsSync(join("src", file)), file).toBe(true);
+      } else {
+        expect(existsSync(join("node_modules", file)), file).toBe(true);
+        expect(file).toMatch(/-latin(-ext)?-/);
+      }
     }
+  });
+
+  it("the small files come after the packaged ones, so they win for the characters they hold", () => {
+    for (const family of ["Fraunces", "Geist", "Geist Mono"]) {
+      const upright = uprightOf(family);
+      const firstSmall = upright.findIndex(isSmall);
+      expect(firstSmall, family).toBeGreaterThan(0);
+      expect(upright.slice(firstSmall).every(isSmall), family).toBe(true);
+    }
+  });
+
+  it("the packaged files stay declared, so a rare letter or a heavier weight gets the real font", () => {
+    const E_ACUTE = 0xe9;
+    for (const family of ["Fraunces", "Geist", "Geist Mono"]) {
+      const upright = uprightOf(family);
+      const holding = upright.filter((face) => covers(face, E_ACUTE));
+      expect(holding.length, family).toBeGreaterThan(0);
+      expect(holding.some(isSmall), family).toBe(false);
+      expect(
+        upright.some((face) => /^\d+ 900$/.test(field(face, "font-weight") ?? "")),
+        family,
+      ).toBe(true);
+    }
+  });
+
+  it("the italic file holds every letter of the home page's italic text", () => {
+    const hero = faces.find((face) => fileOf(face).includes("hero-italic"))!;
+    const route = readFileSync("src/routes/index.tsx", "utf8");
+    const text = /\{ text: "([^"]+)", as: "em"/.exec(route)![1]!;
+    for (const letter of text) expect(covers(hero, letter.codePointAt(0)!), letter).toBe(true);
   });
 
   it("text never waits for a font", () => {
@@ -56,20 +97,16 @@ describe("fonts", () => {
 
   it("each family has an upright file that holds the rupee sign", () => {
     for (const family of ["Fraunces", "Geist", "Geist Mono"]) {
-      const holding = faces.filter(
-        (face) =>
-          field(face, "font-family") === `"${family}"` &&
-          field(face, "font-style") === "normal" &&
-          covers(face, RUPEE),
-      );
-      expect(holding.map(fileOf), family).toHaveLength(1);
-      expect(fileOf(holding[0]!)).toContain("latin-ext");
+      const holding = uprightOf(family).filter((face) => covers(face, RUPEE));
+      expect(holding.length, family).toBeGreaterThan(0);
+      const expected = family === "Geist Mono" ? /latin-ext/ : /rupee/;
+      expect(fileOf(holding.at(-1)!), family).toMatch(expected);
     }
   });
 
-  it("only preloads files the stylesheet declares", () => {
-    const files = [...preloads.matchAll(/from "([^"]+)\?url"/g)].map((m) => m[1]);
+  it("only preloads small files the stylesheet declares", () => {
+    const files = [...preloads.matchAll(/from "@\/([^"]+)\?url"/g)].map((m) => m[1]!);
     expect(files.length).toBeGreaterThan(0);
-    for (const file of files) expect(css, file).toContain(file);
+    for (const file of files) expect(css, file).toContain(`./${file}`);
   });
 });

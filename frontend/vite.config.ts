@@ -26,6 +26,10 @@ export default defineConfig({
     alias: { "@contracts": fileURLToPath(new URL("../shared/contracts", import.meta.url)) },
     dedupe: ["react", "react-dom"],
   },
+  build: {
+    // A font stays a file. Inlined, even a tiny one would sit in the stylesheet that holds up every page's first paint.
+    assetsInlineLimit: (file) => (file.includes(".woff2") ? false : undefined),
+  },
   environments: {
     client: {
       build: {

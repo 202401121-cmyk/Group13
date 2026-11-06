@@ -131,6 +131,40 @@ test("a price is drawn in Fraunces and a budget in Geist, ₹ included", async (
   expect(price.every((f) => f.isCustomFont)).toBe(true);
 });
 
+test("the first screen downloads only the small font files", async ({ page }) => {
+  const fetched = new Map<string, number>();
+  page.on("response", (response) => {
+    const name = response.url().split("/").pop() ?? "";
+    if (name.endsWith(".woff2")) {
+      fetched.set(name, Number(response.headers()["content-length"] ?? 0));
+    }
+  });
+  await page.goto("/", { waitUntil: "networkidle" });
+  await waitForHydration(page, "#research-query");
+  await page.evaluate(() => document.fonts.ready);
+  const names = [...fetched.keys()];
+  expect(names.length).toBeGreaterThan(0);
+  for (const name of names) expect(name).toMatch(/-(core|rupee|hero-italic)-/);
+  const total = [...fetched.values()].reduce((sum, bytes) => sum + bytes, 0);
+  expect(total, "font bytes on the home page").toBeLessThan(60_000);
+});
+
+test("a letter outside the small files still gets the app's font", async ({ page }) => {
+  await page.goto("/");
+  await waitForHydration(page, "#research-query");
+  await page.evaluate(() => {
+    const probe = document.createElement("span");
+    probe.id = "accent-probe";
+    probe.className = "font-serif";
+    probe.textContent = "é";
+    document.querySelector("main")?.append(probe);
+    return document.fonts.ready;
+  });
+  await expect
+    .poll(async () => (await fontsDrawing(page, "#accent-probe")).map((f) => f.familyName))
+    .toEqual(["Fraunces"]);
+});
+
 test("the page still shows its text if the fonts never arrive", async ({ page }) => {
   await page.route("**/*.woff2", (route) => route.abort());
   await page.goto("/");

@@ -1,13 +1,14 @@
 /**
  * Font files to fetch alongside the stylesheet instead of after it, as <link rel="preload"> entries for a route's
  * head. A preload is only for text on the first screen: every file listed here is downloaded on every visit to that
- * route, so a file the screen does not show would only slow it down.
+ * route, so a file the screen does not show would only slow it down. These are the small files from
+ * scripts/subset_fonts.py, never the packaged ones: on a slow connection a big preload holds up the page's own code.
  */
-import frauncesItalic from "@fontsource-variable/fraunces/files/fraunces-latin-opsz-italic.woff2?url";
-import fraunces from "@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2?url";
-import geistMono from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url";
-import geistExtended from "@fontsource-variable/geist/files/geist-latin-ext-wght-normal.woff2?url";
-import geist from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
+import frauncesItalic from "@/assets/fonts/fraunces-hero-italic.woff2?url";
+import fraunces from "@/assets/fonts/fraunces-core.woff2?url";
+import geistMono from "@/assets/fonts/geist-mono-core.woff2?url";
+import geistRupee from "@/assets/fonts/geist-rupee.woff2?url";
+import geist from "@/assets/fonts/geist-core.woff2?url";
 
 /** Fonts are always fetched in anonymous mode, so a preload without crossOrigin would download the file twice. */
 const preload = (href: string) => ({
@@ -22,7 +23,7 @@ const preload = (href: string) => ({
 export const SHELL_FONTS = [geist, fraunces, geistMono].map(preload);
 
 /** Pages with the request box, whose example text shows ₹. */
-export const RUPEE_FONTS = [geistExtended].map(preload);
+export const RUPEE_FONTS = [geistRupee].map(preload);
 
 /** The home page heading ends in italic: "with evidence." */
 export const HERO_FONTS = [frauncesItalic].map(preload);

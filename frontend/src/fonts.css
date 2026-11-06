@@ -3,15 +3,21 @@
  * shopper's IP address and no outside stylesheet holds up the first paint. All three are under the SIL Open Font
  * License 1.1 and come from the pinned @fontsource-variable packages.
  *
- * Only the files in use are declared. The browser fetches a file only when the page has a character in its
- * unicode-range. The rupee sign (U+20B9) sits in the latin-ext files, so every upright face needs one: prices are set
- * in Fraunces, and the request box's example shows ₹ in Geist.
+ * Each family has two layers. The packaged files come first and hold every letter and weight. The small files in
+ * assets/fonts come after them and hold what our text really uses, made by scripts/subset_fonts.py. Where the two
+ * overlap the later rule wins, and the browser fetches a file only when the page needs a character that only it can
+ * draw. So a normal page downloads 53 KB instead of 219 KB, and a rare letter or heavier weight still gets the real
+ * font. Change a range here and you must change the script to match.
+ *
+ * The rupee sign (U+20B9) sits in the packaged latin-ext files, among accented letters, so it has a tiny file of its
+ * own: prices are set in Fraunces, and the request box's example shows ₹ in Geist.
  */
 
+/* Fraunces is only ever drawn at weight 400, so its small files have that weight built in. */
 @font-face {
   font-family: "Fraunces";
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 400;
   font-display: swap;
   src: url("@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2") format("woff2");
   unicode-range:
@@ -21,31 +27,69 @@
 @font-face {
   font-family: "Fraunces";
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 400;
   font-display: swap;
-  src: url("@fontsource-variable/fraunces/files/fraunces-latin-ext-opsz-normal.woff2")
-    format("woff2");
+  src: url("@fontsource-variable/fraunces/files/fraunces-latin-ext-opsz-normal.woff2") format("woff2");
   unicode-range:
     U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
     U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
     U+A720-A7FF;
 }
-/* Italic is used once, for "with evidence." in the home page heading, so it needs only the latin file. */
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 401 900;
+  font-display: swap;
+  src: url("@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./assets/fonts/fraunces-core.woff2") format("woff2");
+  unicode-range:
+    U+0020-007E, U+00A0, U+00A9, U+00B7, U+00BD, U+2013-2014, U+2018-2019, U+201C-201D, U+2022,
+    U+2026;
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./assets/fonts/fraunces-rupee.woff2") format("woff2");
+  unicode-range:
+    U+20B9;
+}
+/* Italic is used once, for "with evidence." in the home page heading. */
 @font-face {
   font-family: "Fraunces";
   font-style: italic;
-  font-weight: 100 900;
+  font-weight: 400;
   font-display: swap;
   src: url("@fontsource-variable/fraunces/files/fraunces-latin-opsz-italic.woff2") format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+@font-face {
+  font-family: "Fraunces";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./assets/fonts/fraunces-hero-italic.woff2") format("woff2");
+  unicode-range:
+    U+0020, U+002E, U+0063-0065, U+0068-0069, U+006E, U+0074, U+0076-0077;
+}
 
+/* Geist is drawn at weights 400 to 600. */
 @font-face {
   font-family: "Geist";
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 400 600;
   font-display: swap;
   src: url("@fontsource-variable/geist/files/geist-latin-wght-normal.woff2") format("woff2");
   unicode-range:
@@ -55,7 +99,7 @@
 @font-face {
   font-family: "Geist";
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 400 600;
   font-display: swap;
   src: url("@fontsource-variable/geist/files/geist-latin-ext-wght-normal.woff2") format("woff2");
   unicode-range:
@@ -63,14 +107,43 @@
     U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
     U+A720-A7FF;
 }
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 601 900;
+  font-display: swap;
+  src: url("@fontsource-variable/geist/files/geist-latin-wght-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("./assets/fonts/geist-core.woff2") format("woff2");
+  unicode-range:
+    U+0020-007E, U+00A0, U+00A9, U+00B7, U+00BD, U+2013-2014, U+2018-2019, U+201C-201D, U+2022,
+    U+2026;
+}
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("./assets/fonts/geist-rupee.woff2") format("woff2");
+  unicode-range:
+    U+20B9;
+}
 
+/* Geist Mono is drawn at weights 400 and 500. */
 @font-face {
   font-family: "Geist Mono";
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 400 500;
   font-display: swap;
-  src: url("@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2")
-    format("woff2");
+  src: url("@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2") format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -78,14 +151,33 @@
 @font-face {
   font-family: "Geist Mono";
   font-style: normal;
-  font-weight: 100 900;
+  font-weight: 400 500;
   font-display: swap;
-  src: url("@fontsource-variable/geist-mono/files/geist-mono-latin-ext-wght-normal.woff2")
-    format("woff2");
+  src: url("@fontsource-variable/geist-mono/files/geist-mono-latin-ext-wght-normal.woff2") format("woff2");
   unicode-range:
     U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
     U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
     U+A720-A7FF;
+}
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 501 900;
+  font-display: swap;
+  src: url("@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url("./assets/fonts/geist-mono-core.woff2") format("woff2");
+  unicode-range:
+    U+0020-007E, U+00A0, U+00A9, U+00B7, U+00BD, U+2013-2014, U+2018-2019, U+201C-201D, U+2022,
+    U+2026;
 }
 
 /*
