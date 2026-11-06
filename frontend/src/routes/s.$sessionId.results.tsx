@@ -219,6 +219,7 @@ function Waiting({
     <section aria-labelledby="research-title">
       <h1
         id="research-title"
+        tabIndex={-1}
         className="break-words font-serif text-4xl leading-tight text-foreground md:text-5xl"
       >
         Researching {category}s for you
@@ -281,7 +282,10 @@ function Failure({
 }) {
   return (
     <section>
-      <h1 className="break-words font-serif text-4xl leading-tight text-foreground md:text-5xl">
+      <h1
+        tabIndex={-1}
+        className="break-words font-serif text-4xl leading-tight text-foreground md:text-5xl"
+      >
         Researching {category}s for you
       </h1>
       <div className="mt-8">

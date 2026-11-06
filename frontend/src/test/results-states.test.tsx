@@ -13,6 +13,7 @@ import type { Offer, ProductResult, RubricItem } from "@/lib/results/types";
 import {
   coverageText,
   formatCheckTime,
+  giveFocusBack,
   isPriceStale,
   ordinal,
   tieGroups,
@@ -436,5 +437,46 @@ describe("couldn't check", () => {
   it("products left out get no search link", () => {
     const { leftOut } = resultFromSearch(example, rubric, T0);
     expect(leftOut[0]).not.toHaveProperty("criterion");
+  });
+});
+
+describe("focus after the stop-research dialog", () => {
+  function page() {
+    document.body.innerHTML = `
+      <header><button id="opener">Open menu</button></header>
+      <main><h1 tabindex="-1">Researching laptops for you</h1></main>`;
+    return {
+      opener: document.getElementById("opener")!,
+      heading: document.querySelector("h1")!,
+    };
+  }
+
+  it("goes back to the control that opened it", () => {
+    const { opener } = page();
+    giveFocusBack(opener);
+    expect(opener).toHaveFocus();
+  });
+
+  it("goes to the main heading when that control has left the page", () => {
+    const { opener, heading } = page();
+    opener.remove();
+    giveFocusBack(opener);
+    expect(heading).toHaveFocus();
+  });
+
+  it("goes to the main heading when that control can't take focus", () => {
+    const { opener, heading } = page();
+    opener.setAttribute("disabled", "");
+    giveFocusBack(opener);
+    expect(heading).toHaveFocus();
+  });
+
+  it("goes to the main heading when nothing was focused", () => {
+    const { heading } = page();
+    giveFocusBack(document.body);
+    expect(heading).toHaveFocus();
+    page();
+    giveFocusBack(null);
+    expect(document.querySelector("h1")).toHaveFocus();
   });
 });

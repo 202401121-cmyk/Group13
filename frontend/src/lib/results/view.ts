@@ -23,6 +23,18 @@ export function coverageText(percent: number | null | undefined): string {
     : `Data coverage ${Math.round(percent)}%`;
 }
 
+/**
+ * Where focus goes when "Stop research?" closes: back to the control that opened it, or, if that is gone or can't
+ * take focus (hidden at this screen size, say), to the page's main heading. Never the page body.
+ */
+export function giveFocusBack(opener: HTMLElement | null) {
+  if (opener && opener !== document.body) {
+    opener.focus();
+    if (document.activeElement === opener) return;
+  }
+  document.querySelector<HTMLElement>("main h1")?.focus();
+}
+
 export function mustHavesOf(brief: Brief): string[] {
   const budget = describeBudget(brief.budget);
   return [...(budget ? [`Budget: ${budget}`] : []), ...brief.mustHaves];
