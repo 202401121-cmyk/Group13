@@ -205,37 +205,6 @@
   animation: pulse 1.6s ease-in-out infinite;
 }
 
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes fade-in-soft {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@utility animate-rise-in {
-  animation: rise-in 320ms ease-out both;
-}
-@utility animate-fade-soft {
-  animation: fade-in-soft 320ms ease-out both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-rise-in,
-  .animate-fade-soft {
-    animation: none;
-  }
-}
-
 /* Typewriter cursor: zero-width so it never shifts layout */
 .type-cursor {
   position: relative;
@@ -290,26 +259,40 @@
     transform: scale(0.98);
   }
 }
+/*
+ * The one entrance effect: a section moves up into place as it scrolls into view. It never fades, because text at
+ * part opacity fails contrast on the frames it is shown (F-13). Keep it that way: no animation changes the opacity
+ * of anything that holds text.
+ */
 .reveal-pending {
-  opacity: 0;
   translate: 0 10px;
 }
 [data-reveal] {
-  transition:
-    opacity 550ms ease,
-    translate 550ms ease;
+  transition: translate 550ms ease;
 }
 [data-reveal].interactive-card {
   transition:
-    opacity 550ms ease,
     translate 550ms ease,
     transform 250ms ease,
     border-color 250ms ease,
     box-shadow 250ms ease;
 }
 .reveal-complete {
-  opacity: 1;
   translate: 0 0;
+}
+/* Toasts slide in and out and never fade, for the same reason. These override the library's own styles. */
+[data-sonner-toaster] [data-sonner-toast] {
+  transition-property: transform, height, box-shadow !important;
+}
+[data-sonner-toaster] [data-sonner-toast][data-mounted="false"] {
+  opacity: 1;
+}
+[data-sonner-toaster] [data-sonner-toast] > * {
+  transition: none;
+}
+[data-sonner-toaster] [data-sonner-toast][data-swipe-out="true"] {
+  animation: none;
+  visibility: hidden;
 }
 .animate-ambient.motion-visible {
   animation-play-state: running;
@@ -434,14 +417,14 @@
 }
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] {
-    opacity: 1;
     translate: none;
   }
   .animate-ambient,
   .pipeline-icon,
   .pipeline-indicator,
   .pipeline-connector::after,
-  .product-float {
+  .product-float,
+  .skeleton {
     animation: none;
   }
   .pipeline-connector::after {

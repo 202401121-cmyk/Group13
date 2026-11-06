@@ -357,10 +357,10 @@ function Results({
   }, []);
 
   // A tie's one card sits just above the first product in it.
-  const ranked = (p: ProductResult, index: number, featured: boolean, className?: string) => {
+  const ranked = (p: ProductResult, index: number, featured: boolean) => {
     const tie = ties.find((t) => t.products[0] === p);
     return (
-      <li key={p.id} className={className}>
+      <li key={p.id}>
         {tie && <TooCloseToCall tie={tie} />}
         <ResultCard
           product={p}
@@ -428,16 +428,12 @@ function Results({
         <>
           <h2 className="mt-10 font-serif text-2xl text-foreground">Best match</h2>
           <ol className="mt-4 space-y-5" aria-label="Best match">
-            {leaders.map((p, i) => ranked(p, i, true, "animate-rise-in"))}
+            {leaders.map((p, i) => ranked(p, i, true))}
           </ol>
           {others.length > 0 && (
             <>
               <h2 className="mt-12 font-serif text-2xl text-foreground">Other options</h2>
-              <ol
-                className="mt-4 space-y-5 animate-fade-soft"
-                start={leaders.length + 1}
-                aria-label="Other options"
-              >
+              <ol className="mt-4 space-y-5" start={leaders.length + 1} aria-label="Other options">
                 {others.map((p, i) => ranked(p, leaders.length + i, false))}
               </ol>
             </>

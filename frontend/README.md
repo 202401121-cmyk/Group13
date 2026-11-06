@@ -126,6 +126,9 @@ These came with the Lovable project. They explain why the code is laid out as it
     text, so nothing shifts.
   - `useVisualMotion` runs one-off reveals and pauses decorative loops outside the viewport. The workflow pictures
     are separate from the request state, so they never suggest the backend is doing something it isn't.
+  - The one entrance effect is that reveal: a section moves up into place. Nothing that holds text ever fades,
+    because text at part opacity fails contrast on the frames it is shown, and reduced motion turns all motion off.
+    `e2e/quality/first-frame.spec.ts` runs axe the moment each state shows, with motion on.
 
 ## Done in Lovable
 
