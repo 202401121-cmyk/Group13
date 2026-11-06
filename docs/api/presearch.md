@@ -103,15 +103,25 @@ curl -s -X POST http://localhost:8000/api/presearch/intake \
 
 ### PUT /api/presearch/{session_id}/intent
 
-Applies the user's edits to what we understood (category, use, budget, region, must-haves, exclusions).
+Applies the user's edits to what we understood. Only the use, budget and region can change (US-02).
 
 - **Body:** `{"changes": {"<Intent field>": <new value>, ...}}`, for example `{"changes": {"use_case": "gaming"}}`
   or `{"changes": {"budget": {"max": {"amount": 60000, "currency": "INR"}}}}`.
 - **Response 200:** the updated `Intent`.
-- **Side effects:** any edit restarts the interview; changing the category or use also clears the criteria
-  (call `criteria` again).
-- **Errors:** 404; 409 (no intent yet); 422 `That change doesn't work: <field> - <reason>.` (the old intent is
-  kept).
+- **Side effects:** any accepted edit restarts the interview; changing the use also clears the criteria (call
+  `criteria` again).
+- **Errors:** 404; 409 (no intent yet); 422, see below. After a 422 the session is exactly as it was: nothing in
+  the edit is applied, even a valid field beside a refused one.
+
+| Intent field | Can an edit change it? | If not, the 422 `detail` |
+|---|---|---|
+| `use_case`, `budget`, `region` | Yes | A bad value: `That change doesn't work: <field> - <reason>.` |
+| `category`, `category_label` | No. A new product always needs a new request, because the criteria and the interview depend on it. This stays after Sprint 3. | `To change the product, start a new request.` |
+| `hard_rules`, `exclusions` | Not yet. US-09 and US-10 (Sprint 3) add this. | `Must-haves and leave-outs can't be changed here yet. Start a new request with the change instead.` |
+| Every other Intent field | No. Only the app sets them. | `That change doesn't work: <field> - only the use, budget and region can be edited.` |
+
+A field is refused only when its value really changes, so sending back a current value, or the whole `Intent` with
+one field changed, is fine. A name that is not an Intent field gets `That change doesn't work: <field> - <reason>.`
 
 ```bash
 curl -s -X PUT http://localhost:8000/api/presearch/$SID/intent \
