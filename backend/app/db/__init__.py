@@ -1,4 +1,4 @@
-"""Saving shopper requests (US-01). The database is optional: with no DATABASE_URL nothing is saved."""
+"""Saving requests and finished searches (US-01, US-52). Optional: with no DATABASE_URL nothing is saved."""
 
 from __future__ import annotations
 
@@ -10,11 +10,14 @@ from .settings import DatabaseSettings, describe_host, load_settings
 from .store import (
     DbHealth,
     InMemoryRequestStore,
+    JsonObject,
     NullRequestStore,
     RequestRow,
     RequestStore,
     SaveOutcome,
+    SearchRow,
     request_row,
+    search_row,
 )
 
 
@@ -32,13 +35,16 @@ __all__ = [
     "DatabaseSettings",
     "DbHealth",
     "InMemoryRequestStore",
+    "JsonObject",
     "NullRequestStore",
     "PostgresRequestStore",
     "RequestRow",
     "RequestStore",
     "SaveOutcome",
+    "SearchRow",
     "default_request_store",
     "describe_host",
     "load_settings",
     "request_row",
+    "search_row",
 ]

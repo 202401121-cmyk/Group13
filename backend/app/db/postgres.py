@@ -1,4 +1,4 @@
-"""The Postgres request store (US-01): Supabase in production, any Postgres in tests.
+"""The Postgres store for requests and finished searches (US-01, US-52): Supabase in production, any Postgres in tests.
 
 The backend's routes are plain (sync) functions, so this uses psycopg's sync pool directly. Every call runs on a
 small worker pool and the caller waits at most DB_TIMEOUT_SECONDS, whatever the network does: a search never
@@ -15,6 +15,7 @@ from __future__ import annotations
 import logging
 import math
 import threading
+import time
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 
@@ -27,7 +28,7 @@ from app.contracts import Intent
 
 from .breaker import CircuitBreaker
 from .settings import DatabaseSettings, describe_host
-from .store import DbHealth, RequestRow, SaveOutcome, request_row
+from .store import DbHealth, JsonObject, RequestRow, SaveOutcome, SearchRow, request_row, search_row
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +37,7 @@ for _name in ("psycopg", "psycopg.pool"):
     logging.getLogger(_name).setLevel(logging.CRITICAL)
 
 INSERT = "insert into public.requests (session_id, request_text, intent, intent_source) values (%s, %s, %s, %s)"
+INSERT_SEARCH = "insert into public.searches (session_id, rubric, result) values (%s, %s::jsonb, %s::jsonb)"
 
 
 class PostgresRequestStore:
@@ -61,6 +63,21 @@ class PostgresRequestStore:
             return "failed"
         return "saved" if self._guarded("save", lambda: self._insert(row)) else "failed"
 
+    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject) -> bool:
+        """Insert one finished search and commit it. True only when the row was committed. Never raises.
+
+        `rubric` and `result` are model_dump(mode="json") output: a plain model_dump() holds datetimes and URLs, which
+        are not JSON. False, with one log line, when the breaker is open, the database is down or slower than
+        DB_TIMEOUT_SECONDS, the store is closed, the insert fails, or the search cannot fit the table.
+        """
+        try:
+            row = search_row(session_id, rubric, result)
+        except Exception as exc:  # whatever the caller passed, a failed save must not reach the search
+            log.warning("search not saved: it does not fit the searches table (%s)", type(exc).__name__)
+            return False
+        deadline = time.monotonic() + self._timeout_s
+        return self._guarded("search save", lambda: self._insert_search(row, deadline), log_skips=True)
+
     def health(self) -> DbHealth:
         return "ok" if self._guarded("health check", self._ping) else "down"
 
@@ -70,14 +87,18 @@ class PostgresRequestStore:
 
     # --- the guarded call -------------------------------------------------------------------------------
 
-    def _guarded(self, what: str, work: Callable[[], None]) -> bool:
+    def _guarded(self, what: str, work: Callable[[], None], *, log_skips: bool = False) -> bool:
         """Run `work` on a worker thread and wait at most DB_TIMEOUT_SECONDS. Never raises."""
         if not self.breaker.allow():
+            if log_skips:
+                log.warning("database %s skipped (host=%s): the circuit breaker is open", what, self._host)
             return False
         try:
             future = self._workers.submit(work)
         except RuntimeError:  # the store was closed (the CLI closes it when it is done)
             self.breaker.record_success()  # not a database failure: just give back the trial slot
+            if log_skips:
+                log.warning("database %s skipped (host=%s): the store is closed", what, self._host)
             return False
         try:
             future.result(timeout=self._timeout_s)
@@ -98,6 +119,12 @@ class PostgresRequestStore:
         intent = Jsonb(row.intent.model_dump(mode="json")) if row.intent is not None else None
         with self._get_pool().connection(timeout=self._timeout_s) as conn:
             conn.execute(INSERT, (row.session_id, row.request_text, intent, row.intent_source))
+
+    def _insert_search(self, row: SearchRow, deadline: float) -> None:
+        with self._get_pool().connection(timeout=self._timeout_s) as conn, conn.transaction():
+            conn.execute(INSERT_SEARCH, (row.session_id, row.rubric, row.result))
+            if time.monotonic() >= deadline:  # the caller has already been told "not saved": keep that true
+                raise TimeoutError("the search save ran past its time limit")
 
     def _ping(self) -> None:
         with self._get_pool().connection(timeout=self._timeout_s) as conn:
