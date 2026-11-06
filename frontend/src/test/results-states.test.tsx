@@ -230,3 +230,64 @@ describe("old prices", () => {
     expect(shown).not.toHaveTextContent("Price checked");
   });
 });
+
+describe("no offer", () => {
+  const link = "https://www.google.com/search?tbm=shop&q=Orion+Play+15";
+  const orion = () => resultFromSearch(example, rubric, T0).products[2]!;
+
+  it("keeps the store search the contract carries for a product with no offer", () => {
+    const [nova, kestrel, third] = resultFromSearch(example, rubric, T0).products;
+    expect(third!.offers).toEqual([]);
+    expect(third!.storeSearchUrl).toBe(example.commerce!.no_offer["prd_orion_play_15"]);
+    expect(third!.storeSearchUrl).toBe(link);
+    expect(nova!.storeSearchUrl).toBeNull();
+    expect(kestrel!.storeSearchUrl).toBeNull();
+  });
+
+  it("has no link when the result has no commerce stage at all", () => {
+    const none = resultFromSearch({ ...example, commerce: null }, rubric, T0);
+    expect(none.products.every((p) => p.storeSearchUrl === null)).toBe(true);
+  });
+
+  it("the card says so and links to the store search in a new tab", () => {
+    const shown = card(orion());
+    expect(shown).toHaveTextContent("No price found yet");
+    const search = shown.querySelector<HTMLAnchorElement>(`a[href="${link}"]`);
+    expect(search).toHaveTextContent("Search stores");
+    expect(search).toHaveTextContent("for Orion Play 15 (opens in a new tab)");
+    expect(search).toHaveAttribute("target", "_blank");
+    expect(search).toHaveAttribute("rel", "noopener noreferrer");
+  });
+
+  it("with no link for the product, the card shows none and invents none", () => {
+    const shown = card({ ...orion(), storeSearchUrl: null });
+    expect(shown).toHaveTextContent("No price found yet");
+    expect(shown.querySelector("a")).toBeNull();
+  });
+
+  it("never links to anything but a web address", () => {
+    const shown = card({ ...orion(), storeSearchUrl: "javascript:alert(1)" });
+    expect(shown.querySelector("a")).toBeNull();
+  });
+
+  it("a product with offers shows them and no store search", () => {
+    const shown = card({
+      ...resultFromSearch(example, rubric, T0).products[0]!,
+      storeSearchUrl: link,
+    });
+    expect(shown).not.toHaveTextContent("No price found yet");
+    expect(shown.querySelector(`a[href="${link}"]`)).toBeNull();
+  });
+
+  it("an offer with no price says the same thing", () => {
+    const { products } = buildMockResult(mockInput, "success");
+    const noPrice = { ...products[0]!.offers[0]!, price: null };
+    expect(card({ ...products[0]!, offers: [noPrice] })).toHaveTextContent("No price found yet");
+  });
+
+  it("the mock's no-offer scenario carries a store search too", () => {
+    const b = buildMockResult(mockInput, "no-offer").products[1]!;
+    expect(b.offers).toEqual([]);
+    expect(b.storeSearchUrl).toBe("https://example.com/store-search?q=Sample%20laptop%20B");
+  });
+});

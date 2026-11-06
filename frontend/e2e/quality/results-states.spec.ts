@@ -10,7 +10,7 @@ const SIZES = [
   { width: 1440, height: 900 },
 ];
 
-const STATES = ["tie", "tie-first", "stale"];
+const STATES = ["tie", "tie-first", "stale", "no-offer"];
 
 /** Runs one mock scenario to its results, with every section open. */
 async function showScenario(page: Page, sessionId: string, scenario: string) {
@@ -68,6 +68,17 @@ test.describe("result states", () => {
     // Every other scenario's prices are recent, so none carries the warning.
     await showScenario(page, id, "success");
     await expect(page.getByText("Price may have changed")).toHaveCount(0);
+  });
+
+  test("no offer says so and links to a store search", async ({ page }) => {
+    const id = await reachBrief(page);
+    await showScenario(page, id, "no-offer");
+    const b = page.getByRole("region", { name: "Store offers for Sample laptop B" });
+    await expect(b).toContainText("No price found yet");
+    const search = b.getByRole("link", { name: /Search stores/ });
+    await expect(search).toHaveAttribute("target", "_blank");
+    await expect(search).toHaveAttribute("rel", "noopener noreferrer");
+    await expect(search).toHaveAttribute("href", /^https:\/\/example\.com\/store-search\?q=/);
   });
 
   test("a tie for first names no single best match", async ({ page }) => {

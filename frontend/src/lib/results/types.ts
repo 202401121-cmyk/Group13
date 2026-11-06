@@ -73,6 +73,8 @@ export interface ProductResult {
   contributions?: Contribution[];
   criteria: CriterionValue[];
   offers: Offer[];
+  /** With no offer: a store search for this product (the contract's commerce.no_offer). */
+  storeSearchUrl?: string | null;
   value?: { calculated: true; text: string } | { calculated: false; reason?: string | null } | null;
 }
 

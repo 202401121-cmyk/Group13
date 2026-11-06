@@ -162,6 +162,7 @@ export function buildMockResult(
       break;
     case "no-offer":
       b.offers = [];
+      b.storeSearchUrl = `https://example.com/store-search?q=${encodeURIComponent(b.name)}`;
       b.value = { calculated: false, reason: "No price was found, so value can't be worked out." };
       break;
     case "left-out":

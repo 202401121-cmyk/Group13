@@ -127,6 +127,7 @@ export function resultFromSearch(
           stale: isPriceStale(o.as_of, now),
           url: o.url,
         })),
+      storeSearchUrl: result.commerce?.no_offer[r.product_id] ?? null,
       value: null,
     };
   });

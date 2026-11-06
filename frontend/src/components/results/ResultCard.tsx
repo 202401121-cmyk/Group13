@@ -8,6 +8,11 @@ import { listInWords } from "@/lib/text";
 import { ConfidenceIndicator, Disclosure, StatusBadge } from "./primitives";
 import { useVisualMotion } from "@/hooks/useVisualMotion";
 
+/** A card only ever links to a plain web address. */
+function webAddress(url: string | null | undefined) {
+  return url && /^https?:\/\//i.test(url) ? url : null;
+}
+
 /** One card for a whole tie: it names the products and what separates them, and never picks a winner. */
 export function TooCloseToCall({ tie }: { tie: TieGroup }) {
   return (
@@ -63,7 +68,7 @@ function CriterionRow({ c }: { c: CriterionValue }) {
 
 function OfferRow({ o }: { o: Offer }) {
   const time = formatCheckTime(o.checkedAt);
-  const validUrl = o.url && /^https?:\/\//i.test(o.url) ? o.url : null;
+  const validUrl = webAddress(o.url);
   return (
     <li className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
@@ -83,7 +88,7 @@ function OfferRow({ o }: { o: Offer }) {
             ₹{formatINR(o.price)}
           </span>
         ) : (
-          <StatusBadge variant="no-offer">No price found</StatusBadge>
+          <StatusBadge variant="no-offer">No price found yet</StatusBadge>
         )}
         {validUrl && (
           <a
@@ -122,7 +127,8 @@ export function ResultCard({
   const cov = p.coverage;
   const validCov = cov && cov.total > 0 && cov.checked >= 0 && cov.checked <= cov.total;
   const headingId = `product-${index}`;
-  const img = p.imageUrl && /^https?:\/\//i.test(p.imageUrl) ? p.imageUrl : null;
+  const img = webAddress(p.imageUrl);
+  const storeSearch = webAddress(p.storeSearchUrl);
 
   return (
     <article
@@ -233,9 +239,21 @@ export function ResultCard({
             ))}
           </ul>
         ) : (
-          <p className="mt-2">
-            <StatusBadge variant="no-offer">No price found</StatusBadge>
-          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <StatusBadge variant="no-offer">No price found yet</StatusBadge>
+            {storeSearch && (
+              <a
+                href={storeSearch}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(pillButton({ variant: "outline", size: "sm" }), "min-h-11")}
+              >
+                Search stores
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                <span className="sr-only">for {p.name} (opens in a new tab)</span>
+              </a>
+            )}
+          </div>
         )}
       </section>
 
