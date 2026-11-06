@@ -20,7 +20,6 @@ import type {
   TurnInput,
   TurnResult,
 } from "./types";
-import { inSentence } from "@/lib/text";
 
 const VFM: Criterion = {
   id: "value",
@@ -202,7 +201,7 @@ export function runTurn({ criteria, answers, turn }: TurnInput): TurnResult {
           step: {
             ...base,
             kind: "rephrase",
-            question: `Put simply: would a worse ${inSentence(c.title)} bother you?`,
+            question: `${c.title}: would it bother you if this were worse?`,
             replies: ["Yes, a lot", "A little", "Not really"],
           },
           answers: current,

@@ -1,5 +1,4 @@
 import type { Criterion, Step } from "./types";
-import { inSentence } from "@/lib/text";
 
 /**
  * The buttons under every question. The backend understands exactly these (backend/app/interview/answers.py),
@@ -9,13 +8,14 @@ export const IMPORTANCE_REPLIES = ["Low", "Medium", "High"];
 
 /**
  * A question worded the way the backend words it (backend/app/interview/questions.py), so a question asked
- * again after "Go back" looks the same in mock and live mode.
+ * again after "Go back" looks the same in mock and live mode. The title opens the sentence, so it stands
+ * exactly as given (D-44).
  */
 export function questionFor(c: Criterion): Step {
   return {
     kind: "question",
     criterionId: c.id,
-    question: `How much do you care about ${inSentence(c.title)}?`,
+    question: `${c.title}: how much does it matter to you?`,
     note: null,
     why: `${c.definition}${c.lowerIsBetter ? " Lower is better here." : ""}`,
     replies: IMPORTANCE_REPLIES,

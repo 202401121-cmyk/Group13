@@ -26,13 +26,13 @@ const base = { sessionId: SID, brief, criteria: viewCriteria, answers: {} };
 const STEPS: Record<InterviewStep["kind"], InterviewStep> = {
   question: stepOf("question", [asked("cpu_performance", "pending")]),
   answer_then_repeat: stepOf("answer_then_repeat", [asked("cpu_performance", "pending")], {
-    message: "It's how fast it builds code. How much do you care about cpu performance?",
+    message: "It's how fast it builds code. CPU performance: how much does it matter to you?",
   }),
   rephrase: stepOf("rephrase", [asked("cpu_performance", "pending")], {
     message: "Please pick one of the buttons, or type a number from 0 to 10.",
   }),
   redirect: stepOf("redirect", [asked("cpu_performance", "pending")], {
-    message: "We'll use your budget later. For now, how much do you care about cpu performance?",
+    message: "We'll use your budget later. CPU performance: how much does it matter to you?",
   }),
   finished: stepOf("finished", [
     asked("cpu_performance", "answered", "High"),

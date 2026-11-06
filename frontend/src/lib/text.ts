@@ -1,6 +1,7 @@
 /**
- * A label in lower case for the middle of a sentence, keeping acronyms: "CPU performance", "TV", "RAM and
- * storage". The same rule as the backend's in_sentence (backend/app/interview/questions.py).
+ * A product name in lower case for the middle of a sentence, keeping acronyms: "What matters for a laptop",
+ * "Your brief for a TV". Never use it on a criterion title: titles keep their own case (D-44), because only
+ * the writer of a title knows that "USB-C/Thunderbolt" and "iPhone" are spelled that way.
  */
 export function inSentence(label: string): string {
   return label

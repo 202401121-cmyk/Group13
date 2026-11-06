@@ -182,8 +182,8 @@ test.describe("audit matrix: axe in light and dark mode", () => {
     // runs, so it is checked in light mode on one answer and in dark mode on the next.
     const replies = page.getByRole("group", { name: /Quick replies/ });
     for (const [theme, next] of [
-      ["light", /How much do you care about memory/],
-      ["dark", /How much do you care about battery life/],
+      ["light", /Memory: how much does it matter to you/],
+      ["dark", /Battery life: how much does it matter to you/],
     ] as const) {
       await pauseClock(page);
       await replies.getByRole("button", { name: "High" }).click();
