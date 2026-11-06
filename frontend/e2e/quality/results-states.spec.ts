@@ -10,7 +10,7 @@ const SIZES = [
   { width: 1440, height: 900 },
 ];
 
-const STATES = ["tie", "tie-first", "stale", "no-offer"];
+const STATES = ["tie", "tie-first", "stale", "no-offer", "disputed", "disputed-no-sources"];
 
 /** Runs one mock scenario to its results, with every section open. */
 async function showScenario(page: Page, sessionId: string, scenario: string) {
@@ -79,6 +79,21 @@ test.describe("result states", () => {
     await expect(search).toHaveAttribute("target", "_blank");
     await expect(search).toHaveAttribute("rel", "noopener noreferrer");
     await expect(search).toHaveAttribute("href", /^https:\/\/example\.com\/store-search\?q=/);
+  });
+
+  test("a disputed value shows its sources, or says they aren't available yet", async ({
+    page,
+  }) => {
+    const id = await reachBrief(page);
+    await showScenario(page, id, "disputed");
+    await expect(page.getByText("Sample Store One listing:")).toContainText("16 GB");
+    await expect(page.getByText("Sample maker spec sheet:")).toContainText("8 GB");
+    await expect(page.getByText("Source details aren't available yet.")).toHaveCount(0);
+
+    await showScenario(page, id, "disputed-no-sources");
+    await expect(page.getByText("Sources disagree", { exact: true })).toHaveCount(1);
+    await expect(page.getByText("Source details aren't available yet.")).toHaveCount(1);
+    await expect(page.getByText("Sample Store One listing:")).toHaveCount(0);
   });
 
   test("a tie for first names no single best match", async ({ page }) => {

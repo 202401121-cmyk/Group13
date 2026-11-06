@@ -291,3 +291,37 @@ describe("no offer", () => {
     expect(b.storeSearchUrl).toBe("https://example.com/store-search?q=Sample%20laptop%20B");
   });
 });
+
+describe("disputed values", () => {
+  const row = (shown: HTMLElement) =>
+    [...shown.querySelectorAll("li")].find((li) => li.textContent?.includes("Sources disagree"));
+
+  it("in live mode says the sources disagree and shows no value and no source", () => {
+    const kestrel = resultFromSearch(example, rubric, T0).products[1]!;
+    expect(kestrel.criteria.find((c) => c.state === "disputed")?.sources).toBeUndefined();
+    // The row's whole text: the criterion, the badge and the note, with nothing made up beside them.
+    expect(row(card(kestrel))?.textContent).toBe(
+      "Battery Life!Sources disagreeSource details aren't available yet.",
+    );
+  });
+
+  it("in mock mode keeps both values, each with its source", () => {
+    const a = buildMockResult(mockInput, "disputed").products[0]!;
+    const shown = row(card(a));
+    expect(shown).toHaveTextContent("Sample Store One listing: 16 GB");
+    expect(shown).toHaveTextContent("Sample maker spec sheet: 8 GB");
+    expect(shown).not.toHaveTextContent("Source details aren't available yet.");
+  });
+
+  it("an empty sources list counts as no details", () => {
+    const a = buildMockResult(mockInput, "disputed").products[0]!;
+    const criteria = a.criteria.map((c) => (c.state === "disputed" ? { ...c, sources: [] } : c));
+    expect(row(card({ ...a, criteria }))).toHaveTextContent("Source details aren't available yet.");
+  });
+
+  it("the mock can show the state a live result is in", () => {
+    const a = buildMockResult(mockInput, "disputed-no-sources").products[0]!;
+    expect(a.criteria[1]).toMatchObject({ state: "disputed", value: null });
+    expect(a.criteria[1]?.sources).toBeUndefined();
+  });
+});

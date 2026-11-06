@@ -46,7 +46,7 @@ function CriterionRow({ c }: { c: CriterionValue }) {
         {c.state === "disputed" && (
           <>
             <StatusBadge variant="disputed">Sources disagree</StatusBadge>
-            {c.sources && c.sources.length > 0 && (
+            {c.sources && c.sources.length > 0 ? (
               <ul className="text-xs text-muted-foreground">
                 {c.sources.map((s) => (
                   <li key={s.source}>
@@ -54,6 +54,8 @@ function CriterionRow({ c }: { c: CriterionValue }) {
                   </li>
                 ))}
               </ul>
+            ) : (
+              <p className="text-xs text-muted-foreground">Source details aren't available yet.</p>
             )}
           </>
         )}

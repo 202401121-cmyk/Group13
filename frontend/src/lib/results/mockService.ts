@@ -20,6 +20,7 @@ export const MOCK_SCENARIOS = [
   { id: "tie", label: "Tie between products" },
   { id: "tie-first", label: "Tie for best match" },
   { id: "disputed", label: "Sources disagree" },
+  { id: "disputed-no-sources", label: "Sources disagree, no details" },
   { id: "unknown", label: "Unverified specs" },
   { id: "estimated", label: "Estimated values" },
   { id: "stale", label: "Old prices" },
@@ -120,6 +121,17 @@ export function buildMockResult(
     x.score = y.score = score;
     x.separatingCriterion = y.separatingCriterion = r[0]?.title ?? null;
   };
+  const dispute = (sources?: CriterionValue["sources"]) => {
+    if (a.criteria[1]) {
+      a.criteria[1] = {
+        ...a.criteria[1],
+        state: "disputed",
+        value: null,
+        ...(sources ? { sources } : {}),
+      };
+    }
+    a.confidence = "medium";
+  };
   switch (scenario) {
     case "tie":
       tie(b, c, 2, 79);
@@ -128,18 +140,14 @@ export function buildMockResult(
       tie(a, b, 1, 84);
       break;
     case "disputed":
-      if (a.criteria[1]) {
-        a.criteria[1] = {
-          ...a.criteria[1],
-          state: "disputed",
-          value: null,
-          sources: [
-            { source: "Sample Store One listing", value: "16 GB" },
-            { source: "Sample maker spec sheet", value: "8 GB" },
-          ],
-        };
-      }
-      a.confidence = "medium";
+      dispute([
+        { source: "Sample Store One listing", value: "16 GB" },
+        { source: "Sample maker spec sheet", value: "8 GB" },
+      ]);
+      break;
+    case "disputed-no-sources":
+      // What a live result carries until the evidence route arrives: the state, but no claims to show.
+      dispute();
       break;
     case "unknown":
       for (const p of products) {
