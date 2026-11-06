@@ -38,7 +38,7 @@ its terms, then update this page.
 
 ### One command for every service
 
-From `backend/`, with your keys in the root `.env`:
+From `backend/`, with the backend's virtual environment active and your keys in the root `.env`:
 
 ```bash
 python -m scripts.smoke_apis                       # every configured service except Serper
@@ -87,7 +87,7 @@ Exit code 1, because of Cerebras.
 
 ### Run the LLM smoke test
 
-With your LLM keys in `.env`, run from `backend/`:
+With your LLM keys in `.env`, run from `backend/`, with its virtual environment active:
 
 ```bash
 python -m scripts.smoke_llm
@@ -104,7 +104,7 @@ context window, output limit), and remove the `# UNVERIFIED` comment above each 
 
 ### Run the Reddit archive smoke test
 
-No key is needed. From `backend/`:
+No key is needed. From `backend/`, with its virtual environment active:
 
 ```bash
 python -m scripts.smoke_sources                               # one request per archive
@@ -445,7 +445,8 @@ from, decides which routes it may appear on (US-46, "LLM routing" above).
 
 1. Make the new key at the provider.
 2. Put it in your root `.env` in place of the old one (and in the demo laptop's `.env` if it is a team key).
-3. Run `python -m scripts.smoke_apis --only <service>` from `backend/`; it must say `ok`.
+3. Run `python -m scripts.smoke_apis --only groq` from `backend/`, with your service's name in place of `groq`; it
+   must say `ok`.
 4. Revoke the old key at the provider.
 
 CI holds no real keys, so nothing changes there.

@@ -106,6 +106,8 @@ without `DATABASE_URL` nothing is saved; the CLI, the API and every test still w
 
 ### Frontend
 
+In a second terminal, from the repository root:
+
 ```bash
 cd frontend
 npm ci              # also generates the contract types
@@ -139,7 +141,9 @@ python scripts/dev.py --mock     # the frontend alone, with sample data
 
 ## Tests and checks
 
-The same commands CI runs ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). Tests never call a live API.
+CI runs all of these except the frontend's `npm run build` and `npm run test:e2e`, which you run by hand
+([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). Run them with the backend's virtual environment active.
+Tests never call a live API.
 
 ```bash
 # backend (from backend/)
@@ -150,6 +154,7 @@ python -m scripts.export_contracts && git diff --exit-code -- ../shared/contract
 
 # frontend (from frontend/)
 npm ci && npm run lint && npm run typecheck && npm test && npm run build
+npx playwright install chromium        # once: the browser the next command needs
 npm run test:e2e                       # the whole flow in mock mode, with an accessibility check on every page
 
 # ml (from the root)

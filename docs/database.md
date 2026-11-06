@@ -74,7 +74,8 @@ users.
    - Never paste the URL or the password into chat, Slack, an issue or a commit. `.env` is git-ignored.
    - Don't create `backend/.env`: the backend would find it first and stop reading the root `.env`.
 4. Note the project's Postgres major version (**Settings > Infrastructure**). It is **17**; the tests use the same.
-5. Apply the migrations (next section), then open **Advisors > Security**. It must show nothing for `public.requests`.
+5. Apply the migrations (next section), then open **Advisors > Security**. For `public.requests` it should show only
+   **RLS Enabled No Policy** (INFO). That finding is expected: see the live check below.
 
 `DB_TIMEOUT_SECONDS` (default 2) is how long one save may take before the search carries on without it.
 
@@ -86,10 +87,11 @@ already merged; write a new one (see `supabase/migrations/README.md`). The Data 
 Add one, from the repository root, with the pinned Supabase CLI:
 
 ```bash
-npx supabase@2.120.0 migration new <short_name>
+npx supabase@2.120.0 migration new add_example_table   # use your own short name
 ```
 
-Apply them to the Supabase project. The commands read `DATABASE_URL` from `.env` without printing it.
+Apply them to the Supabase project, from the repository root with the backend's virtual environment active (the
+first line needs `python-dotenv`). The commands read `DATABASE_URL` from `.env` without printing it.
 
 Git Bash:
 
@@ -183,11 +185,18 @@ A Free project is paused after 7 days of low activity. A paused project shows as
 - A plain Postgres gives `anon` and `authenticated` nothing, so checking their privileges there proves little. One
   test in `test_searches_table.py` copies Supabase's default grants first, so a lost `revoke` makes it fail.
 
+You need Docker. Run this from the repository root, with the backend's virtual environment active. The password is
+made up for this one run, and the database is open only to your own machine.
+
 ```bash
-docker run -d --name shopsense-pg17 -e POSTGRES_PASSWORD=<local password> -p 127.0.0.1:55432:5432 postgres:17
+PGPASS=$(python -c "import secrets; print(secrets.token_hex(16))")
+docker run -d --name shopsense-pg17 -e POSTGRES_PASSWORD="$PGPASS" -p 127.0.0.1:55432:5432 postgres:17
+until docker exec shopsense-pg17 pg_isready -q -h 127.0.0.1 -U postgres; do sleep 1; done   # wait until it is ready
 cd backend
-TEST_DATABASE_URL=postgresql://postgres:<local password>@127.0.0.1:55432/postgres pytest -m db -rs
+TEST_DATABASE_URL="postgresql://postgres:$PGPASS@127.0.0.1:55432/postgres" pytest -m db -rs
+cd ..
 docker rm -f shopsense-pg17
+unset PGPASS
 ```
 
 ## Live check
@@ -209,8 +218,8 @@ Run against the team's Supabase project on **3 Nov 2026** (US-01). No URL, host 
 
 - `public.requests`: **RLS Enabled No Policy**. Row level security is on and has no policies on purpose, and the
   table is revoked from `anon` and `authenticated`, so the Data API can neither read nor write it (the checks
-  above). This is the intended design, but it is a finding, not the empty list the setup step above asks for.
-  The team decides whether to keep it as is or add an explicit deny-all policy in a new migration.
+  above). This is the intended design, and the setup step above expects it. The team decides whether to keep it
+  as is or add an explicit deny-all policy in a new migration.
 - `public.rls_auto_enable()`: **Public Can Execute SECURITY DEFINER Function** and **Signed-In Users Can Execute
   SECURITY DEFINER Function**. Supabase added this function when "automatic RLS" was chosen at project creation.
   Its execute rights are revoked by its own migration ("US-01: lock down the automatic RLS helper function").
