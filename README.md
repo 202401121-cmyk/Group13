@@ -247,8 +247,8 @@ Sprint 1 ran past its planned dates; the new dates are set at the Sprint 1 revie
 - Commit messages start with the story ID or the task prefix, for example `US-12: build queries from the rubric`,
   `CI: ...`, `S1: ...`, `docs: ...` or `fix: ...`.
 - The person who did the work makes the commit, under their own name. The course checks this.
-- Every change goes through a pull request with green CI and one review from the area owner; Om merges. Nobody
-  pushes to `main`.
+- Every change goes through a pull request with green CI and a named reviewer. Om merges, and may do so without
+  waiting for the approval. `main` is not protected, by team decision, but nobody pushes to it directly.
 - Contract changes are team decisions: the model, the exported schemas and the regenerated frontend types go in
   one pull request.
 - Nobody commits keys or `.env` files. Keys live only in your own root `.env`.

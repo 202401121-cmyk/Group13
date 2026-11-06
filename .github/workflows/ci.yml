@@ -1,5 +1,5 @@
-# Runs on every pull request and every push to main. Branch protection on main should require
-# the "backend", "ml" and "secrets" jobs (and "frontend" once the app exists) to pass before merging.
+# Runs on every pull request and every push to main. main is not protected, by team decision, so GitHub does not
+# enforce these jobs: check they are green before merging.
 name: CI
 
 on:
