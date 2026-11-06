@@ -10,6 +10,8 @@ was changed. Evidence files are in [sprint-1-verification/](sprint-1-verificatio
 - **Machine:** Windows 11 (10.0.26300), Git Bash. Python 3.11.15 in a new virtual environment. Node 22.18.0 and
   npm 11.12.1. Docker 29.1.2. Playwright 1.64.1 with Chromium.
 - **CI on that commit:** run 41871458849 passed all 5 jobs (backend, backend-windows, ml, secrets, frontend).
+- **Corrected on 6 November 2026:** the causes of F-3 and F-12, and US-52.5's evidence. The first version named
+  the wrong cause for both. No result changed.
 
 ## 1. Summary
 
@@ -43,7 +45,7 @@ authorship; 8 and 9 are for the owner to confirm.
 |---|---|---|
 | F-1 | Whitespace-only text crashes the intake with HTTP 500, not in the error shape (D1, D8) | Jenish |
 | F-2 | A product edit leaves `category` and `category_label` disagreeing (D2) | Jenish, with Jhanvi |
-| F-3 | `SearchResult.saved` is always `true`, so "This result isn't saved" never shows in live mode (E4, US-52.5) | Pal, with Vaishvi |
+| F-3 | Results reach only server memory, yet `SearchResult.saved` is `true`, so "This result isn't saved" never shows in live mode (E4, US-52.5) | Pal, with Vaishvi |
 | F-4 | "USB-C/Thunderbolt" becomes "usb-c/thunderbolt" in its question (E7.L) | Jenish, with Manu |
 | F-5 | `main` is not protected, and no merge had a review (G2b, US-25.1) | Palak, with Harshkumar |
 | F-6 | All 36 merged pull requests are under Om's name; the other 9 members have none (G2, exit criterion 7) | Om |
@@ -52,7 +54,7 @@ authorship; 8 and 9 are for the owner to confirm.
 | F-9 | Ties: no "Too close to call", no separating criterion, "#=1" twice (E2.4, E2.4x) | Yashkumar |
 | F-10 | "Couldn't check" has no link to research it (E2.6) | Manu |
 | F-11 | Old prices never say "may have changed" (E2.8) | Yashkumar |
-| F-12 | No store-search link when there is no offer (E2.9) | Yashkumar, with Jenish |
+| F-12 | No store-search link when there is no offer (E2.9) | Yashkumar |
 | F-13 | Serious contrast failures while text is fading in (E5.3) | Manu |
 | F-14 | At 390 px, focus can sit under the open menu (E5.7) | Yashkumar |
 | F-15 | At 390 px, Escape on "Stop research?" loses focus (E5.9) | Manu |
@@ -242,15 +244,17 @@ served by node on port 3210, against backend E on 8009 (`FRONTEND_ORIGINS=http:/
   `category`.
 - **Suggested owner:** Jenish (pre-search API), with Jhanvi (intent detection).
 
-**F-3. `SearchResult.saved` is always `true`, and nothing is saved at the end.** Check E4, criterion US-52.5, known
+**F-3. Results reach only server memory, yet `SearchResult.saved` is `true`.** Check E4, criterion US-52.5, known
 gap 4. Story US-52.
 - **Expected:** US-52.5, "finishes without the database and saves at the end". The field meaning: `saved` is about
   results. The contract's own description says "False if the database was down (banner in the UI)".
 - **What happened:** with the database off (C3, E4) and down (C4), every search answered `saved: true`. So the
   results page never shows "This result isn't saved". Mock mode does show it (E2.10).
 - **Steps:** run the backend with `DATABASE_URL` unset, run any search, and read `saved`.
-- **Cause (confirmed by code search):** `saved` defaults to `True` (`app/contracts/pipeline.py` line 93), and no code
-  in `backend/app` sets it. Saving results is not built yet.
+- **Cause (confirmed by the code):** the runner already saves at the end through a `ResultStore` (`app/pipeline.py`
+  line 108), and sets `saved` to false when the store fails (`_save`). But the only store in use is
+  `InMemoryResultStore` (`app/main.py` line 30, `app/cli.py` line 87), which keeps a list in server memory and always
+  answers true. No store writes to the database.
 - **Suggested owner:** Pal (walking skeleton and pipeline), with Vaishvi (database).
 
 **F-4. A criterion title with a slash is lower-cased in its question.** Check E7.L, seen in G1. Decision: no criterion
@@ -290,7 +294,7 @@ title is lower-cased.
 | F-9 (F3) | E2.4, E2.4x | Ties: no "Too close to call", no separating criterion, and "#=1" on both tied products (known follow-up) | Confirmed: the adapter does not read `separating_criterion` | US-52, FE-0 (US-19) | Yashkumar |
 | F-10 (F4) | E2.6 | "Couldn't check" has no link to research the product | Confirmed: the list renders the name and reason only | US-52, FE-0 | Manu |
 | F-11 (F5) | E2.8 | Old prices never say "may have changed"; mock staleness is a fixture flag, not the 24-hour rule | Confirmed: `OfferRow` wording; `mockService.ts` sets `stale` by hand | US-52, FE-0 (DR-04) | Yashkumar |
-| F-12 (F6) | E2.9 | No store-search link when there is no offer (known follow-up, O2) | Confirmed: the contract has no such link | US-52, FE-0 | Yashkumar, with Jenish for the link |
+| F-12 (F6) | E2.9 | No store-search link when there is no offer (known follow-up, O2) | Confirmed: the contract carries the link (`CommerceResult.no_offer`, `app/contracts/commerce.py` line 49), but the live adapter never reads it and the mock has none | US-52, FE-0 | Yashkumar |
 | F-13 (F7) | E5.3 | 52 serious contrast violations while text is still fading in (motion on) | Confirmed: reveal and entrance animations hold text at partial opacity for about half a second | FE-4 | Manu |
 | F-14 (F8) | E5.7 | At 390 px with the menu open, focus can sit fully under the sticky header (WCAG 2.4.11) | Suspected: the menu stays open while focus moves through the page | FE-4 | Yashkumar |
 | F-15 (F9) | E5.9 | At 390 px, Escape on "Stop research?" drops focus to the page body | Confirmed: the menu link that opened it is gone, and the dialog has no fallback | FE-4 | Manu |
@@ -348,7 +352,7 @@ From `backlog/stories.yaml`: US-01 7, US-02 5, US-03 6, US-05 5, US-25 5, US-26 
 | US-52.2 Runner order, time limits, fallbacks, the 150-second stop | PASS | D5, A1 |
 | US-52.3 The CLI prints a ranked list with sources | PASS | D5, S0.1 |
 | US-52.4 The same pipeline feeds the browser | PASS | E3, F2, F4 |
-| US-52.5 Finishes without the database, and saves at the end | **FAIL** | It finishes without the database (C3, C4: PASS). Nothing is saved at the end, yet `SearchResult.saved` is `true` even with the database off or down (F-3) |
+| US-52.5 Finishes without the database, and saves at the end | **FAIL** | It finishes without the database (C3, C4: PASS). The runner saves at the end, but only to server memory: no result reaches the database, yet `SearchResult.saved` is `true` even with the database off or down (F-3) |
 | US-52.6 A contract test for each stage; a failing stage triggers its fallback | PASS | A1, D5 (PR #35) |
 
 ## 5. Live-call ledger

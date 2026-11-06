@@ -299,9 +299,10 @@ question counter reads "Question 1 up to 10"; the home badge says "AI-powered sh
 - **Expected:** no offer, then a store search link.
 - **What happened:** "Store offers: No price found", no link (0 in the section), mock and example.
 - **Steps:** "Preview scenario" = "No store offers", Sample laptop B.
-- **Cause (confirmed):** the card renders only the badge; the contract has no store-search link (open item O2).
-- **Story:** US-52 / FE-0. **Suggested owner:** frontend, Yashkumar Patel, with the link from the backend
-  (Jenish Kavad, O2).
+- **Cause (confirmed):** the card renders only the badge. The contract does carry a store-search link per product
+  (`CommerceResult.no_offer`), and the shared example has one, but the live adapter never reads it and the mock has
+  none. (Open item O2 said the contract had no link; it does now. Corrected on 6 November 2026.)
+- **Story:** US-52 / FE-0. **Suggested owner:** frontend, Yashkumar Patel.
 
 ### F7. axe finds serious contrast failures while content is still fading in (E5.3)
 
