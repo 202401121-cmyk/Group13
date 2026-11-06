@@ -275,8 +275,10 @@ def test_a_failed_insert_answers_false_with_one_clean_line(
     assert re.fullmatch(r"database search save failed \(host=\S+\): UndefinedTable", line.getMessage())
     assert count_rows(database_url, session) == 0
     password = str(conninfo_to_dict(database_url).get("password"))
+    # The messages, not caplog.text: that adds each logger's name, and CI's password is the word in "app.db.postgres".
+    logged = " ".join(record.getMessage() for record in caplog.records)
     for secret in (password, "postgresql://", session):
-        assert secret not in caplog.text
+        assert secret not in logged
 
 
 def test_with_the_breaker_open_nothing_reaches_the_database(
