@@ -10,7 +10,7 @@ const SIZES = [
   { width: 1440, height: 900 },
 ];
 
-const STATES = ["tie", "tie-first"];
+const STATES = ["tie", "tie-first", "stale"];
 
 /** Runs one mock scenario to its results, with every section open. */
 async function showScenario(page: Page, sessionId: string, scenario: string) {
@@ -55,6 +55,19 @@ test.describe("result states", () => {
     await expect(
       page.getByRole("list", { name: "Other options" }).getByRole("article"),
     ).toHaveCount(2);
+  });
+
+  test("old prices say so, from their as-of time", async ({ page }) => {
+    const id = await reachBrief(page);
+    await showScenario(page, id, "stale");
+    await expect(page.getByText("Price may have changed")).toHaveCount(3);
+    await expect(page.getByText(/^Old price/)).toHaveCount(0);
+    await expect(page.getByText("We don't know when this price was checked")).toHaveCount(1);
+    await expect(page.getByText(/^Price checked /)).toHaveCount(5);
+
+    // Every other scenario's prices are recent, so none carries the warning.
+    await showScenario(page, id, "success");
+    await expect(page.getByText("Price may have changed")).toHaveCount(0);
   });
 
   test("a tie for first names no single best match", async ({ page }) => {

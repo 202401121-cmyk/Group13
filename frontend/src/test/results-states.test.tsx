@@ -9,8 +9,8 @@ import searchExample from "@contracts/examples/search_result.json";
 import { ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
 import { resultFromSearch } from "@/lib/results/liveAdapter";
 import { buildMockResult } from "@/lib/results/mockService";
-import type { ProductResult, RubricItem } from "@/lib/results/types";
-import { ordinal, tieGroups, tiesFor } from "@/lib/results/view";
+import type { Offer, ProductResult, RubricItem } from "@/lib/results/types";
+import { formatCheckTime, isPriceStale, ordinal, tieGroups, tiesFor } from "@/lib/results/view";
 import { listInWords } from "@/lib/text";
 import type { SearchResult } from "@/types/contracts/SearchResult";
 
@@ -141,5 +141,92 @@ describe("tied products", () => {
     expect(listInWords(["A"])).toBe("A");
     expect(listInWords(["A", "B"])).toBe("A and B");
     expect(listInWords(["A", "B", "C"])).toBe("A, B and C");
+  });
+});
+
+describe("old prices", () => {
+  const NOW = Date.parse("2026-11-06T12:00:00Z");
+  const MINUTE = 60_000;
+  const ago = (minutes: number) => new Date(NOW - minutes * MINUTE).toISOString();
+  const offer = (o: Partial<Offer>): Offer => ({
+    store: "Example Store",
+    price: 64990,
+    checkedAt: ago(60),
+    stale: false,
+    url: null,
+    ...o,
+  });
+  const withOffer = (o: Offer): ProductResult => ({
+    ...buildMockResult(mockInput, "success").products[0]!,
+    offers: [o],
+  });
+
+  it("23 hours 59 minutes is not stale", () => {
+    expect(isPriceStale(ago(23 * 60 + 59), NOW)).toBe(false);
+  });
+
+  it("exactly 24 hours is not stale, the same as the backend", () => {
+    expect(isPriceStale(ago(24 * 60), NOW)).toBe(false);
+  });
+
+  it("24 hours 1 minute is stale", () => {
+    expect(isPriceStale(ago(24 * 60 + 1), NOW)).toBe(true);
+  });
+
+  it("a missing or broken as-of time is neither stale nor fresh", () => {
+    expect(isPriceStale(null, NOW)).toBeNull();
+    expect(isPriceStale(undefined, NOW)).toBeNull();
+    expect(isPriceStale("", NOW)).toBeNull();
+    expect(isPriceStale("not a time", NOW)).toBeNull();
+  });
+
+  it("a time zone in the as-of time is respected", () => {
+    expect(isPriceStale("2026-11-05T17:30:00+05:30", NOW)).toBe(false);
+    expect(isPriceStale("2026-11-05T17:29:00+05:30", NOW)).toBe(true);
+  });
+
+  it("the adapter uses the same rule on the contract's as_of", () => {
+    const fresh = resultFromSearch(example, rubric, T0).products;
+    expect(fresh[0]!.offers[0]!.stale).toBe(false);
+    expect(fresh[1]!.offers[0]!.stale).toBe(true);
+    const later = resultFromSearch(example, rubric, T0 + 48 * 60 * MINUTE).products;
+    expect(later[0]!.offers[0]!.stale).toBe(true);
+  });
+
+  it("a mock price is old because of its time, not a flag", () => {
+    const { products } = buildMockResult(mockInput, "stale", NOW);
+    const [a, b, c] = products;
+    expect(a!.offers.map((o) => o.stale)).toEqual([false, true]);
+    expect(b!.offers.map((o) => o.stale)).toEqual([true, true]);
+    expect(c!.offers.map((o) => o.stale)).toEqual([false, null]);
+    expect(isPriceStale(a!.offers[1]!.checkedAt, NOW)).toBe(true);
+  });
+
+  it("the mock's fresh prices stay fresh on any day it runs", () => {
+    for (const now of [NOW, NOW + 400 * 24 * 60 * MINUTE]) {
+      const { products } = buildMockResult(mockInput, "success", now);
+      expect(products.flatMap((p) => p.offers).every((o) => o.stale === false)).toBe(true);
+    }
+  });
+
+  it("a stale offer shows its as-of time and says the price may have changed", () => {
+    const checkedAt = ago(3 * 24 * 60);
+    const shown = card(withOffer(offer({ checkedAt, stale: isPriceStale(checkedAt, NOW) })));
+    expect(shown).toHaveTextContent(`Price checked ${formatCheckTime(checkedAt)}`);
+    expect(shown).toHaveTextContent("Price may have changed");
+    expect(shown).not.toHaveTextContent("Old price");
+  });
+
+  it("a fresh offer shows its as-of time and no warning", () => {
+    const shown = card(withOffer(offer({})));
+    expect(shown).toHaveTextContent(`Price checked ${formatCheckTime(ago(60))}`);
+    expect(shown).not.toHaveTextContent("Price may have changed");
+  });
+
+  it("an offer with no as-of time says so, with no warning and no time", () => {
+    const shown = card(withOffer(offer({ checkedAt: null, stale: isPriceStale(null, NOW) })));
+    expect(shown).toHaveTextContent("We don't know when this price was checked");
+    expect(shown).not.toHaveTextContent("Price may have changed");
+    expect(shown).not.toHaveTextContent("Price checked");
   });
 });

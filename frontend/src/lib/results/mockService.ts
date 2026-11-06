@@ -5,6 +5,7 @@
  */
 import type {
   CriterionValue,
+  Offer,
   ProductResult,
   ResearchInput,
   ResearchResult,
@@ -12,6 +13,7 @@ import type {
   RubricItem,
 } from "./types";
 import { ResearchError } from "./types";
+import { isPriceStale } from "./view";
 
 export const MOCK_SCENARIOS = [
   { id: "success", label: "Ranked products" },
@@ -32,9 +34,17 @@ export const MOCK_SCENARIOS = [
 ] as const;
 export type MockScenario = (typeof MOCK_SCENARIOS)[number]["id"];
 
-const CHECKED = "2026-10-27T09:40:00Z";
-const STALE = "2026-10-19T14:05:00Z";
+/** The clock for a fixture built with no time given, so the same input always gives the same result. */
+const FIXTURE_NOW = Date.parse("2026-10-27T11:40:00Z");
+const HOUR_MS = 60 * 60 * 1000;
 const STAGE_MS = 1400;
+
+/** A mock price checked this many hours before `now`; the 24-hour rule then decides if it is old. */
+const hoursAgo = (hours: number, now: number) => new Date(now - hours * HOUR_MS).toISOString();
+
+function checkedAt(offer: Offer, time: string | null, now: number): Offer {
+  return { ...offer, checkedAt: time, stale: isPriceStale(time, now) };
+}
 
 function values(rubric: RubricItem[], seed: number): CriterionValue[] {
   return rubric.map((r, i) => ({
@@ -51,6 +61,7 @@ function product(
   rank: number,
   score: number,
   rubric: RubricItem[],
+  now: number,
 ): ProductResult {
   const criteria = values(rubric, rank);
   const contributions = criteria.map((c, i) => ({
@@ -73,35 +84,31 @@ function product(
       {
         store: "Sample Store One",
         price: 64990 + rank * 3500,
-        checkedAt: CHECKED,
-        stale: false,
         url: rank === 1 ? "https://example.com/sample-product" : null,
       },
-      {
-        store: "Sample Store Two",
-        price: 66490 + rank * 3500,
-        checkedAt: CHECKED,
-        stale: false,
-        url: null,
-      },
-    ],
+      { store: "Sample Store Two", price: 66490 + rank * 3500, url: null },
+    ].map((o) => checkedAt({ ...o, checkedAt: null, stale: null }, hoursAgo(2, now), now)),
     value: { calculated: true, text: rank === 1 ? "Good value" : "Fair value" },
   };
 }
 
-export function buildMockResult(input: ResearchInput, scenario: string): ResearchResult {
+export function buildMockResult(
+  input: ResearchInput,
+  scenario: string,
+  now: number = FIXTURE_NOW,
+): ResearchResult {
   const cat = input.category;
   const r = input.rubric;
   const products = [
-    product("A", cat, 1, 86, r),
-    product("B", cat, 2, 79, r),
-    product("C", cat, 3, 71, r),
+    product("A", cat, 1, 86, r, now),
+    product("B", cat, 2, 79, r, now),
+    product("C", cat, 3, 71, r, now),
   ];
   const res: ResearchResult = {
     products,
     leftOut: [],
     couldntCheck: [],
-    pricesCheckedAt: CHECKED,
+    pricesCheckedAt: hoursAgo(2, now),
     saved: false,
     source: "mock",
   };
@@ -149,8 +156,9 @@ export function buildMockResult(input: ResearchInput, scenario: string): Researc
         });
       break;
     case "stale":
-      a.offers[1] = { ...a.offers[1]!, stale: true, checkedAt: STALE };
-      b.offers = b.offers.map((o) => ({ ...o, stale: true, checkedAt: STALE }));
+      a.offers[1] = checkedAt(a.offers[1]!, hoursAgo(72, now), now);
+      b.offers = b.offers.map((o) => checkedAt(o, hoursAgo(72, now), now));
+      c.offers[1] = checkedAt(c.offers[1]!, null, now);
       break;
     case "no-offer":
       b.offers = [];
@@ -216,7 +224,7 @@ export function createMockResearchService(): ResearchService {
         onEvent({ type: "stage_done", stage });
       }
       await wait(500, signal);
-      return buildMockResult(input, scenario);
+      return buildMockResult(input, scenario, Date.now());
     },
   };
 }

@@ -51,7 +51,8 @@ export interface Offer {
   price: number | null;
   /** ISO timestamp of the price check. */
   checkedAt: string | null;
-  stale: boolean;
+  /** Always from isPriceStale(), never set by hand. Null when the as-of time is missing. */
+  stale: boolean | null;
   url: string | null;
 }
 

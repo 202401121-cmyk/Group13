@@ -3,6 +3,19 @@ import { describeBudget } from "@/lib/request/format";
 import type { Brief } from "@/lib/request/types";
 import type { ProductResult } from "./types";
 
+/** A price older than this may have changed (the contract's PRICE_STALE_AFTER, backend/app/contracts/commerce.py). */
+export const PRICE_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * The one staleness rule, the same as the backend's Offer.is_stale(): older than 24 hours is stale, and exactly
+ * 24 hours is not. With no usable as-of time the answer is null, because a guess either way would be a claim.
+ */
+export function isPriceStale(asOf: string | null | undefined, now: number): boolean | null {
+  const checked = asOf ? Date.parse(asOf) : Number.NaN;
+  if (Number.isNaN(checked)) return null;
+  return now - checked > PRICE_STALE_AFTER_MS;
+}
+
 export function mustHavesOf(brief: Brief): string[] {
   const budget = describeBudget(brief.budget);
   return [...(budget ? [`Budget: ${budget}`] : []), ...brief.mustHaves];

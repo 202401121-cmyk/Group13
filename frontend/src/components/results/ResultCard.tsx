@@ -68,13 +68,12 @@ function OfferRow({ o }: { o: Offer }) {
     <li className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <p className="text-sm font-medium text-foreground">{o.store}</p>
-        {time && (
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {o.stale ? (
-              <StatusBadge variant="stale">Old price, checked {time}</StatusBadge>
-            ) : (
-              <>Price checked {time}</>
-            )}
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {time ? `Price checked ${time}` : "We don't know when this price was checked"}
+        </p>
+        {o.stale && (
+          <p className="mt-1">
+            <StatusBadge variant="stale">Price may have changed</StatusBadge>
           </p>
         )}
       </div>
