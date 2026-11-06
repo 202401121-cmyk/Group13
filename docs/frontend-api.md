@@ -27,11 +27,11 @@ all of them except `GET /api/health`, which `scripts/dev.py` uses to see that th
 | Route | What it does | Request body | Response 200 | Errors | Details |
 |---|---|---|---|---|---|
 | `GET /api/health` | Is the backend up; is the database `ok`, `off` or `down` | none | `{"status", "schema_version", "database"}` | none | [presearch.md](api/presearch.md#get-apihealth) |
-| `POST /api/presearch/intake` | Reads the shopper's request; starts a session | `text` (1 to 1,000 characters); `session_id` (optional) | `session_id`, `intent`, `ready_for_research` | 404, 422 | [presearch.md](api/presearch.md#post-apipresearchintake) |
-| `PUT /api/presearch/{session_id}/intent` | Changes what we understood (category, budget, …) | `changes` (the `Intent` fields to change) | the session's new `Intent` | 404, 409, 422 | [presearch.md](api/presearch.md#put-apipresearchsession_idintent) |
+| `POST /api/presearch/intake` | Reads the shopper's request; starts a session | `text` (up to 1,000 characters; blank text gets a follow-up question); `session_id` (optional) | `session_id`, `intent`, `ready_for_research` | 404, 422 | [presearch.md](api/presearch.md#post-apipresearchintake) |
+| `PUT /api/presearch/{session_id}/intent` | Changes what we understood (the use, budget or region) | `changes` (the `Intent` fields to change; a new product, must-have or leave-out is refused with 422) | the session's new `Intent` | 404, 409, 422 | [presearch.md](api/presearch.md#put-apipresearchsession_idintent) |
 | `POST /api/presearch/{session_id}/criteria` | The criteria to compare | none | `CriteriaSet` | 404, 409 | [presearch.md](api/presearch.md#post-apipresearchsession_idcriteria) |
 | `POST /api/presearch/{session_id}/interview/start` | The first question | none | `InterviewStep` | 404, 409 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewstart) |
-| `POST /api/presearch/{session_id}/interview/reply` | Answers the current question | `reply_text` (1 to 500 characters) | `InterviewStep` (next question, rephrase, or finished with the rubric) | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewreply) |
+| `POST /api/presearch/{session_id}/interview/reply` | Answers the current question | `reply_text` (1 to 500 characters); `question_id` (optional: makes a repeated reply safe) | `InterviewStep` (next question, rephrase, or finished with the rubric) | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewreply) |
 | `POST /api/presearch/{session_id}/interview/back` | Asks an earlier question again | `question_id` (1 to 64 characters) | `InterviewStep` | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewback) |
 | `GET /api/presearch/{session_id}` | Everything about the session, for a page reload | none | the session | 404 | [presearch.md](api/presearch.md#get-apipresearchsession_id) |
 | `POST /api/search` | Runs the search with the finished rubric | `SearchRequest` | `SearchResult` | 422 | below |
@@ -122,9 +122,7 @@ inventing data.
 | Real search results | `POST /api/search` still runs the US-52 stub stages: every search returns the same example laptops, whose criteria differ from the session's rubric. `coverage_note` says they are samples. | US-12 and US-14 to US-18, Sprints 2 and 3 |
 | Live progress | No progress stream; the answer comes once, at the end. Never fake progress. | Progress over Server-Sent Events (`ProgressEvent`), Sprint 2 |
 | Every source of a disputed value | `SearchResult` has no claims list. | The evidence route (US-21), Sprint 3 |
-| Typed edits to must-haves and leave-outs | `PUT /intent` takes the fixed fields only. | US-09, US-10 and the rubric editor, Sprint 3 |
-| `IntakeResponse` and the session have no exported schema | The frontend can only partly check these two answers. | A contract change: to be decided at the Sprint 2 contract review |
+| Typed edits to must-haves and leave-outs | `PUT /intent` refuses them with a plain 422. | US-09, US-10 and the rubric editor, Sprint 3 |
 | Sessions live in the server's memory | A backend restart in the middle of a search shows "session expired". | Not planned yet: raised for Sprint 2 planning |
 | A running search can't be cancelled | Leaving the page does not stop the work. | Not planned yet: raised for Sprint 2 planning |
-| `interview/reply` has no idempotency key | Retrying after a timeout could answer the next question twice. | Not planned yet: raised for Sprint 2 planning |
 | A filtered product may be missing from `products` | The page has no name to show for it; show the product ID's fallback text. | Not planned yet: raised for Sprint 2 planning |

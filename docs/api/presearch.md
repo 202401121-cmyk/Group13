@@ -52,7 +52,7 @@ POST /api/presearch/{session_id}/interview/back   (any time) → ask an earlier 
 
 Checks the server is up, and whether the database can be reached (US-01).
 
-- **Response 200:** `{"status": "ok", "schema_version": "1.0.0", "database": "ok"}`
+- **Response 200:** `{"status": "ok", "schema_version": "1.5.0", "database": "ok"}`
 - `database` is `"ok"`, `"off"` (no `DATABASE_URL`: nothing is saved, everything else works) or `"down"` (set up
   but not reachable right now; searches still finish). Nothing else about the database is shown.
 
@@ -214,7 +214,7 @@ or the finished rubric). Fields not reached yet are `null`; `request` is `""` un
 
 `request_saved` says whether the request reached the database (US-01): `"saved"`, `"off"` (no database is set
 up) or `"failed"` (the database was down or slow; the search carries on). It is `null` until the first request.
-This is about the request only; `SearchResult.saved` is about saving search results, which comes later.
+This is about the request only; `SearchResult.saved` says whether the finished search reached `public.searches`.
 
 - **Errors:** 404.
 

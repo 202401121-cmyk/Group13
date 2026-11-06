@@ -50,8 +50,9 @@ One row per finished search, in `public.searches` (US-52):
 - **No expiry yet (gap, US-12, Sprint 2):** rows stay until someone deletes them. Real results will hold Reddit
   quotes, and Reddit data may be kept at most 24 hours. US-12 must deal with this before real Reddit text reaches
   this table.
-- **Guests (gap, US-30, Sprint 4):** there is no sign-in yet, so every row is a guest's. US-30 says nothing of a
-  guest's is saved, so it must decide what happens to guest searches, and to the rows already here.
+- **Guests (decision D-36):** there is no sign-in yet, so every row is a guest's. A guest's request and search are
+  stored only under the anonymous session ID, are never linked to an account, and are never used to remember
+  preferences.
 
 Row level security is on with no policies, and the table is revoked from `anon` and `authenticated`, the same as
 `public.requests`. So the Data API cannot read or write it. **Who can read it:** the backend through `DATABASE_URL`,
@@ -143,8 +144,8 @@ Logs show only the database host and the error type, never the URL, the password
 
 `save_search(session_id, rubric, result)` is on every request store, next to `save_request`, and shares its connection
 pool, time limit and circuit breaker. `rubric` and `result` are `model_dump(mode="json")` output. A plain
-`model_dump()` holds dates and URLs, which are not JSON, so it is refused. Nothing calls this function yet: wiring it
-into the pipeline is the second half of failure F-3 in the Sprint 1 verification report.
+`model_dump()` holds dates and URLs, which are not JSON, so it is refused. `DatabaseResultStore` in
+`backend/app/pipeline.py` calls it at the end of every search, from both the API and the CLI.
 
 It answers `True` only when the row was committed. It never raises, and it answers `False` with one log line when:
 

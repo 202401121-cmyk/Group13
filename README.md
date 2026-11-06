@@ -53,24 +53,24 @@ its state in memory and never needs the database to finish.
 
 ## Sprint 1 status
 
-Checked against `main` and the open pull requests on 3 November 2026. "Merged" means the code and its tests are
-on `main`; "Pull request" means it is finished on its branch and waiting for review.
+Checked against `main` on 7 November 2026. "Merged" means the code and its tests are on `main`. The Sprint 1
+verification found 18 failures; the fix pack and its re-check are the last step of the sprint.
 
 | Story or task | Owner | Status | Pull requests | Docs |
 |---|---|---|---|---|
 | US-52 Walking skeleton: pipeline runner, 11 stage placeholders, CLI and search API | Pal Jalodara | Merged | #1, #7 | [docs/frontend-api.md](docs/frontend-api.md) |
-| US-25 Repository, CI and secret scanning | Palak Patel | Merged; database tests in CI: pull request (`chore/CI-postgres`) | #2, #3, #9, #12, #16 | [CI workflow](.github/workflows/ci.yml) |
+| US-25 Repository, CI and secret scanning | Palak Patel | Merged | #2, #3, #9, #12, #16, #30 | [CI workflow](.github/workflows/ci.yml) |
 | US-26 One LLM wrapper with fallback and context fitting | Jhanvi Barot | Merged | #4, #18 | [docs/api-setup.md](docs/api-setup.md) |
 | US-02 Detect category, use, budget and rules | Jhanvi Barot | Merged | #5 | |
 | US-03 Category-specific criteria | Jhanvi Barot | Merged | #6 | |
-| US-05 One question at a time, and the pre-search API | Jenish Kavad | Merged; browser origins list and API docs: pull request (`fix/backend-gaps-round-1`) | #8 | [docs/api/presearch.md](docs/api/presearch.md) |
+| US-05 One question at a time, and the pre-search API | Jenish Kavad | Merged | #8, #28 | [docs/api/presearch.md](docs/api/presearch.md) |
 | US-01 Describe the need in plain words: the request saved to the database | Vaishvi Mehta | Merged | #17, #21, #22 | [docs/database.md](docs/database.md) |
-| US-01 and the frontend: request box, interview, brief and results screens | Yashkumar Patel, Manu Pardhan | Merged; quality gate (F4): pull request (`chore/FE-4-quality-gate`) | #24 | [frontend/README.md](frontend/README.md), [decision 0001](docs/decisions/0001-frontend-tanstack-start.md) |
+| US-01 and the frontend: request box, interview, brief and results screens | Yashkumar Patel, Manu Pardhan | Merged | #24, #32 | [frontend/README.md](frontend/README.md), [decision 0001](docs/decisions/0001-frontend-tanstack-start.md) |
 | ML workspace, public datasets and the matching baseline | Om Pandya, Rushiraj Navar, Palak Patel | Merged | #10, #13, #14, #15 | [ml/README.md](ml/README.md), [ml/MODELS.md](ml/MODELS.md) |
-| API sign-ups, smoke test and terms check | Jenish Kavad | Pull request (`chore/api-setup`) | | [docs/api-setup.md](docs/api-setup.md) |
-| Full-stack set-up: one-command run, doctor, live test | Pal Jalodara | Pull request (`chore/full-stack-setup-v3`) | | [docs/setup.md](docs/setup.md) |
+| API sign-ups, smoke test and terms check | Jenish Kavad | Merged | #28 | [docs/api-setup.md](docs/api-setup.md) |
+| Full-stack set-up: one-command run, doctor, live test | Pal Jalodara | Merged | #28 | [docs/setup.md](docs/setup.md) |
 | Elicitation: survey, interviews, observation, expert interview, write-up | Jhanvi, Om, Rushiraj, Jenish, Harshkumar, Pal | In progress | | [docs/elicitation-kit.md](docs/elicitation-kit.md) |
-| Sprint 1 review check and close-out | Palak Patel, Om Pandya | After the merges | | |
+| Sprint 1 review check and close-out | Palak Patel, Om Pandya | Review check merged; fix pack and re-check in progress | #33 to #37 | |
 
 Merged ahead of plan (Sprint 2 stories): US-46 LLM routing by data class (#19), and the Reddit source of US-12
 (#20; the rest of US-12 is Sprint 2).
