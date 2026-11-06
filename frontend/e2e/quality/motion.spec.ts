@@ -136,6 +136,8 @@ test.describe("motion allowed", () => {
     page,
   }) => {
     await page.goto("/");
+    // Typing starts at hydration; before that the server-rendered text has nothing left to type.
+    await waitForHydration(page, "#research-query");
     // Let the typing effect finish so every letter is drawn.
     await expect(
       page
