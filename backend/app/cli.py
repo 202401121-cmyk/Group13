@@ -67,9 +67,11 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def run(query: str, interactive: bool, store: db.RequestStore) -> int:
+    query = query.strip()  # trimmed once, as at the API, so blank text is simply ""
     session_id = new_session_id()
     intent = start_request(query)
-    print(saved_line(store.save_request(session_id, query, intent), session_id))
+    if query:  # blank text is not a request, so there is nothing to save
+        print(saved_line(store.save_request(session_id, query, intent), session_id))
     if not intent.ready_for_research:
         print(clarification(intent))
         return 1  # no research until the category is known (US-01)

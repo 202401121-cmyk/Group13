@@ -234,8 +234,8 @@ def test_bad_bodies_get_a_plain_422_without_echoing_the_input(client: TestClient
     assert response.status_code == 422
     detail = response.json()["detail"]
     assert "reply_text" in detail and "my private words" not in detail
-    response = client.post("/api/presearch/intake", json={"text": ""})
-    assert response.status_code == 422
+    response = client.post("/api/presearch/intake", json={"text": secret * 2})  # over 1,000 characters
+    assert response.status_code == 422 and "my private words" not in response.json()["detail"]
 
 
 def test_cors_allows_only_the_frontend_origin(client: TestClient) -> None:

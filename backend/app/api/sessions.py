@@ -36,7 +36,7 @@ class PresearchSession(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     session_id: str = Field(pattern=SESSION_ID_PATTERN)
-    request: str = Field(min_length=1, max_length=1000, description="The request as first typed")
+    request: str = Field(max_length=1000, description="The request as first typed, trimmed. Empty until there is one")
     unclear_attempts: int = Field(default=0, ge=0, le=MAX_UNCLEAR_ATTEMPTS)
     intent: Intent | None = None
     criteria: CriteriaSet | None = None

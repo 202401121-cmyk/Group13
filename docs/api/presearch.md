@@ -63,7 +63,7 @@ curl -s http://localhost:8000/api/health
 
 Reads a new request, or the reply to our clarification question.
 
-- **Body:** `{"session_id": "<optional>", "text": "<1 to 1,000 characters>"}`
+- **Body:** `{"session_id": "<optional>", "text": "<up to 1,000 characters>"}`. Spaces around `text` are trimmed.
   - No `session_id`: a new search with a new session.
   - With the `session_id` of a session whose intent still needs clarification: `text` is the reply to our
     question (for example "smartwatch" after "Which kind of watch do you mean?"). If the reply is still
@@ -71,10 +71,14 @@ Reads a new request, or the reply to our clarification question.
     requests. A category is never guessed.
   - With the `session_id` of a session that is already clear: a fresh request in the same session (the
     criteria and interview are cleared).
+  - Blank text (empty, or only spaces, tabs or newlines) is not an error. It gets a follow-up question ("What kind of
+    product are you looking for?" with its options), or example requests the second time. Nothing is saved, and a
+    request already in the session stays as it is. With no request yet, the next `text` in that session is the
+    request. `intent.raw_query` in this one answer is `(nothing typed)`.
 - **Response 200:** `{"session_id": "sess_…", "intent": Intent, "ready_for_research": true}`
   - `ready_for_research: false` → show `intent.clarification_question` with `intent.clarification_options` as
     buttons, or example requests when `intent.show_example_requests` is true.
-- **Errors:** 404 (unknown or expired `session_id`), 422 (empty or too long `text`).
+- **Errors:** 404 (unknown or expired `session_id`), 422 (`text` missing, not a string, or over 1,000 characters).
 
 ```bash
 curl -s -X POST http://localhost:8000/api/presearch/intake \
@@ -180,7 +184,7 @@ curl -s -X POST http://localhost:8000/api/presearch/$SID/interview/back \
 
 Everything about the session, for a page reload: `request`, `unclear_attempts`, `intent`, `criteria`,
 `interview` (the `InterviewState`) and `interview_step` (the latest step: redraw the current question, or the
-finished rubric). Fields not reached yet are `null`.
+finished rubric). Fields not reached yet are `null`; `request` is `""` until the shopper has typed one.
 
 `request_saved` says whether the request reached the database (US-01): `"saved"`, `"off"` (no database is set
 up) or `"failed"` (the database was down or slow; the search carries on). It is `null` until the first request.

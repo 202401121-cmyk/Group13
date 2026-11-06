@@ -14,7 +14,7 @@ from collections.abc import Mapping, Sequence
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, ValidationError
 
 from app import db
 from app import presearch as flow
@@ -64,11 +64,20 @@ Store = Annotated[CriteriaStore, Depends(get_criteria_store)]
 # --- request and response bodies (API models; the stage data inside them are contracts) -------------
 
 
+def _trim(text: str) -> str:
+    return text.strip()
+
+
 class IntakeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     session_id: str | None = Field(default=None, description="Leave out for a new search")
-    text: str = Field(min_length=1, max_length=1000, description="The request, or the reply to our question")
+    # Trimmed once, here, after the length check: everything below sees the same text, and blank text is simply "".
+    text: Annotated[
+        str,
+        Field(max_length=1000, description="The request, or the reply to our question"),
+        AfterValidator(_trim),
+    ]
 
 
 class IntakeResponse(BaseModel):
@@ -103,6 +112,7 @@ def intake(body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests
     """A new request, or the reply to our clarification question (US-01, US-02).
 
     A new request is saved once with its session ID; a clarification reply is the same request, so no new row.
+    Blank text is not a request: it gets our question, nothing is saved, and the next text is the request.
     """
     session = _load(sessions, body.session_id) if body.session_id else None
     session_id = session.session_id if session else new_session_id()
@@ -111,19 +121,21 @@ def intake(body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests
         intent = flow.start_request(request, body.text[:MAX_REPLY_CHARS], attempts, llm=llm)
         request_saved = session.request_saved
     else:
-        request, attempts = body.text, 0  # a new search, or a fresh request in the same session
-        intent = flow.start_request(request, llm=llm)
-        request_saved = requests.save_request(session_id, request, intent)  # never raises, never slow
+        request = body.text  # a new search, or a fresh request in the same session
+        attempts = session.unclear_attempts if session is not None and not session.request else 0
+        intent = flow.start_request(request, None, attempts, llm=llm)
+        request_saved = requests.save_request(session_id, request, intent) if request else None  # never raises
     if intent.needs_clarification:
         attempts = min(attempts + 1, MAX_UNCLEAR_ATTEMPTS)  # the second unclear reply shows example requests
     saved = PresearchSession(
         session_id=session_id,
         request=request,
         unclear_attempts=attempts,
-        intent=intent,
+        intent=intent if request else None,  # no intent yet, so the text after blank text is the request
         request_saved=request_saved,
     )
-    sessions.put(saved)
+    if request or session is None or not session.request:  # stray blank text never clears a request
+        sessions.put(saved)
     return IntakeResponse(session_id=saved.session_id, intent=intent, ready_for_research=intent.ready_for_research)
 
 

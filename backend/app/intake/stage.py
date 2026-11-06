@@ -36,6 +36,9 @@ EXAMPLE_REQUESTS = [
     "pram for a newborn",
 ]
 
+# Intent.raw_query must hold text, so the answer to blank text carries this. It is never saved or sent to an LLM.
+BLANK_REQUEST = "(nothing typed)"
+
 
 class IntakeStage:
     """Detects category, use, budget and rules. `llm=None` means no LLM is configured: rules only."""
@@ -76,6 +79,12 @@ class IntakeStage:
             log.info("intake: no LLM provider answered; using the keyword rules")
             return detect_by_rules(text, raw_query)
         return to_intent(raw, text, raw_query)
+
+
+def blank_request_intent(unclear_attempts: int = 0) -> Intent:
+    """Blank text has nothing to read: ask what kind of product, as for "???", and spend no LLM call (US-01)."""
+    inp = IntakeInput(raw_query=BLANK_REQUEST, unclear_attempts=unclear_attempts)
+    return apply_clarification_rules(no_category_intent(inp.raw_query, "", "rules"), inp)
 
 
 def detection_text(inp: IntakeInput) -> str:
