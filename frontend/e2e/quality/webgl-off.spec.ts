@@ -7,15 +7,12 @@ import { finishResearch, reachBrief } from "./helpers";
 
 test.use({ launchOptions: { args: ["--disable-webgl", "--disable-webgl2", "--disable-3d-apis"] } });
 
-/** Errors from the page itself, leaving out the web fonts, which are fetched from Google. */
+/** Errors from the page itself. */
 function collectErrors(page: Page): string[] {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(`page error: ${e.message}`));
   page.on("console", (m) => {
-    if (m.type() !== "error") return;
-    const where = m.location().url ?? "";
-    if (/fonts\.(googleapis|gstatic)\.com/.test(where + m.text())) return;
-    errors.push(`console: ${m.text()}`);
+    if (m.type() === "error") errors.push(`console: ${m.text()}`);
   });
   return errors;
 }
