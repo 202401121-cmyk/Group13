@@ -4,6 +4,7 @@
  */
 import { expect, test, type Page } from "@playwright/test";
 import { checkRow, finishResearch, reachBrief, startScenario } from "./helpers";
+import { walkFocus } from "./layout";
 
 const SIZES = [
   { width: 390, height: 844 },
@@ -94,6 +95,21 @@ test.describe("result states", () => {
     await expect(page.getByText("Sources disagree", { exact: true })).toHaveCount(1);
     await expect(page.getByText("Source details aren't available yet.")).toHaveCount(1);
     await expect(page.getByText("Sample Store One listing:")).toHaveCount(0);
+  });
+
+  test("at 390 px, focus is never hidden under the sticky header", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const id = await reachBrief(page);
+    for (const scenario of ["tie", "no-offer"]) {
+      await showScenario(page, id, scenario);
+      const stops = [
+        ...(await walkFocus(page, "Tab")).stops,
+        ...(await walkFocus(page, "Shift+Tab")).stops,
+      ];
+      expect(stops.length).toBeGreaterThan(10);
+      const hidden = stops.filter((s) => s.obscured !== "no" || !s.inView || !s.indicator);
+      expect(hidden.map((s) => s.name)).toEqual([]);
+    }
   });
 
   test("a tie for first names no single best match", async ({ page }) => {
