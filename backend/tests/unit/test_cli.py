@@ -17,7 +17,8 @@ def test_cli_prints_a_ranked_list_with_sources(capsys: pytest.CaptureFixture[str
     assert "source: https://" in out
     assert "Filtered out:" in out and "Aurora Air 13" in out
     assert "₹70,000" in out  # the rupee sign survives, not "?"
-    assert "Coverage note: YouTube timed out." in out
+    assert "Coverage note: These are sample results" in out
+    assert "timed out" not in out  # no search ran, so nothing can have failed
 
 
 def test_cli_shows_what_it_understood(capsys: pytest.CaptureFixture[str]) -> None:

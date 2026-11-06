@@ -29,8 +29,8 @@ def test_stub_pipeline_runs_end_to_end() -> None:
     assert [r.stage for r in result.stage_reports] == ORDER
     assert all(r.status is C.StageStatus.OK for r in result.stage_reports)
     assert not result.partial
-    # The only thing that went wrong is the example's YouTube timeout, and the note says so.
-    assert result.coverage_note == f"YouTube timed out. {SAMPLE_NOTE}"
+    # Nothing went wrong, so the note only says these are samples.
+    assert result.coverage_note == SAMPLE_NOTE
 
     assert C.SearchResult.model_validate_json(result.model_dump_json()) == result
     assert result.decision is not None

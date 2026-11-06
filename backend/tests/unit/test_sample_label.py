@@ -97,12 +97,32 @@ def test_the_real_stages_say_they_are_not(stage: type) -> None:
 # --- the label -----------------------------------------------------------------------------------
 
 
-def test_stub_stages_give_the_note_after_what_the_note_already_said() -> None:
-    assert run(default_search_stages()).coverage_note == f"YouTube timed out. {SAMPLE_NOTE}"
+def test_stub_stages_give_only_the_note() -> None:
+    assert run(default_search_stages()).coverage_note == SAMPLE_NOTE
 
 
-def test_real_stages_give_no_label() -> None:
-    assert run(all_real()).coverage_note == "YouTube timed out."
+def test_a_stub_never_reports_a_failure_that_did_not_happen() -> None:
+    context = C.StageContext(search_id="srch_test")
+    research_input = C.ResearchInput(rubric=ex.rubric())
+    assert ResearchStage().run(research_input, context).failures == []
+
+
+class _RealResearchThatTimedOut(FakeRealStage):
+    def run(self, inp: C.ResearchInput, ctx: C.StageContext) -> C.ResearchResult:
+        return ex.research()  # the example carries a YouTube timeout
+
+
+def test_real_stages_give_no_label_and_keep_their_own_note() -> None:
+    stages = all_real()
+    stages.research = _RealResearchThatTimedOut(ResearchStage())
+    assert run(stages).coverage_note == "YouTube timed out."
+
+
+def test_with_one_stub_a_real_failure_comes_before_the_note() -> None:
+    stages = all_real()
+    stages.research = _RealResearchThatTimedOut(ResearchStage())
+    stages.decide = DecideStage()
+    assert run(stages).coverage_note == f"YouTube timed out. {SAMPLE_NOTE}"
 
 
 @pytest.mark.parametrize("field", SEARCH_STAGES)
@@ -139,7 +159,7 @@ def test_the_api_and_the_cli_show_the_note(capsys: pytest.CaptureFixture[str]) -
     response = TestClient(create_app({})).post("/api/search", json=request().model_dump(mode="json"))
     assert SAMPLE_NOTE in response.json()["coverage_note"]
     assert cli_main(["best laptop for coding under 70k"]) == 0
-    assert f"Coverage note: YouTube timed out. {SAMPLE_NOTE}" in capsys.readouterr().out
+    assert f"Coverage note: {SAMPLE_NOTE}" in capsys.readouterr().out
 
 
 # --- fitting the 400-character limit -------------------------------------------------------------

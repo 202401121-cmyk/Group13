@@ -20,7 +20,8 @@ class ResearchStage:
     def run(self, inp: ResearchInput, ctx: StageContext) -> ResearchResult:
         if self.fail:
             raise RuntimeError("simulated research failure")
-        return examples.research()
+        # The example shows what a timeout looks like, but no search ran here: a shopper must not be told one failed.
+        return ResearchResult.model_validate({**examples.research().model_dump(), "failures": []})
 
     def fallback(self, inp: ResearchInput, ctx: StageContext, error: Exception) -> ResearchResult:
         # One query and no sources: the search goes on, and the coverage note says research fell back.
