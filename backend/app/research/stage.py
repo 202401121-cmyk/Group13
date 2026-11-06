@@ -12,6 +12,7 @@ class ResearchStage:
     """
 
     name = StageName.RESEARCH
+    is_placeholder = True
 
     def __init__(self, fail: bool = False) -> None:
         self.fail = fail

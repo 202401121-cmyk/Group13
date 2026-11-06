@@ -9,6 +9,7 @@ class DecideStage:
     """Returns the example ranking: three ranked, one filtered out, one can't-tell."""
 
     name = StageName.DECIDE
+    is_placeholder = True
 
     def run(self, inp: DecideInput, ctx: StageContext) -> DecideResult:
         return examples.decision()

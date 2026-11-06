@@ -9,6 +9,7 @@ class MatchStage:
     """Returns the five example products and their aliases."""
 
     name = StageName.MATCH
+    is_placeholder = True
 
     def run(self, inp: MatchInput, ctx: StageContext) -> MatchResult:
         return examples.match()

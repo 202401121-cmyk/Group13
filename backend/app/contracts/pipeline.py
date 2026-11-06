@@ -46,9 +46,14 @@ class StageContext:
 
 class Stage(Protocol[InT, OutT]):
     """Every stage implements this. 'Replace, never rewrite': a better version is a new class
-    with the same input and output types, and the old one becomes its fallback."""
+    with the same input and output types, and the old one becomes its fallback.
+
+    `is_placeholder` is True on a stub, whose output is example data and not research: the runner then labels the
+    result as a sample. A real class whose fallback hands over to the class it replaced keeps that class's instance in
+    `self.baseline`, so the label follows the class that really made the output."""
 
     name: StageName
+    is_placeholder: bool = False
 
     def run(self, inp: InT, ctx: StageContext) -> OutT:
         """The best available implementation. May raise; the runner then calls fallback()."""

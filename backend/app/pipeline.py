@@ -76,6 +76,7 @@ TOP_PRIORITIES = 3
 
 OUT_OF_TIME = "the search ran out of time"
 EARLIER_FAILURE = "an earlier step failed"
+SAMPLE_NOTE = "These are sample results while live research is being built. They are not real recommendations."
 
 # Worst status wins when several reports are merged into one (extract runs once per source).
 _SEVERITY = {
@@ -219,6 +220,16 @@ def run_stage(stage: Stage[In, Out], inp: In, ctx: StageContext, limit_s: float)
     return output, _report(stage.name, status, start, reason)
 
 
+def made_by_placeholder(stage: Stage[In, Out], report: StageReport) -> bool:
+    """Did a stub make this output? Follows the class that ran, never the stage's name (D-20).
+
+    The stage's own class speaks for run(). A fallback may hand over to the class it replaced, kept in `baseline`.
+    A class that does not say is real.
+    """
+    maker = stage if report.status is StageStatus.OK else getattr(stage, "baseline", stage)
+    return bool(getattr(maker, "is_placeholder", False))
+
+
 def _short(exc: BaseException) -> str:
     return (str(exc) or type(exc).__name__)[:MAX_REASON_CHARS]
 
@@ -334,6 +345,7 @@ class _Search:
         self.rubric = request.rubric
         self.ctx = ctx
         self.out_of_time = False  # set when the search's own deadline cut a stage off
+        self.used_placeholder = False  # set when a stub made any part of the result
         self.reports: list[StageReport] = []
         self.research_out: ResearchResult | None = None
         self.claims: list[Claim] = []
@@ -366,6 +378,8 @@ class _Search:
             # Don't rely on seconds_left reading exactly 0 afterwards; a timed wait can wake a moment before
             # its deadline (seen on GitHub's Windows runners), which used to let the next stages start.
             self.out_of_time = True
+        if out is not None and made_by_placeholder(stage, report):
+            self.used_placeholder = True
         return out, report
 
     @property
@@ -458,6 +472,7 @@ class _Search:
             for p in (self.match_out.products if self.match_out else [])
         ]
         failures = self.research_out.failures if self.research_out else []
+        note = build_coverage_note(self.reports, failures, partial)
         return SearchResult(
             search_id=self.ctx.search_id,
             request=self.request,
@@ -470,7 +485,7 @@ class _Search:
             commerce=self.commerce_out,
             sources=self.research_out.sources if self.research_out else [],
             stage_reports=self.reports,
-            coverage_note=build_coverage_note(self.reports, failures, partial),
+            coverage_note=add_sample_label(note) if self.used_placeholder else note,
             saved=True,  # what the stored row must say; the runner returns a saved=False copy if it is not committed
         )
 
@@ -516,6 +531,15 @@ def build_coverage_note(reports: Iterable[StageReport], failures: Iterable[Sourc
         parts.append("These results are partial.")
 
     note = " ".join(parts)
+    return _fit(note, MAX_NOTE_CHARS) if note else None
+
+
+def add_sample_label(note: str | None) -> str:
+    """Add the sample sentence to the note. When both do not fit the note gives way: the label must always be seen."""
     if not note:
-        return None
-    return note if len(note) <= MAX_NOTE_CHARS else note[: MAX_NOTE_CHARS - 3].rstrip() + "..."
+        return SAMPLE_NOTE
+    return f"{_fit(note, MAX_NOTE_CHARS - len(SAMPLE_NOTE) - 1)} {SAMPLE_NOTE}"
+
+
+def _fit(note: str, limit: int) -> str:
+    return note if len(note) <= limit else note[: limit - 3].rstrip() + "..."

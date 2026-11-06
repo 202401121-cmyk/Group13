@@ -60,6 +60,7 @@ class IntakeStage:
     """Detects category, use, budget and rules. `llm=None` means no LLM is configured: rules only."""
 
     name = StageName.INTAKE
+    is_placeholder = False
 
     def __init__(self, llm: LLMClient | None = None) -> None:
         self.llm = llm

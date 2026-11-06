@@ -17,6 +17,7 @@ class ExplainStage:
     """Returns the example explanations for the top two products."""
 
     name = StageName.EXPLAIN
+    is_placeholder = True
 
     def run(self, inp: ExplainInput, ctx: StageContext) -> ExplainResult:
         return ExplainResult(explanations=examples.explanations())

@@ -9,6 +9,7 @@ class EnrichStage:
     """Enriches nothing: no searches, no LLM calls, no new claims."""
 
     name = StageName.ENRICH
+    is_placeholder = True
 
     def run(self, inp: EnrichInput, ctx: StageContext) -> EnrichResult:
         return EnrichResult()

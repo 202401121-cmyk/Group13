@@ -9,6 +9,7 @@ class ExtractStage:
     """Returns the example claims that belong to this one source, plus the example mentions."""
 
     name = StageName.EXTRACT
+    is_placeholder = True
 
     def run(self, inp: ExtractInput, ctx: StageContext) -> ExtractionResult:
         return ExtractionResult(
