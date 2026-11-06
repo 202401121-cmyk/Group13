@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
 import searchExample from "@contracts/examples/search_result.json";
+import { MESSAGES } from "@/lib/api/client";
 import {
   FINISH_FIRST,
   createLiveResearchService,
   resultFromSearch,
 } from "@/lib/results/liveAdapter";
 import { ResearchError, type RubricItem } from "@/lib/results/types";
+import type { InterviewStep } from "@/types/contracts/InterviewStep";
 import type { SearchResult } from "@/types/contracts/SearchResult";
 import { fakeBackend, json, scripted } from "./helpers/fakeBackend";
-import { SID, asked, rubric, stepOf } from "./helpers/interviewSteps";
+import { SID, asked, rubric, sessionWith, stepOf } from "./helpers/interviewSteps";
 
 // JSON imports type arrays loosely, so the shared example is typed as the contract it was exported from.
 const example = searchExample as unknown as SearchResult;
@@ -19,8 +21,7 @@ const viewRubric: RubricItem[] = rubric.weights.map((w) => ({
   weight: w.normalized,
 }));
 const finished = stepOf("finished", [asked("cpu_performance", "answered", "High")]);
-const session = (step: unknown, request = "best laptop for coding under 70k") =>
-  json(200, { session_id: SID, request, interview_step: step });
+const session = (step: InterviewStep | null) => json(200, sessionWith(step));
 const input = {
   sessionId: SID,
   category: "laptop",
@@ -218,6 +219,26 @@ describe("running a search", () => {
       kind: "unknown",
       message: expect.stringMatching(/couldn't read/),
     });
+  });
+
+  it("an invalid session shows the clear error and starts no search", async () => {
+    const unreadable = [
+      { ...sessionWith(finished), intent: { category: "laptop" } }, // a part the old check never read
+      { ...sessionWith(finished), request_saved: "maybe" },
+      { ...sessionWith(finished), extra: true },
+      { ...sessionWith(finished), session_id: "abc" },
+      { ...sessionWith(finished), interview_step: { ...finished, kind: "chat" } },
+      sessionWith(finished, ""), // a search needs a request
+      sessionWith(finished, "a".repeat(1001)),
+    ];
+    for (const body of unreadable) {
+      const { client, calls } = fakeBackend(() => json(200, body));
+      await expect(run(createLiveResearchService(client))).rejects.toMatchObject({
+        kind: "unknown",
+        message: MESSAGES.badResponse,
+      });
+      expect(calls).toHaveLength(1);
+    }
   });
 
   it("a session ID in the wrong shape is never sent", async () => {

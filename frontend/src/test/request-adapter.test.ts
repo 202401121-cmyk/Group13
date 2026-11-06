@@ -107,6 +107,24 @@ describe("understand", () => {
     });
   });
 
+  it("an invalid intake answer shows the clear error instead of rendering", async () => {
+    const good = { session_id: SID, intent, ready_for_research: true };
+    const unreadable = [
+      "not an object",
+      null,
+      { session_id: SID, intent },
+      { ...good, ready_for_research: "yes" },
+      { ...good, session_id: 7 },
+      { ...good, extra: true },
+    ];
+    for (const body of unreadable) {
+      const { client } = fakeBackend(() => json(200, body));
+      await expect(
+        createLiveRequestService(client).understand({ text: "laptop" }),
+      ).rejects.toMatchObject({ kind: "bad_response", message: MESSAGES.badResponse });
+    }
+  });
+
   it("shows the backend's own sentence for a rejected request", async () => {
     const detail = "Please check: text - String should have at most 1000 characters.";
     const { client } = fakeBackend(() => json(422, { detail }));

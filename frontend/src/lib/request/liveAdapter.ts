@@ -32,21 +32,17 @@ export function briefFromIntent(intent: Intent): Brief {
   };
 }
 
-/** The intake answer is {session_id, intent, ready_for_research}; only `intent` is an exported contract. */
+/** The intake answer, checked whole against the contract, as the screen's next step. */
 export async function responseFromIntake(data: unknown): Promise<UnderstandResponse> {
-  if (typeof data !== "object" || data === null) throw badResponse();
-  const { session_id, intent, ready_for_research } = data as Record<string, unknown>;
-  if (typeof session_id !== "string" || !SESSION_ID_PATTERN.test(session_id)) throw badResponse();
-  if (typeof ready_for_research !== "boolean") throw badResponse();
-  const checked = await checkContract("Intent", intent);
-  if (ready_for_research)
-    return { kind: "understood", brief: briefFromIntent(checked), sessionId: session_id };
-  if (checked.show_example_requests || !checked.clarification_question)
-    return { kind: "examples", sessionId: session_id };
+  const checked = await checkContract("IntakeResponse", data);
+  const { session_id: sessionId, intent, ready_for_research } = checked;
+  if (ready_for_research) return { kind: "understood", brief: briefFromIntent(intent), sessionId };
+  if (intent.show_example_requests || !intent.clarification_question)
+    return { kind: "examples", sessionId };
   return {
     kind: "follow-up",
-    followUp: { question: checked.clarification_question, options: checked.clarification_options },
-    sessionId: session_id,
+    followUp: { question: intent.clarification_question, options: intent.clarification_options },
+    sessionId,
   };
 }
 
@@ -85,10 +81,6 @@ function regionCode(region: string | null): string {
   if (/^[A-Za-z]{2}$/.test(r)) return r.toUpperCase();
   if (/^global$/i.test(r)) return "GLOBAL";
   throw new ApiError("invalid", REGION_HELP);
-}
-
-function badResponse() {
-  return new ApiError("bad_response", MESSAGES.badResponse);
 }
 
 function checkedSessionId(sessionId: string | null | undefined): string {

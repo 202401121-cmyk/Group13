@@ -132,11 +132,9 @@ export function createLiveInterviewService(client: ApiClient): InterviewService 
   /** The step the backend is on now, or null when this session has no interview to show. */
   async function latestStep(sessionId: string): Promise<InterviewStep | null> {
     const raw = await client.get(`/api/presearch/${sessionId}`, opts);
-    const interviewStep = (raw as { interview_step?: unknown } | null)?.interview_step ?? null;
-    if (interviewStep === null) return null;
-    const checked = await checkContract("InterviewStep", interviewStep);
-    lastState.set(sessionId, checked.state);
-    return checked;
+    const { interview_step: latest } = await checkContract("PresearchSession", raw);
+    if (latest) lastState.set(sessionId, latest.state);
+    return latest;
   }
 
   return {

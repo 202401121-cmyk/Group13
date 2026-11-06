@@ -166,17 +166,12 @@ function relaxedRule(result: SearchResult): string {
   return result.request.rubric.hard_rules.find((r) => r.attribute === top)?.source_text ?? "";
 }
 
-/** GET /api/presearch/{id} is not an exported contract; its `interview_step` is, and is checked as one. */
+/** The session, checked whole against the contract. A search needs its request and the finished rubric. */
 async function finishedInterview(data: unknown) {
-  if (typeof data !== "object" || data === null)
-    throw new ApiError("bad_response", MESSAGES.badResponse);
-  const { request, interview_step } = data as Record<string, unknown>;
-  if (typeof request !== "string" || request.length < 1 || request.length > 1000)
-    throw new ApiError("bad_response", MESSAGES.badResponse);
-  if (interview_step === null || interview_step === undefined)
-    throw new ResearchError("unknown", FINISH_FIRST);
-  const step = await checkContract("InterviewStep", interview_step);
-  if (step.kind !== "finished" || !step.rubric) throw new ResearchError("unknown", FINISH_FIRST);
+  const { request, interview_step: step } = await checkContract("PresearchSession", data);
+  // The contract allows an empty request (a session with none yet); a search does not.
+  if (!request) throw new ApiError("bad_response", MESSAGES.badResponse);
+  if (step?.kind !== "finished" || !step.rubric) throw new ResearchError("unknown", FINISH_FIRST);
   return { request, rubric: step.rubric };
 }
 
