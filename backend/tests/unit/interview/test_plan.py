@@ -17,7 +17,7 @@ from app.interview.plan import (
     mentions,
     plan_questions,
 )
-from app.interview.questions import in_sentence, question_for, question_id
+from app.interview.questions import question_for, question_id
 
 
 def crit(key: str, weight: float, label: str | None = None, vfm: bool = False) -> Criterion:
@@ -193,11 +193,11 @@ def test_a_missing_rules_file_fails_clearly(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     ("label", "text"),
     [
-        ("Cooking results", "How much do you care about cooking results?"),
-        ("Battery life", "How much do you care about battery life?"),
-        ("RAM and storage", "How much do you care about RAM and storage?"),
-        ("GPS accuracy", "How much do you care about GPS accuracy?"),
-        ("Smart TV software", "How much do you care about smart TV software?"),
+        ("Cooking results", "Cooking results: how much does it matter to you?"),
+        ("Battery life", "Battery life: how much does it matter to you?"),
+        ("RAM and storage", "RAM and storage: how much does it matter to you?"),
+        ("GPS accuracy", "GPS accuracy: how much does it matter to you?"),
+        ("Smart TV software", "Smart TV software: how much does it matter to you?"),
     ],
 )
 def test_question_wording(label: str, text: str) -> None:
@@ -216,4 +216,3 @@ def test_question_id_reasons_and_buttons() -> None:
         "definition": "word " * 55
     }  # 275 chars: valid, but over 200
     assert len(question_for(Criterion.model_validate(long_definition)).why_asking or "") <= 200
-    assert in_sentence("Wi-Fi range") == "wi-fi range"

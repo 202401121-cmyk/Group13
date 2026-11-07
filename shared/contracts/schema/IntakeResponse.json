@@ -1,0 +1,334 @@
+{
+  "$defs": {
+    "Budget": {
+      "additionalProperties": false,
+      "properties": {
+        "min": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "title": "Budget",
+      "type": "object"
+    },
+    "Exclusion": {
+      "additionalProperties": false,
+      "description": "Something the user never wants to see (FR-10).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "brand",
+            "model",
+            "feature",
+            "seller"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        },
+        "always": {
+          "default": false,
+          "description": "True = save to memory for future searches",
+          "title": "Always",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "value",
+        "always"
+      ],
+      "title": "Exclusion",
+      "type": "object"
+    },
+    "HardRule": {
+      "additionalProperties": false,
+      "description": "A must-have. Hard rules only filter products; they never change the order (DR-08).",
+      "properties": {
+        "attribute": {
+          "description": "Criterion or spec key, e.g. 'weight_kg' or 'has_ois'",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Attribute",
+          "type": "string"
+        },
+        "operator": {
+          "enum": [
+            "<=",
+            ">=",
+            "==",
+            "!=",
+            "in",
+            "not_in",
+            "contains"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "source_text": {
+          "description": "What the user actually said",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Source Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "attribute",
+        "operator",
+        "value",
+        "unit",
+        "source_text"
+      ],
+      "title": "HardRule",
+      "type": "object"
+    },
+    "Intent": {
+      "additionalProperties": false,
+      "description": "Everything understood from the request. Research never starts without a category.",
+      "properties": {
+        "raw_query": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Raw Query",
+          "type": "string"
+        },
+        "category": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category"
+        },
+        "category_label": {
+          "anyOf": [
+            {
+              "maxLength": 60,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category Label"
+        },
+        "use_case": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Use Case"
+        },
+        "budget": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Budget"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "region": {
+          "default": "IN",
+          "pattern": "^(?:[A-Z]{2}|GLOBAL)$",
+          "title": "Region",
+          "type": "string"
+        },
+        "hard_rules": {
+          "items": {
+            "$ref": "#/$defs/HardRule"
+          },
+          "maxItems": 20,
+          "title": "Hard Rules",
+          "type": "array"
+        },
+        "exclusions": {
+          "items": {
+            "$ref": "#/$defs/Exclusion"
+          },
+          "maxItems": 30,
+          "title": "Exclusions",
+          "type": "array"
+        },
+        "needs_clarification": {
+          "default": false,
+          "title": "Needs Clarification",
+          "type": "boolean"
+        },
+        "clarification_question": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Clarification Question"
+        },
+        "clarification_options": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 6,
+          "title": "Clarification Options",
+          "type": "array"
+        },
+        "show_example_requests": {
+          "default": false,
+          "description": "US-01: second unclear reply -> show examples, never guess",
+          "title": "Show Example Requests",
+          "type": "boolean"
+        },
+        "detected_by": {
+          "enum": [
+            "llm",
+            "rules"
+          ],
+          "title": "Detected By",
+          "type": "string"
+        }
+      },
+      "required": [
+        "raw_query",
+        "category",
+        "category_label",
+        "use_case",
+        "budget",
+        "region",
+        "hard_rules",
+        "exclusions",
+        "needs_clarification",
+        "clarification_question",
+        "clarification_options",
+        "show_example_requests",
+        "detected_by"
+      ],
+      "title": "Intent",
+      "type": "object"
+    },
+    "Money": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "minimum": 0,
+          "title": "Amount",
+          "type": "number"
+        },
+        "currency": {
+          "default": "INR",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "title": "Money",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "What POST /api/presearch/intake answers.",
+  "properties": {
+    "session_id": {
+      "pattern": "^sess_[A-Za-z0-9]{6,40}$",
+      "title": "Session Id",
+      "type": "string"
+    },
+    "intent": {
+      "$ref": "#/$defs/Intent"
+    },
+    "ready_for_research": {
+      "title": "Ready For Research",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "session_id",
+    "intent",
+    "ready_for_research"
+  ],
+  "title": "IntakeResponse",
+  "type": "object"
+}

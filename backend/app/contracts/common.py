@@ -16,7 +16,7 @@ from typing import Annotated
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field
 
-SCHEMA_VERSION = "1.2.0"
+SCHEMA_VERSION = "1.4.0"
 
 
 class Contract(BaseModel):

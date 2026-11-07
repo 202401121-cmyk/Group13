@@ -12,43 +12,20 @@ import secrets
 import threading
 import time
 from collections import OrderedDict
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import AbstractContextManager, contextmanager
+from dataclasses import dataclass, field
 from typing import Protocol
 
-from pydantic import BaseModel, ConfigDict, Field
-
-from app.contracts import CriteriaSet, Intent, InterviewState, InterviewStep
-from app.db import SaveOutcome
+from app.contracts import PresearchSession
 
 SESSION_TTL_S = 2 * 60 * 60  # a session not used for 2 hours expires
 MAX_SESSIONS = 1_000  # beyond this, the session unused for longest is dropped first
-MAX_UNCLEAR_ATTEMPTS = 2  # IntakeInput.unclear_attempts limit
 SESSION_ID_PATTERN = r"^sess_[A-Za-z0-9]{6,40}$"  # the contract's SessionId
 
 
 def new_session_id() -> str:
     return "sess_" + secrets.token_hex(12)
-
-
-class PresearchSession(BaseModel):
-    """Everything the pre-search API knows about one shopper. Not a contract: it never leaves this API."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    session_id: str = Field(pattern=SESSION_ID_PATTERN)
-    request: str = Field(min_length=1, max_length=1000, description="The request as first typed")
-    unclear_attempts: int = Field(default=0, ge=0, le=MAX_UNCLEAR_ATTEMPTS)
-    intent: Intent | None = None
-    criteria: CriteriaSet | None = None
-    interview: InterviewState | None = None
-    interview_step: InterviewStep | None = Field(default=None, description="The latest step, for a page reload")
-    request_saved: SaveOutcome | None = Field(
-        default=None, description="Whether the request reached the database: saved, off (no database) or failed"
-    )
-
-    def changed(self, **changes: object) -> PresearchSession:
-        """A validated copy with some fields changed (the model is frozen)."""
-        return PresearchSession.model_validate({**self.model_dump(), **changes})
 
 
 class SessionStore(Protocol):
@@ -57,6 +34,16 @@ class SessionStore(Protocol):
     def put(self, session: PresearchSession) -> None: ...
 
     def delete(self, session_id: str) -> None: ...
+
+    def lock(self, session_id: str) -> AbstractContextManager[None]:
+        """Hold one session while a route reads it, checks it and writes it back."""
+        ...
+
+
+@dataclass
+class _SessionLock:
+    lock: threading.Lock = field(default_factory=threading.Lock)
+    users: int = 0  # the requests holding it or waiting for it
 
 
 class InMemorySessionStore:
@@ -73,6 +60,7 @@ class InMemorySessionStore:
         self._clock = clock
         self._lock = threading.Lock()
         self._sessions: OrderedDict[str, tuple[float, PresearchSession]] = OrderedDict()
+        self._session_locks: dict[str, _SessionLock] = {}
 
     def get(self, session_id: str) -> PresearchSession | None:
         with self._lock:
@@ -100,6 +88,29 @@ class InMemorySessionStore:
     def delete(self, session_id: str) -> None:
         with self._lock:
             self._sessions.pop(session_id, None)
+
+    @contextmanager
+    def lock(self, session_id: str) -> Iterator[None]:
+        """One request at a time for a session; different sessions never wait for each other.
+
+        Routes are plain `def`s, so two requests can run at the same moment in different threads. A lock lasts only
+        while it is in use, so the session IDs that clients send can never fill this table.
+        """
+        with self._lock:
+            entry = self._session_locks.setdefault(session_id, _SessionLock())
+            entry.users += 1
+        try:
+            with entry.lock:
+                yield
+        finally:
+            with self._lock:
+                entry.users -= 1
+                if entry.users == 0:
+                    del self._session_locks[session_id]
+
+    def locks_in_use(self) -> int:
+        with self._lock:
+            return len(self._session_locks)
 
     def __len__(self) -> int:
         with self._lock:

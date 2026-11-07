@@ -23,7 +23,7 @@ from app.contracts import (
     StageContext,
 )
 from app.criteria import CriteriaStage, CriteriaStore, FileCriteriaStore
-from app.intake import IntakeStage
+from app.intake import IntakeStage, blank_request_intent
 from app.interview import InterviewStage
 from app.llm import build_llm_client
 from app.pipeline import run_stage
@@ -53,7 +53,12 @@ def start_request(
     unclear_attempts: int = 0,
     llm: LLMClient | None = None,
 ) -> Intent:
-    """Understand the user's request, or their reply to our follow-up question (US-01, US-02)."""
+    """Understand the user's request, or their reply to our follow-up question (US-01, US-02).
+
+    Blank text gets the follow-up question here: IntakeInput refuses it, so it must never reach the stage.
+    """
+    if not query.strip():
+        return blank_request_intent(unclear_attempts)
     inp = IntakeInput(raw_query=query, previous_clarification_reply=previous_reply, unclear_attempts=unclear_attempts)
     return _run(IntakeStage(llm if llm is not None else default_llm()), inp)
 

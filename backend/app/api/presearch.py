@@ -14,15 +14,27 @@ from collections.abc import Mapping, Sequence
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, ValidationError
 
 from app import db
 from app import presearch as flow
-from app.contracts import CriteriaSet, Intent, InterviewState, InterviewStep, InterviewTurn, LLMClient
+from app.contracts import (
+    MAX_UNCLEAR_ATTEMPTS,
+    CriteriaSet,
+    IntakeResponse,
+    Intent,
+    InterviewState,
+    InterviewStep,
+    InterviewTurn,
+    LLMClient,
+    PresearchSession,
+    ReplyRequest,
+)
 from app.criteria import CriteriaStore
 from app.intake import revise_intent
+from app.interview import place_reply
 
-from .sessions import MAX_UNCLEAR_ATTEMPTS, InMemorySessionStore, PresearchSession, SessionStore, new_session_id
+from .sessions import InMemorySessionStore, SessionStore, new_session_id
 
 EXPIRED = "This session has expired. Please start a new search."
 NOT_READY = "Tell us what kind of product first."
@@ -30,6 +42,7 @@ NO_CRITERIA = "We need to work out what to compare first. Please get the criteri
 NO_INTERVIEW = "The interview hasn't started yet. Please start it first."
 FINISHED = "The interview is already finished. Go back to a question if you want to change an answer."
 NOT_ANSWERED = "That question hasn't been answered yet, so there is nothing to change."
+NOT_CURRENT = "That isn't the question we're on. To change an earlier answer, go back to that question first."
 MAX_REPLY_CHARS = 500  # IntakeInput.previous_clarification_reply and InterviewTurn.reply_text limit
 
 router = APIRouter(prefix="/api/presearch", tags=["pre-search"])
@@ -64,29 +77,26 @@ Store = Annotated[CriteriaStore, Depends(get_criteria_store)]
 # --- request and response bodies (API models; the stage data inside them are contracts) -------------
 
 
+def _trim(text: str) -> str:
+    return text.strip()
+
+
 class IntakeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     session_id: str | None = Field(default=None, description="Leave out for a new search")
-    text: str = Field(min_length=1, max_length=1000, description="The request, or the reply to our question")
-
-
-class IntakeResponse(BaseModel):
-    session_id: str
-    intent: Intent
-    ready_for_research: bool
+    # Trimmed once, here, after the length check: everything below sees the same text, and blank text is simply "".
+    text: Annotated[
+        str,
+        Field(max_length=1000, description="The request, or the reply to our question"),
+        AfterValidator(_trim),
+    ]
 
 
 class IntentEdit(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     changes: dict[str, Any] = Field(description='Intent fields to change, e.g. {"use_case": "gaming"}')
-
-
-class ReplyRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    reply_text: str = Field(min_length=1, max_length=MAX_REPLY_CHARS)
 
 
 class BackRequest(BaseModel):
@@ -103,6 +113,7 @@ def intake(body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests
     """A new request, or the reply to our clarification question (US-01, US-02).
 
     A new request is saved once with its session ID; a clarification reply is the same request, so no new row.
+    Blank text is not a request: it gets our question, nothing is saved, and the next text is the request.
     """
     session = _load(sessions, body.session_id) if body.session_id else None
     session_id = session.session_id if session else new_session_id()
@@ -111,19 +122,21 @@ def intake(body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests
         intent = flow.start_request(request, body.text[:MAX_REPLY_CHARS], attempts, llm=llm)
         request_saved = session.request_saved
     else:
-        request, attempts = body.text, 0  # a new search, or a fresh request in the same session
-        intent = flow.start_request(request, llm=llm)
-        request_saved = requests.save_request(session_id, request, intent)  # never raises, never slow
+        request = body.text  # a new search, or a fresh request in the same session
+        attempts = session.unclear_attempts if session is not None and not session.request else 0
+        intent = flow.start_request(request, None, attempts, llm=llm)
+        request_saved = requests.save_request(session_id, request, intent) if request else None  # never raises
     if intent.needs_clarification:
         attempts = min(attempts + 1, MAX_UNCLEAR_ATTEMPTS)  # the second unclear reply shows example requests
     saved = PresearchSession(
         session_id=session_id,
         request=request,
         unclear_attempts=attempts,
-        intent=intent,
+        intent=intent if request else None,  # no intent yet, so the text after blank text is the request
         request_saved=request_saved,
     )
-    sessions.put(saved)
+    if request or session is None or not session.request:  # stray blank text never clears a request
+        sessions.put(saved)
     return IntakeResponse(session_id=saved.session_id, intent=intent, ready_for_research=intent.ready_for_research)
 
 
@@ -161,39 +174,52 @@ def criteria(session_id: str, sessions: Sessions, llm: LLM, store: Store) -> Cri
 @router.post("/{session_id}/interview/start", response_model=InterviewStep)
 def start_interview(session_id: str, sessions: Sessions) -> InterviewStep:
     """The first question (US-05). Calling it again restarts the interview."""
-    session = _load(sessions, session_id)
-    if session.intent is None or session.criteria is None:
-        raise HTTPException(409, NO_CRITERIA)
-    try:
-        state = InterviewState(session_id=session.session_id, intent=session.intent, criteria=session.criteria)
-    except ValidationError:
-        raise HTTPException(409, NO_CRITERIA) from None  # e.g. the intent changed category after the criteria
-    return _save_step(sessions, session, flow.interview_turn(InterviewTurn(state=state)))
+    with sessions.lock(session_id):
+        session = _load(sessions, session_id)
+        if session.intent is None or session.criteria is None:
+            raise HTTPException(409, NO_CRITERIA)
+        try:
+            state = InterviewState(session_id=session.session_id, intent=session.intent, criteria=session.criteria)
+        except ValidationError:
+            raise HTTPException(409, NO_CRITERIA) from None  # e.g. the intent changed category after the criteria
+        return _save_step(sessions, session, flow.interview_turn(InterviewTurn(state=state)))
 
 
 @router.post("/{session_id}/interview/reply", response_model=InterviewStep)
 def reply(session_id: str, body: ReplyRequest, sessions: Sessions) -> InterviewStep:
-    """The user's reply to the current question: the next question, a rephrase, or the finished rubric."""
-    session = _load(sessions, session_id)
-    if session.interview is None:
-        raise HTTPException(409, NO_INTERVIEW)
-    if session.interview_step is not None and session.interview_step.kind == "finished":
-        raise HTTPException(409, FINISHED)
-    step = flow.interview_turn(InterviewTurn(state=session.interview, reply_text=body.reply_text))
-    return _save_step(sessions, session, step)
+    """The user's reply to the current question: the next question, a rephrase, or the finished rubric.
+
+    With question_id a repeated reply is safe (docs/api/presearch.md). The check and the change happen under one
+    lock, so two identical replies at the same moment apply once.
+    """
+    with sessions.lock(session_id):
+        session = _load(sessions, session_id)
+        if session.interview is None or session.interview_step is None:
+            raise HTTPException(409, NO_INTERVIEW)
+        if body.question_id is not None:
+            place = place_reply(session.interview, body.question_id, body.reply_text)
+            if place == "conflict":
+                raise HTTPException(409, NOT_CURRENT)
+            if place == "repeat":
+                return session.interview_step  # before the finished check: the last reply can be retried too
+        if session.interview_step.kind == "finished":
+            raise HTTPException(409, FINISHED)
+        step = flow.interview_turn(InterviewTurn(state=session.interview, reply_text=body.reply_text))
+        return _save_step(sessions, session, step)
 
 
 @router.post("/{session_id}/interview/back", response_model=InterviewStep)
 def go_back(session_id: str, body: BackRequest, sessions: Sessions) -> InterviewStep:
     """Ask an earlier question again; the next reply changes that answer and the later questions update."""
-    session = _load(sessions, session_id)
-    if session.interview is None:
-        raise HTTPException(409, NO_INTERVIEW)
-    try:
-        step = flow.interview_back(session.interview, body.question_id)
-    except ValueError:
-        raise HTTPException(409, NOT_ANSWERED) from None
-    return _save_step(sessions, session, step)
+    with sessions.lock(session_id):
+        session = _load(sessions, session_id)
+        if session.interview is None:
+            raise HTTPException(409, NO_INTERVIEW)
+        try:
+            step = flow.interview_back(session.interview, body.question_id)
+        except ValueError:
+            raise HTTPException(409, NOT_ANSWERED) from None
+        return _save_step(sessions, session, step)
 
 
 @router.get("/{session_id}", response_model=PresearchSession)

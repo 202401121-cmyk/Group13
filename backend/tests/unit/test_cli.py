@@ -44,7 +44,7 @@ def test_cli_lists_the_criteria_with_their_definitions(capsys: pytest.CaptureFix
 def test_cli_skips_every_question_by_default_and_prints_the_rubric(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["best laptop for coding under 70k"]) == 0
     out = capsys.readouterr().out
-    assert "Q: How much do you care about processor speed?" in out
+    assert "Q: Processor speed: how much does it matter to you?" in out
     assert out.count("A: Skip") == 8  # the laptop set has 8 criteria
     assert "Rubric (what matters to you):" in out
     assert "  - Processor speed: 9/10, " in out and "(skipped)" in out

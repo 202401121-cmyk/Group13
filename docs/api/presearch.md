@@ -14,8 +14,9 @@ uvicorn app.main:app --port 8000
 
 - **Base URL:** `http://localhost:8000`. Every route is under `/api`.
 - **JSON in, JSON out.** Send `Content-Type: application/json`.
-- **Types:** `Intent`, `CriteriaSet`, `InterviewStep` and the rest are the contract models. Their TypeScript
-  types come from `shared/contracts/schema/*.json` (see `frontend/CLAUDE.md`); never redefine them by hand.
+- **Types:** `IntakeResponse`, `Intent`, `CriteriaSet`, `ReplyRequest`, `InterviewStep`, `PresearchSession` and the
+  rest are the contract models. Their TypeScript types come from `shared/contracts/schema/*.json` (see
+  `frontend/CLAUDE.md`); never redefine them by hand.
 - **Sessions:** the first `intake` call returns a `session_id` (like `sess_3f9a…`). Send it with every later
   call. A session not used for 2 hours expires; the server keeps at most 1,000 at a time.
 - **Errors** are always `{"detail": "<one plain sentence>"}`, never a stack trace. Show `detail` to the user.
@@ -63,7 +64,7 @@ curl -s http://localhost:8000/api/health
 
 Reads a new request, or the reply to our clarification question.
 
-- **Body:** `{"session_id": "<optional>", "text": "<1 to 1,000 characters>"}`
+- **Body:** `{"session_id": "<optional>", "text": "<up to 1,000 characters>"}`. Spaces around `text` are trimmed.
   - No `session_id`: a new search with a new session.
   - With the `session_id` of a session whose intent still needs clarification: `text` is the reply to our
     question (for example "smartwatch" after "Which kind of watch do you mean?"). If the reply is still
@@ -71,10 +72,14 @@ Reads a new request, or the reply to our clarification question.
     requests. A category is never guessed.
   - With the `session_id` of a session that is already clear: a fresh request in the same session (the
     criteria and interview are cleared).
-- **Response 200:** `{"session_id": "sess_…", "intent": Intent, "ready_for_research": true}`
+  - Blank text (empty, or only spaces, tabs or newlines) is not an error. It gets a follow-up question ("What kind of
+    product are you looking for?" with its options), or example requests the second time. Nothing is saved, and a
+    request already in the session stays as it is. With no request yet, the next `text` in that session is the
+    request. `intent.raw_query` in this one answer is `(nothing typed)`.
+- **Response 200:** `IntakeResponse`: `{"session_id": "sess_…", "intent": Intent, "ready_for_research": true}`
   - `ready_for_research: false` → show `intent.clarification_question` with `intent.clarification_options` as
     buttons, or example requests when `intent.show_example_requests` is true.
-- **Errors:** 404 (unknown or expired `session_id`), 422 (empty or too long `text`).
+- **Errors:** 404 (unknown or expired `session_id`), 422 (`text` missing, not a string, or over 1,000 characters).
 
 ```bash
 curl -s -X POST http://localhost:8000/api/presearch/intake \
@@ -144,19 +149,34 @@ curl -s -X POST http://localhost:8000/api/presearch/$SID/interview/start
 
 Sends the user's reply to the current question.
 
-- **Body:** `{"reply_text": "<1 to 500 characters>"}`. Understood: the buttons `Low` (2), `Medium` (5), `High` (8),
-  `Skip`, and a whole number from 0 to 10 (also `7/10`).
+- **Body:** `{"reply_text": "<1 to 500 characters>", "question_id": "<optional>"}`. Understood: the buttons `Low` (2),
+  `Medium` (5), `High` (8), `Skip`, and a whole number from 0 to 10 (also `7/10`).
+- **`question_id`** is the `question.id` of the question being answered, such as `q_battery_life`. Send it with every
+  reply: then a network retry or a double click can never answer the next question by mistake.
+
+  | `question_id` | What happens |
+  |---|---|
+  | Left out, or `null` | The reply goes to the current question. |
+  | The current question | The reply goes to it. |
+  | A question already answered, with the same answer | A safe repeat. Nothing changes, and you get 200 with the latest `InterviewStep`, even after the interview has finished. |
+  | A question already answered, with a different answer | Nothing changes. 409: go back to that question first (`interview/back`). |
+  | A question this session has not asked | Nothing changes. The same 409. |
+
+  "The same answer" ignores capitals, extra spaces and a closing `.` or `!`. A question reopened with
+  `interview/back` is the current question again. Two replies at the same moment are handled one after the other,
+  so identical ones apply once.
 - **Response 200:** `InterviewStep`, by `kind`:
   - `question`: the next question.
   - `rephrase`: the reply was unclear; show `message` ("Please pick one of the buttons, or type a number from 0
     to 10.") with the same question's buttons. After two unclear replies the question is skipped.
   - `finished`: no questions left. `rubric` holds a weight for every criterion; send it in a `SearchRequest`.
-- **Errors:** 404; 409 (interview not started, or already finished); 422 (empty or too long `reply_text`).
+- **Errors:** 404; 409 (interview not started, already finished, or `question_id` as in the table above); 422 (empty
+  or too long `reply_text`, or a `question_id` that is empty or over 64 characters).
 
 ```bash
 curl -s -X POST http://localhost:8000/api/presearch/$SID/interview/reply \
   -H "Content-Type: application/json" \
-  -d '{"reply_text": "High"}'
+  -d '{"reply_text": "High", "question_id": "q_processor_speed"}'
 ```
 
 ### POST /api/presearch/{session_id}/interview/back
@@ -178,9 +198,9 @@ curl -s -X POST http://localhost:8000/api/presearch/$SID/interview/back \
 
 ### GET /api/presearch/{session_id}
 
-Everything about the session, for a page reload: `request`, `unclear_attempts`, `intent`, `criteria`,
-`interview` (the `InterviewState`) and `interview_step` (the latest step: redraw the current question, or the
-finished rubric). Fields not reached yet are `null`.
+Everything about the session, as a `PresearchSession`, for a page reload: `request`, `unclear_attempts`, `intent`,
+`criteria`, `interview` (the `InterviewState`) and `interview_step` (the latest step: redraw the current question,
+or the finished rubric). Fields not reached yet are `null`; `request` is `""` until the shopper has typed one.
 
 `request_saved` says whether the request reached the database (US-01): `"saved"`, `"off"` (no database is set
 up) or `"failed"` (the database was down or slow; the search carries on). It is `null` until the first request.
