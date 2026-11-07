@@ -161,7 +161,7 @@ def test_the_loader_refuses_a_repeated_or_unknown_provider(tmp_path: Path) -> No
     data["routes"]["public"]["long"] = ["gemini", "gemini"]  # type: ignore[index]
     with pytest.raises(LLMConfigError, match="names a provider twice"):
         load_llm_config(_write(tmp_path, data))
-    data["routes"]["public"]["long"] = ["gemini", "claude"]  # type: ignore[index]
+    data["routes"]["public"]["long"] = ["gemini", "unknown-provider"]  # type: ignore[index]
     with pytest.raises(LLMConfigError, match="routes"):
         load_llm_config(_write(tmp_path, data))
 

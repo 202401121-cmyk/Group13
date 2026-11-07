@@ -6,8 +6,8 @@
 
 ## Context
 
-`frontend/CLAUDE.md` said the app would be Next.js (App Router), created by US-01. The app was instead built in
-Lovable, which generates TanStack Start + Vite + React 19 + Tailwind 4 + shadcn/ui, with a bun lockfile. On
+The frontend instructions said the app would be Next.js (App Router), created by US-01. The app was instead built in
+a prototype builder, which generates TanStack Start + Vite + React 19 + Tailwind 4 + shadcn/ui, with a bun lockfile. On
 3 November the export was checked: no keys, no `.env` files, no install scripts, no `node_modules`; the strict type
 check passed, its 27 tests passed, it built, and the whole flow (request → understood → criteria → interview →
 brief → research → results) ran in mock mode.
@@ -31,12 +31,12 @@ We adopt that stack as it is. It is not converted to Next.js.
 - **Pinned build pieces.** `nitro` stays on the exact beta `3.0.260603-beta`, and the `rolldown` override stays.
   Upgrade them deliberately, one at a time, with `npm run build && npm start`.
 - **Output.** `npm run build` writes a Node server to `.output/` (nitro's `node-server` preset); `npm start` runs it.
-- **No more Lovable sync.** `.lovable/`, `AGENTS.md`, the Lovable error reporting and the Lovable Vite wrapper are
-  gone. Changes are now made in this repository; the Lovable project no longer matches it.
+- **No more builder sync.** The builder's own folder, `AGENTS.md`, its error reporting and its Vite wrapper are
+  gone. Changes are now made in this repository; the builder's project no longer matches it.
 - **Contract types.** They are generated from `shared/contracts/schema` by `scripts/gen-frontend-types.sh`, which
   `postinstall` runs, because CI's frontend job runs `tsc` straight after `npm ci`. A "generate types" step in CI
   would be cleaner later.
-- **Instructions.** `frontend/CLAUDE.md` and `frontend/README.md` describe the new stack.
+- **Instructions.** `frontend/README.md` describes the new stack.
 
 ## Alternative considered
 

@@ -2,7 +2,7 @@
 
 Run from backend/:  python -m scripts.export_contracts
 
-The frontend turns the schemas into TypeScript types (see frontend/CLAUDE.md) and uses the
+The frontend turns the schemas into TypeScript types (see frontend/README.md) and uses the
 examples as mock data, so both sides always agree on the same shapes. CI re-runs this script
 and fails if the committed files are out of date.
 """

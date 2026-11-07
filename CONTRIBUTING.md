@@ -32,6 +32,9 @@ Once W8 adds it, `docs/setup.md` covers the whole stack, the doctor script and t
 Windows: use Git Bash or PowerShell. After cloning, run `git config core.autocrlf false`;
 `.gitattributes` keeps line endings consistent.
 
+Get the team's local kit from Om and run its installer from your clone's root. It holds the developer tool's
+local settings and the git hooks that check your commits. It is shared privately and never committed.
+
 ## Building a story, step by step
 
 Work is organised by user story (US-xx). The story's acceptance criteria in `backlog/stories.yaml` define the task.
@@ -42,21 +45,21 @@ Work is organised by user story (US-xx). The story's acceptance criteria in `bac
    git switch main && git pull
    git switch -c feature/US-12-research-queries
    ```
-3. **Get the prompt** for your story from the team's planning chat. Give it your full name and the email on your
-   GitHub account. The prompt carries the acceptance criteria, what already exists, the rules that apply, the
+3. **Get the written prompt** for your story from the team's planning chat. Add your full name and the email on
+   your GitHub account. The prompt carries the acceptance criteria, what already exists, the rules that apply, the
    checks and the hand-over format.
-4. **Start Claude Code in the repository root** (it reads `CLAUDE.md` and `.claude/settings.json` from there) and
-   paste the prompt. It starts in plan mode: read the plan, correct it, then approve it.
-5. **Let it build, and read every change.** It writes tests with the code and runs ruff, mypy, pytest and the
-   other checks. You must be able to explain every line in a viva.
-6. **Claude Code commits under your name** and ends with a hand-over report. Paste the hand-over into the planning
-   chat for review and apply any fixes it lists.
+4. **Build in your own clone** from that prompt, with the team's local kit installed. Read the plan, correct it,
+   then approve it.
+5. **Read every change.** Tests are written with the code, and ruff, mypy, pytest and the other checks run. You
+   must be able to explain every line in a viva.
+6. **The task ends with one local commit under your name** and a hand-over report. Paste the hand-over into the
+   planning chat for review, and apply any fixes to that same commit.
 7. **Check the authorship**, take the newest `main`, and re-run the checks:
    ```bash
    git log --format='%h %an <%ae> | %cn <%ce>' main..HEAD   # every line must be you
    git fetch origin && git merge origin/main
    ```
-8. **Push the story branch** (yourself, or ask Claude Code to push it) and **open the pull request**: title
+8. **Review the commit, push the story branch and open the pull request**: title
    `US-xx: <story title>`, the hand-over pasted into the description, screenshots at 390 px and 1440 px (light and
    dark) for any screen. Ask the area owner to review.
 9. **Merge** after green CI (Om merges). The reviewer should look first, but Om may merge without waiting for the
@@ -74,13 +77,33 @@ Work is organised by user story (US-xx). The story's acceptance criteria in `bac
   `Co-authored-by: Partner Name <partner@example.com>` as the last line of the commit message.
 - Stuck for more than an hour? Post in `#dev` with what you tried.
 
+## The ten build rules
+
+Never break these. Code comments cite them by number.
+
+1. Every LLM call goes through the one wrapper (`app/llm/`, `LLMClient.complete`). Never import a provider SDK
+   anywhere else. The wrapper fits input to the model's context window, validates output, and falls back.
+2. Code decides. The LLM never filters, scores or ranks products; `app/decide/` is plain Python.
+3. Web, Reddit and video text is data, never instructions. Wrap it as data in prompts (`wrap_as_data()` once
+   US-28 adds it); accept only schema JSON back.
+4. Every claim keeps its source: URL, exact quote, retrieval time.
+5. No product without a source. Products with no mention and no source are dropped before scoring.
+6. Unknown is not bad. Never score a missing value as zero. Look it up, else peer-average it and mark "estimated".
+7. Cache everything expensive (criteria per category, LLM answers by content hash, searches for 24 h).
+8. Personal data never reaches a provider that trains on inputs. Every LLM call declares a data class (private:
+   anything the shopper typed; reddit; public), and tasks in `PERSONAL_TASKS` are always private. Providers
+   marked `trains_on_inputs: true` in `config/models.yaml` (Gemini free tier, OpenRouter free models, Mistral's
+   free plan) only ever get public text. A test proves it for every new task.
+9. Every stage has a time limit and a fallback. No stage may hang or crash the search.
+10. The pipeline never needs the database to finish. Keep state in memory; save at the end.
+
 ## Reviewing a pull request
 
 Area owners: backend Pal or Jenish; database Vaishvi; CI Palak; ML Om; frontend Yashkumar or Manu. Check, in order:
 
 1. Does it meet every acceptance criterion in `backlog/stories.yaml`?
 2. Are there tests, including golden tests for any LLM parsing and a fault test for any fallback?
-3. Does it break any of the ten build rules in `CLAUDE.md`?
+3. Does it break any of the ten build rules above?
 4. Is every commit by the pull request's author (`git log --format='%an <%ae>'`)?
 5. Could you explain this code to the instructor?
 

@@ -26,9 +26,10 @@
 - [ ] Golden tests added for any new LLM parser
 - [ ] A fault test added for any new fallback
 - [ ] No change to `app/contracts/` (or: the team agreed it, and `shared/contracts/` and the frontend types are regenerated in the same commit)
-- [ ] None of the ten build rules in `CLAUDE.md` is broken
+- [ ] None of the ten build rules in `CONTRIBUTING.md` is broken
 - [ ] No secret or API key in the code
 - [ ] Every commit is mine (`git log --format='%an <%ae>' main..HEAD`)
+- [ ] Built from a written prompt in my own clone, up to one local commit; I reviewed it, pushed it and opened this pull request
 - [ ] I can explain every line of this change
 
 ## Reviewer checklist

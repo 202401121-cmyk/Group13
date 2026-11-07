@@ -43,6 +43,3 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
-
-# Claude Code: settings.json is shared and committed; each member's local overrides are not
-.claude/settings.local.json

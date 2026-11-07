@@ -2,7 +2,7 @@
 
 Accepted: a JSON object that is the whole reply, sits inside a ``` fence, or has prose around it.
 Nothing is repaired. Trailing commas, bad quotes and truncation make the reply invalid, because guessing
-what the model meant is how wrong data gets in (CLAUDE.md: "never guess").
+what the model meant is how wrong data gets in (the team's rule: "never guess").
 """
 
 from __future__ import annotations

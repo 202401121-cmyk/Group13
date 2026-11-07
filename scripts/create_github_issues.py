@@ -125,7 +125,7 @@ def body(s: dict) -> str:
         *[f"- [ ] {c}" for c in s["criteria"]],
         "",
         "---",
-        "Definition of Done: see CONTRIBUTING.md. Build rules: see CLAUDE.md.",
+        "Definition of Done and the ten build rules: see CONTRIBUTING.md.",
     ]
     return "\n".join(lines)
 
