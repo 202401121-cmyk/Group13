@@ -1,0 +1,1783 @@
+{
+  "$defs": {
+    "Budget": {
+      "additionalProperties": false,
+      "properties": {
+        "min": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "title": "Budget",
+      "type": "object"
+    },
+    "CommerceResult": {
+      "additionalProperties": false,
+      "properties": {
+        "offers": {
+          "items": {
+            "$ref": "#/$defs/Offer"
+          },
+          "title": "Offers",
+          "type": "array"
+        },
+        "no_offer": {
+          "description": "Products with no matching listing -> a store search link",
+          "patternProperties": {
+            "^prd_[A-Za-z0-9_-]{3,64}$": {
+              "format": "uri",
+              "maxLength": 2083,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "title": "No Offer",
+          "type": "object"
+        }
+      },
+      "required": [
+        "offers",
+        "no_offer"
+      ],
+      "title": "CommerceResult",
+      "type": "object"
+    },
+    "CommunitySignal": {
+      "additionalProperties": false,
+      "description": "US-42: whether communities agree about a product.",
+      "properties": {
+        "product_id": {
+          "pattern": "^prd_[A-Za-z0-9_-]{3,64}$",
+          "title": "Product Id",
+          "type": "string"
+        },
+        "label": {
+          "enum": [
+            "consistent",
+            "split",
+            "single_source"
+          ],
+          "title": "Label",
+          "type": "string"
+        },
+        "communities": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Communities",
+          "type": "array"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "product_id",
+        "label",
+        "communities",
+        "note"
+      ],
+      "title": "CommunitySignal",
+      "type": "object"
+    },
+    "Contribution": {
+      "additionalProperties": false,
+      "properties": {
+        "criterion_key": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Criterion Key",
+          "type": "string"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 10.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        },
+        "normalized_weight": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Normalized Weight",
+          "type": "number"
+        },
+        "contribution": {
+          "description": "score x weight, the share of the final score",
+          "minimum": 0,
+          "title": "Contribution",
+          "type": "number"
+        },
+        "state": {
+          "$ref": "#/$defs/ValueState"
+        }
+      },
+      "required": [
+        "criterion_key",
+        "score",
+        "normalized_weight",
+        "contribution",
+        "state"
+      ],
+      "title": "Contribution",
+      "type": "object"
+    },
+    "DecideResult": {
+      "additionalProperties": false,
+      "properties": {
+        "ranked": {
+          "items": {
+            "$ref": "#/$defs/RankedProduct"
+          },
+          "maxItems": 50,
+          "title": "Ranked",
+          "type": "array"
+        },
+        "filtered": {
+          "items": {
+            "$ref": "#/$defs/FilteredProduct"
+          },
+          "title": "Filtered",
+          "type": "array"
+        },
+        "relaxation_hint": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When nothing passes: the one rule whose relaxation helps most",
+          "title": "Relaxation Hint"
+        },
+        "method": {
+          "enum": [
+            "monte_carlo",
+            "weighted"
+          ],
+          "title": "Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ranked",
+        "filtered",
+        "relaxation_hint",
+        "method"
+      ],
+      "title": "DecideResult",
+      "type": "object"
+    },
+    "Exclusion": {
+      "additionalProperties": false,
+      "description": "Something the user never wants to see (FR-10).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "brand",
+            "model",
+            "feature",
+            "seller"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        },
+        "always": {
+          "default": false,
+          "description": "True = save to memory for future searches",
+          "title": "Always",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "value",
+        "always"
+      ],
+      "title": "Exclusion",
+      "type": "object"
+    },
+    "Explanation": {
+      "additionalProperties": false,
+      "properties": {
+        "product_id": {
+          "pattern": "^prd_[A-Za-z0-9_-]{3,64}$",
+          "title": "Product Id",
+          "type": "string"
+        },
+        "sentences": {
+          "items": {
+            "$ref": "#/$defs/ExplanationSentence"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Sentences",
+          "type": "array"
+        },
+        "trade_off": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trade Off"
+        },
+        "unverified": {
+          "description": "Criteria we could not verify, named",
+          "items": {
+            "maxLength": 64,
+            "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+            "type": "string"
+          },
+          "title": "Unverified",
+          "type": "array"
+        },
+        "method": {
+          "enum": [
+            "llm_checked",
+            "llm_unchecked",
+            "template"
+          ],
+          "title": "Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "product_id",
+        "sentences",
+        "trade_off",
+        "unverified",
+        "method"
+      ],
+      "title": "Explanation",
+      "type": "object"
+    },
+    "ExplanationSentence": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "maxLength": 400,
+          "minLength": 3,
+          "title": "Text",
+          "type": "string"
+        },
+        "claim_ids": {
+          "items": {
+            "pattern": "^clm_[a-f0-9]{8,64}$",
+            "type": "string"
+          },
+          "title": "Claim Ids",
+          "type": "array"
+        },
+        "supported": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "NLI verdict; None when not checked",
+          "title": "Supported"
+        }
+      },
+      "required": [
+        "text",
+        "claim_ids",
+        "supported"
+      ],
+      "title": "ExplanationSentence",
+      "type": "object"
+    },
+    "FilteredProduct": {
+      "additionalProperties": false,
+      "properties": {
+        "product_id": {
+          "pattern": "^prd_[A-Za-z0-9_-]{3,64}$",
+          "title": "Product Id",
+          "type": "string"
+        },
+        "group": {
+          "enum": [
+            "filtered_out",
+            "cant_tell"
+          ],
+          "title": "Group",
+          "type": "string"
+        },
+        "reasons": {
+          "description": "e.g. '₹94,990 is above your ₹80,000 budget'",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Reasons",
+          "type": "array"
+        },
+        "rule_attribute": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rule Attribute"
+        }
+      },
+      "required": [
+        "product_id",
+        "group",
+        "reasons",
+        "rule_attribute"
+      ],
+      "title": "FilteredProduct",
+      "type": "object"
+    },
+    "HardRule": {
+      "additionalProperties": false,
+      "description": "A must-have. Hard rules only filter products; they never change the order (DR-08).",
+      "properties": {
+        "attribute": {
+          "description": "Criterion or spec key, e.g. 'weight_kg' or 'has_ois'",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Attribute",
+          "type": "string"
+        },
+        "operator": {
+          "enum": [
+            "<=",
+            ">=",
+            "==",
+            "!=",
+            "in",
+            "not_in",
+            "contains"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "source_text": {
+          "description": "What the user actually said",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Source Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "attribute",
+        "operator",
+        "value",
+        "unit",
+        "source_text"
+      ],
+      "title": "HardRule",
+      "type": "object"
+    },
+    "Money": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "minimum": 0,
+          "title": "Amount",
+          "type": "number"
+        },
+        "currency": {
+          "default": "INR",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "title": "Money",
+      "type": "object"
+    },
+    "Offer": {
+      "additionalProperties": false,
+      "properties": {
+        "product_id": {
+          "pattern": "^prd_[A-Za-z0-9_-]{3,64}$",
+          "title": "Product Id",
+          "type": "string"
+        },
+        "variant_id": {
+          "anyOf": [
+            {
+              "pattern": "^var_[A-Za-z0-9_-]{3,64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variant Id"
+        },
+        "store": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Store",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        },
+        "listing_title": {
+          "maxLength": 300,
+          "title": "Listing Title",
+          "type": "string"
+        },
+        "price": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "availability": {
+          "default": "unknown",
+          "enum": [
+            "in_stock",
+            "out_of_stock",
+            "unknown"
+          ],
+          "title": "Availability",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "title_matched": {
+          "description": "Listing title contains the model name",
+          "title": "Title Matched",
+          "type": "boolean"
+        },
+        "variant_matched": {
+          "default": false,
+          "title": "Variant Matched",
+          "type": "boolean"
+        },
+        "over_budget": {
+          "default": false,
+          "title": "Over Budget",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "product_id",
+        "variant_id",
+        "store",
+        "url",
+        "listing_title",
+        "price",
+        "availability",
+        "as_of",
+        "title_matched",
+        "variant_matched",
+        "over_budget"
+      ],
+      "title": "Offer",
+      "type": "object"
+    },
+    "Product": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^prd_[A-Za-z0-9_-]{3,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "description": "Canonical display name",
+          "maxLength": 150,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "brand": {
+          "anyOf": [
+            {
+              "maxLength": 60,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Brand"
+        },
+        "kind": {
+          "default": "product",
+          "description": "product_type for commodities like 'ring-shank nails'",
+          "enum": [
+            "product",
+            "product_type"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "aliases": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Aliases",
+          "type": "array"
+        },
+        "variants": {
+          "items": {
+            "$ref": "#/$defs/Variant"
+          },
+          "maxItems": 20,
+          "title": "Variants",
+          "type": "array"
+        },
+        "recommender_count": {
+          "default": 0,
+          "description": "Distinct authors who recommended it",
+          "minimum": 0,
+          "title": "Recommender Count",
+          "type": "integer"
+        },
+        "weighted_mentions": {
+          "default": 0.0,
+          "description": "Mentions after the 180-day half-life",
+          "minimum": 0,
+          "title": "Weighted Mentions",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "brand",
+        "kind",
+        "aliases",
+        "variants",
+        "recommender_count",
+        "weighted_mentions"
+      ],
+      "title": "Product",
+      "type": "object"
+    },
+    "ProductSummary": {
+      "additionalProperties": false,
+      "description": "What a results card needs besides the ranking itself.",
+      "properties": {
+        "product": {
+          "$ref": "#/$defs/Product"
+        },
+        "values": {
+          "items": {
+            "$ref": "#/$defs/ResolvedValue"
+          },
+          "title": "Values",
+          "type": "array"
+        },
+        "community": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommunitySignal"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "product",
+        "values",
+        "community"
+      ],
+      "title": "ProductSummary",
+      "type": "object"
+    },
+    "ProgressEvent": {
+      "additionalProperties": false,
+      "description": "One Server-Sent Event for the live progress bar (P-07).",
+      "properties": {
+        "event_id": {
+          "description": "Counts up from 1 within a run, so a client can resume",
+          "minimum": 1,
+          "title": "Event Id",
+          "type": "integer"
+        },
+        "search_id": {
+          "pattern": "^srch_[a-f0-9]{24}$",
+          "title": "Search Id",
+          "type": "string"
+        },
+        "stage": {
+          "$ref": "#/$defs/StageName"
+        },
+        "status": {
+          "enum": [
+            "started",
+            "done",
+            "fallback",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "at": {
+          "format": "date-time",
+          "title": "At",
+          "type": "string"
+        },
+        "message": {
+          "description": "Plain words for the user, e.g. 'Reading 12 Reddit threads'",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "sources_found": {
+          "additionalProperties": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "description": "Sources found so far, per source type",
+          "propertyNames": {
+            "$ref": "#/$defs/SourceType"
+          },
+          "title": "Sources Found",
+          "type": "object"
+        }
+      },
+      "required": [
+        "event_id",
+        "search_id",
+        "stage",
+        "status",
+        "at",
+        "message",
+        "sources_found"
+      ],
+      "title": "ProgressEvent",
+      "type": "object"
+    },
+    "RankedProduct": {
+      "additionalProperties": false,
+      "properties": {
+        "product_id": {
+          "pattern": "^prd_[A-Za-z0-9_-]{3,64}$",
+          "title": "Product Id",
+          "type": "string"
+        },
+        "rank": {
+          "minimum": 1,
+          "title": "Rank",
+          "type": "integer"
+        },
+        "score": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Score",
+          "type": "number"
+        },
+        "contributions": {
+          "items": {
+            "$ref": "#/$defs/Contribution"
+          },
+          "minItems": 1,
+          "title": "Contributions",
+          "type": "array"
+        },
+        "coverage": {
+          "description": "Share of the score backed by real evidence, not estimates",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Coverage",
+          "type": "number"
+        },
+        "chance_first": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "From simulations; None with the plain score",
+          "title": "Chance First"
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Confidence",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "enum": [
+                "best_match",
+                "runner_up"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "gap_to_leader": {
+          "minimum": 0,
+          "title": "Gap To Leader",
+          "type": "number"
+        },
+        "tied_with": {
+          "description": "'Too close to call'",
+          "items": {
+            "pattern": "^prd_[A-Za-z0-9_-]{3,64}$",
+            "type": "string"
+          },
+          "title": "Tied With",
+          "type": "array"
+        },
+        "separating_criterion": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Separating Criterion"
+        }
+      },
+      "required": [
+        "product_id",
+        "rank",
+        "score",
+        "contributions",
+        "coverage",
+        "chance_first",
+        "confidence",
+        "label",
+        "gap_to_leader",
+        "tied_with",
+        "separating_criterion"
+      ],
+      "title": "RankedProduct",
+      "type": "object"
+    },
+    "ResolvedValue": {
+      "additionalProperties": false,
+      "properties": {
+        "product_id": {
+          "pattern": "^prd_[A-Za-z0-9_-]{3,64}$",
+          "title": "Product Id",
+          "type": "string"
+        },
+        "criterion_key": {
+          "description": "A criterion key, or a hard-rule attribute such as 'ram_gb'",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Criterion Key",
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/$defs/ValueState"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 10.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "supporting_claim_ids": {
+          "items": {
+            "pattern": "^clm_[a-f0-9]{8,64}$",
+            "type": "string"
+          },
+          "title": "Supporting Claim Ids",
+          "type": "array"
+        },
+        "conflicting_claim_ids": {
+          "items": {
+            "pattern": "^clm_[a-f0-9]{8,64}$",
+            "type": "string"
+          },
+          "title": "Conflicting Claim Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "product_id",
+        "criterion_key",
+        "state",
+        "score",
+        "value",
+        "confidence",
+        "supporting_claim_ids",
+        "conflicting_claim_ids"
+      ],
+      "title": "ResolvedValue",
+      "type": "object"
+    },
+    "Rubric": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Category",
+          "type": "string"
+        },
+        "use_case": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Use Case"
+        },
+        "region": {
+          "default": "IN",
+          "pattern": "^(?:[A-Z]{2}|GLOBAL)$",
+          "title": "Region",
+          "type": "string"
+        },
+        "budget": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Budget"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "hard_rules": {
+          "items": {
+            "$ref": "#/$defs/HardRule"
+          },
+          "maxItems": 20,
+          "title": "Hard Rules",
+          "type": "array"
+        },
+        "exclusions": {
+          "items": {
+            "$ref": "#/$defs/Exclusion"
+          },
+          "maxItems": 30,
+          "title": "Exclusions",
+          "type": "array"
+        },
+        "weights": {
+          "items": {
+            "$ref": "#/$defs/WeightedCriterion"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Weights",
+          "type": "array"
+        }
+      },
+      "required": [
+        "category",
+        "use_case",
+        "region",
+        "budget",
+        "hard_rules",
+        "exclusions",
+        "weights"
+      ],
+      "title": "Rubric",
+      "type": "object"
+    },
+    "SearchRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "session_id": {
+          "pattern": "^sess_[A-Za-z0-9]{6,40}$",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "user_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The signed-in owner's ID once login exists (US-30). None for guests: a guest's request and search are stored only under the anonymous session ID and are never linked to an account.",
+          "title": "User Id"
+        },
+        "raw_query": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Raw Query",
+          "type": "string"
+        },
+        "rubric": {
+          "$ref": "#/$defs/Rubric"
+        }
+      },
+      "required": [
+        "session_id",
+        "user_id",
+        "raw_query",
+        "rubric"
+      ],
+      "title": "SearchRequest",
+      "type": "object"
+    },
+    "SearchResult": {
+      "additionalProperties": false,
+      "description": "Everything the results page needs, including what went wrong. Saved at the end (build rule 10).",
+      "properties": {
+        "schema_version": {
+          "default": "1.6.0",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "search_id": {
+          "pattern": "^srch_[A-Za-z0-9]{6,40}$",
+          "title": "Search Id",
+          "type": "string"
+        },
+        "request": {
+          "$ref": "#/$defs/SearchRequest"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "finished_at": {
+          "format": "date-time",
+          "title": "Finished At",
+          "type": "string"
+        },
+        "partial": {
+          "default": false,
+          "description": "True if the 150-second limit was hit",
+          "title": "Partial",
+          "type": "boolean"
+        },
+        "products": {
+          "items": {
+            "$ref": "#/$defs/ProductSummary"
+          },
+          "title": "Products",
+          "type": "array"
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DecideResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "explanations": {
+          "items": {
+            "$ref": "#/$defs/Explanation"
+          },
+          "title": "Explanations",
+          "type": "array"
+        },
+        "commerce": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CommerceResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/Source"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "stage_reports": {
+          "items": {
+            "$ref": "#/$defs/StageReport"
+          },
+          "title": "Stage Reports",
+          "type": "array"
+        },
+        "coverage_note": {
+          "anyOf": [
+            {
+              "maxLength": 400,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "e.g. 'Reddit was unavailable'",
+          "title": "Coverage Note"
+        },
+        "saved": {
+          "default": false,
+          "description": "True only when this result's row was committed to the database. False when the database is off, down, slow or failing (the UI then says the result isn't saved).",
+          "title": "Saved",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema_version",
+        "search_id",
+        "request",
+        "started_at",
+        "finished_at",
+        "partial",
+        "products",
+        "decision",
+        "explanations",
+        "commerce",
+        "sources",
+        "stage_reports",
+        "coverage_note",
+        "saved"
+      ],
+      "title": "SearchResult",
+      "type": "object"
+    },
+    "SearchRunStatus": {
+      "enum": [
+        "queued",
+        "running",
+        "done",
+        "partial",
+        "failed",
+        "cancelled"
+      ],
+      "title": "SearchRunStatus",
+      "type": "string"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^src_[a-f0-9]{8,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/SourceType"
+        },
+        "tier": {
+          "$ref": "#/$defs/SourceTier"
+        },
+        "title": {
+          "maxLength": 300,
+          "title": "Title",
+          "type": "string"
+        },
+        "text": {
+          "description": "Cleaned, HTML stripped, capped",
+          "maxLength": 12000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "text_hash": {
+          "description": "sha256 of text, used for caching",
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Text Hash",
+          "type": "string"
+        },
+        "fetched_at": {
+          "format": "date-time",
+          "title": "Fetched At",
+          "type": "string"
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Published At"
+        },
+        "community": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "e.g. 'r/SuggestALaptop'",
+          "title": "Community"
+        },
+        "site": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The site's domain, for a web page",
+          "title": "Site"
+        },
+        "data_class": {
+          "default": "public",
+          "description": "What this text may be sent to (US-46). Follows the type: Reddit is reddit, the rest public",
+          "enum": [
+            "public",
+            "reddit"
+          ],
+          "title": "Data Class",
+          "type": "string"
+        },
+        "quality": {
+          "default": 0.5,
+          "description": "US-13 thread or page quality score",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Quality",
+          "type": "number"
+        },
+        "via": {
+          "enum": [
+            "api",
+            "direct",
+            "jina",
+            "search_snippet"
+          ],
+          "title": "Via",
+          "type": "string"
+        },
+        "source_detail": {
+          "anyOf": [
+            {
+              "enum": [
+                "arctic_shift",
+                "pullpush",
+                "official"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reddit only: which archive or API the text came from (US-12)",
+          "title": "Source Detail"
+        },
+        "author_hash": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Salted sha256 of the author's username, so US-13 can count distinct people. Never the name",
+          "title": "Author Hash"
+        },
+        "upvotes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reddit only. Can be negative",
+          "title": "Upvotes"
+        },
+        "comment_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reddit only: the thread's total",
+          "title": "Comment Count"
+        },
+        "comments": {
+          "default": [],
+          "description": "Reddit only: the comments we read",
+          "items": {
+            "$ref": "#/$defs/SourceComment"
+          },
+          "maxItems": 200,
+          "title": "Comments",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "url",
+        "type",
+        "tier",
+        "title",
+        "text",
+        "text_hash",
+        "fetched_at",
+        "published_at",
+        "community",
+        "site",
+        "data_class",
+        "quality",
+        "via",
+        "source_detail",
+        "author_hash",
+        "upvotes",
+        "comment_count",
+        "comments"
+      ],
+      "title": "Source",
+      "type": "object"
+    },
+    "SourceComment": {
+      "additionalProperties": false,
+      "description": "One Reddit comment in a thread (US-13).",
+      "properties": {
+        "id": {
+          "maxLength": 32,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "maxLength": 32,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The comment or thread it replies to",
+          "title": "Parent Id"
+        },
+        "depth": {
+          "description": "1 is a direct reply to the thread",
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Depth",
+          "type": "integer"
+        },
+        "upvotes": {
+          "description": "Can be negative",
+          "title": "Upvotes",
+          "type": "integer"
+        },
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "quality": {
+          "default": 0.5,
+          "description": "US-13 comment quality score",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Quality",
+          "type": "number"
+        },
+        "author_hash": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A salted hash of the author's username, so one person counts once. Never the username itself (D-53). The code that builds a comment makes the hash; this model can't tell a hash from a name. None when the author is deleted or unknown.",
+          "title": "Author Hash"
+        }
+      },
+      "required": [
+        "id",
+        "parent_id",
+        "depth",
+        "upvotes",
+        "text",
+        "quality",
+        "author_hash"
+      ],
+      "title": "SourceComment",
+      "type": "object"
+    },
+    "SourceTier": {
+      "description": "DR-03: lower number = more authoritative for factual specs.",
+      "enum": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "title": "SourceTier",
+      "type": "integer"
+    },
+    "SourceType": {
+      "enum": [
+        "reddit",
+        "youtube",
+        "web_search",
+        "review_site",
+        "manufacturer",
+        "lab",
+        "retailer"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    },
+    "StageName": {
+      "enum": [
+        "intake",
+        "criteria",
+        "interview",
+        "research",
+        "extract",
+        "match",
+        "verify",
+        "enrich",
+        "decide",
+        "explain",
+        "commerce"
+      ],
+      "title": "StageName",
+      "type": "string"
+    },
+    "StageReport": {
+      "additionalProperties": false,
+      "description": "What happened in one stage. Drives the coverage note and the diagnostics page.",
+      "properties": {
+        "stage": {
+          "$ref": "#/$defs/StageName"
+        },
+        "status": {
+          "$ref": "#/$defs/StageStatus"
+        },
+        "duration_ms": {
+          "minimum": 0,
+          "title": "Duration Ms",
+          "type": "integer"
+        },
+        "fallback_reason": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fallback Reason"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "stage",
+        "status",
+        "duration_ms",
+        "fallback_reason",
+        "notes"
+      ],
+      "title": "StageReport",
+      "type": "object"
+    },
+    "StageStatus": {
+      "enum": [
+        "ok",
+        "fallback",
+        "skipped",
+        "timeout",
+        "failed"
+      ],
+      "title": "StageStatus",
+      "type": "string"
+    },
+    "ValueState": {
+      "enum": [
+        "known",
+        "disputed",
+        "unknown",
+        "estimated"
+      ],
+      "title": "ValueState",
+      "type": "string"
+    },
+    "Variant": {
+      "additionalProperties": false,
+      "description": "DR-02: versions that differ in price or specs are separate variants of one product.",
+      "properties": {
+        "id": {
+          "pattern": "^var_[A-Za-z0-9_-]{3,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "description": "e.g. '16 GB RAM / 512 GB SSD / India'",
+          "maxLength": 120,
+          "title": "Label",
+          "type": "string"
+        },
+        "attributes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "e.g. {'ram': '16GB', 'region': 'IN'}",
+          "title": "Attributes",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "attributes"
+      ],
+      "title": "Variant",
+      "type": "object"
+    },
+    "WeightedCriterion": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Key",
+          "type": "string"
+        },
+        "weight": {
+          "description": "0 to 10, as the user sees it",
+          "maximum": 10.0,
+          "minimum": 0.0,
+          "title": "Weight",
+          "type": "number"
+        },
+        "normalized": {
+          "description": "Share of the total; all normalized values add up to 1",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Normalized",
+          "type": "number"
+        },
+        "origin": {
+          "enum": [
+            "answered",
+            "remembered",
+            "default",
+            "skipped",
+            "manual"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "uncertainty": {
+          "default": 0.5,
+          "description": "How unsure we are of this weight; used by the interview and simulations",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Uncertainty",
+          "type": "number"
+        }
+      },
+      "required": [
+        "key",
+        "weight",
+        "normalized",
+        "origin",
+        "uncertainty"
+      ],
+      "title": "WeightedCriterion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A run's state at any moment (P-07): how far it has got and, once finished, its SearchResult.",
+  "properties": {
+    "search_id": {
+      "pattern": "^srch_[a-f0-9]{24}$",
+      "title": "Search Id",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/SearchRunStatus"
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "None until the run leaves the queue",
+      "title": "Started At"
+    },
+    "finished_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Set once the run has ended",
+      "title": "Finished At"
+    },
+    "progress": {
+      "items": {
+        "$ref": "#/$defs/ProgressEvent"
+      },
+      "maxItems": 200,
+      "title": "Progress",
+      "type": "array"
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SearchResult"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Set when the status is done or partial"
+    }
+  },
+  "required": [
+    "search_id",
+    "status",
+    "started_at",
+    "finished_at",
+    "progress",
+    "result"
+  ],
+  "title": "SearchRun",
+  "type": "object"
+}

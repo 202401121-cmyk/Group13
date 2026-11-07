@@ -1,0 +1,33 @@
+[
+  {
+    "event_id": 1,
+    "search_id": "srch_5f2c9a1e7b3d4860a1c2e3f4",
+    "stage": "research",
+    "status": "started",
+    "at": "2026-10-03T10:00:00Z",
+    "message": "Looking for sources.",
+    "sources_found": {}
+  },
+  {
+    "event_id": 2,
+    "search_id": "srch_5f2c9a1e7b3d4860a1c2e3f4",
+    "stage": "research",
+    "status": "done",
+    "at": "2026-10-03T10:00:38Z",
+    "message": "Found 3 sources.",
+    "sources_found": {
+      "reddit": 1,
+      "review_site": 1,
+      "manufacturer": 1
+    }
+  },
+  {
+    "event_id": 3,
+    "search_id": "srch_5f2c9a1e7b3d4860a1c2e3f4",
+    "stage": "extract",
+    "status": "started",
+    "at": "2026-10-03T10:00:38Z",
+    "message": "Reading what each source says.",
+    "sources_found": {}
+  }
+]

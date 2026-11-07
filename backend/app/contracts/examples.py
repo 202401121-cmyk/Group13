@@ -23,8 +23,18 @@ from .decide import Contribution, DecideResult, FilteredProduct, RankedProduct
 from .entities import MatchResult, Product, Variant
 from .explain import Explanation, ExplanationSentence
 from .intake import Budget, Exclusion, HardRule, Intent
-from .pipeline import ProductSummary, SearchRequest, SearchResult
-from .research import ResearchResult, Source, SourceFailure
+from .interview import ROUGH_LEVEL_WEIGHTS, RoughLevel, RoughLevelWeights
+from .pipeline import (
+    ProductSummary,
+    ProgressEvent,
+    SearchRequest,
+    SearchResult,
+    SearchRun,
+    SearchRunStarted,
+    SearchRunStatus,
+)
+from .presearch import ReplyRequest
+from .research import RecommenderCount, ResearchResult, Source, SourceComment, SourceFailure
 from .rubric import Rubric, WeightedCriterion, normalize
 from .verify import CommunitySignal, ResolvedValue, ValueState, VerifyResult
 
@@ -32,6 +42,7 @@ T0 = datetime(2026, 10, 3, 10, 0, 0, tzinfo=UTC)
 QUERY = "best laptop for coding under 70k, at least 16 GB RAM, not too heavy, no Zenith"
 SESSION_ID = "sess_demo0001"
 SEARCH_ID = "srch_demo0001"
+RUN_ID = "srch_5f2c9a1e7b3d4860a1c2e3f4"
 
 
 def _h(text: str) -> str:
@@ -205,6 +216,7 @@ def sources() -> list[Source]:
         tier: SourceTier,
         title: str,
         community: str | None = None,
+        site: str | None = None,
         via: str = "api",
     ) -> Source:
         text = _SOURCE_TEXT[key]
@@ -218,6 +230,7 @@ def sources() -> list[Source]:
             text_hash=_h(text),
             fetched_at=T0,
             community=community,
+            site=site,
             quality=0.8,
             via=via,
         )
@@ -237,6 +250,7 @@ def sources() -> list[Source]:
             SourceType.REVIEW_SITE,
             SourceTier.EDITORIAL,
             "Kestrel Slim 15 review",
+            site="example-reviews.in",
             via="direct",
         ),
         src(
@@ -245,8 +259,38 @@ def sources() -> list[Source]:
             SourceType.MANUFACTURER,
             SourceTier.MANUFACTURER,
             "Kestrel Slim 15 specifications",
+            site="kestrel.example.com",
             via="direct",
         ),
+    ]
+
+
+def reddit_thread() -> Source:
+    """A Reddit source with its votes and comment tree, as US-12 and US-13 fill them in."""
+
+    def comment(id_: str, parent: str, depth: int, upvotes: int, text: str, reader: str) -> SourceComment:
+        return SourceComment(id=id_, parent_id=parent, depth=depth, upvotes=upvotes, text=text, author_hash=_h(reader))
+
+    thread = sources()[0].model_dump()
+    return Source.model_validate(
+        {
+            **thread,
+            "source_detail": "arctic_shift",
+            "upvotes": 128,
+            "comment_count": 46,
+            "comments": [
+                comment("c1", "abc123", 1, 41, "Nova Book 14 has been great for Android Studio.", "reader-1"),
+                comment("c2", "c1", 2, 12, "Same here, the keyboard is the best part.", "reader-2"),
+                comment("c3", "c2", 3, 3, "Mine runs warm under load, but that is all.", "reader-1"),
+            ],
+        }
+    )
+
+
+def recommender_counts() -> list[RecommenderCount]:
+    return [
+        RecommenderCount(product_mention="Nova Book 14", distinct_recommenders=9, threads=1),
+        RecommenderCount(product_mention="Kestrel Slim 15", distinct_recommenders=6, threads=1),
     ]
 
 
@@ -255,6 +299,7 @@ def research() -> ResearchResult:
         queries=["best laptop for coding under 70000 India", "coding laptop 16GB RAM lightweight reddit"],
         sources=sources(),
         failures=[SourceFailure(source_type=SourceType.YOUTUBE, reason="timeout", detail="no reply in 40 s")],
+        recommender_counts=recommender_counts(),
     )
 
 
@@ -313,7 +358,8 @@ def _claim(
     return Claim(
         id=f"clm_{_h(source.id + product_id + key + quote)[:16]}",
         source_id=source.id,
-        product_raw_name=name,
+        source_url=source.url,
+        product_mention=name,
         criterion_key=key,
         score=score,
         value=value,
@@ -321,6 +367,7 @@ def _claim(
         claim_type=claim_type,
         polarity="neutral" if score is None else ("positive" if score >= 6 else "negative"),
         retrieved_at=T0,
+        extracted_at=T0,
     )
 
 
@@ -339,7 +386,7 @@ def claims() -> list[Claim]:
             maker,
             "prd_kestrel_slim_15",
             "battery_life",
-            9.0,
+            None,
             "battery rated up to 10 hours",
             ClaimType.SPEC,
             value=10.0,
@@ -350,7 +397,7 @@ def claims() -> list[Claim]:
             reddit,
             "prd_kestrel_slim_15",
             "battery_life",
-            5.5,
+            None,
             "I get about 6 hours, not 10",
             ClaimType.EXPERIENCE,
             value=6.0,
@@ -363,6 +410,44 @@ def claims() -> list[Claim]:
             _claim(src, pid, "ram_gb", None, f"{PRODUCTS[pid][0]} ships with {int(ram)} GB RAM.", ClaimType.SPEC, ram)
         )
     return out
+
+
+def product_guide() -> Source:
+    """A page about a kind of product, not one product you can buy."""
+    url = "https://example-reviews.in/laptop-sleeve-guide"
+    text = "Memory foam sleeves protect a laptop from knocks better than plain fabric ones."
+    return Source(
+        id=f"src_{_h(url)[:16]}",
+        url=url,
+        type=SourceType.REVIEW_SITE,
+        tier=SourceTier.EDITORIAL,
+        title="Laptop sleeves guide",
+        text=text,
+        text_hash=_h(text),
+        fetched_at=T0,
+        site="example-reviews.in",
+        via="direct",
+    )
+
+
+def product_type_claim() -> Claim:
+    """A claim about a kind of product, not one you can buy (US-14). It is kept apart from product claims."""
+    guide = product_guide()
+    quote = "Memory foam sleeves protect a laptop from knocks"
+    return Claim(
+        id=f"clm_{_h(guide.id + quote)[:16]}",
+        source_id=guide.id,
+        source_url=guide.url,
+        product_mention="memory foam sleeves",
+        is_product_type=True,
+        criterion_key="build_durability",
+        score=8.0,
+        quote=quote,
+        claim_type=ClaimType.EXPERIENCE,
+        polarity="positive",
+        retrieved_at=T0,
+        extracted_at=T0,
+    )
 
 
 def mentions() -> list[ProductMention]:
@@ -406,7 +491,7 @@ def verify() -> VerifyResult:
     by_pair: dict[tuple[str, str], list[Claim]] = {}
     ids = {name: pid for pid, (name, _) in PRODUCTS.items()}
     for c in cl:
-        by_pair.setdefault((ids[c.product_raw_name], c.criterion_key or ""), []).append(c)
+        by_pair.setdefault((ids[c.product_mention], c.criterion_key or ""), []).append(c)
 
     values: list[ResolvedValue] = []
     for pid in RANKED:
@@ -557,7 +642,7 @@ def explanations() -> list[Explanation]:
     cl = claims()
 
     def cite(product: str, key: str) -> list[str]:
-        return [c.id for c in cl if c.product_raw_name == product and c.criterion_key == key]
+        return [c.id for c in cl if c.product_mention == product and c.criterion_key == key]
 
     return [
         Explanation(
@@ -672,6 +757,71 @@ def search_result() -> SearchResult:
     )
 
 
+# --- Sprint 2: rough answers (US-08) and search runs (P-07) ------------------------------------
+
+
+def reply_rough() -> ReplyRequest:
+    return ReplyRequest(reply_text="Good enough", question_id="q_battery_life", level=RoughLevel.GOOD_ENOUGH)
+
+
+def reply_exact() -> ReplyRequest:
+    return ReplyRequest(reply_text="7.5", question_id="q_battery_life", exact_weight=7.5)
+
+
+def rough_levels() -> RoughLevelWeights:
+    return RoughLevelWeights(weights=ROUGH_LEVEL_WEIGHTS)
+
+
+def progress_events() -> list[ProgressEvent]:
+    return [
+        ProgressEvent(
+            event_id=1,
+            search_id=RUN_ID,
+            stage=StageName.RESEARCH,
+            status="started",
+            at=T0,
+            message="Looking for sources.",
+        ),
+        ProgressEvent(
+            event_id=2,
+            search_id=RUN_ID,
+            stage=StageName.RESEARCH,
+            status="done",
+            at=T0 + timedelta(seconds=38),
+            message="Found 3 sources.",
+            sources_found={SourceType.REDDIT: 1, SourceType.REVIEW_SITE: 1, SourceType.MANUFACTURER: 1},
+        ),
+        ProgressEvent(
+            event_id=3,
+            search_id=RUN_ID,
+            stage=StageName.EXTRACT,
+            status="started",
+            at=T0 + timedelta(seconds=38),
+            message="Reading what each source says.",
+        ),
+    ]
+
+
+def search_run_started() -> SearchRunStarted:
+    return SearchRunStarted(search_id=RUN_ID)
+
+
+def search_run_running() -> SearchRun:
+    return SearchRun(search_id=RUN_ID, status=SearchRunStatus.RUNNING, started_at=T0, progress=progress_events())
+
+
+def search_run_done() -> SearchRun:
+    result = SearchResult.model_validate({**search_result().model_dump(), "search_id": RUN_ID})
+    return SearchRun(
+        search_id=RUN_ID,
+        status=SearchRunStatus.DONE,
+        started_at=T0,
+        finished_at=result.finished_at,
+        progress=progress_events(),
+        result=result,
+    )
+
+
 ALL_EXAMPLES = {
     "intent": intent,
     "intent_unclear": unclear_intent,
@@ -685,4 +835,14 @@ ALL_EXAMPLES = {
     "explanations": explanations,
     "commerce": commerce,
     "search_result": search_result,
+    "reddit_thread": reddit_thread,
+    "recommender_counts": recommender_counts,
+    "product_type_claim": product_type_claim,
+    "reply_rough": reply_rough,
+    "reply_exact": reply_exact,
+    "rough_levels": rough_levels,
+    "progress_events": progress_events,
+    "search_run_started": search_run_started,
+    "search_run_running": search_run_running,
+    "search_run_done": search_run_done,
 }

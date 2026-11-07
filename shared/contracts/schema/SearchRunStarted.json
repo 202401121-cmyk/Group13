@@ -1,0 +1,16 @@
+{
+  "additionalProperties": false,
+  "description": "What starting a run answers, at once, before the work is done (P-07). The body sent is a SearchRequest.",
+  "properties": {
+    "search_id": {
+      "pattern": "^srch_[a-f0-9]{24}$",
+      "title": "Search Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "search_id"
+  ],
+  "title": "SearchRunStarted",
+  "type": "object"
+}

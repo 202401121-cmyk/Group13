@@ -1,0 +1,32 @@
+{
+  "additionalProperties": false,
+  "description": "How many different people recommend one product (US-13). Counted by code, never by an LLM.",
+  "properties": {
+    "product_mention": {
+      "description": "The product's name as written",
+      "maxLength": 150,
+      "minLength": 1,
+      "title": "Product Mention",
+      "type": "string"
+    },
+    "distinct_recommenders": {
+      "description": "One person posting ten times counts once",
+      "minimum": 0,
+      "title": "Distinct Recommenders",
+      "type": "integer"
+    },
+    "threads": {
+      "description": "How many threads those people posted in",
+      "minimum": 0,
+      "title": "Threads",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "product_mention",
+    "distinct_recommenders",
+    "threads"
+  ],
+  "title": "RecommenderCount",
+  "type": "object"
+}

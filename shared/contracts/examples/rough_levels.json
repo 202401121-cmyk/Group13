@@ -1,0 +1,8 @@
+{
+  "weights": {
+    "low": 2.0,
+    "medium": 5.0,
+    "high": 8.0,
+    "good_enough": 3.0
+  }
+}

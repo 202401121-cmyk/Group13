@@ -212,7 +212,7 @@ def test_reddit_sources_are_community_evidence_with_a_subreddit() -> None:
 
 def test_claim_needs_a_value_or_a_score_and_a_quote() -> None:
     c = ex.claims()[0]
-    with pytest.raises(ValidationError, match="value, a score"):
+    with pytest.raises(ValidationError, match="exactly one"):
         rebuild(c, value=None, score=None)
     with pytest.raises(ValidationError):
         rebuild(c, quote="")

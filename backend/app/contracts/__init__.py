@@ -29,6 +29,7 @@ from .intake import Budget, Exclusion, HardRule, IntakeInput, Intent
 from .interview import (
     MAX_QUESTIONS,
     MAX_UNCLEAR_PER_QUESTION,
+    ROUGH_LEVEL_WEIGHTS,
     AskedQuestion,
     InterviewQuestion,
     InterviewState,
@@ -37,6 +38,8 @@ from .interview import (
     RememberedPreference,
     ReplyClassification,
     ReplyType,
+    RoughLevel,
+    RoughLevelWeights,
 )
 from .llm import (
     PERSONAL_TASKS,
@@ -49,18 +52,44 @@ from .llm import (
     ModelLimits,
     Provider,
 )
-from .pipeline import ProductSummary, ProgressEvent, SearchRequest, SearchResult, Stage, StageContext
+from .pipeline import (
+    ProductSummary,
+    ProgressEvent,
+    SearchRequest,
+    SearchResult,
+    SearchRun,
+    SearchRunStarted,
+    SearchRunStatus,
+    Stage,
+    StageContext,
+)
 from .presearch import MAX_UNCLEAR_ATTEMPTS, IntakeResponse, PresearchSession, ReplyRequest
-from .research import RedditOrigin, ResearchInput, ResearchResult, Source, SourceFailure
+from .research import (
+    MAX_COMMENT_CHARS,
+    MAX_COMMENT_DEPTH,
+    MAX_SOURCE_COMMENTS,
+    RecommenderCount,
+    RedditOrigin,
+    ResearchInput,
+    ResearchResult,
+    Source,
+    SourceComment,
+    SourceDataClass,
+    SourceFailure,
+)
 from .rubric import Rubric, WeightedCriterion, normalize
 from .verify import CommunitySignal, ResolvedValue, ValueState, VerifyInput, VerifyResult
 
 __all__ = [
+    "MAX_COMMENT_CHARS",
+    "MAX_COMMENT_DEPTH",
     "MAX_QUESTIONS",
+    "MAX_SOURCE_COMMENTS",
     "MAX_UNCLEAR_ATTEMPTS",
     "MAX_UNCLEAR_PER_QUESTION",
     "PERSONAL_TASKS",
     "PRICE_STALE_AFTER",
+    "ROUGH_LEVEL_WEIGHTS",
     "SCHEMA_VERSION",
     "SEARCH_TIME_LIMIT_S",
     "STAGE_TIME_LIMITS_S",
@@ -116,6 +145,7 @@ __all__ = [
     "ProgressEvent",
     "Provider",
     "RankedProduct",
+    "RecommenderCount",
     "RedditOrigin",
     "RememberedPreference",
     "ReplyClassification",
@@ -124,10 +154,17 @@ __all__ = [
     "ResearchInput",
     "ResearchResult",
     "ResolvedValue",
+    "RoughLevel",
+    "RoughLevelWeights",
     "Rubric",
     "SearchRequest",
     "SearchResult",
+    "SearchRun",
+    "SearchRunStarted",
+    "SearchRunStatus",
     "Source",
+    "SourceComment",
+    "SourceDataClass",
     "SourceFailure",
     "SourceTier",
     "SourceType",

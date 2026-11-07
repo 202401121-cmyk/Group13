@@ -27,10 +27,10 @@
           "default": null,
           "title": "Brand"
         },
-        "author": {
+        "author_hash": {
           "anyOf": [
             {
-              "maxLength": 80,
+              "pattern": "^[a-f0-9]{64}$",
               "type": "string"
             },
             {
@@ -38,8 +38,8 @@
             }
           ],
           "default": null,
-          "description": "For distinct-recommender counts",
-          "title": "Author"
+          "description": "For distinct-recommender counts. A salted sha256, never a username",
+          "title": "Author Hash"
         },
         "recommends": {
           "anyOf": [
@@ -58,10 +58,42 @@
         "raw_name",
         "is_product",
         "brand",
-        "author",
+        "author_hash",
         "recommends"
       ],
       "title": "ProductMention",
+      "type": "object"
+    },
+    "RecommenderCount": {
+      "additionalProperties": false,
+      "description": "How many different people recommend one product (US-13). Counted by code, never by an LLM.",
+      "properties": {
+        "product_mention": {
+          "description": "The product's name as written",
+          "maxLength": 150,
+          "minLength": 1,
+          "title": "Product Mention",
+          "type": "string"
+        },
+        "distinct_recommenders": {
+          "description": "One person posting ten times counts once",
+          "minimum": 0,
+          "title": "Distinct Recommenders",
+          "type": "integer"
+        },
+        "threads": {
+          "description": "How many threads those people posted in",
+          "minimum": 0,
+          "title": "Threads",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "product_mention",
+        "distinct_recommenders",
+        "threads"
+      ],
+      "title": "RecommenderCount",
       "type": "object"
     }
   },
@@ -83,11 +115,21 @@
       "description": "Saved aliases from earlier searches (DR-06)",
       "title": "Known Aliases",
       "type": "object"
+    },
+    "recommender_counts": {
+      "description": "From research (US-13), for Product.recommender_count",
+      "items": {
+        "$ref": "#/$defs/RecommenderCount"
+      },
+      "maxItems": 200,
+      "title": "Recommender Counts",
+      "type": "array"
     }
   },
   "required": [
     "mentions",
-    "known_aliases"
+    "known_aliases",
+    "recommender_counts"
   ],
   "title": "MatchInput",
   "type": "object"

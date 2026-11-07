@@ -1,0 +1,78 @@
+{
+  "additionalProperties": false,
+  "description": "One Reddit comment in a thread (US-13).",
+  "properties": {
+    "id": {
+      "maxLength": 32,
+      "minLength": 1,
+      "title": "Id",
+      "type": "string"
+    },
+    "parent_id": {
+      "anyOf": [
+        {
+          "maxLength": 32,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The comment or thread it replies to",
+      "title": "Parent Id"
+    },
+    "depth": {
+      "description": "1 is a direct reply to the thread",
+      "maximum": 3,
+      "minimum": 1,
+      "title": "Depth",
+      "type": "integer"
+    },
+    "upvotes": {
+      "description": "Can be negative",
+      "title": "Upvotes",
+      "type": "integer"
+    },
+    "text": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    },
+    "quality": {
+      "default": 0.5,
+      "description": "US-13 comment quality score",
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Quality",
+      "type": "number"
+    },
+    "author_hash": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A salted hash of the author's username, so one person counts once. Never the username itself (D-53). The code that builds a comment makes the hash; this model can't tell a hash from a name. None when the author is deleted or unknown.",
+      "title": "Author Hash"
+    }
+  },
+  "required": [
+    "id",
+    "parent_id",
+    "depth",
+    "upvotes",
+    "text",
+    "quality",
+    "author_hash"
+  ],
+  "title": "SourceComment",
+  "type": "object"
+}

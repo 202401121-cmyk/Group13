@@ -44,7 +44,7 @@ def _check(keyword: str, rule: Any, value: Any, schema: Schema, root: Schema, wh
         return [] if any(not schema_errors(value, s, root, where) for s in rule) else [f"{where}: matches no option"]
     if keyword == "enum":
         return [] if value in rule else [f"{where}: not one of {rule}"]
-    if keyword in ("properties", "patternProperties", "additionalProperties", "required"):
+    if keyword in ("properties", "patternProperties", "propertyNames", "additionalProperties", "required"):
         return _check_object(keyword, rule, value, schema, root, where) if isinstance(value, dict) else []
     if keyword in ("items", "minItems", "maxItems"):
         return _check_array(keyword, rule, value, root, where) if isinstance(value, list) else []
@@ -60,6 +60,8 @@ def _check_object(
 ) -> list[str]:
     if keyword == "required":
         return [f"{where}: {name} is missing" for name in rule if name not in value]
+    if keyword == "propertyNames":
+        return [e for name in value for e in schema_errors(name, rule, root, f"{where} key {name}")]
     if keyword == "properties":
         return [
             e

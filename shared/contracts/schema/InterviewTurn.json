@@ -735,6 +735,17 @@
       ],
       "title": "ReplyType",
       "type": "string"
+    },
+    "RoughLevel": {
+      "description": "A rough answer from the interview's buttons (US-08).",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "good_enough"
+      ],
+      "title": "RoughLevel",
+      "type": "string"
     }
   },
   "additionalProperties": false,
@@ -755,11 +766,40 @@
       "default": null,
       "description": "None on the first turn",
       "title": "Reply Text"
+    },
+    "level": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RoughLevel"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A rough answer, or use exact_weight (US-08)"
+    },
+    "exact_weight": {
+      "anyOf": [
+        {
+          "maximum": 10.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "An exact 0 to 10 answer, or use level",
+      "title": "Exact Weight"
     }
   },
   "required": [
     "state",
-    "reply_text"
+    "reply_text",
+    "level",
+    "exact_weight"
   ],
   "title": "InterviewTurn",
   "type": "object"

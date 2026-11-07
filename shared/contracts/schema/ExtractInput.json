@@ -61,6 +61,7 @@
           "anyOf": [
             {
               "maxLength": 80,
+              "minLength": 1,
               "type": "string"
             },
             {
@@ -70,6 +71,31 @@
           "default": null,
           "description": "e.g. 'r/SuggestALaptop'",
           "title": "Community"
+        },
+        "site": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The site's domain, for a web page",
+          "title": "Site"
+        },
+        "data_class": {
+          "default": "public",
+          "description": "What this text may be sent to (US-46). Follows the type: Reddit is reddit, the rest public",
+          "enum": [
+            "public",
+            "reddit"
+          ],
+          "title": "Data Class",
+          "type": "string"
         },
         "quality": {
           "default": 0.5,
@@ -120,6 +146,43 @@
           "default": null,
           "description": "Salted sha256 of the author's username, so US-13 can count distinct people. Never the name",
           "title": "Author Hash"
+        },
+        "upvotes": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reddit only. Can be negative",
+          "title": "Upvotes"
+        },
+        "comment_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reddit only: the thread's total",
+          "title": "Comment Count"
+        },
+        "comments": {
+          "default": [],
+          "description": "Reddit only: the comments we read",
+          "items": {
+            "$ref": "#/$defs/SourceComment"
+          },
+          "maxItems": 200,
+          "title": "Comments",
+          "type": "array"
         }
       },
       "required": [
@@ -133,12 +196,95 @@
         "fetched_at",
         "published_at",
         "community",
+        "site",
+        "data_class",
         "quality",
         "via",
         "source_detail",
-        "author_hash"
+        "author_hash",
+        "upvotes",
+        "comment_count",
+        "comments"
       ],
       "title": "Source",
+      "type": "object"
+    },
+    "SourceComment": {
+      "additionalProperties": false,
+      "description": "One Reddit comment in a thread (US-13).",
+      "properties": {
+        "id": {
+          "maxLength": 32,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "parent_id": {
+          "anyOf": [
+            {
+              "maxLength": 32,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The comment or thread it replies to",
+          "title": "Parent Id"
+        },
+        "depth": {
+          "description": "1 is a direct reply to the thread",
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Depth",
+          "type": "integer"
+        },
+        "upvotes": {
+          "description": "Can be negative",
+          "title": "Upvotes",
+          "type": "integer"
+        },
+        "text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "quality": {
+          "default": 0.5,
+          "description": "US-13 comment quality score",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Quality",
+          "type": "number"
+        },
+        "author_hash": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A salted hash of the author's username, so one person counts once. Never the username itself (D-53). The code that builds a comment makes the hash; this model can't tell a hash from a name. None when the author is deleted or unknown.",
+          "title": "Author Hash"
+        }
+      },
+      "required": [
+        "id",
+        "parent_id",
+        "depth",
+        "upvotes",
+        "text",
+        "quality",
+        "author_hash"
+      ],
+      "title": "SourceComment",
       "type": "object"
     },
     "SourceTier": {

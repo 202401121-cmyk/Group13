@@ -7,13 +7,50 @@ from typing import Literal
 
 from pydantic import Field, model_validator
 
-from .common import Contract, Fraction, Score10, SessionId, Slug
+from .common import Contract, Fraction, Score10, SessionId, Slug, StrictScore10
 from .criteria import CriteriaSet
 from .intake import Intent
 from .rubric import Rubric
 
 MAX_QUESTIONS = 10
 MAX_UNCLEAR_PER_QUESTION = 2  # US-39: after two unclear or off-topic replies, skip and mark it
+
+
+class RoughLevel(StrEnum):
+    """A rough answer from the interview's buttons (US-08)."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    GOOD_ENOUGH = "good_enough"
+
+
+# The one table from rough answers to weights (US-08). The frontend reads the same table from
+# shared/contracts/examples/rough_levels.json, so the two can never disagree.
+ROUGH_LEVEL_WEIGHTS: dict[RoughLevel, float] = {
+    RoughLevel.LOW: 2.0,
+    RoughLevel.MEDIUM: 5.0,
+    RoughLevel.HIGH: 8.0,
+    RoughLevel.GOOD_ENOUGH: 3.0,
+}
+
+
+class RoughLevelWeights(Contract):
+    """ROUGH_LEVEL_WEIGHTS as JSON, for the frontend."""
+
+    weights: dict[RoughLevel, Score10]
+
+    @model_validator(mode="after")
+    def _check(self) -> RoughLevelWeights:
+        if set(self.weights) != set(RoughLevel):
+            raise ValueError("the table must give a weight for every level")
+        return self
+
+
+def check_one_answer_form(level: RoughLevel | None, exact_weight: float | None) -> None:
+    """A reply is rough or exact. Both at once would leave the interview guessing which one was meant."""
+    if level is not None and exact_weight is not None:
+        raise ValueError("a reply carries a rough level or an exact weight, never both")
 
 
 class ReplyType(StrEnum):
@@ -94,6 +131,13 @@ class InterviewState(Contract):
 class InterviewTurn(Contract):
     state: InterviewState
     reply_text: str | None = Field(default=None, max_length=500, description="None on the first turn")
+    level: RoughLevel | None = Field(default=None, description="A rough answer, or use exact_weight (US-08)")
+    exact_weight: StrictScore10 | None = Field(default=None, description="An exact 0 to 10 answer, or use level")
+
+    @model_validator(mode="after")
+    def _check(self) -> InterviewTurn:
+        check_one_answer_form(self.level, self.exact_weight)
+        return self
 
 
 StepKind = Literal[

@@ -1,0 +1,12 @@
+[
+  {
+    "product_mention": "Nova Book 14",
+    "distinct_recommenders": 9,
+    "threads": 1
+  },
+  {
+    "product_mention": "Kestrel Slim 15",
+    "distinct_recommenders": 6,
+    "threads": 1
+  }
+]

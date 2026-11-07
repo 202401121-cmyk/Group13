@@ -10,13 +10,13 @@ Rules for everything in app/contracts/:
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import IntEnum, StrEnum
 from typing import Annotated
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field
 
-SCHEMA_VERSION = "1.5.0"
+SCHEMA_VERSION = "1.6.0"
 
 
 class Contract(BaseModel):
@@ -38,8 +38,18 @@ def _require_tz(value: datetime) -> datetime:
     return value
 
 
+def _to_utc(value: datetime) -> datetime:
+    try:
+        return _require_tz(value).astimezone(UTC)
+    except OverflowError as error:  # a date at the very edge of the calendar, such as a page's zero date
+        raise ValueError("this date is too far from the present to convert to UTC") from error
+
+
 AwareDatetime = Annotated[datetime, AfterValidator(_require_tz)]
 """A timezone-aware timestamp. Every time in the system is stored in UTC."""
+
+UtcDatetime = Annotated[datetime, AfterValidator(_to_utc)]
+"""A timestamp we made ourselves. Whatever zone it arrives in, it is kept in UTC."""
 
 Slug = Annotated[str, Field(pattern=r"^[a-z0-9]+(?:[_-][a-z0-9]+)*$", max_length=64)]
 """Lower-case identifier such as 'laptop' or 'battery_life'."""
@@ -53,11 +63,17 @@ CurrencyCode = Annotated[str, Field(pattern=r"^[A-Z]{3}$")]
 Score10 = Annotated[float, Field(ge=0.0, le=10.0)]
 """A score on the 0 to 10 scale used for criteria and weights."""
 
+StrictScore10 = Annotated[float, Field(strict=True, ge=0.0, le=10.0)]
+"""The same scale for values from outside. Strict, so true or "7" is refused instead of becoming a score."""
+
 Fraction = Annotated[float, Field(ge=0.0, le=1.0)]
 """A value between 0 and 1, such as confidence or coverage."""
 
 # Identifiers are plain strings so they serialise cleanly. The prefix tells you the kind.
 SearchId = Annotated[str, Field(pattern=r"^srch_[A-Za-z0-9]{6,40}$")]
+SearchRunId = Annotated[str, Field(pattern=r"^srch_[a-f0-9]{24}$")]
+"""The ID of a search run (P-07): `srch_` plus 24 hex characters, made by the backend."""
+
 SessionId = Annotated[str, Field(pattern=r"^sess_[A-Za-z0-9]{6,40}$")]
 SourceId = Annotated[str, Field(pattern=r"^src_[a-f0-9]{8,64}$")]
 ClaimId = Annotated[str, Field(pattern=r"^clm_[a-f0-9]{8,64}$")]
@@ -91,11 +107,10 @@ class SourceTier(IntEnum):
 
 
 class ClaimType(StrEnum):
-    """DR-05: community posts are experience or opinion, never spec, unless verified."""
+    """DR-05: community claims are experience; manufacturer and lab claims are spec."""
 
     SPEC = "spec"
     EXPERIENCE = "experience"
-    OPINION = "opinion"
 
 
 class StageName(StrEnum):
