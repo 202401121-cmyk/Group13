@@ -1,9 +1,10 @@
 import { ExternalLink } from "lucide-react";
 import { formatINR } from "@/lib/request/format";
-import type { CriterionValue, Offer, ProductResult } from "@/lib/results/types";
+import { researchLink } from "@/lib/links";
+import type { CriterionValue, ExcludedProduct, Offer, ProductResult } from "@/lib/results/types";
 import { cn } from "@/lib/utils";
 import { pillButton } from "@/components/shopsense/pill-button";
-import { formatCheckTime, ordinal, type TieGroup } from "@/lib/results/view";
+import { coverageText, formatCheckTime, ordinal, type TieGroup } from "@/lib/results/view";
 import { listInWords } from "@/lib/text";
 import { ConfidenceIndicator, Disclosure, StatusBadge } from "./primitives";
 import { useVisualMotion } from "@/hooks/useVisualMotion";
@@ -37,7 +38,27 @@ export function TooCloseToCall({ tie }: { tie: TieGroup }) {
   );
 }
 
-function CriterionRow({ c }: { c: CriterionValue }) {
+/** One product in "Couldn't check", with a web search so the shopper can check it themselves. */
+export function CouldntCheckItem({ product: p }: { product: ExcludedProduct }) {
+  return (
+    <li className="py-2.5 text-sm">
+      <span className="font-medium text-foreground">{p.name}</span>
+      <span className="block text-muted-foreground">{p.reason}</span>
+      <a
+        href={researchLink(p.name, p.criterion)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(pillButton({ variant: "outline", size: "sm" }), "mt-2 min-h-11")}
+      >
+        Search the web
+        <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+        <span className="sr-only">for {p.name} (opens in a new tab)</span>
+      </a>
+    </li>
+  );
+}
+
+function CriterionRow({ c, coverage }: { c: CriterionValue; coverage: string }) {
   return (
     <li className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1 py-2.5">
       <span className="min-w-0 text-sm text-foreground">{c.label}</span>
@@ -62,7 +83,9 @@ function CriterionRow({ c }: { c: CriterionValue }) {
         {(c.state === "verified" || c.state === "estimated") && c.value && (
           <span className="break-words text-foreground">{c.value}</span>
         )}
-        {c.state === "estimated" && <StatusBadge variant="estimated">Estimated</StatusBadge>}
+        {c.state === "estimated" && (
+          <StatusBadge variant="estimated">Estimated. {coverage}</StatusBadge>
+        )}
       </span>
     </li>
   );
@@ -128,6 +151,7 @@ export function ResultCard({
   const weakest = sorted.length > 2 ? sorted.at(-1) : undefined;
   const cov = p.coverage;
   const validCov = cov && cov.total > 0 && cov.checked >= 0 && cov.checked <= cov.total;
+  const coverage = coverageText(p.dataCoverage);
   const headingId = `product-${index}`;
   const img = webAddress(p.imageUrl);
   const storeSearch = webAddress(p.storeSearchUrl);
@@ -195,6 +219,7 @@ export function ResultCard({
             Checked {cov.checked} of {cov.total} criteria
           </span>
         )}
+        <span className="text-xs text-muted-foreground">{coverage}</span>
         {p.value && !p.value.calculated && (
           <StatusBadge variant="no-value">
             Value not worked out{p.value.reason ? `: ${p.value.reason}` : ""}
@@ -263,7 +288,7 @@ export function ResultCard({
         <Disclosure className="mt-5" summary="Show all criteria">
           <ul className="divide-y divide-border">
             {p.criteria.map((c) => (
-              <CriterionRow key={c.criterionId} c={c} />
+              <CriterionRow key={c.criterionId} c={c} coverage={coverage} />
             ))}
           </ul>
         </Disclosure>

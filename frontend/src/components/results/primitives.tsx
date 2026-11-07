@@ -157,3 +157,9 @@ export function Notice({
     </div>
   );
 }
+
+/** Shown only when the result's row was not committed (SearchResult.saved is false). */
+export function NotSavedNotice({ saved }: { saved: boolean }) {
+  if (saved) return null;
+  return <Notice>This result isn't saved. It will be gone if you close this page.</Notice>;
+}

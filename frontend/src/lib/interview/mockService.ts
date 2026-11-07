@@ -5,12 +5,13 @@
  * - ends with "?"                      -> answer_then_repeat (explain, ask again)
  * - "not sure" / "don't know" / "what do you mean" -> rephrase
  * - mentions price / cost / budget / brand        -> redirect (note, keep question)
+ * - "test a conflict"                             -> what a live 409 ends in: nothing recorded, a notice
  * - otherwise                                     -> recorded as the answer
  * Remembered answers come from MEMORY_FIXTURE when that criterion is reached.
  * A product named "Test error" fails criteria loading once.
  */
 import type { Brief } from "@/lib/request/types";
-import { questionFor } from "./questions";
+import { ALREADY_ANSWERED, questionFor } from "./questions";
 import type {
   Answers,
   Criterion,
@@ -20,7 +21,6 @@ import type {
   TurnInput,
   TurnResult,
 } from "./types";
-import { inSentence } from "@/lib/text";
 
 const VFM: Criterion = {
   id: "value",
@@ -175,6 +175,9 @@ export function runTurn({ criteria, answers, turn }: TurnInput): TurnResult {
     const t = turn.text?.trim() ?? null;
 
     if (t !== null) {
+      if (/^test a conflict$/i.test(t)) {
+        return { ...nextStep(criteria, current), laterChanged, notice: ALREADY_ANSWERED };
+      }
       if (/\b(price|cost|budget|brand|discount)\b/i.test(t)) {
         return {
           step: {
@@ -202,7 +205,7 @@ export function runTurn({ criteria, answers, turn }: TurnInput): TurnResult {
           step: {
             ...base,
             kind: "rephrase",
-            question: `Put simply: would a worse ${inSentence(c.title)} bother you?`,
+            question: `${c.title}: would it bother you if this were worse?`,
             replies: ["Yes, a lot", "A little", "Not really"],
           },
           answers: current,

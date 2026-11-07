@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { ArrowLeft, Info, RefreshCw } from "lucide-react";
 import { PageShell } from "@/components/shopsense/PageShell";
 import { BriefPanel } from "@/components/request/BriefPanel";
 import { InlineError, MissingSession, PageLoading } from "@/components/interview/shared";
@@ -60,12 +60,14 @@ function QuestionsPage() {
 
   // Live announcements.
   useEffect(() => {
-    if (state.phase === "finished") setAnnounce("Your brief is ready.");
+    if (state.phase === "finished")
+      setAnnounce([state.notice, "Your brief is ready."].filter(Boolean).join(" "));
     else if (state.phase === "error") setAnnounce(state.error ?? "Something went wrong.");
     else if (state.phase === "sending" && thinking) setAnnounce("Thinking about your answer.");
     else if (state.phase === "asking" && state.step) {
       setAnnounce(
         [
+          state.notice ?? "",
           state.laterChanged ? "Later questions were updated." : "",
           state.step.note ?? "",
           state.step.question ?? "",
@@ -74,7 +76,7 @@ function QuestionsPage() {
           .join(" "),
       );
     }
-  }, [state.phase, state.step, state.error, state.laterChanged, thinking]);
+  }, [state.phase, state.step, state.error, state.laterChanged, state.notice, thinking]);
 
   const busy = state.phase === "sending" || state.phase === "starting";
   const asking = state.phase === "asking" || state.phase === "sending" || state.phase === "error";
@@ -179,6 +181,15 @@ function QuestionsPage() {
               className="flex items-center gap-2 rounded-2xl bg-champagne px-4 py-3 text-sm text-champagne-foreground"
             >
               <RefreshCw className="h-4 w-4 shrink-0" aria-hidden /> Later questions were updated
+            </p>
+          )}
+
+          {state.notice && (
+            <p
+              role="status"
+              className="flex items-center gap-2 rounded-2xl bg-champagne px-4 py-3 text-sm text-champagne-foreground"
+            >
+              <Info className="h-4 w-4 shrink-0" aria-hidden /> {state.notice}
             </p>
           )}
 

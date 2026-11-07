@@ -41,7 +41,7 @@ test("a shopper goes from the home page to ranked results", async ({ page }) => 
   const replies = page.getByRole("group", { name: /Quick replies/ });
   await expect(replies).toBeVisible();
   await expect(
-    page.getByText(/How much do you care about CPU performance\?/).first(),
+    page.getByText(/CPU performance: how much does it matter to you\?/).first(),
   ).toBeVisible();
   await expectAccessible(page, "questions");
   for (let i = 0; i < 10 && !(await review.isVisible()); i++) {

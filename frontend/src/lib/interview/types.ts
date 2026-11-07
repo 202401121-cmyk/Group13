@@ -30,6 +30,8 @@ export type StepKind = "question" | "answer_then_repeat" | "rephrase" | "redirec
 export interface Step {
   kind: StepKind;
   criterionId: string | null;
+  /** The backend's id for this question (InterviewQuestion.id). The mock and a local "Go back" have none. */
+  questionId?: string | null | undefined;
   question: string | null;
   note: string | null;
   why: string | null;
@@ -38,6 +40,8 @@ export interface Step {
 
 export interface Turn {
   criterionId: string;
+  /** The question this reply answers. A retry sends the same id, so it can never answer the next question. */
+  questionId?: string | null | undefined;
   /** null = skipped */
   text: string | null;
   revise: boolean;
@@ -58,6 +62,8 @@ export interface TurnResult {
   laterChanged: boolean;
   /** The weights the backend worked out, sent with the finished step (live mode only). */
   rubric?: RubricItem[];
+  /** Something the shopper should be told about this turn, shown above the question until the next reply. */
+  notice?: string;
 }
 
 /** Swap the mock for a real backend by implementing this interface. */

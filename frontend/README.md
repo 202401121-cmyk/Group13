@@ -94,6 +94,7 @@ src/
     api/                  client.ts (fetch, time limits, errors), schemas.ts (contract checks, live only)
     request/  interview/  results/   types, reducer, mock service, live adapter, service getter
     session/store.ts      session IDs ("sess_" + 24 hex, as the backend makes them) and session storage
+    links.ts              the web search for a product we couldn't check
   test/                   Vitest tests, helpers/ with a fake backend
   types/contracts/        generated, git-ignored
 e2e/                      Playwright flow test; quality/ holds the FE-4 quality specs
@@ -107,10 +108,13 @@ These came with the Lovable project. They explain why the code is laid out as it
 - **Request flow** (`src/lib/request/`): types, a reducer state machine and a service interface. The screens only
   talk to `getRequestService()`, so the mock and the backend can be swapped without changing any screen.
 - **Interview** (F2) lives under `/s/$sessionId/*`. `useInterview` owns the reducer and keeps it in session storage,
-  and it only calls `getInterviewService()`. In live mode the backend keeps the interview itself.
+  and it only calls `getInterviewService()`. In live mode the backend keeps the interview itself. Every reply names
+  its question (`question_id`), so a retry can't answer the next one. If the backend refuses a reply as out of date
+  (409), the live adapter reads the session again and shows the current question with a notice.
 - **Research and results** (F3) live in `src/lib/results/`: a pure reducer keyed by run ID (`machine.ts`), an
-  in-memory controller per session, and `getResearchService()`. Results are deliberately not kept after a reload,
-  so the page shows the "not saved" notice and an honest "these results aren't here any more" state.
+  in-memory controller per session, and `getResearchService()`. The page holds results in memory only, so a reload
+  shows an honest "these results aren't here any more" state. The backend stores each finished search, but nothing
+  loads one back yet. `saved: false` shows the "not saved" notice.
 - **Theme** is a `.dark` class on `<html>`, set before the first paint by a small script in `__root.tsx`. Every colour
   comes from the tokens in `src/styles.css`: change the tokens there, never add colours to one component. Secondary
   text keeps at least 4.5:1 contrast on every surface; `src/test/contrast.test.ts` checks it.
@@ -126,6 +130,9 @@ These came with the Lovable project. They explain why the code is laid out as it
     text, so nothing shifts.
   - `useVisualMotion` runs one-off reveals and pauses decorative loops outside the viewport. The workflow pictures
     are separate from the request state, so they never suggest the backend is doing something it isn't.
+  - The one entrance effect is that reveal: a section moves up into place. Nothing that holds text ever fades,
+    because text at part opacity fails contrast on the frames it is shown, and reduced motion turns all motion off.
+    `e2e/quality/first-frame.spec.ts` runs axe the moment each state shows, with motion on.
 
 ## Done in Lovable
 

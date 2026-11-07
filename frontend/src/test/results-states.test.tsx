@@ -6,11 +6,20 @@ import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import searchExample from "@contracts/examples/search_result.json";
-import { ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
+import { NotSavedNotice } from "@/components/results/primitives";
+import { CouldntCheckItem, ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
 import { resultFromSearch } from "@/lib/results/liveAdapter";
 import { buildMockResult } from "@/lib/results/mockService";
 import type { Offer, ProductResult, RubricItem } from "@/lib/results/types";
-import { formatCheckTime, isPriceStale, ordinal, tieGroups, tiesFor } from "@/lib/results/view";
+import {
+  coverageText,
+  formatCheckTime,
+  giveFocusBack,
+  isPriceStale,
+  ordinal,
+  tieGroups,
+  tiesFor,
+} from "@/lib/results/view";
 import { listInWords } from "@/lib/text";
 import type { SearchResult } from "@/types/contracts/SearchResult";
 
@@ -323,5 +332,173 @@ describe("disputed values", () => {
     const a = buildMockResult(mockInput, "disputed-no-sources").products[0]!;
     expect(a.criteria[1]).toMatchObject({ state: "disputed", value: null });
     expect(a.criteria[1]?.sources).toBeUndefined();
+  });
+});
+
+describe("data coverage", () => {
+  const scenario = buildMockResult(mockInput, "estimated");
+  const estimatedBadge = (shown: HTMLElement) =>
+    [...shown.querySelectorAll("li span")].find((e) => /^Estimated/.test(e.textContent ?? ""));
+
+  it("is a whole percentage, from the contract's coverage", () => {
+    const { products } = resultFromSearch(example, rubric, T0);
+    expect(products.map((p) => p.dataCoverage)).toEqual([100, 100, 90]);
+  });
+
+  it("rounds to a whole number and never writes a fraction", () => {
+    const ranked = example.decision!.ranked.map((r) => ({ ...r, coverage: 0.6249 }));
+    const edited = { ...example, decision: { ...example.decision!, ranked } };
+    expect(resultFromSearch(edited, rubric, T0).products[0]!.dataCoverage).toBe(62);
+  });
+
+  it("sits next to the Estimated label", () => {
+    const [a] = scenario.products;
+    expect(a!.dataCoverage).toBe(62);
+    expect(card(a!).textContent).toContain("Estimated. Data coverage 62%");
+  });
+
+  it("the example's estimated value, through the adapter, shows its product's coverage", () => {
+    const orion = resultFromSearch(example, rubric, T0).products[2]!;
+    expect(card(orion).textContent).toContain("Estimated. Data coverage 90%");
+  });
+
+  it("says it isn't known when the figure is missing, and never shows 0%", () => {
+    const b = scenario.products[1]!;
+    expect(b.dataCoverage).toBeNull();
+    const shown = card(b);
+    expect(shown.textContent).toContain("Estimated. Coverage not known");
+    expect(shown.textContent).not.toContain("0%");
+    const { dataCoverage: _gone, ...none } = b;
+    expect(estimatedBadge(card(none))).toHaveTextContent("Estimated. Coverage not known");
+  });
+
+  it("a real 0% is a real figure, shown as it is", () => {
+    expect(coverageText(0)).toBe("Data coverage 0%");
+  });
+
+  it("only a usable number counts as a figure", () => {
+    expect(coverageText(61.6)).toBe("Data coverage 62%");
+    for (const missing of [null, undefined, Number.NaN, Infinity]) {
+      expect(coverageText(missing)).toBe("Coverage not known");
+    }
+  });
+
+  it("every product shows its coverage on the card, estimated or not", () => {
+    const [a] = buildMockResult(mockInput, "success").products;
+    expect(card(a!)).toHaveTextContent("Data coverage 92%");
+    expect(card(a!)).not.toHaveTextContent("Estimated");
+  });
+});
+
+describe("couldn't check", () => {
+  const item = (p: Parameters<typeof CouldntCheckItem>[0]["product"]) =>
+    show(
+      <ul>
+        <CouldntCheckItem product={p} />
+      </ul>,
+    );
+
+  it("gives each item a web search for the product and the criterion", () => {
+    const [p] = buildMockResult(mockInput, "couldnt-check").couldntCheck;
+    const link = item(p!).querySelector("a")!;
+    expect(new URL(link.href).origin).toBe("https://www.google.com");
+    expect(new URL(link.href).searchParams.get("q")).toBe("Sample laptop F CPU performance");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    expect(link).toHaveTextContent("Search the web");
+    expect(link).toHaveTextContent("for Sample laptop F (opens in a new tab)");
+  });
+
+  it("keeps the name and the reason", () => {
+    const [p] = resultFromSearch(example, rubric, T0).couldntCheck;
+    const shown = item(p!);
+    expect(shown).toHaveTextContent("Vela Pro 14");
+    expect(shown).toHaveTextContent("We couldn't confirm it has at least 16 GB RAM");
+  });
+
+  it("the link uses the criterion's name, never the shopper's own words for the rule", () => {
+    const [p] = resultFromSearch(example, rubric, T0).couldntCheck;
+    const search = new URL(item(p!).querySelector("a")!.href).searchParams.get("q");
+    expect(search).toBe("Vela Pro 14 Ram gb");
+    expect(search).not.toContain("at least 16 GB RAM");
+  });
+
+  it("uses the criterion's title when the rubric has one", () => {
+    const titled = [{ criterionId: "ram_gb", title: "RAM (GB)", weight: 1 }];
+    const [p] = resultFromSearch(example, titled, T0).couldntCheck;
+    expect(p!.criterion).toBe("RAM (GB)");
+  });
+
+  it("with no criterion named, the link searches for the product alone", () => {
+    const search = (url: string) => new URL(url).searchParams.get("q");
+    const link = item({ name: "Vela Pro 14", reason: "No specs." }).querySelector("a")!;
+    expect(search(link.href)).toBe("Vela Pro 14");
+  });
+
+  it("products left out get no search link", () => {
+    const { leftOut } = resultFromSearch(example, rubric, T0);
+    expect(leftOut[0]).not.toHaveProperty("criterion");
+  });
+});
+
+describe("focus after the stop-research dialog", () => {
+  function page() {
+    document.body.innerHTML = `
+      <header><button id="opener">Open menu</button></header>
+      <main><h1 tabindex="-1">Researching laptops for you</h1></main>`;
+    return {
+      opener: document.getElementById("opener")!,
+      heading: document.querySelector("h1")!,
+    };
+  }
+
+  it("goes back to the control that opened it", () => {
+    const { opener } = page();
+    giveFocusBack(opener);
+    expect(opener).toHaveFocus();
+  });
+
+  it("goes to the main heading when that control has left the page", () => {
+    const { opener, heading } = page();
+    opener.remove();
+    giveFocusBack(opener);
+    expect(heading).toHaveFocus();
+  });
+
+  it("goes to the main heading when that control can't take focus", () => {
+    const { opener, heading } = page();
+    opener.setAttribute("disabled", "");
+    giveFocusBack(opener);
+    expect(heading).toHaveFocus();
+  });
+
+  it("goes to the main heading when nothing was focused", () => {
+    const { heading } = page();
+    giveFocusBack(document.body);
+    expect(heading).toHaveFocus();
+    page();
+    giveFocusBack(null);
+    expect(document.querySelector("h1")).toHaveFocus();
+  });
+});
+
+describe("the saved banner", () => {
+  const BANNER = "This result isn't saved. It will be gone if you close this page.";
+  const banner = (saved: boolean) => {
+    const r = resultFromSearch({ ...example, saved }, rubric, T0);
+    return show(<NotSavedNotice saved={r.saved} />);
+  };
+
+  it("shows when the backend says the result was not saved", () => {
+    expect(banner(false)).toHaveTextContent(BANNER);
+  });
+
+  it("does not show when the row was committed", () => {
+    expect(banner(true)).toHaveTextContent("");
+    expect(banner(true).textContent).toBe("");
+  });
+
+  it("the mock never claims a save", () => {
+    expect(buildMockResult(mockInput, "success").saved).toBe(false);
   });
 });

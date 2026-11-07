@@ -78,6 +78,7 @@ function product(
     confidence: rank === 1 ? "high" : rank === 2 ? "medium" : "low",
     chanceFirst: rank === 1 ? 62 : rank === 2 ? 27 : 11,
     coverage: { checked: criteria.length, total: criteria.length },
+    dataCoverage: rank === 1 ? 92 : rank === 2 ? 84 : 76,
     explanation: `Sample explanation: ${letter} scores well on the criteria you weighted most, within your must-haves.`,
     contributions,
     criteria,
@@ -157,11 +158,15 @@ export function buildMockResult(
       }
       break;
     case "estimated":
-      if (a.criteria[2])
-        Object.assign(a.criteria[2], {
-          state: "estimated",
-          value: "About 9 hours (sample estimate)",
-        });
+      for (const p of [a, b]) {
+        if (p.criteria[2])
+          Object.assign(p.criteria[2], {
+            state: "estimated",
+            value: "About 9 hours (sample estimate)",
+          });
+      }
+      a.dataCoverage = 62;
+      b.dataCoverage = null; // a result with no figure: the screen must say so, never show 0%
       break;
     case "stale":
       a.offers[1] = checkedAt(a.offers[1]!, hoursAgo(72, now), now);
@@ -181,7 +186,11 @@ export function buildMockResult(
       break;
     case "couldnt-check":
       res.couldntCheck = [
-        { name: `Sample ${cat} F`, reason: "Store pages didn't list its specs." },
+        {
+          name: `Sample ${cat} F`,
+          reason: "Store pages didn't list its specs.",
+          criterion: r[0]?.title ?? null,
+        },
       ];
       break;
     case "partial":

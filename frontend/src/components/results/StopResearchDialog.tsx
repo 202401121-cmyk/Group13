@@ -9,11 +9,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { giveFocusBack } from "@/lib/results/view";
 
 /**
  * "Stop research?" when the shopper leaves the results page while research runs. It is loaded only when
  * needed (the results page imports it lazily), so its dialog library stays out of the page's first load.
- * Escape and "Keep researching" both keep the research going, and focus goes back to where it was.
+ * Escape and "Keep researching" both keep the research going, and focus goes back to the control that opened
+ * the dialog, or to the page's main heading if that control is gone.
  */
 export default function StopResearchDialog({
   onKeep,
@@ -39,7 +41,7 @@ export default function StopResearchDialog({
         // There is no trigger button, so by default focus would drop to the page body on close.
         onCloseAutoFocus={(e) => {
           e.preventDefault();
-          if (returnTo?.isConnected) returnTo.focus();
+          giveFocusBack(returnTo);
         }}
       >
         <AlertDialogHeader>

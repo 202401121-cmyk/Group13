@@ -7,8 +7,8 @@ import { PillButton } from "@/components/shopsense/ui";
 import { pillButton } from "@/components/shopsense/pill-button";
 import { MissingSession, PageLoading } from "@/components/interview/shared";
 import { BriefSections } from "@/components/results/BriefSections";
-import { Disclosure, Notice, StatusBadge } from "@/components/results/primitives";
-import { ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
+import { Disclosure, NotSavedNotice, Notice, StatusBadge } from "@/components/results/primitives";
+import { CouldntCheckItem, ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
 import { formatCheckTime, tieGroups, tiesFor } from "@/lib/results/view";
 import { useInterview } from "@/lib/interview/useInterview";
 import { loadSession, saveSession, type Session } from "@/lib/session/store";
@@ -219,6 +219,7 @@ function Waiting({
     <section aria-labelledby="research-title">
       <h1
         id="research-title"
+        tabIndex={-1}
         className="break-words font-serif text-4xl leading-tight text-foreground md:text-5xl"
       >
         Researching {category}s for you
@@ -281,7 +282,10 @@ function Failure({
 }) {
   return (
     <section>
-      <h1 className="break-words font-serif text-4xl leading-tight text-foreground md:text-5xl">
+      <h1
+        tabIndex={-1}
+        className="break-words font-serif text-4xl leading-tight text-foreground md:text-5xl"
+      >
         Researching {category}s for you
       </h1>
       <div className="mt-8">
@@ -306,7 +310,8 @@ function Gone({ sessionId, hasBrief }: { sessionId: string; hasBrief: boolean })
         These results aren't here any more
       </h1>
       <p className="mt-4 text-lg text-muted-foreground">
-        Results are only kept while this page is open. Your brief is still saved.
+        This page can't load results again once it has been closed or reloaded. Your brief is still
+        here, so you can run the research again.
       </p>
       {hasBrief ? (
         <Link
@@ -357,10 +362,10 @@ function Results({
   }, []);
 
   // A tie's one card sits just above the first product in it.
-  const ranked = (p: ProductResult, index: number, featured: boolean, className?: string) => {
+  const ranked = (p: ProductResult, index: number, featured: boolean) => {
     const tie = ties.find((t) => t.products[0] === p);
     return (
-      <li key={p.id} className={className}>
+      <li key={p.id}>
         {tie && <TooCloseToCall tie={tie} />}
         <ResultCard
           product={p}
@@ -394,9 +399,7 @@ function Results({
       </p>
 
       <div className="mt-6 space-y-3">
-        {!result.saved && (
-          <Notice>This result isn't saved. It will be gone if you close this page.</Notice>
-        )}
+        <NotSavedNotice saved={result.saved} />
         {result.coverageNote ? (
           <Notice tone="warn">{result.coverageNote}</Notice>
         ) : result.partial ? (
@@ -428,16 +431,12 @@ function Results({
         <>
           <h2 className="mt-10 font-serif text-2xl text-foreground">Best match</h2>
           <ol className="mt-4 space-y-5" aria-label="Best match">
-            {leaders.map((p, i) => ranked(p, i, true, "animate-rise-in"))}
+            {leaders.map((p, i) => ranked(p, i, true))}
           </ol>
           {others.length > 0 && (
             <>
               <h2 className="mt-12 font-serif text-2xl text-foreground">Other options</h2>
-              <ol
-                className="mt-4 space-y-5 animate-fade-soft"
-                start={leaders.length + 1}
-                aria-label="Other options"
-              >
+              <ol className="mt-4 space-y-5" start={leaders.length + 1} aria-label="Other options">
                 {others.map((p, i) => ranked(p, leaders.length + i, false))}
               </ol>
             </>
@@ -466,10 +465,7 @@ function Results({
           <Disclosure summary={`Couldn't check (${result.couldntCheck.length})`}>
             <ul className="divide-y divide-border">
               {result.couldntCheck.map((p) => (
-                <li key={p.name} className="py-2.5 text-sm">
-                  <span className="font-medium text-foreground">{p.name}</span>
-                  <span className="block text-muted-foreground">{p.reason}</span>
-                </li>
+                <CouldntCheckItem key={p.name} product={p} />
               ))}
             </ul>
           </Disclosure>

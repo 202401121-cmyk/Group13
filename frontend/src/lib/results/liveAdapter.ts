@@ -110,6 +110,7 @@ export function resultFromSearch(
         checked: rows.filter((c) => c.state === "verified" || c.state === "disputed").length,
         total: rows.length,
       },
+      dataCoverage: Math.round(r.coverage * 100),
       explanation: text || null,
       contributions: r.contributions.map((c) => ({
         criterionId: c.criterion_key,
@@ -139,6 +140,10 @@ export function resultFromSearch(
       .map((f) => ({
         name: summaries.get(f.product_id)?.product.name ?? f.product_id,
         reason: f.reasons.join("; "),
+        // The criterion's name, not the shopper's own words for the rule: this goes in a search link.
+        ...(group === "cant_tell" && f.rule_attribute
+          ? { criterion: label(f.rule_attribute) }
+          : {}),
       }));
 
   const hint = result.decision?.relaxation_hint ?? null;
@@ -166,17 +171,12 @@ function relaxedRule(result: SearchResult): string {
   return result.request.rubric.hard_rules.find((r) => r.attribute === top)?.source_text ?? "";
 }
 
-/** GET /api/presearch/{id} is not an exported contract; its `interview_step` is, and is checked as one. */
+/** The session, checked whole against the contract. A search needs its request and the finished rubric. */
 async function finishedInterview(data: unknown) {
-  if (typeof data !== "object" || data === null)
-    throw new ApiError("bad_response", MESSAGES.badResponse);
-  const { request, interview_step } = data as Record<string, unknown>;
-  if (typeof request !== "string" || request.length < 1 || request.length > 1000)
-    throw new ApiError("bad_response", MESSAGES.badResponse);
-  if (interview_step === null || interview_step === undefined)
-    throw new ResearchError("unknown", FINISH_FIRST);
-  const step = await checkContract("InterviewStep", interview_step);
-  if (step.kind !== "finished" || !step.rubric) throw new ResearchError("unknown", FINISH_FIRST);
+  const { request, interview_step: step } = await checkContract("PresearchSession", data);
+  // The contract allows an empty request (a session with none yet); a search does not.
+  if (!request) throw new ApiError("bad_response", MESSAGES.badResponse);
+  if (step?.kind !== "finished" || !step.rubric) throw new ResearchError("unknown", FINISH_FIRST);
   return { request, rubric: step.rubric };
 }
 

@@ -5,15 +5,19 @@
  * match its schema is rejected with ApiError("bad_response"): the screens never build on a guessed shape.
  */
 import type { CriteriaSet } from "@/types/contracts/CriteriaSet";
+import type { IntakeResponse } from "@/types/contracts/IntakeResponse";
 import type { Intent } from "@/types/contracts/Intent";
 import type { InterviewStep } from "@/types/contracts/InterviewStep";
+import type { PresearchSession } from "@/types/contracts/PresearchSession";
 import type { SearchResult } from "@/types/contracts/SearchResult";
 import { ApiError, MESSAGES } from "./client";
 
 export interface Contracts {
+  IntakeResponse: IntakeResponse;
   Intent: Intent;
   CriteriaSet: CriteriaSet;
   InterviewStep: InterviewStep;
+  PresearchSession: PresearchSession;
   SearchResult: SearchResult;
 }
 export type ContractName = keyof Contracts;
@@ -21,9 +25,11 @@ export type ContractName = keyof Contracts;
 type Validator = (value: unknown) => boolean;
 
 const SCHEMAS: Record<ContractName, () => Promise<{ default: unknown }>> = {
+  IntakeResponse: () => import("@contracts/schema/IntakeResponse.json"),
   Intent: () => import("@contracts/schema/Intent.json"),
   CriteriaSet: () => import("@contracts/schema/CriteriaSet.json"),
   InterviewStep: () => import("@contracts/schema/InterviewStep.json"),
+  PresearchSession: () => import("@contracts/schema/PresearchSession.json"),
   SearchResult: () => import("@contracts/schema/SearchResult.json"),
 };
 

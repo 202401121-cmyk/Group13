@@ -298,7 +298,7 @@ export function Completion({
       id="current-question"
       tabIndex={-1}
       aria-labelledby="done-title"
-      className="rounded-2xl border border-border bg-card p-8 shadow-soft outline-none animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none"
+      className="rounded-2xl border border-border bg-card p-8 shadow-soft outline-none"
     >
       <CheckCircle2 className="h-10 w-10 text-primary" aria-hidden />
       <h2 id="done-title" className="mt-4 font-serif text-3xl text-foreground sm:text-4xl">
