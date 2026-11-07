@@ -9,9 +9,12 @@ from collections.abc import Callable
 import httpx
 import pytest
 
-from scripts.smoke_apis import SERVICES, main
+from app.contracts.research import MAX_SOURCE_CHARS
+from app.llm import load_llm_config
+from scripts.smoke_apis import SERVICES, limit_differences, main, recorded_thread
 
 FAKE = "fake-key-DO-NOT-LEAK-123"
+GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"]
 ALL_KEYS = {
     "GROQ_API_KEY": FAKE + "-groq",
     "GEMINI_API_KEY": FAKE + "-gemini",
@@ -137,13 +140,90 @@ def test_serper_is_never_called_without_include(capsys: pytest.CaptureFixture[st
 
 
 def test_the_llm_check_sends_the_fixed_prompt_with_5_output_tokens(capsys: pytest.CaptureFixture[str]) -> None:
-    code, _, seen = run(capsys, ["--only", "groq"], ALL_KEYS)
+    code, _, seen = run(capsys, ["--only", "gemini"], ALL_KEYS)
     body = json.loads(seen[0].content)
     assert code == 0 and len(seen) == 1
     assert body["max_tokens"] == 5
     assert body["messages"][1]["content"] == "Reply with the single word OK."
-    assert body["model"] == "openai/gpt-oss-120b"
+    assert body["model"] == "gemini-3.5-flash"
     assert "response_format" not in body
+
+
+def test_groq_gets_one_call_per_pool_member(capsys: pytest.CaptureFixture[str]) -> None:
+    code, out, seen = run(capsys, ["--only", "groq"], ALL_KEYS)
+    assert [json.loads(r.content)["model"] for r in seen] == GROQ_MODELS
+    assert {json.loads(r.content)["max_tokens"] for r in seen} == {200}  # one call each: no 5-token try first
+    assert code == 0
+    assert [line.split()[1] for line in out.splitlines() if line.startswith("groq ")] == ["ok", "ok", "ok"]
+    assert all(model in out for model in GROQ_MODELS)
+
+
+def test_one_groq_model_failing_keeps_its_own_row(capsys: pytest.CaptureFixture[str]) -> None:
+    def qwen_is_gone(request: httpx.Request) -> httpx.Response:
+        model = json.loads(request.content)["model"]
+        return httpx.Response(404) if model.startswith("qwen") else chat("OK")
+
+    code, out, seen = run(capsys, ["--only", "groq"], ALL_KEYS, qwen_is_gone)
+    assert (code, len(seen)) == (1, 3)
+    rows = [line.split()[1] for line in out.splitlines() if line.startswith("groq ")]
+    assert rows == ["ok", "ok", "failed"]
+
+
+def limits(tokens: str, requests: str) -> httpx.Response:
+    headers = {"x-ratelimit-limit-tokens": tokens, "x-ratelimit-limit-requests": requests}
+    return httpx.Response(200, json={"choices": [{"message": {"content": "OK"}}], "usage": {}}, headers=headers)
+
+
+def test_each_models_headers_are_printed_and_match_the_config(capsys: pytest.CaptureFixture[str]) -> None:
+    code, out, _ = run(capsys, ["--only", "groq"], ALL_KEYS, lambda request: limits("8000", "1000"))
+    assert code == 0
+    assert "headers differ" not in out
+    for model in GROQ_MODELS:
+        assert f"groq {model} rate-limit headers:" in out
+
+
+def test_headers_that_differ_from_the_config_are_reported(capsys: pytest.CaptureFixture[str]) -> None:
+    code, out, _ = run(capsys, ["--only", "groq"], ALL_KEYS, lambda request: limits("6000", "500"))
+    assert code == 0  # the model answered: the difference is for a person to act on
+    assert "tokens a minute: the API says 6000, models.yaml says 8000" in out
+    assert "requests a day: the API says 500, models.yaml says 1000" in out
+
+
+def test_the_request_header_is_compared_per_day_not_per_minute() -> None:
+    member = load_llm_config().pool.members[0]
+    assert limit_differences(member, {"x-ratelimit-limit-requests": "1000"}) == []
+    assert limit_differences(member, {"x-ratelimit-limit-requests": "30"}) != []
+
+
+def test_measure_extraction_makes_one_call_the_size_of_a_full_source(capsys: pytest.CaptureFixture[str]) -> None:
+    def answered(request: httpx.Request) -> httpx.Response:
+        usage = {"prompt_tokens": 2900, "completion_tokens": 300}
+        return httpx.Response(200, json={"choices": [{"message": {"content": "{}"}}], "usage": usage})
+
+    code, out, seen = run(capsys, ["--measure-extraction"], ALL_KEYS, answered)
+    assert (code, len(seen)) == (0, 1)
+    body = json.loads(seen[0].content)
+    assert body["model"] == GROQ_MODELS[0]
+    assert len(body["messages"][1]["content"]) == MAX_SOURCE_CHARS
+    assert "input 2,900 + output 300 = 3,200 tokens used" in out
+
+
+def test_the_measurement_sends_thread_text_and_never_a_username() -> None:
+    thread = recorded_thread()
+    assert "Nova Book 14" in thread
+    assert "made_up_" not in thread
+
+
+def test_measure_extraction_needs_a_groq_key(capsys: pytest.CaptureFixture[str]) -> None:
+    code, out, seen = run(capsys, ["--measure-extraction"], {})
+    assert (code, seen) == (1, [])
+    assert "GROQ_API_KEY is not set" in out
+
+
+def test_a_failed_measurement_is_reported(capsys: pytest.CaptureFixture[str]) -> None:
+    code, out, _ = run(capsys, ["--measure-extraction"], ALL_KEYS, lambda request: httpx.Response(429))
+    assert code == 1
+    assert "The measurement failed: groq: HTTP 429" in out
 
 
 def test_an_empty_reply_from_a_reasoning_model_is_retried_once(capsys: pytest.CaptureFixture[str]) -> None:

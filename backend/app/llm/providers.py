@@ -13,8 +13,20 @@ import httpx
 
 from app.contracts import Provider
 
-from .errors import AuthFailed, NoCredit, ProviderError, ProviderTimeout, RateLimited, ServerError
+from .errors import (
+    AuthFailed,
+    ModelForbidden,
+    ModelNotFound,
+    NoCredit,
+    ProviderError,
+    ProviderTimeout,
+    RateLimited,
+    ServerError,
+)
 from .fitting import estimate_tokens
+
+# What providers answer for a model that is retired, withdrawn or unknown, usually with HTTP 400 or 404.
+MODEL_GONE_CODES = frozenset({"model_not_found", "model_decommissioned", "invalid_model"})
 
 
 @dataclass(frozen=True)
@@ -79,10 +91,14 @@ class OpenAICompatibleAdapter:
         status = response.status_code
         if status == 429:
             raise RateLimited(self.provider, "HTTP 429 (rate limited)", limits)
-        if status in (401, 403):
-            raise AuthFailed(self.provider, f"HTTP {status} (key missing, wrong or not allowed)", limits)
+        if status == 401:
+            raise AuthFailed(self.provider, "HTTP 401 (key missing, wrong or not allowed)", limits)
+        if status == 403:
+            raise ModelForbidden(self.provider, "HTTP 403 (key missing, wrong or not allowed)", limits)
         if status == 402:
             raise NoCredit(self.provider, "HTTP 402 (the account needs a plan or credits)", limits)
+        if _model_not_found(response):
+            raise ModelNotFound(self.provider, f"HTTP {status} (this model is not available)", limits)
         if status >= 500:
             raise ServerError(self.provider, f"HTTP {status}", limits)
         if not 200 <= status < 300:
@@ -106,6 +122,20 @@ class OpenAICompatibleAdapter:
             raise ProviderError(self.provider, "the reply had no message text")
         usage = data.get("usage")
         return text, usage if isinstance(usage, dict) else {}
+
+
+def _model_not_found(response: httpx.Response) -> bool:
+    """A withdrawn or unknown model: HTTP 404, or any other 4xx whose error code says so. Reads only that code."""
+    if response.status_code == 404:
+        return True
+    if not 400 <= response.status_code < 500:
+        return False
+    try:
+        body = response.json()
+    except ValueError:
+        return False
+    error = body.get("error") if isinstance(body, dict) else None
+    return isinstance(error, dict) and error.get("code") in MODEL_GONE_CODES
 
 
 def _ratelimit_headers(headers: httpx.Headers) -> dict[str, str]:

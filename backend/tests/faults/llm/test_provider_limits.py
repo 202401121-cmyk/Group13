@@ -46,13 +46,13 @@ def test_dead_and_cooling_providers_are_skipped_quickly_and_the_call_gives_up_cl
     assert {p: len(a.calls) for p, a in adapters.items()} == {  # type: ignore[attr-defined]
         Provider.GEMINI: 1,
         Provider.MISTRAL: 1,
-        Provider.CEREBRAS: 1,
+        Provider.CEREBRAS: 0,  # unavailable, so it is skipped with no call
     }
 
 
 def test_intake_falls_back_to_its_rules_when_every_private_budget_is_spent() -> None:
     adapters: dict[Provider, Adapter] = {p: FakeAdapter(p) for p in Provider}
-    budget = DailyTokenBudget({Provider.GROQ: 1, Provider.CEREBRAS: 1})
+    budget = DailyTokenBudget({Provider.GROQ: 1})
     log = InMemoryCallLog()
     client = WrapperLLMClient(load_llm_config(), adapters, log, budget=budget, limiters={})
 
@@ -62,5 +62,4 @@ def test_intake_falls_back_to_its_rules_when_every_private_budget_is_spent() -> 
     assert all(a.calls == [] for a in adapters.values())  # type: ignore[attr-defined]
     assert {(r.provider, r.outcome, r.data_class) for r in log.records} == {
         (Provider.GROQ, "skipped_budget", DataClass.PRIVATE),
-        (Provider.CEREBRAS, "skipped_budget", DataClass.PRIVATE),
     }

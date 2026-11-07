@@ -22,18 +22,21 @@ from app.contracts import (
     StageContext,
 )
 from app.criteria import CriteriaStage, InMemoryCriteriaStore
+from app.criteria.parsing import RawCriteria
+from app.criteria.prompts import RETRY_NOTE, SYSTEM_PROMPT
 from app.intake import IntakeStage
 from app.llm import InMemoryCallLog, WrapperLLMClient, load_llm_config
 from app.llm.config import DEFAULT_CONFIG_PATH, LLMConfig, LLMConfigError
 from app.llm.errors import ServerError
+from app.llm.output import build_system_prompt
 from app.llm.providers import Adapter
 from tests.fakes.llm import FakeAdapter
 
 G, C, GE, OR, M = Provider.GROQ, Provider.CEREBRAS, Provider.GEMINI, Provider.OPENROUTER, Provider.MISTRAL
 TRAINING = {GE, OR, M}
 EXPECTED_ROUTES = {
-    DataClass.PRIVATE: {Difficulty.SHORT: [G, C], Difficulty.MEDIUM: [G, C], Difficulty.LONG: [G, C]},
-    DataClass.REDDIT: {Difficulty.SHORT: [G, C], Difficulty.MEDIUM: [G, C], Difficulty.LONG: [G, C]},
+    DataClass.PRIVATE: {Difficulty.SHORT: [G], Difficulty.MEDIUM: [G], Difficulty.LONG: [G]},
+    DataClass.REDDIT: {Difficulty.SHORT: [G], Difficulty.MEDIUM: [G], Difficulty.LONG: [G]},
     DataClass.PUBLIC: {
         Difficulty.SHORT: [M, G],
         Difficulty.MEDIUM: [M, GE, G, OR],
@@ -85,7 +88,8 @@ def test_each_call_follows_its_route_in_order(data_class: DataClass, difficulty:
         _client(adapters).complete(
             LLMTask.DISCOVER_ALIASES, "s", "u", Answer, data_class=data_class, difficulty=difficulty
         )
-    assert journal == EXPECTED_ROUTES[data_class][difficulty]
+    # Groq's three models are tried in turn; Cerebras stays in its public route, but is skipped with no call.
+    assert list(dict.fromkeys(journal)) == [p for p in EXPECTED_ROUTES[data_class][difficulty] if p is not C]
     if data_class is not DataClass.PUBLIC:
         assert not TRAINING & set(journal)
 
@@ -118,7 +122,9 @@ def test_mistral_bad_json_is_retried_once_then_the_next_provider_answers() -> No
 def test_even_a_bad_route_cannot_send_private_text_to_a_training_provider(data_class: DataClass) -> None:
     good = load_llm_config()
     bad_routes = {**good.routes, data_class: {d: [GE, M, OR, G] for d in Difficulty}}
-    config = LLMConfig.model_construct(providers=good.providers, models=good.models, routes=bad_routes)  # unchecked
+    config = LLMConfig.model_construct(
+        providers=good.providers, models=good.models, routes=bad_routes, pool=good.pool
+    )  # unchecked
     trainers = {p: FakeAdapter(p, replies=(OK,)) for p in TRAINING}
     groq = FakeAdapter(G, replies=(ServerError(G, "HTTP 500"),))
     client = _client({**trainers, G: groq}, config)
@@ -127,7 +133,7 @@ def test_even_a_bad_route_cannot_send_private_text_to_a_training_provider(data_c
             LLMTask.DISCOVER_ALIASES, "s", "my words", Answer, data_class=data_class, difficulty=Difficulty.SHORT
         )
     assert all(a.calls == [] for a in trainers.values())
-    assert _records(client) == [(G, "error")]
+    assert _records(client) == [(G, "error")] * 3
 
 
 @pytest.mark.parametrize(
@@ -181,8 +187,48 @@ def test_intake_sends_the_shoppers_words_only_to_non_training_providers() -> Non
     client = _client(adapters)
     intent = IntakeStage(client).run(IntakeInput(raw_query="gaming laptop under 80k for my bad back"), CTX)
     assert intent.detected_by == "rules"  # every allowed provider failed, so the keyword rules answered
-    assert [r[0] for r in _records(client)] == [G, C]
+    assert [r[0] for r in _records(client)] == [G, G, G]
     assert all(adapters[p].calls == [] for p in TRAINING)
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "best laptop for coding under 70k",
+        "a laptop for my dad, call me on 98765 43210, my name is Asha",
+    ],
+)
+def test_with_groq_blank_the_public_brief_holds_only_our_own_words(raw: str) -> None:
+    """The whole message a training provider sees, with the shopper's request gone through the real stages."""
+    mistral = FakeAdapter(M, replies=('{"criteria": []}',))
+    client = _client({M: mistral})  # no Groq key: intake uses its rules, and the brief is public
+    intent = IntakeStage(client).run(IntakeInput(raw_query=raw), CTX)
+    assert (intent.detected_by, intent.category, intent.use_case) == ("rules", "laptop", None)
+    inp = CriteriaInput(category="laptop", category_label=str(intent.category_label), use_case=intent.use_case)
+    CriteriaStage(client, InMemoryCriteriaStore()).run(inp, CTX)
+
+    assert len(mistral.calls) == 2  # the first answer and the one retry
+    brief = "<brief>\ncategory: Laptop\nuse: not stated\n</brief>"
+    assert [c.user for c in mistral.calls] == [brief, f"{brief}\n{RETRY_NOTE}"]
+    fixed = build_system_prompt(SYSTEM_PROMPT, RawCriteria)
+    assert {c.system for c in mistral.calls} == {fixed}  # fixed text: nothing of the shopper's
+
+
+@pytest.mark.parametrize(
+    "inp",
+    [
+        CriteriaInput(category="laptop", category_label="Laptop", use_case="coding on trains"),
+        CriteriaInput(category="laptop", category_label="laptop for my dad"),
+        CriteriaInput(category="telescope", category_label="Telescope"),
+    ],
+    ids=["their use case", "their words as the label", "a category we do not know"],
+)
+def test_a_brief_with_the_shoppers_words_never_reaches_a_training_provider(inp: CriteriaInput) -> None:
+    adapters = {p: FakeAdapter(p, replies=(ServerError(p, "HTTP 503"),)) for p in Provider}
+    client = _client(adapters)
+    CriteriaStage(client, InMemoryCriteriaStore()).run(inp, CTX)
+    assert all(adapters[p].calls == [] for p in TRAINING)
+    assert adapters[G].calls
 
 
 def test_criteria_with_a_use_case_is_private_and_without_one_is_public() -> None:

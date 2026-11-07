@@ -75,18 +75,32 @@ def _failing(provider: Provider, error: type[ProviderFailure] = ServerError, **k
 
 
 def _config_with(**limits: tuple[int, int]) -> LLMConfig:
-    """The real config, every public route set to ORDER, and some models' (context window, max output) replaced."""
+    """One model per provider, none of them paced, and Cerebras switched on, so each test can name the order it expects.
+
+    Every public route is set to ORDER, and some models' (context window, max output) can be changed. The pool and the
+    real routes are tested in test_pool.py and test_routing.py.
+    """
     base = load_llm_config()
+    first_groq = next(m.model for m in base.models if m.provider is Provider.GROQ)
     models = []
     for m in base.models:
+        if m.provider is Provider.GROQ and m.model != first_groq:
+            continue
         row = m.model_dump()
         if m.provider.value in limits:
             row["context_window_tokens"], row["max_output_tokens"] = limits[m.provider.value]
         models.append(row)
-    routes = {**base.routes, DataClass.PUBLIC: dict.fromkeys(Difficulty, ORDER)}
-    return LLMConfig.model_validate(
-        {"providers": [p.model_dump() for p in base.providers], "models": models, "routes": routes}
-    )
+    both = {d: [Provider.GROQ, Provider.CEREBRAS] for d in Difficulty}
+    routes = {DataClass.PRIVATE: both, DataClass.REDDIT: both, DataClass.PUBLIC: dict.fromkeys(Difficulty, ORDER)}
+    roomy = {
+        "requests_per_minute": 10**6,
+        "tokens_per_minute": 10**9,
+        "tokens_per_day": 10**12,
+        "requests_per_day": 10**6,
+    }
+    pool = {**base.pool.model_dump(), "members": [{"provider": "groq", "model": first_groq, **roomy}]}
+    providers = [{**p.model_dump(), "available": True, "unavailable_reason": None} for p in base.providers]
+    return LLMConfig.model_validate({"providers": providers, "models": models, "routes": routes, "pool": pool})
 
 
 # --- order and fallback -------------------------------------------------------------------------
@@ -107,7 +121,7 @@ def test_order_helpers() -> None:
     assert [m.provider for m in models] == ORDER
     for data_class in (DataClass.PRIVATE, DataClass.REDDIT):
         allowed = {m.provider for m in allowed_for_class(config, models, data_class)}
-        assert allowed == {Provider.GROQ, Provider.CEREBRAS}
+        assert allowed == {Provider.GROQ, Provider.CEREBRAS}  # the flag stays, whatever the routes say
     assert allowed_for_class(config, models, DataClass.PUBLIC) == models
     assert should_retry("invalid_output", 0)
     assert not should_retry("invalid_output", 1)
@@ -171,7 +185,7 @@ def test_every_provider_failing_raises_llm_unavailable() -> None:
 
 def test_a_provider_without_a_key_is_skipped_and_reported_once(caplog: pytest.LogCaptureFixture) -> None:
     caplog.set_level(logging.INFO, logger="app.llm.client")
-    groq = _failing(Provider.GROQ)
+    groq = _failing(Provider.GROQ, ProviderError)
     openrouter = FakeAdapter(Provider.OPENROUTER)
     client = _client({Provider.GROQ: groq, Provider.OPENROUTER: openrouter})  # no gemini or cerebras key
     client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
@@ -350,13 +364,54 @@ def test_a_bad_key_is_never_tried_again_in_the_run(error: type[ProviderFailure])
     assert client.health.state(Provider.GROQ) == "dead"
 
 
-def test_three_server_errors_switch_a_provider_off() -> None:
-    groq = _failing(Provider.GROQ, ServerError)
+def test_three_failures_switch_a_provider_off() -> None:
+    groq = _failing(Provider.GROQ, ProviderError)
     client = _client({Provider.GROQ: groq, Provider.GEMINI: FakeAdapter(Provider.GEMINI)})
     for _ in range(5):
         client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
     assert len(groq.calls) == 3
-    assert client.health.state(Provider.GROQ) == "cooling"
+    assert client.health.state(Provider.GROQ, groq.calls[0].model) == "cooling"
+
+
+def test_a_server_error_switches_a_provider_off_at_once() -> None:
+    gemini = _failing(Provider.GEMINI, ServerError)
+    client = _client({Provider.GEMINI: gemini, Provider.OPENROUTER: FakeAdapter(Provider.OPENROUTER)})
+    for _ in range(3):
+        client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
+    assert len(gemini.calls) == 1
+    assert client.health.state(Provider.GEMINI) == "cooling"
+
+
+def test_a_providers_budget_is_held_while_its_call_runs() -> None:
+    budget = DailyTokenBudget({Provider.GEMINI: 100_000})
+    seen: list[int | None] = []
+
+    def answer(_: str) -> str:
+        seen.append(budget.remaining(Provider.GEMINI))
+        return OK
+
+    gemini = FakeAdapter(Provider.GEMINI, replies=(answer,))
+    client = _client({Provider.GEMINI: gemini}, budget=budget)
+    client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
+    (during,) = seen
+    assert during is not None and during <= 100_000 - 1024  # the whole plan was held, so parallel calls see it
+    after = budget.remaining(Provider.GEMINI)
+    assert after is not None and during < after < 100_000  # then swapped for what it really used
+
+
+def test_an_unavailable_provider_is_skipped_with_no_call() -> None:
+    base = _config_with()
+    providers = [
+        {**p.model_dump(), "available": p.name is not Provider.GROQ, "unavailable_reason": "HTTP 402"}
+        for p in base.providers
+    ]
+    routes = {**base.routes, DataClass.PRIVATE: {d: [Provider.CEREBRAS] for d in Difficulty}}
+    routes[DataClass.REDDIT] = routes[DataClass.PRIVATE]
+    config = LLMConfig.model_validate({**base.model_dump(), "providers": providers, "routes": routes})
+    groq, gemini = FakeAdapter(Provider.GROQ), FakeAdapter(Provider.GEMINI)
+    client = _client({Provider.GROQ: groq, Provider.GEMINI: gemini}, config)
+    client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
+    assert groq.calls == [] and len(gemini.calls) == 1
 
 
 def test_invalid_output_does_not_count_against_a_provider() -> None:

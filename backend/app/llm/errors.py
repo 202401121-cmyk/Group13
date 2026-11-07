@@ -43,7 +43,15 @@ class ServerError(ProviderFailure):
 
 
 class AuthFailed(ProviderFailure):
-    """HTTP 401 or 403: the key is missing, wrong or not allowed to use this model."""
+    """HTTP 401: the key is missing or wrong, so nothing on this provider will work."""
+
+
+class ModelForbidden(AuthFailed):
+    """HTTP 403: this key may not use this model. The provider's other models may still work."""
+
+
+class ModelNotFound(ProviderFailure):
+    """HTTP 404, or an error code saying so: this model can't be used. The provider's other models may still work."""
 
 
 class NoCredit(ProviderFailure):
