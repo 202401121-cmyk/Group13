@@ -59,8 +59,9 @@ Work is organised by user story (US-xx). The story's acceptance criteria in `bac
 8. **Push the story branch** (yourself, or ask Claude Code to push it) and **open the pull request**: title
    `US-xx: <story title>`, the hand-over pasted into the description, screenshots at 390 px and 1440 px (light and
    dark) for any screen. Ask the area owner to review.
-9. **Merge** after approval and green CI (Om merges). Delete the branch. Every other open branch now takes the new
-   `main` and re-runs its checks before its next push.
+9. **Merge** after green CI (Om merges). The reviewer should look first, but Om may merge without waiting for the
+   approval. Delete the branch. Every other open branch now takes the new `main` and re-runs its checks before its
+   next push.
 
 ## Rules
 
@@ -90,7 +91,7 @@ Approve only if all five are yes. Leave specific comments; "looks good" is not a
 - [ ] Every acceptance criterion met and demonstrated
 - [ ] Unit tests and the stage's contract test written and passing
 - [ ] Golden tests for any new LLM parser; a fault test for any new fallback
-- [ ] Reviewed and approved by another member
+- [ ] A named reviewer asked to review (Om may merge without waiting for the approval)
 - [ ] Merged to `main` with every CI check green (and the quality gate, once it exists)
 - [ ] No secret or API key in the code
 - [ ] Docs or docstrings updated

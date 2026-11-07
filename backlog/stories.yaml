@@ -595,7 +595,7 @@ stories:
     goal: a clean repository with automatic checks
     benefit: the team can work safely in parallel and no key leaks
     criteria:
-      - One GitHub repo with all 10 members, a protected main, and one review required per merge
+      - One GitHub repo with all 10 members; main stays open by team decision, and each pull request has a named reviewer, though Om may merge without waiting for approval
       - CI runs ruff, mypy, ESLint and the tests on every pull request
       - Secret scanning is on, .env is ignored, and keys live only in GitHub Secrets
       - The database schema lives in versioned migration files from the first table onward
