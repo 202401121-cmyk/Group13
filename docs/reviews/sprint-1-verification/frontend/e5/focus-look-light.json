@@ -1,0 +1,118 @@
+{
+  "requestBox": {
+    "unfocused": {
+      "focusVisible": false,
+      "outline": "3px none oklch(0.331 0.031 166)",
+      "border": "1px oklch(0.885 0.01 90)",
+      "borderRgb": [
+        219,
+        217,
+        210,
+        255
+      ],
+      "boxShadow": "oklch(0.34 0.03 160 / 0.03) 0px 1px 2px 0px, oklch(0.34 0.03 160 / 0.08) 0px 6px 16px -10px",
+      "background": "oklch(1 0 0)",
+      "backgroundRgb": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    "focused": {
+      "focusVisible": true,
+      "outline": "2px none oklch(0.531 0.047 160.4)",
+      "border": "1px oklch(0.531 0.047 160.4)",
+      "borderRgb": [
+        84,
+        117,
+        99,
+        255
+      ],
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklab(0.531 -0.0442767 0.0157662 / 0.1) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px",
+      "background": "oklch(1 0 0)",
+      "backgroundRgb": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    "focusedBorderVsBackground": 5.12,
+    "focusedBorderVsUnfocusedBorder": 3.62
+  },
+  "dialog": {
+    "keepFocused": {
+      "focusVisible": true,
+      "outline": "2px none oklch(0.531 0.047 160.4)",
+      "border": "1px oklch(0.885 0.01 90)",
+      "borderRgb": [
+        219,
+        217,
+        210,
+        255
+      ],
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.531 0.047 160.4) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px",
+      "background": "oklch(0.973 0.007 97.4)",
+      "backgroundRgb": [
+        247,
+        246,
+        241,
+        255
+      ]
+    },
+    "keepUnfocused": {
+      "focusVisible": false,
+      "outline": "3px none oklch(0.331 0.031 166)",
+      "border": "1px oklch(0.885 0.01 90)",
+      "borderRgb": [
+        219,
+        217,
+        210,
+        255
+      ],
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px",
+      "background": "oklch(0.973 0.007 97.4)",
+      "backgroundRgb": [
+        247,
+        246,
+        241,
+        255
+      ]
+    },
+    "stopFocused": {
+      "focusVisible": true,
+      "outline": "2px none oklch(0.531 0.047 160.4)",
+      "border": "1px rgba(0, 0, 0, 0)",
+      "borderRgb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.531 0.047 160.4) 0px 0px 0px 1px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px",
+      "background": "oklch(0.973 0.007 97.4)",
+      "backgroundRgb": [
+        247,
+        246,
+        241,
+        255
+      ]
+    },
+    "keepRingColour": "rgba(0, 0, 0, 0)",
+    "sizes": {
+      "keep": {
+        "x": 669.8125,
+        "y": 464,
+        "width": 147.640625,
+        "height": 44
+      },
+      "stop": {
+        "x": 825.453125,
+        "y": 464,
+        "width": 125.546875,
+        "height": 44
+      }
+    }
+  }
+}

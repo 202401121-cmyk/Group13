@@ -1,0 +1,74 @@
+S0.1 clean clone of https://github.com/202401121-cmyk/Group13.git at 72d0433 in a temporary folder, installed exactly as README.md and docs/setup.md say. No real keys (.env copied from .env.example). Ports 8002, 3002 and 3003 instead of 8000 and 3000, which were held by stray servers.
+
+
+== README: git clone https://github.com/202401121-cmyk/Group13.git, then check out 72d0433
+72d0433 Merge pull request #37 from 202401121-cmyk/chore/sprint-1-check
+
+== README: git config core.autocrlf false
+ok
+
+== README: python -m venv .venv; source .venv/Scripts/activate; pip install -e ".[dev]"  (Python 3.11)
+Python 3.11.15
+pip install: ok
+
+== README: cp ../.env.example ../.env
+ok
+
+== README: python -m app.cli "best laptop for coding under 70k"
+exit 0
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Laptop · budget up to ₹70,000 · region IN · detected by rules
+Criteria (fallback):
+  1. Nova Book 14: score 78.3, coverage 100%, chance of being first 46%
+  2. Kestrel Slim 15: score 75.9, coverage 100%, chance of being first 41%
+  3. Orion Play 15: score 67.0, coverage 90%, chance of being first 13%
+
+== README: uvicorn app.main:app --port 8000  (run on 8002 here), GET /api/health
+{"status":"ok","schema_version":"1.2.0","database":"off"}
+
+== setup.md: pip install -r ml/requirements.txt (and the root requirements.txt)
+ml requirements: ok
+root requirements.txt: ok
+
+== README ml: check_labels, kappa, match_baseline
+OK: 1 file, 3 rows checked, no errors.
+PASS: four-class kappa 0.859 is at least 0.800.
+match_baseline exit 2 (2 = raw data not downloaded, as README says)
+
+== README frontend: cd frontend && npm ci
+
+added 420 packages in 6m
+
+== README frontend: npm run dev (port 3002 here), GET /
+GET / -> 200
+
+== README: python scripts/doctor.py (venv active, no real keys)
+check                    status  detail
+Python                   OK      3.11
+Node                     OK      22.18
+Backend installed        OK      with python.exe
+Frontend installed       OK      node_modules present
+Root .env                OK      repository root; ignored by git
+No backend/.env          OK      none
+LLM keys                 WARN    none set (intake uses keyword rules, criteria use fixed sets)
+Other keys               OK      set: none; missing: SERPER_API_KEY, YOUTUBE_API_KEY, JINA_API_KEY, HF_TOKEN, REDDIT_USER_SALT (all optional in Sprint 1)
+Database                 OK      off (DATABASE_URL is empty: nothing is saved, everything else works)
+Contracts in sync        OK      68 files match the models
+Frontend contract types  OK      56 up to date
+Frontend settings        WARN    VITE_API_MODE is mock: npm run dev alone shows sample data
+CORS                     OK      http://localhost:3000 is allowed
+Backend port             WARN    8000 is in use
+Frontend port            OK      3000 is free
+
+How to fix:
+  LLM keys: Add at least GROQ_API_KEY to the root .env (docs/api-setup.md)
+  Frontend settings: scripts/dev.py starts it in live mode for you; or set VITE_API_MODE=live in frontend/.env.local
+  Backend port: Stop whatever runs on port 8000 before scripts/dev.py
+
+Nothing failed.
+
+== README: python scripts/dev.py --mock  (frontend port 3003 here)
+Frontend  http://localhost:3003  (mock mode)
+GET / on 3003 -> 200
+
+== done

@@ -1,0 +1,21 @@
+== F1/F2 run 1: python scripts/dev.py --backend-port 8008 --frontend-port 3008 (database on), 2026-11-04 18:00 UTC
+Frontend  http://localhost:3008  (live mode)
+Backend   http://localhost:8008  (database: ok)
+LLM providers with a key: 5 of 5
+health: {"status":"ok","schema_version":"1.2.0","database":"ok"}
+LIVE_SESSION sess_3a380586368d7289d5b2c29d
+LIVE_TIMINGS {"understood":9013,"criteria":229,"interview (9 answers)":4103,"brief":222,"research and results":551}
+  1 passed (15.6s)
+live test wall time: 19 s
+check_request_saved: saved
+
+== F2 run 2: python scripts/dev.py --no-db --backend-port 8008 --frontend-port 3008, 2026-11-04 18:00 UTC
+Frontend  http://localhost:3008  (live mode)
+Backend   http://localhost:8008  (database: off)
+LLM providers with a key: 5 of 5
+health: {"status":"ok","schema_version":"1.2.0","database":"off"}
+LIVE_SESSION sess_972c64171b5a855e8a9fc425
+LIVE_TIMINGS {"understood":6683,"criteria":243,"interview (9 answers)":3951,"brief":194,"research and results":463}
+  1 passed (12.7s)
+live test wall time: 15 s
+check_request_saved: not found

@@ -1,0 +1,8 @@
+A5 frontend end-to-end specs, mock mode, in the clean clone, 2026-11-04 17:38 UTC
+$ npm run test:e2e   (builds, serves on 3100, runs e2e/flow.spec.ts, e2e/quality/ and e2e/live/ (which skips itself without LIVE_E2E=1))
+  exit 0, 192 s
+  2 skipped
+  36 passed (3.1m)
+  skipped tests and why:
+    -   1 [chromium] › e2e\live\full-flow.spec.ts:16:1 › @live a shopper goes from a typed request to ranked results with sources
+    -  25 [chromium] › e2e\quality\motion.spec.ts:68:3 › motion allowed › the background stops drawing when the tab is hidden

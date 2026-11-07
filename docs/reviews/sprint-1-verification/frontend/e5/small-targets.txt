@@ -1,0 +1,3 @@
+Every visible interactive element smaller than 44 x 44 px, on every state of the matrix (390, 1440 and 320 px).
+Element measurements taken: 10854 (summed over states and configs)
+

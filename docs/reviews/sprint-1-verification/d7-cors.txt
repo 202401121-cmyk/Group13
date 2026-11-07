@@ -1,0 +1,4 @@
+D7 CORS, backend A started with no FRONTEND_ORIGINS (default http://localhost:3000; the built app also serves on 3000 by default), 2026-11-04 17:56 UTC
+origin http://localhost:3000: preflight 200 allow-origin='http://localhost:3000'; GET /api/health 200 allow-origin='http://localhost:3000'
+origin http://localhost:3001: preflight 400 allow-origin=None; GET /api/health 200 allow-origin=None
+origin http://evil.example: preflight 400 allow-origin=None; GET /api/health 200 allow-origin=None

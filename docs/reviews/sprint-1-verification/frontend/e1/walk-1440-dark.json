@@ -1,0 +1,191 @@
+{
+  "config": {
+    "width": 1440,
+    "height": 900,
+    "theme": "dark"
+  },
+  "motion": "browser default",
+  "steps": [
+    {
+      "step": "01-home",
+      "url": "http://localhost:3110/",
+      "h1": "Find the right product, with evidence.Find the right product,with evidence.",
+      "shot": {
+        "file": "e1/1440-dark/01-home.jpg",
+        "kb": 150,
+        "quality": 70,
+        "fullPage": true
+      },
+      "theme": {
+        "htmlHasDarkClass": true,
+        "storedTheme": "dark",
+        "bodyBackground": "oklch(0.245 0.022 158)",
+        "bodyText": "oklch(0.955 0.008 95)",
+        "h1Text": "oklch(0.955 0.008 95)"
+      }
+    },
+    {
+      "step": "02-research",
+      "url": "http://localhost:3110/research",
+      "h1": "What are you shopping for?",
+      "shot": {
+        "file": "e1/1440-dark/02-research.jpg",
+        "kb": 48,
+        "quality": 70,
+        "fullPage": false
+      },
+      "theme": {
+        "htmlHasDarkClass": true,
+        "storedTheme": "dark",
+        "bodyBackground": "oklch(0.245 0.022 158)",
+        "bodyText": "oklch(0.955 0.008 95)",
+        "h1Text": "oklch(0.955 0.008 95)"
+      }
+    },
+    {
+      "step": "03-understood",
+      "url": "http://localhost:3110/research",
+      "h1": "Here's what we understood",
+      "shot": {
+        "file": "e1/1440-dark/03-understood.jpg",
+        "kb": 60,
+        "quality": 70,
+        "fullPage": true
+      },
+      "theme": {
+        "htmlHasDarkClass": true,
+        "storedTheme": "dark",
+        "bodyBackground": "oklch(0.245 0.022 158)",
+        "bodyText": "oklch(0.955 0.008 95)",
+        "h1Text": "oklch(0.955 0.008 95)"
+      }
+    },
+    {
+      "step": "04-criteria",
+      "url": "http://localhost:3110/s/sess_<id>/criteria",
+      "h1": "What matters for a laptop",
+      "shot": {
+        "file": "e1/1440-dark/04-criteria.jpg",
+        "kb": 81,
+        "quality": 70,
+        "fullPage": true
+      },
+      "theme": {
+        "htmlHasDarkClass": true,
+        "storedTheme": "dark",
+        "bodyBackground": "oklch(0.245 0.022 158)",
+        "bodyText": "oklch(0.955 0.008 95)",
+        "h1Text": "oklch(0.955 0.008 95)"
+      }
+    },
+    {
+      "step": "05-questions",
+      "url": "http://localhost:3110/s/sess_<id>/questions",
+      "h1": null,
+      "shot": {
+        "file": "e1/1440-dark/05-questions.jpg",
+        "kb": 70,
+        "quality": 70,
+        "fullPage": true
+      },
+      "theme": {
+        "htmlHasDarkClass": true,
+        "storedTheme": "dark",
+        "bodyBackground": "oklch(0.245 0.022 158)",
+        "bodyText": "oklch(0.955 0.008 95)",
+        "h1Text": null
+      }
+    },
+    {
+      "step": "06-questions-finished",
+      "url": "http://localhost:3110/s/sess_<id>/questions",
+      "h1": null,
+      "shot": {
+        "file": "e1/1440-dark/06-questions-finished.jpg",
+        "kb": 78,
+        "quality": 70,
+        "fullPage": true
+      },
+      "theme": {
+        "htmlHasDarkClass": true,
+        "storedTheme": "dark",
+        "bodyBackground": "oklch(0.245 0.022 158)",
+        "bodyText": "oklch(0.955 0.008 95)",
+        "h1Text": null
+      }
+    },
+    {
+      "step": "07-brief",
+      "url": "http://localhost:3110/s/sess_<id>/brief",
+      "h1": "Your brief for a laptop",
+      "shot": {
+        "file": "e1/1440-dark/07-brief.jpg",
+        "kb": 75,
+        "quality": 70,
+        "fullPage": true
+      },
+      "theme": {
+        "htmlHasDarkClass": true,
+        "storedTheme": "dark",
+        "bodyBackground": "oklch(0.245 0.022 158)",
+        "bodyText": "oklch(0.955 0.008 95)",
+        "h1Text": "oklch(0.955 0.008 95)"
+      }
+    },
+    {
+      "step": "08-researching",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "h1": "Researching laptops for you",
+      "shot": {
+        "file": "e1/1440-dark/08-researching.jpg",
+        "kb": 62,
+        "quality": 70,
+        "fullPage": true
+      },
+      "theme": {
+        "htmlHasDarkClass": true,
+        "storedTheme": "dark",
+        "bodyBackground": "oklch(0.245 0.022 158)",
+        "bodyText": "oklch(0.955 0.008 95)",
+        "h1Text": "oklch(0.955 0.008 95)"
+      }
+    },
+    {
+      "step": "09-results",
+      "url": "http://localhost:3110/s/sess_<id>/results",
+      "h1": "Results for your laptop",
+      "shot": {
+        "file": "e1/1440-dark/09-results.jpg",
+        "kb": 138,
+        "quality": 70,
+        "fullPage": true
+      },
+      "theme": {
+        "htmlHasDarkClass": true,
+        "storedTheme": "dark",
+        "bodyBackground": "oklch(0.245 0.022 158)",
+        "bodyText": "oklch(0.955 0.008 95)",
+        "h1Text": "oklch(0.955 0.008 95)"
+      }
+    },
+    {
+      "step": "10-research-direct",
+      "url": "http://localhost:3110/research",
+      "h1": "Here's what we understood",
+      "shot": {
+        "file": "e1/1440-dark/10-research-direct.jpg",
+        "kb": 60,
+        "quality": 70,
+        "fullPage": true
+      },
+      "theme": {
+        "htmlHasDarkClass": true,
+        "storedTheme": "dark",
+        "bodyBackground": "oklch(0.245 0.022 158)",
+        "bodyText": "oklch(0.955 0.008 95)",
+        "h1Text": "oklch(0.955 0.008 95)"
+      }
+    }
+  ],
+  "log": []
+}

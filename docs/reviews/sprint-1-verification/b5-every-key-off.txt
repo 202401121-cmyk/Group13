@@ -1,0 +1,31 @@
+B5 every LLM key off (all five blank in backend B's environment), database off, 2026-11-04 17:57 UTC
+
+### Gaming laptop under 80k
+health: 200 {'status': 'ok', 'schema_version': '1.2.0', 'database': 'off'}
+intake 'Gaming laptop under 80k': 200 (140 ms) session=sess_f060d20ea268f09f0a151575 id format ok=True by=rules category=laptop use=None budget=min None max 80000.0 region=IN hard_rules=[] exclusions=[] needs_clarification=False
+criteria: 200 (16 ms) source=cached count=9
+interview: 9 replies, finished=True
+session request_saved=off
+search: 200 (15 ms)
+  SearchResult schema: valid; saved=True partial=False coverage_note='YouTube timed out.'
+  stage reports (8): research=ok/0ms, extract=ok/0ms, match=ok/0ms, verify=ok/0ms, enrich=ok/0ms, decide=ok/0ms, explain=ok/0ms, commerce=ok/0ms
+  ranked: [('prd_nova_book_14', 78.3), ('prd_kestrel_slim_15', 75.9), ('prd_orion_play_15', 67.0)]; products 5; sources 3
+  filtered products missing from products: []
+  result criterion keys match the session's criteria: n/a (session 9, result [])
+
+### noise cancelling headphones under 8000
+health: 200 {'status': 'ok', 'schema_version': '1.2.0', 'database': 'off'}
+intake 'noise cancelling headphones under 8000': 200 (0 ms) session=sess_a932cbeb7b48160428660c7a id format ok=True by=rules category=headphones use=None budget=min None max 8000.0 region=IN hard_rules=[] exclusions=[] needs_clarification=False
+criteria: 200 (109 ms) source=fallback count=8
+interview: 8 replies, finished=True
+session request_saved=off
+search: 200 (15 ms)
+  SearchResult schema: valid; saved=True partial=False coverage_note='YouTube timed out.'
+  stage reports (8): research=ok/0ms, extract=ok/0ms, match=ok/0ms, verify=ok/0ms, enrich=ok/0ms, decide=ok/14ms, explain=ok/0ms, commerce=ok/0ms
+  ranked: [('prd_nova_book_14', 78.3), ('prd_kestrel_slim_15', 75.9), ('prd_orion_play_15', 67.0)]; products 5; sources 3
+  filtered products missing from products: []
+  result criterion keys match the session's criteria: n/a (session 8, result [])
+
+"watch" with every key off:
+  detected_by rules | question 'Which kind of watch do you mean?' | options ['Smartwatch', 'Fitness band', 'Analog watch']
+LLM call records in backend B's log: 0

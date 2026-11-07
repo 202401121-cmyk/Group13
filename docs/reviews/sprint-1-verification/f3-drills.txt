@@ -1,0 +1,32 @@
+F3 drills from docs/setup.md section 7, exactly as written, with --backend-port 8008 --frontend-port 3008 added (8000 is held by a stray server on this laptop).
+
+== Drill 1, one LLM key off: GROQ_API_KEY= python scripts/dev.py, 2026-11-04 18:01 UTC
+Frontend  http://localhost:3008  (live mode)
+Backend   http://localhost:8008  (database: ok)
+LLM providers with a key: 4 of 5
+health: {"status":"ok","schema_version":"1.2.0","database":"ok"}
+LIVE_SESSION sess_859443ed8c493331cc8c36c9
+LIVE_TIMINGS {"understood":7152,"criteria":197,"interview (9 answers)":3859,"brief":188,"research and results":435}
+  1 passed (13.1s)
+live test wall time: 16 s
+
+== Drill 2, database down: DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:9/postgres" python scripts/dev.py, 2026-11-04 18:02 UTC
+Frontend  http://localhost:3008  (live mode)
+Backend   http://localhost:8008  (database: down)
+LLM providers with a key: 5 of 5
+health: {"status":"ok","schema_version":"1.2.0","database":"down"}
+LIVE_SESSION sess_24e30338e241a1211a2ea474
+LIVE_TIMINGS {"understood":7257,"criteria":232,"interview (9 answers)":3898,"brief":173,"research and results":491}
+  1 passed (13.3s)
+live test wall time: 16 s
+curl -s http://localhost:8008/api/health -> {"status":"ok","schema_version":"1.2.0","database":"down"}
+
+== Drill 3, every LLM key off: GROQ_API_KEY= GEMINI_API_KEY= OPENROUTER_API_KEY= CEREBRAS_API_KEY= MISTRAL_API_KEY= python scripts/dev.py, 2026-11-04 18:02 UTC
+Frontend  http://localhost:3008  (live mode)
+Backend   http://localhost:8008  (database: ok)
+LLM providers with a key: 0 of 5
+health: {"status":"ok","schema_version":"1.2.0","database":"ok"}
+LIVE_SESSION sess_4436e79e598b731f18eda1f6
+LIVE_TIMINGS {"understood":6222,"criteria":207,"interview (9 answers)":3961,"brief":217,"research and results":496}
+  1 passed (12.4s)
+live test wall time: 15 s

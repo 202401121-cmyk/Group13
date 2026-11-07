@@ -1,0 +1,43 @@
+B4 one LLM key off at a time (only that variable blank, in that one process), intake + criteria for "noise cancelling headphones for travel under 15000", database off, 2026-11-04 17:43 UTC
+
+### GROQ_API_KEY blank
+  log: llm provider groq skipped: GROQ_API_KEY is not set
+  log: stage intake: took longer than 5s; using its fallback
+  log: llm call task=detect_intent class=private provider=cerebras model=gpt-oss-120b outcome=error fitted=as_is in=714 out=0 ms=9264
+  log: intake: no LLM provider answered; using the keyword rules
+  log: stage criteria: took longer than 10s; using its fallback
+  intent (5.3 s): detected_by=rules category=headphones label='Headphones' use=None budget={"min": null, "max": {"amount": 15000.0, "currency": "INR"}} region=IN
+  criteria (10.2 s): source=fallback count=8
+  log: llm call task=generate_criteria class=public provider=mistral model=ministral-8b-latest outcome=ok fitted=as_is in=718 out=729 ms=14812
+
+### GEMINI_API_KEY blank
+  log: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=615 out=449 ms=1561
+  log: intake: dropped a price hard rule; the budget is read by code
+  log: llm call task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=758 out=1386 ms=3453
+  intent (1.9 s): detected_by=llm category=headphones label='Headphones' use='travel' budget={"min": null, "max": {"amount": 15000.0, "currency": "INR"}} region=IN
+  criteria (3.6 s): source=generated count=8
+
+### OPENROUTER_API_KEY blank
+  log: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=615 out=496 ms=1828
+  log: intake: dropped a price hard rule; the budget is read by code
+  log: llm call task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=758 out=1405 ms=3469
+  intent (2.2 s): detected_by=llm category=headphones label='Headphones' use='travel' budget={"min": null, "max": {"amount": 15000.0, "currency": "INR"}} region=IN
+  criteria (3.7 s): source=generated count=8
+
+### CEREBRAS_API_KEY blank
+  log: llm provider cerebras skipped: CEREBRAS_API_KEY is not set
+  log: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=615 out=570 ms=1780
+  log: intake: dropped a price hard rule; the budget is read by code
+  log: llm call task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=758 out=1907 ms=4639
+  intent (2.1 s): detected_by=llm category=headphones label='Headphones' use='travel' budget={"min": null, "max": {"amount": 15000.0, "currency": "INR"}} region=IN
+  criteria (4.8 s): source=generated count=8
+
+### MISTRAL_API_KEY blank
+  log: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=rate_limited fitted=as_is in=714 out=0 ms=203
+  log: llm call task=detect_intent class=private provider=cerebras model=gpt-oss-120b outcome=error fitted=as_is in=714 out=0 ms=530
+  log: intake: no LLM provider answered; using the keyword rules
+  log: llm provider mistral skipped: MISTRAL_API_KEY is not set
+  log: llm groq skipped: cooling
+  log: criteria: no LLM provider answered; using the headphones fallback set
+  intent (1.0 s): detected_by=rules category=headphones label='Headphones' use=None budget={"min": null, "max": {"amount": 15000.0, "currency": "INR"}} region=IN
+  criteria (0.2 s): source=fallback count=8

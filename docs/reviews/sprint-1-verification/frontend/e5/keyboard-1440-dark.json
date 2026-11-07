@@ -1,0 +1,24 @@
+{
+  "config": {
+    "width": 1440,
+    "height": 900,
+    "theme": "dark"
+  },
+  "stopsRecorded": 420,
+  "uniqueStops": 150,
+  "problems": [],
+  "smallStops": [],
+  "traps": [],
+  "events": [
+    "understood: the h1 has focus on arrival",
+    "understood: Enter opens the budget editor with focus in From; Escape closes it and focus returns to Edit budget",
+    "questions: Enter opens Why this question",
+    "questions: every question answered with Tab + Space on High",
+    "brief: ArrowDown on the scenario picker gave \"tie\", ArrowUp gave \"success\"",
+    "dialog: focus starts on Keep researching; Tab and Shift+Tab stay inside = true; Escape closes it, URL still results = true, focus on a \"Home\"",
+    "results: the h1 has focus when results arrive = true",
+    "results: Enter on Show all criteria opened it = true; Space closed it again = true"
+  ],
+  "pics": [],
+  "log": []
+}

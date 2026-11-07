@@ -1,0 +1,39 @@
+D4 US-05 against backend A (keys on, database off), 2026-11-04 17:55 UTC. (A first run had field-name bugs in this harness, not in the app; this is the corrected run.)
+criteria source: under 30k=cached, no budget=cached
+questions with 'under 30k' (9): ['cpu_single_core_score', 'cpu_multi_core_score', 'ram_capacity', 'storage_capacity', 'keyboard_travel', 'battery_life', 'weight', 'value_for_money', 'screen_resolution']
+questions with no budget (9): ['cpu_single_core_score', 'cpu_multi_core_score', 'ram_capacity', 'storage_capacity', 'keyboard_travel', 'battery_life', 'weight', 'value_for_money', 'screen_resolution']
+asked without the budget but skipped with 'under 30k': []
+first step: kind=question quick replies=['Low', 'Medium', 'High', 'Skip'] message='How much do you care about single‑core CPU score?'
+criteria by default weight: ['cpu_single_core_score', 'cpu_multi_core_score', 'ram_capacity', 'storage_capacity', 'keyboard_travel', 'battery_life', 'weight', 'value_for_money', 'screen_resolution']
+question order equals default-weight order: True
+finished: kind=finished weights: 9 criteria, normalized shares sum to 1.000000; 0-10 weights=[8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0]
+rubric hard rules carried from the intent: intent=1 rule(s), 1 exclusion(s); rubric hard_rules=[{"attribute": "ram_gb", "operator": ">=", "value": 16.0, "unit": "GB", "source_text": "at least 16 GB RAM"}] exclusions=[{"kind": "feature", "value": "refurbished", "always": false}]
+  reply 'Low': 200 kind=question message='How much do you care about multi‑core CPU score?'
+  reply 'Medium': 200 kind=question message='How much do you care about RAM capacity?'
+  reply '7': 200 kind=question message='How much do you care about SSD capacity?'
+  reply 'it matters a lot to me': 200 kind=rephrase message='Please pick one of the buttons, or type a number from 0 to 10.'
+reload mid-interview (GET session): 200 interview_step kind=rephrase history before back=[('cpu_single_core_score', 'answered', 2.0), ('cpu_multi_core_score', 'answered', 5.0), ('ram_capacity', 'answered', 7.0), ('storage_capacity', 'pending', None)]
+back to the first question (q_cpu_single_core_score): 200 kind=question
+history after changing the first answer to High: [('cpu_single_core_score', 'answered', 8.0), ('cpu_multi_core_score', 'answered', 5.0), ('ram_capacity', 'answered', 7.0), ('storage_capacity', 'pending', None)]
+the same reply sent twice at once: statuses=[200, 200] answers recorded 4 -> 5 (answered once)
+GET sess_000000000000000000000000: 404 {'detail': 'This session has expired. Please start a new search.'}
+GET not-a-session: 404 {'detail': 'This session has expired. Please start a new search.'}
+GET sess_short: 404 {'detail': 'This session has expired. Please start a new search.'}
+turn times over 33 turns: p50=0 ms p90=16 ms max=16 ms (limit 5,000)
+
+non-2xx responses seen: 3
+  404 GET /api/presearch/sess_000000000000000000000000: shape ok; leak none; detail={"detail": "This session has expired. Please start a new search."}
+  404 GET /api/presearch/not-a-session: shape ok; leak none; detail={"detail": "This session has expired. Please start a new search."}
+  404 GET /api/presearch/sess_short: shape ok; leak none; detail={"detail": "This session has expired. Please start a new search."}
+error-shape or leak problems: 0
+
+Premium-tier skip (US-05.2): neither the fixed criteria sets nor today's generated sets contain a premium-word key, so it cannot be shown live; its unit tests:
+  PASSED tests/unit/interview/test_plan.py::test_answered_and_skipped_questions_leave_the_plan
+  PASSED tests/unit/interview/test_plan.py::test_a_medium_answer_settles_nothing
+  PASSED tests/unit/interview/test_plan.py::test_budget_below_the_threshold_skips_premium_questions
+  PASSED tests/unit/interview/test_plan.py::test_premium_questions_stay_otherwise[40000-INR-smartphone]
+  PASSED tests/unit/interview/test_plan.py::test_premium_questions_stay_otherwise[None-INR-smartphone]
+  PASSED tests/unit/interview/test_plan.py::test_premium_questions_stay_otherwise[25000-USD-smartphone]
+  PASSED tests/unit/interview/test_plan.py::test_premium_questions_stay_otherwise[100-INR-tablet]
+  PASSED tests/unit/interview/test_stage.py::test_a_low_answer_settles_its_topic_in_the_rubric
+  8 passed, 21 deselected in 0.13s

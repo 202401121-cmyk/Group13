@@ -1,0 +1,101 @@
+{
+  "textsChecked": 612,
+  "forbidden": [
+    {
+      "token": "404",
+      "context": "404 | Page not found |  | The page you're looking for doesn",
+      "where": [
+        "default-1440-dark: page not found",
+        "default-1440-light: page not found",
+        "default-390-dark: page not found",
+        "default-390-light: page not found",
+        "reduce-1440-dark: page not found",
+        "reduce-1440-light: page not found"
+      ],
+      "count": 12
+    }
+  ],
+  "rupeeAmountsSeen": {
+    "₹3,000": 3,
+    "₹30,000": 3,
+    "₹40,000": 1,
+    "₹50,000": 1,
+    "₹68,490": 10,
+    "₹69,990": 10,
+    "₹70,000": 30,
+    "₹71,990": 9,
+    "₹73,490": 9,
+    "₹75,490": 9,
+    "₹76,990": 9
+  },
+  "badRupees": [],
+  "lowerCasedTitleLines": [
+    {
+      "title": "Features",
+      "line": "Describe what you need, your budget and the features you care about — in your own words.",
+      "count": 30,
+      "where": [
+        "default-1440-dark: home",
+        "default-1440-dark: home, empty request error",
+        "default-1440-light: home",
+        "default-1440-light: home, empty request error"
+      ]
+    },
+    {
+      "title": "Memory",
+      "line": "How much do you care about memory?",
+      "count": 12,
+      "where": [
+        "default-1440-dark: questions, after a skip",
+        "default-1440-light: questions, after a skip",
+        "default-390-dark: questions, after a skip",
+        "default-390-light: questions, after a skip"
+      ]
+    },
+    {
+      "title": "Memory",
+      "line": "The server keeps your answers to our questions in its memory, not in the database. They are deleted 2 hours after your last step.",
+      "count": 12,
+      "where": [
+        "default-1440-dark: privacy",
+        "default-1440-light: privacy",
+        "default-390-dark: privacy",
+        "default-390-light: privacy"
+      ]
+    },
+    {
+      "title": "Weight",
+      "line": "Sample explanation: A scores well on the criteria you weighted most, within your must-haves.",
+      "count": 120,
+      "where": [
+        "default-1440-dark: results, couldnt-check (every section open)",
+        "default-1440-dark: results, disputed (every section open)",
+        "default-1440-dark: results, estimated (every section open)",
+        "default-1440-dark: results, left-out (every section open)"
+      ]
+    },
+    {
+      "title": "Weight",
+      "line": "Sample explanation: B scores well on the criteria you weighted most, within your must-haves.",
+      "count": 120,
+      "where": [
+        "default-1440-dark: results, couldnt-check (every section open)",
+        "default-1440-dark: results, disputed (every section open)",
+        "default-1440-dark: results, estimated (every section open)",
+        "default-1440-dark: results, left-out (every section open)"
+      ]
+    },
+    {
+      "title": "Weight",
+      "line": "Sample explanation: C scores well on the criteria you weighted most, within your must-haves.",
+      "count": 108,
+      "where": [
+        "default-1440-dark: results, couldnt-check (every section open)",
+        "default-1440-dark: results, disputed (every section open)",
+        "default-1440-dark: results, estimated (every section open)",
+        "default-1440-dark: results, left-out (every section open)"
+      ]
+    }
+  ],
+  "lowerAcronyms": []
+}

@@ -1,0 +1,3267 @@
+{
+  "cli": {
+    "home": {
+      "1": {
+        "finalUrl": "http://localhost:3110/",
+        "fetchTime": "2026-11-04T18:31:19.411Z",
+        "lighthouseVersion": "13.5.0",
+        "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "benchmarkIndex": 790.5,
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "categories": {
+          "performance": 70,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100,
+          "agentic-browsing": 100
+        },
+        "FCP_ms": 4594.9538,
+        "LCP_ms": 4594.9538,
+        "TBT_ms": 0,
+        "CLS": 0.00028247017729706917,
+        "SI_ms": 5959.144146003069,
+        "INP_ms": null,
+        "runWarnings": [
+          "The tested device appears to have a slower CPU than  Lighthouse expects. This can negatively affect your performance score. Learn more about [calibrating an appropriate CPU slowdown multiplier](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#cpu-throttling)."
+        ],
+        "details": {
+          "lcp-breakdown-insight": {
+            "title": "LCP breakdown",
+            "score": 0,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              [
+                {
+                  "subpart": "timeToFirstByte",
+                  "label": "Time to first byte",
+                  "duration": 12.259
+                },
+                {
+                  "subpart": "elementRenderDelay",
+                  "label": "Element render delay",
+                  "duration": 2783.633
+                }
+              ],
+              {
+                "lhId": "page-0-P",
+                "path": "1,HTML,1,BODY,1,DIV,1,MAIN,0,DIV,0,SECTION,2,DIV,0,DIV,2,P",
+                "selector": "section.relative > div.relative > div.max-w-3xl > p.mt-7",
+                "snippet": "<p class=\"mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground\">",
+                "nodeLabel": "Stop jumping between reviews, product pages and comparison videos. ShopSense re…"
+              }
+            ]
+          },
+          "lcp-discovery-insight": {
+            "title": "LCP request discovery",
+            "score": null,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "render-blocking-insight": {
+            "title": "Render-blocking requests",
+            "score": 0,
+            "displayValue": "Est savings of 2,250 ms",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap",
+                "totalBytes": 1443,
+                "wastedMs": 1331
+              },
+              {
+                "url": "http://localhost:3110/assets/styles-DdlihkKO.css",
+                "totalBytes": 9011,
+                "wastedMs": 153
+              }
+            ]
+          },
+          "mainthread-work-breakdown": {
+            "title": "Minimize main-thread work",
+            "score": 0.5,
+            "displayValue": "3.6 s",
+            "numericValue": 3567.3039999999883,
+            "items": [
+              {
+                "group": "other",
+                "groupLabel": "Other",
+                "duration": 1149.9479999999971
+              },
+              {
+                "group": "scriptEvaluation",
+                "groupLabel": "Script Evaluation",
+                "duration": 1091.4039999999907
+              },
+              {
+                "group": "styleLayout",
+                "groupLabel": "Style & Layout",
+                "duration": 1019.3520000000001
+              },
+              {
+                "group": "paintCompositeRender",
+                "groupLabel": "Rendering",
+                "duration": 223.64400000000043
+              },
+              {
+                "group": "parseHTML",
+                "groupLabel": "Parse HTML & CSS",
+                "duration": 38.02
+              },
+              {
+                "group": "garbageCollection",
+                "groupLabel": "Garbage Collection",
+                "duration": 29.271999999999988
+              },
+              {
+                "group": "scriptParseCompile",
+                "groupLabel": "Script Parsing & Compilation",
+                "duration": 15.663999999999998
+              }
+            ]
+          },
+          "bootup-time": {
+            "title": "JavaScript execution time",
+            "score": 1,
+            "displayValue": "1.1 s",
+            "numericValue": 1097.7279999999917,
+            "items": [
+              {
+                "url": "http://localhost:3110/",
+                "total": 1291.544,
+                "scripting": 28.755999999999993,
+                "scriptParseCompile": 8.831999999999999
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "total": 1123.495999999992,
+                "scripting": 903.8999999999917,
+                "scriptParseCompile": 3.556
+              },
+              {
+                "url": "http://localhost:3110/assets/routes-DoyyP4KF.js",
+                "total": 676.404,
+                "scripting": 139.512,
+                "scriptParseCompile": 0.224
+              },
+              {
+                "url": "Unattributable",
+                "total": 400.9320000000015,
+                "scripting": 12.948000000000004,
+                "scriptParseCompile": 0
+              }
+            ]
+          },
+          "font-display-insight": {
+            "title": "Font display",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "network-dependency-tree-insight": {
+            "title": "Network dependency tree",
+            "score": 0,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {},
+              {
+                "title": "Preconnected origins",
+                "description": "[preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints help the browser establish a connection earlier in the page load, saving time when the first request for that origin is made. The following are the origins that the page preconnected to."
+              },
+              {
+                "title": "Preconnect candidates",
+                "description": "Add [preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints to your most important origins, but try to use no more than 4."
+              }
+            ]
+          },
+          "unused-javascript": {
+            "title": "Reduce unused JavaScript",
+            "score": 0,
+            "displayValue": "Est savings of 45 KiB",
+            "numericValue": 150,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "totalBytes": 94651,
+                "wastedBytes": 45905,
+                "wastedPercent": 48.499566097772636
+              }
+            ]
+          },
+          "long-tasks": {
+            "title": "Avoid long main-thread tasks",
+            "score": 1,
+            "displayValue": "8 long tasks found",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "http://localhost:3110/",
+                "duration": 321,
+                "startTime": 854.5118
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 114,
+                "startTime": 3697.3580000000006
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 111.99999999999955,
+                "startTime": 4021.3580000000006
+              },
+              {
+                "url": "Unattributable",
+                "duration": 92,
+                "startTime": 1175.5118
+              },
+              {
+                "url": "Unattributable",
+                "duration": 89,
+                "startTime": 753.5118
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 88,
+                "startTime": 3811.3580000000006
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 79,
+                "startTime": 3942.3580000000006
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 52,
+                "startTime": 4180.358
+              }
+            ]
+          },
+          "third-parties-insight": {
+            "title": "3rd parties",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {
+                "entity": "Google Fonts",
+                "mainThreadTime": 0,
+                "transferSize": 219632
+              }
+            ]
+          },
+          "server-response-time": {
+            "title": "Initial server response time was short",
+            "score": 1,
+            "displayValue": "Root document took 10 ms",
+            "numericValue": 7,
+            "items": [
+              {
+                "url": "http://localhost:3110/",
+                "responseTime": 7
+              }
+            ]
+          },
+          "document-latency-insight": {
+            "title": "Document request latency",
+            "score": 0.5,
+            "displayValue": "Est savings of 19 KiB",
+            "numericValue": null,
+            "items": "{\"noRedirects\": {\"label\": \"Avoids redirects\", \"value\": true}, \"serverResponseIsFast\": {\"label\": \"Server responds quickly (observed 7 ms)\", \"value\": true}, \"usesCompression\": {\"label\": \"No compression applied\", \"value\": false}}"
+          }
+        }
+      },
+      "2": {
+        "finalUrl": "http://localhost:3110/",
+        "fetchTime": "2026-11-04T18:32:50.285Z",
+        "lighthouseVersion": "13.5.0",
+        "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "benchmarkIndex": 900,
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "categories": {
+          "performance": 72,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100,
+          "agentic-browsing": 100
+        },
+        "FCP_ms": 4503.030668592759,
+        "LCP_ms": 4503.030668592759,
+        "TBT_ms": 0,
+        "CLS": 0.0002719921269276907,
+        "SI_ms": 4994.792633898587,
+        "INP_ms": null,
+        "runWarnings": [
+          "The tested device appears to have a slower CPU than  Lighthouse expects. This can negatively affect your performance score. Learn more about [calibrating an appropriate CPU slowdown multiplier](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#cpu-throttling)."
+        ],
+        "details": {
+          "lcp-breakdown-insight": {
+            "title": "LCP breakdown",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              [
+                {
+                  "subpart": "timeToFirstByte",
+                  "label": "Time to first byte",
+                  "duration": 12.997000007629394
+                },
+                {
+                  "subpart": "elementRenderDelay",
+                  "label": "Element render delay",
+                  "duration": 2135.2899999923707
+                }
+              ],
+              {
+                "lhId": "page-0-P",
+                "path": "1,HTML,1,BODY,1,DIV,1,MAIN,0,DIV,0,SECTION,2,DIV,0,DIV,2,P",
+                "selector": "section.relative > div.relative > div.max-w-3xl > p.mt-7",
+                "snippet": "<p class=\"mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground\">",
+                "nodeLabel": "Stop jumping between reviews, product pages and comparison videos. ShopSense re…"
+              }
+            ]
+          },
+          "lcp-discovery-insight": {
+            "title": "LCP request discovery",
+            "score": null,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "render-blocking-insight": {
+            "title": "Render-blocking requests",
+            "score": 0,
+            "displayValue": "Est savings of 2,170 ms",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap",
+                "totalBytes": 1443,
+                "wastedMs": 1119
+              },
+              {
+                "url": "http://localhost:3110/assets/styles-DdlihkKO.css",
+                "totalBytes": 9011,
+                "wastedMs": 154
+              }
+            ]
+          },
+          "mainthread-work-breakdown": {
+            "title": "Minimize main-thread work",
+            "score": 0.5,
+            "displayValue": "3.4 s",
+            "numericValue": 3364.0839999999803,
+            "items": [
+              {
+                "group": "other",
+                "groupLabel": "Other",
+                "duration": 1074.1919999999934
+              },
+              {
+                "group": "scriptEvaluation",
+                "groupLabel": "Script Evaluation",
+                "duration": 1037.219999999988
+              },
+              {
+                "group": "styleLayout",
+                "groupLabel": "Style & Layout",
+                "duration": 974.0159999999994
+              },
+              {
+                "group": "paintCompositeRender",
+                "groupLabel": "Rendering",
+                "duration": 202.81200000000004
+              },
+              {
+                "group": "parseHTML",
+                "groupLabel": "Parse HTML & CSS",
+                "duration": 33.436
+              },
+              {
+                "group": "garbageCollection",
+                "groupLabel": "Garbage Collection",
+                "duration": 28.172
+              },
+              {
+                "group": "scriptParseCompile",
+                "groupLabel": "Script Parsing & Compilation",
+                "duration": 14.235999999999999
+              }
+            ]
+          },
+          "bootup-time": {
+            "title": "JavaScript execution time",
+            "score": 1,
+            "displayValue": "1.0 s",
+            "numericValue": 1042.0079999999903,
+            "items": [
+              {
+                "url": "http://localhost:3110/",
+                "total": 1220.5199999999993,
+                "scripting": 25.575999999999986,
+                "scriptParseCompile": 8.043999999999999
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "total": 1044.9519999999902,
+                "scripting": 875.1679999999902,
+                "scriptParseCompile": 2.816
+              },
+              {
+                "url": "http://localhost:3110/assets/routes-DoyyP4KF.js",
+                "total": 632.6680000000002,
+                "scripting": 120.5279999999999,
+                "scriptParseCompile": 0.228
+              },
+              {
+                "url": "Unattributable",
+                "total": 390.2600000000024,
+                "scripting": 9.648,
+                "scriptParseCompile": 0
+              }
+            ]
+          },
+          "font-display-insight": {
+            "title": "Font display",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "network-dependency-tree-insight": {
+            "title": "Network dependency tree",
+            "score": 0,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {},
+              {
+                "title": "Preconnected origins",
+                "description": "[preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints help the browser establish a connection earlier in the page load, saving time when the first request for that origin is made. The following are the origins that the page preconnected to."
+              },
+              {
+                "title": "Preconnect candidates",
+                "description": "Add [preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints to your most important origins, but try to use no more than 4."
+              }
+            ]
+          },
+          "unused-javascript": {
+            "title": "Reduce unused JavaScript",
+            "score": 0,
+            "displayValue": "Est savings of 45 KiB",
+            "numericValue": 300,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "totalBytes": 94651,
+                "wastedBytes": 45905,
+                "wastedPercent": 48.499566097772636
+              }
+            ]
+          },
+          "long-tasks": {
+            "title": "Avoid long main-thread tasks",
+            "score": 1,
+            "displayValue": "9 long tasks found",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "http://localhost:3110/",
+                "duration": 313.0000000000001,
+                "startTime": 833.7536685927593
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 124,
+                "startTime": 4092.086354520353
+              },
+              {
+                "url": "Unattributable",
+                "duration": 114,
+                "startTime": 1146.7536685927594
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 107,
+                "startTime": 3985.086354520353
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 107,
+                "startTime": 4327.086354520353
+              },
+              {
+                "url": "Unattributable",
+                "duration": 72,
+                "startTime": 754.7536685927593
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 57,
+                "startTime": 4216.086354520353
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 54,
+                "startTime": 4273.086354520353
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 50,
+                "startTime": 4434.086354520353
+              }
+            ]
+          },
+          "third-parties-insight": {
+            "title": "3rd parties",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {
+                "entity": "Google Fonts",
+                "mainThreadTime": 0,
+                "transferSize": 219632
+              }
+            ]
+          },
+          "server-response-time": {
+            "title": "Initial server response time was short",
+            "score": 1,
+            "displayValue": "Root document took 10 ms",
+            "numericValue": 6,
+            "items": [
+              {
+                "url": "http://localhost:3110/",
+                "responseTime": 6
+              }
+            ]
+          },
+          "document-latency-insight": {
+            "title": "Document request latency",
+            "score": 0.5,
+            "displayValue": "Est savings of 19 KiB",
+            "numericValue": null,
+            "items": "{\"noRedirects\": {\"label\": \"Avoids redirects\", \"value\": true}, \"serverResponseIsFast\": {\"label\": \"Server responds quickly (observed 6 ms)\", \"value\": true}, \"usesCompression\": {\"label\": \"No compression applied\", \"value\": false}}"
+          }
+        }
+      },
+      "3": {
+        "finalUrl": "http://localhost:3110/",
+        "fetchTime": "2026-11-04T18:34:21.867Z",
+        "lighthouseVersion": "13.5.0",
+        "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "benchmarkIndex": 887,
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "categories": {
+          "performance": 73,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100,
+          "agentic-browsing": 100
+        },
+        "FCP_ms": 4410.123364730245,
+        "LCP_ms": 4410.123364730245,
+        "TBT_ms": 0,
+        "CLS": 0.0002719921269276907,
+        "SI_ms": 5001.810109892124,
+        "INP_ms": null,
+        "runWarnings": [
+          "The tested device appears to have a slower CPU than  Lighthouse expects. This can negatively affect your performance score. Learn more about [calibrating an appropriate CPU slowdown multiplier](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#cpu-throttling)."
+        ],
+        "details": {
+          "lcp-breakdown-insight": {
+            "title": "LCP breakdown",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              [
+                {
+                  "subpart": "timeToFirstByte",
+                  "label": "Time to first byte",
+                  "duration": 13.578
+                },
+                {
+                  "subpart": "elementRenderDelay",
+                  "label": "Element render delay",
+                  "duration": 2153.76
+                }
+              ],
+              {
+                "lhId": "page-0-P",
+                "path": "1,HTML,1,BODY,1,DIV,1,MAIN,0,DIV,0,SECTION,2,DIV,0,DIV,2,P",
+                "selector": "section.relative > div.relative > div.max-w-3xl > p.mt-7",
+                "snippet": "<p class=\"mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground\">",
+                "nodeLabel": "Stop jumping between reviews, product pages and comparison videos. ShopSense re…"
+              }
+            ]
+          },
+          "lcp-discovery-insight": {
+            "title": "LCP request discovery",
+            "score": null,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "render-blocking-insight": {
+            "title": "Render-blocking requests",
+            "score": 0,
+            "displayValue": "Est savings of 2,070 ms",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap",
+                "totalBytes": 1443,
+                "wastedMs": 1059
+              },
+              {
+                "url": "http://localhost:3110/assets/styles-DdlihkKO.css",
+                "totalBytes": 9011,
+                "wastedMs": 155
+              }
+            ]
+          },
+          "mainthread-work-breakdown": {
+            "title": "Minimize main-thread work",
+            "score": 0.5,
+            "displayValue": "3.4 s",
+            "numericValue": 3439.055999999983,
+            "items": [
+              {
+                "group": "other",
+                "groupLabel": "Other",
+                "duration": 1092.5199999999938
+              },
+              {
+                "group": "scriptEvaluation",
+                "groupLabel": "Script Evaluation",
+                "duration": 1060.8279999999902
+              },
+              {
+                "group": "styleLayout",
+                "groupLabel": "Style & Layout",
+                "duration": 995.5879999999995
+              },
+              {
+                "group": "paintCompositeRender",
+                "groupLabel": "Rendering",
+                "duration": 220.62800000000013
+              },
+              {
+                "group": "parseHTML",
+                "groupLabel": "Parse HTML & CSS",
+                "duration": 32.391999999999996
+              },
+              {
+                "group": "garbageCollection",
+                "groupLabel": "Garbage Collection",
+                "duration": 22.208000000000002
+              },
+              {
+                "group": "scriptParseCompile",
+                "groupLabel": "Script Parsing & Compilation",
+                "duration": 14.892000000000001
+              }
+            ]
+          },
+          "bootup-time": {
+            "title": "JavaScript execution time",
+            "score": 1,
+            "displayValue": "1.1 s",
+            "numericValue": 1067.6399999999908,
+            "items": [
+              {
+                "url": "http://localhost:3110/",
+                "total": 1270.2319999999997,
+                "scripting": 25.727999999999984,
+                "scriptParseCompile": 8.272
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "total": 1093.8799999999908,
+                "scripting": 877.9999999999908,
+                "scriptParseCompile": 3.34
+              },
+              {
+                "url": "http://localhost:3110/assets/routes-DoyyP4KF.js",
+                "total": 627.112,
+                "scripting": 140.99600000000004,
+                "scriptParseCompile": 0.224
+              },
+              {
+                "url": "Unattributable",
+                "total": 376.2040000000018,
+                "scripting": 11.08,
+                "scriptParseCompile": 0
+              }
+            ]
+          },
+          "font-display-insight": {
+            "title": "Font display",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "network-dependency-tree-insight": {
+            "title": "Network dependency tree",
+            "score": 0,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {},
+              {
+                "title": "Preconnected origins",
+                "description": "[preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints help the browser establish a connection earlier in the page load, saving time when the first request for that origin is made. The following are the origins that the page preconnected to."
+              },
+              {
+                "title": "Preconnect candidates",
+                "description": "Add [preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints to your most important origins, but try to use no more than 4."
+              }
+            ]
+          },
+          "unused-javascript": {
+            "title": "Reduce unused JavaScript",
+            "score": 0,
+            "displayValue": "Est savings of 45 KiB",
+            "numericValue": 300,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "totalBytes": 94651,
+                "wastedBytes": 45905,
+                "wastedPercent": 48.499566097772636
+              }
+            ]
+          },
+          "long-tasks": {
+            "title": "Avoid long main-thread tasks",
+            "score": 1,
+            "displayValue": "8 long tasks found",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "http://localhost:3110/",
+                "duration": 318.0000000000002,
+                "startTime": 844.0903647302446
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 131,
+                "startTime": 3953.6603296675685
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 111,
+                "startTime": 3842.6603296675685
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 100,
+                "startTime": 4197.6603296675685
+              },
+              {
+                "url": "Unattributable",
+                "duration": 94,
+                "startTime": 1188.0903647302448
+              },
+              {
+                "url": "Unattributable",
+                "duration": 79,
+                "startTime": 755.0903647302446
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 60,
+                "startTime": 4137.6603296675685
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 53,
+                "startTime": 4084.6603296675685
+              }
+            ]
+          },
+          "third-parties-insight": {
+            "title": "3rd parties",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {
+                "entity": "Google Fonts",
+                "mainThreadTime": 0,
+                "transferSize": 219632
+              }
+            ]
+          },
+          "server-response-time": {
+            "title": "Initial server response time was short",
+            "score": 1,
+            "displayValue": "Root document took 10 ms",
+            "numericValue": 6,
+            "items": [
+              {
+                "url": "http://localhost:3110/",
+                "responseTime": 6
+              }
+            ]
+          },
+          "document-latency-insight": {
+            "title": "Document request latency",
+            "score": 0.5,
+            "displayValue": "Est savings of 19 KiB",
+            "numericValue": null,
+            "items": "{\"noRedirects\": {\"label\": \"Avoids redirects\", \"value\": true}, \"serverResponseIsFast\": {\"label\": \"Server responds quickly (observed 6 ms)\", \"value\": true}, \"usesCompression\": {\"label\": \"No compression applied\", \"value\": false}}"
+          }
+        }
+      }
+    },
+    "research": {
+      "1": {
+        "finalUrl": "http://localhost:3110/research",
+        "fetchTime": "2026-11-04T18:31:51.984Z",
+        "lighthouseVersion": "13.5.0",
+        "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "benchmarkIndex": 840.5,
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "categories": {
+          "performance": 79,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100,
+          "agentic-browsing": 100
+        },
+        "FCP_ms": 3882.356800000001,
+        "LCP_ms": 3958.9595,
+        "TBT_ms": 50.49999999999977,
+        "CLS": 9.637548757156304e-05,
+        "SI_ms": 3882.356800000001,
+        "INP_ms": null,
+        "runWarnings": [
+          "The tested device appears to have a slower CPU than  Lighthouse expects. This can negatively affect your performance score. Learn more about [calibrating an appropriate CPU slowdown multiplier](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#cpu-throttling)."
+        ],
+        "details": {
+          "lcp-breakdown-insight": {
+            "title": "LCP breakdown",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              [
+                {
+                  "subpart": "timeToFirstByte",
+                  "label": "Time to first byte",
+                  "duration": 13.096000007629394
+                },
+                {
+                  "subpart": "elementRenderDelay",
+                  "label": "Element render delay",
+                  "duration": 1409.0189999923707
+                }
+              ],
+              {
+                "lhId": "page-0-H1",
+                "path": "1,HTML,1,BODY,1,DIV,1,MAIN,0,DIV,0,DIV,0,DIV,0,H1",
+                "selector": "div.relative > div.relative > div.min-w-0 > h1.font-serif",
+                "snippet": "<h1 class=\"font-serif text-4xl leading-tight text-foreground md:text-6xl\">",
+                "nodeLabel": "What are you shopping for?"
+              }
+            ]
+          },
+          "lcp-discovery-insight": {
+            "title": "LCP request discovery",
+            "score": null,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "render-blocking-insight": {
+            "title": "Render-blocking requests",
+            "score": 0,
+            "displayValue": "Est savings of 1,390 ms",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap",
+                "totalBytes": 1443,
+                "wastedMs": 997
+              },
+              {
+                "url": "http://localhost:3110/assets/styles-DdlihkKO.css",
+                "totalBytes": 9011,
+                "wastedMs": 154
+              }
+            ]
+          },
+          "mainthread-work-breakdown": {
+            "title": "Minimizes main-thread work",
+            "score": 1,
+            "displayValue": "1.6 s",
+            "numericValue": 1614.4759999999994,
+            "items": [
+              {
+                "group": "scriptEvaluation",
+                "groupLabel": "Script Evaluation",
+                "duration": 594.563999999998
+              },
+              {
+                "group": "styleLayout",
+                "groupLabel": "Style & Layout",
+                "duration": 497.256
+              },
+              {
+                "group": "other",
+                "groupLabel": "Other",
+                "duration": 454.8360000000012
+              },
+              {
+                "group": "parseHTML",
+                "groupLabel": "Parse HTML & CSS",
+                "duration": 30.736
+              },
+              {
+                "group": "paintCompositeRender",
+                "groupLabel": "Rendering",
+                "duration": 21.971999999999998
+              },
+              {
+                "group": "scriptParseCompile",
+                "groupLabel": "Script Parsing & Compilation",
+                "duration": 15.111999999999995
+              }
+            ]
+          },
+          "bootup-time": {
+            "title": "JavaScript execution time",
+            "score": 1,
+            "displayValue": "0.6 s",
+            "numericValue": 601.4999999999985,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "total": 620.9319999999985,
+                "scripting": 558.1679999999985,
+                "scriptParseCompile": 2.888
+              },
+              {
+                "url": "http://localhost:3110/research",
+                "total": 599.168,
+                "scripting": 23.41999999999999,
+                "scriptParseCompile": 7.191999999999998
+              },
+              {
+                "url": "Unattributable",
+                "total": 307.54000000000013,
+                "scripting": 9.832,
+                "scriptParseCompile": 0
+              }
+            ]
+          },
+          "font-display-insight": {
+            "title": "Font display",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "network-dependency-tree-insight": {
+            "title": "Network dependency tree",
+            "score": 0,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {},
+              {
+                "title": "Preconnected origins",
+                "description": "[preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints help the browser establish a connection earlier in the page load, saving time when the first request for that origin is made. The following are the origins that the page preconnected to."
+              },
+              {
+                "title": "Preconnect candidates",
+                "description": "Add [preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints to your most important origins, but try to use no more than 4."
+              }
+            ]
+          },
+          "unused-javascript": {
+            "title": "Reduce unused JavaScript",
+            "score": 0,
+            "displayValue": "Est savings of 46 KiB",
+            "numericValue": 230,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "totalBytes": 94651,
+                "wastedBytes": 46726,
+                "wastedPercent": 49.366502748047445
+              }
+            ]
+          },
+          "long-tasks": {
+            "title": "Avoid long main-thread tasks",
+            "score": 1,
+            "displayValue": "7 long tasks found",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "http://localhost:3110/research",
+                "duration": 194,
+                "startTime": 844.1798000000001
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 107,
+                "startTime": 3785.5539999999996
+              },
+              {
+                "url": "Unattributable",
+                "duration": 100,
+                "startTime": 1038.1798000000001
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 88,
+                "startTime": 3697.5539999999996
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 86,
+                "startTime": 3892.5539999999996
+              },
+              {
+                "url": "Unattributable",
+                "duration": 81,
+                "startTime": 755.1798000000001
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 78.99999999999955,
+                "startTime": 4026.5539999999996
+              }
+            ]
+          },
+          "third-parties-insight": {
+            "title": "3rd parties",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {
+                "entity": "Google Fonts",
+                "mainThreadTime": 0,
+                "transferSize": 137891
+              }
+            ]
+          },
+          "server-response-time": {
+            "title": "Initial server response time was short",
+            "score": 1,
+            "displayValue": "Root document took 10 ms",
+            "numericValue": 5,
+            "items": [
+              {
+                "url": "http://localhost:3110/research",
+                "responseTime": 5
+              }
+            ]
+          },
+          "document-latency-insight": {
+            "title": "Document request latency",
+            "score": 0.5,
+            "displayValue": "Est savings of 10 KiB",
+            "numericValue": null,
+            "items": "{\"noRedirects\": {\"label\": \"Avoids redirects\", \"value\": true}, \"serverResponseIsFast\": {\"label\": \"Server responds quickly (observed 5 ms)\", \"value\": true}, \"usesCompression\": {\"label\": \"No compression applied\", \"value\": false}}"
+          }
+        }
+      },
+      "2": {
+        "finalUrl": "http://localhost:3110/research",
+        "fetchTime": "2026-11-04T18:33:21.790Z",
+        "lighthouseVersion": "13.5.0",
+        "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "benchmarkIndex": 889,
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "categories": {
+          "performance": 79,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100,
+          "agentic-browsing": 100
+        },
+        "FCP_ms": 3711.1157000000003,
+        "LCP_ms": 3861.1157000000003,
+        "TBT_ms": 66.1626999999994,
+        "CLS": 9.210399781769876e-05,
+        "SI_ms": 3711.1157000000003,
+        "INP_ms": null,
+        "runWarnings": [
+          "The tested device appears to have a slower CPU than  Lighthouse expects. This can negatively affect your performance score. Learn more about [calibrating an appropriate CPU slowdown multiplier](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#cpu-throttling)."
+        ],
+        "details": {
+          "lcp-breakdown-insight": {
+            "title": "LCP breakdown",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              [
+                {
+                  "subpart": "timeToFirstByte",
+                  "label": "Time to first byte",
+                  "duration": 13.008999992370606
+                },
+                {
+                  "subpart": "elementRenderDelay",
+                  "label": "Element render delay",
+                  "duration": 1431.9220000076293
+                }
+              ],
+              {
+                "lhId": "page-0-H1",
+                "path": "1,HTML,1,BODY,1,DIV,1,MAIN,0,DIV,0,DIV,0,DIV,0,H1",
+                "selector": "div.relative > div.relative > div.min-w-0 > h1.font-serif",
+                "snippet": "<h1 class=\"font-serif text-4xl leading-tight text-foreground md:text-6xl\">",
+                "nodeLabel": "What are you shopping for?"
+              }
+            ]
+          },
+          "lcp-discovery-insight": {
+            "title": "LCP request discovery",
+            "score": null,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "render-blocking-insight": {
+            "title": "Render-blocking requests",
+            "score": 0,
+            "displayValue": "Est savings of 1,190 ms",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap",
+                "totalBytes": 1443,
+                "wastedMs": 1042
+              },
+              {
+                "url": "http://localhost:3110/assets/styles-DdlihkKO.css",
+                "totalBytes": 9011,
+                "wastedMs": 155
+              }
+            ]
+          },
+          "mainthread-work-breakdown": {
+            "title": "Minimizes main-thread work",
+            "score": 1,
+            "displayValue": "1.9 s",
+            "numericValue": 1869.0599999999981,
+            "items": [
+              {
+                "group": "scriptEvaluation",
+                "groupLabel": "Script Evaluation",
+                "duration": 654.3399999999986
+              },
+              {
+                "group": "other",
+                "groupLabel": "Other",
+                "duration": 576.8159999999995
+              },
+              {
+                "group": "styleLayout",
+                "groupLabel": "Style & Layout",
+                "duration": 559.896
+              },
+              {
+                "group": "parseHTML",
+                "groupLabel": "Parse HTML & CSS",
+                "duration": 34.588
+              },
+              {
+                "group": "paintCompositeRender",
+                "groupLabel": "Rendering",
+                "duration": 27.427999999999997
+              },
+              {
+                "group": "scriptParseCompile",
+                "groupLabel": "Script Parsing & Compilation",
+                "duration": 15.991999999999997
+              }
+            ]
+          },
+          "bootup-time": {
+            "title": "JavaScript execution time",
+            "score": 1,
+            "displayValue": "0.7 s",
+            "numericValue": 662.4199999999988,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "total": 712.7519999999989,
+                "scripting": 618.5559999999989,
+                "scriptParseCompile": 3.656
+              },
+              {
+                "url": "http://localhost:3110/research",
+                "total": 677.804,
+                "scripting": 23.715999999999987,
+                "scriptParseCompile": 7.9399999999999995
+              },
+              {
+                "url": "Unattributable",
+                "total": 362.4320000000011,
+                "scripting": 8.552,
+                "scriptParseCompile": 0
+              }
+            ]
+          },
+          "font-display-insight": {
+            "title": "Font display",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "network-dependency-tree-insight": {
+            "title": "Network dependency tree",
+            "score": 0,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {},
+              {
+                "title": "Preconnected origins",
+                "description": "[preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints help the browser establish a connection earlier in the page load, saving time when the first request for that origin is made. The following are the origins that the page preconnected to."
+              },
+              {
+                "title": "Preconnect candidates",
+                "description": "Add [preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints to your most important origins, but try to use no more than 4."
+              }
+            ]
+          },
+          "unused-javascript": {
+            "title": "Reduce unused JavaScript",
+            "score": 0,
+            "displayValue": "Est savings of 46 KiB",
+            "numericValue": 150,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "totalBytes": 94651,
+                "wastedBytes": 46726,
+                "wastedPercent": 49.366502748047445
+              }
+            ]
+          },
+          "long-tasks": {
+            "title": "Avoid long main-thread tasks",
+            "score": 1,
+            "displayValue": "8 long tasks found",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "http://localhost:3110/research",
+                "duration": 220,
+                "startTime": 871.0271999999998
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 123,
+                "startTime": 3664.7783999999997
+              },
+              {
+                "url": "Unattributable",
+                "duration": 103,
+                "startTime": 756.0271999999998
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 94,
+                "startTime": 3570.7783999999997
+              },
+              {
+                "url": "Unattributable",
+                "duration": 84.00000000000023,
+                "startTime": 1091.0271999999998
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 73,
+                "startTime": 3974.7783999999997
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 72,
+                "startTime": 3902.7783999999997
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 67,
+                "startTime": 3787.7783999999997
+              }
+            ]
+          },
+          "third-parties-insight": {
+            "title": "3rd parties",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {
+                "entity": "Google Fonts",
+                "mainThreadTime": 0,
+                "transferSize": 137891
+              }
+            ]
+          },
+          "server-response-time": {
+            "title": "Initial server response time was short",
+            "score": 1,
+            "displayValue": "Root document took 10 ms",
+            "numericValue": 5,
+            "items": [
+              {
+                "url": "http://localhost:3110/research",
+                "responseTime": 5
+              }
+            ]
+          },
+          "document-latency-insight": {
+            "title": "Document request latency",
+            "score": 0.5,
+            "displayValue": "Est savings of 10 KiB",
+            "numericValue": null,
+            "items": "{\"noRedirects\": {\"label\": \"Avoids redirects\", \"value\": true}, \"serverResponseIsFast\": {\"label\": \"Server responds quickly (observed 5 ms)\", \"value\": true}, \"usesCompression\": {\"label\": \"No compression applied\", \"value\": false}}"
+          }
+        }
+      },
+      "3": {
+        "finalUrl": "http://localhost:3110/research",
+        "fetchTime": "2026-11-04T18:34:53.302Z",
+        "lighthouseVersion": "13.5.0",
+        "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "benchmarkIndex": 920.5,
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "categories": {
+          "performance": 80,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100,
+          "agentic-browsing": 100
+        },
+        "FCP_ms": 3785.6197249999996,
+        "LCP_ms": 3797.704550000001,
+        "TBT_ms": 10.5,
+        "CLS": 0,
+        "SI_ms": 3785.6197249999996,
+        "INP_ms": null,
+        "runWarnings": [
+          "The tested device appears to have a slower CPU than  Lighthouse expects. This can negatively affect your performance score. Learn more about [calibrating an appropriate CPU slowdown multiplier](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#cpu-throttling)."
+        ],
+        "details": {
+          "lcp-breakdown-insight": {
+            "title": "LCP breakdown",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              [
+                {
+                  "subpart": "timeToFirstByte",
+                  "label": "Time to first byte",
+                  "duration": 11.852
+                },
+                {
+                  "subpart": "elementRenderDelay",
+                  "label": "Element render delay",
+                  "duration": 1341.219
+                }
+              ],
+              {
+                "lhId": "page-0-H1",
+                "path": "1,HTML,1,BODY,1,DIV,1,MAIN,0,DIV,0,DIV,0,DIV,0,H1",
+                "selector": "div.relative > div.relative > div.min-w-0 > h1.font-serif",
+                "snippet": "<h1 class=\"font-serif text-4xl leading-tight text-foreground md:text-6xl\">",
+                "nodeLabel": "What are you shopping for?"
+              }
+            ]
+          },
+          "lcp-discovery-insight": {
+            "title": "LCP request discovery",
+            "score": null,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "render-blocking-insight": {
+            "title": "Render-blocking requests",
+            "score": 0,
+            "displayValue": "Est savings of 1,290 ms",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap",
+                "totalBytes": 1443,
+                "wastedMs": 955
+              },
+              {
+                "url": "http://localhost:3110/assets/styles-DdlihkKO.css",
+                "totalBytes": 9011,
+                "wastedMs": 154
+              }
+            ]
+          },
+          "mainthread-work-breakdown": {
+            "title": "Minimizes main-thread work",
+            "score": 1,
+            "displayValue": "1.5 s",
+            "numericValue": 1547.8600000000017,
+            "items": [
+              {
+                "group": "scriptEvaluation",
+                "groupLabel": "Script Evaluation",
+                "duration": 513.7840000000002
+              },
+              {
+                "group": "styleLayout",
+                "groupLabel": "Style & Layout",
+                "duration": 497.1519999999999
+              },
+              {
+                "group": "other",
+                "groupLabel": "Other",
+                "duration": 447.51200000000165
+              },
+              {
+                "group": "parseHTML",
+                "groupLabel": "Parse HTML & CSS",
+                "duration": 26.923999999999996
+              },
+              {
+                "group": "paintCompositeRender",
+                "groupLabel": "Rendering",
+                "duration": 24.995999999999995
+              },
+              {
+                "group": "garbageCollection",
+                "groupLabel": "Garbage Collection",
+                "duration": 21.539999999999992
+              },
+              {
+                "group": "scriptParseCompile",
+                "groupLabel": "Script Parsing & Compilation",
+                "duration": 15.952
+              }
+            ]
+          },
+          "bootup-time": {
+            "title": "JavaScript execution time",
+            "score": 1,
+            "displayValue": "0.5 s",
+            "numericValue": 521.8680000000002,
+            "items": [
+              {
+                "url": "http://localhost:3110/research",
+                "total": 616.1999999999999,
+                "scripting": 26.339999999999982,
+                "scriptParseCompile": 8.995999999999999
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "total": 537.8880000000003,
+                "scripting": 472.6280000000002,
+                "scriptParseCompile": 3.24
+              },
+              {
+                "url": "Unattributable",
+                "total": 317.8320000000005,
+                "scripting": 10.663999999999998,
+                "scriptParseCompile": 0
+              }
+            ]
+          },
+          "font-display-insight": {
+            "title": "Font display",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "network-dependency-tree-insight": {
+            "title": "Network dependency tree",
+            "score": 0,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {},
+              {
+                "title": "Preconnected origins",
+                "description": "[preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints help the browser establish a connection earlier in the page load, saving time when the first request for that origin is made. The following are the origins that the page preconnected to."
+              },
+              {
+                "title": "Preconnect candidates",
+                "description": "Add [preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints to your most important origins, but try to use no more than 4."
+              }
+            ]
+          },
+          "unused-javascript": {
+            "title": "Reduce unused JavaScript",
+            "score": 0,
+            "displayValue": "Est savings of 46 KiB",
+            "numericValue": 170,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "totalBytes": 94651,
+                "wastedBytes": 46726,
+                "wastedPercent": 49.366502748047445
+              }
+            ]
+          },
+          "long-tasks": {
+            "title": "Avoid long main-thread tasks",
+            "score": 1,
+            "displayValue": "8 long tasks found",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "http://localhost:3110/research",
+                "duration": 188,
+                "startTime": 838.1604
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 108,
+                "startTime": 3612.0400500000005
+              },
+              {
+                "url": "Unattributable",
+                "duration": 77,
+                "startTime": 1026.1604
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 76,
+                "startTime": 3536.0400500000005
+              },
+              {
+                "url": "Unattributable",
+                "duration": 74,
+                "startTime": 754.1604
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 71,
+                "startTime": 3821.0400500000005
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 56,
+                "startTime": 3765.0400500000005
+              },
+              {
+                "url": "http://localhost:3110/research",
+                "duration": 53,
+                "startTime": 1103.1604
+              }
+            ]
+          },
+          "third-parties-insight": {
+            "title": "3rd parties",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {
+                "entity": "Google Fonts",
+                "mainThreadTime": 0,
+                "transferSize": 137891
+              }
+            ]
+          },
+          "server-response-time": {
+            "title": "Initial server response time was short",
+            "score": 1,
+            "displayValue": "Root document took 10 ms",
+            "numericValue": 6,
+            "items": [
+              {
+                "url": "http://localhost:3110/research",
+                "responseTime": 6
+              }
+            ]
+          },
+          "document-latency-insight": {
+            "title": "Document request latency",
+            "score": 0.5,
+            "displayValue": "Est savings of 10 KiB",
+            "numericValue": null,
+            "items": "{\"noRedirects\": {\"label\": \"Avoids redirects\", \"value\": true}, \"serverResponseIsFast\": {\"label\": \"Server responds quickly (observed 6 ms)\", \"value\": true}, \"usesCompression\": {\"label\": \"No compression applied\", \"value\": false}}"
+          }
+        }
+      }
+    },
+    "results": {
+      "1": {
+        "finalUrl": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+        "fetchTime": "2026-11-04T18:32:21.214Z",
+        "lighthouseVersion": "13.5.0",
+        "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "benchmarkIndex": 909.5,
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "categories": {
+          "performance": 80,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 63,
+          "agentic-browsing": 96
+        },
+        "FCP_ms": 3552.2850000000003,
+        "LCP_ms": 3552.2850000000003,
+        "TBT_ms": 17.5,
+        "CLS": 0.09423042568677852,
+        "SI_ms": 3552.2850000000003,
+        "INP_ms": null,
+        "runWarnings": [
+          "The tested device appears to have a slower CPU than  Lighthouse expects. This can negatively affect your performance score. Learn more about [calibrating an appropriate CPU slowdown multiplier](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#cpu-throttling)."
+        ],
+        "details": {
+          "lcp-breakdown-insight": {
+            "title": "LCP breakdown",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              [
+                {
+                  "subpart": "timeToFirstByte",
+                  "label": "Time to first byte",
+                  "duration": 12.813
+                },
+                {
+                  "subpart": "elementRenderDelay",
+                  "label": "Element render delay",
+                  "duration": 1392.721
+                }
+              ],
+              {
+                "lhId": "page-0-H1",
+                "path": "1,HTML,1,BODY,1,DIV,1,MAIN,0,SECTION,0,H1",
+                "selector": "div.min-h-screen > main > section.mx-auto > h1.font-serif",
+                "snippet": "<h1 class=\"font-serif text-4xl text-foreground md:text-5xl\">",
+                "nodeLabel": "We couldn't find this search"
+              }
+            ]
+          },
+          "lcp-discovery-insight": {
+            "title": "LCP request discovery",
+            "score": null,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "render-blocking-insight": {
+            "title": "Render-blocking requests",
+            "score": 0,
+            "displayValue": "Est savings of 1,210 ms",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap",
+                "totalBytes": 1443,
+                "wastedMs": 1031
+              },
+              {
+                "url": "http://localhost:3110/assets/styles-DdlihkKO.css",
+                "totalBytes": 9011,
+                "wastedMs": 154
+              }
+            ]
+          },
+          "mainthread-work-breakdown": {
+            "title": "Minimizes main-thread work",
+            "score": 1,
+            "displayValue": "1.4 s",
+            "numericValue": 1405.1519999999987,
+            "items": [
+              {
+                "group": "scriptEvaluation",
+                "groupLabel": "Script Evaluation",
+                "duration": 597.5519999999979
+              },
+              {
+                "group": "other",
+                "groupLabel": "Other",
+                "duration": 483.09200000000084
+              },
+              {
+                "group": "styleLayout",
+                "groupLabel": "Style & Layout",
+                "duration": 266.688
+              },
+              {
+                "group": "parseHTML",
+                "groupLabel": "Parse HTML & CSS",
+                "duration": 32.82
+              },
+              {
+                "group": "scriptParseCompile",
+                "groupLabel": "Script Parsing & Compilation",
+                "duration": 14.4
+              },
+              {
+                "group": "paintCompositeRender",
+                "groupLabel": "Rendering",
+                "duration": 10.6
+              }
+            ]
+          },
+          "bootup-time": {
+            "title": "JavaScript execution time",
+            "score": 1,
+            "displayValue": "0.6 s",
+            "numericValue": 605.2439999999981,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "total": 678.511999999998,
+                "scripting": 563.4079999999981,
+                "scriptParseCompile": 2.744
+              },
+              {
+                "url": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+                "total": 342.168,
+                "scripting": 21.699999999999996,
+                "scriptParseCompile": 7.955999999999998
+              },
+              {
+                "url": "Unattributable",
+                "total": 297.8000000000001,
+                "scripting": 9.436,
+                "scriptParseCompile": 0
+              }
+            ]
+          },
+          "font-display-insight": {
+            "title": "Font display",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "network-dependency-tree-insight": {
+            "title": "Network dependency tree",
+            "score": 0,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {},
+              {
+                "title": "Preconnected origins",
+                "description": "[preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints help the browser establish a connection earlier in the page load, saving time when the first request for that origin is made. The following are the origins that the page preconnected to."
+              },
+              {
+                "title": "Preconnect candidates",
+                "description": "Add [preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints to your most important origins, but try to use no more than 4."
+              }
+            ]
+          },
+          "unused-javascript": {
+            "title": "Reduce unused JavaScript",
+            "score": 0,
+            "displayValue": "Est savings of 45 KiB",
+            "numericValue": 150,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "totalBytes": 94651,
+                "wastedBytes": 46578,
+                "wastedPercent": 49.21029794619612
+              }
+            ]
+          },
+          "long-tasks": {
+            "title": "Avoid long main-thread tasks",
+            "score": 1,
+            "displayValue": "7 long tasks found",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 140,
+                "startTime": 3412.8000000000006
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 123,
+                "startTime": 3245.8000000000006
+              },
+              {
+                "url": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+                "duration": 95.00000000000011,
+                "startTime": 697.9700000000001
+              },
+              {
+                "url": "Unattributable",
+                "duration": 88,
+                "startTime": 792.9700000000003
+              },
+              {
+                "url": "Unattributable",
+                "duration": 83,
+                "startTime": 603.9700000000001
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 77,
+                "startTime": 3552.8000000000006
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 58,
+                "startTime": 3629.8000000000006
+              }
+            ]
+          },
+          "third-parties-insight": {
+            "title": "3rd parties",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {
+                "entity": "Google Fonts",
+                "mainThreadTime": 0,
+                "transferSize": 121322
+              }
+            ]
+          },
+          "server-response-time": {
+            "title": "Initial server response time was short",
+            "score": 1,
+            "displayValue": "Root document took 10 ms",
+            "numericValue": 6,
+            "items": [
+              {
+                "url": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+                "responseTime": 6
+              }
+            ]
+          },
+          "document-latency-insight": {
+            "title": "Document request latency",
+            "score": 0.5,
+            "displayValue": "Est savings of 7 KiB",
+            "numericValue": null,
+            "items": "{\"noRedirects\": {\"label\": \"Avoids redirects\", \"value\": true}, \"serverResponseIsFast\": {\"label\": \"Server responds quickly (observed 6 ms)\", \"value\": true}, \"usesCompression\": {\"label\": \"No compression applied\", \"value\": false}}"
+          }
+        }
+      },
+      "2": {
+        "finalUrl": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+        "fetchTime": "2026-11-04T18:33:52.626Z",
+        "lighthouseVersion": "13.5.0",
+        "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "benchmarkIndex": 797,
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "categories": {
+          "performance": 79,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 63,
+          "agentic-browsing": 96
+        },
+        "FCP_ms": 3603.9924499999997,
+        "LCP_ms": 3678.99245,
+        "TBT_ms": 0,
+        "CLS": 0.09423042568677852,
+        "SI_ms": 3603.9924499999997,
+        "INP_ms": null,
+        "runWarnings": [
+          "The tested device appears to have a slower CPU than  Lighthouse expects. This can negatively affect your performance score. Learn more about [calibrating an appropriate CPU slowdown multiplier](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#cpu-throttling)."
+        ],
+        "details": {
+          "lcp-breakdown-insight": {
+            "title": "LCP breakdown",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              [
+                {
+                  "subpart": "timeToFirstByte",
+                  "label": "Time to first byte",
+                  "duration": 12.473
+                },
+                {
+                  "subpart": "elementRenderDelay",
+                  "label": "Element render delay",
+                  "duration": 1320.649
+                }
+              ],
+              {
+                "lhId": "page-0-H1",
+                "path": "1,HTML,1,BODY,1,DIV,1,MAIN,0,SECTION,0,H1",
+                "selector": "div.min-h-screen > main > section.mx-auto > h1.font-serif",
+                "snippet": "<h1 class=\"font-serif text-4xl text-foreground md:text-5xl\">",
+                "nodeLabel": "We couldn't find this search"
+              }
+            ]
+          },
+          "lcp-discovery-insight": {
+            "title": "LCP request discovery",
+            "score": null,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "render-blocking-insight": {
+            "title": "Render-blocking requests",
+            "score": 0,
+            "displayValue": "Est savings of 1,180 ms",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap",
+                "totalBytes": 1443,
+                "wastedMs": 1040
+              },
+              {
+                "url": "http://localhost:3110/assets/styles-DdlihkKO.css",
+                "totalBytes": 9011,
+                "wastedMs": 154
+              }
+            ]
+          },
+          "mainthread-work-breakdown": {
+            "title": "Minimizes main-thread work",
+            "score": 1,
+            "displayValue": "1.4 s",
+            "numericValue": 1392.3920000000005,
+            "items": [
+              {
+                "group": "scriptEvaluation",
+                "groupLabel": "Script Evaluation",
+                "duration": 568.6919999999986
+              },
+              {
+                "group": "other",
+                "groupLabel": "Other",
+                "duration": 492.8800000000019
+              },
+              {
+                "group": "styleLayout",
+                "groupLabel": "Style & Layout",
+                "duration": 271.62
+              },
+              {
+                "group": "parseHTML",
+                "groupLabel": "Parse HTML & CSS",
+                "duration": 31.7
+              },
+              {
+                "group": "scriptParseCompile",
+                "groupLabel": "Script Parsing & Compilation",
+                "duration": 14.988
+              },
+              {
+                "group": "paintCompositeRender",
+                "groupLabel": "Rendering",
+                "duration": 12.512
+              }
+            ]
+          },
+          "bootup-time": {
+            "title": "JavaScript execution time",
+            "score": 1,
+            "displayValue": "0.6 s",
+            "numericValue": 575.7159999999991,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "total": 611.1959999999992,
+                "scripting": 532.7519999999992,
+                "scriptParseCompile": 3.424
+              },
+              {
+                "url": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+                "total": 394.4239999999999,
+                "scripting": 24.12799999999999,
+                "scriptParseCompile": 7.044
+              },
+              {
+                "url": "Unattributable",
+                "total": 299.96800000000036,
+                "scripting": 8.368,
+                "scriptParseCompile": 0
+              }
+            ]
+          },
+          "font-display-insight": {
+            "title": "Font display",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "network-dependency-tree-insight": {
+            "title": "Network dependency tree",
+            "score": 0,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {},
+              {
+                "title": "Preconnected origins",
+                "description": "[preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints help the browser establish a connection earlier in the page load, saving time when the first request for that origin is made. The following are the origins that the page preconnected to."
+              },
+              {
+                "title": "Preconnect candidates",
+                "description": "Add [preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints to your most important origins, but try to use no more than 4."
+              }
+            ]
+          },
+          "unused-javascript": {
+            "title": "Reduce unused JavaScript",
+            "score": 0,
+            "displayValue": "Est savings of 46 KiB",
+            "numericValue": 300,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "totalBytes": 94651,
+                "wastedBytes": 46743,
+                "wastedPercent": 49.38443737344518
+              }
+            ]
+          },
+          "long-tasks": {
+            "title": "Avoid long main-thread tasks",
+            "score": 1,
+            "displayValue": "6 long tasks found",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 118,
+                "startTime": 3357.4226500000004
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 111,
+                "startTime": 3246.4226500000004
+              },
+              {
+                "url": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+                "duration": 105,
+                "startTime": 702.02045
+              },
+              {
+                "url": "Unattributable",
+                "duration": 103,
+                "startTime": 807.02045
+              },
+              {
+                "url": "Unattributable",
+                "duration": 85,
+                "startTime": 604.02045
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 73,
+                "startTime": 3475.4226500000004
+              }
+            ]
+          },
+          "third-parties-insight": {
+            "title": "3rd parties",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {
+                "entity": "Google Fonts",
+                "mainThreadTime": 0,
+                "transferSize": 121322
+              }
+            ]
+          },
+          "server-response-time": {
+            "title": "Initial server response time was short",
+            "score": 1,
+            "displayValue": "Root document took 10 ms",
+            "numericValue": 6,
+            "items": [
+              {
+                "url": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+                "responseTime": 6
+              }
+            ]
+          },
+          "document-latency-insight": {
+            "title": "Document request latency",
+            "score": 0.5,
+            "displayValue": "Est savings of 7 KiB",
+            "numericValue": null,
+            "items": "{\"noRedirects\": {\"label\": \"Avoids redirects\", \"value\": true}, \"serverResponseIsFast\": {\"label\": \"Server responds quickly (observed 6 ms)\", \"value\": true}, \"usesCompression\": {\"label\": \"No compression applied\", \"value\": false}}"
+          }
+        }
+      },
+      "3": {
+        "finalUrl": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+        "fetchTime": "2026-11-04T18:35:22.702Z",
+        "lighthouseVersion": "13.5.0",
+        "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+        "benchmarkIndex": 871,
+        "formFactor": "mobile",
+        "throttlingMethod": "simulate",
+        "categories": {
+          "performance": 81,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 63,
+          "agentic-browsing": 96
+        },
+        "FCP_ms": 3499.1438,
+        "LCP_ms": 3520.522900000001,
+        "TBT_ms": 11.96260000000052,
+        "CLS": 0.09423042568677852,
+        "SI_ms": 3499.1438,
+        "INP_ms": null,
+        "runWarnings": [
+          "The tested device appears to have a slower CPU than  Lighthouse expects. This can negatively affect your performance score. Learn more about [calibrating an appropriate CPU slowdown multiplier](https://github.com/GoogleChrome/lighthouse/blob/main/docs/throttling.md#cpu-throttling)."
+        ],
+        "details": {
+          "lcp-breakdown-insight": {
+            "title": "LCP breakdown",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              [
+                {
+                  "subpart": "timeToFirstByte",
+                  "label": "Time to first byte",
+                  "duration": 10.94
+                },
+                {
+                  "subpart": "elementRenderDelay",
+                  "label": "Element render delay",
+                  "duration": 1259.815
+                }
+              ],
+              {
+                "lhId": "page-0-H1",
+                "path": "1,HTML,1,BODY,1,DIV,1,MAIN,0,SECTION,0,H1",
+                "selector": "div.min-h-screen > main > section.mx-auto > h1.font-serif",
+                "snippet": "<h1 class=\"font-serif text-4xl text-foreground md:text-5xl\">",
+                "nodeLabel": "We couldn't find this search"
+              }
+            ]
+          },
+          "lcp-discovery-insight": {
+            "title": "LCP request discovery",
+            "score": null,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "render-blocking-insight": {
+            "title": "Render-blocking requests",
+            "score": 0,
+            "displayValue": "Est savings of 1,130 ms",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap",
+                "totalBytes": 1443,
+                "wastedMs": 1004
+              },
+              {
+                "url": "http://localhost:3110/assets/styles-DdlihkKO.css",
+                "totalBytes": 9011,
+                "wastedMs": 155
+              }
+            ]
+          },
+          "mainthread-work-breakdown": {
+            "title": "Minimizes main-thread work",
+            "score": 1,
+            "displayValue": "1.4 s",
+            "numericValue": 1365.3120000000004,
+            "items": [
+              {
+                "group": "scriptEvaluation",
+                "groupLabel": "Script Evaluation",
+                "duration": 565.8999999999994
+              },
+              {
+                "group": "other",
+                "groupLabel": "Other",
+                "duration": 490.58400000000114
+              },
+              {
+                "group": "styleLayout",
+                "groupLabel": "Style & Layout",
+                "duration": 253.09199999999996
+              },
+              {
+                "group": "parseHTML",
+                "groupLabel": "Parse HTML & CSS",
+                "duration": 29.24
+              },
+              {
+                "group": "scriptParseCompile",
+                "groupLabel": "Script Parsing & Compilation",
+                "duration": 15.552000000000003
+              },
+              {
+                "group": "paintCompositeRender",
+                "groupLabel": "Rendering",
+                "duration": 10.943999999999999
+              }
+            ]
+          },
+          "bootup-time": {
+            "title": "JavaScript execution time",
+            "score": 1,
+            "displayValue": "0.6 s",
+            "numericValue": 574.9239999999994,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "total": 617.9399999999995,
+                "scripting": 533.1319999999995,
+                "scriptParseCompile": 3.708
+              },
+              {
+                "url": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+                "total": 368.20399999999995,
+                "scripting": 20.903999999999993,
+                "scriptParseCompile": 8.232
+              },
+              {
+                "url": "Unattributable",
+                "total": 296.4600000000003,
+                "scripting": 8.948,
+                "scriptParseCompile": 0
+              }
+            ]
+          },
+          "font-display-insight": {
+            "title": "Font display",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": []
+          },
+          "network-dependency-tree-insight": {
+            "title": "Network dependency tree",
+            "score": 0,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {},
+              {
+                "title": "Preconnected origins",
+                "description": "[preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints help the browser establish a connection earlier in the page load, saving time when the first request for that origin is made. The following are the origins that the page preconnected to."
+              },
+              {
+                "title": "Preconnect candidates",
+                "description": "Add [preconnect](https://developer.chrome.com/docs/lighthouse/performance/uses-rel-preconnect/) hints to your most important origins, but try to use no more than 4."
+              }
+            ]
+          },
+          "unused-javascript": {
+            "title": "Reduce unused JavaScript",
+            "score": 0,
+            "displayValue": "Est savings of 46 KiB",
+            "numericValue": 40,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "totalBytes": 94651,
+                "wastedBytes": 46743,
+                "wastedPercent": 49.38443737344518
+              }
+            ]
+          },
+          "long-tasks": {
+            "title": "Avoid long main-thread tasks",
+            "score": 1,
+            "displayValue": "6 long tasks found",
+            "numericValue": null,
+            "items": [
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 114,
+                "startTime": 3362.6899000000008
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 111,
+                "startTime": 3251.6899000000008
+              },
+              {
+                "url": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+                "duration": 95,
+                "startTime": 703.0697
+              },
+              {
+                "url": "Unattributable",
+                "duration": 95,
+                "startTime": 798.0697
+              },
+              {
+                "url": "Unattributable",
+                "duration": 88,
+                "startTime": 605.0697
+              },
+              {
+                "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                "duration": 75,
+                "startTime": 3476.6899000000008
+              }
+            ]
+          },
+          "third-parties-insight": {
+            "title": "3rd parties",
+            "score": 1,
+            "displayValue": null,
+            "numericValue": null,
+            "items": [
+              {
+                "entity": "Google Fonts",
+                "mainThreadTime": 0,
+                "transferSize": 121322
+              }
+            ]
+          },
+          "server-response-time": {
+            "title": "Initial server response time was short",
+            "score": 1,
+            "displayValue": "Root document took 10 ms",
+            "numericValue": 5,
+            "items": [
+              {
+                "url": "http://localhost:3110/s/sess_0123456789abcdef01234567/results",
+                "responseTime": 5
+              }
+            ]
+          },
+          "document-latency-insight": {
+            "title": "Document request latency",
+            "score": 0.5,
+            "displayValue": "Est savings of 7 KiB",
+            "numericValue": null,
+            "items": "{\"noRedirects\": {\"label\": \"Avoids redirects\", \"value\": true}, \"serverResponseIsFast\": {\"label\": \"Server responds quickly (observed 5 ms)\", \"value\": true}, \"usesCompression\": {\"label\": \"No compression applied\", \"value\": false}}"
+          }
+        }
+      }
+    }
+  },
+  "flow": [
+    {
+      "file": "flow-1.json",
+      "steps": [
+        {
+          "finalUrl": "http://localhost:3110/s/sess_f2404293da6eaa0a192af402/results",
+          "fetchTime": "2026-11-04T18:35:55.912Z",
+          "lighthouseVersion": "13.5.0",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "benchmarkIndex": 915.5,
+          "formFactor": "mobile",
+          "throttlingMethod": "devtools",
+          "categories": {
+            "performance": 71,
+            "best-practices": 100
+          },
+          "FCP_ms": null,
+          "LCP_ms": null,
+          "TBT_ms": 636.4380000000002,
+          "CLS": 0.0007388530565526466,
+          "SI_ms": null,
+          "INP_ms": null,
+          "runWarnings": [],
+          "name": "Start research to results shown",
+          "gatherMode": "timespan",
+          "details": {
+            "mainthread-work-breakdown": {
+              "title": "Minimize main-thread work",
+              "score": 0,
+              "displayValue": "3.1 s",
+              "numericValue": 3137.175999999996,
+              "items": [
+                {
+                  "group": "scriptEvaluation",
+                  "groupLabel": "Script Evaluation",
+                  "duration": 1341.1699999999967
+                },
+                {
+                  "group": "other",
+                  "groupLabel": "Other",
+                  "duration": 1141.2189999999991
+                },
+                {
+                  "group": "styleLayout",
+                  "groupLabel": "Style & Layout",
+                  "duration": 434.285
+                },
+                {
+                  "group": "paintCompositeRender",
+                  "groupLabel": "Rendering",
+                  "duration": 220.27400000000017
+                },
+                {
+                  "group": "scriptParseCompile",
+                  "groupLabel": "Script Parsing & Compilation",
+                  "duration": 0.228
+                }
+              ]
+            },
+            "layout-shifts": {
+              "title": "Avoid large layout shifts",
+              "score": 1,
+              "displayValue": "1 layout shift found",
+              "numericValue": null,
+              "items": [
+                {
+                  "score": 0.0007388530565526466
+                }
+              ]
+            },
+            "long-tasks": {
+              "title": "Avoid long main-thread tasks",
+              "score": 1,
+              "displayValue": "6 long tasks found",
+              "numericValue": null,
+              "items": [
+                {
+                  "url": "pptr:evaluate;clickByText%20(file%3A%2F%2F%2F<temp>%2Flh.Nhs3sc%2Fflow.mjs%3A19%3A14)",
+                  "duration": 409.371,
+                  "startTime": 6174.57
+                },
+                {
+                  "url": "http://localhost:3110/assets/s._sessionId.brief-DLPje1KT.js",
+                  "duration": 173.983,
+                  "startTime": 93.23
+                },
+                {
+                  "url": "http://localhost:3110/s/sess_f2404293da6eaa0a192af402/brief",
+                  "duration": 133.281,
+                  "startTime": 7503.762
+                },
+                {
+                  "url": "http://localhost:3110/s/sess_f2404293da6eaa0a192af402/brief",
+                  "duration": 83.216,
+                  "startTime": 364.768
+                },
+                {
+                  "url": "http://localhost:3110/s/sess_f2404293da6eaa0a192af402/brief",
+                  "duration": 79.157,
+                  "startTime": 6692.544
+                },
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 57.43,
+                  "startTime": 306.667
+                }
+              ]
+            }
+          }
+        },
+        {
+          "finalUrl": "http://localhost:3110/s/sess_f2404293da6eaa0a192af402/results",
+          "fetchTime": "2026-11-04T18:36:11.225Z",
+          "lighthouseVersion": "13.5.0",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "benchmarkIndex": 911,
+          "formFactor": "mobile",
+          "throttlingMethod": "simulate",
+          "categories": {
+            "performance": 0,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100,
+            "agentic-browsing": 100
+          },
+          "FCP_ms": null,
+          "LCP_ms": null,
+          "TBT_ms": null,
+          "CLS": null,
+          "SI_ms": null,
+          "INP_ms": null,
+          "runWarnings": [],
+          "name": "Results shown",
+          "gatherMode": "snapshot",
+          "details": {}
+        },
+        {
+          "finalUrl": "http://localhost:3110/s/sess_f2404293da6eaa0a192af402/results",
+          "fetchTime": "2026-11-04T18:36:14.016Z",
+          "lighthouseVersion": "13.5.0",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "benchmarkIndex": 934.5,
+          "formFactor": "mobile",
+          "throttlingMethod": "simulate",
+          "categories": {
+            "performance": 88,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 63,
+            "agentic-browsing": 100
+          },
+          "FCP_ms": 2362.0475000000006,
+          "LCP_ms": 3518.0761000000007,
+          "TBT_ms": 52.98519999999985,
+          "CLS": 0,
+          "SI_ms": 2362.0475000000006,
+          "INP_ms": null,
+          "runWarnings": [],
+          "name": "Results address reloaded",
+          "gatherMode": "navigation",
+          "details": {
+            "mainthread-work-breakdown": {
+              "title": "Minimizes main-thread work",
+              "score": 1,
+              "displayValue": "1.3 s",
+              "numericValue": 1303.8000000000004,
+              "items": [
+                {
+                  "group": "other",
+                  "groupLabel": "Other",
+                  "duration": 616.136
+                },
+                {
+                  "group": "scriptEvaluation",
+                  "groupLabel": "Script Evaluation",
+                  "duration": 472.5440000000005
+                },
+                {
+                  "group": "styleLayout",
+                  "groupLabel": "Style & Layout",
+                  "duration": 151.01200000000003
+                },
+                {
+                  "group": "parseHTML",
+                  "groupLabel": "Parse HTML & CSS",
+                  "duration": 25.387999999999995
+                },
+                {
+                  "group": "paintCompositeRender",
+                  "groupLabel": "Rendering",
+                  "duration": 24.459999999999987
+                },
+                {
+                  "group": "scriptParseCompile",
+                  "groupLabel": "Script Parsing & Compilation",
+                  "duration": 14.259999999999998
+                }
+              ]
+            },
+            "layout-shifts": {
+              "title": "Avoid large layout shifts",
+              "score": null,
+              "displayValue": null,
+              "numericValue": null,
+              "items": []
+            },
+            "long-tasks": {
+              "title": "Avoid long main-thread tasks",
+              "score": 1,
+              "displayValue": "5 long tasks found",
+              "numericValue": null,
+              "items": [
+                {
+                  "url": "Unattributable",
+                  "duration": 110,
+                  "startTime": 602.9801000000001
+                },
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 106,
+                  "startTime": 712.9801000000001
+                },
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 103,
+                  "startTime": 3429.105700000001
+                },
+                {
+                  "url": "Unattributable",
+                  "duration": 83,
+                  "startTime": 830.9801000000001
+                },
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 57,
+                  "startTime": 3372.105700000001
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "file": "flow-2.json",
+      "steps": [
+        {
+          "finalUrl": "http://localhost:3110/s/sess_153f7e0f5058053de5213d5b/results",
+          "fetchTime": "2026-11-04T18:36:45.690Z",
+          "lighthouseVersion": "13.5.0",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "benchmarkIndex": 890,
+          "formFactor": "mobile",
+          "throttlingMethod": "devtools",
+          "categories": {
+            "performance": 71,
+            "best-practices": 100
+          },
+          "FCP_ms": null,
+          "LCP_ms": null,
+          "TBT_ms": 641.8440000000003,
+          "CLS": 0.0007388530565526466,
+          "SI_ms": null,
+          "INP_ms": null,
+          "runWarnings": [],
+          "name": "Start research to results shown",
+          "gatherMode": "timespan",
+          "details": {
+            "mainthread-work-breakdown": {
+              "title": "Minimize main-thread work",
+              "score": 0,
+              "displayValue": "3.1 s",
+              "numericValue": 3128.2909999999993,
+              "items": [
+                {
+                  "group": "scriptEvaluation",
+                  "groupLabel": "Script Evaluation",
+                  "duration": 1348.1589999999974
+                },
+                {
+                  "group": "other",
+                  "groupLabel": "Other",
+                  "duration": 1147.0150000000021
+                },
+                {
+                  "group": "styleLayout",
+                  "groupLabel": "Style & Layout",
+                  "duration": 426.3719999999999
+                },
+                {
+                  "group": "paintCompositeRender",
+                  "groupLabel": "Rendering",
+                  "duration": 206.51100000000002
+                },
+                {
+                  "group": "scriptParseCompile",
+                  "groupLabel": "Script Parsing & Compilation",
+                  "duration": 0.234
+                }
+              ]
+            },
+            "layout-shifts": {
+              "title": "Avoid large layout shifts",
+              "score": 1,
+              "displayValue": "1 layout shift found",
+              "numericValue": null,
+              "items": [
+                {
+                  "score": 0.0007388530565526466
+                }
+              ]
+            },
+            "long-tasks": {
+              "title": "Avoid long main-thread tasks",
+              "score": 1,
+              "displayValue": "7 long tasks found",
+              "numericValue": null,
+              "items": [
+                {
+                  "url": "pptr:evaluate;clickByText%20(file%3A%2F%2F%2F<temp>%2Flh.Nhs3sc%2Fflow.mjs%3A19%3A14)",
+                  "duration": 402.545,
+                  "startTime": 6181.054
+                },
+                {
+                  "url": "http://localhost:3110/assets/s._sessionId.brief-DLPje1KT.js",
+                  "duration": 157.462,
+                  "startTime": 111.005
+                },
+                {
+                  "url": "http://localhost:3110/s/sess_153f7e0f5058053de5213d5b/brief",
+                  "duration": 110.417,
+                  "startTime": 391.999
+                },
+                {
+                  "url": "http://localhost:3110/s/sess_153f7e0f5058053de5213d5b/brief",
+                  "duration": 108.982,
+                  "startTime": 7514.855
+                },
+                {
+                  "url": "http://localhost:3110/s/sess_153f7e0f5058053de5213d5b/brief",
+                  "duration": 81.983,
+                  "startTime": 6688.033
+                },
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 73.176,
+                  "startTime": 317.556
+                },
+                {
+                  "url": "pptr:evaluate;clickByText%20(file%3A%2F%2F%2F<temp>%2Flh.Nhs3sc%2Fflow.mjs%3A19%3A14)",
+                  "duration": 57.279,
+                  "startTime": 25.095
+                }
+              ]
+            }
+          }
+        },
+        {
+          "finalUrl": "http://localhost:3110/s/sess_153f7e0f5058053de5213d5b/results",
+          "fetchTime": "2026-11-04T18:37:00.935Z",
+          "lighthouseVersion": "13.5.0",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "benchmarkIndex": 960,
+          "formFactor": "mobile",
+          "throttlingMethod": "simulate",
+          "categories": {
+            "performance": 0,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100,
+            "agentic-browsing": 100
+          },
+          "FCP_ms": null,
+          "LCP_ms": null,
+          "TBT_ms": null,
+          "CLS": null,
+          "SI_ms": null,
+          "INP_ms": null,
+          "runWarnings": [],
+          "name": "Results shown",
+          "gatherMode": "snapshot",
+          "details": {}
+        },
+        {
+          "finalUrl": "http://localhost:3110/s/sess_153f7e0f5058053de5213d5b/results",
+          "fetchTime": "2026-11-04T18:37:03.645Z",
+          "lighthouseVersion": "13.5.0",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "benchmarkIndex": 931,
+          "formFactor": "mobile",
+          "throttlingMethod": "simulate",
+          "categories": {
+            "performance": 87,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 63,
+            "agentic-browsing": 100
+          },
+          "FCP_ms": 2359.6047,
+          "LCP_ms": 3541.9114,
+          "TBT_ms": 69.5,
+          "CLS": 0,
+          "SI_ms": 2359.6047,
+          "INP_ms": null,
+          "runWarnings": [],
+          "name": "Results address reloaded",
+          "gatherMode": "navigation",
+          "details": {
+            "mainthread-work-breakdown": {
+              "title": "Minimizes main-thread work",
+              "score": 1,
+              "displayValue": "1.5 s",
+              "numericValue": 1528.3999999999992,
+              "items": [
+                {
+                  "group": "other",
+                  "groupLabel": "Other",
+                  "duration": 813.7839999999993
+                },
+                {
+                  "group": "scriptEvaluation",
+                  "groupLabel": "Script Evaluation",
+                  "duration": 481.3839999999997
+                },
+                {
+                  "group": "styleLayout",
+                  "groupLabel": "Style & Layout",
+                  "duration": 169.756
+                },
+                {
+                  "group": "paintCompositeRender",
+                  "groupLabel": "Rendering",
+                  "duration": 28.103999999999985
+                },
+                {
+                  "group": "parseHTML",
+                  "groupLabel": "Parse HTML & CSS",
+                  "duration": 21.843999999999998
+                },
+                {
+                  "group": "scriptParseCompile",
+                  "groupLabel": "Script Parsing & Compilation",
+                  "duration": 13.528
+                }
+              ]
+            },
+            "layout-shifts": {
+              "title": "Avoid large layout shifts",
+              "score": null,
+              "displayValue": null,
+              "numericValue": null,
+              "items": []
+            },
+            "long-tasks": {
+              "title": "Avoid long main-thread tasks",
+              "score": 1,
+              "displayValue": "7 long tasks found",
+              "numericValue": null,
+              "items": [
+                {
+                  "url": "Unattributable",
+                  "duration": 271.0000000000001,
+                  "startTime": 669.756
+                },
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 104,
+                  "startTime": 940.7560000000001
+                },
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 104,
+                  "startTime": 3535.6562
+                },
+                {
+                  "url": "Unattributable",
+                  "duration": 93,
+                  "startTime": 1054.756
+                },
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 88,
+                  "startTime": 3447.6562
+                },
+                {
+                  "url": "Unattributable",
+                  "duration": 67,
+                  "startTime": 602.756
+                },
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 59,
+                  "startTime": 3639.6562
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "file": "flow-3.json",
+      "steps": [
+        {
+          "finalUrl": "http://localhost:3110/s/sess_97cdcddeb7eea1776d610cf6/results",
+          "fetchTime": "2026-11-04T18:37:35.335Z",
+          "lighthouseVersion": "13.5.0",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "benchmarkIndex": 908,
+          "formFactor": "mobile",
+          "throttlingMethod": "devtools",
+          "categories": {
+            "performance": 72,
+            "best-practices": 100
+          },
+          "FCP_ms": null,
+          "LCP_ms": null,
+          "TBT_ms": 618.0589999999993,
+          "CLS": 0.0007388530565526466,
+          "SI_ms": null,
+          "INP_ms": null,
+          "runWarnings": [],
+          "name": "Start research to results shown",
+          "gatherMode": "timespan",
+          "details": {
+            "mainthread-work-breakdown": {
+              "title": "Minimize main-thread work",
+              "score": 0,
+              "displayValue": "3.1 s",
+              "numericValue": 3114.3319999999976,
+              "items": [
+                {
+                  "group": "scriptEvaluation",
+                  "groupLabel": "Script Evaluation",
+                  "duration": 1352.1049999999968
+                },
+                {
+                  "group": "other",
+                  "groupLabel": "Other",
+                  "duration": 1140.3600000000006
+                },
+                {
+                  "group": "styleLayout",
+                  "groupLabel": "Style & Layout",
+                  "duration": 414.895
+                },
+                {
+                  "group": "paintCompositeRender",
+                  "groupLabel": "Rendering",
+                  "duration": 206.7590000000001
+                },
+                {
+                  "group": "scriptParseCompile",
+                  "groupLabel": "Script Parsing & Compilation",
+                  "duration": 0.213
+                }
+              ]
+            },
+            "layout-shifts": {
+              "title": "Avoid large layout shifts",
+              "score": 1,
+              "displayValue": "1 layout shift found",
+              "numericValue": null,
+              "items": [
+                {
+                  "score": 0.0007388530565526466
+                }
+              ]
+            },
+            "long-tasks": {
+              "title": "Avoid long main-thread tasks",
+              "score": 1,
+              "displayValue": "6 long tasks found",
+              "numericValue": null,
+              "items": [
+                {
+                  "url": "pptr:evaluate;clickByText%20(file%3A%2F%2F%2F<temp>%2Flh.Nhs3sc%2Fflow.mjs%3A19%3A14)",
+                  "duration": 448.8,
+                  "startTime": 6178.897
+                },
+                {
+                  "url": "http://localhost:3110/assets/s._sessionId.brief-DLPje1KT.js",
+                  "duration": 146.565,
+                  "startTime": 117.175
+                },
+                {
+                  "url": "http://localhost:3110/s/sess_97cdcddeb7eea1776d610cf6/brief",
+                  "duration": 119.812,
+                  "startTime": 7532.609
+                },
+                {
+                  "url": "http://localhost:3110/s/sess_97cdcddeb7eea1776d610cf6/brief",
+                  "duration": 71.514,
+                  "startTime": 6735.078
+                },
+                {
+                  "url": "http://localhost:3110/s/sess_97cdcddeb7eea1776d610cf6/brief",
+                  "duration": 69.408,
+                  "startTime": 306.81
+                },
+                {
+                  "url": "pptr:evaluate;clickByText%20(file%3A%2F%2F%2F<temp>%2Flh.Nhs3sc%2Fflow.mjs%3A19%3A14)",
+                  "duration": 61.96,
+                  "startTime": 25.705
+                }
+              ]
+            }
+          }
+        },
+        {
+          "finalUrl": "http://localhost:3110/s/sess_97cdcddeb7eea1776d610cf6/results",
+          "fetchTime": "2026-11-04T18:37:50.404Z",
+          "lighthouseVersion": "13.5.0",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "benchmarkIndex": 899.5,
+          "formFactor": "mobile",
+          "throttlingMethod": "simulate",
+          "categories": {
+            "performance": 0,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100,
+            "agentic-browsing": 100
+          },
+          "FCP_ms": null,
+          "LCP_ms": null,
+          "TBT_ms": null,
+          "CLS": null,
+          "SI_ms": null,
+          "INP_ms": null,
+          "runWarnings": [],
+          "name": "Results shown",
+          "gatherMode": "snapshot",
+          "details": {}
+        },
+        {
+          "finalUrl": "http://localhost:3110/s/sess_97cdcddeb7eea1776d610cf6/results",
+          "fetchTime": "2026-11-04T18:37:53.118Z",
+          "lighthouseVersion": "13.5.0",
+          "hostUserAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "benchmarkIndex": 956.5,
+          "formFactor": "mobile",
+          "throttlingMethod": "simulate",
+          "categories": {
+            "performance": 87,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 63,
+            "agentic-browsing": 100
+          },
+          "FCP_ms": 2366.91025,
+          "LCP_ms": 3561.95305,
+          "TBT_ms": 109,
+          "CLS": 0,
+          "SI_ms": 2366.91025,
+          "INP_ms": null,
+          "runWarnings": [],
+          "name": "Results address reloaded",
+          "gatherMode": "navigation",
+          "details": {
+            "mainthread-work-breakdown": {
+              "title": "Minimizes main-thread work",
+              "score": 1,
+              "displayValue": "1.3 s",
+              "numericValue": 1323.92,
+              "items": [
+                {
+                  "group": "other",
+                  "groupLabel": "Other",
+                  "duration": 613.3040000000002
+                },
+                {
+                  "group": "scriptEvaluation",
+                  "groupLabel": "Script Evaluation",
+                  "duration": 486.2119999999998
+                },
+                {
+                  "group": "styleLayout",
+                  "groupLabel": "Style & Layout",
+                  "duration": 163.16400000000002
+                },
+                {
+                  "group": "paintCompositeRender",
+                  "groupLabel": "Rendering",
+                  "duration": 24.267999999999983
+                },
+                {
+                  "group": "parseHTML",
+                  "groupLabel": "Parse HTML & CSS",
+                  "duration": 24.087999999999997
+                },
+                {
+                  "group": "scriptParseCompile",
+                  "groupLabel": "Script Parsing & Compilation",
+                  "duration": 12.883999999999999
+                }
+              ]
+            },
+            "layout-shifts": {
+              "title": "Avoid large layout shifts",
+              "score": null,
+              "displayValue": null,
+              "numericValue": null,
+              "items": []
+            },
+            "long-tasks": {
+              "title": "Avoid long main-thread tasks",
+              "score": 1,
+              "displayValue": "5 long tasks found",
+              "numericValue": null,
+              "items": [
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 119,
+                  "startTime": 3473.98315
+                },
+                {
+                  "url": "Unattributable",
+                  "duration": 117,
+                  "startTime": 603.4004500000001
+                },
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 110,
+                  "startTime": 720.4004500000001
+                },
+                {
+                  "url": "http://localhost:3110/assets/index-B3Jsvrjg.js",
+                  "duration": 90,
+                  "startTime": 3383.98315
+                },
+                {
+                  "url": "Unattributable",
+                  "duration": 76,
+                  "startTime": 840.4004500000001
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "medians": {
+    "home": {
+      "runs": 3,
+      "performance": 72,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "LCP_ms": 4503.030668592759,
+      "CLS": 0.0002719921269276907,
+      "TBT_ms": 0,
+      "FCP_ms": 4503.030668592759,
+      "SI_ms": 5001.810109892124,
+      "each": [
+        {
+          "performance": 70,
+          "accessibility": 100,
+          "bestPractices": 100,
+          "LCP_ms": 4594.9538,
+          "CLS": 0.00028247017729706917,
+          "TBT_ms": 0,
+          "FCP_ms": 4594.9538,
+          "lcpElement": null,
+          "benchmarkIndex": 790.5,
+          "fetchTime": "2026-11-04T18:31:19.411Z"
+        },
+        {
+          "performance": 72,
+          "accessibility": 100,
+          "bestPractices": 100,
+          "LCP_ms": 4503.030668592759,
+          "CLS": 0.0002719921269276907,
+          "TBT_ms": 0,
+          "FCP_ms": 4503.030668592759,
+          "lcpElement": null,
+          "benchmarkIndex": 900,
+          "fetchTime": "2026-11-04T18:32:50.285Z"
+        },
+        {
+          "performance": 73,
+          "accessibility": 100,
+          "bestPractices": 100,
+          "LCP_ms": 4410.123364730245,
+          "CLS": 0.0002719921269276907,
+          "TBT_ms": 0,
+          "FCP_ms": 4410.123364730245,
+          "lcpElement": null,
+          "benchmarkIndex": 887,
+          "fetchTime": "2026-11-04T18:34:21.867Z"
+        }
+      ]
+    },
+    "research": {
+      "runs": 3,
+      "performance": 79,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "LCP_ms": 3861.1157000000003,
+      "CLS": 9.210399781769876e-05,
+      "TBT_ms": 50.49999999999977,
+      "FCP_ms": 3785.6197249999996,
+      "SI_ms": 3785.6197249999996,
+      "each": [
+        {
+          "performance": 79,
+          "accessibility": 100,
+          "bestPractices": 100,
+          "LCP_ms": 3958.9595,
+          "CLS": 9.637548757156304e-05,
+          "TBT_ms": 50.49999999999977,
+          "FCP_ms": 3882.356800000001,
+          "lcpElement": null,
+          "benchmarkIndex": 840.5,
+          "fetchTime": "2026-11-04T18:31:51.984Z"
+        },
+        {
+          "performance": 79,
+          "accessibility": 100,
+          "bestPractices": 100,
+          "LCP_ms": 3861.1157000000003,
+          "CLS": 9.210399781769876e-05,
+          "TBT_ms": 66.1626999999994,
+          "FCP_ms": 3711.1157000000003,
+          "lcpElement": null,
+          "benchmarkIndex": 889,
+          "fetchTime": "2026-11-04T18:33:21.790Z"
+        },
+        {
+          "performance": 80,
+          "accessibility": 100,
+          "bestPractices": 100,
+          "LCP_ms": 3797.704550000001,
+          "CLS": 0,
+          "TBT_ms": 10.5,
+          "FCP_ms": 3785.6197249999996,
+          "lcpElement": null,
+          "benchmarkIndex": 920.5,
+          "fetchTime": "2026-11-04T18:34:53.302Z"
+        }
+      ]
+    },
+    "results": {
+      "runs": 3,
+      "performance": 80,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 63,
+      "LCP_ms": 3552.2850000000003,
+      "CLS": 0.09423042568677852,
+      "TBT_ms": 11.96260000000052,
+      "FCP_ms": 3552.2850000000003,
+      "SI_ms": 3552.2850000000003,
+      "each": [
+        {
+          "performance": 80,
+          "accessibility": 100,
+          "bestPractices": 100,
+          "LCP_ms": 3552.2850000000003,
+          "CLS": 0.09423042568677852,
+          "TBT_ms": 17.5,
+          "FCP_ms": 3552.2850000000003,
+          "lcpElement": null,
+          "benchmarkIndex": 909.5,
+          "fetchTime": "2026-11-04T18:32:21.214Z"
+        },
+        {
+          "performance": 79,
+          "accessibility": 100,
+          "bestPractices": 100,
+          "LCP_ms": 3678.99245,
+          "CLS": 0.09423042568677852,
+          "TBT_ms": 0,
+          "FCP_ms": 3603.9924499999997,
+          "lcpElement": null,
+          "benchmarkIndex": 797,
+          "fetchTime": "2026-11-04T18:33:52.626Z"
+        },
+        {
+          "performance": 81,
+          "accessibility": 100,
+          "bestPractices": 100,
+          "LCP_ms": 3520.522900000001,
+          "CLS": 0.09423042568677852,
+          "TBT_ms": 11.96260000000052,
+          "FCP_ms": 3499.1438,
+          "lcpElement": null,
+          "benchmarkIndex": 871,
+          "fetchTime": "2026-11-04T18:35:22.702Z"
+        }
+      ]
+    }
+  }
+}

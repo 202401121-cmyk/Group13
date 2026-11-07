@@ -1,0 +1,25 @@
+A3 database tests on a throwaway local postgres:17 (postgres (PostgreSQL) 17.11 (Debian 17.11-1.pgdg13+2)), 2026-11-04 17:31 UTC
+Each test run creates a blank database, applies every file in supabase/migrations in order, and drops it.
+Migrations: 20261026170303_create_requests.sql 20261103102906_lock_rls_auto_enable.sql 
+
+$ TEST_DATABASE_URL=<local> REQUIRE_DB_TESTS=1 pytest -m db -rA
+PASSED tests/integration/test_requests_table.py::test_a_saved_request_can_be_read_back
+PASSED tests/integration/test_requests_table.py::test_an_unclear_request_is_saved_without_an_intent
+PASSED tests/integration/test_requests_table.py::test_row_level_security_is_on_and_the_data_api_roles_have_no_access
+PASSED tests/integration/test_requests_table.py::test_the_table_enforces_the_length_limit_and_the_session_id_format
+PASSED tests/integration/test_requests_table.py::test_each_pooled_connection_has_the_statement_timeout
+================ 5 passed, 1023 deselected, 1 warning in 3.57s ================
+
+Guarded revoke on a plain Postgres that has no rls_auto_enable():
+  applied 20261026170303_create_requests.sql: ok
+  applied 20261103102906_lock_rls_auto_enable.sql: ok
+  rls_auto_enable functions present: 0
+
+$ (container stopped) REQUIRE_DB_TESTS=1 pytest -m db
+1023 deselected, 1 warning, 5 errors in 8.50s
+>           pytest.fail(f"REQUIRE_DB_TESTS=1 but {reason}")
+E           Failed: REQUIRE_DB_TESTS=1 but TEST_DATABASE_URL cannot be reached (ConnectionTimeout)
+$ (container stopped) pytest -m db -rs, without REQUIRE_DB_TESTS
+SKIPPED [1] tests\integration\test_requests_table.py:78: TEST_DATABASE_URL cannot be reached (ConnectionTimeout)
+SKIPPED [1] tests\integration\test_requests_table.py:94: TEST_DATABASE_URL cannot be reached (ConnectionTimeout)
+SKIPPED [1] tests\integration\test_requests_table.py:104: TEST_DATABASE_URL cannot be reached (ConnectionTimeout)

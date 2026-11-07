@@ -1,0 +1,33 @@
+Rendered text below 4.5:1 (1440 px, light and dark, every state). Text colour composited over the nearest solid backgrounds; 'bgImage' means a gradient or image sits behind it, so the number is an estimate.
+Text elements measured: 19053
+
+default-1440-light | 1.73:1 | 'Edit' | fg rgb(187,200,193) on rgb(255,255,255) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+default-1440-light | 1.73:1 | 'Add' | fg rgb(187,200,193) on rgb(255,255,255) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+reduce-1440-light | 1.73:1 | 'Edit' | fg rgb(187,200,193) on rgb(255,255,255) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+reduce-1440-light | 1.73:1 | 'Add' | fg rgb(187,200,193) on rgb(255,255,255) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+settled-1440-light | 1.73:1 | 'Edit' | fg rgb(187,200,193) on rgb(255,255,255) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+settled-1440-light | 1.73:1 | 'Add' | fg rgb(187,200,193) on rgb(255,255,255) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+default-1440-dark | 2.2:1 | 'Edit' | fg rgb(77,102,86) on rgb(35,48,40) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+default-1440-dark | 2.2:1 | 'Add' | fg rgb(77,102,86) on rgb(35,48,40) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+reduce-1440-dark | 2.2:1 | 'Edit' | fg rgb(77,102,86) on rgb(35,48,40) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+reduce-1440-dark | 2.2:1 | 'Add' | fg rgb(77,102,86) on rgb(35,48,40) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+settled-1440-dark | 2.2:1 | 'Edit' | fg rgb(77,102,86) on rgb(35,48,40) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+settled-1440-dark | 2.2:1 | 'Add' | fg rgb(77,102,86) on rgb(35,48,40) | 14px w500 | large False | bgImage False | opacity 0.4 | 2 state(s): research, budget error; research, editing the budget
+default-1440-light | 2.43:1 | 'Looks right' | fg rgb(167,183,172) on rgb(84,117,99) | 16px w500 | large False | bgImage False | opacity 0.5 | 2 state(s): research, budget error; research, editing the budget
+default-1440-light | 2.43:1 | 'Start the questions' | fg rgb(167,183,172) on rgb(84,117,99) | 16px w500 | large False | bgImage False | opacity 0.5 | 1 state(s): criteria, could not load
+default-1440-light | 2.43:1 | 'Send' | fg rgb(167,183,172) on rgb(84,117,99) | 14px w500 | large False | bgImage False | opacity 0.5 | 6 state(s): questions, after a skip; questions, answer then repeat; questions, asked another way (rephrase); questions, first question
+reduce-1440-light | 2.43:1 | 'Looks right' | fg rgb(167,183,172) on rgb(84,117,99) | 16px w500 | large False | bgImage False | opacity 0.5 | 2 state(s): research, budget error; research, editing the budget
+reduce-1440-light | 2.43:1 | 'Start the questions' | fg rgb(167,183,172) on rgb(84,117,99) | 16px w500 | large False | bgImage False | opacity 0.5 | 1 state(s): criteria, could not load
+reduce-1440-light | 2.43:1 | 'Send' | fg rgb(167,183,172) on rgb(84,117,99) | 14px w500 | large False | bgImage False | opacity 0.5 | 6 state(s): questions, after a skip; questions, answer then repeat; questions, asked another way (rephrase); questions, first question
+settled-1440-light | 2.43:1 | 'Looks right' | fg rgb(167,183,172) on rgb(84,117,99) | 16px w500 | large False | bgImage False | opacity 0.5 | 2 state(s): research, budget error; research, editing the budget
+settled-1440-light | 2.43:1 | 'Start the questions' | fg rgb(167,183,172) on rgb(84,117,99) | 16px w500 | large False | bgImage False | opacity 0.5 | 1 state(s): criteria, could not load
+settled-1440-light | 2.43:1 | 'Send' | fg rgb(167,183,172) on rgb(84,117,99) | 14px w500 | large False | bgImage False | opacity 0.5 | 6 state(s): questions, after a skip; questions, answer then repeat; questions, asked another way (rephrase); questions, first question
+default-1440-dark | 2.63:1 | 'Looks right' | fg rgb(78,107,88) on rgb(141,183,154) | 16px w500 | large False | bgImage False | opacity 0.5 | 2 state(s): research, budget error; research, editing the budget
+default-1440-dark | 2.63:1 | 'Start the questions' | fg rgb(78,107,88) on rgb(141,183,154) | 16px w500 | large False | bgImage False | opacity 0.5 | 1 state(s): criteria, could not load
+default-1440-dark | 2.63:1 | 'Send' | fg rgb(78,107,88) on rgb(141,183,154) | 14px w500 | large False | bgImage False | opacity 0.5 | 6 state(s): questions, after a skip; questions, answer then repeat; questions, asked another way (rephrase); questions, first question
+reduce-1440-dark | 2.63:1 | 'Looks right' | fg rgb(78,107,88) on rgb(141,183,154) | 16px w500 | large False | bgImage False | opacity 0.5 | 2 state(s): research, budget error; research, editing the budget
+reduce-1440-dark | 2.63:1 | 'Start the questions' | fg rgb(78,107,88) on rgb(141,183,154) | 16px w500 | large False | bgImage False | opacity 0.5 | 1 state(s): criteria, could not load
+reduce-1440-dark | 2.63:1 | 'Send' | fg rgb(78,107,88) on rgb(141,183,154) | 14px w500 | large False | bgImage False | opacity 0.5 | 6 state(s): questions, after a skip; questions, answer then repeat; questions, asked another way (rephrase); questions, first question
+settled-1440-dark | 2.63:1 | 'Looks right' | fg rgb(78,107,88) on rgb(141,183,154) | 16px w500 | large False | bgImage False | opacity 0.5 | 2 state(s): research, budget error; research, editing the budget
+settled-1440-dark | 2.63:1 | 'Start the questions' | fg rgb(78,107,88) on rgb(141,183,154) | 16px w500 | large False | bgImage False | opacity 0.5 | 1 state(s): criteria, could not load
+settled-1440-dark | 2.63:1 | 'Send' | fg rgb(78,107,88) on rgb(141,183,154) | 14px w500 | large False | bgImage False | opacity 0.5 | 6 state(s): questions, after a skip; questions, answer then repeat; questions, asked another way (rephrase); questions, first question

@@ -1,0 +1,33 @@
+D1 US-01 against backend A (keys on, database off), 2026-11-04 17:51 UTC
+1,000 characters: 200 (1360 ms) ready=True
+1,001 characters: 422 detail={'detail': 'Please check: text - String should have at most 1000 characters.'}
+text '': 422 {"detail": "Please check: text - String should have at least 1 character."}
+text '   ': 500 "Internal Server Error"
+'something for my mom': 200 session=sess_01304fe13278fa92aef0bc0d (sess_+24hex ok) ready=False category=None question='What kind of product are you looking for?' options=['Smartphone', 'Laptop', 'Mixer grinder', 'Smartwatch'] (4)
+criteria before a category: 409 {'detail': 'Tell us what kind of product first.'}
+interview before a category: 409 {'detail': 'We need to work out what to compare first. Please get the criteria, then start the interview.'}
+unclear reply: 200 ready=False category=None show_example_requests=True question=None
+'pram for a newborn under 20000': 200 by=llm category=pram use='newborn' budget=min None max 20000.0 region=IN hard_rules=[] exclusions=[] needs_clarification=False
+
+non-2xx responses seen: 5
+  422 POST /api/presearch/intake: shape ok; leak none; detail={"detail": "Please check: text - String should have at most 1000 characters."}
+  422 POST /api/presearch/intake: shape ok; leak none; detail={"detail": "Please check: text - String should have at least 1 character."}
+  500 POST /api/presearch/intake: shape NOT {detail}; leak none; detail="Internal Server Error"
+  409 POST /api/presearch/sess_01304fe13278fa92aef0bc0d/criteria: shape ok; leak none; detail={"detail": "Tell us what kind of product first."}
+  409 POST /api/presearch/sess_01304fe13278fa92aef0bc0d/interview/start: shape ok; leak none; detail={"detail": "We need to work out what to compare first. Please get the criteria, then start the interview."}
+error-shape or leak problems: 1
+
+Cause of the whitespace-only 500, from backend A's log at 23:21:47 local time (the traceback's last frames, paths shortened):
+  File "<repo>\backend\app\api\presearch.py", line 115, in intake
+    intent = flow.start_request(request, llm=llm)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repo>\backend\app\presearch.py", line 57, in start_request
+    inp = IntakeInput(raw_query=query, previous_clarification_reply=previous_reply, unclear_attempts=unclear_attempts)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<temp>\v9\Lib\site-packages\pydantic\main.py", line 280, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for IntakeInput
+raw_query
+  String should have at least 1 character [type=string_too_short, input_value='   ', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.14/v/string_too_short

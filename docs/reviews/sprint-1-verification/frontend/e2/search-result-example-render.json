@@ -1,0 +1,71 @@
+{
+  "how": "shared/contracts/examples/search_result.json -> resultFromSearch (live adapter) with criteria.json labels, viewed at finished_at -> the real ResultCard rendered in jsdom (every section open). Not the served app: no route shows this file in mock mode.",
+  "viewedAt": "2026-10-03T10:01:34Z",
+  "mapped": {
+    "saved": true,
+    "partial": false,
+    "coverageNote": "YouTube didn't respond in time, and one value is estimated. Results use Reddit, a review site and the maker's page.",
+    "leftOut": [
+      {
+        "name": "Aurora Air 13",
+        "reason": "₹84,990 is above your ₹70,000 budget"
+      }
+    ],
+    "couldntCheck": [
+      {
+        "name": "Vela Pro 14",
+        "reason": "We couldn't confirm it has at least 16 GB RAM"
+      }
+    ],
+    "relaxation": null,
+    "pricesCheckedAt": "2026-10-03T08:00:00Z"
+  },
+  "contractRanking": [
+    {
+      "product": "prd_nova_book_14",
+      "rank": 1,
+      "tied_with": [
+        "prd_kestrel_slim_15"
+      ],
+      "separating_criterion": "battery_life"
+    },
+    {
+      "product": "prd_kestrel_slim_15",
+      "rank": 2,
+      "tied_with": [
+        "prd_nova_book_14"
+      ],
+      "separating_criterion": "battery_life"
+    },
+    {
+      "product": "prd_orion_play_15",
+      "rank": 3,
+      "tied_with": [],
+      "separating_criterion": null
+    }
+  ],
+  "cards": [
+    {
+      "name": "Nova Book 14",
+      "rank": 1,
+      "text": "Best matchRank =1: Nova Book 14#=1Score 78.3Tied with Kestrel Slim 15Medium confidenceBest pick chance 46%Checked 7 of 7 criteriaWhy it ranks hereIts keyboard is the most comfortable of the three, which matters most for long coding. Battery life is strong, so you can work a full day away from a plug. The Orion Play 15 compiles faster, but it is much heavier.StrongestKeyboard comfortCPU performanceWeakestBuild durabilityStore offersExample StorePrice checked 3 Oct, 1:30 pm₹64,990View at Example Store(opens in a new tab)Show all criteriaCPU performance7.5 / 10Battery life8 / 10Keyboard comfort9 / 10Display quality7 / 10Weight7.5 / 10Build durability7 / 10Value for money8 / 10",
+      "links": [
+        "https://store.example.com/nova-book-14-16gb-512gb"
+      ]
+    },
+    {
+      "name": "Kestrel Slim 15",
+      "rank": 1,
+      "text": "Rank =1: Kestrel Slim 15#=1Score 75.91Tied with Nova Book 14Medium confidenceBest pick chance 41%Checked 7 of 7 criteriaWhy it ranks hereIt is the lightest of the three and slightly faster than the Nova Book 14. Its battery life is disputed: the maker says 10 hours, an owner reports about 6.StrongestCPU performanceKeyboard comfortWeakestBuild durabilityStore offersAnother StoreOld price, checked 2 Oct, 9:30 am₹67,490Check at Another Store(opens in a new tab)Show all criteriaCPU performance8 / 10Battery lifeSources disagreeKeyboard comfort7.5 / 10Display quality7.5 / 10Weight8 / 10Build durability7.5 / 10Value for money7.5 / 10",
+      "links": [
+        "https://shop.example.org/kestrel-slim-15"
+      ]
+    },
+    {
+      "name": "Orion Play 15",
+      "rank": 3,
+      "text": "Rank 3: Orion Play 15#3Score 67.05Low confidenceBest pick chance 13%Checked 6 of 7 criteriaWhy it ranks hereStrongestCPU performanceKeyboard comfortWeakestWeightStore offersNo price foundShow all criteriaCPU performance9 / 10Battery life5 / 10Keyboard comfort6.5 / 10Display quality8 / 10Weight4 / 10Build durability7.25 / 10EstimatedValue for money7 / 10",
+      "links": []
+    }
+  ]
+}

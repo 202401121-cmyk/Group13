@@ -1,0 +1,34 @@
+A6 ML, the ml job's commands from .github/workflows/ci.yml, run from the repository root, 2026-11-04 17:32 UTC
+$ ruff check --config backend/pyproject.toml ml
+All checks passed!
+$ ruff format --check --config backend/pyproject.toml ml
+16 files already formatted
+$ mypy --config-file backend/pyproject.toml --strict ml/scripts ml/tests
+Success: no issues found in 11 source files
+$ python -m pytest ml/tests -q
+118 passed in 7.41s
+$ python ml/scripts/check_labels.py ml/labelling/pairs_template.csv ml/examples/pairs_labeller_a.csv ml/examples/pairs_labeller_b.csv
+  families per category: earbuds 5, laptop 5, smartphone 5
+OK: 3 files, 103 rows checked, no errors.
+$ python ml/scripts/kappa.py ml/examples/pairs_labeller_a.csv ml/examples/pairs_labeller_b.csv --min 0.8
+PASS: four-class kappa 0.859 is at least 0.800.
+exit 0
+$ tracked raw data or model files (git ls-files -- ml/data/raw ml/models)
+  count: 0
+$ tracked files under ml/ over 1 MiB
+  count: 0
+
+Raw data: not in this worktree (git-ignored); the main checkout of this laptop has ml/data/raw: abt_buy amazon_google wdc_products 
+ml/data/checksums.sha256
+checksums file present
+
+$ sha256sum -c ml/data/checksums.sha256   (run where the raw data is: the main checkout's ml/data/raw)
+     60 OK
+  sha256sum exit 0
+
+$ python ml/scripts/match_baseline.py all --raw-dir <main checkout>/ml/data/raw --out <temp>/baseline.json
+  exit 0, 19 s
+  rows in order: rerun 16, committed 16; identical rows (only 'seconds' ignored): 16 of 16
+  other fields that differ (besides the timestamp): none
+  result: the re-run reproduces every committed number
+  (an earlier comparison matched rows by a too-short key and wrongly reported differences; this one compares row by row)

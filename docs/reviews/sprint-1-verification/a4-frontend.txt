@@ -1,0 +1,26 @@
+A4 frontend, in the clean clone of 72d0433 (npm ci done there in S0.1), 2026-11-04 17:37 UTC
+$ npm run lint: exit 0
+$ npm run typecheck: exit 0
+$ npx tsc --noEmit: exit 0
+$ npm test
+  Test Files  9 passed (9)
+  Tests  107 passed (107)
+$ npm run build
+  exit 0; built in 2.53s
+
+$ PORT=3200 node .output/server/index.mjs, then GET every route
+  /                                                200
+  /about                                           200
+  /contact                                         200
+  /criteria                                        200
+  /faq                                             200
+  /features                                        200
+  /privacy                                         200
+  /research                                        200
+  /s/sess_0123456789abcdef01234567/criteria        200
+  /s/sess_0123456789abcdef01234567/questions       200
+  /s/sess_0123456789abcdef01234567/brief           200
+  /s/sess_0123456789abcdef01234567/results         200
+  /searches                                        404
+  /saved                                           404
+  /no-such-page                                    404

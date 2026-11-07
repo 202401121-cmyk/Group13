@@ -1,0 +1,26 @@
+E4 failure paths in live mode: production build (VITE_API_MODE=live, VITE_API_BASE_URL=http://localhost:8009) served by node on 3210, Chromium through Playwright 1.64.1, 2026-11-04. Made-up request "Laptop for coding under 80k".
+
+1. Backend stopped (nothing listening on 8009)
+  The alert, the typed text and a Retry button are all on screen (screenshot e4-backend-stopped.png).
+  The first locators missed the Retry button and the kept text; a diagnostic run of the same page found both.
+
+2. Every LLM key blank, database off (backend E2: GROQ, CEREBRAS, MISTRAL, GEMINI and OPENROUTER keys set to "" in its own process environment, DATABASE_URL unset; FRONTEND_ORIGINS=http://localhost:3210)
+  First run (e4.spec.ts MODE=keysoff):
+    results reached: true; page errors: none
+    The fallback-notice and not-saved checks used guessed patterns ("keyword|simpler|fallback", "won't be saved") that are not the app's wording, so they found nothing.
+    Playwright reported 3.3 minutes. The backend log shows that the app's own requests took 9 s, from intake at 23:51:50 to search at 23:51:59 (local time).
+    The other 3.2 minutes came before the first request, inside the test's page-load wait. When timed on its own, that wait took 2.1 s (goto 1.6 s, network idle 2.1 s, 27 requests), and the cause was not found.
+    It is not in the app's request path.
+
+  Re-check with the app's exact wording (fallback.spec.ts, one run). The wording was taken from Understanding.tsx line 292 and s.$sessionId.results.tsx line 374:
+E4K_RESULT {"understood screen reached":"2.1 s","'Our backup reader filled this in. Please check it.' shown":true,"criteria screen text (first 400 chars)":"STEP 2 OF 3 What matters for a laptop You'll answer up to 10 short questions about these. You can skip any of them. Start the questions Change my request Your brief PRODUCT Laptop USED FOR Not given BUDGET Up to ₹80,000 REGION India MUST-HAVES Not given LEAVE OUT Not given","results reached":"6.3 s","'This result isn't saved.' notice shown":false}
+
+  Read-out:
+    - The understood screen says the backup reader filled it in: PASS.
+    - The keyword rules missed "coding" as the use (USED FOR: Not given). This is an observation; US-02 only asks for keyword rules.
+    - The criteria screen gives no sign that it shows the fixed fallback set. This is an observation; no criterion asks for one.
+    - The whole flow reaches results in 6.3 s with no keys: PASS.
+    - Database off, but the "This result isn't saved." notice is not shown: FAIL. The results page shows the notice only when result.saved is false, and the backend returns saved=true for a result it holds only in memory (known gap, d6-known-gaps.txt).
+
+3. The 170 s search time-out on the screen
+  N/A. Nothing in the code can slow a search down to reach it (the placeholder pipeline answers in about a second), and no code or configuration was changed to force it.

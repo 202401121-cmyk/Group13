@@ -1,0 +1,34 @@
+Home page (/): what sets LCP. Lighthouse 13.5.0 mobile, 3 runs. Numbers per run.
+
+== run 1: FCP 4595 ms, LCP 4595 ms, TBT 0 ms, Performance 70
+LCP element: section.relative > div.relative > div.max-w-3xl > p.mt-7 -- <p class="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground"> -- 'Stop jumping between reviews, product pages and comparison videos. ShopSense re…'
+LCP breakdown (observed trace): Time to first byte 12 ms, Element render delay 2784 ms
+Render-blocking requests (Est savings of 2,250 ms): https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap (1443 bytes, 1331 ms); http://localhost:3110/assets/styles-DdlihkKO.css (9011 bytes, 153 ms)
+Main-thread work (3.6 s): Other 1150 ms, Script Evaluation 1091 ms, Style & Layout 1019 ms, Rendering 224 ms, Parse HTML & CSS 38 ms, Garbage Collection 29 ms, Script Parsing & Compilation 16 ms
+JavaScript execution time (1.1 s): http://localhost:3110/ 1292 ms total, 29 ms scripting, http://localhost:3110/assets/index-B3Jsvrjg.js 1123 ms total, 904 ms scripting, http://localhost:3110/assets/routes-DoyyP4KF.js 676 ms total, 140 ms scripting, Unattributable 401 ms total, 13 ms scripting
+Long tasks (8 long tasks found): http://localhost:3110/ 321 ms at 855 ms, http://localhost:3110/assets/index-B3Jsvrjg.js 114 ms at 3697 ms, http://localhost:3110/assets/index-B3Jsvrjg.js 112 ms at 4021 ms, Unattributable 92 ms at 1176 ms, Unattributable 89 ms at 754 ms, http://localhost:3110/assets/index-B3Jsvrjg.js 88 ms at 3811 ms
+Font display insight: score 1, 0 items
+Unused JavaScript (Est savings of 45 KiB): http://localhost:3110/assets/index-B3Jsvrjg.js 45905 of 94651 bytes
+Document request latency (Est savings of 19 KiB): {"noRedirects": {"label": "Avoids redirects", "value": true}, "serverResponseIsFast": {"label": "Server responds quickly (observed 7 ms)", "value": true}, "usesCompression": {"label": "No compression applied", "value": false}}
+
+== run 2: FCP 4503 ms, LCP 4503 ms, TBT 0 ms, Performance 72
+LCP element: section.relative > div.relative > div.max-w-3xl > p.mt-7 -- <p class="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground"> -- 'Stop jumping between reviews, product pages and comparison videos. ShopSense re…'
+LCP breakdown (observed trace): Time to first byte 13 ms, Element render delay 2135 ms
+Render-blocking requests (Est savings of 2,170 ms): https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap (1443 bytes, 1119 ms); http://localhost:3110/assets/styles-DdlihkKO.css (9011 bytes, 154 ms)
+Main-thread work (3.4 s): Other 1074 ms, Script Evaluation 1037 ms, Style & Layout 974 ms, Rendering 203 ms, Parse HTML & CSS 33 ms, Garbage Collection 28 ms, Script Parsing & Compilation 14 ms
+JavaScript execution time (1.0 s): http://localhost:3110/ 1221 ms total, 26 ms scripting, http://localhost:3110/assets/index-B3Jsvrjg.js 1045 ms total, 875 ms scripting, http://localhost:3110/assets/routes-DoyyP4KF.js 633 ms total, 121 ms scripting, Unattributable 390 ms total, 10 ms scripting
+Long tasks (9 long tasks found): http://localhost:3110/ 313 ms at 834 ms, http://localhost:3110/assets/index-B3Jsvrjg.js 124 ms at 4092 ms, Unattributable 114 ms at 1147 ms, http://localhost:3110/assets/index-B3Jsvrjg.js 107 ms at 3985 ms, http://localhost:3110/assets/index-B3Jsvrjg.js 107 ms at 4327 ms, Unattributable 72 ms at 755 ms
+Font display insight: score 1, 0 items
+Unused JavaScript (Est savings of 45 KiB): http://localhost:3110/assets/index-B3Jsvrjg.js 45905 of 94651 bytes
+Document request latency (Est savings of 19 KiB): {"noRedirects": {"label": "Avoids redirects", "value": true}, "serverResponseIsFast": {"label": "Server responds quickly (observed 6 ms)", "value": true}, "usesCompression": {"label": "No compression applied", "value": false}}
+
+== run 3: FCP 4410 ms, LCP 4410 ms, TBT 0 ms, Performance 73
+LCP element: section.relative > div.relative > div.max-w-3xl > p.mt-7 -- <p class="mt-7 max-w-xl text-lg leading-relaxed text-muted-foreground"> -- 'Stop jumping between reviews, product pages and comparison videos. ShopSense re…'
+LCP breakdown (observed trace): Time to first byte 14 ms, Element render delay 2154 ms
+Render-blocking requests (Est savings of 2,070 ms): https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap (1443 bytes, 1059 ms); http://localhost:3110/assets/styles-DdlihkKO.css (9011 bytes, 155 ms)
+Main-thread work (3.4 s): Other 1093 ms, Script Evaluation 1061 ms, Style & Layout 996 ms, Rendering 221 ms, Parse HTML & CSS 32 ms, Garbage Collection 22 ms, Script Parsing & Compilation 15 ms
+JavaScript execution time (1.1 s): http://localhost:3110/ 1270 ms total, 26 ms scripting, http://localhost:3110/assets/index-B3Jsvrjg.js 1094 ms total, 878 ms scripting, http://localhost:3110/assets/routes-DoyyP4KF.js 627 ms total, 141 ms scripting, Unattributable 376 ms total, 11 ms scripting
+Long tasks (8 long tasks found): http://localhost:3110/ 318 ms at 844 ms, http://localhost:3110/assets/index-B3Jsvrjg.js 131 ms at 3954 ms, http://localhost:3110/assets/index-B3Jsvrjg.js 111 ms at 3843 ms, http://localhost:3110/assets/index-B3Jsvrjg.js 100 ms at 4198 ms, Unattributable 94 ms at 1188 ms, Unattributable 79 ms at 755 ms
+Font display insight: score 1, 0 items
+Unused JavaScript (Est savings of 45 KiB): http://localhost:3110/assets/index-B3Jsvrjg.js 45905 of 94651 bytes
+Document request latency (Est savings of 19 KiB): {"noRedirects": {"label": "Avoids redirects", "value": true}, "serverResponseIsFast": {"label": "Server responds quickly (observed 6 ms)", "value": true}, "usesCompression": {"label": "No compression applied", "value": false}}

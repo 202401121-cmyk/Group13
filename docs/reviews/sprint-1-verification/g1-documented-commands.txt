@@ -1,0 +1,77 @@
+G1 documented commands and routes, 72d0433, 2026-11-04, 18:35 to 18:45 UTC.
+
+1. Every command in README.md, docs/setup.md, docs/api-setup.md, docs/database.md and frontend/README.md
+
+Where a port is given as 8000 or 3000 it was run on 8001-8009 / 3001-3210 (8000 and 3000 were held by stray servers);
+nothing else was changed.
+
+README.md
+  git clone, cd, python -m venv, source activate, pip install -e ".[dev]", cp ../.env.example ../.env ..... ran (S0.1)
+  python -m app.cli "best laptop for coding under 70k" ....................................... ran, ranked list (S0.1, D5)
+  uvicorn app.main:app --port 8000 ........................................................... ran, health ok (S0.1)
+  npm ci; npm run dev ......................................................................... ran, GET / 200 (S0.1)
+  pip install -r ml/requirements.txt; check_labels; kappa --min 0.8 ......................... ran, pass (S0.1, A6)
+  match_baseline.py all ...................................................................... ran: exit 2 without raw data as documented (S0.1); with raw data reproduces 16 of 16 rows (A6)
+  python scripts/doctor.py; dev.py; dev.py --no-db; dev.py --mock ............................ ran (S0.1, S0.3, F1, F2)
+  ruff check . && ruff format --check .; mypy app; pytest -q -m "not live" --cov .............. ran, clean (A1; the marker run and the coverage run were separate commands)
+  python -m scripts.export_contracts && git diff --exit-code -- ../shared/contracts ........... ran, no drift (A2)
+  npm ci && npm run lint && npm run typecheck && npm test && npm run build .................... ran, exit 0 (A4)
+  npm run test:e2e ........................................................................... ran, 36 passed (A5)
+  pip install -e "backend[dev]" -r ml/requirements.txt && python -m pytest ml/tests -q ......... ran, 118 passed (A6)
+
+docs/setup.md
+  clone, venv, pip, npm ci, pip install -r ml/requirements.txt ............................... ran (S0.1)
+  python scripts/doctor.py ................................................................... ran, no FAIL (S0.3)
+  python scripts/doctor.py --ping ............................................................ NOT RUN: it runs python -m scripts.smoke_apis, which calls YouTube and the Reddit archives (forbidden in this check) and every LLM again (budget)
+  python scripts/dev.py / --no-db / --mock / --frontend-port ................................. ran (F1, F2, S0.1; --backend-port/--frontend-port 8008/3008 in F2-F4); CORS followed the port, 0 failed calls (F4)
+  LIVE_E2E=1 npx playwright test -c e2e/live/playwright.live.config.ts ........................ ran twice, passed (F2)
+  python scripts/check_request_saved.py <sid> ................................................ ran, "saved" / "not found" (C2, F2)
+  the three drills and curl .../api/health ................................................... ran exactly, passed (F3)
+
+docs/api-setup.md
+  python -m scripts.smoke_apis --only groq,gemini,openrouter,cerebras,mistral ................. ran (B1); this is the LLM-only form of the documented command
+  python -m scripts.smoke_apis (default), --only groq,youtube, --include serper ............... NOT RUN: they call YouTube, Reddit archives or Serper (forbidden in this check)
+  python -m scripts.smoke_llm ................................................................ NOT RUN: 5 to 8 more LLM calls would take the ledger past the 80-call cap; B1 covered the same providers
+  python -m scripts.smoke_sources [--sample ...] ............................................. NOT RUN: calls the Reddit archives (forbidden in this check)
+
+docs/database.md
+  npx supabase@2.120.0 migration new <short_name> ............................................ N/A: makes a new migration file; this check changes no migration
+  export DATABASE_URL="$(python -c '... dotenv_values(".env") ...')" (and the PowerShell form) .... BLOCKED: this machine refuses any read of .env values
+  npx supabase@2.120.0 db push --db-url "$DATABASE_URL" ....................................... N/A: it would write to the team's Supabase project, which this check must not do
+  docker run ... postgres:17; TEST_DATABASE_URL=... pytest -m db -rs; docker rm -f ............. ran, 5 passed (A3)
+
+frontend/README.md
+  cd frontend; npm ci; npm run dev ............................................................ ran (S0.1)
+
+2. OpenAPI routes against the documented routes (docs/frontend-api.md and docs/api/presearch.md)
+  OpenAPI of backend E2 (/openapi.json), 9 routes:
+    GET /api/health; POST /api/presearch/intake; GET /api/presearch/{session_id};
+    POST /api/presearch/{session_id}/criteria; PUT /api/presearch/{session_id}/intent;
+    POST /api/presearch/{session_id}/interview/start; .../interview/reply; .../interview/back; POST /api/search
+  Documented: the same 9 (the docs write the path parameter as {id} in some places and {session_id} in others).
+  Every OpenAPI route is documented, and every documented route exists: PASS.
+
+3. The documented API walk-throughs, run as written (port 8009, every LLM key blank, database off: 0 LLM calls)
+--- docs/api/presearch.md, 'A whole interview in one go'
+SID=sess_533506b3f5aacc67886532de
+start: question | How much do you care about price per feature?
+reply High: question | How much do you care about battery endurance?
+reply Medium: question | How much do you care about portability weight?
+reply 7: question | How much do you care about heat management?
+reply Skip: question | How much do you care about memory capacity?
+reply Low: question | How much do you care about display diagonal?
+reply High: question | How much do you care about key travel distance?
+reply Medium: question | How much do you care about storage technology?
+reply Medium: question | How much do you care about usb-c/thunderbolt?
+extra reply Medium: finished
+--- docs/api/presearch.md, GET session
+keys: ['criteria', 'intent', 'interview', 'interview_step', 'request', 'request_saved', 'session_id', 'unclear_attempts']
+request_saved: off
+--- docs/frontend-api.md, 'Try it'
+SearchResult keys: ['commerce', 'coverage_note', 'decision', 'explanations', 'finished_at', 'partial', 'products', 'request', 'saved', 'schema_version', 'search_id', 'sources', 'stage_reports', 'started_at']
+ranked: 0 stage_reports: 8 saved: True
+  Read-out:
+    - Every command ran and answered 200 with the documented shapes: PASS.
+    - The 8 answers in "A whole interview in one go" do not finish this 9-question interview; one more reply was needed. This is a doc observation, not a failure.
+    - The question for the criterion "USB-C/Thunderbolt" reads "How much do you care about usb-c/thunderbolt?". The backend's in_sentence (app/interview/questions.py:30) and the frontend's inSentence (src/lib/text.ts:5) keep a word only when every letter is upper case, so "USB-C/Thunderbolt" is lower-cased. See F-4 in the report.
+    - The search answered saved: true with the database off (known gap, d6-known-gaps.txt).
