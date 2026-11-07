@@ -53,24 +53,24 @@ its state in memory and never needs the database to finish.
 
 ## Sprint 1 status
 
-Checked against `main` and the open pull requests on 3 November 2026. "Merged" means the code and its tests are
-on `main`; "Pull request" means it is finished on its branch and waiting for review.
+Checked against `main` on 7 November 2026. "Merged" means the code and its tests are on `main`. The Sprint 1
+verification found 18 failures; the fix pack and its re-check are the last step of the sprint.
 
 | Story or task | Owner | Status | Pull requests | Docs |
 |---|---|---|---|---|
 | US-52 Walking skeleton: pipeline runner, 11 stage placeholders, CLI and search API | Pal Jalodara | Merged | #1, #7 | [docs/frontend-api.md](docs/frontend-api.md) |
-| US-25 Repository, CI and secret scanning | Palak Patel | Merged; database tests in CI: pull request (`chore/CI-postgres`) | #2, #3, #9, #12, #16 | [CI workflow](.github/workflows/ci.yml) |
+| US-25 Repository, CI and secret scanning | Palak Patel | Merged | #2, #3, #9, #12, #16, #30 | [CI workflow](.github/workflows/ci.yml) |
 | US-26 One LLM wrapper with fallback and context fitting | Jhanvi Barot | Merged | #4, #18 | [docs/api-setup.md](docs/api-setup.md) |
 | US-02 Detect category, use, budget and rules | Jhanvi Barot | Merged | #5 | |
 | US-03 Category-specific criteria | Jhanvi Barot | Merged | #6 | |
-| US-05 One question at a time, and the pre-search API | Jenish Kavad | Merged; browser origins list and API docs: pull request (`fix/backend-gaps-round-1`) | #8 | [docs/api/presearch.md](docs/api/presearch.md) |
+| US-05 One question at a time, and the pre-search API | Jenish Kavad | Merged | #8, #28 | [docs/api/presearch.md](docs/api/presearch.md) |
 | US-01 Describe the need in plain words: the request saved to the database | Vaishvi Mehta | Merged | #17, #21, #22 | [docs/database.md](docs/database.md) |
-| US-01 and the frontend: request box, interview, brief and results screens | Yashkumar Patel, Manu Pardhan | Merged; quality gate (F4): pull request (`chore/FE-4-quality-gate`) | #24 | [frontend/README.md](frontend/README.md), [decision 0001](docs/decisions/0001-frontend-tanstack-start.md) |
+| US-01 and the frontend: request box, interview, brief and results screens | Yashkumar Patel, Manu Pardhan | Merged | #24, #32 | [frontend/README.md](frontend/README.md), [decision 0001](docs/decisions/0001-frontend-tanstack-start.md) |
 | ML workspace, public datasets and the matching baseline | Om Pandya, Rushiraj Navar, Palak Patel | Merged | #10, #13, #14, #15 | [ml/README.md](ml/README.md), [ml/MODELS.md](ml/MODELS.md) |
-| API sign-ups, smoke test and terms check | Jenish Kavad | Pull request (`chore/api-setup`) | | [docs/api-setup.md](docs/api-setup.md) |
-| Full-stack set-up: one-command run, doctor, live test | Pal Jalodara | Pull request (`chore/full-stack-setup-v3`) | | [docs/setup.md](docs/setup.md) |
+| API sign-ups, smoke test and terms check | Jenish Kavad | Merged | #28 | [docs/api-setup.md](docs/api-setup.md) |
+| Full-stack set-up: one-command run, doctor, live test | Pal Jalodara | Merged | #28 | [docs/setup.md](docs/setup.md) |
 | Elicitation: survey, interviews, observation, expert interview, write-up | Jhanvi, Om, Rushiraj, Jenish, Harshkumar, Pal | In progress | | [docs/elicitation-kit.md](docs/elicitation-kit.md) |
-| Sprint 1 review check and close-out | Palak Patel, Om Pandya | After the merges | | |
+| Sprint 1 review check and close-out | Palak Patel, Om Pandya | Review check merged; fix pack and re-check in progress | #33 to #37 | |
 
 Merged ahead of plan (Sprint 2 stories): US-46 LLM routing by data class (#19), and the Reddit source of US-12
 (#20; the rest of US-12 is Sprint 2).
@@ -106,6 +106,8 @@ without `DATABASE_URL` nothing is saved; the CLI, the API and every test still w
 
 ### Frontend
 
+In a second terminal, from the repository root:
+
 ```bash
 cd frontend
 npm ci              # also generates the contract types
@@ -139,7 +141,9 @@ python scripts/dev.py --mock     # the frontend alone, with sample data
 
 ## Tests and checks
 
-The same commands CI runs ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). Tests never call a live API.
+CI runs all of these except the frontend's `npm run build` and `npm run test:e2e`, which you run by hand
+([`.github/workflows/ci.yml`](.github/workflows/ci.yml)). Run them with the backend's virtual environment active.
+Tests never call a live API.
 
 ```bash
 # backend (from backend/)
@@ -150,6 +154,7 @@ python -m scripts.export_contracts && git diff --exit-code -- ../shared/contract
 
 # frontend (from frontend/)
 npm ci && npm run lint && npm run typecheck && npm test && npm run build
+npx playwright install chromium        # once: the browser the next command needs
 npm run test:e2e                       # the whole flow in mock mode, with an accessibility check on every page
 
 # ml (from the root)
@@ -259,7 +264,7 @@ Sprint 1 ran past its planned dates; the new dates are set at the Sprint 1 revie
 - [docs/setup.md](docs/setup.md): install, every setting, run everything, check your machine, drills, troubleshooting
 - [docs/api-setup.md](docs/api-setup.md): every outside service, its key, free limits, terms and fallback
 - [docs/database.md](docs/database.md): the optional database, its table, security and live check
-- [docs/frontend-api.md](docs/frontend-api.md): every route the frontend calls, and what the backend can't do yet
+- [docs/frontend-api.md](docs/frontend-api.md): every route the backend serves, and what it can't do yet
 - [docs/api/presearch.md](docs/api/presearch.md): the pre-search routes in detail, with examples
 - [docs/decisions/](docs/decisions/): recorded decisions, such as the frontend's stack
 - [docs/elicitation-kit.md](docs/elicitation-kit.md): survey, interview, observation and expert templates

@@ -11,6 +11,12 @@
 Every number below comes from the specs in `frontend/e2e/quality/` or from the Lighthouse runs described in
 section 9. "Before" means `main` at `0c19db9`; "after" means this branch.
 
+**Update, 7 November 2026:** O9, H10, H18 and B8 are closed by `fix/FE-performance`, measured on its last commit. The fonts now come
+from our own server, and a page normally downloads 53 KB of them instead of 219 KB. Lighthouse 13.5.0, mobile, mock
+mode, production build, on mains power, median of 3 runs: home Performance 97 and LCP 2.28 s, `/research` 97 and
+2.26 s, the results address on a cold load 96 and 2.36 s. The rest of this report stands as written on 4 November,
+including the Google Fonts findings, which describe the app at that time.
+
 ## Summary
 
 | #   | Check                   | Target                                                                    | Before                                                             | After                                                                                 | Result                                  |

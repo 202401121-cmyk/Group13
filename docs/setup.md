@@ -74,8 +74,10 @@ no `DATABASE_URL` nothing is saved. Where each key comes from: [api-setup.md](ap
 | `RUN_LIVE_TESTS` | `backend/tests/live/` | tests only | `1` | no |
 | `LIVE_E2E`, `LIVE_BASE_URL` | `frontend/e2e/live/` | live test only | `1`; `http://localhost:3000` | no |
 
-Every name above was found in the code with a search, and every name the code reads is in this table. The first
-group (backend) is also in `.env.example`, and the two `VITE_` names are in `frontend/.env.example`.
+Every name above was found in the code with a search, and every name the code reads is in this table. The one
+exception is `SHOPSENSE_DOCTOR_DB`, which `scripts/doctor.py` sets for itself during its database check; never set
+it by hand. Every name in `.env.example` is in this table, and the two `VITE_` names are in `frontend/.env.example`.
+The rest are in neither file: the older `FRONTEND_ORIGIN`, `GIT_BASH`, `PORT`, and the names for tests only.
 
 ## 4. Check your machine
 
@@ -83,7 +85,7 @@ With the backend's venv active, from the repository root:
 
 ```bash
 python scripts/doctor.py          # every check
-python scripts/doctor.py --ping   # also calls each configured service once (the API smoke test)
+python scripts/doctor.py --ping   # also calls each configured service once, except Serper (the API smoke test)
 ```
 
 It prints OK, WARN or FAIL for: Python and Node versions; the backend and frontend installs; the root `.env` (found
@@ -99,14 +101,15 @@ python scripts/dev.py              # backend on :8000, frontend on :3000 in live
 python scripts/dev.py --no-db      # the same, with the database off (nothing is saved)
 python scripts/dev.py --mock       # only the frontend, with its built-in sample data (no backend, no keys)
 python scripts/dev.py --frontend-port 3001   # another port; the backend's CORS follows it
+python scripts/dev.py --backend-port 8001    # another port; the frontend calls the backend there
 ```
 
 It waits up to 60 seconds for both parts, then prints the two addresses, the database state (`ok`, `off` or
 `down`) and how many LLM providers have a key. Open the frontend address in a browser. **Ctrl+C stops both**,
-including everything they started. It refuses to start, and says which port, if 8000 or 3000 is already in use.
+including everything they started. It refuses to start, and says which port, if either port is already in use.
 
-To run the parts by hand instead: `cd backend && uvicorn app.main:app --port 8000`, and in another terminal
-`cd frontend && npm run dev` (with `frontend/.env.local` set to live mode).
+To run the parts by hand instead: `cd backend && uvicorn app.main:app --port 8000` with the venv active, and in
+another terminal `cd frontend && npm run dev` (with `frontend/.env.local` set to live mode).
 
 ## 6. The live end-to-end test
 
@@ -118,6 +121,7 @@ step's time. It never runs in CI or in `npm run test:e2e`.
 With `scripts/dev.py` running, from `frontend/`:
 
 ```bash
+npx playwright install chromium    # once: the browser the test uses
 LIVE_E2E=1 npx playwright test -c e2e/live/playwright.live.config.ts
 # PowerShell: $env:LIVE_E2E="1"; npx playwright test -c e2e/live/playwright.live.config.ts
 # another frontend port: add LIVE_BASE_URL=http://localhost:3001
@@ -128,6 +132,8 @@ Then check that the request was saved, using the printed session ID (from the ro
 ```bash
 python scripts/check_request_saved.py sess_0123456789abcdef01234567    # prints "saved" or "not found"
 ```
+
+With no `DATABASE_URL` in the root `.env` there is nothing to check: it says so and exits with code 2.
 
 Run it twice: with `python scripts/dev.py` (expect "saved") and with `python scripts/dev.py --no-db` (the flow
 still finishes; expect "not found"). Each run adds one row with a made-up request to the team database.
@@ -156,7 +162,7 @@ live test still passes.
 
 ```bash
 DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:9/postgres" python scripts/dev.py
-curl -s http://localhost:8000/api/health        # "database":"down"
+curl -s http://localhost:8000/api/health        # in a second terminal: "database":"down"
 ```
 
 ## 8. Troubleshooting
@@ -164,7 +170,7 @@ curl -s http://localhost:8000/api/health        # "database":"down"
 | Problem | What to do |
 |---|---|
 | The browser console shows a CORS error | The page's origin must be in `FRONTEND_ORIGINS` in the root `.env` (comma-separated). `scripts/dev.py --frontend-port N` adds `http://localhost:N` for you. Restart the backend after changing it. |
-| "Port 8000 (or 3000) is already in use" | Something still runs there, often an old dev server. Close its terminal, or find it (`netstat -ano \| findstr :3000` in PowerShell, `lsof -i :3000` on macOS and Linux) and end it, or use `--frontend-port`. |
+| "Port 8000 (or 3000) is already in use" | Something still runs there, often an old dev server. Close its terminal, or find it (`netstat -ano \| findstr :3000` in PowerShell, `lsof -i :3000` on macOS and Linux) and end it, or use `--backend-port` or `--frontend-port`. |
 | Health says the database is `down` | A free Supabase project pauses after 7 days without use: resume it in the dashboard. Then run `python scripts/doctor.py`. Searches still finish meanwhile; nothing is saved. |
 | The database never connects from home or college Wi-Fi | Use the **Session pooler** connection string (port 5432, `?sslmode=require`), not the direct connection: the direct host is IPv6-only, and many networks have no IPv6. See [database.md](database.md). |
 | An LLM provider answers 429 | Its free limit is used up for now. The app moves to the next provider and waits out the cool-down; see [api-setup.md](api-setup.md) for each limit. Cerebras answers 402 because it has no free tier any more. |

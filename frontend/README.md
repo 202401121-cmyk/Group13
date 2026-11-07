@@ -15,13 +15,15 @@ results. Yash Patel and Manu Pardhan built it in Lovable, and it was imported he
 
 ## Getting started
 
+From the repository root:
+
 ```bash
 cd frontend
 npm ci              # also generates the contract types (see below)
 npm run dev         # http://localhost:3000, mock mode
 ```
 
-Port 3000 matters: the backend only accepts browser calls from `FRONTEND_ORIGIN`, which defaults to
+Port 3000 matters: the backend only accepts browser calls from `FRONTEND_ORIGINS`, which defaults to
 `http://localhost:3000`.
 
 ## Mock and live mode
@@ -34,8 +36,9 @@ the network directly. `VITE_API_MODE` picks what is behind them:
 | `mock` (default) | Built-in sample data. Nothing is sent anywhere. Results are labelled as a preview, and the brief page has a "Preview scenario" picker for every awkward state (ties, disputed values, old prices, timeouts, ...). |
 | `live`           | The backend at `VITE_API_BASE_URL` (docs/api/presearch.md). Every answer is checked against its contract schema before a screen uses it; anything the backend does not send is shown as missing, never made up.   |
 
-To run live: start the backend (`cd backend && uvicorn app.main:app --port 8000`), then create
-`frontend/.env.local` with `VITE_API_MODE=live` and restart `npm run dev`.
+To run live: start the backend (`cd backend && uvicorn app.main:app --port 8000`, with its virtual environment
+active), then copy `frontend/.env.example` to `frontend/.env.local` (it sets `VITE_API_MODE=live`) and restart
+`npm run dev`.
 
 ### Environment variables
 
@@ -98,7 +101,7 @@ src/
     links.ts              the web search for a product we couldn't check
   test/                   Vitest tests, helpers/ with a fake backend
   types/contracts/        generated, git-ignored
-e2e/                      Playwright flow test; quality/ holds the FE-4 quality specs
+e2e/                      Playwright flow test; quality/ holds the FE-4 quality specs; live/ holds the live test
 scripts/contract-types.mjs
 ```
 
