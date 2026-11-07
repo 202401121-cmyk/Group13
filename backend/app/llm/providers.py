@@ -6,10 +6,13 @@ used: Groq, Gemini, OpenRouter, Cerebras and Mistral all accept the same request
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
+from functools import cache
 from typing import Any, Protocol
 
 import httpx
+from httpx._utils import get_environment_proxies
 
 from app.contracts import Provider
 
@@ -26,10 +29,54 @@ from .errors import (
 )
 from .fitting import estimate_tokens
 
+log = logging.getLogger(__name__)
+
 # Error codes, which come with HTTP 400 as well as 404. Groq's errors page lists no codes: "model_decommissioned" comes
 # from public reports of its replies. A retired model never comes back; an unknown one might.
 MODEL_RETIRED_CODE = "model_decommissioned"
 MODEL_NOT_FOUND_CODES = frozenset({"model_not_found", "invalid_model"})
+
+
+IPV4_ONLY = "0.0.0.0"  # an IPv6 socket can't bind here, so an IPv6 address fails at once and the next one is tried
+HTTPS_PROXY_PATTERNS = ("https://", "all://")  # every provider URL is https, so a proxy for http:// carries none
+
+
+def proxy_in_use() -> bool:
+    """Would a proxy carry a provider's request? httpx's own function answers, so the two can't disagree.
+
+    It is private, which is one reason httpx is pinned. It covers HTTPS_PROXY and ALL_PROXY in either case, the system
+    proxy, and NO_PROXY=*.
+    """
+    proxies = get_environment_proxies()
+    return any(proxies.get(pattern) for pattern in HTTPS_PROXY_PATTERNS)
+
+
+@cache
+def note_ipv4_skipped() -> None:
+    """Once per process, and never the proxy's URL, which can hold a password."""
+    log.warning("force_ipv4 skipped: a proxy is in use")
+
+
+@cache
+def note_no_client(error: str) -> None:
+    """Once per process. The name of the error only: httpx's message can hold the proxy's host."""
+    log.warning("no LLM client could be built (%s): every provider is unavailable for this run", error)
+
+
+def build_http_client(force_ipv4: bool, **options: Any) -> httpx.Client:
+    """The client every provider uses, and the smoke commands too. This is the one place that builds it.
+
+    force_ipv4 (models.yaml) connects over IPv4 only: on some networks an IPv6 connection hangs until it times out,
+    which uses up most of a stage's time limit. Giving httpx its own transport would drop every proxy setting, so with
+    a proxy in use the client is built as usual. What the proxy carries isn't ours to stall; docs/api-setup.md says
+    what it doesn't carry.
+    """
+    if force_ipv4 and proxy_in_use():
+        note_ipv4_skipped()
+        force_ipv4 = False
+    if not force_ipv4:
+        return httpx.Client(**options)
+    return httpx.Client(transport=httpx.HTTPTransport(local_address=IPV4_ONLY), **options)
 
 
 @dataclass(frozen=True)

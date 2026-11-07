@@ -103,6 +103,7 @@ class LLMConfig(BaseModel):
     models: list[ModelLimits] = Field(min_length=1)
     routes: Routes
     pool: PoolSettings
+    force_ipv4: bool = Field(default=True, description="Connect to every provider over IPv4 only (docs/api-setup.md)")
 
     @model_validator(mode="after")
     def _check(self) -> LLMConfig:
@@ -224,7 +225,13 @@ def with_env_overrides(config: LLMConfig, env: Mapping[str, str]) -> LLMConfig:
                 raise LLMConfigError(f"{var} must be a number") from None
     try:
         return LLMConfig.model_validate(
-            {"providers": providers, "models": models, "routes": config.routes, "pool": config.pool}
+            {
+                "providers": providers,
+                "models": models,
+                "routes": config.routes,
+                "pool": config.pool,
+                "force_ipv4": config.force_ipv4,
+            }
         )
     except ValidationError as exc:
         used = sorted(var for variables in ENV_OVERRIDES.values() for var in variables if env.get(var, "").strip())

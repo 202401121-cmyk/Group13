@@ -43,10 +43,10 @@ from dotenv import load_dotenv
 from app.contracts import Provider
 from app.contracts.research import MAX_SOURCE_CHARS
 from app.llm import load_llm_config
-from app.llm.config import LLMConfig, PoolMember, with_env_overrides
+from app.llm.config import LLMConfig, LLMConfigError, PoolMember, with_env_overrides
 from app.llm.errors import ProviderError, ProviderFailure
 from app.llm.fitting import estimate_tokens
-from app.llm.providers import OpenAICompatibleAdapter
+from app.llm.providers import OpenAICompatibleAdapter, build_http_client
 
 TIMEOUT_S = 20.0
 SYSTEM = "You are a health check for an API client."
@@ -393,6 +393,14 @@ def _services(raw: str | None, parser: argparse.ArgumentParser) -> list[str]:
     return [name for name in SERVICES if name in chosen]
 
 
+def force_ipv4() -> bool:
+    """The setting in models.yaml. A broken file is for the LLM rows to report, and must not stop the other checks."""
+    try:
+        return load_llm_config().force_ipv4
+    except LLMConfigError:
+        return True
+
+
 def main(argv: list[str] | None = None, env: Mapping[str, str] | None = None, http: httpx.Client | None = None) -> int:
     parser = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
     parser.add_argument("--only", metavar="A,B", help=f"check only these: {', '.join(SERVICES)}")
@@ -407,7 +415,7 @@ def main(argv: list[str] | None = None, env: Mapping[str, str] | None = None, ht
     if env is None:
         load_dotenv()  # the root .env, found walking up from here; real environment variables win
         env = os.environ
-    with http or httpx.Client(timeout=TIMEOUT_S) as client:
+    with http or build_http_client(force_ipv4(), timeout=TIMEOUT_S) as client:
         if args.measure_extraction:
             code, report = measure_extraction(with_env_overrides(load_llm_config(), env), env, client)
             print(redact(report, env))

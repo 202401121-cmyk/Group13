@@ -102,7 +102,8 @@ The headers match models.yaml. Each model shows 999 requests left after its own 
 are separate: shared limits would have read 999, 998 and 997.
 
 That first call's 20,859 ms was not `openai/gpt-oss-120b`'s usual speed. Three more tiny calls to it, the first on a
-new connection, took 990, 1,206 and 1,391 ms: a middle value of 1,206 ms. The cause of the slow call wasn't found.
+new connection, took 990, 1,206 and 1,391 ms: a middle value of 1,206 ms. The slow call was most likely a stalled IPv6 connection:
+see [IPv4 only](#ipv4-only-force_ipv4-in-modelsyaml).
 
 `python -m scripts.smoke_apis --measure-extraction`, one call on `openai/gpt-oss-120b`, using the hand-written Reddit
 fixtures repeated up to `MAX_SOURCE_CHARS`:
@@ -442,6 +443,24 @@ A pool member has its own record; any other provider has one for the whole provi
 - No room before the stage's time limit: not sent, logged with outcome `rate_limited`.
 - Every attempt writes one call record: task, data class, provider, model, tokens, time and outcome. Never the
   prompt or the reply.
+
+### IPv4 only (`force_ipv4:` in models.yaml)
+
+On some networks, an IPv6 connection to a provider hangs until it times out, and only then moves on to IPv4: 21 seconds
+when we measured it with nothing cutting it short. It happens only when the system lists IPv6 first, so it comes and
+goes. The app stops waiting sooner, but the wait still uses up most of a stage's time limit, so the stage can quietly use
+its fallback. So `force_ipv4: true`, the default, connects to every provider over IPv4 only. The smoke commands build
+their client the same way, so their LLM checks see what the app sees.
+
+If a proxy would carry the provider's request (`HTTPS_PROXY` or `ALL_PROXY` in either case, or the system proxy for HTTPS),
+the app uses it as usual, skips IPv4 only and logs that once. The proxy makes the outbound connection, so the stall isn't
+ours there. `HTTP_PROXY` alone doesn't count: provider calls use HTTPS, so it would carry none of them and IPv4 only stays
+on. A host listed in `NO_PROXY` still connects directly and can stall.
+
+If a client can't be built at all, for example with `ALL_PROXY=socks5://...` and no SOCKS support, every provider is
+unavailable for that run. It is logged once, and stages use their fallbacks. We don't install SOCKS support.
+
+To turn the setting off, set `force_ipv4: false` in `backend/config/models.yaml`. You need that on a network with no IPv4.
 
 ## Reddit (US-12)
 

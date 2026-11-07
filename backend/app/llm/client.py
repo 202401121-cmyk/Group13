@@ -20,7 +20,6 @@ from pathlib import Path
 from time import monotonic
 from typing import Generic, Literal, Protocol, TypeVar
 
-import httpx
 from dotenv import load_dotenv
 from pydantic import BaseModel, ValidationError
 
@@ -43,7 +42,7 @@ from .health import ProviderHealth
 from .limits import DailyTokenBudget, RateLimiter
 from .output import build_system_prompt, parse_output
 from .pool import ATTEMPT_SHARE, BULK_TASKS, CALL_MARGIN_S, ModelPool, time_limit_s
-from .providers import Adapter, OpenAICompatibleAdapter
+from .providers import Adapter, OpenAICompatibleAdapter, build_http_client, note_no_client
 
 log = logging.getLogger(__name__)
 
@@ -420,7 +419,13 @@ def build_llm_client(
         load_dotenv()
         env = os.environ
     config = with_env_overrides(load_llm_config(config_path), env)
-    http = httpx.Client()
+    try:
+        http = build_http_client(config.force_ipv4)
+    except Exception as exc:  # a proxy httpx can't use must not crash a request: stages use their fallbacks (rule 9)
+        note_no_client(type(exc).__name__)
+        client = WrapperLLMClient(config, {}, call_log)
+        client._reported_missing.update(Provider)  # the keys may be fine, so nothing should say they are missing
+        return client
     adapters: dict[Provider, Adapter] = {}
     for settings in config.providers:
         key = env.get(settings.api_key_env, "").strip()

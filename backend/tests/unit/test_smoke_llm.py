@@ -5,10 +5,11 @@ from __future__ import annotations
 import json
 
 import httpx
+import pytest
 
 from app.contracts import Provider
 from app.llm import load_llm_config
-from scripts.smoke_llm import check, our_limits
+from scripts.smoke_llm import check, main, our_limits
 
 FAKE_KEY = "sk-test-smoke-DO-NOT-LEAK"
 
@@ -53,3 +54,20 @@ def test_a_failing_provider_is_reported_without_its_key() -> None:
 
 def test_our_limits_lists_mistral() -> None:
     assert our_limits(load_llm_config()) == ["  mistral: 2 requests/s, 500,000 tokens/min, 1,000,000 tokens/day"]
+
+
+def test_main_builds_its_client_the_way_the_app_does(monkeypatch: pytest.MonkeyPatch) -> None:
+    """With no keys every row is skipped, so no call is made even on a machine with a real .env."""
+    config = load_llm_config()
+    for settings in config.providers:
+        monkeypatch.delenv(settings.api_key_env, raising=False)
+    monkeypatch.setattr("scripts.smoke_llm.load_dotenv", lambda: None)
+    built: list[bool] = []
+
+    def build(force_ipv4: bool) -> httpx.Client:
+        built.append(force_ipv4)
+        return httpx.Client(transport=httpx.MockTransport(lambda request: httpx.Response(599)))
+
+    monkeypatch.setattr("scripts.smoke_llm.build_http_client", build)
+    main()
+    assert built == [config.force_ipv4]
