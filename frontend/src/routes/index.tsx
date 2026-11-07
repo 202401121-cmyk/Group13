@@ -8,6 +8,7 @@ import { useState } from "react";
 import { ResearchInput } from "@/components/shopsense/ResearchInput";
 import { ResearchPipeline } from "@/components/shopsense/ResearchPipeline";
 import { useVisualMotion } from "@/hooks/useVisualMotion";
+import { HERO_FONTS, RUPEE_FONTS } from "@/lib/fonts";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [...HERO_FONTS, ...RUPEE_FONTS],
   }),
   component: Index,
 });

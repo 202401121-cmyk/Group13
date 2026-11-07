@@ -1,13 +1,13 @@
 @import "tailwindcss" source(none);
 @source "../src";
-@import "tw-animate-css";
+@import "./fonts.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --font-serif: "Fraunces", Georgia, serif;
-  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, monospace;
+  --font-serif: "Fraunces", "Fraunces fallback", "Fraunces fallback Android", Georgia, serif;
+  --font-sans: "Geist", "Geist fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono fallback", ui-monospace, monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -159,18 +159,19 @@
   background-position: 0% 0%;
 }
 
+/* The wash drifts but never zooms: a change of scale makes the browser redraw the whole layer as it moves. */
 @keyframes ambient-drift {
   from {
-    transform: translate3d(-1%, -1%, 0) scale(1.04);
+    transform: translate3d(-1%, -1%, 0) scale(1.05);
   }
   to {
-    transform: translate3d(1%, 1%, 0) scale(1.07);
+    transform: translate3d(1%, 1%, 0) scale(1.05);
   }
 }
 
+/* Starts where the drift starts, so nothing jumps when the animation is attached. */
 @utility animate-ambient {
-  animation: ambient-drift 26s ease-in-out infinite alternate;
-  animation-play-state: paused;
+  transform: translate(-1%, -1%) scale(1.05);
 }
 
 /* Barely visible organic grain, for layering over the hero at low opacity. */
@@ -193,6 +194,7 @@
   }
   .animate-ambient {
     animation: none;
+    transform: none;
   }
 }
 
@@ -293,6 +295,14 @@
 [data-sonner-toaster] [data-sonner-toast][data-swipe-out="true"] {
   animation: none;
   visibility: hidden;
+}
+/*
+ * Attached only once the page has loaded (useVisualMotion adds motion-ready). Even paused, an animation gives the wash
+ * its own GPU layer, and drawing that layer held the first frame back.
+ */
+.animate-ambient.motion-ready {
+  animation: ambient-drift 26s ease-in-out infinite alternate;
+  animation-play-state: paused;
 }
 .animate-ambient.motion-visible {
   animation-play-state: running;

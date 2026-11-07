@@ -75,6 +75,7 @@ export function PageLoading() {
   return (
     <div
       className="mx-auto min-h-svh max-w-3xl space-y-4 px-6 py-24"
+      role="status"
       aria-busy="true"
       aria-label="Loading"
     >

@@ -14,6 +14,7 @@ import { initialState, requestReducer, toSnapshot, type RequestState } from "@/l
 import { getRequestService } from "@/lib/request/service";
 import { ApiError } from "@/lib/api/client";
 import { CONFIRMED_KEY, CONFIRMED_SESSION_KEY, createSession } from "@/lib/session/store";
+import { RUPEE_FONTS } from "@/lib/fonts";
 
 const STORAGE_KEY = "shopsense.request.v1";
 
@@ -34,6 +35,7 @@ export const Route = createFileRoute("/research")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: RUPEE_FONTS,
   }),
   component: ResearchPage,
 });

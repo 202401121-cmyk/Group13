@@ -6,9 +6,18 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  // Generated files are never edited by hand, so they are not linted.
+  // Generated files and test reports are never edited by hand, so they are not linted.
   {
-    ignores: ["dist", ".output", ".vinxi", ".nitro", "src/routeTree.gen.ts", "src/types/contracts"],
+    ignores: [
+      "dist",
+      ".output",
+      ".vinxi",
+      ".nitro",
+      "playwright-report",
+      "test-results",
+      "src/routeTree.gen.ts",
+      "src/types/contracts",
+    ],
   },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
