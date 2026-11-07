@@ -78,6 +78,7 @@ def database_at_closed_port(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
 
 
 @pytest.mark.usefixtures("database_at_closed_port")
+@pytest.mark.slow
 def test_drill_1_the_cli_finishes_when_the_database_is_down(capsys: pytest.CaptureFixture[str]) -> None:
     start = time.monotonic()
     assert cli_main(["best laptop for coding under 70k"]) == 0
@@ -89,6 +90,7 @@ def test_drill_1_the_cli_finishes_when_the_database_is_down(capsys: pytest.Captu
 
 
 @pytest.mark.usefixtures("database_at_closed_port")
+@pytest.mark.slow
 def test_drill_1_the_api_intake_search_and_health_finish_when_the_database_is_down() -> None:
     app = create_app()
     sessions = InMemorySessionStore()
@@ -121,6 +123,7 @@ def stuck_store() -> Iterator[PostgresRequestStore]:
     server.close()
 
 
+@pytest.mark.slow
 def test_drill_2_each_save_gives_up_in_time_and_the_breaker_then_skips_at_once(
     stuck_store: PostgresRequestStore,
 ) -> None:
@@ -135,6 +138,7 @@ def test_drill_2_each_save_gives_up_in_time_and_the_breaker_then_skips_at_once(
     assert time.monotonic() - start < 0.1  # skipped, not waited on
 
 
+@pytest.mark.slow
 def test_drill_2_health_gives_up_in_time_too(stuck_store: PostgresRequestStore) -> None:
     start = time.monotonic()
     assert stuck_store.health() == "down"

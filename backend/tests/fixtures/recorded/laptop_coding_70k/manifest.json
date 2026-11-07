@@ -1,0 +1,23 @@
+{
+  "name": "laptop_coding_70k",
+  "request": "best laptop for coding under 70k",
+  "runs": 1,
+  "budget": {
+    "groq": 4,
+    "gemini": 0,
+    "mistral": 0,
+    "openrouter": 0,
+    "cerebras": 0,
+    "serper": 0,
+    "youtube": 0,
+    "reddit": 0,
+    "jina": 0
+  },
+  "calls": {
+    "groq": 2
+  },
+  "refused": {},
+  "problems": [],
+  "recorded_at": "2026-11-07T16:43:00+00:00",
+  "recorded_by": "Harsh Kodavala"
+}

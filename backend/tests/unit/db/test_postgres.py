@@ -53,6 +53,7 @@ def test_an_unreachable_database_fails_within_the_time_limit(store: PostgresRequ
     assert time.monotonic() - start < 0.5 + 0.5
 
 
+@pytest.mark.slow
 def test_three_failures_open_the_breaker_and_later_saves_fail_at_once(store: PostgresRequestStore) -> None:
     for _ in range(3):
         assert store.save_request(SESSION, ex.QUERY, ex.intent()) == "failed"
@@ -74,6 +75,7 @@ def test_a_row_that_does_not_fit_fails_without_touching_the_database(store: Post
     assert store._pool is None
 
 
+@pytest.mark.slow
 def test_logs_show_the_host_and_error_type_but_never_the_url(
     store: PostgresRequestStore, caplog: pytest.LogCaptureFixture
 ) -> None:

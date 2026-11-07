@@ -57,6 +57,8 @@ jobs:
         run: mypy app
       - name: Tests (no live APIs)
         run: pytest -q -m "not live" --cov --cov-report=term-missing
+      - name: Coverage gates (70% on core modules, 80% on app/decide/)
+        run: python -m scripts.check_coverage
       - name: Shared contracts are up to date
         run: |
           python -m scripts.export_contracts

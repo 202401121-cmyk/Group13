@@ -56,6 +56,7 @@ def down_database() -> Iterator[PostgresRequestStore]:
 # --- the database is down, stuck or skipped ------------------------------------------------------
 
 
+@pytest.mark.slow
 def test_a_closed_port_gives_saved_false_within_the_database_time_limit(down_database: PostgresRequestStore) -> None:
     start = time.monotonic()
     result = PipelineRunner(default_search_stages(), DatabaseResultStore(down_database)).run(request())
@@ -74,6 +75,7 @@ def test_the_breaker_open_gives_saved_false_at_once(down_database: PostgresReque
     assert down_database._pool is None  # nothing was even opened
 
 
+@pytest.mark.slow
 def test_a_database_that_never_answers_gives_saved_false_in_time() -> None:
     server = SilentServer()
     timeout_s = 1.0
@@ -160,6 +162,7 @@ def stuck_database() -> Iterator[_StuckDatabase]:
     database.release.set()  # let the background thread finish
 
 
+@pytest.mark.slow
 def test_a_save_that_hangs_cannot_hold_the_search_past_its_limit(
     stuck_database: _StuckDatabase, caplog: pytest.LogCaptureFixture
 ) -> None:

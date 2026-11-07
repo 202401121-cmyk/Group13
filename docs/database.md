@@ -177,8 +177,9 @@ A Free project is paused after 7 days of low activity. A paused project shows as
 
 ## Tests
 
-- **Unit and drill tests** need no database and run everywhere (`pytest`). The drills point the backend at a closed
-  local port and at a server that never answers, and check that searches still finish and health says `down`.
+- **Unit and drill tests** need no database and run everywhere. A plain `pytest` leaves out the drills that really wait
+  for a timeout: run those with `pytest -m slow`. CI runs them all. The drills point the backend at a closed local port
+  and at a server that never answers, and check that searches still finish and health says `down`.
 - **Integration tests** (marker `db`) need a throwaway Postgres 17. They skip without `TEST_DATABASE_URL`. With
   `REQUIRE_DB_TESTS=1` a missing database fails them instead. They never run against Supabase: each run creates its
   own database, applies every migration, checks the tables, row level security and the limits, and drops it. The

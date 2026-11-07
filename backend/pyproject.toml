@@ -39,8 +39,10 @@ include = ["app", "app.*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q --strict-markers"
+# A plain `pytest` is the fast run. CI passes its own -m "not live", which replaces this one, so CI still runs the slow tests.
+addopts = '-q --strict-markers -m "not slow and not live"'
 markers = [
+    "slow: really waits, for a timeout or a breaker; left out of a plain pytest run (pytest -m slow runs them)",
     "live: calls a real external API; never runs in CI (use only in evals/online)",
     "db: needs a Postgres from TEST_DATABASE_URL; skipped without it, failed without it when REQUIRE_DB_TESTS=1",
 ]
