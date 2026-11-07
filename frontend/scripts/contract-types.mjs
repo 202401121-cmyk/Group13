@@ -1,5 +1,5 @@
 // Generates the contract types in src/types/contracts by running the team's script,
-// scripts/gen-frontend-types.sh. The types come only from that script (frontend/CLAUDE.md) and are
+// scripts/gen-frontend-types.sh. The types come only from that script (frontend/README.md) and are
 // git-ignored, so npm runs this after every install (postinstall): a clean clone, and CI, have the
 // types before `tsc` runs. It does nothing when every schema already has a newer type file.
 // Run `npm run types:contracts -- --force` to regenerate anyway.

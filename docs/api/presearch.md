@@ -16,7 +16,7 @@ uvicorn app.main:app --port 8000
 - **JSON in, JSON out.** Send `Content-Type: application/json`.
 - **Types:** `IntakeResponse`, `Intent`, `CriteriaSet`, `ReplyRequest`, `InterviewStep`, `PresearchSession` and the
   rest are the contract models. Their TypeScript types come from `shared/contracts/schema/*.json` (see
-  `frontend/CLAUDE.md`); never redefine them by hand.
+  `frontend/README.md`); never redefine them by hand.
 - **Sessions:** the first `intake` call returns a `session_id` (like `sess_3f9a…`). Send it with every later
   call. A session not used for 2 hours expires; the server keeps at most 1,000 at a time.
 - **Errors** are always `{"detail": "<one plain sentence>"}`, never a stack trace. Show `detail` to the user.

@@ -195,7 +195,7 @@ on `backend/app/decide/` once it is built.
 Stages talk to each other only through contracts: strict, frozen Pydantic models in `backend/app/contracts/`,
 exported to JSON Schema in `shared/contracts/` and from there to TypeScript for the frontend. Code decides: the LLM
 never filters, scores or ranks products, and every claim keeps its source. The ten build rules are in
-[CLAUDE.md](CLAUDE.md).
+[CONTRIBUTING.md](CONTRIBUTING.md#the-ten-build-rules).
 
 ```
 .
@@ -251,6 +251,8 @@ Sprint 1 ran past its planned dates; the new dates are set at the Sprint 1 revie
   the rest, always from a fresh `main`.
 - Commit messages start with the story ID or the task prefix, for example `US-12: build queries from the rubric`,
   `CI: ...`, `S1: ...`, `docs: ...` or `fix: ...`.
+- Each task is built from a written prompt in the owner's own clone, up to one local commit. The owner reviews it,
+  pushes and opens the pull request.
 - The person who did the work makes the commit, under their own name. The course checks this.
 - Every change goes through a pull request with green CI and a named reviewer. Om merges, and may do so without
   waiting for the approval. `main` is not protected, by team decision, but nobody pushes to it directly.
@@ -269,9 +271,9 @@ Sprint 1 ran past its planned dates; the new dates are set at the Sprint 1 revie
 - [docs/decisions/](docs/decisions/): recorded decisions, such as the frontend's stack
 - [docs/elicitation-kit.md](docs/elicitation-kit.md): survey, interview, observation and expert templates
 - [docs/sprint-1-kickoff.md](docs/sprint-1-kickoff.md): the Sprint 1 checklist and planning agenda
-- [CONTRIBUTING.md](CONTRIBUTING.md): setup, how to build a story, review checklist, Definition of Done
-- [CLAUDE.md](CLAUDE.md), [backend/CLAUDE.md](backend/CLAUDE.md), [frontend/CLAUDE.md](frontend/CLAUDE.md): the build
-  rules and conventions for each part
+- [CONTRIBUTING.md](CONTRIBUTING.md): setup, how to build a story, the ten build rules, review checklist, Definition
+  of Done
+- [frontend/README.md](frontend/README.md): the frontend's stack, commands and design notes
 - [ml/README.md](ml/README.md): the ML workspace, its data rules and commands
 - [supabase/migrations/README.md](supabase/migrations/README.md): how to add a database migration
 - [backlog/stories.yaml](backlog/stories.yaml): all user stories, front and back of the card

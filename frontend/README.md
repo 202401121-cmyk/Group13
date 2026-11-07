@@ -1,7 +1,7 @@
 # ShopSense frontend
 
 The ShopSense web app: the request box, "what we understood", the criteria, the interview, the brief and the
-results. Yash Patel and Manu Pardhan built it in Lovable, and it was imported here as FE-0. Why this stack:
+results. Yash Patel and Manu Pardhan built it in a prototype builder, and it was imported here as FE-0. Why this stack:
 [docs/decisions/0001-frontend-tanstack-start.md](../docs/decisions/0001-frontend-tanstack-start.md).
 
 ## Stack
@@ -107,7 +107,7 @@ scripts/contract-types.mjs
 
 ## Design and architecture notes
 
-These came with the Lovable project. They explain why the code is laid out as it is.
+These came with the prototype. They explain why the code is laid out as it is.
 
 - **Request flow** (`src/lib/request/`): types, a reducer state machine and a service interface. The screens only
   talk to `getRequestService()`, so the mock and the backend can be swapped without changing any screen.
@@ -147,7 +147,7 @@ These came with the Lovable project. They explain why the code is laid out as it
     because text at part opacity fails contrast on the frames it is shown, and reduced motion turns all motion off.
     `e2e/quality/first-frame.spec.ts` runs axe the moment each state shows, with motion on.
 
-## Done in Lovable
+## Done in the prototype
 
 - A labelled, animated workflow picture and reveals when sections scroll into view.
 - Gentler background movement, card and button effects, and product preview motion.

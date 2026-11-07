@@ -37,8 +37,7 @@ Open `backend/app/contracts/` and `shared/contracts/examples/search_result.json`
 - [ ] Is my stage's time limit realistic (`STAGE_TIME_LIMITS_S`)?
 - [ ] What does my **fallback** return?
 
-Frontend owners also check that `search_result.json` has every state the results page must show
-(see `frontend/CLAUDE.md`).
+Frontend owners also check that `search_result.json` has every state the results page must show.
 
 Agree changes in the meeting. The US-52 owners apply them in one pull request by the end of day 2, then
 the contracts are frozen for the sprint. After that, a change needs a message in `#dev` and a team

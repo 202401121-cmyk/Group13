@@ -1,4 +1,4 @@
-// Explicit Vite setup (it replaces Lovable's @lovable.dev/vite-tanstack-config wrapper).
+// Explicit Vite setup (it replaces the prototype builder's Vite wrapper).
 // TanStack Start builds the app and its server-side rendering; nitro turns that server into a plain
 // Node program in .output/ that `npm start` runs.
 import { fileURLToPath } from "node:url";

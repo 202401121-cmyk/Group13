@@ -2,7 +2,7 @@
 
 One short card per model. Change a card in the same pull request that changes the model, and fill in every "to be
 recorded" before the model is used. Each model replaces a simpler baseline, and that baseline stays as its fallback
-("replace, never rewrite", [backend/CLAUDE.md](../backend/CLAUDE.md)). The datasets are described in
+("replace, never rewrite"). The datasets are described in
 [DATA.md](DATA.md).
 
 ## Rules for every model
