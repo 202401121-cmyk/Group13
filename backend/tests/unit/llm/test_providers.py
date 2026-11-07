@@ -12,6 +12,9 @@ import pytest
 from app.contracts import Provider
 from app.llm.errors import (
     AuthFailed,
+    ModelForbidden,
+    ModelNotFound,
+    ModelRetired,
     NoCredit,
     ProviderError,
     ProviderFailure,
@@ -84,12 +87,49 @@ def _raise_connect(request: httpx.Request) -> httpx.Response:
     raise httpx.ConnectError("connection refused", request=request)
 
 
+# Only a 4xx with no status of its own is read for a code, so this must change nothing on the other statuses.
+MODEL_CODE = {"error": {"code": "model_decommissioned"}}
+
+# What Groq answers for a retired model, as seen in public reports: HTTP 400, not 404.
+GROQ_RETIRED = {
+    "error": {
+        "message": f"The model has been decommissioned and is no longer supported. {FAKE_KEY}",
+        "type": "invalid_request_error",
+        "code": "model_decommissioned",
+    }
+}
+
 FAILURES: list[tuple[str, Handler, type[ProviderFailure], str]] = [
     ("429", lambda r: httpx.Response(429, headers={"x-ratelimit-reset": "7s"}), RateLimited, "rate_limited"),
     ("500", lambda r: httpx.Response(500), ServerError, "error"),
     ("503", lambda r: httpx.Response(503), ServerError, "error"),
     ("401", lambda r: httpx.Response(401, json={"error": f"Invalid API key {FAKE_KEY}"}), AuthFailed, "error"),
-    ("403", lambda r: httpx.Response(403, text=f"forbidden for {FAKE_KEY}"), AuthFailed, "error"),
+    ("403", lambda r: httpx.Response(403, text=f"forbidden for {FAKE_KEY}"), ModelForbidden, "error"),
+    ("404", lambda r: httpx.Response(404, text=f"no such model for {FAKE_KEY}"), ModelNotFound, "error"),
+    (
+        "model_not_found",
+        lambda r: httpx.Response(400, json={"error": {"code": "model_not_found", "message": f"{FAKE_KEY}"}}),
+        ModelNotFound,
+        "error",
+    ),
+    ("groq retired model", lambda r: httpx.Response(400, json=GROQ_RETIRED), ModelRetired, "error"),
+    (
+        "retired on a 404",
+        lambda r: httpx.Response(404, json={"error": {"code": "model_decommissioned"}}),
+        ModelRetired,
+        "error",
+    ),
+    ("invalid_model", lambda r: httpx.Response(400, json={"error": {"code": "invalid_model"}}), ModelNotFound, "error"),
+    ("other 400", lambda r: httpx.Response(400, json={"error": {"code": "invalid_request"}}), ProviderError, "error"),
+    ("400 not json", lambda r: httpx.Response(400, text="nope"), ProviderError, "error"),
+    ("a code that is not text", lambda r: httpx.Response(400, json={"error": {"code": 404}}), ProviderError, "error"),
+    ("a 5xx with a model code", lambda r: httpx.Response(503, json=MODEL_CODE), ServerError, "error"),
+    ("a 429 with a model code", lambda r: httpx.Response(429, json=MODEL_CODE), RateLimited, "rate_limited"),
+    ("a 401 with a model code", lambda r: httpx.Response(401, json=MODEL_CODE), AuthFailed, "error"),
+    ("a 402 with a model code", lambda r: httpx.Response(402, json=MODEL_CODE), NoCredit, "error"),
+    ("a 403 with a model code", lambda r: httpx.Response(403, json=MODEL_CODE), ModelForbidden, "error"),
+    ("a 200 with a model code", lambda r: httpx.Response(200, json=MODEL_CODE), ProviderError, "error"),
+    ("400 a list", lambda r: httpx.Response(400, json=["nope"]), ProviderError, "error"),
     ("402", lambda r: httpx.Response(402, json={"message": "payment required"}), NoCredit, "error"),
     ("400", lambda r: httpx.Response(400, text="bad request"), ProviderError, "error"),
     ("timeout", _raise_timeout, ProviderTimeout, "timeout"),

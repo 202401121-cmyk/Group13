@@ -24,7 +24,7 @@ its terms, then update this page.
 | [Groq](#groq) | LLM for private, Reddit and public text | `GROQ_API_KEY` | OK with limits | ok |
 | [Gemini](#gemini) | LLM for public text only | `GEMINI_API_KEY` | OK as planned | ok |
 | [OpenRouter](#openrouter) | LLM for public text only, last choice | `OPENROUTER_API_KEY` | OK as planned | ok |
-| [Cerebras](#cerebras) | LLM for private, Reddit and public text | `CEREBRAS_API_KEY` | **Not OK**: no free tier | failed (HTTP 402) |
+| [Cerebras](#cerebras) | Nothing while it answers 402: skipped with no call | `CEREBRAS_API_KEY` | **Not OK**: no free tier | failed (HTTP 402) |
 | [Mistral](#mistral) | LLM for public text only | `MISTRAL_API_KEY` (+ 4 settings) | OK as planned | ok |
 | [Serper](#serper) | Web search results with links | `SERPER_API_KEY` | OK with limits | ok |
 | [Reddit](#reddits-own-api) | Community evidence | archives: none; own API: `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT` | Own API: **not OK** (closed to us); archives in use | skipped (no keys) |
@@ -44,6 +44,7 @@ From `backend/`, with the backend's virtual environment active and your keys in 
 python -m scripts.smoke_apis                       # every configured service except Serper
 python -m scripts.smoke_apis --only groq,youtube   # just these services
 python -m scripts.smoke_apis --include serper      # also Serper: each run uses one of its 2,500 free queries
+python -m scripts.smoke_apis --measure-extraction  # one Groq call the size of a full Reddit source
 ```
 
 Each service gets the cheapest call that proves its key works:
@@ -51,7 +52,9 @@ Each service gets the cheapest call that proves its key works:
 - **LLMs** (Groq, Gemini, OpenRouter, Cerebras, Mistral): one call through the app's own provider client and
   `backend/config/models.yaml`, with the fixed public prompt "Reply with the single word OK." and 5 output tokens.
   It passes if the reply contains OK. Reasoning models (gpt-oss, nemotron) can spend 5 tokens thinking and send no
-  text; only then is the call repeated once with a 200-token cap, and the note says so.
+  text; only then is the call repeated once with a 200-token cap, and the note says so. Groq gets one call per pool
+  model, with a row each, straight at the 200-token cap. Each model's rate-limit headers are compared with
+  models.yaml, and any difference is printed in its row. **The headers win:** update the config to match them.
 - **Serper:** one search, only with `--include serper`.
 - **YouTube:** `videos.list` for one public video (1 quota unit). Never `search.list`.
 - **Reddit's own API:** only when `REDDIT_CLIENT_ID` and `REDDIT_CLIENT_SECRET` are set: an app-only token, then one
@@ -59,7 +62,7 @@ Each service gets the cheapest call that proves its key works:
 - **Jina Reader:** reads `https://example.com` (with `JINA_API_KEY` if set; it also works without one).
 - **Hugging Face:** `whoami`, which also shows whether the token is read-only.
 
-A service with no key is "skipped (not configured)", never a failure. Each service gets at most 20 seconds, and one
+A service with no key is "skipped (not configured)", never a failure. Each call gets at most 20 seconds, and one
 failing never stops the others. It prints a table (service, status, latency, note) and any rate-limit headers, and
 exits 0 if every configured service passed, 1 if any failed. It never prints a key, and the prompt is fixed public
 text, so it is safe for every provider, including those that train on inputs. The tests run offline in CI; the
@@ -84,6 +87,39 @@ fix to the reasoning-model retry:
 | Hugging Face | skipped | - | no `HF_TOKEN` |
 
 Exit code 1, because of Cerebras.
+
+### Last measured: 7 November 2026
+
+`python -m scripts.smoke_apis --only groq`, one call per pool model:
+
+| Model | Status | Latency | Limit headers | After this one call |
+|---|---|---|---|---|
+| `openai/gpt-oss-120b` | ok | 20,859 ms | 1,000 requests a day, 8,000 tokens a minute | 999 requests, 7,709 tokens left |
+| `openai/gpt-oss-20b` | ok | 531 ms | 1,000 requests a day, 8,000 tokens a minute | 999 requests, 7,709 tokens left |
+| `qwen/qwen3.8-27b` | ok | 94 ms | 1,000 requests a day, 8,000 tokens a minute | 999 requests, 7,769 tokens left |
+
+The headers match models.yaml. Each model shows 999 requests left after its own single call, so the three limits
+are separate: shared limits would have read 999, 998 and 997.
+
+That first call's 20,859 ms was not `openai/gpt-oss-120b`'s usual speed. Three more tiny calls to it, the first on a
+new connection, took 990, 1,206 and 1,391 ms: a middle value of 1,206 ms. The cause of the slow call wasn't found.
+
+`python -m scripts.smoke_apis --measure-extraction`, one call on `openai/gpt-oss-120b`, using the hand-written Reddit
+fixtures repeated up to `MAX_SOURCE_CHARS`:
+
+| | Tokens |
+|---|---|
+| Input | 2,969 |
+| Output | 247 |
+| **Used** | **3,216** |
+| Planned the wrapper's way (its input estimate plus 1,024 of output) | 5,129 |
+
+`reddit_tokens_per_search` is **18,000**: 75% of the pool's 24,000 tokens a minute, which leaves each member about
+2,000 for shoppers' calls. An intake call plans about 1,700.
+
+The pool counts planned tokens, so each member takes one full-size source a minute, and the pool about 3, although
+6 would fit as really used. Smaller sources or a smaller output request fit more: two calls fit a member's minute
+once each plans 4,000 tokens or fewer.
 
 ### Run the LLM smoke test
 
@@ -126,19 +162,22 @@ actually saw. Quotes are copied from the provider's page.
 
 - **Used for:** LLM calls with private, Reddit and public text. It is first for private text.
 - **Sign up:** [console.groq.com](https://console.groq.com) → API Keys. **Env:** `GROQ_API_KEY`.
-- **Free limits** ([rate limits](https://console.groq.com/docs/rate-limits), 3 Nov 2026): `openai/gpt-oss-120b` 30
-  requests a minute, 1,000 a day, 8,000 tokens a minute, 200,000 tokens a day. The page calls these "the base limits
-  for the Developer plan" next to a Free plan tab, so treat them as the most we get. Smoke test: the headers said
-  1,000 requests and 8,000 tokens, which matches.
+- **Free limits** ([rate limits](https://console.groq.com/docs/rate-limits), 7 Nov 2026): `openai/gpt-oss-120b`,
+  `openai/gpt-oss-20b` and `qwen/qwen3.8-27b` each have 30 requests a minute, 1,000 a day, 8,000 tokens a minute and
+  200,000 tokens a day. The page calls these "the base limits for the Developer plan" next to a Free plan tab, so
+  treat them as the most we get. Smoke test: the headers said 1,000 requests a day and 8,000 tokens a minute for all
+  three, which matches. `x-ratelimit-limit-requests` counts a day, and `x-ratelimit-limit-tokens` counts a minute.
+  `qwen/qwen3.8-27b` is a preview model, so Groq may withdraw it.
 - **Terms** ([services agreement](https://console.groq.com/docs/legal/services-agreement), last modified 22 Jun
   2026; [your data](https://console.groq.com/docs/your-data)): "Groq is not permitted to use Inputs or Outputs for
   training or fine-tuning" (section 4.2), and "By default, Groq does not retain customer data for inference
   requests." Reliability and abuse logs may be kept for up to 30 days; Zero Data Retention can be switched on in
   Data Controls. It is for developers building apps; no reselling.
-- **Verdict: OK with these limits:** about 1,000 requests a day. Switching on Zero Data Retention is a team
+- **Verdict: OK with these limits:** about 1,000 requests a day per model. Switching on Zero Data Retention is a team
   decision.
-- **If it fails:** private and Reddit text has no other working provider while Cerebras is out (below), so the
-  stage uses its own fallback: keyword rules for intake, fixed criteria sets for criteria.
+- **If it fails:** private and Reddit text has no other provider, so the stage uses its own fallback: keyword rules
+  for intake, fixed criteria sets for criteria, and skipping the source for extraction. Each model has its own
+  limits, so one model failing leaves the other two working ([the model pool](#the-model-pool-pool-in-modelsyaml)).
 
 ### Gemini
 
@@ -165,11 +204,11 @@ actually saw. Quotes are copied from the provider's page.
   exceptions." Hosts that train can be blocked for the account or per request; we have not confirmed which host
   serves our model.
 - **Verdict: OK as planned:** public text only, about 50 requests a day.
-- **If it fails:** it is last in every public route, so the stage uses its own fallback.
+- **If it fails:** it is last in the public routes that use it, so the stage uses its own fallback.
 
 ### Cerebras
 
-- **Used for:** LLM calls with private, Reddit and public text, second after Groq, once it works.
+- **Used for:** nothing while it answers 402. It is skipped with no call.
 - **Sign up:** [cloud.cerebras.ai](https://cloud.cerebras.ai). **Env:** `CEREBRAS_API_KEY`.
 - **Free limits** ([rate limits](https://inference-docs.cerebras.ai/support/rate-limits),
   [pricing](https://cerebras.ai/pricing), 3 Nov 2026): Cerebras "doesn't currently offer a no-cost tier that renews
@@ -181,7 +220,9 @@ actually saw. Quotes are copied from the provider's page.
   and "We do not retain inputs and outputs."
 - **Verdict: Not OK: fallback is Groq alone** for private and Reddit text, then each stage's own fallback. Its data
   terms are fine; the problem is cost. Whether to add a card for the trial credit is a team decision for Om.
-- **If it fails:** the wrapper marks it dead for the run after the first 402 and moves on.
+- **While it answers 402:** `available: false` in models.yaml, so it is skipped with no call. It left the private and
+  Reddit routes on 7 Nov 2026 and stays listed on the public long route. Its "trains on inputs" flag stays. If the
+  account gets credits, set `available: true`, run the smoke test, and put it back in those routes as a team decision.
 
 ### Mistral
 
@@ -297,12 +338,50 @@ fine-tune any model of ours either.
 
 | Data class | short | medium | long |
 |---|---|---|---|
-| private | groq, cerebras | groq, cerebras | groq, cerebras |
-| reddit | groq, cerebras | groq, cerebras | groq, cerebras |
+| private | groq | groq | groq |
+| reddit | groq | groq | groq |
 | public | mistral, groq | mistral, gemini, groq, openrouter | gemini, mistral, cerebras, openrouter |
 
 Groq's free tier has a small daily token allowance, so public work goes to Mistral and Gemini first and Groq is
-kept for private text. Long public inputs start on Gemini for its 1M-token window.
+kept for private text. Long public inputs start on Gemini for its 1M-token window. Groq in a route means all of its
+models, in models.yaml order. Cerebras is skipped while it is unavailable, and no private or Reddit route may name an
+unavailable provider.
+
+### The model pool (`pool:` in models.yaml)
+
+Each Groq text model is a member of the pool with its own limits. Read from
+[Groq's rate-limits page](https://console.groq.com/docs/rate-limits) on 7 Nov 2026:
+
+| Model | Requests a minute | Tokens a minute | Tokens a day | Requests a day | Window |
+|---|---|---|---|---|---|
+| `openai/gpt-oss-120b` | 30 | 8,000 | 200,000 | 1,000 | 131,072 |
+| `openai/gpt-oss-20b` | 30 | 8,000 | 200,000 | 1,000 | 131,072 |
+| `qwen/qwen3.8-27b` (preview) | 30 | 8,000 | 200,000 | 1,000 | 131,072 |
+
+- **Rotation:** bulk work (`extract_claims`, `enrich_extract`) goes round the members in turn. Calls a shopper waits on
+  keep the order in models.yaml, with the other members as backups. Public chains keep their order, so models outside
+  the pool are not rotated.
+- **Pacing:** each member counts its requests and tokens over the last minute: the input the wrapper measures plus
+  the requested output. A member with no room is passed over for one with room. If all are busy, the call waits for
+  the soonest slot, so it doesn't earn a 429.
+- **Time limit:** `complete()` has no time-limit argument, so the limit comes from the task's stage and is counted from
+  each `complete()`. A stage that calls it twice gets the limit twice, but `run_stage` still stops waiting on time and
+  uses the fallback. One attempt gets a timeout of at most 60% of the limit, so another member has time to answer if it
+  hangs. httpx applies a timeout to each phase of a request, so a slow connection can make an attempt run a little over.
+  No call starts in the last second. If no member can take it by then, it raises `LLMUnavailable` and the stage uses
+  its fallback.
+- **One call's size:** input is fitted to the member's tokens a minute as well as its window, because a bigger call
+  could never get a slot. Text too long for that is trimmed to one call, not chunked, because chunks over a minute's
+  tokens couldn't all go out before the stage's limit. Callers put the most important text first, so the
+  lowest-ranked comments go.
+- **Daily budget:** a call's planned tokens are held before it runs, then swapped for what it really used, so
+  calls running together can't pass the budget. This covers provider budgets too. The count is in memory, per UTC day.
+- **Reddit budget:** `reddit_tokens_per_search` is what a search's Reddit extraction should plan to use, for US-14 to
+  keep to. See [Last measured](#last-measured-7-november-2026).
+- **No priority for shoppers:** the pool shares each minute between all calls. A search using a member's whole minute
+  leaves a shopper's next call on the other members, or on its fallback.
+
+A member's limits sit in `pool:`, not on its `models:` row, because that row is the `ModelLimits` contract.
 
 ### Does the provider train on our inputs? (`trains_on_inputs`, read 3 Nov 2026)
 
@@ -344,10 +423,23 @@ must pass `data_class=` and `difficulty=`, and be added to this table and to
 
 ### When a provider fails
 
-- HTTP 429: skipped for as long as it asks (Retry-After or a reset header), held between 60 and 120 seconds.
-- Three timeouts or server errors in a row: skipped for 90 seconds, then one trial call.
-- HTTP 401, 402 or 403 (bad key, or the account needs a plan): skipped for the rest of the run.
+A pool member has its own record; any other provider has one for the whole provider.
+
+- HTTP 429 or 5xx: skipped for as long as it asks (Retry-After or a reset header), held between 60 and 120 seconds.
+  With no usable header, 90 seconds.
+- Three timeouts or other failures within 60 seconds: skipped for 90 seconds, then one trial call. A timeout we cut
+  short because the stage was nearly out of time doesn't count: that says nothing about the model.
+- HTTP 401 or 402 (bad key, or the account needs a plan): the whole provider is skipped for the rest of the run,
+  because its models share the key.
+- HTTP 403 (this key may not use this model): that model is skipped for the rest of the run.
+- The error code `model_decommissioned` (a retired model, which Groq answers with HTTP 400): that model is skipped for
+  the rest of the run. Groq's errors page lists no codes, so this one comes from public reports of its replies.
+- HTTP 404, or the error code `model_not_found` or `invalid_model`: that model is skipped for 10 minutes, then gets one
+  trial call. If it answers, it is back. If it is still not found, it waits another 10 minutes; any other failure waits
+  as this list says. A later failure never shortens a cool-down. So a gateway blip or brief outage recovers by itself.
+  A wrong `base_url` looks the same, so if every model of a provider goes this way, check the URL.
 - Over its daily budget: not sent, logged with outcome `skipped_budget`.
+- No room before the stage's time limit: not sent, logged with outcome `rate_limited`.
 - Every attempt writes one call record: task, data class, provider, model, tokens, time and outcome. Never the
   prompt or the reply.
 
@@ -423,7 +515,7 @@ changes it.
 
 | Service | Works? | Limits seen | Context window (LLMs) | Terms OK? | Notes |
 |---|---|---|---|---|---|
-| Groq | yes | 1,000 requests a day, 8,000 tokens a minute (headers) | 131,072 | yes: does not train or keep inputs | `openai/gpt-oss-120b` reasons before it answers |
+| Groq | yes, 3 models (7 Nov) | per model: 1,000 requests a day, 8,000 tokens a minute (headers) | 131,072 | yes: does not train or keep inputs | `openai/gpt-oss-120b` reasons before it answers |
 | Gemini | yes | not sent; see AI Studio | 1,048,576 | public text only: the free tier trains on inputs | sometimes HTTP 503 when busy |
 | OpenRouter | yes | 20 a minute, 50 a day (provider page) | 1,000,000 | public text only: training depends on the host | slowest, about 4 s |
 | Cerebras | no: HTTP 402 | none: no free tier any more | 65,536 (unverified) | yes: does not train or keep inputs | needs a plan or credits; team decision |
