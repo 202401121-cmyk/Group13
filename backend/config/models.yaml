@@ -8,7 +8,9 @@
 #            provider's own terms page (terms_url), read on terms_checked. Re-read it when the terms change.
 # models:    one row per model; each row has exactly the fields of app.contracts.ModelLimits.
 #            trains_on_free_tier must equal its provider's trains_on_inputs. Gemini must stay true.
+#            available: false skips a provider with no call, and needs an unavailable_reason.
 # routes:    the providers each call may use, in order, by data class and difficulty (US-46). See below.
+# pool:      each member is a model with its own limits, which the wrapper paces itself to (US-46). See below.
 #
 # Free-tier limits change without notice. Run `python -m scripts.smoke_llm` and copy what you see into
 # docs/api-setup.md, then remove the UNVERIFIED comment from each row you confirmed. The routing rules (data
@@ -42,7 +44,9 @@ providers:
     terms_url: https://openrouter.ai/docs/features/privacy-and-logging
     terms_checked: 2026-11-03
   # The terms give Cerebras no right to use our content for training, and the privacy policy (section 6) says it
-  # does not keep inputs and outputs.
+  # does not keep inputs and outputs. Every call answers HTTP 402 (no free tier), so it is skipped with no call,
+  # and it left the private and reddit routes on 7 Nov 2026. If the account gets credits: set available: true,
+  # run the smoke test, and put it back in those routes as a team decision.
   - name: cerebras
     base_url: https://api.cerebras.ai/v1
     api_key_env: CEREBRAS_API_KEY
@@ -50,6 +54,8 @@ providers:
     trains_on_inputs: false
     terms_url: https://cerebras.ai/terms-of-service
     terms_checked: 2026-11-03
+    available: false
+    unavailable_reason: HTTP 402, no free tier (smoke test, 3 Nov 2026)
   # The free plan ("Free mode") may use inputs and outputs to train. An opt-out exists, but we cannot confirm it is
   # set for our key, so Mistral stays public data only.
   - name: mistral
@@ -75,6 +81,20 @@ models:
   # Verified 3 Nov 2026 with scripts/smoke_llm.py: valid JSON back.
   - provider: groq
     model: openai/gpt-oss-120b
+    context_window_tokens: 131072
+    max_output_tokens: 8192
+    trains_on_free_tier: false
+  # Verified 7 Nov 2026 with scripts/smoke_apis.py: both answered. Windows from Groq's models page, 7 Nov 2026. It
+  # lists 65,536 and 16,384 as the most these can write; 8192 is
+  # our own cap, as above. qwen3.8-27b is a preview model, so Groq may withdraw it. A retired model is skipped for the
+  # run, one that isn't found is skipped for 10 minutes, and either way the pool carries on with the other two.
+  - provider: groq
+    model: openai/gpt-oss-20b
+    context_window_tokens: 131072
+    max_output_tokens: 8192
+    trains_on_free_tier: false
+  - provider: groq
+    model: qwen/qwen3.8-27b
     context_window_tokens: 131072
     max_output_tokens: 8192
     trains_on_free_tier: false
@@ -108,21 +128,54 @@ models:
 
 # Every call says what its prompt carries (data class) and how big the job is (difficulty); this table gives the
 # providers to try for that pair, in order. The loader refuses a private or reddit route that names a provider
-# with trains_on_inputs: true. Within a route, a provider that is cooling down, dead for the run, out of today's
-# budget or without a key is skipped. If none is left, the stage uses its own fallback.
+# with trains_on_inputs: true, or a private or reddit route that names an unavailable provider. Within a route, a
+# provider that is unavailable, cooling down, dead for the run, out of today's budget or without a key is skipped.
+# If none is left, the stage uses its own fallback: keyword rules for private tasks, skip the source for extraction.
 #   private: the shopper's own words.          reddit: posts and comments from Reddit.
 #   public:  our own fixed text, or public web pages.
 #   short: a small prompt and answer.  medium: a longer answer.  long: a long input (many pages or comments).
 routes:
   private:
-    short: [groq, cerebras]
-    medium: [groq, cerebras]
-    long: [groq, cerebras]
+    short: [groq]
+    medium: [groq]
+    long: [groq]
   reddit:
-    short: [groq, cerebras]
-    medium: [groq, cerebras]
-    long: [groq, cerebras]
+    short: [groq]
+    medium: [groq]
+    long: [groq]
   public:
     short: [mistral, groq]
     medium: [mistral, gemini, groq, openrouter]
     long: [gemini, mistral, cerebras, openrouter]
+
+# Each member paces itself to its own limits, so a call waits for a slot instead of earning a 429. The token count is
+# the input the wrapper measures plus the requested output, so one call can never be bigger than tokens_per_minute.
+# Run `python -m scripts.smoke_apis --only groq`: if the API's headers differ from these numbers, the headers win.
+# reddit_tokens_per_search: what a search's Reddit extraction should plan to use, for US-14 to keep to. It fits in about
+# one minute of the pool's combined token rate, with room left for shoppers' calls on the same models.
+# 7 Nov 2026: a full source used 3,216 tokens and the wrapper planned 5,129, so 18,000 is about 3 full-size sources
+# as the pool counts them. It is 75% of the 24,000 a minute. Re-measure with
+# `python -m scripts.smoke_apis --measure-extraction`.
+pool:
+  limits_url: https://console.groq.com/docs/rate-limits
+  limits_checked: 2026-11-07
+  reddit_tokens_per_search: 18000
+  members:
+    - provider: groq
+      model: openai/gpt-oss-120b
+      requests_per_minute: 30
+      tokens_per_minute: 8000
+      tokens_per_day: 200000
+      requests_per_day: 1000
+    - provider: groq
+      model: openai/gpt-oss-20b
+      requests_per_minute: 30
+      tokens_per_minute: 8000
+      tokens_per_day: 200000
+      requests_per_day: 1000
+    - provider: groq
+      model: qwen/qwen3.8-27b
+      requests_per_minute: 30
+      tokens_per_minute: 8000
+      tokens_per_day: 200000
+      requests_per_day: 1000

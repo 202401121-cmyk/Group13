@@ -101,6 +101,45 @@ def test_a_call_bigger_than_a_whole_minute_never_fits() -> None:
     assert not limiter.acquire(1001)
 
 
+def test_requests_per_minute_are_counted_over_the_last_minute() -> None:
+    t = FakeTime()
+    limiter = RateLimiter(requests_per_minute=2, clock=t.clock, sleep=t.sleep)
+    assert limiter.try_acquire(1) and limiter.try_acquire(1)
+    assert not limiter.try_acquire(1)
+    assert limiter.seconds_until_room(1) == 60
+    t.now += 60
+    assert limiter.try_acquire(1)
+
+
+def test_try_acquire_never_waits_or_counts_a_refused_call() -> None:
+    t = FakeTime()
+    limiter = RateLimiter(tokens_per_minute=100, clock=t.clock, sleep=t.sleep)
+    assert limiter.try_acquire(80)
+    assert not limiter.try_acquire(30)
+    assert t.slept == []
+    assert limiter.tokens_this_minute() == 80
+
+
+def test_seconds_until_room_says_when_a_call_fits_or_that_it_never_can() -> None:
+    t = FakeTime()
+    limiter = RateLimiter(tokens_per_minute=100, clock=t.clock, sleep=t.sleep)
+    assert limiter.seconds_until_room(100) == 0
+    limiter.try_acquire(80)
+    t.now += 45
+    assert limiter.seconds_until_room(30) == 15
+    assert limiter.seconds_until_room(101) is None
+
+
+def test_a_reservation_holds_tokens_and_settles_to_what_was_used() -> None:
+    budget = DailyTokenBudget({MISTRAL: 100})
+    assert budget.reserve(MISTRAL, 80)
+    assert not budget.reserve(MISTRAL, 30)
+    budget.settle(MISTRAL, 80, 50)
+    assert budget.remaining(MISTRAL) == 50
+    budget.settle(MISTRAL, 50, 0)  # given back: the call was never sent
+    assert budget.remaining(MISTRAL) == 100
+
+
 def test_no_limits_means_no_waiting() -> None:
     t = FakeTime()
     limiter = RateLimiter(clock=t.clock, sleep=t.sleep)

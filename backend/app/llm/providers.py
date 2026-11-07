@@ -13,8 +13,23 @@ import httpx
 
 from app.contracts import Provider
 
-from .errors import AuthFailed, NoCredit, ProviderError, ProviderTimeout, RateLimited, ServerError
+from .errors import (
+    AuthFailed,
+    ModelForbidden,
+    ModelNotFound,
+    ModelRetired,
+    NoCredit,
+    ProviderError,
+    ProviderTimeout,
+    RateLimited,
+    ServerError,
+)
 from .fitting import estimate_tokens
+
+# Error codes, which come with HTTP 400 as well as 404. Groq's errors page lists no codes: "model_decommissioned" comes
+# from public reports of its replies. A retired model never comes back; an unknown one might.
+MODEL_RETIRED_CODE = "model_decommissioned"
+MODEL_NOT_FOUND_CODES = frozenset({"model_not_found", "invalid_model"})
 
 
 @dataclass(frozen=True)
@@ -79,10 +94,17 @@ class OpenAICompatibleAdapter:
         status = response.status_code
         if status == 429:
             raise RateLimited(self.provider, "HTTP 429 (rate limited)", limits)
-        if status in (401, 403):
-            raise AuthFailed(self.provider, f"HTTP {status} (key missing, wrong or not allowed)", limits)
+        if status == 401:
+            raise AuthFailed(self.provider, "HTTP 401 (key missing, wrong or not allowed)", limits)
+        if status == 403:
+            raise ModelForbidden(self.provider, "HTTP 403 (key missing, wrong or not allowed)", limits)
         if status == 402:
             raise NoCredit(self.provider, "HTTP 402 (the account needs a plan or credits)", limits)
+        code = _error_code(response)
+        if code == MODEL_RETIRED_CODE:
+            raise ModelRetired(self.provider, f"HTTP {status} (this model has been retired)", limits)
+        if status == 404 or code in MODEL_NOT_FOUND_CODES:
+            raise ModelNotFound(self.provider, f"HTTP {status} (this model is not available)", limits)
         if status >= 500:
             raise ServerError(self.provider, f"HTTP {status}", limits)
         if not 200 <= status < 300:
@@ -106,6 +128,19 @@ class OpenAICompatibleAdapter:
             raise ProviderError(self.provider, "the reply had no message text")
         usage = data.get("usage")
         return text, usage if isinstance(usage, dict) else {}
+
+
+def _error_code(response: httpx.Response) -> str | None:
+    """The `error.code` of a 4xx reply, or None. It reads only that one field, so no body text is ever kept."""
+    if not 400 <= response.status_code < 500:
+        return None
+    try:
+        body = response.json()
+    except ValueError:
+        return None
+    error = body.get("error") if isinstance(body, dict) else None
+    code = error.get("code") if isinstance(error, dict) else None
+    return code if isinstance(code, str) else None
 
 
 def _ratelimit_headers(headers: httpx.Headers) -> dict[str, str]:

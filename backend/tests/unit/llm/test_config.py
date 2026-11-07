@@ -22,6 +22,67 @@ def _write(tmp_path: Path, data: object) -> Path:
     return path
 
 
+def test_the_pool_holds_the_three_groq_models_with_their_own_limits() -> None:
+    pool = load_llm_config().pool
+    assert [m.model for m in pool.members] == ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"]
+    for member in pool.members:
+        assert member.provider is Provider.GROQ
+        assert (member.requests_per_minute, member.tokens_per_minute) == (30, 8000)
+        assert (member.tokens_per_day, member.requests_per_day) == (200_000, 1000)
+    assert pool.limits_checked.isoformat() == "2026-11-07"
+    assert pool.combined_tokens_per_minute == 24_000
+    assert pool.reddit_tokens_per_search == 18_000  # 75% of a minute: see docs/api-setup.md
+
+
+def test_cerebras_is_unavailable_but_keeps_its_flag() -> None:
+    cerebras = load_llm_config().provider(Provider.CEREBRAS)
+    assert not cerebras.available and "402" in (cerebras.unavailable_reason or "")
+    assert cerebras.trains_on_inputs is False
+
+
+def test_the_loader_refuses_an_unavailable_provider_without_a_reason(tmp_path: Path) -> None:
+    data = _raw()
+    data["providers"][3].pop("unavailable_reason")  # type: ignore[index]
+    with pytest.raises(LLMConfigError, match="unavailable_reason"):
+        load_llm_config(_write(tmp_path, data))
+
+
+@pytest.mark.parametrize("data_class", ["private", "reddit"])
+def test_the_loader_refuses_an_unavailable_provider_on_a_private_or_reddit_route(
+    tmp_path: Path, data_class: str
+) -> None:
+    data = _raw()
+    data["routes"][data_class]["short"] = ["groq", "cerebras"]  # type: ignore[index]
+    with pytest.raises(LLMConfigError, match="unavailable provider"):
+        load_llm_config(_write(tmp_path, data))
+
+
+def test_the_loader_refuses_a_pool_member_with_no_model_row(tmp_path: Path) -> None:
+    data = _raw()
+    data["pool"]["members"][0]["model"] = "openai/not-a-model"  # type: ignore[index]
+    with pytest.raises(LLMConfigError, match="needs a row in models"):
+        load_llm_config(_write(tmp_path, data))
+
+
+def test_the_loader_refuses_a_repeated_pool_member(tmp_path: Path) -> None:
+    data = _raw()
+    data["pool"]["members"].append(data["pool"]["members"][0])  # type: ignore[index]
+    with pytest.raises(LLMConfigError, match="only once"):
+        load_llm_config(_write(tmp_path, data))
+
+
+def test_the_loader_refuses_a_reddit_budget_above_a_minute_of_the_pool(tmp_path: Path) -> None:
+    data = _raw()
+    data["pool"]["reddit_tokens_per_search"] = 24_001  # type: ignore[index]
+    with pytest.raises(LLMConfigError, match="one minute"):
+        load_llm_config(_write(tmp_path, data))
+
+
+def test_env_overrides_keep_the_pool() -> None:
+    config = with_env_overrides(load_llm_config(), {"MISTRAL_RPS": "1"})
+    assert config.pool == load_llm_config().pool
+
+
 def test_the_real_config_loads() -> None:
     config = load_llm_config()
     assert [p.name for p in config.providers] == [

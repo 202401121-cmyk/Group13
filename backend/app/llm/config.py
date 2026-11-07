@@ -41,6 +41,9 @@ class ProviderSettings(BaseModel):
     requests_per_second: float | None = Field(default=None, gt=0)
     tokens_per_minute: int | None = Field(default=None, gt=0)
     daily_tokens: int | None = Field(default=None, gt=0, description="Tokens per UTC day, counted in memory")
+    # False = skip it with no call, for example while the account answers HTTP 402. Its row and flags stay.
+    available: bool = True
+    unavailable_reason: str | None = None
 
     @field_validator("base_url", "terms_url")
     @classmethod
@@ -48,6 +51,43 @@ class ProviderSettings(BaseModel):
         if not re.match(r"^https://[^\s/]+", value):
             raise ValueError(f"URLs must start with https://, got {value!r}")
         return value.rstrip("/")
+
+    @model_validator(mode="after")
+    def _says_why_unavailable(self) -> ProviderSettings:
+        if not self.available and not self.unavailable_reason:
+            raise ValueError(f"{self.name.value} is not available, so it needs an unavailable_reason")
+        return self
+
+
+class PoolMember(BaseModel):
+    """One model's own limits (US-46). Not on ModelLimits, which is a contract and holds window sizes only."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    provider: Provider
+    model: str = Field(min_length=1)
+    requests_per_minute: int = Field(gt=0)
+    tokens_per_minute: int = Field(gt=0)
+    tokens_per_day: int = Field(gt=0)
+    requests_per_day: int = Field(gt=0, description="Recorded to check the API's headers; tokens run out first")
+
+
+class PoolSettings(BaseModel):
+    """The members of the model pool, and where their limits came from, so a reviewer can check them again."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    limits_url: str
+    limits_checked: date
+    reddit_tokens_per_search: int = Field(gt=0, description="What a search's Reddit extraction should plan to use")
+    members: list[PoolMember] = Field(min_length=1)
+
+    @property
+    def combined_tokens_per_minute(self) -> int:
+        return sum(m.tokens_per_minute for m in self.members)
+
+    def member(self, provider: Provider, model: str) -> PoolMember | None:
+        return next((m for m in self.members if (m.provider, m.model) == (provider, model)), None)
 
 
 # Which providers a call may use, in order, by what its prompt carries and how big the job is (US-46).
@@ -62,6 +102,7 @@ class LLMConfig(BaseModel):
     providers: list[ProviderSettings] = Field(min_length=1)
     models: list[ModelLimits] = Field(min_length=1)
     routes: Routes
+    pool: PoolSettings
 
     @model_validator(mode="after")
     def _check(self) -> LLMConfig:
@@ -92,6 +133,7 @@ class LLMConfig(BaseModel):
         if mismatched:
             raise ValueError(f"trains_on_free_tier must match the provider's trains_on_inputs: {mismatched}")
         self._check_routes(trains)
+        self._check_pool(set(pairs))
         return self
 
     def _check_routes(self, trains: dict[Provider, bool]) -> None:
@@ -99,6 +141,7 @@ class LLMConfig(BaseModel):
         missing = sorted(f"{c.value}/{d.value}" for c in DataClass for d in Difficulty if not self.chain(c, d))
         if missing:
             raise ValueError(f"every data class and difficulty needs a route with at least one provider: {missing}")
+        available = {p.name: p.available for p in self.providers}
         for data_class, by_difficulty in self.routes.items():
             for difficulty, chain in by_difficulty.items():
                 where = f"{data_class.value}/{difficulty.value}"
@@ -109,6 +152,20 @@ class LLMConfig(BaseModel):
                     raise ValueError(
                         f"route {where} may not use providers that train on inputs (build rule 8): {training}"
                     )
+                unavailable = [p.value for p in chain if not available[p]]
+                if data_class is not DataClass.PUBLIC and unavailable:
+                    raise ValueError(f"route {where} names an unavailable provider: {unavailable}")
+
+    def _check_pool(self, known_models: set[tuple[Provider, str]]) -> None:
+        """Every member is a real model row, listed once, and the Reddit budget fits a minute of the whole pool."""
+        members = [(m.provider, m.model) for m in self.pool.members]
+        unknown = sorted(f"{p.value}/{m}" for p, m in members if (p, m) not in known_models)
+        if unknown:
+            raise ValueError(f"every pool member needs a row in models: {unknown}")
+        if len(set(members)) != len(members):
+            raise ValueError("each pool member may appear only once")
+        if self.pool.reddit_tokens_per_search > self.pool.combined_tokens_per_minute:
+            raise ValueError("reddit_tokens_per_search must fit in one minute of the pool's combined token rate")
 
     def chain(self, data_class: DataClass, difficulty: Difficulty) -> list[Provider]:
         """The providers to try, in order, for one kind of call."""
@@ -166,7 +223,9 @@ def with_env_overrides(config: LLMConfig, env: Mapping[str, str]) -> LLMConfig:
             except ValueError:
                 raise LLMConfigError(f"{var} must be a number") from None
     try:
-        return LLMConfig.model_validate({"providers": providers, "models": models, "routes": config.routes})
+        return LLMConfig.model_validate(
+            {"providers": providers, "models": models, "routes": config.routes, "pool": config.pool}
+        )
     except ValidationError as exc:
         used = sorted(var for variables in ENV_OVERRIDES.values() for var in variables if env.get(var, "").strip())
         raise LLMConfigError(f"invalid LLM settings from the environment ({', '.join(used)}):\n{exc}") from exc
