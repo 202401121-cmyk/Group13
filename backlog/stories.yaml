@@ -689,7 +689,7 @@ stories:
       - Login uses Supabase Auth with Google sign-in
       - Preferences and past searches are visible only to their owner, enforced by database row-level security
       - "Test: user A cannot read user B's data through the API"
-      - Guests can search without signing in, but nothing of theirs is saved
+      - Guests can search without signing in; their requests and searches are stored only under an anonymous session ID, are never linked to an account, and are never used to remember preferences
 
   - id: US-31
     title: Handle outside failures gracefully

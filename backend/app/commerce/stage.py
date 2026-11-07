@@ -9,6 +9,7 @@ class CommerceStage:
     """Returns the two example offers and one store-search link."""
 
     name = StageName.COMMERCE
+    is_placeholder = True
 
     def run(self, inp: CommerceInput, ctx: StageContext) -> CommerceResult:
         return examples.commerce()

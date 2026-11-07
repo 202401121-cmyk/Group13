@@ -9,6 +9,7 @@ class VerifyStage:
     """Returns the example resolved values, including a Disputed, an Estimated and an Unknown one."""
 
     name = StageName.VERIFY
+    is_placeholder = True
 
     def run(self, inp: VerifyInput, ctx: StageContext) -> VerifyResult:
         return examples.verify()

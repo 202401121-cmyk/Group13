@@ -44,6 +44,7 @@ class InterviewStage:
     """Asks the planned questions in order, understands button and number replies, and builds the rubric."""
 
     name = StageName.INTERVIEW
+    is_placeholder = False
 
     def __init__(self, rules: InterviewRules | None = None) -> None:
         self._rules = rules

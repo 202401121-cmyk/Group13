@@ -43,7 +43,7 @@ finished interview and returns the ranked results. It answers once, at the end: 
 | Field | Type | Notes |
 |---|---|---|
 | `session_id` | string | The `session_id` from intake (`sess_` and 24 hex characters). Never make one up. |
-| `user_id` | string or `null` | Always `null` until login (Sprint 4). |
+| `user_id` | string or `null` | Always `null` until login (Sprint 4). A guest's search is stored only under the anonymous `session_id`, and is never linked to an account. |
 | `raw_query` | string, 1 to 1,000 characters | The request as the shopper typed it. |
 | `rubric` | `Rubric` | The `rubric` from the interview's `finished` step, unchanged. |
 
@@ -60,11 +60,18 @@ finished interview and returns the ranked results. It answers once, at the end: 
 | `sources` | Every source used: `url`, `title`, the text we read, and when we read it (`fetched_at`). |
 | `stage_reports` | One per stage: `ok`, `fallback`, `skipped`, `timeout` or `failed`, with `duration_ms`. |
 | `partial` | `true` if the 150-second search limit cut the search short. Show what is there and say so. |
-| `coverage_note` | Plain words about what was missing (for example a source that was unavailable). Always set when `partial` is true or a stage did not finish normally. Show it. |
-| `saved` | `true` when the server kept the result. Today that means the server's memory only (see "What the backend cannot do yet"). |
+| `coverage_note` | Plain words about what was missing (for example a source that was unavailable). Always set when `partial` is true or a stage did not finish normally. It also carries the sample label (below). Show it. |
+| `saved` | `true` only when the result's row was committed to the database (`public.searches`). `false` when the database is off, down, slow or failing: show "This result isn't saved." The rest of the result is the same either way. |
 
-**Time:** the search stops itself after 150 seconds (`SEARCH_TIME_LIMIT_S`); each stage also has its own limit, and
-a stage that runs out falls back instead of failing. The frontend gives up after 170 seconds
+**Sample label:** while any part of a result comes from a placeholder stage, `coverage_note` ends with "These are
+sample results while live research is being built. They are not real recommendations." The label follows the code
+that actually ran: a real stage gives no label, and a placeholder running as a real stage's fallback does. If the
+note would pass 400 characters, the earlier text is cut, never this sentence. Show the note as it is; don't match
+on the sentence.
+
+**Time:** the search stops itself after 150 seconds (`SEARCH_TIME_LIMIT_S`), and that includes saving the result: the
+stages stop early enough to leave the save its time (`DB_TIMEOUT_SECONDS`, 2 seconds by default). Each stage also
+has its own limit, and a stage that runs out falls back instead of failing. The frontend gives up after 170 seconds
 (`RESEARCH_TIMEOUT_MS`), which leaves room for the network.
 
 **Errors:**
@@ -74,7 +81,8 @@ a stage that runs out falls back instead of failing. The frontend gives up after
 | 422 | The body is not a valid `SearchRequest` (the message names the field; it never repeats what was typed) | `detail`, and a way back to the brief |
 | network error or no answer after 170 s | The backend is down or too slow | "We couldn't finish the research. Please try again." |
 
-A stage that fails never makes the search fail: it falls back, and `stage_reports` and `coverage_note` say so.
+A stage that fails never makes the search fail: it falls back, and `stage_reports` and `coverage_note` say so. A
+save that fails never does either: the answer is the same result with `saved` set to `false`.
 
 **Try it** (Git Bash, backend running, `RUBRIC` holding the `rubric` JSON from a finished interview):
 
@@ -91,12 +99,11 @@ inventing data.
 
 | Gap | Today | When it is planned |
 |---|---|---|
-| Real search results | `POST /api/search` still runs the US-52 stub stages: every search returns the same example laptops, whose criteria differ from the session's rubric. | US-12 and US-14 to US-18, Sprints 2 and 3 |
+| Real search results | `POST /api/search` still runs the US-52 stub stages: every search returns the same example laptops, whose criteria differ from the session's rubric. `coverage_note` says they are samples. | US-12 and US-14 to US-18, Sprints 2 and 3 |
 | Live progress | No progress stream; the answer comes once, at the end. Never fake progress. | Progress over Server-Sent Events (`ProgressEvent`), Sprint 2 |
 | Every source of a disputed value | `SearchResult` has no claims list. | The evidence route (US-21), Sprint 3 |
 | Typed edits to must-haves and leave-outs | `PUT /intent` takes the fixed fields only. | US-09, US-10 and the rubric editor, Sprint 3 |
 | `IntakeResponse` and the session have no exported schema | The frontend can only partly check these two answers. | A contract change: to be decided at the Sprint 2 contract review |
-| `saved` is `true` for results kept only in memory | The "not saved" banner never appears. | Results saved at the end of a run, Sprint 2 or later; evidence stored in US-29 |
 | Sessions live in the server's memory | A backend restart in the middle of a search shows "session expired". | Not planned yet: raised for Sprint 2 planning |
 | A running search can't be cancelled | Leaving the page does not stop the work. | Not planned yet: raised for Sprint 2 planning |
 | `interview/reply` has no idempotency key | Retrying after a timeout could answer the next question twice. | Not planned yet: raised for Sprint 2 planning |

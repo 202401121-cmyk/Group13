@@ -313,7 +313,7 @@
         }
       ],
       "default": null,
-      "description": "None for guests; nothing is saved for guests",
+      "description": "The signed-in owner's ID once login exists (US-30). None for guests: a guest's request and search are stored only under the anonymous session ID and are never linked to an account.",
       "title": "User Id"
     },
     "raw_query": {

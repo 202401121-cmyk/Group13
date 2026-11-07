@@ -37,6 +37,7 @@ class CriteriaStage:
     """Generates category- and use-specific criteria. `llm=None` means no LLM is configured: fallback sets only."""
 
     name = StageName.CRITERIA
+    is_placeholder = False
 
     def __init__(self, llm: LLMClient | None = None, store: CriteriaStore | None = None) -> None:
         self.llm = llm

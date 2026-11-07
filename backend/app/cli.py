@@ -10,8 +10,8 @@ criteria use the product family's fallback set.
 By default it answers "Skip" to every interview question, so the rubric uses the default weights. Add
 --interactive to answer the questions yourself.
 
-The request is saved once, with a new session ID, when DATABASE_URL is set (US-01). A database that is off, down
-or slow never stops the search; --no-db skips it altogether.
+The request and the finished search are each saved once, under a new session ID, when DATABASE_URL is set (US-01,
+US-52). A database that is off, down or slow never stops the search; --no-db skips it altogether.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ from app.contracts import (
 )
 from app.intake import EXAMPLE_REQUESTS
 from app.interview import QUICK_REPLIES
-from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
+from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
 from app.presearch import interview_turn, make_criteria, start_request
 
 SKIP_REPLY = "Skip"
@@ -56,7 +56,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--interactive", action="store_true", help="answer the interview questions yourself (default: skip them all)"
     )
-    parser.add_argument("--no-db", action="store_true", help="do not save the request, even if DATABASE_URL is set")
+    parser.add_argument(
+        "--no-db", action="store_true", help="do not save the request or the search, even if DATABASE_URL is set"
+    )
     args = parser.parse_args(argv)
     query: str = args.query
     store = db.NullRequestStore() if args.no_db else db.default_request_store()
@@ -86,7 +88,7 @@ def run(query: str, interactive: bool, store: db.RequestStore) -> int:
     print(rubric_block(step.rubric, criteria))
 
     request = SearchRequest(session_id=session_id, raw_query=query, rubric=step.rubric)
-    result = PipelineRunner(default_search_stages(), InMemoryResultStore()).run(request)
+    result = PipelineRunner(default_search_stages(), DatabaseResultStore(store)).run(request)
     print(render(result))
     return 0
 
