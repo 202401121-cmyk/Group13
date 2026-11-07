@@ -45,7 +45,7 @@ describe("SearchResult -> results page", () => {
   it("orders products by rank, and gives tied products the same rank", () => {
     expect(r.products.map((p) => [p.name, p.rank])).toEqual([
       ["Nova Book 14", 1],
-      ["Kestrel Slim 15", 1], // tied with Nova Book 14: shown as "=1", never a made-up order
+      ["Kestrel Slim 15", 1], // tied with Nova Book 14: shown as "Tied for 1st", never a made-up order
       ["Orion Play 15", 3],
     ]);
   });

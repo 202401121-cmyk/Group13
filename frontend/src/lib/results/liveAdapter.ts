@@ -25,9 +25,7 @@ import {
   type ResearchService,
   type RubricItem,
 } from "./types";
-
-/** A price older than this may have changed (the contract's PRICE_STALE_AFTER, backend/app/contracts/commerce.py). */
-export const PRICE_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
+import { isPriceStale } from "./view";
 
 export const FINISH_FIRST = "Finish the questions first, then start the research.";
 
@@ -104,6 +102,7 @@ export function resultFromSearch(
       name: summary?.product.name ?? r.product_id,
       imageUrl: null,
       rank: shownRank.get(r.product_id) ?? r.rank,
+      separatingCriterion: r.separating_criterion ? label(r.separating_criterion) : null,
       score: r.score,
       confidence: r.confidence,
       chanceFirst: r.chance_first === null ? null : Math.round(r.chance_first * 100),
@@ -125,9 +124,10 @@ export function resultFromSearch(
           store: o.store,
           price: o.price && o.price.currency === "INR" ? o.price.amount : null,
           checkedAt: o.as_of,
-          stale: now - Date.parse(o.as_of) > PRICE_STALE_AFTER_MS,
+          stale: isPriceStale(o.as_of, now),
           url: o.url,
         })),
+      storeSearchUrl: result.commerce?.no_offer[r.product_id] ?? null,
       value: null,
     };
   });

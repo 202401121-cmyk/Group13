@@ -75,7 +75,8 @@ test("@live a shopper goes from a typed request to ranked results with sources",
   await expect(page).toHaveURL(/\/results$/);
   await expect(page.getByRole("heading", { name: "Best match" })).toBeVisible({ timeout: 180_000 });
   const best = page.getByRole("list", { name: "Best match" });
-  await expect(best.getByRole("region", { name: /Why .* ranks here/ })).toBeVisible();
+  // Tied products share this list, so there can be more than one.
+  await expect(best.getByRole("region", { name: /Why .* ranks here/ }).first()).toBeVisible();
   await expect(best.getByRole("link").first()).toHaveAttribute("href", /^https:\/\//); // a store offer's source
   const criteria = best.getByRole("group").first(); // "Show all criteria": each value with its sources
   await criteria.locator("summary").click();

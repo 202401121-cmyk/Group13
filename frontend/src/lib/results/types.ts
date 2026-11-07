@@ -51,7 +51,8 @@ export interface Offer {
   price: number | null;
   /** ISO timestamp of the price check. */
   checkedAt: string | null;
-  stale: boolean;
+  /** Always from isPriceStale(), never set by hand. Null when the as-of time is missing. */
+  stale: boolean | null;
   url: string | null;
 }
 
@@ -62,6 +63,8 @@ export interface ProductResult {
   name: string;
   imageUrl?: string | null;
   rank: number | null;
+  /** Title of the criterion that separates this product from those it is tied with. */
+  separatingCriterion?: string | null;
   score?: number | null;
   confidence?: Confidence | null;
   chanceFirst?: number | null;
@@ -70,6 +73,8 @@ export interface ProductResult {
   contributions?: Contribution[];
   criteria: CriterionValue[];
   offers: Offer[];
+  /** With no offer: a store search for this product (the contract's commerce.no_offer). */
+  storeSearchUrl?: string | null;
   value?: { calculated: true; text: string } | { calculated: false; reason?: string | null } | null;
 }
 

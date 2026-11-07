@@ -3,13 +3,38 @@ import { formatINR } from "@/lib/request/format";
 import type { CriterionValue, Offer, ProductResult } from "@/lib/results/types";
 import { cn } from "@/lib/utils";
 import { pillButton } from "@/components/shopsense/pill-button";
-import { formatCheckTime } from "@/lib/results/view";
+import { formatCheckTime, ordinal, type TieGroup } from "@/lib/results/view";
+import { listInWords } from "@/lib/text";
 import { ConfidenceIndicator, Disclosure, StatusBadge } from "./primitives";
 import { useVisualMotion } from "@/hooks/useVisualMotion";
 
-function rankLabel(p: ProductResult, tiedWith: string[]) {
-  if (p.rank == null) return null;
-  return tiedWith.length ? `=${p.rank}` : `${p.rank}`;
+/** A card only ever links to a plain web address. */
+function webAddress(url: string | null | undefined) {
+  return url && /^https?:\/\//i.test(url) ? url : null;
+}
+
+/** One card for a whole tie: it names the products and what separates them, and never picks a winner. */
+export function TooCloseToCall({ tie }: { tie: TieGroup }) {
+  return (
+    <section
+      aria-label="Too close to call"
+      className="mb-5 rounded-2xl bg-primary-soft p-5 text-primary-soft-foreground"
+    >
+      <h3 className="font-serif text-xl">Too close to call</h3>
+      <p className="mt-2 text-sm">
+        {listInWords(tie.products.map((p) => p.name))} are tied for {ordinal(tie.rank)}.
+      </p>
+      <p className="mt-1 text-sm">
+        {tie.criteria.length > 0 ? (
+          <>
+            What separates them: <span className="font-semibold">{listInWords(tie.criteria)}</span>
+          </>
+        ) : (
+          "We can't say yet what separates them."
+        )}
+      </p>
+    </section>
+  );
 }
 
 function CriterionRow({ c }: { c: CriterionValue }) {
@@ -21,7 +46,7 @@ function CriterionRow({ c }: { c: CriterionValue }) {
         {c.state === "disputed" && (
           <>
             <StatusBadge variant="disputed">Sources disagree</StatusBadge>
-            {c.sources && c.sources.length > 0 && (
+            {c.sources && c.sources.length > 0 ? (
               <ul className="text-xs text-muted-foreground">
                 {c.sources.map((s) => (
                   <li key={s.source}>
@@ -29,6 +54,8 @@ function CriterionRow({ c }: { c: CriterionValue }) {
                   </li>
                 ))}
               </ul>
+            ) : (
+              <p className="text-xs text-muted-foreground">Source details aren't available yet.</p>
             )}
           </>
         )}
@@ -43,18 +70,17 @@ function CriterionRow({ c }: { c: CriterionValue }) {
 
 function OfferRow({ o }: { o: Offer }) {
   const time = formatCheckTime(o.checkedAt);
-  const validUrl = o.url && /^https?:\/\//i.test(o.url) ? o.url : null;
+  const validUrl = webAddress(o.url);
   return (
     <li className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <p className="text-sm font-medium text-foreground">{o.store}</p>
-        {time && (
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {o.stale ? (
-              <StatusBadge variant="stale">Old price, checked {time}</StatusBadge>
-            ) : (
-              <>Price checked {time}</>
-            )}
+        <p className="mt-0.5 text-xs text-muted-foreground">
+          {time ? `Price checked ${time}` : "We don't know when this price was checked"}
+        </p>
+        {o.stale && (
+          <p className="mt-1">
+            <StatusBadge variant="stale">Price may have changed</StatusBadge>
           </p>
         )}
       </div>
@@ -64,7 +90,7 @@ function OfferRow({ o }: { o: Offer }) {
             ₹{formatINR(o.price)}
           </span>
         ) : (
-          <StatusBadge variant="no-offer">No price found</StatusBadge>
+          <StatusBadge variant="no-offer">No price found yet</StatusBadge>
         )}
         {validUrl && (
           <a
@@ -95,14 +121,16 @@ export function ResultCard({
   index: number;
 }) {
   const motionRef = useVisualMotion<HTMLElement>();
-  const rank = rankLabel(p, tiedWith);
+  const tied = tiedWith.length > 0;
+  const rank = p.rank == null ? null : tied ? `Tied for ${ordinal(p.rank)}` : `#${p.rank}`;
   const sorted = [...(p.contributions ?? [])].sort((a, b) => b.points - a.points);
   const strongest = sorted.slice(0, 2);
   const weakest = sorted.length > 2 ? sorted.at(-1) : undefined;
   const cov = p.coverage;
   const validCov = cov && cov.total > 0 && cov.checked >= 0 && cov.checked <= cov.total;
   const headingId = `product-${index}`;
-  const img = p.imageUrl && /^https?:\/\//i.test(p.imageUrl) ? p.imageUrl : null;
+  const img = webAddress(p.imageUrl);
+  const storeSearch = webAddress(p.storeSearchUrl);
 
   return (
     <article
@@ -118,7 +146,7 @@ export function ResultCard({
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          {featured && (
+          {featured && !tied && (
             <p className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-primary">
               Best match
             </p>
@@ -130,21 +158,19 @@ export function ResultCard({
               featured ? "text-3xl" : "text-2xl",
             )}
           >
-            {rank && <span className="sr-only">Rank {rank}: </span>}
+            {rank && <span className="sr-only">{tied ? rank : `Rank ${p.rank}`}: </span>}
             {p.name}
           </h3>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {rank && (
               <span className="text-sm font-semibold text-muted-foreground" aria-hidden>
-                #{rank}
+                {rank}
               </span>
             )}
             {p.score != null && (
               <span className="text-sm text-muted-foreground">Score {p.score}</span>
             )}
-            {tiedWith.length > 0 && (
-              <StatusBadge variant="tie">Tied with {tiedWith.join(", ")}</StatusBadge>
-            )}
+            {tied && <StatusBadge variant="tie">Tied with {listInWords(tiedWith)}</StatusBadge>}
           </div>
         </div>
         {img && (
@@ -215,9 +241,21 @@ export function ResultCard({
             ))}
           </ul>
         ) : (
-          <p className="mt-2">
-            <StatusBadge variant="no-offer">No price found</StatusBadge>
-          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <StatusBadge variant="no-offer">No price found yet</StatusBadge>
+            {storeSearch && (
+              <a
+                href={storeSearch}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(pillButton({ variant: "outline", size: "sm" }), "min-h-11")}
+              >
+                Search stores
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                <span className="sr-only">for {p.name} (opens in a new tab)</span>
+              </a>
+            )}
+          </div>
         )}
       </section>
 

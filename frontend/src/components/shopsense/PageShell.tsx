@@ -1,13 +1,17 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
 
 export function PageShell({ children }: { children: ReactNode }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="min-h-screen">
-      <Navbar />
-      <main>{children}</main>
-      <Footer />
+      <Navbar open={menuOpen} onOpenChange={setMenuOpen} />
+      {/* While the small-screen menu is open, nothing behind it can take focus or be pressed. */}
+      <main inert={menuOpen}>{children}</main>
+      <div inert={menuOpen}>
+        <Footer />
+      </div>
     </div>
   );
 }
