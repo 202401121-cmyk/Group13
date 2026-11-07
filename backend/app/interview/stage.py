@@ -1,9 +1,9 @@
-"""Stage 3, interview (US-05): one question at a time, in fixed order, adapted to earlier answers.
+"""Stage 3, interview (US-05, US-08): one question at a time, in fixed order, adapted to earlier answers.
 
 Each turn takes the whole InterviewState and returns a new copy inside the InterviewStep, so nothing is kept
 between turns here (the API stores the state). At most one question is "pending" at a time; the user's reply
-goes to it. There are no LLM calls: replies are understood by answers.py (US-08 and US-39 extend it), and the
-order comes from plan.py (US-04 replaces it).
+goes to it. There are no LLM calls: replies are understood by answers.py (US-39 extends it), and the order comes
+from plan.py (US-04 replaces it).
 """
 
 from __future__ import annotations
@@ -56,17 +56,18 @@ class InterviewStage:
     def run(self, inp: InterviewTurn, ctx: StageContext) -> InterviewStep:
         state = inp.state
         pending = _pending(state.history)
-        if inp.reply_text is None or pending is None:
+        if not _replied(inp) or pending is None:
             return self._next(state)  # first turn, or a reload: (re)ask the current question
 
-        reply = understand_reply(inp.reply_text, pending.question)
+        text = inp.reply_text or ""
+        reply = understand_reply(text, pending.question, inp.level, inp.exact_weight)
         if reply.reply_type is ReplyType.UNCLEAR:
             unclear = pending.unclear_count + 1
             if unclear < MAX_UNCLEAR_PER_QUESTION:
                 again = _rebuild(pending, unclear_count=unclear)
                 return _ask("rephrase", REPHRASE_MESSAGE, again.question, _with(state, again))
             # Two unclear replies: move on rather than ask a third time (US-39 sets the same limit).
-            return self._next(_with(state, _give_up(pending, inp.reply_text, reply)))
+            return self._next(_with(state, _give_up(pending, text, reply)))
 
         if reply.reply_type is ReplyType.SKIP:
             done = _rebuild(pending, status="skipped", reply_text=inp.reply_text, classification=reply, unclear_count=0)
@@ -110,7 +111,7 @@ class InterviewStage:
         try:
             state = inp.state
             pending = _pending(state.history)
-            if pending is not None and inp.reply_text is None:
+            if pending is not None and not _replied(inp):
                 return _ask("question", pending.question.text, pending.question, state)
             history = [e if e is not pending else _abandon(e) for e in state.history]
             asked = {e.question.criterion_key for e in history}
@@ -140,6 +141,10 @@ class InterviewStage:
 
 
 # --- small helpers: every change makes a new, validated copy (contracts are frozen) ----------------
+
+
+def _replied(turn: InterviewTurn) -> bool:
+    return turn.reply_text is not None or turn.level is not None or turn.exact_weight is not None
 
 
 def _pending(history: Sequence[AskedQuestion]) -> AskedQuestion | None:

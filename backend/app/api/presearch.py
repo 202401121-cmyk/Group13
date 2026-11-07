@@ -198,14 +198,18 @@ def reply(session_id: str, body: ReplyRequest, sessions: Sessions) -> InterviewS
         if session.interview is None or session.interview_step is None:
             raise HTTPException(409, NO_INTERVIEW)
         if body.question_id is not None:
-            place = place_reply(session.interview, body.question_id, body.reply_text)
+            place = place_reply(session.interview, body.question_id, body.reply_text, body.level, body.exact_weight)
             if place == "conflict":
                 raise HTTPException(409, NOT_CURRENT)
             if place == "repeat":
                 return session.interview_step  # before the finished check: the last reply can be retried too
         if session.interview_step.kind == "finished":
             raise HTTPException(409, FINISHED)
-        step = flow.interview_turn(InterviewTurn(state=session.interview, reply_text=body.reply_text))
+        step = flow.interview_turn(
+            InterviewTurn(
+                state=session.interview, reply_text=body.reply_text, level=body.level, exact_weight=body.exact_weight
+            )
+        )
         return _save_step(sessions, session, step)
 
 

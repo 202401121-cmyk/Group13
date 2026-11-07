@@ -128,6 +128,65 @@ def test_the_same_answer_typed_a_little_differently_is_still_a_repeat(client: Te
     assert (retry.status_code, retry.json()) == (200, second)
 
 
+def post_fields(client: TestClient, session_id: str, **fields: object) -> httpx.Response:
+    return client.post(f"/api/presearch/{session_id}/interview/reply", json=fields)
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [
+        {"reply_text": "Good enough", "level": "good_enough"},
+        {"reply_text": "7.5", "exact_weight": 7.5},
+        {"reply_text": "Good enough"},
+        {"reply_text": "my answer", "level": "high"},
+        {"reply_text": "my answer", "exact_weight": 7.5},
+        {"reply_text": "nothing at all", "exact_weight": 0},
+    ],
+    ids=["level", "exact_weight", "typed", "only_the_level_says", "only_the_weight_says", "exact_0"],
+)
+def test_a_retried_rough_or_exact_reply_changes_nothing(client: TestClient, fields: dict[str, object]) -> None:
+    session_id, first = start(client)
+    question_id = first["question"]["id"]
+    second = post_fields(client, session_id, question_id=question_id, **fields).json()
+    before = session_of(client, session_id)
+
+    retry = post_fields(client, session_id, question_id=question_id, **fields)
+
+    assert (retry.status_code, retry.json()) == (200, second)
+    assert session_of(client, session_id) == before
+    assert statuses(before) == ["answered", "pending"]
+
+
+def test_the_same_text_with_a_different_exact_weight_is_refused(client: TestClient) -> None:
+    """It looks like a retry, but it says something else, and dropping it would lose the shopper's answer."""
+    session_id, first = start(client)
+    question_id = first["question"]["id"]
+    post_fields(client, session_id, reply_text="my answer", exact_weight=7, question_id=question_id)
+    before = session_of(client, session_id)
+
+    other = post_fields(client, session_id, reply_text="my answer", exact_weight=9, question_id=question_id)
+
+    assert (other.status_code, other.json()) == (409, {"detail": NOT_CURRENT})
+    assert session_of(client, session_id) == before
+
+
+def test_the_same_weight_in_other_words_is_still_refused(client: TestClient) -> None:
+    """A real retry sends the same words. Different words mean the shopper is changing the answer: go back first."""
+    session_id, first = start(client)
+    question_id = first["question"]["id"]
+    post_fields(client, session_id, reply_text="High", question_id=question_id)
+    other = post_fields(client, session_id, reply_text="8", question_id=question_id)
+    assert other.status_code == 409
+
+
+def test_the_same_text_with_a_different_level_is_refused(client: TestClient) -> None:
+    session_id, first = start(client)
+    question_id = first["question"]["id"]
+    post_fields(client, session_id, reply_text="my answer", level="low", question_id=question_id)
+    other = post_fields(client, session_id, reply_text="my answer", level="high", question_id=question_id)
+    assert other.status_code == 409
+
+
 def test_a_repeated_skip_changes_nothing(client: TestClient) -> None:
     session_id, first = start(client)
     second = answer(client, session_id, first, "Skip")

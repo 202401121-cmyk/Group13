@@ -3,9 +3,24 @@
 from __future__ import annotations
 
 import math
+import random
 
-from app.contracts import AskedQuestion, InterviewState, ReplyClassification, ReplyType, Rubric
+import pytest
+
+from app.contracts import (
+    ROUGH_LEVEL_WEIGHTS,
+    AskedQuestion,
+    InterviewState,
+    InterviewStep,
+    InterviewTurn,
+    ReplyClassification,
+    ReplyType,
+    RoughLevel,
+    Rubric,
+    StageContext,
+)
 from app.contracts import examples as ex
+from app.interview import InterviewStage
 from app.interview.plan import Plan
 from app.interview.questions import question_for
 from app.interview.rubric_builder import build_rubric, default_rubric
@@ -75,3 +90,49 @@ def test_default_rubric_ignores_answers() -> None:
     rubric = default_rubric(state(answered("cpu_performance", 1)))
     assert {o for _, o, _ in rows(rubric).values()} == {"default"}
     assert rows(rubric)["cpu_performance"][0] == CRITERIA["cpu_performance"].default_weight
+
+
+# --- rough and exact answers together (US-08) ------------------------------------------------------
+
+STAGE = InterviewStage()
+CTX = StageContext(search_id="srch_rubric00001")
+
+
+def interview(pick: list[dict[str, object]]) -> InterviewStep:
+    """Run the interview to the end, taking each answer from `pick` in turn."""
+    step = STAGE.run(InterviewTurn(state=state()), CTX)
+    for turn in range(25):
+        if step.kind == "finished":
+            return step
+        fields = pick[turn % len(pick)]
+        step = STAGE.run(InterviewTurn(state=step.state, reply_text="x", **fields), CTX)
+    raise AssertionError("the interview did not finish")
+
+
+@pytest.mark.parametrize("level", list(RoughLevel))
+def test_each_level_reaches_the_rubric_with_its_table_weight(level: RoughLevel) -> None:
+    done = interview([{"level": level}])
+    assert done.rubric is not None
+    assert rows(done.rubric)["cpu_performance"] == (ROUGH_LEVEL_WEIGHTS[level], "answered", 0.2)
+
+
+@pytest.mark.parametrize("seed", range(40))
+def test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers(seed: int) -> None:
+    chooser = random.Random(seed)
+    answers: list[dict[str, object]] = [{"level": level} for level in RoughLevel]
+    answers += [{"exact_weight": weight} for weight in (0.0, 0.5, 3.3, 7.5, 10.0)]
+    done = interview([chooser.choice(answers) for _ in range(10)])
+    assert done.rubric is not None
+    assert math.isclose(sum(w.normalized for w in done.rubric.weights), 1.0)
+
+
+def test_the_rubric_sums_to_1_when_every_answer_is_zero() -> None:
+    done = interview([{"exact_weight": 0.0}])
+    assert done.rubric is not None
+    assert math.isclose(sum(w.normalized for w in done.rubric.weights), 1.0)
+
+
+def test_an_exact_0_reaches_the_rubric_as_an_answer() -> None:
+    done = interview([{"exact_weight": 0.0}, {"level": RoughLevel.HIGH}])
+    assert done.rubric is not None
+    assert rows(done.rubric)["cpu_performance"] == (0.0, "answered", 0.2)

@@ -18,7 +18,7 @@ from pydantic import BaseModel, ValidationError
 import app.contracts as C
 from app.contracts import examples as ex
 from app.contracts.pipeline import MAX_RUN_EVENTS
-from app.interview.answers import REPLY_WEIGHTS
+from app.interview.answers import answer_weight
 from app.main import create_app
 from app.research.reddit.base import make_source
 from tests.contract.schema_check import schema_errors
@@ -416,9 +416,9 @@ def test_the_exported_table_matches_the_constant() -> None:
     assert data == {"weights": {level.value: weight for level, weight in C.ROUGH_LEVEL_WEIGHTS.items()}}
 
 
-def test_the_table_agrees_with_the_interview_until_us_08_joins_them() -> None:
-    for level in (C.RoughLevel.LOW, C.RoughLevel.MEDIUM, C.RoughLevel.HIGH):
-        assert REPLY_WEIGHTS[level.value] == C.ROUGH_LEVEL_WEIGHTS[level]
+def test_the_interview_reads_this_table() -> None:
+    for level, weight in C.ROUGH_LEVEL_WEIGHTS.items():
+        assert answer_weight(level, None) == weight
 
 
 def test_a_reply_can_carry_a_level() -> None:
