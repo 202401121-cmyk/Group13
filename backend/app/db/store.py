@@ -1,24 +1,29 @@
-"""Where shopper requests are saved (US-01), behind one small interface so the database is optional.
+"""Where requests and finished searches are saved (US-01, US-52), behind one interface so the database is optional.
 
-save_request() answers "saved", "off" (no database configured) or "failed" (configured, but it did not work). It
-never raises and never takes longer than DB_TIMEOUT_SECONDS, so a search always finishes (build rule 10).
-health() answers "ok", "off" or "down" for GET /api/health.
+save_request() answers "saved", "off" (no database configured) or "failed" (configured, but it did not work).
+save_search() answers True only when the row was committed. Neither raises or takes longer than DB_TIMEOUT_SECONDS,
+so a search always finishes (build rule 10). health() answers "ok", "off" or "down" for GET /api/health.
 
-Stored requests are what people typed and may be personal. They are never sent to Gemini's free tier or any other
-model service that may train on its inputs.
+Stored requests and searches come from what people typed and may be personal. They are never sent to Gemini's free
+tier or any other model service that may train on its inputs.
 """
 
 from __future__ import annotations
 
+import json
+import logging
 import re
 import threading
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
 from app.contracts import Intent
 
+log = logging.getLogger(__name__)
+
 SaveOutcome = Literal["saved", "off", "failed"]
 DbHealth = Literal["ok", "off", "down"]
+JsonObject = dict[str, Any]
 
 SESSION_ID_RE = re.compile(r"^sess_[A-Za-z0-9]{6,40}$")  # the contract's SessionId, also checked by the table
 MAX_REQUEST_CHARS = 1000  # Intent.raw_query and SearchRequest.raw_query allow at most 1000 characters
@@ -49,8 +54,37 @@ def request_row(session_id: str, request_text: str, intent: Intent | None) -> Re
     )
 
 
+@dataclass(frozen=True)
+class SearchRow:
+    """One row of public.searches, before the database adds its id and created_at. Both JSON fields are JSON text."""
+
+    session_id: str
+    rubric: str
+    result: str
+
+
+def search_row(session_id: str, rubric: JsonObject, result: JsonObject) -> SearchRow:
+    """Check a search before any store saves it. Raises ValueError or TypeError when it cannot fit the table.
+
+    The check runs here, not in the database, so that one bad result is never counted as the database being down.
+    """
+    if not SESSION_ID_RE.fullmatch(session_id):  # fullmatch: "$" alone would let a trailing newline through
+        raise ValueError("session_id does not match the contract's SessionId pattern")
+    return SearchRow(session_id=session_id, rubric=_json_text(rubric), result=_json_text(result))
+
+
+def _json_text(value: JsonObject) -> str:
+    text = json.dumps(value, allow_nan=False)  # NaN is not JSON, and a datetime means model_dump() without mode="json"
+    # json.dumps writes NUL as \u0000, which jsonb refuses. Drop escaped backslashes first: \\u0000 is only plain text.
+    if "\\u0000" in text.replace("\\\\", ""):
+        raise ValueError("jsonb cannot hold the NUL character")
+    return text
+
+
 class RequestStore(Protocol):
     def save_request(self, session_id: str, request_text: str, intent: Intent | None) -> SaveOutcome: ...
+
+    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject) -> bool: ...
 
     def health(self) -> DbHealth: ...
 
@@ -62,6 +96,10 @@ class NullRequestStore:
 
     def save_request(self, session_id: str, request_text: str, intent: Intent | None) -> SaveOutcome:
         return "off"
+
+    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject) -> bool:
+        log.info("search not saved: the database is off")  # info, not warning: this is a normal way to run
+        return False
 
     def health(self) -> DbHealth:
         return "off"
@@ -76,6 +114,7 @@ class InMemoryRequestStore:
     def __init__(self, fail: bool = False) -> None:
         self.fail = fail
         self.rows: list[RequestRow] = []
+        self.searches: list[SearchRow] = []
         self._lock = threading.Lock()
 
     def save_request(self, session_id: str, request_text: str, intent: Intent | None) -> SaveOutcome:
@@ -88,6 +127,17 @@ class InMemoryRequestStore:
         with self._lock:
             self.rows.append(row)
         return "saved"
+
+    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject) -> bool:
+        if self.fail:
+            return False
+        try:
+            row = search_row(session_id, rubric, result)
+        except (TypeError, ValueError):
+            return False
+        with self._lock:
+            self.searches.append(row)
+        return True
 
     def health(self) -> DbHealth:
         return "down" if self.fail else "ok"

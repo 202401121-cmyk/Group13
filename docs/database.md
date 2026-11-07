@@ -1,8 +1,8 @@
 # The database (Supabase Postgres)
 
-ShopSense saves each shopper request, with its session ID, in a Supabase Postgres database (US-01, #14). The
-database is **optional**: with no `DATABASE_URL` everything works and nothing is saved, and when the database is
-down, slow or paused a search still finishes (build rule 10).
+ShopSense saves each shopper request, with its session ID, in a Supabase Postgres database (US-01, #14). It also has
+a table for finished searches (US-52). The database is **optional**: with no `DATABASE_URL` everything works and
+nothing is saved, and when the database is down, slow or paused a search still finishes (build rule 10).
 
 ## What is stored, and why
 
@@ -25,6 +25,38 @@ One row per shopper request, in `public.requests`:
 
 Row level security is on with no policies, and the table is revoked from `anon` and `authenticated`. So Supabase's
 Data API (the anon and logged-in browser keys) cannot read or write it. Only the backend's own database login can.
+
+### Finished searches
+
+One row per finished search, in `public.searches` (US-52):
+
+| Column | What it holds |
+|---|---|
+| `id` | A random UUID. This is not `SearchResult.search_id`, which is inside `result` |
+| `session_id` | The session the search belongs to, with the same check as `public.requests` |
+| `rubric` | The rubric the search used (`SearchResult.request.rubric`) |
+| `result` | The whole `SearchResult` as JSON, exactly as `model_dump(mode="json")` writes it |
+| `created_at` | When it was saved |
+
+- **Why:** the pipeline keeps its state in memory and saves once at the end (US-52, build rule 10).
+- **No foreign key to `public.requests`:** saving a request can fail while the search saves later, and that search
+  must still be kept. A row in one table never needs a row in the other.
+- **More than one per session:** one session can run more than one search, so `session_id` has an index but is not
+  unique.
+- **Not stored:** no IP address, user agent, name, email or login.
+- **Private:** `result` holds the request as typed, so this is private data, like `public.requests`. It stays in our
+  database only. Never send it to Gemini's free tier or any other model service that may train on its inputs, and
+  never paste rows into chat, Slack or an issue.
+- **No expiry yet (gap, US-12, Sprint 2):** rows stay until someone deletes them. Real results will hold Reddit
+  quotes, and Reddit data may be kept at most 24 hours. US-12 must deal with this before real Reddit text reaches
+  this table.
+- **Guests (gap, US-30, Sprint 4):** there is no sign-in yet, so every row is a guest's. US-30 says nothing of a
+  guest's is saved, so it must decide what happens to guest searches, and to the rows already here.
+
+Row level security is on with no policies, and the table is revoked from `anon` and `authenticated`, the same as
+`public.requests`. So the Data API cannot read or write it. **Who can read it:** the backend through `DATABASE_URL`,
+and project members through the Supabase dashboard. Sprint 4 (#52) adds an owner column and policies for signed-in
+users.
 
 ## Setting up the project (once, by hand, in the browser)
 
@@ -75,6 +107,20 @@ npx supabase@2.120.0 db push --db-url "$env:DATABASE_URL"
 Remove-Item Env:DATABASE_URL
 ```
 
+### After `create_searches` merges (once, by hand)
+
+The migration `20261106160150_create_searches` is only a file until someone applies it.
+
+1. Vaishvi applies it in her own terminal with `db push`, as above, and tells Om.
+2. Om checks these read-only: the migration history lists it, row level security is on for `public.searches`, it has
+   zero policies, `anon` and `authenticated` have no access, and what the Security Advisor shows.
+3. Expect one new Security Advisor finding, **RLS Enabled No Policy** on `public.searches` (INFO). It is the same
+   intended design as `public.requests` (see "Live check" below).
+
+**Apply it before the pipeline starts saving searches.** Without the table every search save fails. Search saves and
+request saves share one circuit breaker, so 3 failed searches in a row also stop request saves for 30 seconds, and
+health says `down` even though the database is fine.
+
 ## "off" and "down"
 
 `GET /api/health` answers `"database": "ok"`, `"off"` or `"down"`. Nothing else about the database is shown.
@@ -90,6 +136,27 @@ Each save waits at most `DB_TIMEOUT_SECONDS`. After 3 failures in a row the back
 `request_saved`: `saved`, `off` or `failed`. The CLI prints one line, and `--no-db` skips the database.
 
 Logs show only the database host and the error type, never the URL, the password or the request text.
+
+### Saving a finished search
+
+`save_search(session_id, rubric, result)` is on every request store, next to `save_request`, and shares its connection
+pool, time limit and circuit breaker. `rubric` and `result` are `model_dump(mode="json")` output. A plain
+`model_dump()` holds dates and URLs, which are not JSON, so it is refused. Nothing calls this function yet: wiring it
+into the pipeline is the second half of failure F-3 in the Sprint 1 verification report.
+
+It answers `True` only when the row was committed. It never raises, and it answers `False` with one log line when:
+
+- the database is off (this line is at info level, because it is a normal way to run);
+- the database is down, or slower than `DB_TIMEOUT_SECONDS`;
+- the circuit breaker is open, or the store is closed;
+- the insert fails;
+- the search cannot fit the table: a bad session ID, something that is not JSON, a NaN or infinite number, or the NUL
+  character, which `jsonb` cannot hold. These are refused before the database is touched, so one bad result never
+  counts towards the circuit breaker.
+
+An insert that finishes after the time limit is rolled back, so a late row does not appear after the answer `False`.
+`False` still means "not confirmed" rather than "certainly not there": if the limit passes or the connection drops
+during the commit itself, the row can exist. Nothing retries, so this can never make a second row.
 
 ## The Free plan pauses idle projects
 
@@ -111,7 +178,10 @@ A Free project is paused after 7 days of low activity. A paused project shows as
   local port and at a server that never answers, and check that searches still finish and health says `down`.
 - **Integration tests** (marker `db`) need a throwaway Postgres 17. They skip without `TEST_DATABASE_URL`. With
   `REQUIRE_DB_TESTS=1` a missing database fails them instead. They never run against Supabase: each run creates its
-  own database, applies every migration, checks the table, row level security and the limits, and drops it.
+  own database, applies every migration, checks the tables, row level security and the limits, and drops it. The
+  `backend` job in CI runs them on every pull request against `postgres:17`, with `REQUIRE_DB_TESTS=1`.
+- A plain Postgres gives `anon` and `authenticated` nothing, so checking their privileges there proves little. One
+  test in `test_searches_table.py` copies Supabase's default grants first, so a lost `revoke` makes it fail.
 
 ```bash
 docker run -d --name shopsense-pg17 -e POSTGRES_PASSWORD=<local password> -p 127.0.0.1:55432:5432 postgres:17
