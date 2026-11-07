@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
-from .common import Contract, SessionId
+from .common import Contract, SessionId, StrictScore10
 from .criteria import CriteriaSet
 from .intake import Intent
-from .interview import InterviewState, InterviewStep
+from .interview import InterviewState, InterviewStep, RoughLevel, check_one_answer_form
 
 MAX_UNCLEAR_ATTEMPTS = 2  # IntakeInput.unclear_attempts limit
 
@@ -31,6 +31,13 @@ class ReplyRequest(Contract):
     question_id: str | None = Field(
         default=None, min_length=1, max_length=64, description="InterviewQuestion.id of the question being answered"
     )
+    level: RoughLevel | None = Field(default=None, description="A rough answer, or use exact_weight (US-08)")
+    exact_weight: StrictScore10 | None = Field(default=None, description="An exact 0 to 10 answer, or use level")
+
+    @model_validator(mode="after")
+    def _check(self) -> ReplyRequest:
+        check_one_answer_form(self.level, self.exact_weight)
+        return self
 
 
 class IntakeResponse(Contract):

@@ -31,7 +31,7 @@ all of them except `GET /api/health`, which `scripts/dev.py` uses to see that th
 | `PUT /api/presearch/{session_id}/intent` | Changes what we understood (the use, budget or region) | `changes` (the `Intent` fields to change; a new product, must-have or leave-out is refused with 422) | the session's new `Intent` | 404, 409, 422 | [presearch.md](api/presearch.md#put-apipresearchsession_idintent) |
 | `POST /api/presearch/{session_id}/criteria` | The criteria to compare | none | `CriteriaSet` | 404, 409 | [presearch.md](api/presearch.md#post-apipresearchsession_idcriteria) |
 | `POST /api/presearch/{session_id}/interview/start` | The first question | none | `InterviewStep` | 404, 409 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewstart) |
-| `POST /api/presearch/{session_id}/interview/reply` | Answers the current question | `reply_text` (1 to 500 characters); `question_id` (optional: makes a repeated reply safe) | `InterviewStep` (next question, rephrase, or finished with the rubric) | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewreply) |
+| `POST /api/presearch/{session_id}/interview/reply` | Answers the current question | `reply_text` (1 to 500 characters); `question_id` (optional: makes a repeated reply safe); `level` or `exact_weight` (optional, never both: [rough answers](#rough-answers-us-08)) | `InterviewStep` (next question, rephrase, or finished with the rubric) | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewreply) |
 | `POST /api/presearch/{session_id}/interview/back` | Asks an earlier question again | `question_id` (1 to 64 characters) | `InterviewStep` | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewback) |
 | `GET /api/presearch/{session_id}` | Everything about the session, for a page reload | none | the session | 404 | [presearch.md](api/presearch.md#get-apipresearchsession_id) |
 | `POST /api/search` | Runs the search with the finished rubric | `SearchRequest` | `SearchResult` | 422 | below |
@@ -75,7 +75,7 @@ finished interview and returns the ranked results. It answers once, at the end: 
 | `decision` | The ranking: `ranked` (in order, with `score`, `coverage` and `tied_with`) and `filtered` (dropped by a hard rule, with the reason). Every ranked product is in `products`. |
 | `explanations` | Why each product is where it is, up to 8 sentences each; every sentence lists the claims it rests on (`claim_ids`), and `unverified` names the criteria we could not check. |
 | `commerce` | Offers and prices; `no_offer` products come with a store-search link instead. |
-| `sources` | Every source used: `url`, `title`, the text we read, and when we read it (`fetched_at`). |
+| `sources` | Every source used: `url`, `title`, the text we read, and when we read it (`fetched_at`). `site` is a web page's domain and `community` is a subreddit. `data_class` is `reddit` or `public`. Reddit sources can also carry `upvotes`, `comment_count` and `comments`. |
 | `stage_reports` | One per stage: `ok`, `fallback`, `skipped`, `timeout` or `failed`, with `duration_ms`. |
 | `partial` | `true` if the 150-second search limit cut the search short. Show what is there and say so. |
 | `coverage_note` | Plain words about what was missing (for example a source that was unavailable). Always set when `partial` is true or a stage did not finish normally. It also carries the sample label (below). Show it. |
@@ -112,6 +112,76 @@ curl -s -X POST http://localhost:8000/api/search \
   -d "{\"session_id\": \"$SID\", \"user_id\": null, \"raw_query\": \"best laptop for coding under 70k\", \"rubric\": $RUBRIC}"
 ```
 
+## Sprint 2 contracts
+
+These types are agreed and exported now, so screens can be built against them. The work behind them lands in later
+Sprint 2 stories. `POST /api/search` stays exactly as it is above.
+
+### Rough answers (US-08)
+
+An interview reply can carry one of these as well as `reply_text`, never both (both together answer 422):
+
+| Field | Type | Meaning |
+|---|---|---|
+| `level` | `low`, `medium`, `high` or `good_enough` | A rough answer from the buttons |
+| `exact_weight` | number, 0 to 10 | An exact answer from the exact-value switch |
+
+The weight for each level is in `shared/contracts/examples/rough_levels.json` (low 2, medium 5, high 8, good enough 3). Read
+it from there and never copy the numbers.
+
+**Don't ship the rough-answer buttons before US-08.** The backend accepts both fields today but doesn't act on them, and
+reads the reply from `reply_text` alone. "Good enough" and "7.5" both count as unclear there, and two unclear replies
+skip the question, so the shopper's answer would be lost.
+
+Examples: `reply_rough.json`, `reply_exact.json`.
+
+### Search runs and live progress (P-07)
+
+The routes are not served yet: a later Sprint 2 task builds them. These are the shapes they will use.
+
+- **Starting a run** takes a `SearchRequest` and answers at once with `SearchRunStarted`: the `search_id` (`srch_` and 24
+  hex characters, made by the backend). Never make one up.
+- **A run's state** is a `SearchRun`:
+
+| Field | Meaning |
+|---|---|
+| `search_id` | The run |
+| `status` | `queued`, `running`, `done`, `partial`, `failed` or `cancelled`. Nothing cancels a run yet, so `cancelled` is reserved |
+| `started_at` | `null` until the run leaves the queue; a run that failed or was cancelled early may never have started |
+| `finished_at` | Set once the status is `done`, `partial`, `failed` or `cancelled` |
+| `progress` | Every `ProgressEvent` so far |
+| `result` | The `SearchResult`, set only when the status is `done` or `partial`. `partial` matches `result.partial` |
+
+- **A progress event** is a `ProgressEvent`:
+
+| Field | Meaning |
+|---|---|
+| `event_id` | Counts up from 1 within a run. Use it to resume after a dropped connection |
+| `search_id` | The run |
+| `stage` | The stage this event is about |
+| `status` | `started`, `done`, `fallback` or `failed` |
+| `at` | When it happened (UTC) |
+| `message` | Short plain English. Show it as it is |
+| `sources_found` | Sources found so far, per source type, such as `{"reddit": 12, "review_site": 3}`. Can be empty |
+
+Never fake progress: until these routes exist, the live research service keeps `streamsProgress: false`.
+
+Examples: `search_run_started.json`, `search_run_running.json`, `search_run_done.json`, `progress_events.json`.
+
+### Research data
+
+- **`Source`** reaches the frontend in `SearchResult.sources`. A source has a `site` or a `community`, never both. Each
+  comment has `id`, `parent_id`, `depth` (1 to 3), `upvotes`, `text`, `quality` and `author_hash`. Example:
+  `reddit_thread.json`.
+
+The frontend doesn't receive these two yet. They are listed so the shapes aren't a surprise later.
+
+- **`Claim`** now has `source_url`, `product_mention` (was `product_raw_name`), `is_product_type` and `extracted_at`, and
+  keeps `retrieved_at`. A claim has exactly one of `value` (text or a number) and `score` (0 to 10). `claim_type` is
+  `experience` or `spec`. Example: `product_type_claim.json`.
+- **`RecommenderCount`** has `product_mention`, `distinct_recommenders` and `threads`, and is listed in
+  `ResearchResult.recommender_counts`. Code counts these, never an LLM. Example: `recommender_counts.json`.
+
 ## What the backend cannot do yet
 
 Found when the frontend was first connected (FE-0). Until each lands, the screen shows the gap plainly instead of
@@ -120,9 +190,9 @@ inventing data.
 | Gap | Today | When it is planned |
 |---|---|---|
 | Real search results | `POST /api/search` still runs the US-52 stub stages: every search returns the same example laptops, whose criteria differ from the session's rubric. `coverage_note` says they are samples. | US-12 and US-14 to US-18, Sprints 2 and 3 |
-| Live progress | No progress stream; the answer comes once, at the end. Never fake progress. | Progress over Server-Sent Events (`ProgressEvent`), Sprint 2 |
+| Live progress | No progress stream; the answer comes once, at the end. Never fake progress. The [contracts](#search-runs-and-live-progress-p-07) are ready; the routes are not. | Progress over Server-Sent Events (`ProgressEvent`), Sprint 2 |
 | Every source of a disputed value | `SearchResult` has no claims list. | The evidence route (US-21), Sprint 3 |
 | Typed edits to must-haves and leave-outs | `PUT /intent` refuses them with a plain 422. | US-09, US-10 and the rubric editor, Sprint 3 |
 | Sessions live in the server's memory | A backend restart in the middle of a search shows "session expired". | Not planned yet: raised for Sprint 2 planning |
-| A running search can't be cancelled | Leaving the page does not stop the work. | Not planned yet: raised for Sprint 2 planning |
+| A running search can't be cancelled | Leaving the page does not stop the work. `SearchRun` has a `cancelled` status, but nothing sets it. | Not planned yet: raised for Sprint 2 planning |
 | A filtered product may be missing from `products` | The page has no name to show for it; show the product ID's fallback text. | Not planned yet: raised for Sprint 2 planning |

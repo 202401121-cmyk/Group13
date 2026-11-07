@@ -1,5 +1,18 @@
 {
   "$defs": {
+    "SourceType": {
+      "enum": [
+        "reddit",
+        "youtube",
+        "web_search",
+        "review_site",
+        "manufacturer",
+        "lab",
+        "retailer"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    },
     "StageName": {
       "enum": [
         "intake",
@@ -19,10 +32,16 @@
     }
   },
   "additionalProperties": false,
-  "description": "One Server-Sent Event for the live progress bar.",
+  "description": "One Server-Sent Event for the live progress bar (P-07).",
   "properties": {
+    "event_id": {
+      "description": "Counts up from 1 within a run, so a client can resume",
+      "minimum": 1,
+      "title": "Event Id",
+      "type": "integer"
+    },
     "search_id": {
-      "pattern": "^srch_[A-Za-z0-9]{6,40}$",
+      "pattern": "^srch_[a-f0-9]{24}$",
       "title": "Search Id",
       "type": "string"
     },
@@ -32,33 +51,46 @@
     "status": {
       "enum": [
         "started",
-        "finished",
+        "done",
         "fallback",
-        "skipped",
-        "timeout",
         "failed"
       ],
       "title": "Status",
-      "type": "string"
-    },
-    "message": {
-      "description": "Plain words for the user, e.g. 'Reading 12 Reddit threads'",
-      "maxLength": 200,
-      "title": "Message",
       "type": "string"
     },
     "at": {
       "format": "date-time",
       "title": "At",
       "type": "string"
+    },
+    "message": {
+      "description": "Plain words for the user, e.g. 'Reading 12 Reddit threads'",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Message",
+      "type": "string"
+    },
+    "sources_found": {
+      "additionalProperties": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "description": "Sources found so far, per source type",
+      "propertyNames": {
+        "$ref": "#/$defs/SourceType"
+      },
+      "title": "Sources Found",
+      "type": "object"
     }
   },
   "required": [
+    "event_id",
     "search_id",
     "stage",
     "status",
+    "at",
     "message",
-    "at"
+    "sources_found"
   ],
   "title": "ProgressEvent",
   "type": "object"

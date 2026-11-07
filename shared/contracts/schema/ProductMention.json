@@ -25,10 +25,10 @@
       "default": null,
       "title": "Brand"
     },
-    "author": {
+    "author_hash": {
       "anyOf": [
         {
-          "maxLength": 80,
+          "pattern": "^[a-f0-9]{64}$",
           "type": "string"
         },
         {
@@ -36,8 +36,8 @@
         }
       ],
       "default": null,
-      "description": "For distinct-recommender counts",
-      "title": "Author"
+      "description": "For distinct-recommender counts. A salted sha256, never a username",
+      "title": "Author Hash"
     },
     "recommends": {
       "anyOf": [
@@ -56,7 +56,7 @@
     "raw_name",
     "is_product",
     "brand",
-    "author",
+    "author_hash",
     "recommends"
   ],
   "title": "ProductMention",

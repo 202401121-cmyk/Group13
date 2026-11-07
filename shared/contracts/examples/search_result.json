@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.5.0",
+  "schema_version": "1.6.0",
   "search_id": "srch_demo0001",
   "request": {
     "session_id": "sess_demo0001",
@@ -838,10 +838,15 @@
       "fetched_at": "2026-10-03T10:00:00Z",
       "published_at": null,
       "community": "r/developersIndia",
+      "site": null,
+      "data_class": "reddit",
       "quality": 0.8,
       "via": "api",
       "source_detail": null,
-      "author_hash": null
+      "author_hash": null,
+      "upvotes": null,
+      "comment_count": null,
+      "comments": []
     },
     {
       "id": "src_37c43827cfe41e89",
@@ -854,10 +859,15 @@
       "fetched_at": "2026-10-03T10:00:00Z",
       "published_at": null,
       "community": null,
+      "site": "example-reviews.in",
+      "data_class": "public",
       "quality": 0.8,
       "via": "direct",
       "source_detail": null,
-      "author_hash": null
+      "author_hash": null,
+      "upvotes": null,
+      "comment_count": null,
+      "comments": []
     },
     {
       "id": "src_2958fd9d1b3643cf",
@@ -870,10 +880,15 @@
       "fetched_at": "2026-10-03T10:00:00Z",
       "published_at": null,
       "community": null,
+      "site": "kestrel.example.com",
+      "data_class": "public",
       "quality": 0.8,
       "via": "direct",
       "source_detail": null,
-      "author_hash": null
+      "author_hash": null,
+      "upvotes": null,
+      "comment_count": null,
+      "comments": []
     }
   ],
   "stage_reports": [

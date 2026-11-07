@@ -8,12 +8,16 @@ from pydantic import Field, model_validator
 
 from .claims import ProductMention
 from .common import Contract, ProductId, VariantId
+from .research import RecommenderCount
 
 
 class MatchInput(Contract):
     mentions: list[ProductMention] = Field(max_length=1000)
     known_aliases: dict[str, ProductId] = Field(
         default_factory=dict, description="Saved aliases from earlier searches (DR-06)"
+    )
+    recommender_counts: list[RecommenderCount] = Field(
+        default_factory=list, max_length=200, description="From research (US-13), for Product.recommender_count"
     )
 
 

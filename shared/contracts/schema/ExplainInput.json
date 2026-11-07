@@ -14,11 +14,26 @@
           "title": "Source Id",
           "type": "string"
         },
-        "product_raw_name": {
+        "source_url": {
+          "description": "The page the quote is from (build rule 4)",
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Source Url",
+          "type": "string"
+        },
+        "product_mention": {
+          "description": "The product's name as written",
           "maxLength": 150,
           "minLength": 1,
-          "title": "Product Raw Name",
+          "title": "Product Mention",
           "type": "string"
+        },
+        "is_product_type": {
+          "default": false,
+          "description": "True for things like 'memory foam' that are not buyable products (US-14)",
+          "title": "Is Product Type",
+          "type": "boolean"
         },
         "criterion_key": {
           "anyOf": [
@@ -41,9 +56,8 @@
               "type": "number"
             },
             {
-              "type": "boolean"
-            },
-            {
+              "maxLength": 200,
+              "minLength": 1,
               "type": "string"
             },
             {
@@ -51,7 +65,7 @@
             }
           ],
           "default": null,
-          "description": "A spec value, e.g. 1.4 for kg",
+          "description": "Text or a number, e.g. 1.4 for kg. Or a score",
           "title": "Value"
         },
         "unit": {
@@ -79,7 +93,7 @@
             }
           ],
           "default": null,
-          "description": "0 to 10 judgement for this criterion",
+          "description": "0 to 10 judgement for this criterion. Or a value",
           "title": "Score"
         },
         "quote": {
@@ -110,15 +124,24 @@
           "type": "number"
         },
         "retrieved_at": {
+          "description": "When the source was fetched (build rule 4)",
           "format": "date-time",
           "title": "Retrieved At",
+          "type": "string"
+        },
+        "extracted_at": {
+          "description": "When this claim was read from the source",
+          "format": "date-time",
+          "title": "Extracted At",
           "type": "string"
         }
       },
       "required": [
         "id",
         "source_id",
-        "product_raw_name",
+        "source_url",
+        "product_mention",
+        "is_product_type",
         "criterion_key",
         "value",
         "unit",
@@ -127,17 +150,17 @@
         "claim_type",
         "polarity",
         "weight",
-        "retrieved_at"
+        "retrieved_at",
+        "extracted_at"
       ],
       "title": "Claim",
       "type": "object"
     },
     "ClaimType": {
-      "description": "DR-05: community posts are experience or opinion, never spec, unless verified.",
+      "description": "DR-05: community claims are experience; manufacturer and lab claims are spec.",
       "enum": [
         "spec",
-        "experience",
-        "opinion"
+        "experience"
       ],
       "title": "ClaimType",
       "type": "string"

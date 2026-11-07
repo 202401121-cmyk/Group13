@@ -1,0 +1,36 @@
+{
+  "$defs": {
+    "RoughLevel": {
+      "description": "A rough answer from the interview's buttons (US-08).",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "good_enough"
+      ],
+      "title": "RoughLevel",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "ROUGH_LEVEL_WEIGHTS as JSON, for the frontend.",
+  "properties": {
+    "weights": {
+      "additionalProperties": {
+        "maximum": 10.0,
+        "minimum": 0.0,
+        "type": "number"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/RoughLevel"
+      },
+      "title": "Weights",
+      "type": "object"
+    }
+  },
+  "required": [
+    "weights"
+  ],
+  "title": "RoughLevelWeights",
+  "type": "object"
+}

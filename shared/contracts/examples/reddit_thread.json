@@ -1,0 +1,49 @@
+{
+  "id": "src_edb2d0c42af72797",
+  "url": "https://www.reddit.com/r/developersIndia/comments/abc123/",
+  "type": "reddit",
+  "tier": 4,
+  "title": "Best coding laptop under 70k?",
+  "text": "Thread: best coding laptop under 70k? Nova Book 14 has been great for Android Studio. Kestrel Slim 15 battery is fine but I get about 6 hours, not 10.",
+  "text_hash": "dde7b831db787a0aec35546476d13a0eef52d1a6524cf45026104322f6ca7580",
+  "fetched_at": "2026-10-03T10:00:00Z",
+  "published_at": null,
+  "community": "r/developersIndia",
+  "site": null,
+  "data_class": "reddit",
+  "quality": 0.8,
+  "via": "api",
+  "source_detail": "arctic_shift",
+  "author_hash": null,
+  "upvotes": 128,
+  "comment_count": 46,
+  "comments": [
+    {
+      "id": "c1",
+      "parent_id": "abc123",
+      "depth": 1,
+      "upvotes": 41,
+      "text": "Nova Book 14 has been great for Android Studio.",
+      "quality": 0.5,
+      "author_hash": "638272d2c60a282ab8a042288e0c50cfee2cd7cc28c37dffe0466adce598b02c"
+    },
+    {
+      "id": "c2",
+      "parent_id": "c1",
+      "depth": 2,
+      "upvotes": 12,
+      "text": "Same here, the keyboard is the best part.",
+      "quality": 0.5,
+      "author_hash": "5196ef6dcc26a9d3e9ee36196a16b3a94854ab30e0aa5fc211b841a797d44a0b"
+    },
+    {
+      "id": "c3",
+      "parent_id": "c2",
+      "depth": 3,
+      "upvotes": 3,
+      "text": "Mine runs warm under load, but that is all.",
+      "quality": 0.5,
+      "author_hash": "638272d2c60a282ab8a042288e0c50cfee2cd7cc28c37dffe0466adce598b02c"
+    }
+  ]
+}

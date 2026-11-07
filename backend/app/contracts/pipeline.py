@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import StrEnum
 from time import monotonic
-from typing import Literal, Protocol, TypeVar
+from typing import Annotated, Literal, Protocol, TypeVar
 
 from pydantic import Field, model_validator
 
@@ -15,10 +16,13 @@ from .common import (
     AwareDatetime,
     Contract,
     SearchId,
+    SearchRunId,
     SessionId,
+    SourceType,
     StageName,
     StageReport,
     StageStatus,
+    UtcDatetime,
 )
 from .decide import DecideResult
 from .entities import Product
@@ -26,6 +30,8 @@ from .explain import Explanation
 from .research import Source
 from .rubric import Rubric
 from .verify import CommunitySignal, ResolvedValue
+
+MAX_RUN_EVENTS = 200  # far more than the stages send: a run's progress can't grow without limit
 
 InT = TypeVar("InT", contravariant=True)
 OutT = TypeVar("OutT", covariant=True)
@@ -125,10 +131,77 @@ class SearchResult(Contract):
 
 
 class ProgressEvent(Contract):
-    """One Server-Sent Event for the live progress bar."""
+    """One Server-Sent Event for the live progress bar (P-07)."""
 
-    search_id: SearchId
+    event_id: int = Field(ge=1, description="Counts up from 1 within a run, so a client can resume")
+    search_id: SearchRunId
     stage: StageName
-    status: Literal["started", "finished", "fallback", "skipped", "timeout", "failed"]
-    message: str = Field(max_length=200, description="Plain words for the user, e.g. 'Reading 12 Reddit threads'")
-    at: AwareDatetime
+    status: Literal["started", "done", "fallback", "failed"]
+    at: UtcDatetime
+    message: str = Field(
+        min_length=1, max_length=200, description="Plain words for the user, e.g. 'Reading 12 Reddit threads'"
+    )
+    sources_found: dict[SourceType, Annotated[int, Field(ge=0)]] = Field(
+        default_factory=dict, description="Sources found so far, per source type"
+    )
+
+
+class SearchRunStatus(StrEnum):
+    QUEUED = "queued"
+    RUNNING = "running"
+    DONE = "done"
+    PARTIAL = "partial"  # cut short; SearchResult.partial is true, and the result holds what was found
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+
+_RUN_ENDED = {SearchRunStatus.DONE, SearchRunStatus.PARTIAL, SearchRunStatus.FAILED, SearchRunStatus.CANCELLED}
+_RUN_HAS_RESULT = {SearchRunStatus.DONE, SearchRunStatus.PARTIAL}
+_RUN_MAY_SKIP_START = {SearchRunStatus.QUEUED, SearchRunStatus.FAILED, SearchRunStatus.CANCELLED}
+
+
+class SearchRunStarted(Contract):
+    """What starting a run answers, at once, before the work is done (P-07). The body sent is a SearchRequest."""
+
+    search_id: SearchRunId
+
+
+class SearchRun(Contract):
+    """A run's state at any moment (P-07): how far it has got and, once finished, its SearchResult."""
+
+    search_id: SearchRunId
+    status: SearchRunStatus
+    started_at: AwareDatetime | None = Field(default=None, description="None until the run leaves the queue")
+    finished_at: AwareDatetime | None = Field(default=None, description="Set once the run has ended")
+    progress: list[ProgressEvent] = Field(default_factory=list, max_length=MAX_RUN_EVENTS)
+    result: SearchResult | None = Field(default=None, description="Set when the status is done or partial")
+
+    @model_validator(mode="after")
+    def _check(self) -> SearchRun:
+        self._check_times()
+        self._check_result()
+        if any(e.search_id != self.search_id for e in self.progress):
+            raise ValueError("every progress event must belong to this run")
+        if [e.event_id for e in self.progress] != list(range(1, len(self.progress) + 1)):
+            raise ValueError("progress event ids must count up from 1")
+        return self
+
+    def _check_times(self) -> None:
+        if (self.status in _RUN_ENDED) != (self.finished_at is not None):
+            raise ValueError("a run has finished_at exactly when it has ended")
+        if self.status is SearchRunStatus.QUEUED and self.started_at is not None:
+            raise ValueError("a queued run has not started yet")
+        if self.status not in _RUN_MAY_SKIP_START and self.started_at is None:
+            raise ValueError("a run that ran needs started_at")
+        if self.started_at and self.finished_at and self.finished_at < self.started_at:
+            raise ValueError("finished_at is before started_at")
+
+    def _check_result(self) -> None:
+        if (self.status in _RUN_HAS_RESULT) != (self.result is not None):
+            raise ValueError("a run has a result exactly when it is done or partial")
+        if self.result is None:
+            return
+        if self.result.search_id != self.search_id:
+            raise ValueError("the result must belong to this run")
+        if self.result.partial != (self.status is SearchRunStatus.PARTIAL):
+            raise ValueError("the run's partial status and its result must agree")

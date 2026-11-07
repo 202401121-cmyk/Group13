@@ -1,0 +1,17 @@
+{
+  "id": "clm_f9a3eaef621da3b3",
+  "source_id": "src_aef5d8c76a64057a",
+  "source_url": "https://example-reviews.in/laptop-sleeve-guide",
+  "product_mention": "memory foam sleeves",
+  "is_product_type": true,
+  "criterion_key": "build_durability",
+  "value": null,
+  "unit": null,
+  "score": 8.0,
+  "quote": "Memory foam sleeves protect a laptop from knocks",
+  "claim_type": "experience",
+  "polarity": "positive",
+  "weight": 1.0,
+  "retrieved_at": "2026-10-03T10:00:00Z",
+  "extracted_at": "2026-10-03T10:00:00Z"
+}
