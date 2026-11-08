@@ -32,4 +32,8 @@ def test_every_llm_call_declares_its_data_class_and_difficulty() -> None:
 
 def test_the_known_call_sites() -> None:
     # A new call site is fine: add it here, and to the call-site table in docs/api-setup.md, with its class.
-    assert sorted(path for path, _, _ in _complete_calls()) == ["app/criteria/stage.py", "app/intake/stage.py"]
+    assert sorted(path for path, _, _ in _complete_calls()) == [
+        "app/criteria/stage.py",
+        "app/extract/stage.py",
+        "app/intake/stage.py",
+    ]

@@ -517,3 +517,41 @@ def test_fake_llm_client_returns_canned_answers_and_records_calls() -> None:
 
     with pytest.raises(TypeError):
         fake.complete(TASK, SYSTEM, "hi", Other, data_class=PUBLIC, difficulty=SHORT)
+
+
+# --- calls that read retrieved text are held to the whole reply (US-28) ------------------------------
+
+
+def _ask(client: WrapperLLMClient, task: LLMTask = TASK) -> Answer:
+    return client.complete(task, SYSTEM, "A made-up page.", Answer, data_class=PUBLIC, difficulty=SHORT)
+
+
+def test_prose_around_json_is_rejected_for_retrieved_text_tasks() -> None:
+    adapter = FakeAdapter(Provider.GROQ, replies=(f"Here you go: {OK}",))
+    with pytest.raises(LLMUnavailable):
+        _ask(_client({Provider.GROQ: adapter}))
+
+
+def test_invalid_output_retries_once_then_gives_up() -> None:
+    adapter = FakeAdapter(Provider.GROQ, replies=(f"Here you go: {OK}",))
+    client = _client({Provider.GROQ: adapter})
+    with pytest.raises(LLMUnavailable):
+        _ask(client)
+    assert [outcome for _, outcome, _ in _records(client)] == ["invalid_output", "invalid_output"]
+    assert len(adapter.calls) == 2
+
+
+def test_a_retry_with_a_clean_reply_is_accepted() -> None:
+    adapter = FakeAdapter(Provider.GROQ, replies=(f"Here you go: {OK}", OK))
+    assert _ask(_client({Provider.GROQ: adapter})).product == "Nova Book 14"
+    assert len(adapter.calls) == 2
+
+
+def test_a_whole_reply_in_one_fence_is_accepted() -> None:
+    adapter = FakeAdapter(Provider.GROQ, replies=(f"```json\n{OK}\n```",))
+    assert _ask(_client({Provider.GROQ: adapter})).product == "Nova Book 14"
+
+
+def test_other_tasks_parse_as_before() -> None:
+    adapter = FakeAdapter(Provider.GROQ, replies=(f"Here you go: {OK}",))
+    assert _ask(_client({Provider.GROQ: adapter}), LLMTask.GENERATE_CRITERIA).product == "Nova Book 14"

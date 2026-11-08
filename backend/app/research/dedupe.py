@@ -59,7 +59,7 @@ def merge_near_duplicates(threads: Sequence[Source]) -> list[Source]:
 
 
 def _with_other_url(thread: Source, other: Source) -> Source:
-    body, merged = _split_merged(thread.text)
+    body, merged = split_merged(thread.text)
     tail = "\n".join([*merged, f"{SAME_TOPIC}{other.url}"])
     room = MAX_SOURCE_CHARS - len(tail) - 2  # the body gives way, never a URL
     text = f"{body[:room].rstrip()}\n\n{tail}".strip()  # stripped before hashing, as the contract strips it
@@ -68,7 +68,7 @@ def _with_other_url(thread: Source, other: Source) -> Source:
     )
 
 
-def _split_merged(text: str) -> tuple[str, list[str]]:
+def split_merged(text: str) -> tuple[str, list[str]]:
     """The text, and the other URLs an earlier merge left on its end."""
     lines = text.split("\n")
     at = len(lines)

@@ -822,8 +822,8 @@ def test_a_listing_arriving_after_the_slot_ran_does_not_run_it_again() -> None:
 
 
 def test_too_little_time_left_spends_no_credit_on_the_held_slot() -> None:
-    serper = FakeSerper(default=_web(), delay_s=1.0)
-    result = _run(_stage(serper=serper, reddit=FakeReddit(), settings=_settings(deadline_s=1.05)))
+    serper = FakeSerper(default=_web(), delay_s=1.85)
+    result = _run(_stage(serper=serper, reddit=FakeReddit(), settings=_settings(deadline_s=2.0)))
     assert len(serper.calls) == 5
     assert SourceType.WEB_SEARCH not in _reasons(result)
 

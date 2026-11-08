@@ -12,5 +12,6 @@ the job is. The routes table in config/models.yaml turns the pair into a provide
 
 from .client import InMemoryCallLog, WrapperLLMClient, build_llm_client
 from .config import load_llm_config
+from .data_block import wrap_as_data
 
-__all__ = ["InMemoryCallLog", "WrapperLLMClient", "build_llm_client", "load_llm_config"]
+__all__ = ["InMemoryCallLog", "WrapperLLMClient", "build_llm_client", "load_llm_config", "wrap_as_data"]

@@ -406,6 +406,7 @@ When a provider's terms change, update its flag, `terms_url` and `terms_checked`
 | `app/intake/stage.py` | `detect_intent` | the shopper's request and their reply to our question | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | category label and the shopper's use case | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | only a category label from our lexicon (no use case) | public | short |
+| `app/extract/stage.py` (not wired in until P10) | `extract_claims` | one source's retrieved text, and our own criterion keys | reddit for Reddit, otherwise public | long |
 
 `detect_intent`, `classify_reply`, `answer_user_question`, `write_question` and `write_explanation` always carry
 the shopper's words, so the wrapper refuses any class but private for them (`PERSONAL_TASKS`). A new call site
@@ -534,8 +535,25 @@ not read. Each is read again when it is needed, at most once in 24 hours.
 **Open (Jenish):** these sites' terms have not been read. `robots.txt` says what a crawler may fetch, not what we may do with
 the text, so a person needs to read each site's terms and record the verdict here. Removing a site is one line of config.
 
-**Cleaning.** `clean_html` in `app/research/pages.py` strips tags and what a reader can't see, where a hostile page hides its
-orders. It stands in until US-28's shared cleaning function exists. Visible text stays, and it is data, never instructions.
+**Untrusted text (US-28).** Everything we read from outside is data, never instructions. These layers don't rely on the model
+behaving, and `tests/faults/test_hostile_pages.py` proves them with a fake model that obeys any order it can see:
+
+- **One cleaning function** (`clean_text` in `app/research/cleaning.py`), used by every adapter. It strips tags, scripts,
+  styles, comments and what's hidden from readers, removes zero-width and control characters, and normalises to NFC.
+- **Visible orders are removed** there too: overriding instructions, fake system messages, addressing AI readers, "rank X
+  first", "remove X from the results" and JSON answers. **This catches plain wordings only**, and a test pins a rewording
+  that gets through, so the other layers still matter. Text hidden by a stylesheet isn't seen as hidden either, because the
+  parser has no CSS.
+- **A cap per source** (`max_source_tokens`, 3,000, counted the way the wrapper counts): whole paragraphs, and for Reddit the
+  highest-scored comments first.
+- **Labelled data:** retrieved text reaches a model only through `wrap_as_data()`, in a block whose marker is a hash of its
+  text, so a page can't close it. `assert_only_in_data_block` in `tests/fakes/prompt_checks.py` checks any prompt.
+- **Schema JSON only:** for calls that read retrieved text the whole reply must be the JSON, or one fence holding only it. Extra
+  fields and prose are refused, retried once, and the source is then dropped. Code then checks each claim's quote, product
+  and criterion against the source.
+
+A green harness proves those ten attacks fail, not that every attack does. Today's decide stage is a stub, so the ranking
+comparison can't fail yet; the harness also compares the cleaned text, the claims and a small ranker over the claims.
 
 ## Reddit (US-12)
 

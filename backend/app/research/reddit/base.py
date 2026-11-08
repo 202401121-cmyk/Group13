@@ -16,11 +16,9 @@ Rules for Reddit text, everywhere in ShopSense:
 from __future__ import annotations
 
 import hashlib
-import html
 import re
 import threading
 import time
-import unicodedata
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -28,6 +26,7 @@ from typing import Literal, Protocol
 
 from app.contracts import RedditOrigin, Source, SourceFailure, SourceTier, SourceType
 from app.contracts.research import MAX_SOURCE_CHARS
+from app.research.cleaning import clean_text
 
 FailureReason = Literal["timeout", "rate_limited", "blocked", "not_found", "quota_exhausted", "error"]
 
@@ -44,8 +43,6 @@ STOP_WORDS = frozenset(
     ).split()
 )
 _WORD = re.compile(r"[a-z0-9]+")
-_INVISIBLE = ("Cc", "Cf", "Zl", "Zp")  # control, format (zero-width, soft hyphen) and line separator characters
-_PARAGRAPH_BREAK = re.compile(r"\n\s*\n")
 
 
 @dataclass(frozen=True)
@@ -95,25 +92,6 @@ def failure(reason: FailureReason, detail: str) -> SourceFailure:
 def worth_naming(failures: Sequence[SourceFailure]) -> tuple[SourceFailure, ...]:
     """A subreddit or thread the archive doesn't have is not something that went wrong."""
     return tuple(f for f in failures if f.reason != "not_found")
-
-
-# --- cleaning ---------------------------------------------------------------------------------------
-
-
-def _visible(text: str) -> str:
-    return "".join(c for c in text if c in "\n\t" or unicodedata.category(c) not in _INVISIBLE)
-
-
-def tidy_text(text: str) -> str:
-    """Text as a reader sees it: no invisible characters, single spaces, no empty lines."""
-    lines = (" ".join(line.split()) for line in _visible(text).split("\n"))
-    return "\n".join(line for line in lines if line).strip()
-
-
-def clean_api_text(text: str) -> str:
-    """Text from an API: entities decoded, then tidied, with one blank line kept between paragraphs."""
-    paragraphs = _PARAGRAPH_BREAK.split(_visible(html.unescape(text)))
-    return "\n\n".join(tidied for paragraph in paragraphs if (tidied := tidy_text(paragraph)))
 
 
 # --- limits ---------------------------------------------------------------------------------------
@@ -228,7 +206,7 @@ def make_source(
         return None
     if comment_id is not None and bare_id(comment_id) is None:
         return None
-    body = clean_api_text(text)[:MAX_SOURCE_CHARS].strip()  # strip after the cut: the hash must match the contract
+    body = clean_text(text)[:MAX_SOURCE_CHARS].strip()  # strip after the cut: the hash must match the contract
     if not body:
         return None
     url = permalink(subreddit, thread_id, comment_id)
@@ -238,7 +216,7 @@ def make_source(
             url=url,
             type=SourceType.REDDIT,
             tier=SourceTier.COMMUNITY,
-            title=" ".join(clean_api_text(title).split())[:300].strip(),
+            title=" ".join(clean_text(title).split())[:300].strip(),
             text=body,
             text_hash=hashlib.sha256(body.encode()).hexdigest(),
             fetched_at=fetched_at,

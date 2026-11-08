@@ -26,6 +26,7 @@ import httpx
 from app.contracts import RedditOrigin, Source, SourceComment, SourceFailure
 from app.contracts.research import MAX_COMMENT_CHARS, MAX_COMMENT_DEPTH, MAX_SOURCE_COMMENTS
 from app.db.breaker import CircuitBreaker
+from app.research.cleaning import clean_text
 
 from .base import (
     IntervalLimiter,
@@ -36,7 +37,6 @@ from .base import (
     author_hash,
     bare_id,
     best_matches,
-    clean_api_text,
     failure,
     is_bot,
     is_gone,
@@ -269,7 +269,7 @@ def comments_to_tree(
                 parent_id=bare_id(comment.parent_id),
                 depth=depth,
                 upvotes=comment.score or 0,
-                text=clean_api_text(comment.body or "")[:MAX_COMMENT_CHARS].strip(),
+                text=clean_text(comment.body or "")[:MAX_COMMENT_CHARS].strip(),
                 author_hash=author_hash(comment.author, salt),
             )
         except ValueError:  # pydantic's ValidationError is a ValueError: skip the comment, never crash the search

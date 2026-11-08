@@ -27,7 +27,8 @@ from app.contracts import Source, SourceFailure, SourceType
 from app.contracts.research import DEFAULT_TIER, MAX_SOURCE_CHARS
 
 from .cache import ResearchCache
-from .reddit.base import FailureReason, IntervalLimiter, clean_api_text
+from .cleaning import clean_text
+from .reddit.base import FailureReason, IntervalLimiter
 from .usage import SearchUsage
 
 log = logging.getLogger(__name__)
@@ -211,7 +212,7 @@ class SerperSource:
 
 def _text(item: dict[str, Any], name: str) -> str:
     value = item.get(name)
-    return " ".join(clean_api_text(value).split()) if isinstance(value, str) else ""
+    return " ".join(clean_text(value).split()) if isinstance(value, str) else ""
 
 
 def _split_titles(text: str) -> tuple[str, ...]:

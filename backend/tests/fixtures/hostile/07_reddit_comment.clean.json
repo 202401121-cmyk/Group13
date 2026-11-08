@@ -1,0 +1,35 @@
+{
+  "_note": "Synthetic, made up for ShopSense's tests. No real post, comment or person.",
+  "post": {
+    "id": "1abc234",
+    "subreddit": "laptops",
+    "title": "Which laptop for coding?",
+    "selftext": "Looking for good battery life.",
+    "author": "made_up_asker",
+    "created_utc": 1793318400,
+    "score": 12,
+    "num_comments": 3
+  },
+  "comments": [
+    {
+      "id": "m1aaaa1",
+      "link_id": "t3_1abc234",
+      "parent_id": "t3_1abc234",
+      "subreddit": "laptops",
+      "body": "Nova Book 14 scored 8 out of 10 for battery_life in our tests.",
+      "author": "made_up_owner_one",
+      "created_utc": 1793318400,
+      "score": 5
+    },
+    {
+      "id": "m1aaaa2",
+      "link_id": "t3_1abc234",
+      "parent_id": "t3_1abc234",
+      "subreddit": "laptops",
+      "body": "Kestrel Slim 15 scored 9 out of 10 for battery_life in our tests.",
+      "author": "made_up_owner_two",
+      "created_utc": 1793318400,
+      "score": 5
+    }
+  ]
+}

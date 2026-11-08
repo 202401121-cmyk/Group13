@@ -12,22 +12,18 @@ failed fetch is never cached, and nothing here raises.
 httpx's timeout is per read, so a server sending a little at a time never trips it. A page or robots file has
 MAX_FETCH_S to arrive once it has started.
 
-clean_html stands in for the shared cleaning function (US-28), which does not exist yet: swapping it in is one line, in
-ReviewPages._page. It removes what a reader can't see, where a hostile page hides its orders. Visible text stays, and it
-is data, never instructions (build rule 3): whatever hands it to an LLM must wrap it as data.
+Every page goes through the one cleaning function (cleaning.py), and the stage caps it (capping.py).
 """
 
 from __future__ import annotations
 
 import hashlib
 import logging
-import re
 import threading
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from html.parser import HTMLParser
 from time import monotonic
 from urllib.parse import urljoin
 
@@ -38,7 +34,8 @@ from app.contracts import Source, SourceType
 from app.contracts.research import DEFAULT_TIER, MAX_SOURCE_CHARS
 
 from .cache import ResearchCache
-from .reddit.base import FailureReason, IntervalLimiter, tidy_text
+from .cleaning import CleanedPage, clean_html, decode_page
+from .reddit.base import FailureReason, IntervalLimiter
 from .reddit.settings import archive_user_agent
 from .robots import RobotsRules
 from .serper import host_is_under, host_of
@@ -55,116 +52,9 @@ MAX_REDIRECTS = 3
 NEVER_FETCH = ("reddit.com", "redd.it", "youtube.com", "youtu.be")  # whatever the config says (D-53)
 _DISALLOW_ALL = "User-agent: *\nDisallow: /\n"
 
-_SKIPPED_TAGS = frozenset(
-    "script style noscript noframes noembed template svg canvas iframe object video audio dialog datalist "  # noqa: SIM905
-    "nav header footer aside".split()
-)
-_VOID_TAGS = frozenset(
-    {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}
-)
-_BLOCK_TAGS = frozenset(
-    {
-        "p",
-        "div",
-        "br",
-        "li",
-        "ul",
-        "ol",
-        "tr",
-        "td",
-        "th",
-        "h1",
-        "h2",
-        "h3",
-        "h4",
-        "h5",
-        "h6",
-        "section",
-        "article",
-        "table",
-    }
-)
-# Only a true zero hides: opacity:0.95 and font-size:0.9em are ordinary, visible text.
-_HIDDEN_STYLE = re.compile(
-    r"display\s*:\s*none|visibility\s*:\s*hidden|(?:font-size|opacity)\s*:\s*(?:0+(?:\.0*)?|\.0+)[a-z%]*\s*(?:;|!|$)",
-    re.IGNORECASE,
-)
-
 
 def _utc_now() -> datetime:
     return datetime.now(UTC)
-
-
-@dataclass(frozen=True)
-class CleanedPage:
-    title: str
-    text: str
-
-
-class _TextReader(HTMLParser):
-    def __init__(self) -> None:
-        super().__init__(convert_charrefs=True)
-        self.parts: list[str] = []
-        self.title_parts: list[str] = []
-        self.og_title = ""
-        self._skipping: list[str] = []
-        self._in_title = False
-
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag == "meta":
-            values = dict(attrs)
-            if values.get("property") == "og:title" and not self.og_title:
-                self.og_title = values.get("content") or ""
-            return
-        if tag == "title" and not self._skipping:
-            self._in_title = True
-            return
-        if tag in _VOID_TAGS:
-            if tag == "br" and not self._skipping:
-                self.parts.append("\n")
-            return
-        if self._skipping or tag in _SKIPPED_TAGS or _is_hidden(attrs):
-            self._skipping.append(tag)
-            return
-        if tag in _BLOCK_TAGS:
-            self.parts.append("\n")
-
-    def handle_endtag(self, tag: str) -> None:
-        if tag == "title":
-            self._in_title = False
-            return
-        if self._skipping:
-            if tag in self._skipping:
-                while self._skipping.pop() != tag:  # an unclosed inner tag closes with its parent
-                    pass
-            return
-        if tag in _BLOCK_TAGS:
-            self.parts.append("\n")
-
-    def handle_data(self, data: str) -> None:
-        if self._in_title:
-            self.title_parts.append(data)
-        elif not self._skipping:
-            self.parts.append(data)
-
-
-def _is_hidden(attrs: list[tuple[str, str | None]]) -> bool:
-    values = dict(attrs)
-    if "hidden" in values or values.get("aria-hidden") == "true":
-        return True
-    return bool(_HIDDEN_STYLE.search(values.get("style") or ""))
-
-
-def clean_html(html: str) -> CleanedPage:
-    """The readable text and title of a page: no tags, no scripts, nothing hidden, no invisible characters."""
-    reader = _TextReader()
-    try:
-        reader.feed(html)
-        reader.close()
-    except Exception as exc:  # the parser is lenient, but a page we can't read must never crash a search (rule 9)
-        log.info("a page could not be parsed (%s)", type(exc).__name__)
-    title = reader.og_title or "".join(reader.title_parts)
-    return CleanedPage(tidy_text(title).replace("\n", " "), tidy_text("".join(reader.parts)))
 
 
 @dataclass(frozen=True)
@@ -371,11 +261,7 @@ class ReviewPages:
             return PageResult(reason="error")
         finally:
             response.close()
-        try:
-            html = data.decode(encoding, errors="replace")
-        except LookupError:  # a charset name Python doesn't know
-            html = data.decode("utf-8", errors="replace")
-        page = clean_html(html)
+        page = clean_html(decode_page(data, encoding))
         if len(page.text) < self.settings.min_page_chars:
             return PageResult(reason="not_found")  # most likely a page that needs JavaScript
         source = self._source(url, domain, page)
