@@ -50,7 +50,10 @@ One row per finished search, in `public.searches` (US-52):
 - **No expiry, so no Reddit text (US-12, D-53):** rows stay until someone deletes them, and Reddit data may be kept at
   most 24 hours. So Reddit's words never reach this table: `app/research/retention.py` runs before every save. A Reddit
   source keeps its URL, community, fetch time, archive and counts, and loses its title, text, comments and author hash.
-  Any quote taken from one goes too. Other sources are saved whole.
+  Any quote taken from one goes too. Other sources are saved whole. D-53 covers every copy, so the other two are limited
+  as well: a finished run stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES` (1 to 120 minutes), and the Reddit
+  cache serves an entry only while it is younger than 24 hours minus that
+  ([api-setup.md](api-setup.md), "Keeping Reddit data", which gives the two small limits on this).
 - **Guests (decision D-36):** there is no sign-in yet, so every row is a guest's. A guest's request and search are
   stored only under the anonymous session ID, are never linked to an account, and are never used to remember
   preferences.

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -32,6 +33,24 @@ DEFAULT_REVIEW_DOMAINS = (
     "gsmarena.com",
     "rtings.com",
 )
+# The only uses a query may hold (config/research.yaml can change them). Intake keeps no list: its use case is free
+# text.
+DEFAULT_KNOWN_USES = (
+    "coding",
+    "programming",
+    "gaming",
+    "travel",
+    "office",
+    "student",
+    "students",
+    "video editing",
+    "photo editing",
+    "music",
+    "running",
+    "gym",
+    "calls",
+)
+_KNOWN_USE = re.compile(r"[a-z]+(?: [a-z]+)*")
 
 
 class ProviderCap(BaseModel):
@@ -67,6 +86,7 @@ class ResearchSettings(BaseModel):
     max_crawl_delay_s: float = Field(default=10.0, ge=0)
     caps: dict[str, ProviderCap] = Field(default_factory=_default_caps)
     review_domains: tuple[str, ...] = DEFAULT_REVIEW_DOMAINS
+    known_uses: tuple[str, ...] = DEFAULT_KNOWN_USES
     cache_on: bool = True
     pages_on: bool = True
 
@@ -75,6 +95,8 @@ class ResearchSettings(BaseModel):
         total = self.max_reddit_threads + self.max_web_results + self.max_review_pages
         if total > MAX_SOURCES:
             raise ValueError(f"the source caps add up to {total}, over the contract's limit of {MAX_SOURCES}")
+        if not all(_KNOWN_USE.fullmatch(use) for use in self.known_uses):
+            raise ValueError("a known use is lowercase words only, so it can hold no search operator")
         return self
 
 

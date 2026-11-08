@@ -238,7 +238,7 @@ class _Job:
         self.settings = settings
         self.usage = usage
         self.wiring = wiring
-        self.queries = build_queries(self.rubric)
+        self.queries = build_queries(self.rubric, settings.known_uses)
         self.comparison: SearchQuery | None = None
         self.deadline_s = min(settings.deadline_s, max(0.0, ctx.seconds_left - DEADLINE_MARGIN_S))
         self.fetches = FetchRun(pool, self.deadline_s)
@@ -279,7 +279,7 @@ class _Job:
             self.reddit_listing_done = True
             return
         budget = CountingBudget(self.usage)
-        query = reddit_query(self.rubric)
+        query = reddit_query(self.rubric, self.settings.known_uses)
 
         def find() -> None:
             find_threads(reddit, query, self.rubric.category, budget, self.settings, self.threads)

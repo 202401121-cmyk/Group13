@@ -36,6 +36,7 @@ CORE_MODULES = (
     "app/llm",
     "app/pipeline.py",
     "app/presearch.py",
+    "app/search_run_limits.py",
     "app/research",
     "app/verify",
 )

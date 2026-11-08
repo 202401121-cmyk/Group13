@@ -172,3 +172,14 @@ def test_environment_switches_turn_the_cache_and_pages_off() -> None:
     assert not settings.pages_on
     on = load_research_settings(env={})
     assert on.cache_on and on.pages_on
+
+
+def test_the_shipped_config_lists_the_known_uses_and_a_bad_one_is_refused(tmp_path: object) -> None:
+    from pathlib import Path
+
+    uses = load_research_settings(env={}).known_uses
+    assert {"coding", "gaming", "travel", "office", "students", "video editing", "photo editing"} <= set(uses)
+    assert {"music", "running", "gym", "calls"} <= set(uses)
+    bad = Path(str(tmp_path)) / "research.yaml"
+    bad.write_text("known_uses: ['site:evil.example']\n", encoding="utf-8")
+    assert load_research_settings(bad, env={}).known_uses == ResearchSettings().known_uses

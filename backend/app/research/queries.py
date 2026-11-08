@@ -1,7 +1,8 @@
 """Search queries built in code from the rubric (US-12), never from the shopper's raw text and never by an LLM.
 
 The same rubric always gives the same 4 to 6 queries: no dates, no randomness. The use case is the shopper's own words,
-so its search operators are removed and it is cut short before it leaves the app.
+so they never leave the app. A query holds a use only if the use case names a known one, and then only as we spell it.
+Anything else counts as no use, so a name, place, email or phone number in the use case can't reach Serper or PullPush.
 
 Serper may be sent 6 queries a search, and a comparison query can only be known after the first round. So the first
 round sends at most 5, and one slot is held: it goes to "X vs Y" if two candidates are known, otherwise to the sixth
@@ -21,22 +22,21 @@ from typing import Literal
 
 from app.contracts import Budget, Rubric
 
-MAX_USE_CHARS = 60
+from .settings import DEFAULT_KNOWN_USES
+
+MAX_NAME_CHARS = 60
 MAX_SERPER_FIRST_ROUND = 5
 MIN_SOURCES_FOR_A_CANDIDATE = 2
 REGION_WORDS = {"IN": "India"}
 RUPEES = "INR"
 
-# A word worth keeping from the use case: letters, digits and a few marks people use (c++, c#, 3d-printing).
-_USE_WORD = re.compile(r"[^\W_][\w+#.-]*", re.UNICODE)
-_OPERATOR_WORDS = frozenset({"OR", "AND", "NOT"})
+# A word worth keeping from a known candidate's name: letters, digits and a few marks (c++, 3d-printing).
+_NAME_TOKEN = re.compile(r"[^\W_][\w+#.-]*", re.UNICODE)
+_NOT_A_WORD = re.compile(r"[\W_]+", re.UNICODE)
 
 _NAME_WORD = re.compile(r"[a-z]*[A-Z][A-Za-z0-9+]*|[0-9]+[A-Za-z0-9+]*")
 _HAS_DIGIT = re.compile(r"[0-9]")
 _BIG_NUMBER = re.compile(r"[0-9]{4,}")  # a year or a price, not a model
-# 7 digits or more, however they are spaced, touching no letter: a phone or account number is not a use, so it is not
-# sent anywhere. A model's numbers stay ("rtx 4060 8gb", "i7 13700h"), and so does a price ("under 50000").
-_LONG_NUMBER = re.compile(r"(?<![A-Za-z0-9])\+?[0-9](?:[\s()./_\u2013\u2014-]*[0-9]){6,}(?![A-Za-z0-9])")
 # Words around a product's name in a title. They end a name, and they never count as part of one.
 _FILLER = frozenset(
     (  # noqa: SIM905  # one readable block of words, not one word per line
@@ -61,10 +61,10 @@ class SearchQuery:
     goes_to: Channel
 
 
-def build_queries(rubric: Rubric) -> list[SearchQuery]:
+def build_queries(rubric: Rubric, known_uses: Sequence[str] = DEFAULT_KNOWN_USES) -> list[SearchQuery]:
     """4 to 6 queries. It takes only the rubric, so the shopper's raw request can't reach them."""
     category = _category(rubric.category)
-    use = _clean_use(rubric.use_case)
+    use = known_use(rubric.use_case, known_uses)
     budget = _budget_words(rubric.budget)
     region = REGION_WORDS.get(rubric.region, "")
     for_use = f" for {use}" if use else ""
@@ -91,9 +91,9 @@ def held_query(queries: Sequence[SearchQuery]) -> SearchQuery | None:
     return queries[MAX_SERPER_FIRST_ROUND] if len(queries) > MAX_SERPER_FIRST_ROUND else None
 
 
-def reddit_query(rubric: Rubric) -> str:
+def reddit_query(rubric: Rubric, known_uses: Sequence[str] = DEFAULT_KNOWN_USES) -> str:
     """Query 4: Reddit matches its words against the cached listings, with no Serper call."""
-    use = _clean_use(rubric.use_case)
+    use = known_use(rubric.use_case, known_uses)
     for_use = f" for {use}" if use else ""
     return _join(f"{_category(rubric.category)}{for_use}", "recommendations")
 
@@ -196,26 +196,20 @@ def _join(*parts: str) -> str:
     return " ".join(part for part in parts if part)
 
 
-def _clean_use(use_case: str | None) -> str:
-    """Lowercase words with no search operators, at most MAX_USE_CHARS long. Empty if nothing is left."""
+def known_use(use_case: str | None, known_uses: Sequence[str]) -> str:
+    """The first known use the shopper's words name, as we spell it, or nothing. Their own words never go further."""
     if not use_case:
         return ""
-    words: list[str] = []
-    for token in _LONG_NUMBER.sub(" ", use_case).split():
-        if ":" in token or token.strip("\"'") in _OPERATOR_WORDS:
-            continue
-        words.extend(_USE_WORD.findall(token))
-    kept: list[str] = []
-    for word in words:
-        if len(" ".join([*kept, word])) > MAX_USE_CHARS:
-            break
-        kept.append(word.lower())
-    return " ".join(kept)
+    words = " ".join(token for token in use_case.split() if "@" not in token)  # an email's domain is not a use
+    plain = _NOT_A_WORD.sub(" ", words.casefold()).strip()
+    text = f" {plain} "
+    found = [(text.index(f" {use} "), use) for use in known_uses if f" {use} " in text]
+    return min(found)[1] if found else ""
 
 
 def _clean_name(name: str) -> str:
-    words = [word for token in name.split() if ":" not in token for word in _USE_WORD.findall(token)]
-    return " ".join(words)[:MAX_USE_CHARS].strip()
+    words = [word for token in name.split() if ":" not in token for word in _NAME_TOKEN.findall(token)]
+    return " ".join(words)[:MAX_NAME_CHARS].strip()
 
 
 def _budget_words(budget: Budget | None) -> str:

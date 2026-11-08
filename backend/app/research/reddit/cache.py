@@ -1,11 +1,12 @@
-"""24-hour cache of Reddit answers (US-12, build rule 7), in memory and in the git-ignored backend/.cache/reddit/.
+"""Cache of Reddit answers (US-12, build rule 7), in memory and in the git-ignored backend/.cache/reddit/.
 
 What is cached is the cleaned Sources, never the archive's raw reply: so no username is ever written to disk.
 Only complete answers are cached, never a failure. A broken or old file is ignored, and a failed write never
 stops a search (build rule 10).
 
-D-53 keeps Reddit data at most 24 hours, counted from when it was read. So an answer's age is its oldest source's, and
-storing a thread again with its comments doesn't restart the clock. Nothing is served past that. Files past it are
+D-53 keeps Reddit data at most 24 hours, counted from when it was read, and covers every copy we hold. So an answer's
+age is its oldest source's, and storing a thread again with its comments doesn't restart the clock. An answer is served
+only while younger than 24 hours minus SEARCH_RUN_KEEP_MINUTES, so a finished run holding it is gone in time. Files past
 deleted by the next search (the research stage sweeps first, whatever else works), and by the first use of a cache. A
 machine that runs no search deletes nothing until it does.
 """
@@ -17,13 +18,14 @@ import json
 import logging
 import os
 import threading
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from pydantic import ValidationError
 
 from app.contracts import Source
+from app.search_run_limits import keep_minutes
 
 log = logging.getLogger(__name__)
 
@@ -38,15 +40,20 @@ def _utc_now() -> datetime:
     return datetime.now(UTC)
 
 
+def serve_limit(env: Mapping[str, str] | None = None) -> timedelta:
+    """How long a Reddit answer may be served."""
+    return DEFAULT_TTL - timedelta(minutes=keep_minutes(env))
+
+
 class RedditCache:
     def __init__(
         self,
         folder: Path | None = DEFAULT_CACHE_DIR,
-        ttl: timedelta = DEFAULT_TTL,
+        ttl: timedelta | None = None,
         now: Callable[[], datetime] = _utc_now,
     ) -> None:
         self.folder = folder
-        self.ttl = ttl
+        self.ttl = ttl if ttl is not None else serve_limit()
         self._now = now
         self._lock = threading.Lock()
         self._memory: dict[str, tuple[datetime, tuple[Source, ...]]] = {}
