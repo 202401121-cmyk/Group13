@@ -41,6 +41,7 @@ from app.contracts import (
 )
 
 from .cache import ResearchCache, sweep_expired_files
+from .capping import cap_source
 from .client import ClientUnavailable, build_research_client
 from .fetching import FetchRun, shared_pool
 from .pages import PageResult, ReviewPages
@@ -494,7 +495,8 @@ class _Job:
         texts = [q.text for q in self.queries]
         if self.comparison is not None:
             texts.append(self.comparison.text)
-        return ResearchResult(queries=texts, sources=sources, failures=self._failures())
+        capped = [cap_source(source, self.settings.max_source_tokens) for source in sources]
+        return ResearchResult(queries=texts, sources=capped, failures=self._failures())
 
     def report(self, book: UsageBook) -> ResearchReport:
         threads = len(self.threads.snapshot())

@@ -81,6 +81,8 @@ class ResearchSettings(BaseModel):
     threads_with_comments: int = Field(default=6, ge=0)
     min_page_chars: int = Field(default=500, ge=1)
     max_page_bytes: int = Field(default=1_500_000, ge=1)
+    # Above about 5,000 a source no longer fits every model untrimmed, and trimming could cut off its data block.
+    max_source_tokens: int = Field(default=3000, ge=100, le=5000)
     serper_interval_s: float = Field(default=0.2, ge=0)
     page_interval_s: float = Field(default=2.0, ge=0)
     max_crawl_delay_s: float = Field(default=10.0, ge=0)

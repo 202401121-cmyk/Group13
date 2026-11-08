@@ -40,7 +40,7 @@ from .errors import AttemptOutcome, InvalidOutput, ProviderFailure, ProviderTime
 from .fitting import CHUNKABLE_TASKS, FitResult, estimate_tokens, fit, merge_chunk_results, reserve_output
 from .health import ProviderHealth
 from .limits import DailyTokenBudget, RateLimiter
-from .output import build_system_prompt, parse_output
+from .output import RETRIEVED_TEXT_TASKS, build_system_prompt, parse_output
 from .pool import ATTEMPT_SHARE, BULK_TASKS, CALL_MARGIN_S, ModelPool, time_limit_s
 from .providers import Adapter, OpenAICompatibleAdapter, build_http_client, note_no_client
 
@@ -356,7 +356,7 @@ class WrapperLLMClient:
                 unanswered = 0
                 tokens_in += raw.input_tokens
                 tokens_out += raw.output_tokens
-                answers.append(parse_output(raw.text, call.schema))
+                answers.append(parse_output(raw.text, call.schema, strict=call.task in RETRIEVED_TEXT_TASKS))
             result = merge_chunk_results(answers, call.schema) if fitted.mode == "chunked" else answers[0]
         except (InvalidOutput, ValidationError):
             outcome = "invalid_output"  # the provider did answer, so its health is fine

@@ -10,6 +10,7 @@ max_web_results: 20
 max_review_pages: 12
 max_pages_per_domain: 3
 threads_with_comments: 6 # comments are read for the top threads only
+max_source_tokens: 3000 # the most one source may hold, counted the way the LLM wrapper counts tokens
 
 # A page with less readable text than this probably needs JavaScript, so it is skipped until US-38 adds the page reader.
 min_page_chars: 500

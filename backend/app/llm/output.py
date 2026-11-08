@@ -3,6 +3,9 @@
 Accepted: a JSON object that is the whole reply, sits inside a ``` fence, or has prose around it.
 Nothing is repaired. Trailing commas, bad quotes and truncation make the reply invalid, because guessing
 what the model meant is how wrong data gets in (the team's rule: "never guess").
+
+A call that reads retrieved text is stricter (US-28): the whole reply must be the object, or one fence holding only
+it. Prose around it is refused, because a hostile page could have asked for it.
 """
 
 from __future__ import annotations
@@ -14,6 +17,8 @@ from typing import Any, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
+from app.contracts import LLMTask
+
 from .errors import InvalidOutput
 
 M = TypeVar("M", bound=BaseModel)
@@ -21,6 +26,12 @@ M = TypeVar("M", bound=BaseModel)
 JSON_INSTRUCTION = "Reply with only a JSON object that matches this JSON schema, and no other text:"
 
 _FENCE = re.compile(r"```[A-Za-z]*[ \t]*\n?(.*?)```", re.DOTALL)
+_WHOLE_FENCE = re.compile(r"```[A-Za-z]*[ \t]*\n?(.*)```", re.DOTALL)
+
+# The calls whose prompt holds retrieved text (build rule 3).
+RETRIEVED_TEXT_TASKS: frozenset[LLMTask] = frozenset(
+    {LLMTask.EXTRACT_CLAIMS, LLMTask.DISCOVER_ALIASES, LLMTask.ENRICH_EXTRACT, LLMTask.WRITE_EXPLANATION}
+)
 
 
 def build_system_prompt(system: str, schema: type[BaseModel]) -> str:
@@ -29,9 +40,9 @@ def build_system_prompt(system: str, schema: type[BaseModel]) -> str:
     return f"{system.rstrip()}\n\n{JSON_INSTRUCTION}\n{schema_json}"
 
 
-def parse_output(text: str, schema: type[M]) -> M:
+def parse_output(text: str, schema: type[M], *, strict: bool = False) -> M:
     """The reply as an instance of `schema`, or InvalidOutput. Never crashes on any input text."""
-    obj = _find_object(text)
+    obj = _find_object(text, strict)
     try:
         return schema.model_validate(obj)
     except ValidationError as exc:
@@ -39,10 +50,10 @@ def parse_output(text: str, schema: type[M]) -> M:
         raise InvalidOutput(f"the reply does not match {schema.__name__} ({exc.error_count()} errors)") from None
 
 
-def _find_object(text: str) -> dict[str, Any]:
+def _find_object(text: str, strict: bool) -> dict[str, Any]:
     if not text.strip():
         raise InvalidOutput("the reply was empty")
-    for candidate in _candidates(text.strip()):
+    for candidate in _whole_reply(text.strip()) if strict else _candidates(text.strip()):
         try:
             value = json.loads(candidate)
         except json.JSONDecodeError:
@@ -51,6 +62,14 @@ def _find_object(text: str) -> dict[str, Any]:
             return value
         raise InvalidOutput(f"the reply is a JSON {type(value).__name__}, not an object")
     raise InvalidOutput("the reply has no complete JSON object")
+
+
+def _whole_reply(text: str) -> Iterator[str]:
+    """The whole reply, or what one fence holds if that fence is the whole reply."""
+    yield text
+    fence = _WHOLE_FENCE.fullmatch(text)
+    if fence is not None:
+        yield fence.group(1).strip()  # two fences read as one, which is not JSON
 
 
 def _candidates(text: str) -> Iterator[str]:
