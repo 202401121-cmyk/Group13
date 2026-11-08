@@ -24,6 +24,7 @@ from app.contracts import examples as ex
 from app.db import DatabaseSettings, PostgresRequestStore
 from app.main import create_app
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
+from app.research.retention import without_reddit_text
 from tests.integration import test_requests_table as requests_table
 
 pytestmark = pytest.mark.db
@@ -58,19 +59,19 @@ def store(database_url: str) -> Iterator[PostgresRequestStore]:
     built.close()
 
 
-def test_database_on_gives_saved_true_and_one_row_equal_to_the_response(
+def test_database_on_gives_saved_true_and_one_row_equal_to_the_response_with_no_reddit_text(
     store: PostgresRequestStore, database_url: str
 ) -> None:
     session = new_session()
     result = run_search(store, session)
     assert result.saved is True
     [stored] = stored_results(database_url, session)
-    assert stored == result.model_dump(mode="json")
-    assert SearchResult.model_validate(stored) == result
+    # The one difference from the response: Reddit data may be kept at most 24 hours, and a row stays (D-53).
+    assert stored == without_reddit_text(result.model_dump(mode="json"))
     assert stored["saved"] is True
 
 
-def test_the_api_stores_exactly_what_it_answers(
+def test_the_api_stores_what_it_answers_with_no_reddit_text(
     store: PostgresRequestStore, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr("app.db.default_request_store", lambda: store)
@@ -80,7 +81,7 @@ def test_the_api_stores_exactly_what_it_answers(
     body = response.json()
     assert body["saved"] is True
     [stored] = stored_results(database_url, session)
-    assert SearchResult.model_validate(stored) == SearchResult.model_validate(body)
+    assert SearchResult.model_validate(stored) == SearchResult.model_validate(without_reddit_text(body))
 
 
 def test_the_cli_stores_the_request_and_the_search_under_one_session(

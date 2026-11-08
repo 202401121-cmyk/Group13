@@ -1,0 +1,46 @@
+# How the research stage fetches (US-12, US-27). Loaded by app/research/settings.py; a bad file logs a warning and the
+# defaults there are used, so a typo never stops a search. docs/api-setup.md explains each limit.
+
+pool_size: 6 # one thread pool of this fixed size for all source fetches
+deadline_s: 36 # returns whatever finished by then, safely inside the stage's 40-second limit
+
+# At most this many sources of each type. They must add up to 60 or fewer: ResearchResult's own limit.
+max_reddit_threads: 20
+max_web_results: 20
+max_review_pages: 12
+max_pages_per_domain: 3
+threads_with_comments: 6 # comments are read for the top threads only
+
+# A page with less readable text than this probably needs JavaScript, so it is skipped until US-38 adds the page reader.
+min_page_chars: 500
+max_page_bytes: 1500000
+
+# Our own limits. Arctic Shift (1 a second) and PullPush (1 every 2 seconds) keep theirs in app/research/reddit/.
+serper_interval_s: 0.2 # 5 a second: Serper's docs give none we could confirm
+page_interval_s: 2.0 # for each review site; a longer Crawl-delay in its robots.txt wins
+max_crawl_delay_s: 10 # a site that asks for more is skipped
+
+# What each provider may use. Only requests really sent count; a cache hit is free. A capped provider is skipped, and the
+# coverage note says so. Counts live in the git-ignored backend/.cache/research/usage.json, and survive a restart.
+caps:
+  serper:
+    per_search: 6
+    per_day: 60
+    total: 2400 # the free plan is 2,500 queries once, never renewed, so a daily cap alone can't protect it
+  reddit_archive:
+    per_search: 10
+    per_day: 500
+  pages: # robots.txt requests and redirects count too: 12 pages, 7 robots files and a few hops
+    per_search: 24
+    per_day: 200
+
+# Review sites read directly: found through Serper, with our User-Agent, obeying robots.txt. Their terms still need a
+# person's check (docs/api-setup.md). Never list reddit.com or youtube.com: the fetcher refuses them anyway.
+review_domains:
+  - 91mobiles.com
+  - smartprix.com
+  - digit.in
+  - gadgets360.com
+  - notebookcheck.net
+  - gsmarena.com
+  - rtings.com

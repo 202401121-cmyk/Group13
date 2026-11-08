@@ -19,7 +19,7 @@ from typing import Any
 from app.contracts import RedditOrigin, Source, SourceFailure
 from app.db.breaker import CircuitBreaker
 
-from .archive import comments_to_sources, post_to_source
+from .archive import add_comments, comments_to_sources, comments_to_tree, post_to_source
 from .base import (
     FailureReason,
     RedditResult,
@@ -31,6 +31,7 @@ from .base import (
     newest,
     query_words,
     valid_subreddit,
+    worth_naming,
 )
 from .cache import CacheKey, RedditCache
 from .parsing import RawComment, RawPost
@@ -110,9 +111,9 @@ class OfficialRedditSource:
             if problem is not None:
                 failures.append(problem)
         if failures and len(failures) == len(names):
-            return RedditResult(failure=failures[0])
+            return RedditResult(failure=failures[0], partial=worth_naming(failures[1:]))
         kept = tuple(best_matches(found, words, max(1, limit)))
-        return RedditResult(kept, newest(kept), None, origin=self.name)
+        return RedditResult(kept, newest(kept), None, origin=self.name, partial=worth_naming(failures))
 
     def _search(
         self, subreddit: str, q: str, size: int, budget: RequestBudget | None
@@ -168,6 +169,36 @@ class OfficialRedditSource:
         self.cache.put(key, sources)
         return RedditResult(tuple(sources), newest(sources), None, origin=self.name)
 
+    def with_comments(
+        self, thread: Source, depth: int = 3, limit: int = 100, budget: RequestBudget | None = None
+    ) -> RedditResult:
+        """The thread as it was handed in, with its comments as a tree on it, as the archives give it."""
+        tid = bare_id(str(thread.url).rstrip("/").split("/")[-1])
+        if tid is None:
+            return RedditResult(failure=failure("not_found", "not a Reddit thread"))
+        size = max(1, min(limit, MAX_LIMIT))
+        key: CacheKey = (self.name, "thread_comments", tid, depth, size)
+        cached = self.cache.get(key)
+        if cached:  # only the comments: a near-duplicate's URL on this copy of the thread must survive
+            again = add_comments(thread, cached[0].comments)
+            return RedditResult((again,), newest([again]), None, origin=self.name)
+        problem = self._may_call(budget)
+        if problem is not None:
+            return RedditResult(failure=problem)
+        subreddit = (thread.community or "").removeprefix("r/")
+        try:
+            submission = self.reddit.submission(id=tid)
+            submission.comments.replace_more(limit=0)  # no extra requests for collapsed replies
+            comments = [raw_comment(c, tid, subreddit) for c in submission.comments.list()[:size]]
+        except Exception as exc:  # see _search
+            self.breaker.record_failure()
+            return RedditResult(failure=failure_for(exc))
+        self.breaker.record_success()
+        tree = comments_to_tree([c for c in comments if c is not None], tid, depth, self.salt)
+        updated = add_comments(thread, tree)
+        self.cache.put(key, [updated])
+        return RedditResult((updated,), newest([updated]), None, origin=self.name)
+
     def _may_call(self, budget: RequestBudget | None) -> SourceFailure | None:
         if budget is not None and budget.left == 0:
             return failure("quota_exhausted", "Reddit API: this search's Reddit requests are used up")
@@ -201,6 +232,8 @@ def raw_post(submission: Any) -> RawPost | None:
             created_utc=getattr(submission, "created_utc", None),
             over_18=bool(getattr(submission, "over_18", False)),
             removed_by_category=getattr(submission, "removed_by_category", None),
+            score=getattr(submission, "score", None),
+            num_comments=getattr(submission, "num_comments", None),
         )
     except ValueError:
         return None
@@ -216,13 +249,20 @@ def raw_comment(comment: Any, thread_id: str, subreddit: str) -> RawComment | No
             body=_text(getattr(comment, "body", "")),
             author=_author(comment) or "[deleted]",
             created_utc=getattr(comment, "created_utc", None),
+            score=getattr(comment, "score", None),
         )
     except ValueError:
         return None
 
 
 def build_official_source(
-    client_id: str, client_secret: str, user_agent: str, *, salt: str | None, cache: RedditCache | None = None
+    client_id: str,
+    client_secret: str,
+    user_agent: str,
+    *,
+    salt: str | None,
+    cache: RedditCache | None = None,
+    breaker: CircuitBreaker | None = None,
 ) -> OfficialRedditSource:
     """A read-only PRAW client with app-only sign-in. Creating it sends no request."""
     import praw  # here, not at the top: only REDDIT_SOURCE=official needs it
@@ -237,4 +277,4 @@ def build_official_source(
     )
     reddit.read_only = True
     log.info("reddit: using Reddit's own API (read-only)")
-    return OfficialRedditSource(reddit, salt=salt, cache=cache)
+    return OfficialRedditSource(reddit, salt=salt, cache=cache, breaker=breaker)

@@ -67,7 +67,8 @@ from app.entities import MatchStage
 from app.explain import ExplainStage
 from app.extract import ExtractStage
 from app.llm.errors import AuthFailed, InvalidOutput, ProviderTimeout, RateLimited, ServerError
-from app.research import ResearchStage
+from app.research import default_research_stage
+from app.research.retention import without_reddit_text
 from app.verify import VerifyStage
 
 log = logging.getLogger(__name__)
@@ -183,6 +184,7 @@ _SEVERITY = {
     StageStatus.FAILED: 4,
 }
 
+OLDER_ARCHIVE_NOTE = "Reddit results came from an older archive (to May 2025)."
 SOURCE_LABELS = {
     SourceType.REDDIT: "Reddit",
     SourceType.YOUTUBE: "YouTube",
@@ -194,8 +196,8 @@ SOURCE_LABELS = {
 }
 FAILURE_WORDS = {
     "timeout": "timed out",
-    "rate_limited": "hit its rate limit",
-    "blocked": "was blocked",
+    "rate_limited": "hit a rate limit",
+    "blocked": "could not be read",
     "not_found": "found nothing",
     "quota_exhausted": "ran out of quota",
     "error": "had an error",
@@ -241,8 +243,11 @@ class DatabaseResultStore:
     def save(self, result: SearchResult) -> bool:
         request = result.request
         # mode="json": a plain dump holds datetimes and URLs, which the database module refuses.
+        # A saved row stays, and Reddit data may be kept at most 24 hours (D-53), so its text never reaches the row.
         return self.requests.save_search(
-            request.session_id, request.rubric.model_dump(mode="json"), result.model_dump(mode="json")
+            request.session_id,
+            request.rubric.model_dump(mode="json"),
+            without_reddit_text(result.model_dump(mode="json")),
         )
 
 
@@ -265,7 +270,7 @@ class SearchStages:
 
 def default_search_stages() -> SearchStages:
     return SearchStages(
-        research=ResearchStage(),
+        research=default_research_stage(),
         extract=ExtractStage(),
         match=MatchStage(),
         verify=VerifyStage(),
@@ -710,7 +715,9 @@ class _Search:
             for p in (self.match_out.products if self.match_out else [])
         ]
         failures = self.research_out.failures if self.research_out else []
-        note = build_coverage_note(self.reports, failures, partial)
+        found = self.research_out.sources if self.research_out else []
+        older_archive = any(s.source_detail == "pullpush" for s in found)
+        note = build_coverage_note(self.reports, failures, partial, older_archive=older_archive)
         return SearchResult(
             search_id=self.ctx.search_id,
             request=self.request,
@@ -746,7 +753,9 @@ def _merge(stage: StageName, reports: list[StageReport]) -> StageReport:
 # --- the coverage note --------------------------------------------------------------------------
 
 
-def build_coverage_note(reports: Iterable[StageReport], failures: Iterable[SourceFailure], partial: bool) -> str | None:
+def build_coverage_note(
+    reports: Iterable[StageReport], failures: Iterable[SourceFailure], partial: bool, *, older_archive: bool = False
+) -> str | None:
     """Plain-English summary of everything that did not go to plan. None when everything did."""
     parts: list[str] = []
     skipped: dict[str, list[str]] = {}
@@ -763,6 +772,8 @@ def build_coverage_note(reports: Iterable[StageReport], failures: Iterable[Sourc
             skipped.setdefault(reason, []).append(r.stage.value)
     for f in failures:
         parts.append(f"{SOURCE_LABELS[f.source_type]} {FAILURE_WORDS[f.reason]}.")
+    if older_archive:
+        parts.append(OLDER_ARCHIVE_NOTE)
     for reason, stages in skipped.items():
         parts.append(f"Skipped {', '.join(stages)} because {reason}.")
     if partial:

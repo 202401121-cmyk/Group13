@@ -5,9 +5,10 @@ free, keyless API. We follow its rules: at most one request a second from the wh
 every request, and on HTTP 429 (or 422 "Timeout. Maybe slow down a bit") we wait for X-RateLimit-Reset (at most
 30 s) and retry once. After 3 failures in a row it is paused for 10 minutes, then one trial request.
 
-Its copy lags Reddit by a few days and scores settle after about 36 hours, so results carry the coverage note
-"Reddit via archive: may miss posts from the last few days". Comments reach the archive a day or two after their
-thread: on 3 Nov 2026, threads from 31 Oct had all their comments there and most threads from 1-2 Nov had none.
+Its copy lags Reddit by a few days and scores settle after about 36 hours, so its answers carry the note "Reddit via
+archive: may miss posts from the last few days" in RedditResult.coverage_note. The research stage does not show it to
+shoppers: it would be on every search, and ResearchResult has no field for it. Comments reach the archive a day or two
+after their thread: on 3 Nov 2026, threads from 31 Oct had all their comments there and most from 1-2 Nov had none.
 So the listing stops 2 days before today (COMMENT_LAG): a thread is only worth reading once its replies are in.
 
 Threads are found by asking for a subreddit's newest 100 posts inside a date window and matching the query's

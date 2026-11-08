@@ -3,6 +3,11 @@
 What is cached is the cleaned Sources, never the archive's raw reply: so no username is ever written to disk.
 Only complete answers are cached, never a failure. A broken or old file is ignored, and a failed write never
 stops a search (build rule 10).
+
+D-53 keeps Reddit data at most 24 hours, counted from when it was read. So an answer's age is its oldest source's, and
+storing a thread again with its comments doesn't restart the clock. Nothing is served past that. Files past it are
+deleted by the next search (the research stage sweeps first, whatever else works), and by the first use of a cache. A
+machine that runs no search deletes nothing until it does.
 """
 
 from __future__ import annotations
@@ -10,6 +15,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import os
 import threading
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime, timedelta
@@ -44,8 +50,17 @@ class RedditCache:
         self._now = now
         self._lock = threading.Lock()
         self._memory: dict[str, tuple[datetime, tuple[Source, ...]]] = {}
+        self._swept = False
+
+    def _sweep_once(self) -> None:
+        with self._lock:
+            if self._swept:
+                return
+            self._swept = True
+        delete_expired(self.folder, self.ttl, self._now)
 
     def get(self, key: CacheKey) -> tuple[Source, ...] | None:
+        self._sweep_once()
         name = _name(key)
         with self._lock:
             hit = self._memory.get(name)
@@ -59,8 +74,9 @@ class RedditCache:
         return hit[1]
 
     def put(self, key: CacheKey, sources: Sequence[Source]) -> None:
+        self._sweep_once()
         name = _name(key)
-        saved = (self._now(), tuple(sources))
+        saved = (min([self._now(), *(s.fetched_at for s in sources)]), tuple(sources))
         with self._lock:
             self._memory[name] = saved
         if self.folder is None:
@@ -72,7 +88,9 @@ class RedditCache:
         }
         try:
             self.folder.mkdir(parents=True, exist_ok=True)
-            (self.folder / f"{name}.json").write_text(json.dumps(body, ensure_ascii=False), encoding="utf-8")
+            path = self.folder / f"{name}.json"
+            path.write_text(json.dumps(body, ensure_ascii=False), encoding="utf-8")
+            os.utime(path, (saved[0].timestamp(), saved[0].timestamp()))
         except OSError as exc:
             log.warning("reddit cache: could not save an answer (%s); carrying on", type(exc).__name__)
 
@@ -94,6 +112,24 @@ class RedditCache:
         if saved_at.tzinfo is None:
             return None
         return saved_at, sources
+
+
+def delete_expired(folder: Path | None, ttl: timedelta, now: Callable[[], datetime] = _utc_now) -> None:
+    """Delete this folder's cache files older than `ttl`. Never raises: one we can't delete is tried again next time."""
+    if folder is None:
+        return
+    oldest_allowed = (now() - ttl).timestamp()
+    try:
+        paths = list(folder.glob("*.json"))
+    except OSError as exc:
+        log.warning("cache: could not read a folder (%s); carrying on", type(exc).__name__)
+        return
+    for path in paths:
+        try:
+            if path.stat().st_mtime <= oldest_allowed:
+                path.unlink()
+        except OSError as exc:
+            log.warning("cache: could not delete an old file (%s); carrying on", type(exc).__name__)
 
 
 def _name(key: CacheKey) -> str:

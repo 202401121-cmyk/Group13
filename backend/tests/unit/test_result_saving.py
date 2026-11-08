@@ -19,6 +19,7 @@ from app.db import InMemoryRequestStore, NullRequestStore, RequestStore
 from app.main import create_app
 from app.pipeline import DatabaseResultStore, InMemoryResultStore, PipelineRunner, default_search_stages
 from app.research import ResearchStage
+from app.research.retention import without_reddit_text
 
 QUERY = "best laptop for coding under 70k"
 NOT_SAVED_LINE = "This search could not be saved."
@@ -43,14 +44,16 @@ def api_search(monkeypatch: pytest.MonkeyPatch, database: RequestStore) -> dict[
 # --- the runner ----------------------------------------------------------------------------------
 
 
-def test_a_committed_row_gives_saved_true_and_holds_exactly_the_response() -> None:
+def test_a_committed_row_gives_saved_true_and_holds_the_response_with_no_reddit_text() -> None:
+    """The one difference from the response: Reddit data may be kept at most 24 hours, and a row stays (D-53)."""
     database = InMemoryRequestStore()
     result = run_search(database)
     assert result.saved is True
     [row] = database.searches
     assert row.session_id == ex.SESSION_ID
     assert json.loads(row.rubric) == ex.rubric().model_dump(mode="json")
-    assert json.loads(row.result) == result.model_dump(mode="json")
+    assert json.loads(row.result) == without_reddit_text(result.model_dump(mode="json"))
+    assert any(s.type is C.SourceType.REDDIT for s in result.sources)  # so this really does check the difference
 
 
 def test_with_the_database_off_saved_is_false_and_the_search_still_finishes() -> None:
@@ -109,7 +112,9 @@ def test_the_api_saves_the_finished_search(monkeypatch: pytest.MonkeyPatch) -> N
     body = api_search(monkeypatch, database)
     assert body["saved"] is True
     [row] = database.searches
-    assert C.SearchResult.model_validate(json.loads(row.result)) == C.SearchResult.model_validate(body)
+    assert C.SearchResult.model_validate(json.loads(row.result)) == C.SearchResult.model_validate(
+        without_reddit_text(body)
+    )
 
 
 def test_the_api_says_not_saved_with_the_database_off(monkeypatch: pytest.MonkeyPatch) -> None:

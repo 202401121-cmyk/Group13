@@ -4,7 +4,7 @@ from app.research.reddit import RequestBudget, build_reddit_source, subreddits_f
 reddit = build_reddit_source()  # None when REDDIT_SOURCE=off
 result = reddit.search_threads("laptop for coding", subreddits_for("laptop"), budget=RequestBudget())
 
-The research stage stays a stub until its own story wires this in; see base.py for the rules every source keeps.
+The research stage (app/research/stage.py) uses this; see base.py for the rules every source keeps.
 """
 
 from .archive import ArchiveRedditSource

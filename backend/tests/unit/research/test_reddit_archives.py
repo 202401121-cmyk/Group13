@@ -129,3 +129,70 @@ def test_reddit_archives_sets_the_order_and_the_urls() -> None:
 
 def test_off_means_no_reddit_source() -> None:
     assert build_reddit_source(load_reddit_settings({"REDDIT_SOURCE": "off"})) is None
+
+
+def test_a_fresh_archive_failing_stays_named_if_the_older_one_then_finds_nothing() -> None:
+    arctic = Archive().on(AS_POSTS, httpx.Response(503))
+    pullpush = Archive().on(PP_POSTS, ok({"data": []}))
+    result = _chain(arctic, pullpush).search_threads("laptop", ["laptops"])
+    assert result.sources == () and result.failure is None
+    assert [f.reason for f in result.partial] == ["error"]
+
+
+def test_an_older_archive_failing_after_a_fresh_one_found_nothing_is_not_named() -> None:
+    arctic = Archive().on(AS_POSTS, ok({"data": []}))
+    pullpush = Archive().on(PP_POSTS, httpx.Response(522))
+    assert _chain(arctic, pullpush).search_threads("laptop", ["laptops"]).partial == ()
+
+
+def test_threads_from_the_older_archive_name_only_a_cap() -> None:
+    failed = Archive().on(AS_POSTS, httpx.Response(503))
+    older = Archive().on(PP_POSTS, ok(fixture("pullpush_submissions.json")))
+    assert _chain(failed, older).search_threads("laptop for coding", ["SuggestALaptop"]).partial == ()
+
+
+def test_a_cap_is_named_even_when_another_failure_came_first() -> None:
+    """One request left, and it fails. Every other subreddit and archive then says the cap, which must not be lost."""
+    arctic = Archive().on(AS_POSTS, httpx.Response(503))
+    pullpush = Archive().on(PP_POSTS, ok({"data": []}))
+    result = _chain(arctic, pullpush).search_threads("laptop", ["laptops", "Monitors"], budget=RequestBudget(1))
+    assert result.failure is not None and result.failure.reason == "error"
+    assert "quota_exhausted" in {f.reason for f in result.partial}
+
+
+def test_a_cap_reached_by_a_later_archive_after_a_fresh_one_found_nothing_is_named() -> None:
+    arctic = Archive().on(AS_POSTS, ok({"data": []}))
+    pullpush = Archive().on(PP_POSTS, ok({"data": []}))
+    result = _chain(arctic, pullpush).search_threads("laptop", ["laptops"], budget=RequestBudget(1))
+    assert [f.reason for f in result.partial] == ["quota_exhausted"]
+
+
+def test_a_bad_archive_address_is_a_failure_not_a_crash() -> None:
+    source = ArcticShiftSource(
+        httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200))),
+        base_url="https://a:b",
+        cache=RedditCache(folder=None, now=lambda: NOW),
+        limiter=IntervalLimiter(0),
+        breaker=CircuitBreaker(3, 600),
+        now=lambda: NOW,
+    )
+    result = source.search_threads("laptop", ["laptops"])
+    assert result.failure is not None and result.failure.reason == "error"
+
+
+def test_one_archive_alone_names_every_failure_when_all_its_subreddits_fail() -> None:
+    arctic = Archive().on(AS_POSTS, httpx.Response(503))
+    alone = _chain(arctic, Archive()).archives[0]
+    result = alone.search_threads("laptop", ["laptops", "Monitors"], budget=RequestBudget(1))
+    assert result.failure is not None and result.failure.reason == "error"
+    assert [f.reason for f in result.partial] == ["quota_exhausted"]
+
+
+def test_a_cap_is_named_even_when_the_older_archive_answers_from_its_cache() -> None:
+    arctic = Archive().on(AS_POSTS, httpx.Response(503))
+    older = Archive().on(PP_POSTS, ok(fixture("pullpush_submissions.json")))
+    chain = _chain(arctic, older)
+    assert chain.search_threads("laptop for coding", ["SuggestALaptop"]).sources
+    again = chain.search_threads("laptop for coding", ["SuggestALaptop"], budget=RequestBudget(0))
+    assert again.sources
+    assert [f.reason for f in again.partial] == ["quota_exhausted"]

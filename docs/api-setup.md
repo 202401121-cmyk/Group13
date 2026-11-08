@@ -250,8 +250,10 @@ actually saw. Quotes are copied from the provider's page.
   no-value-added", do not misrepresent where results come from, use one account, and don't get around the limits.
 - **Verdict: OK with these limits:** 2,500 queries in total, so cache searches for 24 hours (build rule 7) and show
   results only inside our own analysis, with their links.
-- **If it fails or runs out:** research carries on with the Reddit archives and the page reader, and
-  `coverage_note` says web search was unavailable.
+- **Our limits** (`backend/config/research.yaml`): at most 6 queries a search, 60 a day and 2,400 in total, and 5 a
+  second, which is our own choice because Serper's docs give none we could confirm. See [Research](#research-us-12-us-27).
+- **If it fails or runs out:** research carries on with the Reddit archives, and `coverage_note` says web search and
+  review sites were unavailable. A query already in the 24-hour cache still answers.
 
 ### Reddit's own API
 
@@ -462,6 +464,75 @@ unavailable for that run. It is logged once, and stages use their fallbacks. We 
 
 To turn the setting off, set `force_ipv4: false` in `backend/config/models.yaml`. You need that on a network with no IPv4.
 
+## Research (US-12, US-27)
+
+The research stage (`backend/app/research/stage.py`) builds its queries in code from the rubric, then reads three kinds of
+source at once, with no LLM call. One failing never stops the others. A source type that failed or timed out is named in
+`coverage_note`.
+
+| Source | How | Kept as |
+|---|---|---|
+| Reddit threads | The archives below, with comments for the top 6 threads | `reddit`, with `community`, `upvotes`, `comment_count`, `comments` |
+| Web search | Serper, 10 results a query | `web_search`, with `site` and the snippet as text |
+| Review sites | Pages on the sites below that Serper finds, read directly | `review_site`, with `site` |
+
+A search result pointing at Reddit keeps its title only, for counting candidates, and is never a source (D-53). One
+pointing at YouTube keeps its title and link only.
+
+**Queries.** 4 to 6, the same for the same rubric. There are 4 with no budget or use, one more for each. The first round
+sends at most 5 to Serper and holds one slot: "X vs Y" if two candidates are known, otherwise the sixth query. The slot waits
+for Reddit's listing, whose titles name products more often, but for half the deadline at most, and it isn't spent if under a
+tenth of the deadline is left. Once the first round is in, or at that halfway point, review pages are queued best-ranked first,
+so the caps pick the same pages from the same answers. A candidate
+is a product-like name in the titles of at least two different sources, found by a rule with no LLM. It misses names with
+no digit, such as `MacBook Air`, and names whose only number has 4 or more digits. A long number in the use case (7 digits
+or more, however they are spaced, as in a phone number) is dropped before any query is built. The rest of the use case is the
+shopper's own words, and it does leave the app: Serper receives it, and so does PullPush if that archive is used.
+
+**Parallel fetch.** One thread pool of a fixed size (`pool_size`, default 6). The stage returns at `deadline_s` (36 s, inside
+its 40-second limit) with whatever finished. Near-duplicate threads, with more than 60% of their title words shared, are
+merged: the higher-scored thread stays, with the others' URLs as the last lines of its text, because a `Source` has one
+`url`. Every word counts, however short and in any script: the 3 in `Swift 3` is what makes it a different laptop.
+
+| Provider | Rate limit | Per search | Per day | In total |
+|---|---|---|---|---|
+| Serper | 5 a second | 6 | 60 | 2,400 |
+| Reddit archives | 1 a second (Arctic Shift), 1 every 2 s (PullPush) | 10 | 500 | |
+| Review sites, robots.txt included | 1 every 2 s per site, or its longer `Crawl-delay` (over 10 s skips the site) | 24 | 200 | |
+
+**Counts.** Each request really sent is counted in the git-ignored `backend/.cache/research/usage.json`, per UTC day and in
+total, so the counts survive a restart. A cache hit is free. A capped provider is skipped, and `coverage_note` says it "ran
+out of quota". A capped Reddit still answers from its cache, because that costs no request. The total is for each machine:
+a key shared between machines uses its 2,500 faster than one count shows. If the file can be read but not saved, this
+process keeps its own larger count, so a cap still holds.
+
+**Coverage note.** Every different failure of a source type is named, so a timeout can't hide a cap. A subreddit that fails
+while the others answer is named too, and so is a comment read that fails. So is Arctic Shift failing when PullPush then finds
+nothing. These are not named: a subreddit or thread the archive doesn't have; PullPush failing after Arctic Shift found nothing;
+and one page failing while other pages were read, unless the failure is a cap.
+
+**Cache.** Search results, pages and robots files for 24 hours, in the git-ignored `backend/.cache/research/`. A failure is
+never cached. `RESEARCH_CACHE=off` turns it off and `RESEARCH_PAGES=off` stops page fetching, both for recording.
+
+**Review sites** (`review_domains` in research.yaml): 91mobiles, Smartprix, Digit, Gadgets 360, Notebookcheck, GSMArena and
+RTINGS. Each page is read with our User-Agent, and only if its `robots.txt` allows it. That file is read by our own RFC 9309
+parser (`app/research/robots.py`), because Python's misses wildcards and takes the first matching rule, not the longest. A
+missing file allows. An unreachable one (5xx, 429, no reply, or a redirect off these sites) says no until the next search
+asks again, and 401 or 403 says no. HTML only, at most 1.5 MB, 10 s for each read, a body cut off once it has taken 15 s
+(checked as data arrives, so a stall can add one more read's 10 s), and redirects only within these sites. A page with under 500 characters of text probably needs JavaScript, and is skipped until US-38; if
+Serper found it, its snippet stays as a `web_search` source. One page linked two ways (a trailing slash, or a redirect) is
+one source.
+
+**What their `robots.txt` said** (8 Nov 2026, the first live run): 91mobiles, Smartprix, Digit and RTINGS allow us, and
+Gadgets 360 disallows `/` for us, so it is skipped. Notebookcheck and GSMArena did not come up in that run, so theirs was
+not read. Each is read again when it is needed, at most once in 24 hours.
+
+**Open (Jenish):** these sites' terms have not been read. `robots.txt` says what a crawler may fetch, not what we may do with
+the text, so a person needs to read each site's terms and record the verdict here. Removing a site is one line of config.
+
+**Cleaning.** `clean_html` in `app/research/pages.py` strips tags and what a reader can't see, where a hostile page hides its
+orders. It stands in until US-28's shared cleaning function exists. Visible text stays, and it is data, never instructions.
+
 ## Reddit (US-12)
 
 Reddit threads are community evidence: what owners say after weeks of use. We read them through public archives,
@@ -476,7 +547,9 @@ not by scraping reddit.com.
 Every request has a 10 s timeout and the User-Agent `ShopSense/<version> (IT314 student project;
 +https://github.com/202401121-cmyk/Group13)`. One search uses about 10 requests at most (`RequestBudget`): one per
 subreddit (up to 4), the rest for comment threads. Cleaned results are cached for 24 hours in memory and in the
-git-ignored `backend/.cache/reddit/`; a failure is never cached.
+git-ignored `backend/.cache/reddit/`; a failure is never cached. Breakers and rate limiters last as long as the process, so
+one search's failures count for the next. A thread's title, text and comments have HTML entities and invisible characters
+removed before they are stored.
 
 **Rules (never break these):**
 
@@ -489,6 +562,7 @@ git-ignored `backend/.cache/reddit/`; a failure is never cached.
   inputs (the `reddit` data class, US-46), and it is never used to train or fine-tune any model of ours.
 - Every Source keeps its canonical `https://www.reddit.com/r/<sub>/comments/<id>/` permalink (built from ids, not
   copied), the time it was fetched, and `source_detail` (`arctic_shift`, `pullpush` or `official`).
+- A thread's comments keep their depth and parent, and each author only as `author_hash`.
 
 **How threads are found.** Arctic Shift's keyword search (`title`, `selftext`, `query`) is "not supported with
 very active subreddits": on 3 Nov 2026 it answered 422 at once for r/SuggestALaptop and r/laptops. So we ask for
@@ -510,9 +584,18 @@ above; not yet confirmed from Reddit's own pages). Until access is granted, leav
 create a "script" app at reddit.com/prefs/apps, set the three `REDDIT_*` API settings and `REDDIT_SOURCE=official`.
 App-only, read-only sign-in: no Reddit password is ever used.
 
+**Keeping Reddit data.** It may be kept at most 24 hours, counted from when it was read, so storing a thread again with its
+comments doesn't restart the clock. The caches serve nothing older. Expired cache files are deleted by the next search, even
+with `REDDIT_SOURCE=off`, `RESEARCH_CACHE=off` or no working client; a machine that runs no search deletes nothing until it
+does. A finished run stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES` (30 by default), so the shopper can fetch it,
+and that copy does hold Reddit text: read near the end of its 24 hours, it can outlast them by that long. A saved search holds
+no Reddit text at all: a Reddit source keeps its URL, community, fetch time, archive and counts
+(`app/research/retention.py`, and see [database.md](database.md)). US-14 and US-16 will fill fields that can carry Reddit's
+words, and must extend that module before those reach a saved row.
+
 **Open question (for Om).** We keep a quote's source for evidence. If a thread or comment is deleted on Reddit
-after we read it, should evidence we have kept for longer than the 24-hour cache be dropped too? Today nothing is
-stored past 24 hours, so the question matters once US-30 saves evidence to the database.
+after we read it, should evidence we have kept for longer than the 24-hour cache be dropped too? Today no Reddit text
+leaves the caches past 24 hours and none is saved, so the question matters once US-30 saves evidence to the database.
 
 ### Settings
 

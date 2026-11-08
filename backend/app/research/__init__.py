@@ -1,5 +1,10 @@
-"""Stage research (US-52 walking skeleton: a stub until its own story replaces it)."""
+"""The research stage (US-12, US-27). ResearchStage is the US-52 stub and baseline; LiveResearchStage is real."""
 
-from .stage import ResearchStage
+from .stage import LiveResearchStage, ResearchStage
 
-__all__ = ["ResearchStage"]
+
+def default_research_stage() -> LiveResearchStage:
+    return LiveResearchStage()
+
+
+__all__ = ["LiveResearchStage", "ResearchStage", "default_research_stage"]

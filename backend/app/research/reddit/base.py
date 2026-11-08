@@ -16,9 +16,11 @@ Rules for Reddit text, everywhere in ShopSense:
 from __future__ import annotations
 
 import hashlib
+import html
 import re
 import threading
 import time
+import unicodedata
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -42,6 +44,8 @@ STOP_WORDS = frozenset(
     ).split()
 )
 _WORD = re.compile(r"[a-z0-9]+")
+_INVISIBLE = ("Cc", "Cf", "Zl", "Zp")  # control, format (zero-width, soft hyphen) and line separator characters
+_PARAGRAPH_BREAK = re.compile(r"\n\s*\n")
 
 
 @dataclass(frozen=True)
@@ -51,8 +55,9 @@ class RedditResult:
     sources: tuple[Source, ...] = ()
     newest_at: datetime | None = None  # the newest post or comment in `sources`
     coverage_note: str | None = None  # plain words for SearchResult.coverage_note, such as an archive's lag
-    failure: SourceFailure | None = None
+    failure: SourceFailure | None = None  # nothing came back
     origin: RedditOrigin | None = None  # which source answered (None if none did)
+    partial: tuple[SourceFailure, ...] = ()  # what failed while the rest still answered: a cap, a rate limit
 
 
 class RedditSource(Protocol):
@@ -76,9 +81,39 @@ class RedditSource(Protocol):
         self, thread_id: str, depth: int = 3, limit: int = 100, budget: RequestBudget | None = None
     ) -> RedditResult: ...
 
+    def with_comments(
+        self, thread: Source, depth: int = 3, limit: int = 100, budget: RequestBudget | None = None
+    ) -> RedditResult:
+        """The thread again, with its comments as a tree on it. Authors only ever as salted hashes (D-53)."""
+        ...
+
 
 def failure(reason: FailureReason, detail: str) -> SourceFailure:
     return SourceFailure(source_type=SourceType.REDDIT, reason=reason, detail=detail[:300])
+
+
+def worth_naming(failures: Sequence[SourceFailure]) -> tuple[SourceFailure, ...]:
+    """A subreddit or thread the archive doesn't have is not something that went wrong."""
+    return tuple(f for f in failures if f.reason != "not_found")
+
+
+# --- cleaning ---------------------------------------------------------------------------------------
+
+
+def _visible(text: str) -> str:
+    return "".join(c for c in text if c in "\n\t" or unicodedata.category(c) not in _INVISIBLE)
+
+
+def tidy_text(text: str) -> str:
+    """Text as a reader sees it: no invisible characters, single spaces, no empty lines."""
+    lines = (" ".join(line.split()) for line in _visible(text).split("\n"))
+    return "\n".join(line for line in lines if line).strip()
+
+
+def clean_api_text(text: str) -> str:
+    """Text from an API: entities decoded, then tidied, with one blank line kept between paragraphs."""
+    paragraphs = _PARAGRAPH_BREAK.split(_visible(html.unescape(text)))
+    return "\n\n".join(tidied for paragraph in paragraphs if (tidied := tidy_text(paragraph)))
 
 
 # --- limits ---------------------------------------------------------------------------------------
@@ -185,13 +220,15 @@ def make_source(
     author_digest: str | None,
     fetched_at: datetime,
     comment_id: str | None = None,
+    upvotes: int | None = None,
+    comment_count: int | None = None,
 ) -> Source | None:
     """One contract Source, or None if the item cannot be one (an odd id, no text). Never raises."""
     if not valid_subreddit(subreddit) or bare_id(thread_id) is None:
         return None
     if comment_id is not None and bare_id(comment_id) is None:
         return None
-    body = text.strip()[:MAX_SOURCE_CHARS].strip()  # strip after the cut too, as the contract does: the hash must match
+    body = clean_api_text(text)[:MAX_SOURCE_CHARS].strip()  # strip after the cut: the hash must match the contract
     if not body:
         return None
     url = permalink(subreddit, thread_id, comment_id)
@@ -201,7 +238,7 @@ def make_source(
             url=url,
             type=SourceType.REDDIT,
             tier=SourceTier.COMMUNITY,
-            title=title.strip()[:300],
+            title=" ".join(clean_api_text(title).split())[:300].strip(),
             text=body,
             text_hash=hashlib.sha256(body.encode()).hexdigest(),
             fetched_at=fetched_at,
@@ -211,6 +248,8 @@ def make_source(
             via="api",
             source_detail=origin,
             author_hash=author_digest,
+            upvotes=upvotes,
+            comment_count=None if comment_count is None or comment_count < 0 else comment_count,
         )
     except ValueError:  # pydantic's ValidationError is a ValueError: skip the item, never crash the search
         return None
