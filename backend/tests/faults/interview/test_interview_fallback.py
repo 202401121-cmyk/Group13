@@ -9,6 +9,7 @@ from app.contracts import (
     InterviewState,
     InterviewStep,
     InterviewTurn,
+    RoughLevel,
     StageContext,
     StageName,
     StageStatus,
@@ -48,6 +49,32 @@ def test_the_fallback_skips_the_reply_it_could_not_use_and_moves_on(monkeypatch:
     assert step is not None and step.kind == "question"
     assert step.state.history[0].status == "skipped"
     assert step.question is not None and step.question.criterion_key == "battery_life"
+
+
+@pytest.mark.parametrize("fields", [{"level": RoughLevel.HIGH}, {"exact_weight": 8.0}], ids=["level", "exact_weight"])
+def test_the_fallback_counts_a_level_or_a_weight_as_a_reply(
+    monkeypatch: pytest.MonkeyPatch, fields: dict[str, object]
+) -> None:
+    """Otherwise it would ask the same question again, as if the page had been reloaded."""
+    first = InterviewStage().run(InterviewTurn(state=_state()), CTX)
+    monkeypatch.setattr("app.interview.stage.plan_questions", _broken_plan)
+    turn = InterviewTurn(state=first.state, **fields)  # type: ignore[arg-type]
+    step, report = run_stage(InterviewStage(), turn, CTX, LIMIT)
+    assert report.status is StageStatus.FALLBACK
+    assert step is not None and step.question is not None
+    assert step.question.criterion_key == "battery_life"
+
+
+def test_the_fallback_keeps_an_exact_0_that_was_being_corrected(monkeypatch: pytest.MonkeyPatch) -> None:
+    stage = InterviewStage()
+    first = stage.run(InterviewTurn(state=_state()), CTX)
+    answered = stage.run(InterviewTurn(state=first.state, reply_text="0", exact_weight=0), CTX)
+    reopened = stage.go_back(answered.state, "q_cpu_performance")
+    monkeypatch.setattr("app.interview.stage.plan_questions", _broken_plan)
+    step, _ = run_stage(stage, InterviewTurn(state=reopened.state, reply_text="High"), CTX, LIMIT)
+    assert step is not None
+    kept = next(e for e in step.state.history if e.question.criterion_key == "cpu_performance")
+    assert (kept.status, kept.classification.weight if kept.classification else None) == ("answered", 0.0)
 
 
 def test_the_fallback_finishes_when_every_question_was_asked(monkeypatch: pytest.MonkeyPatch) -> None:

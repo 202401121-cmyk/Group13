@@ -9,6 +9,7 @@ import pytest
 
 from app.contracts import (
     MAX_UNCLEAR_PER_QUESTION,
+    ROUGH_LEVEL_WEIGHTS,
     CriteriaInput,
     CriteriaSet,
     Criterion,
@@ -16,6 +17,7 @@ from app.contracts import (
     InterviewStep,
     InterviewTurn,
     ReplyType,
+    RoughLevel,
     StageContext,
 )
 from app.contracts import examples as ex
@@ -263,3 +265,118 @@ def test_a_ten_question_interview_is_fast() -> None:
     elapsed = monotonic() - started
     assert turns == 10 and step.questions_asked == 10
     assert elapsed < 0.1, f"a full 10-question interview took {elapsed * 1000:.0f} ms"
+
+
+# --- rough answers and exact values (US-08) --------------------------------------------------------
+
+
+def answer(step: InterviewStep, text: str = "x", **fields: object) -> InterviewStep:
+    turn = InterviewTurn.model_validate({"state": step.state.model_dump(), "reply_text": text, **fields})
+    return STAGE.run(turn, CTX)
+
+
+def topic_criteria() -> CriteriaSet:
+    def crit(key: str, weight: float, vfm: bool = False) -> Criterion:
+        return Criterion(
+            key=key,
+            label=key.replace("_", " ").capitalize(),
+            definition=f"How the laptop does on {key.replace('_', ' ')} in daily use at home.",
+            default_weight=weight,
+            is_value_for_money=vfm,
+        )
+
+    return CriteriaSet(
+        category="laptop",
+        source="generated",
+        criteria=[
+            crit("battery_life", 9),
+            crit("charging_speed", 7),
+            crit("cpu_speed", 6),
+            crit("keyboard_feel", 5),
+            crit("speakers", 4),
+            crit("value_for_money", 3, vfm=True),
+        ],
+    )
+
+
+def test_good_enough_answers_the_question_and_moves_on() -> None:
+    """It used to count as an unclear reply, so two of them skipped the question."""
+    step = reply(start(), "Good enough")
+    assert step.kind == "question"
+    done = entry(step, "cpu_performance")
+    assert done.status == "answered"  # type: ignore[attr-defined]
+    assert done.classification.weight == 3.0  # type: ignore[attr-defined]
+
+
+def test_a_level_and_an_exact_weight_are_stored() -> None:
+    step = answer(start(), "Medium", level="medium")
+    step = answer(step, "7.5", exact_weight=7.5)
+    assert entry(step, "cpu_performance").classification.weight == 5.0  # type: ignore[attr-defined]
+    assert entry(step, "battery_life").classification.weight == 7.5  # type: ignore[attr-defined]
+    assert entry(step, "battery_life").reply_text == "7.5"  # type: ignore[attr-defined]
+
+
+@pytest.mark.parametrize("fields", [{"level": RoughLevel.HIGH}, {"exact_weight": 8.0}], ids=["level", "exact"])
+def test_a_turn_with_only_a_level_or_a_weight_counts_as_a_reply(fields: dict[str, object]) -> None:
+    first = start()
+    step = STAGE.run(InterviewTurn(state=first.state, **fields), CTX)  # type: ignore[arg-type]
+    done = entry(step, "cpu_performance")
+    assert done.status == "answered"  # type: ignore[attr-defined]
+    assert done.classification.weight == 8.0  # type: ignore[attr-defined]
+
+
+def test_switching_rough_to_exact_and_back_on_the_same_question() -> None:
+    step = answer(start(), "Medium", level="medium")
+    weights = [entry(step, "cpu_performance").classification.weight]  # type: ignore[attr-defined]
+
+    exact = answer(STAGE.go_back(step.state, "q_cpu_performance"), "7.5", exact_weight=7.5)
+    fixed = entry(exact, "cpu_performance")
+    assert fixed.classification.reply_type is ReplyType.CORRECTION  # type: ignore[attr-defined]
+    weights.append(fixed.classification.weight)  # type: ignore[attr-defined]
+
+    rough = answer(STAGE.go_back(exact.state, "q_cpu_performance"), "Good enough", level="good_enough")
+    weights.append(entry(rough, "cpu_performance").classification.weight)  # type: ignore[attr-defined]
+
+    assert weights == [5.0, 7.5, 3.0]
+    assert rough.question is not None and rough.question.criterion_key == "battery_life"
+    assert [e.question.criterion_key for e in rough.state.history].count("cpu_performance") == 1
+
+
+def test_a_switch_updates_the_later_questions() -> None:
+    """A low answer settles its topic. Raising it to an exact value brings the settled question back."""
+    low = answer(start(topic_criteria()), "Low", level="low")
+    assert low.question is not None and low.question.criterion_key == "cpu_speed"
+
+    raised = answer(STAGE.go_back(low.state, "q_battery_life"), "9", exact_weight=9)
+    assert raised.question is not None and raised.question.criterion_key == "charging_speed"
+
+
+def test_good_enough_does_not_settle_its_topic() -> None:
+    step = answer(start(topic_criteria()), "Good enough", level="good_enough")
+    assert step.question is not None and step.question.criterion_key == "charging_speed"
+
+
+@pytest.mark.parametrize(("weight", "asked_next"), [(2, "cpu_speed"), (2.5, "charging_speed")])
+def test_an_exact_value_settles_a_topic_only_at_or_below_the_low_level(weight: float, asked_next: str) -> None:
+    step = answer(start(topic_criteria()), str(weight), exact_weight=weight)
+    assert step.question is not None and step.question.criterion_key == asked_next
+
+
+def test_the_table_and_the_stage_agree_on_every_level() -> None:
+    for level, weight in ROUGH_LEVEL_WEIGHTS.items():
+        step = answer(start(), level.value, level=level)
+        assert entry(step, "cpu_performance").classification.weight == weight  # type: ignore[attr-defined]
+
+
+def test_an_exact_0_is_an_answer_and_survives_a_failed_correction() -> None:
+    """Zero is a real answer: it must never be mistaken for no answer at all."""
+    step = answer(start(), "0", exact_weight=0)
+    assert entry(step, "cpu_performance").status == "answered"  # type: ignore[attr-defined]
+
+    back = STAGE.go_back(step.state, "q_cpu_performance")
+    for _ in range(MAX_UNCLEAR_PER_QUESTION):
+        back = reply(back, "what?")
+
+    kept = entry(back, "cpu_performance")
+    assert kept.status == "answered"  # type: ignore[attr-defined]
+    assert kept.classification.weight == 0.0  # type: ignore[attr-defined]

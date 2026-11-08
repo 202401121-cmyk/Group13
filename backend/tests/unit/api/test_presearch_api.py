@@ -261,3 +261,98 @@ def test_cors_follows_frontend_origins_from_the_environment() -> None:
         assert allowed.headers.get("access-control-allow-origin") == "https://shopsense.example.org"
         local = custom.get("/api/health", headers={"Origin": FRONTEND})
         assert "access-control-allow-origin" not in local.headers
+
+
+# --- rough answers and exact values (US-08) --------------------------------------------------------
+
+
+def stored(client: TestClient, session_id: str, question_id: str) -> dict[str, Any]:
+    history = client.get(f"/api/presearch/{session_id}").json()["interview"]["history"]
+    found: dict[str, Any] = next(h for h in history if h["question"]["id"] == question_id)
+    return found
+
+
+def test_the_route_passes_the_level_on(client: TestClient) -> None:
+    session_id, first = ready_interview(client)
+    post(client, f"{session_id}/interview/reply", {"reply_text": "High", "level": "low"})  # the text alone would say 8
+    assert stored(client, session_id, first["question"]["id"])["classification"]["weight"] == 2.0
+
+
+def test_the_route_passes_the_exact_weight_on(client: TestClient) -> None:
+    session_id, first = ready_interview(client)
+    post(client, f"{session_id}/interview/reply", {"reply_text": "High", "exact_weight": 7.5})
+    answered = stored(client, session_id, first["question"]["id"])
+    assert (answered["status"], answered["classification"]["weight"]) == ("answered", 7.5)
+
+
+def test_level_and_exact_weight_together_get_the_plain_422_and_change_nothing(client: TestClient) -> None:
+    session_id, _ = ready_interview(client)
+    before = client.get(f"/api/presearch/{session_id}").json()
+    body = {"reply_text": "High", "level": "high", "exact_weight": 8}
+    answer = post(client, f"{session_id}/interview/reply", body, status=422)
+    assert "never both" in answer["detail"]
+    assert client.get(f"/api/presearch/{session_id}").json() == before
+
+
+@pytest.mark.parametrize("weight", [-0.1, 10.1, 11, "7", True], ids=["below", "just_above", "above", "text", "boolean"])
+def test_an_exact_weight_outside_0_to_10_gets_the_plain_422(client: TestClient, weight: object) -> None:
+    session_id, _ = ready_interview(client)
+    before = client.get(f"/api/presearch/{session_id}").json()
+    answer = post(client, f"{session_id}/interview/reply", {"reply_text": "x", "exact_weight": weight}, status=422)
+    assert isinstance(answer["detail"], str)
+    assert client.get(f"/api/presearch/{session_id}").json() == before
+
+
+@pytest.mark.parametrize("raw", ["NaN", "Infinity", "-Infinity"])
+def test_a_number_json_should_not_have_gets_the_plain_422(client: TestClient, raw: str) -> None:
+    """Python's JSON reader accepts these, so a hand-written client could send one."""
+    session_id, _ = ready_interview(client)
+    before = client.get(f"/api/presearch/{session_id}").json()
+    answer = client.post(
+        f"/api/presearch/{session_id}/interview/reply",
+        content=f'{{"reply_text": "x", "exact_weight": {raw}}}'.encode(),
+        headers={"content-type": "application/json"},
+    )
+    assert answer.status_code == 422
+    assert isinstance(answer.json()["detail"], str)
+    assert client.get(f"/api/presearch/{session_id}").json() == before
+
+
+def test_an_unknown_level_gets_the_plain_422(client: TestClient) -> None:
+    session_id, _ = ready_interview(client)
+    answer = post(client, f"{session_id}/interview/reply", {"reply_text": "x", "level": "very_high"}, status=422)
+    assert isinstance(answer["detail"], str)
+
+
+def test_switching_through_the_api_shows_in_get_session(client: TestClient) -> None:
+    session_id, first = ready_interview(client)
+    question_id = first["question"]["id"]
+    post(client, f"{session_id}/interview/reply", {"reply_text": "Low", "level": "low", "question_id": question_id})
+    assert stored(client, session_id, question_id)["classification"]["weight"] == 2.0
+
+    post(client, f"{session_id}/interview/back", {"question_id": question_id})
+    post(
+        client, f"{session_id}/interview/reply", {"reply_text": "7.5", "exact_weight": 7.5, "question_id": question_id}
+    )
+    assert stored(client, session_id, question_id)["classification"]["weight"] == 7.5
+
+    post(client, f"{session_id}/interview/back", {"question_id": question_id})
+    post(client, f"{session_id}/interview/reply", {"reply_text": "High", "level": "high", "question_id": question_id})
+    answered = stored(client, session_id, question_id)
+    assert (answered["reply_text"], answered["classification"]["weight"]) == ("High", 8.0)
+
+
+def test_an_answer_can_switch_to_an_exact_value_after_the_interview_finished(client: TestClient) -> None:
+    session_id, first = ready_interview(client)
+    question_id = first["question"]["id"]
+    step = first
+    while step["kind"] != "finished":
+        step = post(client, f"{session_id}/interview/reply", {"reply_text": "Medium", "level": "medium"})
+
+    post(client, f"{session_id}/interview/back", {"question_id": question_id})
+    done = post(client, f"{session_id}/interview/reply", {"reply_text": "7.5", "exact_weight": 7.5})
+
+    assert done["kind"] == "finished"
+    weight = next(w for w in done["rubric"]["weights"] if w["key"] == first["question"]["criterion_key"])
+    assert weight["weight"] == 7.5
+    assert abs(sum(w["normalized"] for w in done["rubric"]["weights"]) - 1) < 1e-9
