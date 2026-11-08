@@ -5,13 +5,15 @@ from __future__ import annotations
 import json
 import logging
 from collections.abc import Callable
+from typing import Any
 
 import httpx
 import pytest
 
 from app.contracts.research import MAX_SOURCE_CHARS
 from app.llm import load_llm_config
-from scripts.smoke_apis import SERVICES, limit_differences, main, recorded_thread
+from app.llm.config import LLMConfigError
+from scripts.smoke_apis import SERVICES, TIMEOUT_S, limit_differences, main, recorded_thread
 
 FAKE = "fake-key-DO-NOT-LEAK-123"
 GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"]
@@ -75,6 +77,44 @@ def run(
 def status_of(out: str, service: str) -> str:
     line = next(line for line in out.splitlines() if line.split() and line.split()[0] == service)
     return line.split()[1]
+
+
+def test_it_builds_its_client_the_way_the_app_does(monkeypatch: pytest.MonkeyPatch) -> None:
+    """So the smoke command sees what the app sees, stall or no stall."""
+    built: list[tuple[bool, dict[str, Any]]] = []
+
+    def build(force_ipv4: bool, **options: Any) -> httpx.Client:
+        built.append((force_ipv4, options))
+        return httpx.Client(transport=httpx.MockTransport(healthy))
+
+    monkeypatch.setattr("scripts.smoke_apis.build_http_client", build)
+    assert main(["--only", "groq"], env=ALL_KEYS) == 0
+    assert built == [(load_llm_config().force_ipv4, {"timeout": TIMEOUT_S})]
+
+
+def test_a_broken_model_config_does_not_stop_the_other_checks(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The LLM rows report the broken file themselves, and one failure never stops the others."""
+    built: list[bool] = []
+
+    def broken() -> None:
+        raise LLMConfigError("models.yaml is broken")
+
+    def build(force_ipv4: bool, **options: Any) -> httpx.Client:
+        built.append(force_ipv4)
+        return httpx.Client(transport=httpx.MockTransport(healthy))
+
+    monkeypatch.setattr("scripts.smoke_apis.load_llm_config", broken)
+    monkeypatch.setattr("scripts.smoke_apis.build_http_client", build)
+
+    code = main(["--only", "groq,youtube"], env=ALL_KEYS)
+
+    out = capsys.readouterr().out
+    assert status_of(out, "youtube") == "ok"
+    assert status_of(out, "groq") == "failed"
+    assert code == 1
+    assert built == [True]
 
 
 def test_every_configured_service_passes_and_exits_0(capsys: pytest.CaptureFixture[str]) -> None:

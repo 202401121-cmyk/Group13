@@ -11,10 +11,13 @@
 #            available: false skips a provider with no call, and needs an unavailable_reason.
 # routes:    the providers each call may use, in order, by data class and difficulty (US-46). See below.
 # pool:      each member is a model with its own limits, which the wrapper paces itself to (US-46). See below.
+# force_ipv4: connect to every provider over IPv4 only, because IPv6 can stall on some networks. See docs/api-setup.md.
 #
 # Free-tier limits change without notice. Run `python -m scripts.smoke_llm` and copy what you see into
 # docs/api-setup.md, then remove the UNVERIFIED comment from each row you confirmed. The routing rules (data
 # classes, difficulties and why each provider is where it is) are written up in docs/api-setup.md.
+
+force_ipv4: true
 
 providers:
   # "Groq does not retain customer data for inference requests"; its services agreement (section 4.2) does not

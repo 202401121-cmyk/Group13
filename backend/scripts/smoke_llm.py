@@ -27,7 +27,7 @@ from app.llm import load_llm_config
 from app.llm.config import LLMConfig, ProviderSettings, with_env_overrides
 from app.llm.errors import InvalidOutput, ProviderFailure
 from app.llm.output import build_system_prompt, parse_output
-from app.llm.providers import OpenAICompatibleAdapter
+from app.llm.providers import OpenAICompatibleAdapter, build_http_client
 
 SYSTEM = "You are a health check for an API client."
 USER = 'Reply with exactly this JSON object: {"ok": true}'
@@ -100,7 +100,7 @@ def main() -> int:
     load_dotenv()
     config = with_env_overrides(load_llm_config(), os.environ)
     rows: list[Row] = []
-    with httpx.Client() as http:
+    with build_http_client(config.force_ipv4) as http:
         for settings in config.providers:
             key = os.environ.get(settings.api_key_env, "").strip()
             for limits in (m for m in config.models if m.provider == settings.name):
