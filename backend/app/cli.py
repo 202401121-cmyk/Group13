@@ -12,6 +12,9 @@ By default it answers "Skip" to every interview question, so the rubric uses the
 
 The request and the finished search are each saved once, under a new session ID, when DATABASE_URL is set (US-01,
 US-52). A database that is off, down or slow never stops the search; --no-db skips it altogether.
+
+--claims also prints what was read from each source (US-14). Ranking stays on sample data until Sprint 3, so this is
+where real claims can be seen. They are printed and never saved.
 """
 
 from __future__ import annotations
@@ -19,12 +22,15 @@ from __future__ import annotations
 import argparse
 import io
 import sys
+from collections.abc import Mapping, Sequence
 
 from app import db
 from app.api.sessions import new_session_id
 from app.contracts import (
     Budget,
+    Claim,
     CriteriaSet,
+    ExtractionResult,
     Intent,
     InterviewState,
     InterviewStep,
@@ -34,7 +40,11 @@ from app.contracts import (
     SearchRequest,
     SearchResult,
     Source,
+    SourceTier,
 )
+from app.extract.recorder import RecordingStage
+from app.extract.settings import load_extract_settings
+from app.extract.tiers import tier_of
 from app.intake import EXAMPLE_REQUESTS
 from app.interview import QUICK_REPLIES
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
@@ -60,16 +70,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--no-db", action="store_true", help="do not save the request or the search, even if DATABASE_URL is set"
     )
+    parser.add_argument(
+        "--claims", action="store_true", help="also print what was read from each source: its claims and their quotes"
+    )
     args = parser.parse_args(argv)
     query: str = args.query
     store = db.NullRequestStore() if args.no_db else db.default_request_store()
     try:
-        return run(query, args.interactive, store)
+        return run(query, args.interactive, store, args.claims)
     finally:
         store.close()
 
 
-def run(query: str, interactive: bool, store: db.RequestStore) -> int:
+def run(query: str, interactive: bool, store: db.RequestStore, show_claims: bool = False) -> int:
     query = query.strip()  # trimmed once, as at the API, so blank text is simply ""
     session_id = new_session_id()
     intent = start_request(query)
@@ -90,11 +103,16 @@ def run(query: str, interactive: bool, store: db.RequestStore) -> int:
 
     request = SearchRequest(session_id=session_id, raw_query=query, rubric=step.rubric)
     stages = default_search_stages()
+    recorder = RecordingStage(stages.extract) if show_claims else None
+    if recorder is not None:
+        stages.extract = recorder
     result = PipelineRunner(stages, DatabaseResultStore(store)).run(request)
     print(render(result))
     report = getattr(stages.research, "last_report", None)
     if report is not None:  # the live research stage ran: show what it read
         print(research_block(result, report))
+    if recorder is not None:
+        print(claims_block(result.sources, recorder.results, load_extract_settings().domain_tiers))
     return 0
 
 
@@ -220,6 +238,32 @@ def research_block(result: SearchResult, report: ResearchReport) -> str:
     lines.append(f"Provider use (this search / today / daily cap): {use}")
     lines.append(f"Comparison query: {report.comparison or 'none (fewer than two candidates)'}")
     return "\n".join(lines)
+
+
+def claims_block(
+    sources: Sequence[Source], results: Mapping[str, ExtractionResult], domains: Mapping[str, SourceTier]
+) -> str:
+    """Per source: its type, tier, fetch time and URL, then each claim: criterion, value or score, type, quote."""
+    lines = ["\nClaims per source:"]
+    for source in sources:
+        tier = tier_of(source, domains).name.lower()
+        lines.append(f"  {source.type.value} ({tier})  {source.fetched_at:%Y-%m-%d %H:%M:%S}Z  {source.url}")
+        found = results.get(source.id)
+        lines += [claim_line(claim) for claim in found.claims] if found and found.claims else ["    No claims."]
+    return "\n".join(lines)
+
+
+def claim_line(claim: Claim) -> str:
+    name = f"{claim.product_mention} (kind of product)" if claim.is_product_type else claim.product_mention
+    if claim.score is not None:
+        said = f"score {claim.score:g}/10"
+    else:
+        value = claim.value
+        said = str(int(value)) if isinstance(value, float) and value.is_integer() else str(value)
+        if claim.unit and claim.unit.casefold() not in said.casefold():  # a text value often holds its unit already
+            said = f"{said} {claim.unit}"
+    quote = " ".join(claim.quote.split())
+    return f'    - {name} | {claim.criterion_key} | {said} | {claim.claim_type.value} | "{quote}"'
 
 
 def render(result: SearchResult) -> str:

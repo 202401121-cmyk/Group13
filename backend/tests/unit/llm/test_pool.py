@@ -109,13 +109,13 @@ class HangingGroq(GroqFake):
 
 
 def _config(**limits: int) -> LLMConfig:
-    """The real config, with some limits changed on every pool member."""
+    """The real config with no shopper reserve, and with some limits changed on every pool member."""
     base = load_llm_config()
-    if not limits:
-        return base
     pool = base.pool.model_dump()
-    pool["members"] = [{**m, **limits} for m in pool["members"]]
-    pool["reddit_tokens_per_search"] = 1
+    pool["extract_reserve_tokens_per_minute"] = 0  # test_pool_reserve.py covers the reserve
+    if limits:
+        pool["members"] = [{**m, **limits} for m in pool["members"]]
+        pool["reddit_tokens_per_search"] = 1
     data = {"providers": base.providers, "models": base.models, "routes": base.routes, "pool": pool}
     return LLMConfig.model_validate(data)
 

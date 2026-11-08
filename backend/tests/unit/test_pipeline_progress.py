@@ -363,6 +363,7 @@ class _CountingExtract:
 
 
 def test_a_cancel_during_extract_stops_before_the_next_source() -> None:
+    """Read one at a time, the next source never starts. test_pipeline_extract.py has it with several workers."""
     assert len(ex.sources()) > 1  # there would be more to read
     cancel = CancelFlag()
     stages = default_search_stages()
@@ -370,7 +371,7 @@ def test_a_cancel_during_extract_stops_before_the_next_source() -> None:
     stages.extract = extract
     seen = _Seen()
     with pytest.raises(SearchCancelled):
-        PipelineRunner(stages, InMemoryResultStore()).run(
+        PipelineRunner(stages, InMemoryResultStore(), extract_workers=1).run(
             _request(), search_id=new_search_id(), progress=seen, cancel=cancel
         )
     assert extract.read == 1

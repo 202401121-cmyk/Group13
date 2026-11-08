@@ -4,7 +4,8 @@ Groq's limits are per model, so three models give about three times the room of 
 - paces each member by requests and tokens a minute, so a call waits for a free slot instead of earning a 429;
 - keeps each member under its daily token budget, holding a call's tokens before it runs;
 - rotates bulk work (BULK_TASKS) so it spreads across members. A shopper's calls keep the order in models.yaml, with
-  the other members as their backups, and models outside the pool always keep their place in the route.
+  the other members as their backups, and models outside the pool always keep their place in the route;
+- keeps part of each member's minute free of bulk work (US-14), so a shopper's next call always finds room.
 
 The client decides who may see a prompt and who is healthy; the pool only answers "is there room?". All state is in
 memory and per process (build rule 10), and shared by every search.
@@ -71,6 +72,7 @@ class ModelPool:
         self._lock = threading.Lock()
         self._last_served: dict[DataClass, MemberKey] = {}
         self._ceilings = {(m.provider, m.model): m.tokens_per_minute for m in settings.members}
+        self._bulk_keeps_free = settings.extract_reserve_tokens_per_minute
         self._pacers = {
             (m.provider, m.model): RateLimiter(
                 tokens_per_minute=m.tokens_per_minute,
@@ -88,9 +90,14 @@ class ModelPool:
     def has(self, model: ModelLimits) -> bool:
         return _key(model) in self._pacers
 
-    def token_ceiling(self, model: ModelLimits) -> int | None:
+    def keep_free(self, task: LLMTask) -> int:
+        """Tokens of a member's minute this task must leave alone. Checked before a call, and never booked to it."""
+        return self._bulk_keeps_free if task in BULK_TASKS else 0
+
+    def token_ceiling(self, model: ModelLimits, keep_free: int = 0) -> int | None:
         """The most one call may use: more than a minute's tokens can never fit. None for a model outside the pool."""
-        return self._ceilings.get(_key(model))
+        ceiling = self._ceilings.get(_key(model))
+        return None if ceiling is None else ceiling - keep_free
 
     def order(self, models: Sequence[ModelLimits], data_class: DataClass, *, rotate: bool) -> list[ModelLimits]:
         """The models to try. Rotating starts after the last one served, so a skipped member gives nobody two turns.
@@ -116,12 +123,12 @@ class ModelPool:
             with self._lock:
                 self._last_served[data_class] = _key(model)
 
-    def try_take(self, model: ModelLimits, tokens: int) -> bool:
+    def try_take(self, model: ModelLimits, tokens: int, keep_free: int = 0) -> bool:
         """Take a slot now if there is room. Only for a member of the pool."""
-        return self._pacers[_key(model)].try_acquire(tokens)
+        return self._pacers[_key(model)].try_acquire(tokens, keep_free)
 
-    def seconds_until_room(self, model: ModelLimits, tokens: int) -> float | None:
-        return self._pacers[_key(model)].seconds_until_room(tokens)
+    def seconds_until_room(self, model: ModelLimits, tokens: int, keep_free: int = 0) -> float | None:
+        return self._pacers[_key(model)].seconds_until_room(tokens, keep_free)
 
     def pause(self, seconds: float) -> None:
         self._sleep(max(seconds, MIN_PAUSE_S))

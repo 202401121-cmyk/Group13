@@ -10,10 +10,11 @@ from typing import Any
 import httpx
 import pytest
 
+from app.contracts import Provider
 from app.contracts.research import MAX_SOURCE_CHARS
 from app.llm import load_llm_config
 from app.llm.config import LLMConfigError
-from scripts.smoke_apis import SERVICES, TIMEOUT_S, limit_differences, main, recorded_thread
+from scripts.smoke_apis import SERVICES, TIMEOUT_S, limit_differences, llm_check, main, recorded_thread
 
 FAKE = "fake-key-DO-NOT-LEAK-123"
 GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"]
@@ -177,6 +178,19 @@ def test_serper_is_never_called_without_include(capsys: pytest.CaptureFixture[st
     _, out, seen = run(capsys, ["--only", "serper", "--include", "serper"], ALL_KEYS)
     assert [r.url.host for r in seen] == ["google.serper.dev"]
     assert status_of(out, "serper") == "ok"
+
+
+def test_the_llm_check_uses_the_providers_reasoning_setting() -> None:
+    seen: list[httpx.Request] = []
+
+    def record(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        reply = {"choices": [{"message": {"content": "OK"}}], "usage": {"prompt_tokens": 9, "completion_tokens": 1}}
+        return httpx.Response(200, json=reply)
+
+    http = httpx.Client(transport=httpx.MockTransport(record))
+    llm_check(Provider.GEMINI)({"GEMINI_API_KEY": "a-made-up-key"}, http)
+    assert json.loads(seen[0].content)["reasoning_effort"] == "none"
 
 
 def test_the_llm_check_sends_the_fixed_prompt_with_5_output_tokens(capsys: pytest.CaptureFixture[str]) -> None:

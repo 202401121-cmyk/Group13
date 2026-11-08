@@ -7,7 +7,8 @@ No test may ever reach the internet, a real LLM provider or a developer's saved 
   criteria use the family fallback sets;
 - the pre-search flow's criteria store is a fresh in-memory store for every test;
 - the request store is the "off" store, even when .env holds a real DATABASE_URL (US-01);
-- default stages keep the research stub, so no test can search the web (US-12).
+- default stages keep the research stub, so no test can search the web (US-12), and the extract stub, so none can
+  call a model (US-14).
 Tests that need LLM answers build a stage with their own FakeLLMClient; tests that need a database build their
 own store.
 """
@@ -20,6 +21,7 @@ import pytest
 
 from app.criteria import InMemoryCriteriaStore
 from app.db import NullRequestStore
+from app.extract import ExtractStage
 from app.research import ResearchStage
 from app.research.reddit.factory import shared_breakers
 from tests.fakes.llm import FakeLLMClient
@@ -50,6 +52,12 @@ def _fresh_reddit_breakers() -> None:
 def _no_live_research(monkeypatch: pytest.MonkeyPatch) -> None:
     """Default stages keep the stub, so no test can search the web. Tests of the live stage give it fakes."""
     monkeypatch.setattr("app.pipeline.default_research_stage", ResearchStage)
+
+
+@pytest.fixture(autouse=True)
+def _no_live_extract(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Default stages keep the stub, so no test can call a model. Tests of the real stage give it a fake client."""
+    monkeypatch.setattr("app.pipeline.default_extract_stage", ExtractStage)
 
 
 @pytest.fixture(autouse=True)

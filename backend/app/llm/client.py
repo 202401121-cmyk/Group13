@@ -139,6 +139,7 @@ class _Call(Generic[T]):
     limit_s: float
     stage_ends_at: float  # the pool's clock
     first_choice: ModelLimits | None  # whose turn this call claimed
+    keep_free: int = 0  # tokens of a pool member's minute this call must leave for shoppers
 
     @property
     def latest_start(self) -> float:
@@ -203,7 +204,10 @@ class WrapperLLMClient:
         limit_s = time_limit_s(task)
         order = self.pool.order(self.candidates(data_class, difficulty), data_class, rotate=task in BULK_TASKS)
         first = order[0] if order else None
-        call = _Call(task, data_class, full_system, schema, search_id, limit_s, self.pool.now() + limit_s, first)
+        ends_at = self.pool.now() + limit_s
+        call = _Call(
+            task, data_class, full_system, schema, search_id, limit_s, ends_at, first, self.pool.keep_free(task)
+        )
         pending = [plan for model in order if (plan := self._plan(call, model, user, max_output_tokens))]
         retries: dict[str, int] = {}  # per model, for the whole call: coming back to a busy model is not a new retry
         while pending:
@@ -229,7 +233,7 @@ class WrapperLLMClient:
         reserve = reserve_output(model, max_output_tokens)
         try:
             budget = model.input_budget(reserve_output=reserve)
-            ceiling = self.pool.token_ceiling(model)
+            ceiling = self.pool.token_ceiling(model, call.keep_free)
             limited_by_rate = ceiling is not None and ceiling - reserve < budget
             if ceiling is not None and limited_by_rate:
                 budget = ceiling - reserve
@@ -255,7 +259,7 @@ class WrapperLLMClient:
 
     def _wait_for_room(self, call: _Call[T], busy: Sequence[_Plan]) -> bool:
         """Sleep until the soonest slot opens. False if nothing can open in time for a call to run."""
-        waits = [self.pool.seconds_until_room(p.model, p.planned) for p in busy]
+        waits = [self.pool.seconds_until_room(p.model, p.planned, call.keep_free) for p in busy]
         soonest = min((w for w in waits if w is not None), default=None)
         if soonest is None or self.pool.now() + soonest > call.latest_start:
             for plan in busy:
@@ -320,7 +324,7 @@ class WrapperLLMClient:
     def _take_slot(self, call: _Call[T], plan: _Plan) -> ModelState:
         model = plan.model
         if self.pool.has(model):
-            return "go" if self.pool.try_take(model, plan.planned) else "busy"
+            return "go" if self.pool.try_take(model, plan.planned, call.keep_free) else "busy"
         limiter = self.limiters.get(model.provider)
         if limiter is not None and not limiter.acquire(plan.planned):
             log.info("llm %s skipped: no room in its rate limit within %gs", model.provider.value, limiter.max_wait_s)
@@ -431,7 +435,12 @@ def build_llm_client(
         key = env.get(settings.api_key_env, "").strip()
         if key:
             adapters[settings.name] = OpenAICompatibleAdapter(
-                settings.name, settings.base_url, key, http, json_mode=settings.json_mode
+                settings.name,
+                settings.base_url,
+                key,
+                http,
+                json_mode=settings.json_mode,
+                reasoning_effort=settings.reasoning_effort,
             )
     return WrapperLLMClient(config, adapters, call_log)
 

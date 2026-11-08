@@ -101,17 +101,25 @@ class OpenAICompatibleAdapter:
     """POST {base_url}/chat/completions with a Bearer key. Used for every provider.
 
     json_mode adds response_format {"type": "json_object"}, for providers that support it (Mistral). The reply is
-    still parsed and checked against the schema exactly as for the others.
+    still parsed and checked against the schema exactly as for the others. reasoning_effort, when set, goes with every
+    call: Gemini's is "none", because its hidden thinking uses up the output limit.
     """
 
     def __init__(
-        self, provider: Provider, base_url: str, api_key: str, http: httpx.Client, json_mode: bool = False
+        self,
+        provider: Provider,
+        base_url: str,
+        api_key: str,
+        http: httpx.Client,
+        json_mode: bool = False,
+        reasoning_effort: str | None = None,
     ) -> None:
         self.provider = provider
         self._url = base_url.rstrip("/") + "/chat/completions"
         self._api_key = api_key
         self._http = http
         self._json_mode = json_mode
+        self.reasoning_effort = reasoning_effort
 
     def __repr__(self) -> str:
         return f"OpenAICompatibleAdapter(provider={self.provider.value!r}, url={self._url!r})"  # never the key
@@ -125,6 +133,8 @@ class OpenAICompatibleAdapter:
         }
         if self._json_mode:
             payload["response_format"] = {"type": "json_object"}
+        if self.reasoning_effort is not None:
+            payload["reasoning_effort"] = self.reasoning_effort
         try:
             response = self._http.post(
                 self._url,

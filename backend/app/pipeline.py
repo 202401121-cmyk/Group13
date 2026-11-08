@@ -51,6 +51,7 @@ from app.contracts import (
     ResearchResult,
     SearchRequest,
     SearchResult,
+    Source,
     SourceFailure,
     SourceType,
     Stage,
@@ -65,7 +66,7 @@ from app.decide import DecideStage
 from app.enrich import EnrichStage
 from app.entities import MatchStage
 from app.explain import ExplainStage
-from app.extract import ExtractStage
+from app.extract import default_extract_stage
 from app.llm.errors import AuthFailed, InvalidOutput, ProviderTimeout, RateLimited, ServerError
 from app.research import default_research_stage
 from app.research.retention import without_reddit_text
@@ -78,12 +79,14 @@ Out = TypeVar("Out")
 
 MAX_REASON_CHARS = 300  # StageReport.fallback_reason limit
 MAX_NOTE_CHARS = 400  # SearchResult.coverage_note limit
+MAX_CATEGORY_LABEL = 60  # ExtractInput.category_label limit, under the 64 a rubric's category may hold
 MAX_MENTIONS = 1000  # MatchInput.mentions limit
 MAX_CLAIMS = 5000  # VerifyInput.claims limit
 MAX_VERIFY_KEYS = 30  # VerifyInput.criterion_keys limit
 MAX_EXPLAINED = 10  # ExplainInput.ranked limit
 MAX_PRICED = 10  # CommerceInput.products limit
 TOP_PRIORITIES = 3
+EXTRACT_WORKERS = 8  # sources read at once. Each has its own time limit, so more only means more waiting calls
 
 OUT_OF_TIME = "the search ran out of time"
 EARLIER_FAILURE = "an earlier step failed"
@@ -271,7 +274,7 @@ class SearchStages:
 def default_search_stages() -> SearchStages:
     return SearchStages(
         research=default_research_stage(),
-        extract=ExtractStage(),
+        extract=default_extract_stage(),
         match=MatchStage(),
         verify=VerifyStage(),
         enrich=EnrichStage(),
@@ -415,11 +418,13 @@ class PipelineRunner:
         store: ResultStore,
         time_limits: dict[StageName, float] | None = None,
         search_time_limit_s: float = SEARCH_TIME_LIMIT_S,
+        extract_workers: int = EXTRACT_WORKERS,
     ) -> None:
         self.stages = stages
         self.store = store
         self.time_limits = {**STAGE_TIME_LIMITS_S, **(time_limits or {})}
         self.search_time_limit_s = search_time_limit_s
+        self.extract_workers = extract_workers
         self.save_time_s: float = getattr(store, "time_limit_s", 0.0)
 
     def run(
@@ -433,8 +438,8 @@ class PipelineRunner:
         """Run the search, save it and return it. The CLI and POST /api/search pass only `request`.
 
         A search run (US-12) passes its own `search_id`, a `progress` callback for each stage's start and outcome, and
-        a `cancel` flag. Cancelling is cooperative: the flag is read before each stage, between the sources extract
-        reads, and before the save, so a stage already running finishes first. Then SearchCancelled is raised, and
+        a `cancel` flag. Cancelling is cooperative: the flag is read before each stage, before each source extract
+        starts, and before the save, so a stage already running finishes first. Then SearchCancelled is raised, and
         nothing is saved. Once the save has started, a cancel is refused (CancelFlag.request answers False).
         """
         # D-21: the limit covers the save too, so the stages stop early enough to leave the store its time. That way
@@ -442,7 +447,7 @@ class PipelineRunner:
         stage_time_s = max(0.0, self.search_time_limit_s - self.save_time_s)
         ctx = StageContext(search_id=search_id or new_search_id(), time_limit_s=stage_time_s)
         started_at = datetime.now(UTC)
-        search = _Search(self.stages, self.time_limits, request, ctx, cancel)
+        search = _Search(self.stages, self.time_limits, request, ctx, cancel, self.extract_workers)
         events = _Progress(ctx.search_id, progress)
 
         partial = False
@@ -568,9 +573,11 @@ class _Search:
         request: SearchRequest,
         ctx: StageContext,
         cancel: CancelFlag | None = None,
+        extract_workers: int = EXTRACT_WORKERS,
     ) -> None:
         self.stages = stages
         self.cancel = cancel
+        self.extract_workers = extract_workers
         self.limits = time_limits
         self.request = request
         self.rubric = request.rubric
@@ -582,6 +589,7 @@ class _Search:
         self.research_out: ResearchResult | None = None
         self.claims: list[Claim] = []
         self.mentions: list[ProductMention] = []
+        self.extract_note: str | None = None
         self.match_out: MatchResult | None = None
         self.verify_out: VerifyResult | None = None
         self.enrich_out: EnrichResult | None = None
@@ -637,20 +645,33 @@ class _Search:
         sources = _require(self.research_out, "research").sources
         if not sources:
             return _skipped(StageName.EXTRACT, "there were no sources to read")
-        reports: list[StageReport] = []
-        for source in sources:
-            inp = ExtractInput(source=source, criterion_keys=self.weight_keys, category_label=self.rubric.category)
+        started = monotonic()
+        failed = threading.Event()
+
+        def read(source: Source) -> tuple[ExtractionResult | None, StageReport] | None:
+            """One source, each under its own time limit. None if it was never started."""
+            cancelled = self.cancel is not None and self.cancel.requested
+            if failed.is_set() or self.out_of_time or cancelled or self.ctx.seconds_left <= 0:
+                return None  # a fallback failed too, the search is out of time, or the shopper cancelled it
+            label = self.rubric.category[:MAX_CATEGORY_LABEL]
+            inp = ExtractInput(source=source, criterion_keys=self.weight_keys, category_label=label)
             out, report = self._run(self.stages.extract, inp)
-            reports.append(report)
             if out is None:
-                break  # the fallback failed; merge() reports FAILED and the runner stops
-            self.claims += out.claims
-            self.mentions += out.mentions
-            if self.out_of_time:
-                break  # no time left to read the remaining sources
-            if self.cancel is not None and self.cancel.requested:
-                break  # cancelled: the runner stops before the next stage, so the other sources are not read
-        return _merge(StageName.EXTRACT, reports)
+                failed.set()  # merge() reports FAILED and the runner stops
+            return out, report
+
+        workers = min(self.extract_workers, len(sources))
+        with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="extract-source") as pool:
+            done = [item for item in pool.map(read, sources) if item is not None]  # in the sources' order
+        for out, _ in done:
+            if out is not None:
+                self.claims += out.claims
+                self.mentions += out.mentions
+        collect_note = getattr(self.stages.extract, "coverage_note", None)
+        self.extract_note = collect_note(self.ctx.search_id) if collect_note is not None else None
+        if not done:
+            return _skipped(StageName.EXTRACT, "the search stopped before any source was read")
+        return _merge(StageName.EXTRACT, [report for _, report in done], int((monotonic() - started) * 1000))
 
     def match(self) -> StageReport:
         self.match_out, report = self._run(self.stages.match, MatchInput(mentions=self.mentions[:MAX_MENTIONS]))
@@ -717,7 +738,9 @@ class _Search:
         failures = self.research_out.failures if self.research_out else []
         found = self.research_out.sources if self.research_out else []
         older_archive = any(s.source_detail == "pullpush" for s in found)
-        note = build_coverage_note(self.reports, failures, partial, older_archive=older_archive)
+        note = build_coverage_note(
+            self.reports, failures, partial, older_archive=older_archive, extract_note=self.extract_note
+        )
         return SearchResult(
             search_id=self.ctx.search_id,
             request=self.request,
@@ -735,16 +758,16 @@ class _Search:
         )
 
 
-def _merge(stage: StageName, reports: list[StageReport]) -> StageReport:
-    """One report for a stage that ran several times (extract runs once per source)."""
+def _merge(stage: StageName, reports: list[StageReport], elapsed_ms: int) -> StageReport:
+    """One report for a stage that ran several times at once (extract runs once per source), and the time it took."""
     worst = max(reports, key=lambda r: _SEVERITY[r.status])
     reasons = list(dict.fromkeys(r.fallback_reason for r in reports if r.fallback_reason))
     problems = sum(r.status is not StageStatus.OK for r in reports)
-    notes = [f"read {len(reports)} sources"] + ([f"{problems} of them fell back"] if problems else [])
+    notes = [f"tried {len(reports)} sources"] + ([f"{problems} of them fell back"] if problems else [])
     return StageReport(
         stage=stage,
         status=worst.status,
-        duration_ms=sum(r.duration_ms for r in reports),
+        duration_ms=elapsed_ms,
         fallback_reason="; ".join(reasons)[:MAX_REASON_CHARS] if reasons else None,
         notes=notes,
     )
@@ -754,7 +777,12 @@ def _merge(stage: StageName, reports: list[StageReport]) -> StageReport:
 
 
 def build_coverage_note(
-    reports: Iterable[StageReport], failures: Iterable[SourceFailure], partial: bool, *, older_archive: bool = False
+    reports: Iterable[StageReport],
+    failures: Iterable[SourceFailure],
+    partial: bool,
+    *,
+    older_archive: bool = False,
+    extract_note: str | None = None,
 ) -> str | None:
     """Plain-English summary of everything that did not go to plan. None when everything did."""
     parts: list[str] = []
@@ -778,6 +806,8 @@ def build_coverage_note(
         parts.append(f"Skipped {', '.join(stages)} because {reason}.")
     if partial:
         parts.append("These results are partial.")
+    if extract_note:  # last, so a note too long to fit never costs the sentences above
+        parts.append(extract_note)
 
     note = " ".join(parts)
     return _fit(note, MAX_NOTE_CHARS) if note else None

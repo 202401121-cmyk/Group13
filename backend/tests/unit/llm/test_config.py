@@ -8,7 +8,9 @@ import pytest
 import yaml  # type: ignore[import-untyped]
 
 from app.contracts import ModelLimits, Provider
+from app.llm import build_llm_client
 from app.llm.config import DEFAULT_CONFIG_PATH, LLMConfigError, load_llm_config, with_env_overrides
+from app.llm.providers import OpenAICompatibleAdapter
 
 
 def _raw() -> dict[str, object]:
@@ -76,6 +78,49 @@ def test_the_loader_refuses_a_reddit_budget_above_a_minute_of_the_pool(tmp_path:
     data["pool"]["reddit_tokens_per_search"] = 24_001  # type: ignore[index]
     with pytest.raises(LLMConfigError, match="one minute"):
         load_llm_config(_write(tmp_path, data))
+
+
+def test_config_refuses_a_reserve_that_leaves_no_room(tmp_path: Path) -> None:
+    data = _raw()
+    data["pool"]["extract_reserve_tokens_per_minute"] = 8000  # type: ignore[index]
+    data["pool"]["reddit_tokens_per_search"] = 1  # type: ignore[index]
+    with pytest.raises(LLMConfigError, match="room for bulk work"):
+        load_llm_config(_write(tmp_path, data))
+
+
+def test_config_refuses_a_reddit_budget_above_the_room(tmp_path: Path) -> None:
+    data = _raw()
+    data["pool"]["reddit_tokens_per_search"] = 18_001  # type: ignore[index]
+    with pytest.raises(LLMConfigError, match="above the reserve"):
+        load_llm_config(_write(tmp_path, data))
+
+
+def test_a_reddit_budget_filling_the_room_exactly_is_allowed(tmp_path: Path) -> None:
+    data = _raw()
+    data["pool"]["reddit_tokens_per_search"] = 18_000  # type: ignore[index]
+    assert load_llm_config(_write(tmp_path, data)).pool.reddit_tokens_per_search == 18_000
+
+
+def test_config_refuses_a_negative_reserve(tmp_path: Path) -> None:
+    data = _raw()
+    data["pool"]["extract_reserve_tokens_per_minute"] = -1  # type: ignore[index]
+    with pytest.raises(LLMConfigError):
+        load_llm_config(_write(tmp_path, data))
+
+
+def test_gemini_has_its_thinking_off() -> None:
+    """Its thinking counts against the output limit: with a limit of 1,200, a reply was once cut off at 43 tokens."""
+    config = load_llm_config()
+    assert config.provider(Provider.GEMINI).reasoning_effort == "none"
+    others = [p.name for p in config.providers if p.reasoning_effort is not None and p.name is not Provider.GEMINI]
+    assert others == []
+
+
+def test_the_client_hands_the_setting_to_the_provider() -> None:
+    client = build_llm_client(env={"GEMINI_API_KEY": "a-made-up-key", "GROQ_API_KEY": "a-made-up-key"})
+    gemini, groq = client.adapters[Provider.GEMINI], client.adapters[Provider.GROQ]
+    assert isinstance(gemini, OpenAICompatibleAdapter) and gemini.reasoning_effort == "none"
+    assert isinstance(groq, OpenAICompatibleAdapter) and groq.reasoning_effort is None
 
 
 def test_env_overrides_keep_the_pool() -> None:

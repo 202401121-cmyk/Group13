@@ -111,20 +111,20 @@ class RateLimiter:
             self._take(self._clock(), tokens)
             return True
 
-    def try_acquire(self, tokens: int) -> bool:
-        """Count a call of `tokens` only if it fits right now. Never waits."""
+    def try_acquire(self, tokens: int, keep_free: int = 0) -> bool:
+        """Count a call of `tokens` only if it fits right now and leaves `keep_free` of the minute. Never waits."""
         with self._lock:
             now = self._clock()
-            wait = self._wait_needed(now, tokens)
+            wait = self._wait_needed(now, tokens + keep_free)
             if wait is None or wait > 0:
                 return False
             self._take(now, tokens)
             return True
 
-    def seconds_until_room(self, tokens: int) -> float | None:
-        """Seconds until a call of `tokens` fits, or None if it never can."""
+    def seconds_until_room(self, tokens: int, keep_free: int = 0) -> float | None:
+        """Seconds until a call of `tokens` fits and leaves `keep_free` of the minute, or None if it never can."""
         with self._lock:
-            return self._wait_needed(self._clock(), tokens)
+            return self._wait_needed(self._clock(), tokens + keep_free)
 
     def tokens_this_minute(self) -> int:
         with self._lock:

@@ -55,7 +55,6 @@ def obedient_reply(prompt: str) -> str:
                 "criterion_key": found["criterion"],
                 "score": float(found["score"]),
                 "quote": found[0],
-                "claim_type": "experience",
                 "polarity": "positive",
             },
         )

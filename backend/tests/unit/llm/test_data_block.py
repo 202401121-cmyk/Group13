@@ -88,20 +88,32 @@ def test_the_helper_catches_a_system_prompt_without_the_rule() -> None:
 @pytest.mark.parametrize("data_class", [DataClass.PUBLIC, DataClass.REDDIT])
 def test_a_capped_source_fits_every_model_on_the_extraction_routes(data_class: DataClass) -> None:
     """Fitting must never have to trim a capped source, because trimming could cut the block's closing marker."""
+    from app.criteria.fallback import load_category_sets, load_fallback_sets
     from app.extract.parsing import RawExtraction
-    from app.extract.prompts import SYSTEM_PROMPT
+    from app.extract.prompts import SYSTEM_PROMPT, PromptCriteria, user_message
+    from app.extract.settings import load_extract_settings
     from app.llm.output import build_system_prompt
     from app.llm.pool import ModelPool
+    from app.research.settings import load_research_settings
+    from tests.fakes.research import review_source
 
     config = load_llm_config()
     system = build_system_prompt(SYSTEM_PROMPT, RawExtraction)
     pool = ModelPool(config.pool)
-    cap_bytes = 5000 * 3  # the most research.yaml may set
-    user = wrap_as_data("a" * cap_bytes + "\n" + "b" * 300)  # the capped text, and a full title
+    output = load_extract_settings(env={}).output_tokens(data_class)
+    keep_free = pool.keep_free(LLMTask.EXTRACT_CLAIMS)
+    # Read from the real config, so raising the source cap in research.yaml past what fits fails here.
+    cap_bytes = load_research_settings(env={}).max_source_tokens * 3
+    sets = [*load_fallback_sets().values(), *load_category_sets().values()]
+    longest = max(len(f"- {c.key}: {c.definition}") for family in sets for c in family.criteria)
+    criteria = PromptCriteria(keys=(), lines=tuple("c" * longest for _ in range(10)), category="d" * 60)  # the most
+    # A long Hindi title: three bytes a letter. The real prompt builder, so a line added to it is counted here too.
+    source = review_source("https://www.reviews.example/a", title=chr(0x939) * 300, text="a" * cap_bytes)
+    user = user_message(source, criteria)
     assert LLMTask.EXTRACT_CLAIMS.value == "extract_claims"
     for model in route_models(config, data_class, Difficulty.LONG):
-        budget = input_budget_for(model, 1024)
-        ceiling = pool.token_ceiling(model)
+        budget = input_budget_for(model, output)
+        ceiling = pool.token_ceiling(model, keep_free)
         if ceiling is not None:
-            budget = min(budget, ceiling - 1024)
+            budget = min(budget, ceiling - output)
         assert fit(user, system, budget, chunkable=True).mode == "as_is", model.model
