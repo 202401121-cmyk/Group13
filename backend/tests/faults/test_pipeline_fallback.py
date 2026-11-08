@@ -27,13 +27,14 @@ def test_failing_research_falls_back_and_the_search_finishes() -> None:
 
     research = _report(result, C.StageName.RESEARCH)
     assert research.status is C.StageStatus.FALLBACK
-    assert research.fallback_reason == "simulated research failure"
+    assert research.fallback_reason == "something went wrong"  # a fixed reason, never the error's own text
     assert not result.partial
     assert result.stage_reports[-1].stage is C.StageName.COMMERCE  # every stage still had its turn
     assert result.sources == []  # the fallback found nothing, and nothing was invented
     assert C.SearchResult.model_validate_json(result.model_dump_json()) == result
     assert result.coverage_note is not None
-    assert "Research used a simpler fallback: simulated research failure." in result.coverage_note
+    assert "Research used a simpler fallback: something went wrong." in result.coverage_note
+    assert "simulated" not in result.coverage_note
 
 
 class _BrokenStore:
@@ -109,7 +110,7 @@ def test_any_failing_search_stage_falls_back_and_the_search_finishes(field: str)
 
     report = _report(result, C.StageName(field))
     assert report.status is C.StageStatus.FALLBACK
-    assert report.fallback_reason == f"simulated {field} failure"
+    assert report.fallback_reason == "something went wrong"
     assert not result.partial
     assert result.stage_reports[-1].stage is C.StageName.COMMERCE  # every later stage still had its turn
     assert C.SearchResult.model_validate_json(result.model_dump_json()) == result

@@ -4,19 +4,27 @@ Every stage runs through `run_stage`, which enforces its time limit and swaps in
 so no stage can hang or crash a search (build rule 9). State stays in memory and is saved once at the end, inside
 the search's time limit (D-21). `saved` is true only when the row was committed (D-27), and a save that does not
 happen only sets `saved=False` (build rule 10).
+
+A search run (US-12, P-07) also passes a progress callback, which hears each stage start and finish, and a cancel
+flag, which stops the search before its next stage. The CLI and POST /api/search pass neither.
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import os
+import secrets
+import threading
 from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor, wait
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from time import monotonic
-from typing import Protocol, TypeVar
-from uuid import uuid4
+from typing import Literal, Protocol, TypeVar
+
+import httpx
+from pydantic import ValidationError
 
 from app import db
 from app.commerce import CommerceStage
@@ -38,6 +46,7 @@ from app.contracts import (
     MatchResult,
     ProductMention,
     ProductSummary,
+    ProgressEvent,
     ResearchInput,
     ResearchResult,
     SearchRequest,
@@ -57,6 +66,7 @@ from app.enrich import EnrichStage
 from app.entities import MatchStage
 from app.explain import ExplainStage
 from app.extract import ExtractStage
+from app.llm.errors import AuthFailed, InvalidOutput, ProviderTimeout, RateLimited, ServerError
 from app.research import ResearchStage
 from app.verify import VerifyStage
 
@@ -77,6 +87,92 @@ TOP_PRIORITIES = 3
 OUT_OF_TIME = "the search ran out of time"
 EARLIER_FAILURE = "an earlier step failed"
 SAMPLE_NOTE = "These are sample results while live research is being built. They are not real recommendations."
+
+# What the progress bar says about each stage (P-07): plain words, about Grade 8.
+STAGE_STARTED = {
+    StageName.RESEARCH: "Looking for reviews, videos and discussions.",
+    StageName.EXTRACT: "Reading what each source says.",
+    StageName.MATCH: "Working out which products the sources mean.",
+    StageName.VERIFY: "Checking the facts against the sources.",
+    StageName.ENRICH: "Filling in missing details.",
+    StageName.DECIDE: "Scoring the products on what matters to you.",
+    StageName.EXPLAIN: "Writing a short reason for each pick.",
+    StageName.COMMERCE: "Checking prices and where to buy.",
+}
+STAGE_DONE = {
+    StageName.RESEARCH: "Finished looking for sources.",
+    StageName.EXTRACT: "Finished reading the sources.",
+    StageName.MATCH: "Matched the products.",
+    StageName.VERIFY: "Checked the facts.",
+    StageName.ENRICH: "Finished filling in details.",
+    StageName.DECIDE: "Scored and ranked the products.",
+    StageName.EXPLAIN: "Wrote the reasons.",
+    StageName.COMMERCE: "Checked the prices.",
+}
+STEP_TOOK_TOO_LONG = "That step took too long, so a simpler way was used."
+# The other outcomes name their fixed reason (below): "That step had a problem: the service was busy. ..."
+MAX_MESSAGE_CHARS = 200  # ProgressEvent.message limit
+
+# Why a stage fell back, in fixed plain words chosen by the error's kind (US-12). An error's own text never leaves the
+# server: an HTTP error's can hold the request URL (some APIs take the key in the query string), and others can hold
+# what the shopper typed. These reach StageReport.fallback_reason, the coverage note, the saved row and the CLI.
+TOOK_TOO_LONG = "took too long"
+SERVICE_REFUSED = "the service refused the request"
+SERVICE_BUSY = "the service was busy"
+SERVICE_UNREACHABLE = "the service could not be reached"
+REPLY_UNREADABLE = "the reply could not be read"
+SOMETHING_WENT_WRONG = "something went wrong"
+
+ProgressStatus = Literal["started", "done", "fallback", "failed"]
+ProgressCallback = Callable[[ProgressEvent], None]
+
+
+def new_search_id() -> str:
+    """A new search's ID: "srch_" plus 24 hex characters, the form a search run needs (P-07)."""
+    return "srch_" + secrets.token_hex(12)
+
+
+class CancelFlag:
+    """Lets a search be cancelled until it starts saving its result (US-12). Safe to use from any thread.
+
+    The runner reads it before each stage and between sources, and closes it just before the save. From then on a
+    request to cancel is refused, so a search is either cancelled with nothing saved, or finished and saved.
+    """
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._requested = False
+        self._saving = False
+
+    def request(self) -> bool:
+        """Ask the search to stop. False when it is too late: the search has started saving its result."""
+        with self._lock:
+            if self._saving:
+                return False
+            self._requested = True
+            return True
+
+    @property
+    def requested(self) -> bool:
+        with self._lock:
+            return self._requested
+
+    def start_saving(self) -> bool:
+        """Called by the runner just before its save. False when a cancel came first, so nothing may be saved."""
+        with self._lock:
+            if self._requested:
+                return False
+            self._saving = True
+            return True
+
+
+class SearchCancelled(Exception):
+    """The cancel flag was set, so the search stopped before its next stage, or before its save. Nothing was saved."""
+
+    def __init__(self, search_id: str) -> None:
+        super().__init__(f"search {search_id} was cancelled")
+        self.search_id = search_id
+
 
 # Worst status wins when several reports are merged into one (extract runs once per source).
 _SEVERITY = {
@@ -201,7 +297,7 @@ def run_stage(stage: Stage[In, Out], inp: In, ctx: StageContext, limit_s: float)
 
     error: Exception
     if not done:
-        status, reason = StageStatus.TIMEOUT, f"took longer than {timeout:g}s"
+        status, reason = StageStatus.TIMEOUT, TOOK_TOO_LONG
         error = TimeoutError(reason)
     else:
         exc = future.exception()
@@ -209,13 +305,15 @@ def run_stage(stage: Stage[In, Out], inp: In, ctx: StageContext, limit_s: float)
             return future.result(), _report(stage.name, StageStatus.OK, start)
         if not isinstance(exc, Exception):
             raise exc  # KeyboardInterrupt and friends are not stage failures
-        status, reason, error = StageStatus.FALLBACK, _short(exc), exc
+        status, reason, error = StageStatus.FALLBACK, plain_reason(exc), exc
 
-    log.warning("stage %s: %s; using its fallback", stage.name, reason)
+    # The stage and the error's type only, never its message: an HTTP error's text can hold the request URL (some APIs
+    # take the key in the query string), and other errors can hold what the shopper typed.
+    log.warning("stage %s: %s; using its fallback", stage.name, type(error).__name__)
     try:
         output = stage.fallback(inp, ctx, error)
     except Exception as fallback_exc:
-        log.error("stage %s: fallback failed too: %s", stage.name, _short(fallback_exc))
+        log.error("stage %s: fallback failed too: %s", stage.name, type(fallback_exc).__name__)
         return None, _report(stage.name, StageStatus.FAILED, start, f"{reason}; the fallback failed too")
     return output, _report(stage.name, status, start, reason)
 
@@ -230,8 +328,54 @@ def made_by_placeholder(stage: Stage[In, Out], report: StageReport) -> bool:
     return bool(getattr(maker, "is_placeholder", False))
 
 
-def _short(exc: BaseException) -> str:
-    return (str(exc) or type(exc).__name__)[:MAX_REASON_CHARS]
+def plain_reason(error: BaseException) -> str:
+    """Why a stage failed, as one of the fixed reasons above, from the error's kind. Never the error's own text.
+
+    The error and what explicitly caused it (`raise ... from`) are checked in turn, so a stage's own error raised from
+    an HTTP 429 still says the service was busy. An error that merely happened while another was being handled is not
+    taken as its cause. Never raises (build rule 9): an error that cannot be read is "something went wrong".
+    """
+    try:
+        seen: set[int] = set()
+        current: BaseException | None = error
+        while current is not None and id(current) not in seen:
+            seen.add(id(current))
+            reason = _reason_for(current)
+            if reason is not None:
+                return reason
+            current = current.__cause__
+    except Exception:  # an odd error object must not break the search
+        return SOMETHING_WENT_WRONG
+    return SOMETHING_WENT_WRONG
+
+
+def as_clause(reason: str | None) -> str:
+    """A reason that reads as a clause after a colon: "took too long" becomes "it took too long"."""
+    parts = (reason or SOMETHING_WENT_WRONG).rstrip(".").split("; ")
+    return "; ".join(f"it {part}" if part == TOOK_TOO_LONG else part for part in parts)
+
+
+def _reason_for(error: BaseException) -> str | None:
+    if isinstance(error, TimeoutError | httpx.TimeoutException | ProviderTimeout):
+        return TOOK_TOO_LONG
+    status = _status_code(error)
+    if status in (401, 403) or isinstance(error, AuthFailed):
+        return SERVICE_REFUSED
+    if status == 429 or isinstance(error, RateLimited):
+        return SERVICE_BUSY
+    if (status is not None and 500 <= status <= 599) or isinstance(
+        error, ServerError | httpx.TransportError | ConnectionError
+    ):
+        return SERVICE_UNREACHABLE
+    if isinstance(error, ValidationError | json.JSONDecodeError | InvalidOutput):
+        return REPLY_UNREADABLE
+    return None
+
+
+def _status_code(error: BaseException) -> int | None:
+    """The HTTP status of an error that carries a response (httpx, and the Reddit client), else None."""
+    status = getattr(getattr(error, "response", None), "status_code", None)
+    return status if isinstance(status, int) else None
 
 
 def _report(stage: StageName, status: StageStatus, start: float, reason: str | None = None) -> StageReport:
@@ -273,28 +417,48 @@ class PipelineRunner:
         self.search_time_limit_s = search_time_limit_s
         self.save_time_s: float = getattr(store, "time_limit_s", 0.0)
 
-    def run(self, request: SearchRequest) -> SearchResult:
+    def run(
+        self,
+        request: SearchRequest,
+        *,
+        search_id: str | None = None,
+        progress: ProgressCallback | None = None,
+        cancel: CancelFlag | None = None,
+    ) -> SearchResult:
+        """Run the search, save it and return it. The CLI and POST /api/search pass only `request`.
+
+        A search run (US-12) passes its own `search_id`, a `progress` callback for each stage's start and outcome, and
+        a `cancel` flag. Cancelling is cooperative: the flag is read before each stage, between the sources extract
+        reads, and before the save, so a stage already running finishes first. Then SearchCancelled is raised, and
+        nothing is saved. Once the save has started, a cancel is refused (CancelFlag.request answers False).
+        """
         # D-21: the limit covers the save too, so the stages stop early enough to leave the store its time. That way
         # a search that runs out of time still gets saved.
         stage_time_s = max(0.0, self.search_time_limit_s - self.save_time_s)
-        ctx = StageContext(search_id="srch_" + uuid4().hex[:12], time_limit_s=stage_time_s)
+        ctx = StageContext(search_id=search_id or new_search_id(), time_limit_s=stage_time_s)
         started_at = datetime.now(UTC)
-        search = _Search(self.stages, self.time_limits, request, ctx)
+        search = _Search(self.stages, self.time_limits, request, ctx, cancel)
+        events = _Progress(ctx.search_id, progress)
 
         partial = False
         steps = search.steps()
-        for i, (_name, step) in enumerate(steps):
+        for i, (name, step) in enumerate(steps):
+            _stop_if_cancelled(cancel, ctx.search_id)
             if search.out_of_time or ctx.seconds_left <= 0:
                 search.reports += [_skipped(n, OUT_OF_TIME) for n, _ in steps[i:]]
                 partial = True
                 break
+            events.started(name, search.sources_found())
             report = step()
             search.reports.append(report)
+            events.finished(report, search.sources_found())
             if report.status is StageStatus.FAILED:
                 search.reports += [_skipped(n, EARLIER_FAILURE) for n, _ in steps[i + 1 :]]
                 partial = True
                 break
 
+        if cancel is not None and not cancel.start_saving():  # from here on, a cancel comes too late
+            _stop_if_cancelled(cancel, ctx.search_id)
         result = search.result(started_at, partial or search.out_of_time)
         return self._save(result, self.search_time_limit_s - (monotonic() - ctx.started_at))
 
@@ -329,6 +493,66 @@ class PipelineRunner:
             return False
 
 
+def _stop_if_cancelled(cancel: CancelFlag | None, search_id: str) -> None:
+    if cancel is not None and cancel.requested:
+        log.info("search %s cancelled", search_id)
+        raise SearchCancelled(search_id)
+
+
+class _Progress:
+    """Numbers one search's progress events from 1 and hands each to the callback. Never raises (build rule 9)."""
+
+    def __init__(self, search_id: str, callback: ProgressCallback | None) -> None:
+        self.search_id = search_id
+        self.callback = callback
+        self.sent = 0
+
+    def started(self, stage: StageName, sources: dict[SourceType, int]) -> None:
+        self._send(stage, "started", STAGE_STARTED[stage], sources)
+
+    def finished(self, report: StageReport, sources: dict[SourceType, int]) -> None:
+        status, message = _outcome(report, sources)
+        self._send(report.stage, status, message, sources)
+
+    def _send(self, stage: StageName, status: ProgressStatus, message: str, sources: dict[SourceType, int]) -> None:
+        if self.callback is None:
+            return
+        try:
+            event = ProgressEvent(
+                event_id=self.sent + 1,
+                search_id=self.search_id,
+                stage=stage,
+                status=status,
+                at=datetime.now(UTC),
+                message=message[:MAX_MESSAGE_CHARS],
+                sources_found=sources,
+            )
+        except ValueError as exc:  # e.g. an ID that is not a run's; the search itself carries on
+            log.warning("search %s: progress not sent: %s", self.search_id, type(exc).__name__)
+            return
+        self.sent += 1
+        try:
+            self.callback(event)
+        except Exception as exc:  # only the type: the text could hold anything
+            log.warning("search %s: the progress callback failed: %s", self.search_id, type(exc).__name__)
+
+
+def _outcome(report: StageReport, sources: dict[SourceType, int]) -> tuple[ProgressStatus, str]:
+    """A finished stage's event: its status and a plain message with its fixed reason, never the error's text."""
+    if report.status is StageStatus.FAILED:
+        return "failed", f"That step did not work: {as_clause(report.fallback_reason)}. These results will be partial."
+    if report.status is StageStatus.TIMEOUT:
+        return "fallback", STEP_TOOK_TOO_LONG
+    if report.status is StageStatus.FALLBACK:
+        return "fallback", f"That step had a problem: {as_clause(report.fallback_reason)}. A simpler way was used."
+    if report.status is StageStatus.SKIPPED:
+        return "done", f"Skipped because {report.fallback_reason or 'there was nothing to do'}."
+    found = sum(sources.values())
+    if report.stage is StageName.RESEARCH and found:
+        return "done", f"Found {found} source{'' if found == 1 else 's'}."
+    return "done", STAGE_DONE[report.stage]
+
+
 class _Search:
     """The in-memory state of one search: each stage's output, filled in as the stages run."""
 
@@ -338,14 +562,17 @@ class _Search:
         time_limits: dict[StageName, float],
         request: SearchRequest,
         ctx: StageContext,
+        cancel: CancelFlag | None = None,
     ) -> None:
         self.stages = stages
+        self.cancel = cancel
         self.limits = time_limits
         self.request = request
         self.rubric = request.rubric
         self.ctx = ctx
         self.out_of_time = False  # set when the search's own deadline cut a stage off
         self.used_placeholder = False  # set when a stub made any part of the result
+        self.sample_sources = False  # set when a stub made the research output, so its sources are not counted
         self.reports: list[StageReport] = []
         self.research_out: ResearchResult | None = None
         self.claims: list[Claim] = []
@@ -386,10 +613,19 @@ class _Search:
     def weight_keys(self) -> list[str]:
         return [w.key for w in self.rubric.weights]
 
+    def sources_found(self) -> dict[SourceType, int]:
+        """Sources found so far, per type, for the progress bar. All zero until a real research stage has run."""
+        counts = dict.fromkeys(SourceType, 0)
+        if self.research_out is not None and not self.sample_sources:
+            for source in self.research_out.sources:
+                counts[source.type] += 1
+        return counts
+
     # Each step runs one stage, keeps its output and returns its report.
 
     def research(self) -> StageReport:
         self.research_out, report = self._run(self.stages.research, ResearchInput(rubric=self.rubric))
+        self.sample_sources = made_by_placeholder(self.stages.research, report)
         return report
 
     def extract(self) -> StageReport:
@@ -407,6 +643,8 @@ class _Search:
             self.mentions += out.mentions
             if self.out_of_time:
                 break  # no time left to read the remaining sources
+            if self.cancel is not None and self.cancel.requested:
+                break  # cancelled: the runner stops before the next stage, so the other sources are not read
         return _merge(StageName.EXTRACT, reports)
 
     def match(self) -> StageReport:
@@ -516,9 +754,9 @@ def build_coverage_note(reports: Iterable[StageReport], failures: Iterable[Sourc
         label = r.stage.value.capitalize()
         reason = (r.fallback_reason or "no reason given").rstrip(".")
         if r.status is StageStatus.FALLBACK:
-            parts.append(f"{label} used a simpler fallback: {reason}.")
+            parts.append(f"{label} used a simpler fallback: {as_clause(reason)}.")
         elif r.status is StageStatus.TIMEOUT:
-            parts.append(f"{label} {reason}, so a simpler fallback was used.")
+            parts.append(f"{label} took too long, so a simpler fallback was used.")
         elif r.status is StageStatus.FAILED:
             parts.append(f"{label} failed, so the steps after it did not run.")
         elif r.status is StageStatus.SKIPPED:

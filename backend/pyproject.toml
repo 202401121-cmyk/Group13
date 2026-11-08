@@ -9,7 +9,8 @@ description = "ShopSense: personalised, sourced product research"
 requires-python = ">=3.11"
 dependencies = [
     "pydantic>=2.7,<3",
-    "fastapi>=0.115",
+    # Pinned exactly: search runs (US-12) stream progress with fastapi.sse, which came in 0.135.0.
+    "fastapi==0.162.2",
     "uvicorn[standard]>=0.30",
     # Pinned exactly: app/llm/providers.py calls a private httpx function, and tests/unit/llm/test_http_client.py reads
     # private attributes of both.

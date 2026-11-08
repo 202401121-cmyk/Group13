@@ -60,7 +60,10 @@ def test_a_real_stage_that_falls_back_to_its_stub_gives_the_note(field: str) -> 
     assert report.status is C.StageStatus.FALLBACK
     assert result.coverage_note is not None
     assert result.coverage_note.endswith(SAMPLE_NOTE)
-    assert "the real stage crashed" in result.coverage_note  # what the note already said is kept
+    assert (
+        "used a simpler fallback: something went wrong." in result.coverage_note
+    )  # what the note already said is kept
+    assert "crashed" not in result.coverage_note  # a fixed reason, never the error's own text
 
 
 class _TimesOutToItsStub(_FailsToItsStub):
@@ -97,7 +100,7 @@ def test_a_real_stage_with_a_real_baseline_gives_no_label() -> None:
     stages.research = _FailsToARealBaseline(ResearchStage())
     result = run(stages)
     assert result.coverage_note is not None
-    assert "the newest version crashed" in result.coverage_note
+    assert "Research used a simpler fallback: something went wrong." in result.coverage_note
     assert SAMPLE_NOTE not in result.coverage_note
 
 

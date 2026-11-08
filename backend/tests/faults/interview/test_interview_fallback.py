@@ -34,7 +34,7 @@ def test_run_raises_and_the_fallback_asks_the_next_question(monkeypatch: pytest.
     monkeypatch.setattr("app.interview.stage.plan_questions", _broken_plan)
     step, report = run_stage(InterviewStage(), InterviewTurn(state=_state()), CTX, LIMIT)
     assert report.status is StageStatus.FALLBACK
-    assert report.fallback_reason == "plan exploded"
+    assert report.fallback_reason == "something went wrong"  # a fixed reason, never the error's own text
     assert isinstance(step, InterviewStep)
     assert InterviewStep.model_validate_json(step.model_dump_json()) == step
     assert step.kind == "question"
