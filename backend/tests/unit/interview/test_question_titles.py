@@ -86,3 +86,15 @@ def test_a_question_asked_again_after_going_back_keeps_its_title() -> None:
 def test_the_fallback_path_keeps_the_title_too() -> None:
     step = InterviewStage().fallback(InterviewTurn(state=state_with(TITLES[:8])), CTX, RuntimeError("forced"))
     assert step.message == question_text(TITLES[0])
+
+
+def test_every_question_offering_low_medium_and_high_also_offers_good_enough() -> None:
+    from app.contracts import CriteriaInput
+    from app.criteria import fallback_set
+
+    shapes = [("laptop", "Laptop"), ("phone", "Phone"), ("headphones", "Headphones")]
+    sets = [ex.criteria()] + [fallback_set(CriteriaInput(category=c, category_label=label)) for c, label in shapes]
+    questions = [question_for(c) for criteria in sets for c in criteria.criteria]
+    rough = [q for q in questions if {"Low", "Medium", "High"} <= set(q.quick_replies)]
+    assert rough and len(rough) == len(questions)
+    assert all("Good enough" in q.quick_replies for q in rough)

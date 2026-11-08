@@ -129,9 +129,10 @@ An interview reply can carry one of these as well as `reply_text`, never both (b
 The weight for each level is in `shared/contracts/examples/rough_levels.json` (low 2, medium 5, high 8, good enough 3). Read
 it from there and never copy the numbers.
 
-**Don't ship the rough-answer buttons before US-08.** The backend accepts both fields today but doesn't act on them, and
-reads the reply from `reply_text` alone. "Good enough" and "7.5" both count as unclear there, and two unclear replies
-skip the question, so the shopper's answer would be lost.
+**The backend acts on these (US-08).** Send `level` or `exact_weight` with `reply_text`, never both. A level takes its
+weight from the table, so `good_enough` is 3, and an `exact_weight` is used as it is. To switch an earlier answer between
+rough and exact, call `interview/back` for that question, then reply with the other field. Every question's
+`quick_replies` now include `Good enough`. The full rules are in [the pre-search API](api/presearch.md).
 
 Examples: `reply_rough.json`, `reply_exact.json`.
 

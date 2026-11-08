@@ -76,7 +76,7 @@ def test_the_full_happy_path(client: TestClient) -> None:
     step = InterviewStep.model_validate(post(client, f"{session_id}/interview/start"))
     assert step.kind == "question"
     assert step.message == "Processor speed: how much does it matter to you?"
-    assert step.question is not None and step.question.quick_replies == ["Low", "Medium", "High", "Skip"]
+    assert step.question is not None and step.question.quick_replies == ["Low", "Medium", "High", "Good enough", "Skip"]
 
     replies = ["High", "Medium", "7", "Skip", "Low", "8/10", "High", "Medium", "Medium", "Medium"]
     turns = 0
