@@ -1,4 +1,4 @@
-"""The HTTP API: a health check, the search endpoint (US-52) and the pre-search routes (US-05).
+"""The HTTP API: a health check, the search endpoint (US-52), the pre-search routes (US-05) and search runs (US-12).
 
 Run: uvicorn app.main:app --reload
 No auth yet. Requests and finished searches are saved to Postgres when DATABASE_URL is set (US-01, US-52); the health
@@ -10,7 +10,8 @@ from __future__ import annotations
 
 import logging
 import os
-from collections.abc import Mapping
+from collections.abc import AsyncIterator, Mapping
+from contextlib import asynccontextmanager
 
 from dotenv import dotenv_values, find_dotenv
 from fastapi import FastAPI, Request
@@ -19,7 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app import db
-from app.api import presearch_router
+from app.api import SearchRuns, default_runner, load_run_settings, presearch_router, search_runs_router
 from app.api.presearch import plain_validation_message
 from app.contracts import SCHEMA_VERSION, SearchRequest, SearchResult
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
@@ -66,17 +67,28 @@ async def plain_validation_error(request: Request, exc: RequestValidationError) 
 
 def create_app(env: Mapping[str, str] | None = None) -> FastAPI:
     """Build the app. The allowed origins are read here, so tests can pass their own environment."""
-    app = FastAPI(title="ShopSense", version=SCHEMA_VERSION)
+
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        yield
+        # Ask running searches to stop before their next stage. Uvicorn runs this once open progress streams have
+        # ended, or its graceful-shutdown timeout has passed; a forced stop skips it (docs/frontend-api.md).
+        app.state.search_runs.close()
+
+    app = FastAPI(title="ShopSense", version=SCHEMA_VERSION, lifespan=lifespan)
+    app.state.search_runs = SearchRuns(default_runner, load_run_settings(env))
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins(env),
-        allow_methods=["GET", "POST", "PUT"],  # only what the frontend calls
-        allow_headers=["Content-Type"],
+        allow_methods=["GET", "POST", "PUT", "DELETE"],  # only what the frontend calls; DELETE cancels a search run
+        allow_headers=["Content-Type", "Last-Event-ID"],  # Last-Event-ID resumes a progress stream
+        expose_headers=["Retry-After"],  # so the frontend can read when to try a busy server again
     )
     app.add_exception_handler(RequestValidationError, plain_validation_error)  # type: ignore[arg-type]
     app.get("/api/health")(health)
     app.post("/api/search", response_model=SearchResult)(search)
     app.include_router(presearch_router)
+    app.include_router(search_runs_router)
     return app
 
 

@@ -45,7 +45,7 @@ def test_run_raises_and_the_fallback_answers() -> None:
     intent, report = run_stage(stage, inp, ctx, STAGE_TIME_LIMITS_S[StageName.INTAKE])
 
     assert report.status is StageStatus.FALLBACK
-    assert report.fallback_reason == "wrapper bug"
+    assert report.fallback_reason == "something went wrong"  # a fixed reason, never the error's own text
     assert isinstance(intent, Intent)
     assert Intent.model_validate_json(intent.model_dump_json()) == intent
     assert (intent.category, intent.detected_by) == ("laptop", "rules")

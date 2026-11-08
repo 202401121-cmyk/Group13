@@ -55,14 +55,15 @@ def test_a_slow_stage_times_out_and_its_fallback_is_used() -> None:
 
     verify = next(r for r in result.stage_reports if r.stage is C.StageName.VERIFY)
     assert verify.status is C.StageStatus.TIMEOUT
-    assert verify.fallback_reason == "took longer than 0.05s"
+    assert verify.fallback_reason == "took too long"
     # The fallback's output is what the rest of the pipeline used: its values reached the products.
     fallback_values = {(v.product_id, v.criterion_key) for v in _SlowVerify.fallback_output.values}
     used_values = {(v.product_id, v.criterion_key) for p in result.products for v in p.values}
     assert used_values == fallback_values
     assert result.stage_reports[-1].stage is C.StageName.COMMERCE
     assert not result.partial
-    assert result.coverage_note is not None and "Verify took longer than 0.05s" in result.coverage_note
+    assert result.coverage_note is not None
+    assert "Verify took too long, so a simpler fallback was used." in result.coverage_note
 
 
 def test_running_out_of_search_time_skips_the_remaining_stages() -> None:

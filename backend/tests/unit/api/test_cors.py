@@ -17,9 +17,18 @@ STAGING = "https://staging.shopsense.example.org"
 EVIL = "http://evil.example"
 
 
-def preflight(client: TestClient, origin: str, method: str = "POST", headers: str = "content-type") -> dict[str, str]:
+RUN = "srch_" + "0" * 24
+
+
+def preflight(
+    client: TestClient,
+    origin: str,
+    method: str = "POST",
+    headers: str = "content-type",
+    path: str = "/api/presearch/intake",
+) -> dict[str, str]:
     response = client.options(
-        "/api/presearch/intake",
+        path,
         headers={"Origin": origin, "Access-Control-Request-Method": method, "Access-Control-Request-Headers": headers},
     )
     return {"status": str(response.status_code), **{k.lower(): v for k, v in response.headers.items()}}
@@ -69,7 +78,39 @@ def test_an_unlisted_origin_is_refused() -> None:
 
 def test_only_the_methods_and_headers_the_frontend_uses_are_allowed() -> None:
     with TestClient(create_app(env={})) as client:
-        for method in ("GET", "POST", "PUT"):
+        for method in ("GET", "POST", "PUT", "DELETE"):  # DELETE cancels a search run (US-12)
             assert preflight(client, LOCAL, method=method)["status"] == "200"
-        assert preflight(client, LOCAL, method="DELETE")["status"] == "400"
+        assert preflight(client, LOCAL, method="PATCH")["status"] == "400"
+        assert preflight(client, LOCAL, headers="last-event-id")["status"] == "200"  # resuming a progress stream
         assert preflight(client, LOCAL, headers="x-api-key")["status"] == "400"
+
+
+@pytest.mark.parametrize(
+    ("method", "path", "headers"),
+    [
+        ("POST", "/api/search/runs", "content-type"),
+        ("GET", f"/api/search/runs/{RUN}", "content-type"),
+        ("GET", f"/api/search/runs/{RUN}/events", "last-event-id"),
+        ("DELETE", f"/api/search/runs/{RUN}", "content-type"),
+    ],
+)
+def test_the_run_routes_allow_the_frontend_origin_and_never_a_wildcard(method: str, path: str, headers: str) -> None:
+    with TestClient(create_app(env={"FRONTEND_ORIGINS": f"*, {STAGING}"})) as client:
+        allowed = preflight(client, STAGING, method=method, headers=headers, path=path)
+        assert allowed["status"] == "200"
+        assert allowed["access-control-allow-origin"] == STAGING
+        refused = preflight(client, EVIL, method=method, headers=headers, path=path)
+        assert refused["status"] == "400"
+        assert "access-control-allow-origin" not in refused
+        normal = client.request(method, path, headers={"Origin": EVIL})
+        assert "access-control-allow-origin" not in normal.headers
+        normal = client.request(method, path, headers={"Origin": STAGING})
+        assert normal.headers.get("access-control-allow-origin") == STAGING  # never "*", even on a 404
+
+
+def test_retry_after_is_readable_by_the_frontend() -> None:
+    """A busy answer (503) says when to try again; the browser shows the frontend that header only if it is exposed."""
+    with TestClient(create_app(env={})) as client:
+        response = client.get("/api/health", headers={"Origin": LOCAL})
+    exposed = [h.strip().lower() for h in response.headers.get("access-control-expose-headers", "").split(",")]
+    assert "retry-after" in exposed

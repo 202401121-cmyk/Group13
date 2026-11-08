@@ -12,8 +12,8 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
 - **CORS:** the backend accepts browser calls only from the origins in `FRONTEND_ORIGINS` (comma-separated, in the
   root `.env`; default `http://localhost:3000`, the frontend's dev server). `*` is never allowed. If the browser
   console shows a CORS error, add the page's origin there and restart the backend.
-- **JSON in, JSON out.** Send `Content-Type: application/json`. The backend allows only `GET`, `POST` and `PUT`, and
-  only the `Content-Type` header.
+- **JSON in, JSON out.** Send `Content-Type: application/json`. The backend allows only `GET`, `POST`, `PUT` and
+  `DELETE`, and only the `Content-Type` and `Last-Event-ID` headers. The frontend may read the `Retry-After` header.
 - **Errors** are always `{"detail": "<one plain sentence>"}`, never a stack trace. Show `detail` as it is.
 - **Types:** every request and response is a contract model. The JSON Schemas are in `shared/contracts/schema/`,
   and the TypeScript types are generated from them into `frontend/src/types/contracts/` (`npm ci` does it). Never
@@ -21,8 +21,8 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
 
 ## Every route the backend serves
 
-These nine routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). The frontend calls
-all of them except `GET /api/health`, which `scripts/dev.py` uses to see that the backend is up.
+These thirteen routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). The frontend
+calls all of them except `GET /api/health`, which `scripts/dev.py` uses to see that the backend is up.
 
 | Route | What it does | Request body | Response 200 | Errors | Details |
 |---|---|---|---|---|---|
@@ -35,14 +35,20 @@ all of them except `GET /api/health`, which `scripts/dev.py` uses to see that th
 | `POST /api/presearch/{session_id}/interview/back` | Asks an earlier question again | `question_id` (1 to 64 characters) | `InterviewStep` | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewback) |
 | `GET /api/presearch/{session_id}` | Everything about the session, for a page reload | none | the session | 404 | [presearch.md](api/presearch.md#get-apipresearchsession_id) |
 | `POST /api/search` | Runs the search with the finished rubric | `SearchRequest` | `SearchResult` | 422 | below |
+| `POST /api/search/runs` | Starts the same search in the background | `SearchRequest` | 202 `SearchRunStarted` | 422, 503 | [search runs](#search-runs-with-live-progress-us-12) |
+| `GET /api/search/runs/{search_id}` | The run's state, and its result once it has finished | none | `SearchRun` | 404 | [search runs](#search-runs-with-live-progress-us-12) |
+| `GET /api/search/runs/{search_id}/events` | The run's progress, live (Server-Sent Events) | none | `text/event-stream` | 204, 404 | [search runs](#following-its-progress) |
+| `DELETE /api/search/runs/{search_id}` | Cancels the run | none | `SearchRun` (202 while it stops) | 404 | [search runs](#cancelling) |
 
 What each error means:
 
 | Status | When | `detail` |
 |---|---|---|
 | 404 | The session is unknown or has expired | `This session has expired. Please start a new search.` |
+| 404 | The search run is unknown, or ended more than 30 minutes ago | `We couldn't find that search. Finished searches are only kept for a while.` |
 | 409 | A step was called out of order | Says which step comes first |
 | 422 | The body is not valid | Names the field, and never repeats what was typed |
+| 503 | Every search worker is busy (starting a search run only); `Retry-After` says how many seconds to wait | `ShopSense is busy with other searches right now. Please try again in a moment.` |
 
 Trust this page for errors, not the OpenAPI. The OpenAPI lists no 404 or 409, and it shows 422 as FastAPI's list of
 errors, when the real answer is the one plain sentence above.
@@ -54,7 +60,8 @@ answers 405 with `Method Not Allowed`, both in `detail`.
 ## POST /api/search
 
 Runs every search stage (research → extract → match → verify → enrich → decide → explain → commerce) for one
-finished interview and returns the ranked results. It answers once, at the end: there is no progress stream yet.
+finished interview and returns the ranked results. It answers once, at the end. To follow a search stage by stage, or
+to cancel it, start a [search run](#search-runs-with-live-progress-us-12) instead.
 
 **Request body:** a `SearchRequest` (`shared/contracts/schema/SearchRequest.json`).
 
@@ -112,6 +119,123 @@ curl -s -X POST http://localhost:8000/api/search \
   -d "{\"session_id\": \"$SID\", \"user_id\": null, \"raw_query\": \"best laptop for coding under 70k\", \"rubric\": $RUBRIC}"
 ```
 
+## Search runs with live progress (US-12)
+
+A search run is the same search as `POST /api/search`, started in the background. The backend answers at once with
+the run's ID. The screen then follows the run stage by stage, can cancel it, and fetches the result when it ends. The
+shapes are in [search runs and live progress](#search-runs-and-live-progress-p-07).
+
+| Route | Answer |
+|---|---|
+| `POST /api/search/runs` (body: the same `SearchRequest` as `POST /api/search`) | **202** `SearchRunStarted` and a `Location` header; **503** when the backend is busy |
+| `GET /api/search/runs/{search_id}` | **200** `SearchRun`. Its `result` is there once the status is `done` or `partial` |
+| `GET /api/search/runs/{search_id}/events` | **200** `text/event-stream`; **204** when the client has already seen the end |
+| `DELETE /api/search/runs/{search_id}` | **202** `SearchRun` while it stops; **200** and its `SearchRun`, unchanged, when it is too late to cancel |
+
+An unknown `search_id`, or one whose run ended more than 30 minutes ago (or was pushed out by newer ones; see
+[how long a run is kept](#how-long-a-run-is-kept)), answers **404** on every route. Every finished run's result is
+saved, as `POST /api/search` saves it.
+
+### Starting a run
+
+```bash
+curl -s -i -X POST http://localhost:8000/api/search/runs -H "Content-Type: application/json" -d @request.json
+```
+
+```http
+HTTP/1.1 202 Accepted
+location: /api/search/runs/srch_5f2c9a1e7b3d4860a1c2e3f4
+
+{"search_id":"srch_5f2c9a1e7b3d4860a1c2e3f4"}
+```
+
+The `search_id` is `srch_` and 24 hex characters, made by the backend. Never make one up.
+
+At most `SEARCH_RUN_WORKERS` searches (default 4) run at once. One more answers **503**, with `Retry-After` in seconds.
+Show the `detail` and offer to try again:
+
+```http
+HTTP/1.1 503 Service Unavailable
+retry-after: 30
+
+{"detail":"ShopSense is busy with other searches right now. Please try again in a moment."}
+```
+
+### Following its progress
+
+```ts
+const events = new EventSource(`${baseUrl}/api/search/runs/${searchId}/events`);
+events.addEventListener("progress", (e) => showStep(JSON.parse(e.data))); // a ProgressEvent
+events.addEventListener("run", (e) => {
+  events.close(); // the last event: the stream is over
+  showRun(JSON.parse(e.data)); // a SearchRun, with its result when done or partial
+});
+```
+
+```text
+id: 1
+event: progress
+data: {"event_id":1,"search_id":"srch_5f2c9a1e7b3d4860a1c2e3f4","stage":"research","status":"started","at":"2026-11-08T10:00:00.120000Z","message":"Looking for reviews, videos and discussions.","sources_found":{"reddit":0,"youtube":0,"web_search":0,"review_site":0,"manufacturer":0,"lab":0,"retailer":0}}
+
+: ping
+
+id: 17
+event: run
+data: {"search_id":"srch_5f2c9a1e7b3d4860a1c2e3f4","status":"done","started_at":"...","finished_at":"...","progress":[...],"result":{...}}
+```
+
+- **`progress`** events carry one `ProgressEvent` each, and their `id` is its `event_id`. Each stage sends `started`, then
+  one of: `done`; `fallback` (it had a problem or took too long, so a simpler way was used, and the search carries on);
+  or `failed` (the search stops there, and the result is partial). A stage that never ran sends nothing. Show
+  `message` as it is. A `fallback` or `failed` message names one of six fixed reasons (for example "the service was
+  busy"), never an error's own text; `coverage_note` uses the same reasons.
+- **`run`** is the last event: the whole `SearchRun`, the same body as `GET /api/search/runs/{search_id}`. Its `id` is the
+  last progress event's plus 1, and the stream ends after it. Call `close()`, or the browser reconnects.
+- **`: ping`** is a comment that `EventSource` ignores. The backend sends it after `SEARCH_RUN_PING_SECONDS` (default 15,
+  never more than 15) of silence, so the connection stays open through long stages.
+- **`sources_found`** lists every source type. The counts stay 0 until live research lands; today's research stage
+  returns samples, which are not counted.
+
+**Reconnecting:** the browser reconnects by itself and sends the last `id` it saw as `Last-Event-ID`. The stream then
+sends only what came after it. A client that connects late gets every event so far, then the live ones. A
+`Last-Event-ID` that is not one of the run's IDs is ignored, and the stream starts again from the first event, so drop
+any event whose `id` you already have. After the final `run` event a reconnect answers **204**, which stops
+`EventSource`.
+
+```bash
+curl -N http://localhost:8000/api/search/runs/$RUN/events                         # everything, then live
+curl -N -H "Last-Event-ID: 4" http://localhost:8000/api/search/runs/$RUN/events   # only what came after event 4
+```
+
+### Cancelling
+
+```bash
+curl -s -X DELETE http://localhost:8000/api/search/runs/$RUN
+```
+
+Cancelling is cooperative. The stage that is running finishes, the run stops before the next one, and nothing is
+saved. The answer is **202** with the run's state, still `queued` or `running`. The stream then sends the final `run`
+event with the status `cancelled`, and the state says `cancelled`, with no `result`.
+
+When it is too late to cancel, the answer is **200** and nothing changes. That happens when the run has already ended,
+or has finished every stage and is saving its result. Its state may still say `running` for a moment; the final `run`
+event then says `done` or `partial`. Show the results, not a "cancelled" message.
+
+### How long a run is kept
+
+A run's state stays in the backend's memory for `SEARCH_RUN_KEEP_MINUTES` (default 30) after it ends, then answers 404.
+The backend keeps at most `SEARCH_RUN_MAX_KEPT` finished runs (default 500, 1 to 10,000), and drops the oldest first,
+but never one that a stream is still reading.
+A backend restart loses every run, like the pre-search sessions. The result is saved either way when the database is
+on.
+
+**Stopping the backend:** an open progress stream keeps uvicorn from stopping until the stream ends, which can take
+as long as the search (at most 150 seconds). `python scripts/dev.py` starts uvicorn with
+`--timeout-graceful-shutdown 5`, so Ctrl+C stops it in about 5 seconds even while a browser follows a run. On Windows,
+dev.py ends the backend at once; elsewhere uvicorn closes open streams after 5 seconds and asks running searches to
+stop before their next step, and dev.py forces it after 10. Started by hand, add the same flag:
+`uvicorn app.main:app --timeout-graceful-shutdown 5`.
+
 ## Sprint 2 contracts
 
 These types are agreed and exported now, so screens can be built against them. The work behind them lands in later
@@ -138,7 +262,7 @@ Examples: `reply_rough.json`, `reply_exact.json`.
 
 ### Search runs and live progress (P-07)
 
-The routes are not served yet: a later Sprint 2 task builds them. These are the shapes they will use.
+The shapes the [search-run routes](#search-runs-with-live-progress-us-12) use (US-12).
 
 - **Starting a run** takes a `SearchRequest` and answers at once with `SearchRunStarted`: the `search_id` (`srch_` and 24
   hex characters, made by the backend). Never make one up.
@@ -147,7 +271,7 @@ The routes are not served yet: a later Sprint 2 task builds them. These are the 
 | Field | Meaning |
 |---|---|
 | `search_id` | The run |
-| `status` | `queued`, `running`, `done`, `partial`, `failed` or `cancelled`. Nothing cancels a run yet, so `cancelled` is reserved |
+| `status` | `queued`, `running`, `done`, `partial`, `failed` or `cancelled`. `failed` means the backend itself went wrong; a stage that fails gives `partial` |
 | `started_at` | `null` until the run leaves the queue; a run that failed or was cancelled early may never have started |
 | `finished_at` | Set once the status is `done`, `partial`, `failed` or `cancelled` |
 | `progress` | Every `ProgressEvent` so far |
@@ -163,9 +287,10 @@ The routes are not served yet: a later Sprint 2 task builds them. These are the 
 | `status` | `started`, `done`, `fallback` or `failed` |
 | `at` | When it happened (UTC) |
 | `message` | Short plain English. Show it as it is |
-| `sources_found` | Sources found so far, per source type, such as `{"reddit": 12, "review_site": 3}`. Can be empty |
+| `sources_found` | Sources found so far, per source type, such as `{"reddit": 12, "review_site": 3}`. The backend lists every type |
 
-Never fake progress: until these routes exist, the live research service keeps `streamsProgress: false`.
+Never fake progress: the live research service keeps `streamsProgress: false` until the research screen moves to these
+routes (task #27).
 
 Examples: `search_run_started.json`, `search_run_running.json`, `search_run_done.json`, `progress_events.json`.
 
@@ -191,9 +316,9 @@ inventing data.
 | Gap | Today | When it is planned |
 |---|---|---|
 | Real search results | `POST /api/search` still runs the US-52 stub stages: every search returns the same example laptops, whose criteria differ from the session's rubric. `coverage_note` says they are samples. | US-12 and US-14 to US-18, Sprints 2 and 3 |
-| Live progress | No progress stream; the answer comes once, at the end. Never fake progress. The [contracts](#search-runs-and-live-progress-p-07) are ready; the routes are not. | Progress over Server-Sent Events (`ProgressEvent`), Sprint 2 |
+| Live progress | The backend streams it now ([search runs](#search-runs-with-live-progress-us-12)), but the research screen still calls `POST /api/search` and keeps `streamsProgress: false`. Never fake progress. | Task #27, Sprint 2 |
 | Every source of a disputed value | `SearchResult` has no claims list. | The evidence route (US-21), Sprint 3 |
 | Typed edits to must-haves and leave-outs | `PUT /intent` refuses them with a plain 422. | US-09, US-10 and the rubric editor, Sprint 3 |
 | Sessions live in the server's memory | A backend restart in the middle of a search shows "session expired". | Not planned yet: raised for Sprint 2 planning |
-| A running search can't be cancelled | Leaving the page does not stop the work. `SearchRun` has a `cancelled` status, but nothing sets it. | Not planned yet: raised for Sprint 2 planning |
+| A running search can't be cancelled from the screen | The backend can cancel a run now (`DELETE /api/search/runs/{search_id}`, US-12), but the screen doesn't start runs yet, so its stop dialog has nothing to cancel. | Task #27, Sprint 2 |
 | A filtered product may be missing from `products` | The page has no name to show for it; show the product ID's fallback text. | Not planned yet: raised for Sprint 2 planning |

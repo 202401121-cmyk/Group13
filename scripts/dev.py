@@ -41,6 +41,7 @@ from doctor import (
 )
 
 READY_TIMEOUT_S = 60.0
+GRACEFUL_SHUTDOWN_S = 5  # Ctrl+C stops the backend within this, even with a progress stream open
 WINDOWS = os.name == "nt"
 
 
@@ -58,7 +59,9 @@ def backend_plan(port: int, frontend_port: int, no_db: bool, environ: Mapping[st
         env["DATABASE_URL"] = ""  # an empty variable wins over the .env file, so the database is off
     if frontend_port != FRONTEND_PORT and "FRONTEND_ORIGINS" not in environ:
         env["FRONTEND_ORIGINS"] = f"http://localhost:{frontend_port}"
+    # An open progress stream (US-12) would otherwise hold Ctrl+C until its search ends, up to 150 seconds.
     cmd = [backend_python(), "-m", "uvicorn", "app.main:app", "--port", str(port)]
+    cmd += ["--timeout-graceful-shutdown", str(GRACEFUL_SHUTDOWN_S)]
     return Plan("backend", cmd, BACKEND, env)
 
 

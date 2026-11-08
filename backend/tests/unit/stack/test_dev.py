@@ -96,6 +96,15 @@ def test_live_mode_points_the_frontend_at_the_backend() -> None:
     assert frontend.cmd[-3:] == ["--port", "3000", "--strictPort"]
 
 
+def test_the_backend_stops_within_5_seconds_even_with_a_progress_stream_open() -> None:
+    """Without the flag, uvicorn waits for an open progress stream (US-12) to end, which can take a whole search."""
+    harness = Harness()
+    run(harness, [])
+    backend = harness.started[0].plan
+    assert backend.name == "backend"
+    assert backend.cmd[backend.cmd.index("--timeout-graceful-shutdown") + 1] == "5"
+
+
 def test_no_db_turns_the_database_off_for_the_backend_only() -> None:
     harness = Harness()
     run(harness, ["--no-db"])
