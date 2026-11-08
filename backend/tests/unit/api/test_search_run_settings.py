@@ -67,7 +67,7 @@ def test_values_are_kept_within_safe_limits_with_a_warning(caplog: pytest.LogCap
         high = load_run_settings(
             {"SEARCH_RUN_WORKERS": "40", "SEARCH_RUN_KEEP_MINUTES": "99999", "SEARCH_RUN_PING_SECONDS": "600"}
         )
-    assert high == RunSettings(workers=16, keep_s=1440 * 60.0, ping_s=15.0)
+    assert high == RunSettings(workers=16, keep_s=120 * 60.0, ping_s=15.0)
     assert all(
         name in caplog.text for name in ("SEARCH_RUN_WORKERS", "SEARCH_RUN_KEEP_MINUTES", "SEARCH_RUN_PING_SECONDS")
     )
@@ -98,3 +98,13 @@ def test_the_kept_runs_limit_is_1_to_10000(caplog: pytest.LogCaptureFixture) -> 
     with caplog.at_level(logging.WARNING):
         assert load_run_settings({"SEARCH_RUN_MAX_KEPT": "20000"}).max_kept == 10_000
     assert "SEARCH_RUN_MAX_KEPT must be between 1 and 10000" in caplog.text
+
+
+def test_the_keep_time_is_limited_to_1_to_120_minutes(caplog: pytest.LogCaptureFixture) -> None:
+    with caplog.at_level(logging.WARNING):
+        assert load_run_settings({"SEARCH_RUN_KEEP_MINUTES": "1"}).keep_s == 60.0
+        assert load_run_settings({"SEARCH_RUN_KEEP_MINUTES": "120"}).keep_s == 7200.0
+    assert caplog.text == ""
+    with caplog.at_level(logging.WARNING):
+        assert load_run_settings({"SEARCH_RUN_KEEP_MINUTES": "121"}).keep_s == 7200.0
+    assert "SEARCH_RUN_KEEP_MINUTES must be between 1 and 120" in caplog.text

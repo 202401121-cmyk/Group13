@@ -223,7 +223,7 @@ event then says `done` or `partial`. Show the results, not a "cancelled" message
 
 ### How long a run is kept
 
-A run's state stays in the backend's memory for `SEARCH_RUN_KEEP_MINUTES` (default 30) after it ends, then answers 404.
+A run's state stays in the backend's memory for `SEARCH_RUN_KEEP_MINUTES` (default 30, from 1 to 120) after it ends, then answers 404.
 The backend keeps at most `SEARCH_RUN_MAX_KEPT` finished runs (default 500, 1 to 10,000), and drops the oldest first,
 but never one that a stream is still reading.
 A backend restart loses every run, like the pre-search sessions. The result is saved either way when the database is

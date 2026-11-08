@@ -14,10 +14,10 @@ from app.contracts import SearchRequest, Source, SourceComment, SourceType
 from app.contracts import examples as ex
 from app.db import InMemoryRequestStore
 from app.pipeline import DatabaseResultStore, InMemoryResultStore, PipelineRunner, default_search_stages
-from app.research.cache import ResearchCache
+from app.research.cache import ResearchCache, sweep_expired_files
 from app.research.dedupe import merge_near_duplicates
 from app.research.reddit.archive import add_comments
-from app.research.reddit.cache import RedditCache
+from app.research.reddit.cache import RedditCache, serve_limit
 from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
 from tests.fakes.reddit import NOW
 from tests.fakes.research import rubric, thread, web_source
@@ -142,7 +142,7 @@ def test_expired_reddit_cache_files_are_deleted(tmp_path: Path) -> None:
     assert len(list(tmp_path.glob("*.json"))) == 1
 
 
-def test_a_file_younger_than_24_hours_stays(tmp_path: Path) -> None:
+def test_a_file_younger_than_its_limit_stays(tmp_path: Path) -> None:
     RedditCache(folder=tmp_path).put(("recent",), [_fresh("aaa")])
     path = next(tmp_path.glob("*.json"))
     _age(path, 23)
@@ -269,3 +269,56 @@ def test_a_poster_filling_a_thread_with_merged_lines_cannot_push_the_row_past_it
     assert len(saved["text"]) <= 12_000
     assert saved["text"].count("Same topic") == 50
     assert Source.model_validate(saved).text == saved["text"]
+
+
+@pytest.mark.parametrize(
+    ("keep", "limit"),
+    [
+        ("", timedelta(hours=23, minutes=30)),
+        ("30", timedelta(hours=23, minutes=30)),
+        ("120", timedelta(hours=22)),
+        ("1", timedelta(hours=23, minutes=59)),
+        ("99999", timedelta(hours=22)),  # brought inside 1 to 120
+    ],
+)
+def test_the_cache_stops_serving_in_time_for_a_finished_run_to_go(keep: str, limit: timedelta, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setenv("SEARCH_RUN_KEEP_MINUTES", keep)
+    now = datetime(2026, 11, 8, 12, 0, tzinfo=UTC)
+    moments = [now]
+    cache = RedditCache(folder=None, now=lambda: moments[0])
+    cache.put(("a",), [thread("aaa", fetched_at=now)])
+    moments[0] = now + limit - timedelta(seconds=1)
+    assert cache.get(("a",)) is not None
+    moments[0] = now + limit
+    assert cache.get(("a",)) is None
+
+
+def test_a_cached_answer_and_a_run_that_read_it_last_are_gone_by_24_hours() -> None:
+    for keep in ("1", "30", "120"):
+        kept = timedelta(minutes=float(keep))
+        assert serve_limit({"SEARCH_RUN_KEEP_MINUTES": keep}) + kept == timedelta(hours=24)
+
+
+def test_web_results_keep_their_full_24_hours(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setenv("SEARCH_RUN_KEEP_MINUTES", "120")
+    now = datetime(2026, 11, 8, 12, 0, tzinfo=UTC)
+    moments = [now]
+    cache = ResearchCache(folder=None, now=lambda: moments[0])
+    source = web_source("https://web.example/a")
+    cache.put_sources(("serper",), [Source.model_validate({**source.model_dump(), "fetched_at": now})])
+    moments[0] = now + timedelta(hours=23, minutes=59)
+    assert cache.get_sources(("serper",)) is not None
+
+
+def test_the_sweep_deletes_a_reddit_file_at_its_shorter_limit(tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    reddit_folder, research_folder = tmp_path / "reddit", tmp_path / "research"
+    RedditCache(folder=reddit_folder).put(("a",), [_fresh("aaa")])
+    ResearchCache(folder=research_folder).put_text(("robots", "a.example"), "User-agent: *")
+    for path in tmp_path.rglob("*.json"):
+        _age(path, 23.75)
+    monkeypatch.delenv("SEARCH_RUN_KEEP_MINUTES", raising=False)
+    monkeypatch.setattr("app.research.cache.REDDIT_CACHE_DIR", reddit_folder)
+    monkeypatch.setattr("app.research.cache.DEFAULT_CACHE_DIR", research_folder)
+    sweep_expired_files()
+    assert list(reddit_folder.glob("*.json")) == []
+    assert len(list(research_folder.rglob("*.json"))) == 1

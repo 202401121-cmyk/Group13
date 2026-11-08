@@ -19,7 +19,7 @@ from pathlib import Path
 from app.contracts import Source
 
 from .reddit.cache import DEFAULT_CACHE_DIR as REDDIT_CACHE_DIR
-from .reddit.cache import CacheKey, RedditCache, delete_expired
+from .reddit.cache import CacheKey, RedditCache, delete_expired, serve_limit
 
 log = logging.getLogger(__name__)
 
@@ -32,8 +32,8 @@ def _utc_now() -> datetime:
 
 
 def sweep_expired_files() -> None:
-    """Everything past its 24 hours. It needs no client or source, so D-53 holds whatever else is broken."""
-    delete_expired(REDDIT_CACHE_DIR, DEFAULT_TTL)
+    """Everything past its limit. It needs no client or source, so D-53 holds whatever else is broken."""
+    delete_expired(REDDIT_CACHE_DIR, serve_limit())
     delete_expired(DEFAULT_CACHE_DIR / "text", DEFAULT_TTL)
     delete_expired(DEFAULT_CACHE_DIR / "sources", DEFAULT_TTL)
 

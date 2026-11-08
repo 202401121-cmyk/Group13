@@ -74,25 +74,48 @@ def test_another_region_is_left_out_of_the_words() -> None:
 @pytest.mark.parametrize(
     ("use", "expected"),
     [
-        ('coding "OR" site:evil.example -gaming', "coding gaming"),
-        ("  Coding   and   Video Editing ", "coding and video editing"),
-        ("c++ & c# work", "c++ c# work"),
+        ("coding", "coding"),
+        ("CODING", "coding"),
+        ("mostly coding at home", "coding"),
+        ("Video-Editing", "video editing"),
+        ("video   editing and music", "video editing"),
+        ("music and video editing", "music"),
+        ("for the students", "students"),
     ],
 )
-def test_search_operators_in_the_use_case_are_removed(use: str, expected: str) -> None:
+def test_a_known_use_appears_as_we_spell_it(use: str, expected: str) -> None:
     assert build_queries(rubric(use=use, at_most=None))[0].text == f"best laptop for {expected} India"
+    assert reddit_query(rubric(use=use)) == f"laptop for {expected} recommendations"
 
 
-def test_a_use_case_of_only_operators_counts_as_no_use() -> None:
-    assert _texts(use='"site:evil.example"', at_most=None) == _texts(use=None, at_most=None)
+@pytest.mark.parametrize(
+    "use",
+    [
+        "a gift for Zarvi Ostrand",
+        "near Koramangala in Bengaluru",
+        "zarvi.ostrand@mail.example",
+        "call 9876543210",
+        "call 987-654-3210",
+        '"site:evil.example" OR hobby',
+        "decoding old radios",
+        "a musician's friend",
+        "zarvi@gym.example",
+    ],
+)
+def test_anything_but_a_known_use_is_left_out(use: str) -> None:
+    assert _texts(use=use) == _texts(use=None)
+    assert reddit_query(rubric(use=use)) == reddit_query(rubric(use=None))
 
 
-def test_a_long_use_case_is_cut_at_a_word() -> None:
-    use = " ".join(["word"] * 24)
-    text = build_queries(rubric(use=use, at_most=None))[0].text
-    used = text.removeprefix("best laptop for ").removesuffix(" India")
-    assert len(used) <= 60
-    assert used.split(" ") == ["word"] * len(used.split(" "))
+def test_a_known_use_beside_personal_words_goes_alone() -> None:
+    use = "coding for Zarvi Ostrand in Bengaluru, call 9876543210 or zarvi@mail.example"
+    assert _texts(use=use) == _texts()
+
+
+def test_the_list_of_known_uses_can_be_changed() -> None:
+    assert build_queries(rubric(use="fishing", at_most=None), ("fishing",))[0].text == "best laptop for fishing India"
+    assert build_queries(rubric(use="coding", at_most=None), ("fishing",))[0].text == "best laptop India"
+    assert reddit_query(rubric(use="fishing"), ("fishing",)) == "laptop for fishing recommendations"
 
 
 def test_a_category_slug_reads_as_words() -> None:
@@ -242,54 +265,6 @@ def test_chips_and_systems_are_not_candidates() -> None:
     assert candidate_names(titles, "laptop") == []
 
 
-def test_a_long_number_in_the_use_case_is_dropped() -> None:
-    query = build_queries(rubric(use="for my work call 9876543210", at_most=None))[0].text
-    assert "9876543210" not in query
-    assert "work" in query
-
-
 def test_a_price_word_ends_a_name() -> None:
     titles = [("a", "Laptops Below 50k"), ("b", "Laptops Below 50k"), ("c", "Rs 40k laptops"), ("d", "Rs 40k picks")]
     assert candidate_names(titles, "laptop") == []
-
-
-@pytest.mark.parametrize(
-    "spaced",
-    [
-        "987-654-3210",
-        "987 654 3210",
-        "+91 98765 43210",
-        "(987) 654-3210",
-        "987/654/3210",
-        "987_654_3210",
-        f"987{chr(0x2013)}654{chr(0x2013)}3210",
-        "9876543",
-    ],
-)
-def test_a_long_number_is_dropped_however_it_is_spaced(spaced: str) -> None:
-    query = build_queries(rubric(use=f"for work call {spaced}", at_most=None))[0].text
-    assert not any(char.isdigit() for char in query)
-    assert "work" in query
-
-
-def test_a_short_number_in_the_use_case_stays() -> None:
-    assert "4k" in build_queries(rubric(use="4k video editing", at_most=None))[0].text
-    assert "2 monitors" in build_queries(rubric(use="2 monitors", at_most=None))[0].text
-
-
-@pytest.mark.parametrize(
-    "use",
-    [
-        "rtx 4060 8gb",
-        "rtx 4060 16gb ram",
-        "ryzen 7 7840hs",
-        "15.6 144hz",
-        "27 1440p",
-        "i7 13700h",
-        "under 50000",
-        "sku ab1234567",
-        "sku 1234567c",
-    ],
-)
-def test_a_models_numbers_and_a_price_stay(use: str) -> None:
-    assert use in build_queries(rubric(use=use, at_most=None))[0].text

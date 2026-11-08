@@ -970,3 +970,49 @@ def test_review_sites_take_every_reason_web_search_failed_for() -> None:
     note = _note(_run(_stage(serper=serper)))
     assert "Review sites had an error." in note
     assert "Review sites ran out of quota." in note
+
+
+# --- the shopper's own words ------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("use", "private"),
+    [
+        ("a gift for Zarvi Ostrand", "zarvi"),
+        ("near Koramangala", "koramangala"),
+        ("zarvi.ostrand@mail.example", "mail.example"),
+        ("call 9876543210", "9876543210"),
+        ("coding for Zarvi Ostrand, call 9876543210", "zarvi"),
+        ("coding for Zarvi Ostrand, call 9876543210", "9876543210"),
+    ],
+)
+def test_a_shoppers_private_words_never_reach_serper_or_pullpush(use: str, private: str) -> None:
+    from app.db.breaker import CircuitBreaker
+    from app.research.reddit import IntervalLimiter, PullPushSource
+    from app.research.reddit.cache import RedditCache
+    from tests.fakes.reddit import Archive, ok
+
+    archive = Archive().on("/reddit/search/submission/", ok({"data": []}))
+    pullpush = PullPushSource(
+        archive.client(),
+        cache=RedditCache(folder=None),
+        limiter=IntervalLimiter(0),
+        breaker=CircuitBreaker(3, 30),
+    )
+    serper = FakeSerper(default=_web())
+    stage = _stage(serper=serper, reddit=pullpush)
+    stage.run(ResearchInput(rubric=rubric(use=use)), StageContext(search_id="srch_test"))
+    assert serper.queries
+    assert archive.requests
+    sent = [*serper.queries, *(str(request.url) for request in archive.requests)]
+    assert not any(private in text.casefold().replace("%40", "@") for text in sent)
+    assert any("coding" in text for text in sent) == ("coding" in use)
+
+
+def test_the_stage_uses_the_configured_known_uses() -> None:
+    serper = FakeSerper(default=_web())
+    reddit = FakeReddit()
+    stage = _stage(serper=serper, reddit=reddit, settings=_settings(known_uses=("fishing",)))
+    stage.run(ResearchInput(rubric=rubric(use="fishing", at_most=None)), StageContext(search_id="srch_test"))
+    assert serper.queries[0] == "best laptop for fishing India"
+    assert reddit.queries == ["laptop for fishing recommendations"]

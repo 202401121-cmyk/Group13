@@ -44,3 +44,20 @@ review_domains:
   - notebookcheck.net
   - gsmarena.com
   - rtings.com
+
+# The only uses a search query may hold. The use case is the shopper's own words, so a query never carries it as
+# typed: a known use named in it goes in as written here, and anything else is left out. Lowercase words only.
+known_uses:
+  - coding
+  - programming
+  - gaming
+  - travel
+  - office
+  - student
+  - students
+  - video editing
+  - photo editing
+  - music
+  - running
+  - gym
+  - calls

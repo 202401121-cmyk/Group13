@@ -15,8 +15,6 @@ POST /api/search does. The stream sends its own keep-alive comment, so tests can
 from __future__ import annotations
 
 import logging
-import math
-import os
 import threading
 from collections.abc import AsyncIterator, Callable, Mapping
 from dataclasses import dataclass, field
@@ -25,7 +23,6 @@ from time import monotonic
 from typing import Annotated, Any, NamedTuple
 
 import anyio
-from dotenv import dotenv_values, find_dotenv
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
 from fastapi.sse import EventSourceResponse, ServerSentEvent
 
@@ -40,6 +37,7 @@ from app.pipeline import (
     default_search_stages,
     new_search_id,
 )
+from app.search_run_limits import DEFAULT_KEEP_MINUTES, environment, keep_minutes, number
 
 log = logging.getLogger(__name__)
 
@@ -49,8 +47,6 @@ NOT_FOUND = "We couldn't find that search. Finished searches are only kept for a
 
 DEFAULT_WORKERS = 4
 MAX_WORKERS = 16
-DEFAULT_KEEP_MINUTES = 30.0
-MIN_KEEP_MINUTES, MAX_KEEP_MINUTES = 1.0, 1440.0
 DEFAULT_PING_SECONDS = 15.0
 # FastAPI sends its own keep-alive after 15 s of silence, so a longer setting would have no effect.
 MIN_PING_SECONDS, MAX_PING_SECONDS = 0.01, 15.0
@@ -81,29 +77,12 @@ def load_run_settings(env: Mapping[str, str] | None = None) -> RunSettings:
     changing os.environ), and real environment variables win.
     """
     if env is None:
-        env = {**{k: v for k, v in dotenv_values(find_dotenv()).items() if v is not None}, **os.environ}
-    workers = _number(env, "SEARCH_RUN_WORKERS", DEFAULT_WORKERS, 1, MAX_WORKERS, whole=True)
-    keep = _number(env, "SEARCH_RUN_KEEP_MINUTES", DEFAULT_KEEP_MINUTES, MIN_KEEP_MINUTES, MAX_KEEP_MINUTES)
-    ping = _number(env, "SEARCH_RUN_PING_SECONDS", DEFAULT_PING_SECONDS, MIN_PING_SECONDS, MAX_PING_SECONDS)
-    kept = _number(env, "SEARCH_RUN_MAX_KEPT", DEFAULT_MAX_KEPT, MIN_MAX_KEPT, MAX_MAX_KEPT, whole=True)
+        env = environment()
+    workers = number(env, "SEARCH_RUN_WORKERS", DEFAULT_WORKERS, 1, MAX_WORKERS, whole=True)
+    keep = keep_minutes(env)
+    ping = number(env, "SEARCH_RUN_PING_SECONDS", DEFAULT_PING_SECONDS, MIN_PING_SECONDS, MAX_PING_SECONDS)
+    kept = number(env, "SEARCH_RUN_MAX_KEPT", DEFAULT_MAX_KEPT, MIN_MAX_KEPT, MAX_MAX_KEPT, whole=True)
     return RunSettings(workers=int(workers), keep_s=keep * 60, ping_s=ping, max_kept=int(kept))
-
-
-def _number(env: Mapping[str, str], name: str, default: float, low: float, high: float, whole: bool = False) -> float:
-    raw = (env.get(name) or "").strip()
-    if not raw:
-        return default
-    try:
-        value = float(int(raw)) if whole else float(raw)
-    except (ValueError, OverflowError):  # OverflowError: a whole number too big for a float
-        value = math.nan
-    if not math.isfinite(value) or value <= 0:
-        log.warning("%s must be a positive %s; using %s", name, "whole number" if whole else "number", default)
-        return default
-    kept = min(max(value, low), high)
-    if kept != value:
-        log.warning("%s must be between %g and %g; using %g", name, low, high, kept)
-    return kept
 
 
 # --- the registry -------------------------------------------------------------------------------

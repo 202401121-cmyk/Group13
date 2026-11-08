@@ -485,9 +485,13 @@ for Reddit's listing, whose titles name products more often, but for half the de
 tenth of the deadline is left. Once the first round is in, or at that halfway point, review pages are queued best-ranked first,
 so the caps pick the same pages from the same answers. A candidate
 is a product-like name in the titles of at least two different sources, found by a rule with no LLM. It misses names with
-no digit, such as `MacBook Air`, and names whose only number has 4 or more digits. A long number in the use case (7 digits
-or more, however they are spaced, as in a phone number) is dropped before any query is built. The rest of the use case is the
-shopper's own words, and it does leave the app: Serper receives it, and so does PullPush if that archive is used.
+no digit, such as `MacBook Air`, and names whose only number has 4 or more digits.
+
+**The shopper's words stay here.** The use case is what the shopper typed, so a query never carries it as typed. A query
+holds a use only if the use case names one from `known_uses` in `config/research.yaml` (intake keeps no list of its own), and
+then only as written there: "mostly coding at home" searches for `coding`. Anything else counts as no use, so a name, place,
+email or phone number in the use case can't reach Serper or PullPush. The category is not covered: one intake doesn't
+recognise goes out as the shopper named it, because a search for an unlisted product needs it.
 
 **Parallel fetch.** One thread pool of a fixed size (`pool_size`, default 6). The stage returns at `deadline_s` (36 s, inside
 its 40-second limit) with whatever finished. Near-duplicate threads, with more than 60% of their title words shared, are
@@ -546,7 +550,7 @@ not by scraping reddit.com.
 
 Every request has a 10 s timeout and the User-Agent `ShopSense/<version> (IT314 student project;
 +https://github.com/202401121-cmyk/Group13)`. One search uses about 10 requests at most (`RequestBudget`): one per
-subreddit (up to 4), the rest for comment threads. Cleaned results are cached for 24 hours in memory and in the
+subreddit (up to 4), the rest for comment threads. Cleaned results are cached (see "Keeping Reddit data") in memory and in the
 git-ignored `backend/.cache/reddit/`; a failure is never cached. Breakers and rate limiters last as long as the process, so
 one search's failures count for the next. A thread's title, text and comments have HTML entities and invisible characters
 removed before they are stored.
@@ -584,14 +588,21 @@ above; not yet confirmed from Reddit's own pages). Until access is granted, leav
 create a "script" app at reddit.com/prefs/apps, set the three `REDDIT_*` API settings and `REDDIT_SOURCE=official`.
 App-only, read-only sign-in: no Reddit password is ever used.
 
-**Keeping Reddit data.** It may be kept at most 24 hours, counted from when it was read, so storing a thread again with its
-comments doesn't restart the clock. The caches serve nothing older. Expired cache files are deleted by the next search, even
-with `REDDIT_SOURCE=off`, `RESEARCH_CACHE=off` or no working client; a machine that runs no search deletes nothing until it
-does. A finished run stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES` (30 by default), so the shopper can fetch it,
-and that copy does hold Reddit text: read near the end of its 24 hours, it can outlast them by that long. A saved search holds
-no Reddit text at all: a Reddit source keeps its URL, community, fetch time, archive and counts
-(`app/research/retention.py`, and see [database.md](database.md)). US-14 and US-16 will fill fields that can carry Reddit's
-words, and must extend that module before those reach a saved row.
+**Keeping Reddit data.** D-53 allows it at most 24 hours, counted from when it was read, and covers every copy we hold. Storing
+a thread again with its comments doesn't restart the clock.
+
+- **The cache** serves an answer only while it is younger than 24 hours minus `SEARCH_RUN_KEEP_MINUTES`: 23.5 hours by default.
+  Search results and review pages keep their full 24 hours. The only Reddit words among them are the titles of results that
+  point at Reddit. Those are used to spot product names and never reach a finished run.
+- **A finished run** stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES`, limited to 1 to 120 minutes, and that copy does
+  hold Reddit text. So a run that read the cache at the last moment goes at about the 24 hours: later by the length of the
+  search itself, up to 150 seconds. A run past its time is dropped the next time any search starts, ends or is looked up, so
+  on an idle server it can stay in memory until then, though nobody can fetch it.
+- **Files** past the limit are deleted by the next search, even with `REDDIT_SOURCE=off`, `RESEARCH_CACHE=off` or no working
+  client. A machine that runs no search deletes nothing until it does.
+- **A saved search** holds no Reddit text at all: a Reddit source keeps its URL, community, fetch time, archive and counts
+  (`app/research/retention.py`, and see [database.md](database.md)). US-14 and US-16 will fill fields that can carry Reddit's
+  words, and must extend that module before those reach a saved row.
 
 **Open question (for Om).** We keep a quote's source for evidence. If a thread or comment is deleted on Reddit
 after we read it, should evidence we have kept for longer than the 24-hour cache be dropped too? Today no Reddit text
