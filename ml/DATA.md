@@ -417,3 +417,108 @@ sha256sum -c ml/data/checksums.sha256
 If a file says FAILED, delete it and download it again. If it still fails, the publisher may have changed the file.
 Tell the team before using it. If we accept the new file, update `checksums.sha256` and this section in one pull
 request, and say what changed.
+
+## 8. How to run a labelling session
+
+Our own pairs (D-55) come from listings people copy by hand, never scraped, and from labels each person gives alone.
+No tool or AI suggests a label or writes a title. Run these from the repository root. They work offline, on Windows,
+macOS and Linux, and need nothing beyond Python.
+
+### 8.1 Collect listings
+
+Copy each listing into `ml/labelling/listings.csv`, starting from
+[labelling/listings_template.csv](labelling/listings_template.csv). The file is UTF-8, and the header is exactly:
+
+```
+listing_id,kind,text,source,url,product_family,category,added_by
+```
+
+| Column | Rule | Example |
+|---|---|---|
+| `listing_id` | Unique, `l` plus 4 digits | `l0001` |
+| `kind` | `title` for a store's listing title; `mention` for a product named the short way people write it in a review or forum post | `title` |
+| `text` | The title or mention, copied exactly. At most 300 characters | `Nova Book 14 (16GB RAM, 512GB SSD, Silver)` |
+| `source` | A slug for the store or site. Never Reddit (as source or URL): its text is never used for training (D-53) | `amazon-in`, `flipkart`, `croma` |
+| `url` | The page it was copied from. Required for a title, optional for a mention. Each URL once | `https://...` |
+| `product_family` | The brand and model line, as in section 2 | `nova-book` |
+| `category` | A slug from `backend/config/categories.yaml` | `laptop` |
+| `added_by` | Your first name | `Om` |
+
+Check the file. `--fix` also strips tracking parameters (such as `utm_source`, `gclid` or Amazon's `ref=`) from the
+URLs, and leaves everything else as you wrote it:
+
+```bash
+python ml/scripts/check_listings.py ml/labelling/listings.csv --fix
+```
+
+### 8.2 Make a batch
+
+```bash
+python ml/scripts/make_pairs.py ml/labelling/listings.csv --batch agree-1 --seed 101
+```
+
+This writes the 50 pairs to `ml/labelling/batches/agree-1.pairs.csv`. It also records how each pair was chosen in
+`ml/labelling/batches/pairs.meta.csv`, which is for the evaluation: labellers never open it. A batch has:
+
+- 35% two store titles of one product family, from different stores;
+- 15% two store titles of one family, from the same store;
+- 20% a mention against a store title of its family;
+- 20% look-alike titles from different families in one category;
+- 10% random pairs.
+
+Pair ids are given at random, so they say nothing about how a pair was chosen. The same seed, listings and earlier
+batches give the same batch, on the same Python version. Never remake or re-label a batch; make a new one with a new
+name and seed.
+
+Solo batches repeat 5 earlier pairs, so agreement keeps being checked. `solo-1` repeats pairs from the agreement
+batch that passed (never one whose pairs were discussed): `--batch solo-1 --seed 201 --overlap 5 --overlap-from
+agree-1`. From `solo-2` on, repeat the other person's solo pairs, so the repeats compare two people rather than one
+person with themselves: `--batch solo-2 --seed 202 --overlap 5 --overlap-from solo-1`. A pair is repeated at most
+once. `labelling_status.py` prints the command to use; from `solo-2` on, put in the other person's latest solo batch.
+
+### 8.3 Label it, alone
+
+```bash
+python ml/scripts/label_pairs.py ml/labelling/batches/agree-1.pairs.csv --labeller Om
+```
+
+| Key | What it does |
+|---|---|
+| `1` `2` `3` `4` | same, variant, different, unsure. After `4`, say why |
+| `n` | Add a note |
+| `o` | Open both pages in your browser |
+| `d` | Show the definitions |
+| `b` | Go back a pair |
+| `q` | Quit |
+
+- Every answer is saved at once to `ml/labelling/agree-1.om.csv`, in the section 2 format. Run the same command to
+  carry on where you stopped. If the file is open in a spreadsheet, the answer is not saved: close it and press the
+  key again. If a spreadsheet saved the file and changed it (dates are a common case), the tool stops writing to it:
+  run `python ml/scripts/check_labels.py` on it, fix what it lists, then run the tool again.
+- Each labeller sees the pairs in their own order. The screen shows only the two texts: no score, no family and no
+  hint.
+- In a terminal, one key press is enough. Where the window can't read single keys (some IDE consoles, Git Bash
+  without winpty), the tool says so: press Enter after each key.
+- Don't talk about any pair, or open the other person's file, until both of you have finished the batch.
+
+### 8.4 See where you stand
+
+```bash
+python ml/scripts/labelling_status.py
+```
+
+It shows:
+
+- each batch's progress;
+- the label mix of finished batches;
+- for each batch everyone on it has finished: agreement and both kappas between every two labellers, with every
+  disagreement (an unfinished batch shows only counts, so nobody sees the other's answers too early);
+- repeated pairs: the same pair labelled again later, by the other person or by the same one;
+- the next step:
+  - finish `agree-1`;
+  - if any two labellers' four-class kappa is below 0.80, discuss the disagreements, add the clarified rule to
+    section 3 and make `agree-2`;
+  - once every two labellers reach 0.80 or more on a 50-pair agreement batch, start `solo-1`.
+
+Record each agreement run in the table in section 4. Commit solo labels after every session, under your own name.
+Commit agreement labels only when both of you have finished the batch, so neither sees the other's answers first.
