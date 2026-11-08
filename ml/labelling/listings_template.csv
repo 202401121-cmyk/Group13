@@ -1,0 +1,4 @@
+listing_id,kind,text,source,url,product_family,category,added_by
+l0001,title,"Nova Book 14 (16GB RAM, 512GB SSD, Silver)",shop-a,https://shop-a.example/p/nova-book-14-16-512-silver,nova-book,laptop,Alex
+l0002,title,Nova Book 14 Laptop - 16 GB / 512 GB SSD - Silver,shop-b,https://shop-b.example/item/nova-book-14,nova-book,laptop,Alex
+l0003,mention,Nova Book 14,forum-x,https://forum-x.example/t/which-laptop-for-college,nova-book,laptop,Alex

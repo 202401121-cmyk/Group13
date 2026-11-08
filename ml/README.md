@@ -22,11 +22,15 @@ ml/
 ├── DATA.md              # datasets, the labelling CSV format, the labelling guide, the agreement rule
 ├── MODELS.md            # one card per model: story, owner, type, data, baseline, target, sprint
 ├── labelling/
-│   └── pairs_template.csv     # header row and 3 example rows; copy it to start labelling
+│   ├── pairs_template.csv     # header row and 3 example rows; copy it to start labelling
+│   └── listings_template.csv  # header row and 3 example rows for hand-collected listings (DATA.md section 8)
 ├── requirements.txt     # rapidfuzz and numpy for the matching baseline (pinned)
 ├── scripts/
 │   ├── check_labels.py  # checks labelling CSV files and prints a summary
 │   ├── kappa.py         # Cohen's kappa between two labellers on the same pairs
+│   ├── check_listings.py, make_pairs.py, label_pairs.py, labelling_status.py
+│   │                    # a labelling session: check listings, make a batch, label it, see where you stand
+│   ├── listings.py      # the listings format and URL clean-up those four share
 │   ├── pairsets.py      # loads our pairs, WDC Products, Abt-Buy and Amazon-Google into one Pair type
 │   ├── match_metrics.py # precision, recall, F1 at every threshold; the threshold choice on dev
 │   └── match_baseline.py  # the fuzzy title baseline: python ml/scripts/match_baseline.py all
@@ -42,6 +46,12 @@ ml/
 Run these from the repository root.
 
 ```bash
+# A labelling session (ml/DATA.md, section 8): listings, a batch, labels, then where you stand.
+python ml/scripts/check_listings.py ml/labelling/listings.csv --fix
+python ml/scripts/make_pairs.py ml/labelling/listings.csv --batch agree-1 --seed 101
+python ml/scripts/label_pairs.py ml/labelling/batches/agree-1.pairs.csv --labeller Om
+python ml/scripts/labelling_status.py
+
 # Check one or more labelling files. Exit code 0 means no errors.
 python ml/scripts/check_labels.py ml/labelling/pairs_template.csv
 
