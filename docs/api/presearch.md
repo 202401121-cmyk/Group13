@@ -148,7 +148,7 @@ Asks the first question. Calling it again restarts the interview.
 
 - **Body:** none.
 - **Response 200:** `InterviewStep` with `kind: "question"`. Show `message`; show `question.quick_replies`
-  (`Low`, `Medium`, `High`, `Skip`) as buttons and allow free text; `question.why_asking` explains the question.
+  (`Low`, `Medium`, `High`, `Good enough`, `Skip`) as buttons and allow free text; `question.why_asking` explains the question.
 - **Errors:** 404; 409 (get the criteria first).
 
 ```bash

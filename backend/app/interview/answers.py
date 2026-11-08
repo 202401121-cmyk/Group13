@@ -20,8 +20,8 @@ from app.contracts import (
     RoughLevel,
 )
 
-# The buttons under every question, in the order they are shown.
-QUICK_REPLIES = ["Low", "Medium", "High", "Skip"]
+# The buttons under every question, in the order they are shown: the table's levels, then Skip.
+QUICK_REPLIES = ["Low", "Medium", "High", "Good enough", "Skip"]
 
 SKIP_WORD = "skip"
 

@@ -76,7 +76,7 @@ def test_the_first_turn_asks_the_most_important_question() -> None:
     assert step.question is not None
     assert step.question.criterion_key == "cpu_performance"
     assert step.message == step.question.text == "CPU performance: how much does it matter to you?"
-    assert step.question.quick_replies == ["Low", "Medium", "High", "Skip"]
+    assert step.question.quick_replies == ["Low", "Medium", "High", "Good enough", "Skip"]
     assert step.questions_asked == 1
     assert [e.status for e in step.state.history] == ["pending"]
     assert step.ordering == "fixed_order"

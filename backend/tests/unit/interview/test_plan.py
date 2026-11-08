@@ -210,7 +210,7 @@ def test_question_id_reasons_and_buttons() -> None:
     assert question.id == "q_battery_life"
     assert question.criterion_key == "battery_life"
     assert question.why_asking == criterion.definition
-    assert question.quick_replies == ["Low", "Medium", "High", "Skip"]
+    assert question.quick_replies == ["Low", "Medium", "High", "Good enough", "Skip"]
     assert question_id("very-long-key-" + "x" * 60) == "q_very_long_key_" + "x" * 26
     long_definition = crit("x_criterion", 5).model_dump() | {
         "definition": "word " * 55

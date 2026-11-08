@@ -16,7 +16,13 @@ QUESTION = InterviewQuestion(
 
 
 def test_every_question_offers_the_same_buttons() -> None:
-    assert QUICK_REPLIES == ["Low", "Medium", "High", "Skip"]
+    assert QUICK_REPLIES == ["Low", "Medium", "High", "Good enough", "Skip"]
+
+
+def test_every_level_in_the_table_has_a_button() -> None:
+    """Good enough is a rough answer like the others, so it sits beside them under every question (US-08)."""
+    buttons = {understand_reply(button, QUESTION).weight for button in QUICK_REPLIES if button != "Skip"}
+    assert buttons == set(ROUGH_LEVEL_WEIGHTS.values())
 
 
 def test_every_button_but_skip_is_a_table_phrase() -> None:
@@ -24,6 +30,12 @@ def test_every_button_but_skip_is_a_table_phrase() -> None:
         reply = understand_reply(button, QUESTION)
         expected = ReplyType.SKIP if button == "Skip" else ReplyType.ANSWER
         assert reply.reply_type is expected
+
+
+@pytest.mark.parametrize("button", ["Low", "Medium", "High", "Good enough"])
+def test_each_button_gives_the_weight_of_its_level(button: str) -> None:
+    level = RoughLevel(button.lower().replace(" ", "_"))
+    assert understand_reply(button, QUESTION).weight == ROUGH_LEVEL_WEIGHTS[level]
 
 
 @pytest.mark.parametrize(
