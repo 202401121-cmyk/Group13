@@ -1,0 +1,27 @@
+conflict_id,category,product,criterion,unit,known_answer,tolerance,how_established,added_by,claim_url,claim_site,claim_tier,claim_value,claim_retrieved_at,claim_quote
+syn001,laptop,Nova Book 14,battery_life,h,10 h,0.5,https://nova.example/book-14/specs,Alex,https://nova.example/book-14/specs,nova.example,manufacturer,10 h,2026-11-01,Up to 10 hours on a full charge.
+syn001,laptop,Nova Book 14,battery_life,h,10 h,0.5,https://nova.example/book-14/specs,Alex,https://techdesk.example/nova-book-14-review,techdesk.example,editorial,12 h,2026-11-01,The battery lasted 12 hours in our use.
+syn001,laptop,Nova Book 14,battery_life,h,10 h,0.5,https://nova.example/book-14/specs,Alex,https://gadgetnotes.example/nova-book-14,gadgetnotes.example,editorial,12 h,2026-11-01,
+syn001,laptop,Nova Book 14,battery_life,h,10 h,0.5,https://nova.example/book-14/specs,Alex,https://www.reddit.com/r/laptops/comments/zzz000/,reddit.com,community,12 h,2026-11-01,
+syn002,smartphone,Kestrel Phone 8,weight,g,186 g,1,Weighed on a kitchen scale by Alex,Alex,https://techdesk.example/kestrel-phone-8-review,techdesk.example,editorial,186 g,2026-11-02,
+syn002,smartphone,Kestrel Phone 8,weight,g,186 g,1,Weighed on a kitchen scale by Alex,Alex,https://gadgetnotes.example/kestrel-phone-8,gadgetnotes.example,editorial,190 g,2026-11-02,
+syn002,smartphone,Kestrel Phone 8,weight,g,186 g,1,Weighed on a kitchen scale by Alex,Alex,https://forum.example/threads/kestrel-phone-8,forum.example,community,186 g,2026-11-02,
+syn003,smartphone,Orion Phone 5,battery_capacity,mAh,5000 mAh,0,https://orion.example/phone-5/specs,Alex,https://orion.example/phone-5/specs,orion.example,manufacturer,5000 mAh,2026-11-02,
+syn003,smartphone,Orion Phone 5,battery_capacity,mAh,5000 mAh,0,https://orion.example/phone-5/specs,Alex,https://techdesk.example/orion-phone-5-review,techdesk.example,editorial,4500 mAh,2026-11-02,
+syn004,earbuds,Orion Buds 2,battery_life,h,30 h,1,https://orion.example/buds-2/specs,Sam,https://techdesk.example/orion-buds-2-review,techdesk.example,editorial,30 h,2026-11-03,
+syn004,earbuds,Orion Buds 2,battery_life,h,30 h,1,https://orion.example/buds-2/specs,Sam,https://gadgetnotes.example/orion-buds-2,gadgetnotes.example,editorial,28 h,2026-11-03,
+syn005,tablet,Vela Tab 11,display_size,in,11 in,0.1,https://vela.example/tab-11/specs,Sam,https://labtest.example/vela-tab-11,labtest.example,lab,11 in,2026-11-03,
+syn005,tablet,Vela Tab 11,display_size,in,11 in,0.1,https://vela.example/tab-11/specs,Sam,https://techdesk.example/vela-tab-11-review,techdesk.example,editorial,11.0 in,2026-11-03,
+syn005,tablet,Vela Tab 11,display_size,in,11 in,0.1,https://vela.example/tab-11/specs,Sam,https://forum.example/threads/vela-tab-11,forum.example,community,11 in,2026-11-03,
+syn006,laptop,Aurora Book 13,weight,kg,1.5 kg,0.1,https://labtest.example/aurora-book-13,Sam,https://labtest.example/aurora-book-13,labtest.example,lab,1.6 kg,2026-11-04,Our sample weighed 1.6 kg.
+syn006,laptop,Aurora Book 13,weight,kg,1.5 kg,0.1,https://labtest.example/aurora-book-13,Sam,https://techdesk.example/aurora-book-13-review,techdesk.example,editorial,1.6 kg,2026-11-04,
+syn006,laptop,Aurora Book 13,weight,kg,1.5 kg,0.1,https://labtest.example/aurora-book-13,Sam,https://gadgetnotes.example/aurora-book-13,gadgetnotes.example,editorial,1.9 kg,2026-11-04,
+syn007,smartphone,Nova Phone 9,launch_price,₹,62990 ₹,100,Launch note from Nova read by Sam,Sam,https://nova.example/phone-9/specs,nova.example,manufacturer,63990 ₹,2026-11-04,
+syn007,smartphone,Nova Phone 9,launch_price,₹,62990 ₹,100,Launch note from Nova read by Sam,Sam,https://techdesk.example/nova-phone-9-review,techdesk.example,editorial,62990 ₹,2026-11-04,
+syn007,smartphone,Nova Phone 9,launch_price,₹,62990 ₹,100,Launch note from Nova read by Sam,Sam,https://forum.example/threads/nova-phone-9,forum.example,community,63990 ₹,2026-11-04,
+syn008,earbuds,Kestrel Buds,charging_port,,USB-C,,Checked on the product by Sam,Sam,https://kestrel.example/buds/specs,kestrel.example,manufacturer,usb-c,2026-11-05,
+syn008,earbuds,Kestrel Buds,charging_port,,USB-C,,Checked on the product by Sam,Sam,https://techdesk.example/kestrel-buds-review,techdesk.example,editorial,USB-C,2026-11-05,
+syn008,earbuds,Kestrel Buds,charging_port,,USB-C,,Checked on the product by Sam,Sam,https://forum.example/threads/kestrel-buds,forum.example,community,Micro-USB,2026-11-05,
+syn009,smartphone,Aurora Phone 7,charging_power,W,67 W,0,https://aurora.example/phone-7/specs,Sam,https://forum.example/threads/aurora-phone-7,forum.example,community,67 W,2026-11-05,
+syn009,smartphone,Aurora Phone 7,charging_power,W,67 W,0,https://aurora.example/phone-7/specs,Sam,https://shopnow.example/aurora-phone-7,shopnow.example,retailer,45 W,2026-11-05,
+syn009,smartphone,Aurora Phone 7,charging_power,W,67 W,0,https://aurora.example/phone-7/specs,Sam,https://pricehub.example/aurora-phone-7,pricehub.example,retailer,45 W,2026-11-05,

@@ -7,6 +7,7 @@
 |---|---|
 | `pairs_labeller_a.csv` | 50 made-up pairs (`p0001`–`p0050`) labelled by the placeholder labeller "Alex" |
 | `pairs_labeller_b.csv` | The same 50 pairs with the same titles, labelled by the placeholder labeller "Sam" |
+| `conflicts_synthetic.csv` | 9 made-up source conflicts (`syn001`–`syn009`) with made-up `.example` sites, covering each tie and tolerance case and a store's claim. Their numbers mean nothing, so they never go in `ml/results/` |
 
 - The pairs are laptops, smartphones and earbuds from fictional brands only: Nova, Kestrel, Orion, Aurora and Vela.
 - The two files disagree on purpose on 5 pairs, so the four-class kappa lands between 0.80 and 0.95.
