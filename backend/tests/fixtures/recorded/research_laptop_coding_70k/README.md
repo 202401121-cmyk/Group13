@@ -1,0 +1,1 @@
+- `research_laptop_coding_70k`: real replies to "best laptop for coding under 70k" (1 run; calls groq: 2, serper: 6). Recorded 2026-11-08 by Jenish Kavad.

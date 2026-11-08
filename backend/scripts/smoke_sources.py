@@ -23,6 +23,7 @@ from time import monotonic
 import httpx
 
 from app.db.breaker import CircuitBreaker
+from app.research.client import ClientUnavailable, build_research_client
 from app.research.reddit import RequestBudget, load_reddit_settings, subreddits_for
 from app.research.reddit.archive import ArchiveSource
 from app.research.reddit.arctic_shift import ArcticShiftSource
@@ -87,7 +88,12 @@ def main(argv: list[str] | None = None) -> int:
     if isinstance(sys.stdout, io.TextIOWrapper):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     settings = load_reddit_settings()
-    with httpx.Client() as http:
+    try:
+        client = build_research_client()
+    except ClientUnavailable as exc:  # its text is the error's type only, never the proxy's URL
+        print(f"could not build an HTTP client ({exc}): the archives were not checked")
+        return 0
+    with client as http:
         cache = RedditCache(folder=None)  # a smoke test must not fill or read the app's cache
         sources: list[ArchiveSource] = [
             ArcticShiftSource(http, base_url=settings.arctic_shift_base_url, cache=cache),

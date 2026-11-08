@@ -7,11 +7,21 @@ still does not fit is skipped, never a crash.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import Any, TypeVar
+from typing import Annotated, Any, TypeVar
 
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, BeforeValidator, ConfigDict, ValidationError
 
 M = TypeVar("M", bound=BaseModel)
+
+
+def _whole_number(value: Any) -> int | None:
+    """A count we can trust, or None. An odd one must not lose the whole post."""
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return None
+    return int(value)
+
+
+LenientInt = Annotated[int | None, BeforeValidator(_whole_number)]
 
 
 class RawPost(BaseModel):
@@ -25,6 +35,8 @@ class RawPost(BaseModel):
     created_utc: float | None = None
     over_18: bool | None = None
     removed_by_category: str | None = None
+    score: LenientInt = None
+    num_comments: LenientInt = None
 
 
 class RawComment(BaseModel):
@@ -37,6 +49,7 @@ class RawComment(BaseModel):
     body: str | None = None
     author: str | None = None
     created_utc: float | None = None
+    score: LenientInt = None
 
 
 def parse_items(items: Iterable[Any], model: type[M]) -> list[M]:

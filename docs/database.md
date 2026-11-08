@@ -35,7 +35,7 @@ One row per finished search, in `public.searches` (US-52):
 | `id` | A random UUID. This is not `SearchResult.search_id`, which is inside `result` |
 | `session_id` | The session the search belongs to, with the same check as `public.requests` |
 | `rubric` | The rubric the search used (`SearchResult.request.rubric`) |
-| `result` | The whole `SearchResult` as JSON, exactly as `model_dump(mode="json")` writes it |
+| `result` | The whole `SearchResult` as `model_dump(mode="json")` writes it, with Reddit's words taken out (see below) |
 | `created_at` | When it was saved |
 
 - **Why:** the pipeline keeps its state in memory and saves once at the end (US-52, build rule 10).
@@ -47,9 +47,10 @@ One row per finished search, in `public.searches` (US-52):
 - **Private:** `result` holds the request as typed, so this is private data, like `public.requests`. It stays in our
   database only. Never send it to Gemini's free tier or any other model service that may train on its inputs, and
   never paste rows into chat, Slack or an issue.
-- **No expiry yet (gap, US-12, Sprint 2):** rows stay until someone deletes them. Real results will hold Reddit
-  quotes, and Reddit data may be kept at most 24 hours. US-12 must deal with this before real Reddit text reaches
-  this table.
+- **No expiry, so no Reddit text (US-12, D-53):** rows stay until someone deletes them, and Reddit data may be kept at
+  most 24 hours. So Reddit's words never reach this table: `app/research/retention.py` runs before every save. A Reddit
+  source keeps its URL, community, fetch time, archive and counts, and loses its title, text, comments and author hash.
+  Any quote taken from one goes too. Other sources are saved whole.
 - **Guests (decision D-36):** there is no sign-in yet, so every row is a guest's. A guest's request and search are
   stored only under the anonymous session ID, are never linked to an account, and are never used to remember
   preferences.

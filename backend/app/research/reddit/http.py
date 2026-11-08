@@ -82,7 +82,7 @@ class ArchiveHttp:
                 response = self.http.get(url, params=dict(params), headers=self._headers, timeout=REQUEST_TIMEOUT_S)
             except httpx.TimeoutException:
                 return Fetched(failure=failure("timeout", f"{self.label}: no reply within {REQUEST_TIMEOUT_S:g}s"))
-            except httpx.HTTPError as exc:
+            except (httpx.HTTPError, httpx.InvalidURL) as exc:
                 return Fetched(failure=failure("error", f"{self.label}: request failed ({type(exc).__name__})"))
             status = response.status_code
             if status in self.rate_limit_statuses:

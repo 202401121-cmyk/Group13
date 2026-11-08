@@ -1,0 +1,661 @@
+[
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "best laptop for coding under 70000 rupees India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "1794147405"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "best laptop for coding under 70000 rupees India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Laptops for Coding in India with Price List",
+          "link": "https://www.91mobiles.com/list-of-laptops/laptops-for-coding",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › laptops-fo...",
+          "snippet": "Acer Aspire Pro AP14-55 review: Best in the market under Rs 70,000? ASUS TUF Gaming 16 (2026) Dell Pro Max 18 Plus",
+          "position": 1
+        },
+        {
+          "title": "8 Best Laptops for Coding and Programming Under ₹70000",
+          "link": "https://laptopinsights.in/comparisons/best-laptops-for-coding-and-programming-under-70000/",
+          "displayedLink": "https://laptopinsights.in › comparisons › best-laptops-for-...",
+          "snippet": "With a balanced spec sheet and class-leading 24GB DDR5 RAM, the HP OmniBook is one of the best laptop for coding and programming under ₹70000 ...",
+          "date": "12 May 2026",
+          "position": 2
+        },
+        {
+          "title": "Laptops Under Rs.70 000",
+          "link": "https://www.flipkart.com/laptops/~laptops-under-rs70000/pr?sid=6bo,b5g",
+          "displayedLink": "https://www.flipkart.com › laptops › ~laptops-under-rs7...",
+          "snippet": "70,000 online are HP, Lenovo, Dell, MSI, Avita, and others. 70,000 often feature 11th or 12th Gen Intel Core i5 or AMD Ryzen 5 processors. Equipped with 8 GB ...",
+          "position": 3
+        },
+        {
+          "title": "Best Laptop Under 70000 in 2026  TOP 5 Laptops for Gaming ...",
+          "link": "https://www.youtube.com/watch?v=8KgGpvafZxk",
+          "displayedLink": "96.8K+ views  ·  3 months ago",
+          "snippet": "I've picked the TOP 5 Best Laptops under 70000 that are perfect for students, coding, programming, Asus Vivboook 14 Ultra 5 225H. Samsung ...",
+          "date": "3 months ago",
+          "position": 4
+        },
+        {
+          "title": "Laptops Under Rs 70000",
+          "link": "https://www.reliancedigital.in/collection/laptops-under-rs-70000",
+          "displayedLink": "https://www.reliancedigital.in › collection › laptops-und...",
+          "snippet": "Which Brands Offer The Best Battery Life And Durability Under 70000? · 1. Acer Aspire 3 A325-45 UN. · 2. Acer AL15-53 UN. · 3. Lenovo IdeaPad 5 2-in-1 14IRH9 ...",
+          "position": 5
+        },
+        {
+          "title": "Best Laptop under 70000  TOP 5 ...",
+          "link": "https://www.youtube.com/watch?v=hcz1r7zWkZk",
+          "displayedLink": "1.8L+ views  ·  3 months ago",
+          "snippet": "If college, coding, programming, office work, the best options under your ₹70,000 budget. ASUS Vivobook 15. Lenovo IdeaPad Slim 5. MOTOROLA ...",
+          "date": "3 months ago",
+          "position": 6
+        },
+        {
+          "title": "Laptops under Rs. 70000 in India",
+          "link": "https://www.bajajfinserv.in/best-laptops-under-70000",
+          "displayedLink": "https://www.bajajfinserv.in › best-laptops-under-70000",
+          "snippet": "Under Rs. 70,000, several laptops excel for coding. Look for options with powerful processors (Intel Core i5/AMD Ryzen 5 or higher) and at least 8GB RAM",
+          "position": 7
+        },
+        {
+          "title": "Top 5 Windows Laptops under Rs 70000 Looking for the best ...",
+          "link": "https://www.facebook.com/thinkdigit/videos/top-5-windows-laptops-under-rs-70000looking-for-the-best-laptops-under-rs-70000-/2056439571581893/",
+          "displayedLink": "5 reactions  ·  8 months ago",
+          "snippet": "[ASUS Vivobook 16, Acer Swift Go 14 AI, HP 15, Lenovo V15, best laptop under Rs 70000, laptops, buying guide, laptops under 70k, windows laptop] ...",
+          "date": "8 months ago",
+          "position": 8
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "position": 9
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2672
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "laptop for coding review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "23",
+      "x-ratelimit-reset": "1794147405"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "laptop for coding review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "The 4 Best Laptops For Programming of 2026",
+          "link": "https://www.rtings.com/laptop/reviews/best/by-usage/programming",
+          "displayedLink": "https://www.rtings.com › Laptop › Best",
+          "snippet": "The best laptop for programming we've tested is the Apple MacBook Pro 16 (M5, 2026). Its M5 Pro and M5 Max processors can handle demanding ...",
+          "date": "Oct 20, 2026",
+          "position": 1
+        },
+        {
+          "title": "Laptops for Coding in India with Price List",
+          "link": "https://www.91mobiles.com/list-of-laptops/laptops-for-coding",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › laptops-fo...",
+          "snippet": "Here's the updated list of Laptops for Coding in India along with their prices, Specs (1,862 Ratings) ASUS Chromebook CM32. HP EliteBook X G2q 14 AI review:",
+          "position": 2
+        },
+        {
+          "title": "Best Laptops for Programming and Coding in India (2026)",
+          "link": "https://www.91mobiles.com/reviews/best-laptops-for-programming-and-coding-in-india-2026/",
+          "displayedLink": "https://www.91mobiles.com › Laptops",
+          "snippet": "The ASUS ExpertBook Ultra is the overall pick, the ASUS Zenbook Duo suits web and app work, the Dell Pro Max 16 Plus handles data science, and ...",
+          "date": "Sep 3, 2026",
+          "position": 3
+        },
+        {
+          "title": "Best Laptops for Software Development (Nov 2026)",
+          "link": "https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › best-lapto...",
+          "snippet": "Top 5 Best Laptops for Software Development with Prices & Specs · Asus TUF Gaming A15 FA566NFR-HN259W Laptop · HP 14-ep1181TU (CJ9E0PA) Laptop · HP 14-ep1152TU ( ...",
+          "position": 4
+        },
+        {
+          "title": "Best laptops for programming and coding | Digit",
+          "link": "https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html",
+          "displayedLink": "https://www.digit.in › news › best-laptops-for-program...",
+          "snippet": "Fujitsu UH-X ... Here's a small, thin and lightweight productivity laptop that comes with great specifications for coding and programming purposes ...",
+          "date": "Sep 25, 2021",
+          "position": 5
+        },
+        {
+          "title": "The 6 Best Business Laptops of 2026",
+          "link": "https://www.rtings.com/laptop/reviews/best/by-usage/business",
+          "displayedLink": "https://www.rtings.com › Laptop › Best",
+          "snippet": "The best business laptop we've tested is the Lenovo ThinkPad X9 15 Aura Edition (2025). This 15-inch premium ultraportable has nearly everything ...",
+          "date": "Sep 23, 2026",
+          "position": 6
+        },
+        {
+          "title": "The 4 Best Laptops For Graphic Design of 2026",
+          "link": "https://www.rtings.com/laptop/reviews/best/by-usage/graphic-design",
+          "displayedLink": "https://www.rtings.com › Laptop › Best",
+          "snippet": "The best laptop for graphic design we've tested is the Apple MacBook Pro 16 (M5, 2026). It has a large, sharp 120Hz Mini LED display.",
+          "date": "Oct 20, 2026",
+          "position": 7
+        },
+        {
+          "title": "Your complete guide to buying the perfect laptop for coding",
+          "link": "https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html",
+          "displayedLink": "https://www.digit.in › features › your-complete-guide-t...",
+          "snippet": "Mid-range laptops between 70,000-1,00,000 Rs are the sweet spot for most developers. These machines typically offer good performance, decent ...",
+          "date": "Jun 25, 2025",
+          "position": 8
+        },
+        {
+          "title": "Best Laptops in India",
+          "link": "https://www.91mobiles.com/list-of-laptops/best-laptops-in-india",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › best-lapto...",
+          "snippet": "... laptop for under Rs 25,000, ideal for light office work. While it is extremely light, the performance and display are basic. For demanding tasks like coding ...",
+          "position": 9
+        },
+        {
+          "title": "Laptops for Video Editing in India with Price List",
+          "link": "https://www.91mobiles.com/list-of-laptops/laptops-for-video-editing",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › laptops-fo...",
+          "snippet": "Laptops for Video Editing in India with Price List ; Acer Aspire 3 A325-42 (UN.34QSI.004) Laptop. (AMD Octa Core Ryzen 7/16 GB/1 TB SSD/Windows 11) · Oct 2024.",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 3273
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "laptop buying guide India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "21",
+      "x-ratelimit-reset": "1794147405"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "laptop buying guide India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Laptop Buying Guide",
+          "link": "https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vKASylwICbG7JwFh604hkKXc8VdJhevd2CwsSrSOIfLgOAARceP",
+          "displayedLink": "https://www.lenovo.com › laptop-buying-guide",
+          "snippet": "When buying a new laptop, there are a ton of factors to keep in mind ✓ This Laptop Buying Guide gives you the info you need to make the right choice.",
+          "position": 1
+        },
+        {
+          "title": "How to Choose the Best Laptop - Buying Guide",
+          "link": "https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vJVHeSnwoYGibFUEgJQiC9eqrxBWejWJOiF4mkfeVIMqdPxDOUJ",
+          "displayedLink": "https://www.croma.com › Home › Buying Guide",
+          "snippet": "What are the Factors to Consider Before Buying a Laptop? Usage; Operating System; Processors; RAM; Storage; Graphic; Screen Size; Resolution; Form Factor ...",
+          "position": 2
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "snippet": "[reddit text not stored]",
+          "date": "[reddit text not stored]",
+          "position": 3
+        },
+        {
+          "title": "How to Choose the Right Laptop: A Step-by-Step Guide",
+          "link": "https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/",
+          "displayedLink": "https://www.wired.com › Gear › laptops",
+          "snippet": "I recommend buying a 15-inch or 16-inch laptop with at least this resolution, while 1920 x 1200 is good enough for more budget-minded 13-inch or ...",
+          "date": "20 May 2026",
+          "position": 4
+        },
+        {
+          "title": "Laptop buying guide: Computers & Accessories",
+          "link": "https://www.amazon.in/b?ie=UTF8&node=16092374031",
+          "displayedLink": "https://www.amazon.in › ...",
+          "snippet": "Online shopping for Laptop buying guide from a great selection at Computers & Accessories Store. Delivering to Mumbai 400001. Up to 2GB 4GB 8GB 16GB … 500 ...",
+          "position": 5
+        },
+        {
+          "title": "Best Laptop Finder in India | Compare & Find the Right ...",
+          "link": "https://www.91mobiles.com/laptopfinder.php",
+          "displayedLink": "https://www.91mobiles.com › laptopfinder",
+          "snippet": "Compare top Laptops in India based on price, specifications, features, ratings, and preferences to discover the right device easily.",
+          "position": 6
+        },
+        {
+          "title": "Complete Laptop Buying Guide 2026: India Checklist",
+          "link": "https://edify.club/blog/laptop-buying-checklist-india-2026/",
+          "displayedLink": "https://edify.club › Home › Refurbished Laptops",
+          "snippet": "A comprehensive laptop buying checklist India includes defining usage and budget, evaluating processor performance, checking minimum 8GB RAM, ...",
+          "date": "24 Sept 2026",
+          "position": 7
+        },
+        {
+          "title": "The ONLY Laptop Buying Guide You Need in 2026!",
+          "link": "https://www.youtube.com/watch?v=p5Jp18DBNqM",
+          "displayedLink": "12.5L+ views  ·  4 months ago",
+          "snippet": "This ultimate Laptop Buying Guide will help you choose. Buying a Used Laptop: An Experts Guide on What to Check, Where to Buy, and What Models ...",
+          "date": "4 months ago",
+          "position": 8
+        },
+        {
+          "title": "Which Laptop is Right for Me? A Buyer's Guide",
+          "link": "https://www.hp.com/in-en/tech-takes/laptops/guide/which-laptop-is-right-for-me-buyers-guide.html",
+          "displayedLink": "https://www.hp.com › in-en › tech-takes › which-laptop-...",
+          "snippet": "Discover which HP Laptop is right for you using our infographic buyer's guide on HP® Tech Takes. Exploring today's technology for tomorrow's possibilities.",
+          "position": 9
+        },
+        {
+          "title": "PC and Laptop Buying Guide: Find the Right Computer",
+          "link": "https://www.microsoft.com/en-gb/windows/laptop-buying-guide",
+          "displayedLink": "https://www.microsoft.com › en-gb › windows › laptop-...",
+          "snippet": "Find the right laptop based on your needs. Whether you're a gamer, a student or a creator, use this laptop buying guide to point you in the right direction.",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 1861
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "laptop for coding recommendations",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "22",
+      "x-ratelimit-reset": "1794147405"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "laptop for coding recommendations",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "The 4 Best Laptops For Programming of 2026",
+          "link": "https://www.rtings.com/laptop/reviews/best/by-usage/programming",
+          "displayedLink": "https://www.rtings.com › Laptop › Best",
+          "snippet": "The best laptop for programming we've tested is the Apple MacBook Pro 16 (M5, 2026). Its M5 Pro and M5 Max processors can handle demanding ...",
+          "date": "20 Oct 2026",
+          "position": 1
+        },
+        {
+          "title": "Programming Laptops Online at Best Prices in India",
+          "link": "https://www.flipkart.com/q/programming-laptops",
+          "displayedLink": "https://www.flipkart.com › programming-laptops",
+          "snippet": "You can compare and choose a laptop from top brands such as Apple, HP, Dell, Asus, Lenovo, and many more. Students can check and compare features and prices to ...",
+          "position": 2
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "snippet": "[reddit text not stored]",
+          "date": "[reddit text not stored]",
+          "position": 3
+        },
+        {
+          "title": "Best Laptops for Programming (2026)",
+          "link": "https://www.youtube.com/watch?v=aI_0GVorq_0",
+          "displayedLink": "1.5L+ views  ·  3 months ago",
+          "snippet": "Asus ROG Zephyrus G16 (RTX 5070 Ti): · Razer Blade 16 (RTX 5070 Ti): · Lenovo Legion 7i: https://go.bestlaptop..",
+          "date": "3 months ago",
+          "position": 4
+        },
+        {
+          "title": "Laptops for Coding in India with Price List",
+          "link": "https://www.91mobiles.com/list-of-laptops/laptops-for-coding",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › laptops-fo...",
+          "snippet": "Top 5 Laptops for Coding with Prices & Specs · HP 14-ep1181TU (CJ9E0PA) Laptop · HP 14-ep1152TU (C72QJPA) Laptop · HP 14-gr1036TU (C33RKPA) Laptop · Asus ExpertBook ...",
+          "position": 5
+        },
+        {
+          "title": "Best laptop for programming 2026: Top picks for coders",
+          "link": "https://www.techradar.com/news/best-laptop-for-programming",
+          "displayedLink": "https://www.techradar.com › news › best-laptop-for-pro...",
+          "snippet": "The Lenovo ThinkPad T16 is our top choice for general coding workloads, balancing price with great performance and a fantastic full-size ...",
+          "date": "28 Sept 2026",
+          "position": 6
+        },
+        {
+          "title": "Laptop For Coding And Programming",
+          "link": "https://www.amazon.in/laptop-for-coding-and-programming/s?k=laptop+for+coding+and+programming",
+          "displayedLink": "https://www.amazon.in › laptop-for-coding-and-program...",
+          "snippet": "Explore powerful laptops designed for coding and [redacted]. Find models with fast processors, ample RAM, and SSD storage for smooth programming workflows.",
+          "position": 7
+        },
+        {
+          "title": "8 Best Laptops for Coding and Programming Under ₹70000",
+          "link": "https://laptopinsights.in/comparisons/best-laptops-for-coding-and-programming-under-70000/",
+          "displayedLink": "https://laptopinsights.in › comparisons › best-laptops-for-...",
+          "snippet": "Acer Aspire 3 at ₹51,000 is the best laptop for coding under ₹55,000 which we recommend. With Intel Core i5 processor, 512GB SSD, FHD IPS ...",
+          "date": "12 May 2026",
+          "position": 8
+        },
+        {
+          "title": "The Best Laptops for Programmers We've Tested for 2026",
+          "link": "https://www.pcmag.com/picks/the-best-laptops-for-programmers",
+          "displayedLink": "https://www.pcmag.com › Best Products › Laptops",
+          "snippet": "Our current top pick, MSI's Prestige 16 AI Evo, delivers strong performance, long battery life, a sharp 4K OLED display, and a lightweight ...",
+          "date": "4 May 2026",
+          "position": 9
+        },
+        {
+          "title": "Laptop For Coding",
+          "link": "https://www.bestbuy.com/site/shop/laptop-for-coding",
+          "displayedLink": "https://www.bestbuy.com › ... › windows laptops",
+          "snippet": "When choosing a laptop for coding, consider a fast processor (such as Intel Core i5/i7 or AMD Ryzen 5/7), at least 8GB of RAM (16GB is ideal for ...",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 1758
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "laptop under 70000 rupees review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "20",
+      "x-ratelimit-reset": "1794147405"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "laptop under 70000 rupees review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Laptops Under Rs. 75000 In India (Nov 2026)",
+          "link": "https://www.91mobiles.com/list-of-laptops/best-laptops-under-75000",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › best-lapto...",
+          "snippet": "Top 5 Laptops Under Rs. · Motorola Motobook 60 14IRH10R (83J7000CIN) Laptop · Motorola Moto Book 60 14IRH10R (83J7000AIN) Laptop · Apple MacBook Neo (MHFA4HN/A) ...",
+          "position": 1
+        },
+        {
+          "title": "Best Laptops under 70000 in India",
+          "link": "https://www.91mobiles.com/list-of-laptops/best-laptops-under-70000",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › best-lapto...",
+          "snippet": "Acer Aspire Pro AP14-55(UN.37SSI. · Lenovo V15 83CC006QUS-1 Laptop ranks among the best-performing laptops with a Performance Rating of 8.5/10. · HP OmniBook 3 ...",
+          "position": 2
+        },
+        {
+          "title": "Laptop Finder",
+          "link": "https://www.gadgets360.com/laptops/laptop-finder",
+          "displayedLink": "https://www.gadgets360.com › Laptops",
+          "snippet": "Best Student Laptops Under Rs. 1 Lakh in India: Asus Vivobook 16, MacBook Neo, More · #Latest Stories · Razer Hammerhead V3 Chroma Wired Earphones Launched With ...",
+          "position": 3
+        },
+        {
+          "title": "Laptops Under 70000 Price List in India 2026",
+          "link": "https://www.smartprix.com/laptops/price-below_70000",
+          "displayedLink": "https://www.smartprix.com › price-below_70000",
+          "snippet": "Laptops Under ₹70,000 ; Lenovo Ideapad Slim 3i 81WQ00NXIN Laptop (Intel Celeron N4020/ 8GB/ 256GB SSD/ Win11), ₹27,990, Aug, 2022 ; Motorola Motobook 60 Laptop ...",
+          "position": 4
+        },
+        {
+          "title": "Laptops in India (2026) | Prices, Reviews, Specifications & ...",
+          "link": "https://www.91mobiles.com/laptops",
+          "displayedLink": "https://www.91mobiles.com › laptops",
+          "snippet": "Acer Aspire Pro AP14-55 review: Best in the market under Rs 70,000? OnePlus Phone. ASUS TUF Gaming 16 (2026) review: TUF luck beating the competition?",
+          "position": 5
+        },
+        {
+          "title": "HP Laptops Under 70000 In India",
+          "link": "https://www.91mobiles.com/list-of-laptops/hp-laptops-under-70000",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › hp-laptops...",
+          "snippet": "Top 5 HP Laptops Under 70,000 with Prices & Specs ; HP 15 (D47HRPA) Laptop, 15.6\" (39.62 cm), 1920 x 1080 px, LED Display, AMD Ryzen 5 7520U, 4.3 GHz, Quad-Core ...",
+          "position": 6
+        },
+        {
+          "title": "Asus Laptops Under 70000 In India",
+          "link": "https://www.91mobiles.com/list-of-laptops/asus-laptops-under-70000",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › asus-lapto...",
+          "snippet": "Top 5 Asus Laptops Under 70,000 with Prices & Specs ; Asus ExpertBook P1 P1503CVA-S70501WS Laptop, 15.6\" (39.62 cm), 1920 x 1080 px, IPS LCD Display, Intel Core ...",
+          "position": 7
+        },
+        {
+          "title": "Gaming Laptops Under 70000 Price List in India (Nov 2026)",
+          "link": "https://www.smartprix.com/laptops/price-below_70000/utility-gaming",
+          "displayedLink": "https://www.smartprix.com › laptops › utility-gaming",
+          "snippet": "Gaming Laptops Under ₹70,000 ; Asus TUF Gaming A15 FA506NFR-HN259WS Laptop (AMD Ryzen 7 7435HS/ 16GB / 512GB SSD/ Win11 Home / 4GB Graph), ₹55,990, Jul, 2024.",
+          "position": 8
+        },
+        {
+          "title": "Touch Screen Laptops Under 75000 in India (Nov 2026)",
+          "link": "https://www.91mobiles.com/list-of-laptops/touch-screen-laptops-under-75000",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › touch-scre...",
+          "snippet": "Top 5 Touch Screen Laptops Under 75000 with Prices & Specs · Apple MacBook Neo (MHFA4HN/A) Laptop · Asus VivoBook 15 X1504VA-E81599WS Laptop · Lenovo IdeaPad Flex ...",
+          "position": 9
+        },
+        {
+          "title": "Best Laptops Under Rs. 50000 In India (Nov 2026)",
+          "link": "https://www.91mobiles.com/list-of-laptops/top-10-laptops-below-50000-in-india",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › top-10-lap...",
+          "snippet": "Latest Laptop Reviews ... Acer Aspire Pro AP14-55 review: Best in the market under Rs 70,000? ASUS TUF Gaming 16 (2026) review: TUF luck beating the competition?",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2283
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "laptop for coding comparison India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "19",
+      "x-ratelimit-reset": "1794147405"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "laptop for coding comparison India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Laptops for Coding in India with Price List",
+          "link": "https://www.91mobiles.com/list-of-laptops/laptops-for-coding",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › laptops-fo...",
+          "snippet": "Top 5 Laptops for Coding with Prices & Specs · HP 14-ep1181TU (CJ9E0PA) Laptop · HP 14-ep1152TU (C72QJPA) Laptop · HP 14-gr1036TU (C33RKPA) Laptop · Asus ExpertBook ...",
+          "position": 1
+        },
+        {
+          "title": "The 4 Best Laptops For Programming of 2026",
+          "link": "https://www.rtings.com/laptop/reviews/best/by-usage/programming",
+          "displayedLink": "https://www.rtings.com › Laptop › Best",
+          "snippet": "The best laptop for programming we've tested is the Apple MacBook Pro 16 (M5, 2026). Its M5 Pro and M5 Max processors can handle demanding ...",
+          "date": "20 Oct 2026",
+          "position": 2
+        },
+        {
+          "title": "Top 7 Best Laptop For Coding & Programming 2026 ...",
+          "link": "https://www.youtube.com/watch?v=wPicCpwtRl0",
+          "displayedLink": "79.6K+ views  ·  10 months ago",
+          "snippet": "Most Powerful and best laptop for coding and programming in 2026. ➡️Acer Aspire Lite ... ➡️acer Travel Lite ・ ➡️Lenovo ThinkBook 16 ・ under 50000 ...",
+          "date": "10 months ago",
+          "position": 3
+        },
+        {
+          "title": "8 Best Laptops for Coding and Programming Under ₹70000",
+          "link": "https://laptopinsights.in/comparisons/best-laptops-for-coding-and-programming-under-70000/",
+          "displayedLink": "https://laptopinsights.in › comparisons › best-laptops-for-...",
+          "snippet": "With a balanced spec sheet and class-leading 24GB DDR5 RAM, the HP OmniBook is one of the best laptop for coding and programming under ₹70000 ...",
+          "date": "12 May 2026",
+          "position": 4
+        },
+        {
+          "title": "Laptop For Coding And Programming",
+          "link": "https://www.amazon.in/laptop-for-coding-and-programming/s?k=laptop+for+coding+and+programming",
+          "displayedLink": "https://www.amazon.in › laptop-for-coding-and-program...",
+          "snippet": "Explore powerful laptops designed for coding and [redacted]. Find models with fast processors, ample RAM, and SSD storage for smooth programming workflows.",
+          "position": 5
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "snippet": "[reddit text not stored]",
+          "date": "[reddit text not stored]",
+          "position": 6
+        },
+        {
+          "title": "Best Laptops for Programming and Coding in 2026",
+          "link": "https://www.reliancedigital.in/c/resource-center/bg/best-laptops-for-programming-coding",
+          "displayedLink": "https://www.reliancedigital.in › resource-center › best-la...",
+          "snippet": "Here are six updated picks that represent the best laptops for coding and programming available for Indian users in 2026. - Dell XPS: Acer ...",
+          "date": "29 Jul 2026",
+          "position": 7
+        },
+        {
+          "title": "Programming Laptops Online at Best Prices in India",
+          "link": "https://www.flipkart.com/q/programming-laptops",
+          "displayedLink": "https://www.flipkart.com › programming-laptops",
+          "snippet": "You can compare and choose a laptop from top brands such as Apple, HP, Dell, Asus, Lenovo, and many more. Students can check and compare features and prices",
+          "position": 8
+        },
+        {
+          "title": "Top Laptops for Coders | Compact Powerhouses",
+          "link": "https://www.lenovo.com/in/en/glossary/laptops-for-programming/?srsltid=AYCX9vKoh4-LC57epixvLkaPfPHynzHiHSIUUiMOusRwAGPXUyXLE2_R",
+          "displayedLink": "https://www.lenovo.com › laptops-for-programming",
+          "snippet": "Consider a laptop with a tactile keyboard, well-spaced keys, and, if possible, customizable backlighting for low-light coding environments. Mechanical keyboards ...",
+          "position": 9
+        },
+        {
+          "title": "Best Laptops for Software Development (2026)",
+          "link": "https://www.asus.com/in/blog/best-laptop-for-software-[redacted]/",
+          "displayedLink": "https://www.asus.com › blog › best-laptop-for-software-...",
+          "snippet": "The Vivobook S16 is a strong contender for the best laptop in India for developers who want a bigger screen without carrying a heavy machine around all day.",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 1560
+  }
+]

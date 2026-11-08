@@ -39,6 +39,7 @@ from app.intake import EXAMPLE_REQUESTS
 from app.interview import QUICK_REPLIES
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
 from app.presearch import interview_turn, make_criteria, start_request
+from app.research.stage import ResearchReport
 
 SKIP_REPLY = "Skip"
 SOURCES_PER_PRODUCT = 2
@@ -88,8 +89,12 @@ def run(query: str, interactive: bool, store: db.RequestStore) -> int:
     print(rubric_block(step.rubric, criteria))
 
     request = SearchRequest(session_id=session_id, raw_query=query, rubric=step.rubric)
-    result = PipelineRunner(default_search_stages(), DatabaseResultStore(store)).run(request)
+    stages = default_search_stages()
+    result = PipelineRunner(stages, DatabaseResultStore(store)).run(request)
     print(render(result))
+    report = getattr(stages.research, "last_report", None)
+    if report is not None:  # the live research stage ran: show what it read
+        print(research_block(result, report))
     return 0
 
 
@@ -201,6 +206,20 @@ def _indian_grouping(number: int) -> str:
         groups.insert(0, head[-2:])
         head = head[:-2]
     return ",".join([head, *groups, tail]) if head else ",".join([*groups, tail])
+
+
+def research_block(result: SearchResult, report: ResearchReport) -> str:
+    """What research read: each source's type, fetch time and URL, the time per source, and provider use."""
+    lines = [f"\nSources ({len(result.sources)}):"]
+    lines += [f"  {s.type.value:<12} {s.fetched_at:%Y-%m-%d %H:%M:%S}Z  {s.url}" for s in result.sources]
+    times = ", ".join(f"{kind.value} {seconds:.1f} s" for kind, seconds in report.seconds.items())
+    lines.append(f"\nTime per source: {times}; total {report.total_seconds:.1f} s")
+    use = ", ".join(
+        f"{name} {report.used.get(name, 0)} / {report.today.get(name, 0)} / {cap}" for name, cap in report.caps.items()
+    )
+    lines.append(f"Provider use (this search / today / daily cap): {use}")
+    lines.append(f"Comparison query: {report.comparison or 'none (fewer than two candidates)'}")
+    return "\n".join(lines)
 
 
 def render(result: SearchResult) -> str:

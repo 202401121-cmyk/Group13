@@ -7,11 +7,15 @@ parameters it uses, and how to describe its coverage.
 
 ArchiveRedditSource tries the archives in order (REDDIT_ARCHIVES, default Arctic Shift then PullPush). The next
 one is asked only when the one before failed or found nothing, so an older archive never replaces fresher data.
-If every archive fails, the result is empty with the failures joined: the search still finishes.
+If every archive fails, the result is empty with the failures joined: the search still finishes. An archive that
+failed stays named in `partial` if a later one then found nothing. If a later one has threads, its own note says
+they are older, and only a cap still needs saying. An older archive failing after a fresh one found nothing is not
+named at all: the fresh answer stands.
 """
 
 from __future__ import annotations
 
+import dataclasses
 import logging
 import time
 from collections.abc import Callable, Sequence
@@ -19,7 +23,8 @@ from datetime import UTC, datetime
 
 import httpx
 
-from app.contracts import RedditOrigin, Source, SourceFailure
+from app.contracts import RedditOrigin, Source, SourceComment, SourceFailure
+from app.contracts.research import MAX_COMMENT_CHARS, MAX_COMMENT_DEPTH, MAX_SOURCE_COMMENTS
 from app.db.breaker import CircuitBreaker
 
 from .base import (
@@ -31,6 +36,7 @@ from .base import (
     author_hash,
     bare_id,
     best_matches,
+    clean_api_text,
     failure,
     is_bot,
     is_gone,
@@ -39,6 +45,7 @@ from .base import (
     query_words,
     utc_from_epoch,
     valid_subreddit,
+    worth_naming,
 )
 from .cache import CacheKey, RedditCache
 from .http import ArchiveHttp
@@ -120,9 +127,11 @@ class ArchiveSource:
             if problem is not None:
                 failures.append(problem)
         if failures and len(failures) == len(names):
-            return RedditResult(failure=failures[0])
+            return RedditResult(failure=failures[0], partial=worth_naming(failures[1:]))
         kept = tuple(best_matches(found, query_words(query), max(1, limit)))
-        return RedditResult(kept, newest(kept), self.coverage_note(kept), origin=self.name)
+        return RedditResult(
+            kept, newest(kept), self.coverage_note(kept), origin=self.name, partial=worth_naming(failures)
+        )
 
     def _listing(
         self, subreddit: str, query: str, after: datetime | None, budget: RequestBudget | None
@@ -181,6 +190,27 @@ class ArchiveSource:
         self.cache.put(key, sources)
         return RedditResult(tuple(sources), newest(sources), self.coverage_note(sources), origin=self.name)
 
+    def with_comments(
+        self, thread: Source, depth: int = 3, limit: int = 100, budget: RequestBudget | None = None
+    ) -> RedditResult:
+        """The thread as it was handed in, with its comments as a tree on it. One request, cached for 24 hours."""
+        tid = bare_id(str(thread.url).rstrip("/").split("/")[-1])
+        if tid is None:
+            return RedditResult(failure=failure("not_found", "not a Reddit thread"))
+        size = max(1, min(limit, MAX_LIMIT))
+        key: CacheKey = (self.name, "thread_comments", tid, depth, size)
+        cached = self.cache.get(key)
+        if cached:  # only the comments: a near-duplicate's URL on this copy of the thread must survive
+            again = add_comments(thread, cached[0].comments)
+            return RedditResult((again,), newest([again]), self.coverage_note([again]), origin=self.name)
+        fetched = self.http.get(self.comments_path, self.comment_params(tid, size), budget)
+        if fetched.failure is not None:
+            return RedditResult(failure=fetched.failure)
+        comments = comments_to_tree(parse_items(fetched.items, RawComment), tid, depth, self.salt)
+        updated = add_comments(thread, comments)
+        self.cache.put(key, [updated])
+        return RedditResult((updated,), newest([updated]), self.coverage_note([updated]), origin=self.name)
+
     def _thread(self, tid: str, budget: RequestBudget | None) -> tuple[ThreadInfo | None, SourceFailure | None]:
         if tid in self._threads:
             return self._threads[tid], None
@@ -213,7 +243,42 @@ def post_to_source(post: RawPost, origin: RedditOrigin, salt: str | None, fetche
         published_at=utc_from_epoch(post.created_utc),
         author_digest=author_hash(post.author, salt),
         fetched_at=fetched_at,
+        upvotes=post.score,
+        comment_count=post.num_comments,
     )
+
+
+def comments_to_tree(
+    comments: Sequence[RawComment], tid: str, max_depth: int, salt: str | None
+) -> tuple[SourceComment, ...]:
+    """A thread's comments for Source.comments: their depth and parent kept, authors only as salted hashes (D-53)."""
+    mine = [c for c in comments if bare_id(c.link_id) == tid and bare_id(c.id) is not None]
+    parents = {bare_id(c.id): c.parent_id for c in mine}
+    deepest = min(max_depth, MAX_COMMENT_DEPTH)
+    tree: dict[str, SourceComment] = {}
+    for comment in mine:
+        cid = bare_id(comment.id)
+        if cid is None or cid in tree or is_gone(comment.body) or is_gone(comment.author) or is_bot(comment.author):
+            continue
+        depth = comment_depth(comment.parent_id, parents)
+        if depth > deepest:
+            continue
+        try:
+            tree[cid] = SourceComment(
+                id=cid,
+                parent_id=bare_id(comment.parent_id),
+                depth=depth,
+                upvotes=comment.score or 0,
+                text=clean_api_text(comment.body or "")[:MAX_COMMENT_CHARS].strip(),
+                author_hash=author_hash(comment.author, salt),
+            )
+        except ValueError:  # pydantic's ValidationError is a ValueError: skip the comment, never crash the search
+            continue
+    return tuple(tree.values())[:MAX_SOURCE_COMMENTS]
+
+
+def add_comments(thread: Source, comments: tuple[SourceComment, ...]) -> Source:
+    return Source.model_validate({**thread.model_dump(), "comments": comments})
 
 
 def comments_to_sources(
@@ -294,20 +359,33 @@ class ArchiveRedditSource:
     ) -> RedditResult:
         return self._first(lambda a: a.get_comments(thread_id, depth, limit, budget))
 
+    def with_comments(
+        self, thread: Source, depth: int = 3, limit: int = 100, budget: RequestBudget | None = None
+    ) -> RedditResult:
+        return self._first(lambda a: a.with_comments(thread, depth, limit, budget))
+
     def _first(self, ask: Callable[[RedditSource], RedditResult]) -> RedditResult:
         failures: list[SourceFailure] = []
+        partial: list[SourceFailure] = []
+        before: list[SourceFailure] = []
         answered: RedditResult | None = None
         for archive in self.archives:
             result = ask(archive)
             if result.sources:
-                return result
+                caps = [f for f in (*failures, *partial) if f.reason == "quota_exhausted"]
+                return dataclasses.replace(result, partial=(*result.partial, *caps))
+            partial.extend(result.partial)
             if result.failure is not None:
                 failures.append(result.failure)
             elif answered is None:
                 answered = result  # it answered, with nothing: try the next, but this is not a failure
+                before = [*failures, *partial]  # what had already gone wrong stays named
         if answered is not None:
-            return answered
+            caps = [f for f in (*failures, *partial) if f.reason == "quota_exhausted"]
+            return dataclasses.replace(answered, partial=worth_naming([*before, *caps]))
         if not failures:
             return RedditResult()
         detail = "; ".join(f.detail for f in failures)
-        return RedditResult(failure=failure(failures[0].reason, detail))
+        return RedditResult(
+            failure=failure(failures[0].reason, detail), partial=worth_naming([*failures[1:], *partial])
+        )

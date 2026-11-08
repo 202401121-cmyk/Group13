@@ -229,3 +229,56 @@ def test_official_without_its_settings_uses_the_archives() -> None:
     env = {k: v for k, v in OFFICIAL_ENV.items() if k != "REDDIT_CLIENT_SECRET"}
     source = build_reddit_source(load_reddit_settings(env), cache=RedditCache(folder=None))
     assert source is not None and source.name == "archive"
+
+
+def _official(reddit: Any) -> OfficialRedditSource:
+    return OfficialRedditSource(reddit, salt="s", cache=RedditCache(folder=None, now=lambda: NOW), now=lambda: NOW)
+
+
+def test_a_cached_comment_read_keeps_the_thread_it_was_handed() -> None:
+    from app.contracts import Source
+    from tests.fakes.research import thread
+
+    forest = FakeComments([comment("m1", "t3_abc", "Made-up text.")])
+    calls: list[str] = []
+
+    def read(id: str) -> Any:  # PRAW's own name
+        calls.append(id)
+        return SimpleNamespace(comments=forest)
+
+    source = _official(SimpleNamespace(submission=read))
+    first = thread("abc")
+    assert source.with_comments(first).sources[0].comments
+    merged = Source.model_validate({**first.model_dump(), "text": f"{first.text}\n\nSame topic: https://a.example/"})
+    again = source.with_comments(merged).sources[0]
+    assert calls == ["abc"]
+    assert again.comments
+    assert "Same topic" in again.text
+
+
+def test_a_subreddit_that_fails_is_named_and_the_rest_are_kept() -> None:
+    class Partly(FakeReddit):
+        def subreddit(self, name: str) -> Any:
+            if name == "laptops":
+                self.error = RuntimeError("made up")
+            else:
+                self.error = None
+            return super().subreddit(name)
+
+    reddit = Partly(posts=[submission("abc", "A laptop for coding")])
+    found = _official(reddit).search_threads("laptop", ["laptops", "SuggestALaptop"])
+    assert found.failure is None
+    assert found.sources
+    assert [f.reason for f in found.partial] == ["error"]
+
+
+def test_every_subreddit_failing_names_every_different_reason() -> None:
+    class Different(FakeReddit):
+        def subreddit(self, name: str) -> Any:
+            self.error = RuntimeError("made up")
+            return super().subreddit(name)
+
+    budget = RequestBudget(1)
+    found = _official(Different()).search_threads("laptop", ["laptops", "SuggestALaptop"], budget=budget)
+    assert found.failure is not None and found.failure.reason == "error"
+    assert [f.reason for f in found.partial] == ["quota_exhausted"]
