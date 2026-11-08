@@ -178,3 +178,85 @@ curl -s http://localhost:8000/api/health        # in a second terminal: "databas
 | A command works in Git Bash but not in PowerShell | Inline variables (`NAME=value command`) are Git Bash syntax. In PowerShell set `$env:NAME="value"` first, then run the command. Activate the venv with `.venv\Scripts\Activate.ps1`. |
 | `npm ci` fails with peer-dependency errors | Run it inside `frontend/`, where `.npmrc` sets `legacy-peer-deps`. |
 | The frontend shows sample laptops only | It is in mock mode. Use `scripts/dev.py` (live mode), or set `VITE_API_MODE=live` in `frontend/.env.local`. In Sprint 1 the live search itself still returns example laptops; real research arrives in Sprints 2 and 3. |
+
+## 9. Test without the internet
+
+**A plain `pytest` is the fast run.** From `backend/`, it leaves out the tests marked `live` and the ones marked `slow`,
+which really wait for a timeout or a breaker. CI runs the slow ones too, because it passes its own `-m "not live"`.
+
+```bash
+pytest                                                      # the fast run: under 60 seconds
+pytest -m slow                                              # only the tests that really wait
+pytest -m "not live" --cov && python -m scripts.check_coverage   # everything, then the coverage gates
+```
+
+The gates need 70% on each core module and 80% on `app/decide/`. `app/api/`, `app/cli.py` and `app/main.py` are entry
+points, so only the overall 70% covers them.
+
+**The network is blocked in tests.** A connection, DNS lookup or UDP send to anything but this machine fails at once
+with "Tests may not use the network", and fails the test even if the code caught the error. Only tests marked `live` are
+exempt. The block has limits:
+
+- It covers the Python process running the tests. Subprocesses open their own sockets, and so does the `psycopg` database
+  driver when the host is an IP address. Database tests use `TEST_DATABASE_URL`, and every other test gets the "off" store.
+- It starts with each test, so code that runs at import time, or in a module or session fixture, comes before it.
+- `asyncio` on Windows connects in a way it can't see. The app has no async HTTP client, so nothing uses that today.
+
+**Replay a recording.** Recordings live in `backend/tests/fixtures/recorded/<name>/`, one file per service, with a
+`README.md` line saying what each one is, when it was recorded and by whom.
+
+```python
+from tests.fakes.recorded import RecordedAdapter, load_recording, recorded_transport
+
+recording = load_recording("laptop_coding_70k")
+adapters = {Provider.GROQ: RecordedAdapter(recording, Provider.GROQ)}   # for WrapperLLMClient
+http = httpx.Client(transport=recorded_transport(recording, "serper"))  # for a source adapter
+```
+
+Calls are answered in the order they were recorded, and a call that failed or was refused replays as a failure. A
+recording that runs out fails the test.
+
+**Make a recording.** This spends real quota, so use it on purpose. Use a made-up request only.
+
+```bash
+python -m scripts.record_run "best laptop for coding under 70k" --name laptop_coding_70k --by "Your Name"
+python -m scripts.record_run "..." --name other --by "Your Name" --runs 2 --budget mistral=2 --force --keep-failures
+```
+
+| Limit | What it does |
+|---|---|
+| Runs | At most 5 per invocation. |
+| Budget | Printed before the first call and enforced on every call. Groq gets 6 and every other service 0, so Serper and YouTube are never called unless you add `--budget`. |
+| Reddit | Never called or fetched. A budget above 0 is refused, and so is a `reddit.com`, `old.reddit.com`, `redd.it` or Reddit archive URL through any service, because Reddit data never goes into the repository (D-53 caps Reddit caching at 24 hours). Set `REDDIT_SOURCE=off` for a recording once research calls Reddit. With `--keep-failures`, a refused call is written as a row with no reply: just the service, the URL with no query values or Reddit path, and the error. |
+| Over budget | The call is never sent. It fails like a network error, so the stage's fallback answers. |
+| Unknown host | Refused the same way. |
+| A stage that times out | Its thread keeps running, so the recorder waits for the last call to end and refuses anything new once the app has finished. |
+| Existing recording | Kept unless you add `--force`. |
+| A run that failed | Nothing is written, so a bad key can't replace a good recording. Every run must end with code 0, every call must answer 2xx and none may be refused. If the app tried a service with no budget, such as Mistral for a request with no use case, add `--budget mistral=1`. Add `--keep-failures` to record a failure on purpose: refused calls are then kept as failures, and the manifest lists what went wrong. |
+| `REDDIT_SOURCE=official` | Refused, because PRAW doesn't go through `httpx`, so it could not be capped or redacted. |
+
+It runs the real CLI with `--no-db` and an in-memory criteria store, so no database is touched and saved criteria can't
+hide a call. It doesn't read the Reddit cache either. Nothing is written until the run has ended and every call has been
+cleaned:
+
+- **Headers:** only `content-type`, `x-ratelimit-*` and `retry-after` are kept.
+- **Query strings:** names are kept, values become `[redacted]`.
+- **Environment:** every value of a secret-named variable, and every other value of 8 or more characters, is replaced.
+  That includes plain settings: `APP_ENV=development` turns "software development" into "software [redacted]". The names
+  of the variables are printed with a count, so check them. If a value still survives, nothing is written. A plain
+  variable holding exactly the name you give with `--by` is kept. Shorter values can't be told from ordinary text, so
+  they stay.
+- **Search results that link to Reddit:** the link keeps only its scheme and host, so it reads
+  `https://www.reddit.com/[reddit link not stored]`. The title and snippet become `[reddit text not stored]`.
+- **Reddit links elsewhere:** a plain link in a prompt, a reply or a web page keeps only its scheme and host the same
+  way. An encoded link can slip past, which is one more reason to read a recording before you commit it.
+- **Text from Reddit elsewhere:** an LLM call declared `DataClass.REDDIT`, or whose prompt carries Reddit text, has its
+  prompt and whole reply replaced, and that reply then counts as Reddit text too. Any other run of 5 or more matching
+  words is replaced wherever it appears. The shopper's own request never counts. The number of calls replaced is printed.
+
+So a recording can't give a test Reddit text. Tests that need it use a small synthetic thread, like the ones in
+`backend/tests/fixtures/reddit/`, marked synthetic.
+
+If stages time out while recording, check the connection before you spend more quota: it prints each call's time.
+
+Read the files before you commit them, and treat the recording as public: the prompts and replies go into the repository.

@@ -151,6 +151,7 @@ def test_an_unreachable_database_answers_false_within_the_time_limit(
     assert "search save failed (host=127.0.0.1)" in line.getMessage()
 
 
+@pytest.mark.slow
 def test_three_failures_open_the_breaker_and_the_next_save_is_skipped_at_once(
     store: PostgresRequestStore, caplog: pytest.LogCaptureFixture
 ) -> None:
@@ -166,6 +167,7 @@ def test_three_failures_open_the_breaker_and_the_next_save_is_skipped_at_once(
     assert "circuit breaker is open" in line.getMessage()
 
 
+@pytest.mark.slow
 def test_failed_search_saves_and_failed_request_saves_share_one_breaker(store: PostgresRequestStore) -> None:
     assert store.save_request(SESSION, ex.QUERY, None) == "failed"
     assert store.save_search(SESSION, rubric_json(), result_json()) is False
@@ -222,6 +224,7 @@ def test_a_closed_store_answers_false_with_one_line(
     assert "the store is closed" in line.getMessage()
 
 
+@pytest.mark.slow
 def test_logs_never_show_the_url_the_password_or_what_the_shopper_typed(
     store: PostgresRequestStore, caplog: pytest.LogCaptureFixture
 ) -> None:

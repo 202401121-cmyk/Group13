@@ -29,6 +29,7 @@ def stuck_store() -> Iterator[PostgresRequestStore]:
     server.close()
 
 
+@pytest.mark.slow
 def test_each_search_save_gives_up_in_time_and_the_breaker_then_skips_at_once(
     stuck_store: PostgresRequestStore,
 ) -> None:
