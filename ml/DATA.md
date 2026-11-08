@@ -132,7 +132,7 @@ The files in `ml/examples/` are synthetic and only test the scripts. They are no
 | Abt-Buy (public matching benchmark) | Database group of Prof. Erhard Rahm, Leipzig University | 1,081 + 1,092 records; 1,097 matches | Evaluating the matcher (US-15, #13) | Licence recorded; downloaded with checksums (sections 7 and 7.4) |
 | Amazon-Google (public matching benchmark) | Database group of Prof. Erhard Rahm, Leipzig University | 1,363 + 3,226 records; 1,300 matches | Evaluating the matcher (US-15, #13) | Licence recorded; downloaded with checksums (sections 7 and 7.4) |
 | Our own labelled pairs | Labelled by the team with this guide | Target about 250; at least 150 by the Sprint 2 review | Product matcher training and testing (US-15) | Not started; the template and checker are ready |
-| Seeded source conflicts | Made by the team | 30 | Source trust (US-16) | Not built yet |
+| Seeded source conflicts | Real spec disagreements found by the team; each known answer is set by a person | First 15 by the Sprint 2 review, 30 in Sprint 3 | Source trust (US-16) | None entered yet; the format, checker and runner are ready (section 9) |
 | Simulated shoppers | Made by the team | 50 | Smart interview (US-04) | Not built yet |
 | Seeded returning-user sessions | Made by the team | 20 | Preference memory (US-06) | Not built yet |
 | Claim and evidence pairs, half deliberately wrong | Made by the team | 100 | Citation check (US-22) | Not built yet |
@@ -143,8 +143,9 @@ When a dataset arrives, fill in its source, size and licence here in the same pu
 ## 6. Data rules
 
 - Raw downloads go in `ml/data/raw/`, which is git-ignored. See [data/README.md](data/README.md).
-- Never commit personal data: no names, emails, phone numbers or real user sessions. The seeded and simulated sets
-  above are made up for that reason.
+- Never commit personal data: no names, emails, phone numbers or real user sessions. The simulated sets above are
+  made up for that reason. Seeded conflicts hold public product facts and links, and the first name of the
+  person who added each one.
 - Split train, validation and test by `product_family`, never by row, so no family is in two splits.
 - Never commit downloaded datasets, model weights or notebooks with outputs.
 
@@ -522,3 +523,104 @@ It shows:
 
 Record each agreement run in the table in section 4. Commit solo labels after every session, under your own name.
 Commit agreement labels only when both of you have finished the batch, so neither sees the other's answers first.
+
+## 9. Seeded conflicts for source trust
+
+Sources often disagree about a product. Source trust (US-16) must settle more of those disagreements correctly than
+majority voting does. To measure that, we need real disagreements where a person already knows the right answer.
+
+We need 15 conflicts by the Sprint 2 review and 30 in Sprint 3. They go in `ml/labelling/conflicts.csv`. Never make up
+a conflict or an answer to reach a number. The results count whatever is in the file.
+
+### 9.1 What counts as a real conflict
+
+Two or more sources give different values for the same product, the same variant and the same criterion, and a person
+can find out which value is right.
+
+These are not real conflicts:
+
+- Rounding: `6.7 in` against `6.67 in`. Set the tolerance to cover it.
+- Different variants or regions: the 8 GB model against the 16 GB model, or the Indian model against the US one.
+- Opinions: "great battery" against "poor battery".
+- Two figures for different things: a maker's video playback time against a lab's web browsing time.
+- Sources that agree. The checker warns about these. They still count in the numbers, so take them out of the file.
+
+### 9.2 How to set the known answer
+
+- Use the maker's spec page, a lab's measurement or the product itself. Write down which in `how_established`, with
+  a link if there is one.
+- A person sets every known answer. Never take it from a vote among the claims, and never from an AI tool.
+- A Reddit post can't set the known answer.
+- Keep the test fair. If the highest-tier claim comes from the same page as the known answer, tier order will rarely
+  lose that conflict. So the runner prints the accuracy table twice: once for all conflicts, and once for only the
+  conflicts where the known answer's source is not one of the claims. The second table is the fairer test. A source
+  counts as a claim when an `http://` or `https://` link in `how_established` shares a site with a claim, so put the
+  link there if there is one. Include conflicts where the maker's page is not a claim, or where it is out of date and
+  another source is right.
+
+### 9.3 The file
+
+One row per claim, in UTF-8. Repeat the conflict's columns on each of its rows (fill them down in a spreadsheet). The
+checker confirms they match. Rows of one conflict can be in any order. A conflict needs at least 2 claims.
+
+```
+conflict_id,category,product,criterion,unit,known_answer,tolerance,how_established,added_by,claim_url,claim_site,claim_tier,claim_value,claim_retrieved_at,claim_quote
+```
+
+| Column | Rule | Example |
+|---|---|---|
+| `conflict_id` | `c` plus 3 digits. `syn` plus 3 digits marks a made-up example, and the two kinds never share a file | `c001` |
+| `category` | A lowercase slug, as in section 2 | `laptop` |
+| `product` | The product and variant. Not empty, at most 300 characters. Each product and criterion is entered once | `Nova Book 14 (16 GB, 512 GB)` |
+| `criterion` | A lowercase slug | `battery_life` |
+| `unit` | One word with no digits for a number. Blank for a text answer | `h`, `mAh`, `GB`, `₹` |
+| `known_answer` | The right value, set by a person. A number and its unit, or text. At most 80 characters | `10 h`, `USB-C` |
+| `tolerance` | For a number: how far off still counts as right, in the same unit. 0 means the exact number. Blank for text | `0.5` |
+| `how_established` | How a person found the answer. At most 300 characters. Never a Reddit post, and never a link holding a login | `https://nova.example/book-14/specs` |
+| `added_by` | Your first name | `Rushiraj` |
+| `claim_url` | The page that makes this claim. Each page is used once per conflict | `https://techdesk.example/nova-book-14` |
+| `claim_site` | The site's lowercase main domain, without `www.` (`nova.example`, even for `store.nova.example`). The URL must be on it. Only `syn` rows may use made-up sites (`.example`, `.test`, `.invalid`, `example.com`) | `techdesk.example` |
+| `claim_tier` | One of `manufacturer`, `lab`, `editorial`, `community`, `retailer`, highest first. This is the backend's own list and order (`SourceTier`). A store's page is `retailer` | `editorial` |
+| `claim_value` | What this page says, in the conflict's unit. At most 80 characters, or 30 on a Reddit claim | `12 h` |
+| `claim_retrieved_at` | The day you read the page, as YYYY-MM-DD | `2026-11-08` |
+| `claim_quote` | Optional. One short sentence from the page, at most 200 characters | `The battery lasted 12 hours.` |
+
+**Numbers and units.** Write a number and its unit in the conflict's exact unit, with no commas: `5000 mAh`, not
+`5,000 mAh`. A claim in another unit is an input error, and the tools never convert it for you. If a page says
+`600 min` and the conflict's unit is `h`, work it out by hand and enter `10 h`. Case counts, because `Gb` is not `GB`.
+
+**Text answers.** Leave `unit` and `tolerance` blank. Case, spacing and dash style don't matter, so `USB-C` and
+`usb-c` count as the same value. Plain amounts (`3.5 mm`, `5,000`, `₹62,990`, `about 10 h`) are refused. If it is an
+amount, use `unit` and `tolerance`. If it is a name, write it without the space (`3.5mm`) or in words. Names with
+different endings after a number (`1080p` and `4K`, or `802.11ac` and `802.11ax`) must be written in words too (`Full
+HD`, `Wi-Fi 5`), because they read just like `10h` and `600min`. Any other text answer holding a number (`5G`, `USB 3.2`)
+gets a warning, so you can check that it is really a name. The checker can't spot every amount, so read those warnings.
+
+**Reddit (D-53).** A Reddit claim keeps its URL, tier `community`, site `reddit.com`, value and date. It never keeps a
+quote, and its value is only the value, never the poster's words. Link to the thread, never to a person's profile. The
+same rules cover an archive copy of a Reddit thread. The checker knows the usual Reddit links and archives, but no list
+can find every copy, so never copy Reddit text into any column, whichever site you read it on.
+
+### 9.4 Checking and running
+
+```bash
+# Check the file. Every problem names its line.
+python ml/scripts/check_conflicts.py ml/labelling/conflicts.csv
+
+# Measure both baselines and save the numbers to ml/results/trust_baseline.json.
+python ml/scripts/trust_baseline.py
+
+# Try it on the made-up examples. These numbers mean nothing, so they never go in ml/results/.
+python ml/scripts/trust_baseline.py ml/examples/conflicts_synthetic.csv
+```
+
+- **Majority vote** takes the value most claims state. A tie gives no answer. `10 h` and `10.0 h` are one vote. `10 h`
+  and `10.2 h` are two, because only scoring uses the tolerance.
+- **Tier order** takes the highest tier present, and that tier's most common value wins. A tie inside the tier falls
+  back to the majority of all the claims. If that ties too, there is no answer.
+- **Accuracy** is correct answers out of the conflicts in that table, so no answer counts against it. Both tables go
+  in the results file, as `all_conflicts` and `source_not_a_claim`.
+- **Ties** for majority are the same as no answer. For tier order, they count every conflict where the top tier's vote
+  was even, even if the fallback then found an answer.
+
+Commit `ml/results/trust_baseline.json` when the real conflicts change. The first run on real conflicts creates it.
