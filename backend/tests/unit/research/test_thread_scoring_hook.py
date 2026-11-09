@@ -89,7 +89,7 @@ def test_a_thread_past_the_limit_is_not_called_dropped() -> None:
 def test_the_top_scorers_get_their_comments_read() -> None:
     low, high = _thread("aaa", upvotes=1), _thread("bbb", upvotes=190)
     reddit = FakeReddit(threads=(low, high), with_comment_counts={str(low.url): 2, str(high.url): 2})
-    settings = ResearchSettings(threads_with_comments=1)
+    settings = ResearchSettings(reddit_comment_threads=1)
     progress = ThreadProgress()
     find_threads(reddit, "laptop", "laptop", RequestBudget(10), settings, progress)
     read_comments(reddit, RequestBudget(10), settings, progress)

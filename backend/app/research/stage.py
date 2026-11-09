@@ -285,7 +285,7 @@ class _Job:
             self._problem(REDDIT, self.wiring.reddit_problem or "blocked")
             self.reddit_listing_done = True
             return
-        budget = CountingBudget(self.usage)
+        budget = CountingBudget(self.usage, self.fetches.time_left)
         query = reddit_query(self.rubric, self.settings.known_uses)
 
         def find() -> None:

@@ -64,7 +64,7 @@ class ProviderCap(BaseModel):
 def _default_caps() -> dict[str, ProviderCap]:
     return {
         "serper": ProviderCap(per_search=6, per_day=60, total=2400),
-        "reddit_archive": ProviderCap(per_search=10, per_day=500),
+        "reddit_archive": ProviderCap(per_search=14, per_day=500),
         "pages": ProviderCap(per_search=24, per_day=200),
     }
 
@@ -78,7 +78,7 @@ class ResearchSettings(BaseModel):
     max_web_results: int = Field(default=20, ge=0)
     max_review_pages: int = Field(default=12, ge=0)
     max_pages_per_domain: int = Field(default=3, ge=0)
-    threads_with_comments: int = Field(default=6, ge=0)
+    reddit_comment_threads: int = Field(default=8, ge=0)
     min_page_chars: int = Field(default=500, ge=1)
     max_page_bytes: int = Field(default=1_500_000, ge=1)
     # Above about 5,000 a source no longer fits every model untrimmed, and trimming could cut off its data block.

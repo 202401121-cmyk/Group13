@@ -9,7 +9,7 @@ max_reddit_threads: 20
 max_web_results: 20
 max_review_pages: 12
 max_pages_per_domain: 3
-threads_with_comments: 6 # comments are read for the top threads only
+reddit_comment_threads: 8 # comments are read for this many threads, best score first: what extraction reads in a minute
 max_source_tokens: 3000 # the most one source may hold, counted the way the LLM wrapper counts tokens
 
 # A page with less readable text than this probably needs JavaScript, so it is skipped until US-38 adds the page reader.
@@ -28,8 +28,8 @@ caps:
     per_search: 6
     per_day: 60
     total: 2400 # the free plan is 2,500 queries once, never renewed, so a daily cap alone can't protect it
-  reddit_archive:
-    per_search: 10
+  reddit_archive: # up to 4 listings, 8 comment reads and 2 retries
+    per_search: 14
     per_day: 500
   pages: # robots.txt requests and redirects count too: 12 pages, 7 robots files and a few hops
     per_search: 24

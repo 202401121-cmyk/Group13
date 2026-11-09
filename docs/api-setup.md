@@ -499,7 +499,7 @@ source at once, with no LLM call. One failing never stops the others. A source t
 
 | Source | How | Kept as |
 |---|---|---|
-| Reddit threads | The archives below, with comments for the top 6 threads | `reddit`, with `community`, `upvotes`, `comment_count`, `comments` |
+| Reddit threads | The archives below, with comments for the top 8 threads by score (`reddit_comment_threads`) | `reddit`, with `community`, `upvotes`, `comment_count`, `comments` |
 | Web search | Serper, 10 results a query | `web_search`, with `site` and the snippet as text |
 | Review sites | Pages on the sites below that Serper finds, read directly | `review_site`, with `site` |
 
@@ -593,8 +593,10 @@ not by scraping reddit.com.
 | Reddit's own API (PRAW, read-only) | Only with `REDDIT_SOURCE=official` and all three `REDDIT_*` API settings | Live | PRAW's own rate limiting, plus our budget and breaker |
 
 Every request has a 10 s timeout and the User-Agent `ShopSense/<version> (IT314 student project;
-+https://github.com/202401121-cmyk/Group13)`. One search uses about 10 requests at most (`RequestBudget`): one per
-subreddit (up to 4), the rest for comment threads. Cleaned results are cached (see "Keeping Reddit data") in memory and in the
++https://github.com/202401121-cmyk/Group13)`. One search uses at most 14 requests (`RequestBudget`): one per
+subreddit (up to 4), 8 for comment threads and 2 for retries. Threads are scored from the listing first, as the score needs no
+comment text, and comments are read one at a time, best score first, until the 8 are done or research's deadline comes.
+Threads past the 8 stay as sources with their listing data, and what was read before a deadline is kept. Cleaned results are cached (see "Keeping Reddit data") in memory and in the
 git-ignored `backend/.cache/reddit/`; a failure is never cached. Breakers and rate limiters last as long as the process, so
 one search's failures count for the next. A thread's title, text and comments have HTML entities and invisible characters
 removed before they are stored.
@@ -615,8 +617,13 @@ removed before they are stored.
 **How threads are found.** Arctic Shift's keyword search (`title`, `selftext`, `query`) is "not supported with
 very active subreddits": on 3 Nov 2026 it answered 422 at once for r/SuggestALaptop and r/laptops. So we ask for
 each subreddit's newest 100 posts in a date window and match the query's words ourselves; one cached listing
-serves every query. The window ends 2 days before today, because the archive has a thread's comments only a day
+serves every query. The dates aren't in its cache key, so an entry lasts its age limit and doesn't end at midnight UTC. The window ends 2 days before today, because the archive has a thread's comments only a day
 or two after it is posted (threads from 31 Oct had theirs on 3 Nov; most from 1-2 Nov had none).
+
+**Where Reddit's time went** (9 November 2026, empty cache, 36-second deadline). 12 requests in all. Comment reads took 2.0 to
+2.6 seconds each, one at a time, and 5 of the 8 finished before the deadline. So replies aren't the slow part: the listings
+are. Arctic Shift answered the first listing with HTTP 422 in 0.9 seconds, and the retry went out 15 seconds later, the wait
+it asks for. A later listing got 422 twice and was lost, so only 2 of the 3 subreddits were listed.
 
 **Which subreddits.** `backend/config/reddit_subreddits.yaml` lists them for each of the 49 categories, plus shared
 India-wide and buy-it-for-life lists by product family. Every name was checked on Arctic Shift on 3 Nov 2026; six

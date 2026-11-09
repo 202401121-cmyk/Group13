@@ -13,7 +13,7 @@ from typing import Any
 import pytest
 
 from app import contracts as C
-from app.cli import main, reddit_block
+from app.cli import main, reddit_block, salt_is_set
 from app.contracts import ExtractionResult, Source, examples
 from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
 from app.research import ResearchStage
@@ -194,9 +194,57 @@ def test_the_block_says_so_when_nothing_was_counted() -> None:
 def test_the_block_says_why_when_no_author_is_known() -> None:
     """With no salt set, Reddit sources carry no author hash, so nobody can be counted. It must say so, not show 0."""
     no_authors = _thread("aaa", (None, "The XM5."))
-    assert "REDDIT_USER_SALT" in reddit_block([no_authors], [], [])
-    assert "REDDIT_USER_SALT" not in reddit_block([_thread("bbb", (ANN, "The XM5."))], [], [])
-    assert "REDDIT_USER_SALT" not in reddit_block([], [], [])
+    assert "REDDIT_USER_SALT is not set" in reddit_block([no_authors], [], [], salt_set=False)
+    assert "REDDIT_USER_SALT" not in reddit_block([_thread("bbb", (ANN, "The XM5."))], [], [], salt_set=False)
+    assert "REDDIT_USER_SALT" not in reddit_block([], [], [], salt_set=False)
+
+
+def test_the_note_says_cached_threads_carry_no_hashes_when_the_salt_is_set() -> None:
+    no_authors = _thread("aaa", (None, "The XM5."))
+    block = reddit_block([no_authors], [], [], salt_set=True)
+    assert "these threads carry no author hashes (they were cached before the salt was set)" in block
+    assert "REDDIT_USER_SALT" not in block
+
+
+def test_the_note_names_the_salt_only_when_it_is_not_set() -> None:
+    no_authors = _thread("aaa", (None, "The XM5."))
+    block = reddit_block([no_authors], [], [], salt_set=False)
+    assert "REDDIT_USER_SALT is not set" in block
+    assert "no author hashes" not in block
+
+
+def test_no_note_when_an_author_is_known() -> None:
+    known = _thread("bbb", (ANN, "The XM5."))
+    for salt_set in (True, False):
+        block = reddit_block([known], [], [], salt_set=salt_set)
+        assert "REDDIT_USER_SALT" not in block
+        assert "no author hashes" not in block
+
+
+def test_the_claims_option_tells_the_block_whether_the_salt_is_set(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    told: list[bool] = []
+
+    def spy(*args: Any, **kwargs: Any) -> str:
+        told.append(kwargs["salt_set"])
+        return reddit_block(*args, **kwargs)
+
+    monkeypatch.setattr("app.cli.reddit_block", spy)
+    monkeypatch.setenv("REDDIT_USER_SALT", "made-up-salt")
+    assert main(["best laptop for coding under 70k", "--claims", "--no-db"]) == 0
+    monkeypatch.setenv("REDDIT_USER_SALT", "")
+    assert main(["best laptop for coding under 70k", "--claims", "--no-db"]) == 0
+    assert told == [True, False]
+
+
+def test_the_salt_is_read_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("REDDIT_USER_SALT", "made-up-salt")
+    assert salt_is_set() is True
+    monkeypatch.setenv("REDDIT_USER_SALT", "  ")
+    assert salt_is_set() is False
+    monkeypatch.delenv("REDDIT_USER_SALT")
+    assert salt_is_set() is False
 
 
 def test_one_person_in_one_thread_reads_right() -> None:

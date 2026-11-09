@@ -90,8 +90,11 @@ class ArcticShiftSource(ArchiveSource):
         }
 
     def listing_key(self, subreddit: str, query: str, after: datetime | None) -> CacheKey:
-        # The query is matched here, not sent, so one listing serves every query.
-        return (self.name, "listing", subreddit.lower(), self._since(after), self._until())
+        # The query is matched here, not sent, so one listing serves every query. Today's window isn't in the key, or an
+        # entry would end at midnight UTC and not at its age limit. Older keys held the dates: nothing asks for those,
+        # and the sweep deletes them at their age limit.
+        window = after.date().isoformat() if after is not None else "recent"
+        return (self.name, "listing", subreddit.lower(), window)
 
     def comment_params(self, thread_id: str, size: int) -> dict[str, str | int]:
         return {"link_id": thread_id, "limit": size, "sort": "desc"}
