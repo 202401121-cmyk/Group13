@@ -12,6 +12,9 @@ export const LAPTOP_REQUEST = "Laptop for coding under ₹70,000";
 
 export type Theme = "light" | "dark";
 
+/** The results page: its address gains the search ID once the run has one, and never the shopper's words. */
+export const RESULTS_URL = /\/results(\?search=srch_[0-9a-f]{24})?$/;
+
 /** Every scenario in the brief page's "Preview scenario" picker (src/lib/results/mockService.ts). */
 export const RESULT_SCENARIOS = [
   "success",
@@ -198,10 +201,10 @@ export async function startScenario(page: Page, sessionId: string, scenario: str
   await expect(page.getByRole("button", { name: /Start research/ })).toBeEnabled();
   await page.getByLabel(/Preview scenario/).selectOption(scenario);
   await page.getByRole("button", { name: /Start research/ }).click();
-  await expect(page).toHaveURL(/\/results$/);
+  await expect(page).toHaveURL(RESULTS_URL);
 }
 
-/** Fast-forwards a mock research run (4 stages of 1.4 s, then 0.5 s) to its result. */
+/** Fast-forwards a mock research run (0.3 s to start, 8 stages of 0.75 s, then 0.5 s) to its result. */
 export async function finishResearch(page: Page) {
   await page.clock.runFor(7_000);
 }

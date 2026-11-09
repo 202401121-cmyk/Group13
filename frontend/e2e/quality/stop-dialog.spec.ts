@@ -4,7 +4,7 @@
  * 390 px the dialog is reached through the small-screen menu, where the link that was pressed closes with the menu.
  */
 import { expect, test, type Page } from "@playwright/test";
-import { reachBrief } from "./helpers";
+import { RESULTS_URL, reachBrief } from "./helpers";
 import { focusStop } from "./layout";
 
 const PHONE = { width: 390, height: 844 };
@@ -21,7 +21,7 @@ const heading = (page: Page) =>
 async function researching(page: Page) {
   await reachBrief(page);
   await page.getByRole("button", { name: /Start research/ }).click();
-  await expect(page).toHaveURL(/\/results$/);
+  await expect(page).toHaveURL(RESULTS_URL);
   await page.clock.runFor(1_500);
   await expect(heading(page)).toBeVisible();
   const now = await page.evaluate(() => Date.now());
@@ -51,7 +51,7 @@ const CLOSE: [string, (page: Page) => Promise<void>][] = [
 async function expectClosed(page: Page) {
   await expect(dialog(page)).toBeHidden();
   await page.clock.resume();
-  await expect(page).toHaveURL(/\/results$/);
+  await expect(page).toHaveURL(RESULTS_URL);
 }
 
 async function expectResearchGoesOn(page: Page) {

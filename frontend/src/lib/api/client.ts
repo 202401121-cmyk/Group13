@@ -73,6 +73,8 @@ export interface ApiClient {
   get(path: string, opts: CallOptions): Promise<unknown>;
   post(path: string, body: unknown, opts: CallOptions): Promise<unknown>;
   put(path: string, body: unknown, opts: CallOptions): Promise<unknown>;
+  /** Gives the status too: for a run, 202 and 200 mean different things. */
+  delete(path: string, opts: CallOptions): Promise<{ status: number; data: unknown }>;
 }
 
 type FetchLike = (input: string, init: RequestInit) => Promise<Response>;
@@ -86,12 +88,13 @@ export function createApiClient(
     path: string,
     body: unknown,
     opts: CallOptions,
-  ): Promise<unknown> {
+  ): Promise<{ status: number; data: unknown }> {
     const timeout = new AbortController();
     const timer = setTimeout(() => timeout.abort(), opts.timeoutMs);
     const onAbort = () => timeout.abort();
     opts.signal?.addEventListener("abort", onAbort);
     let response: Response;
+    let data: unknown;
     try {
       response = await fetchImpl(baseUrl + path, {
         method,
@@ -99,6 +102,8 @@ export function createApiClient(
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
         signal: timeout.signal,
       });
+      // The limit covers the body too: an answer that stalls halfway must not leave a screen waiting for ever.
+      data = await readJson(response);
     } catch (e) {
       if (opts.signal?.aborted) throw e; // the caller cancelled: let them see their own abort
       if (timeout.signal.aborted) throw new ApiError("timeout", MESSAGES.timeout);
@@ -107,24 +112,27 @@ export function createApiClient(
       clearTimeout(timer);
       opts.signal?.removeEventListener("abort", onAbort);
     }
-    const data = await readJson(response);
     if (!response.ok) throw errorFor(response.status, data);
     if (data === undefined)
       throw new ApiError("bad_response", MESSAGES.badResponse, response.status);
-    return data;
+    return { status: response.status, data };
   }
+  const dataOf = async (answer: Promise<{ data: unknown }>) => (await answer).data;
   return {
-    get: (path, opts) => call("GET", path, undefined, opts),
-    post: (path, body, opts) => call("POST", path, body, opts),
-    put: (path, body, opts) => call("PUT", path, body, opts),
+    get: (path, opts) => dataOf(call("GET", path, undefined, opts)),
+    post: (path, body, opts) => dataOf(call("POST", path, body, opts)),
+    put: (path, body, opts) => dataOf(call("PUT", path, body, opts)),
+    delete: (path, opts) => call("DELETE", path, undefined, opts),
   };
 }
 
+/** The body, or undefined if it isn't JSON. A connection that fails while it is read isn't a bad answer. */
 async function readJson(response: Response): Promise<unknown> {
   try {
     return (await response.json()) as unknown;
-  } catch {
-    return undefined;
+  } catch (e) {
+    if (e instanceof Error && e.name === "SyntaxError") return undefined;
+    throw e;
   }
 }
 
@@ -147,9 +155,14 @@ function errorFor(status: number, data: unknown): ApiError {
   }
   if (status === 409) return new ApiError("conflict", detail ?? MESSAGES.other, status);
   if (status === 422) return new ApiError("invalid", detail ?? MESSAGES.other, status);
+  // A 503 is the backend saying it is full, in a sentence written for the shopper. Other 5xx bodies aren't.
+  if (status === 503 && detail) return new ApiError("server", detail, status);
   if (status >= 500) return new ApiError("server", MESSAGES.server, status);
   return new ApiError("invalid", detail ?? MESSAGES.other, status);
 }
 
 /** A session ID as the contracts and the database define it (SessionId, public.requests). */
 export const SESSION_ID_PATTERN = /^sess_[A-Za-z0-9]{6,40}$/;
+
+/** A search run's ID as the contracts define it (SearchRunId). */
+export const SEARCH_ID_PATTERN = /^srch_[a-f0-9]{24}$/;

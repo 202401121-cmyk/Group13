@@ -5,6 +5,7 @@
  */
 import { expect, test, type Page } from "@playwright/test";
 import {
+  RESULTS_URL,
   answerAll,
   checkRow,
   finishResearch,
@@ -226,7 +227,7 @@ test.describe("audit matrix: axe in light and dark mode", () => {
     await pauseClock(page);
     await page.getByRole("button", { name: /Start research/ }).click();
     await page.clock.runFor(100); // the brief page opens the results page one frame after the tap
-    await expect(page).toHaveURL(/\/results$/);
+    await expect(page).toHaveURL(RESULTS_URL);
     await page.clock.runFor(1_400);
     await expect(page.getByRole("heading", { name: /What ShopSense is doing/ })).toBeVisible();
     await checkRow(page, "results, researching", { paused: true });
@@ -238,10 +239,13 @@ test.describe("audit matrix: axe in light and dark mode", () => {
     await checkRow(page, "results, leave page dialog", { paused: true });
     await page.getByRole("button", { name: "Keep researching" }).click();
     await page.getByRole("button", { name: "Stop research" }).click();
+    await page
+      .getByRole("alertdialog", { name: "Stop research?" })
+      .getByRole("button", { name: "Stop research" })
+      .click();
     await page.clock.resume();
-    await expect(page).toHaveURL(/\/brief$/);
-    await expect(page.getByText("Research stopped").first()).toBeVisible();
-    await checkRow(page, "brief, research stopped message");
+    await expect(page.getByRole("heading", { level: 1, name: "Search stopped" })).toBeVisible();
+    await checkRow(page, "results, search stopped");
   });
 
   // The twelve result scenarios, in three groups so each test stays short.
@@ -290,9 +294,9 @@ test.describe("audit matrix: axe in light and dark mode", () => {
     await expect(page.getByText(/took too long/).first()).toBeVisible();
     await checkRow(page, "results, research timed out");
 
-    await page.reload();
+    await page.goto(`/s/${id}/results`);
     await expect(page.getByRole("heading", { name: /aren't here any more/ })).toBeVisible();
-    await checkRow(page, "results, gone after reload");
+    await checkRow(page, "results, no search to show");
 
     await page.goto(`/s/${MISSING}/results`);
     await expect(page.getByRole("heading", { name: "We couldn't find this search" })).toBeVisible();

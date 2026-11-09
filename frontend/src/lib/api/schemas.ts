@@ -9,8 +9,11 @@ import type { IntakeResponse } from "@/types/contracts/IntakeResponse";
 import type { Intent } from "@/types/contracts/Intent";
 import type { InterviewStep } from "@/types/contracts/InterviewStep";
 import type { PresearchSession } from "@/types/contracts/PresearchSession";
+import type { ProgressEvent } from "@/types/contracts/ProgressEvent";
 import type { ReplyRequest } from "@/types/contracts/ReplyRequest";
 import type { SearchResult } from "@/types/contracts/SearchResult";
+import type { SearchRun } from "@/types/contracts/SearchRun";
+import type { SearchRunStarted } from "@/types/contracts/SearchRunStarted";
 import { ApiError, MESSAGES } from "./client";
 
 export interface Contracts {
@@ -21,6 +24,9 @@ export interface Contracts {
   PresearchSession: PresearchSession;
   ReplyRequest: ReplyRequest;
   SearchResult: SearchResult;
+  SearchRun: SearchRun;
+  SearchRunStarted: SearchRunStarted;
+  ProgressEvent: ProgressEvent;
 }
 export type ContractName = keyof Contracts;
 
@@ -34,6 +40,9 @@ const SCHEMAS: Record<ContractName, () => Promise<{ default: unknown }>> = {
   PresearchSession: () => import("@contracts/schema/PresearchSession.json"),
   ReplyRequest: () => import("@contracts/schema/ReplyRequest.json"),
   SearchResult: () => import("@contracts/schema/SearchResult.json"),
+  SearchRun: () => import("@contracts/schema/SearchRun.json"),
+  SearchRunStarted: () => import("@contracts/schema/SearchRunStarted.json"),
+  ProgressEvent: () => import("@contracts/schema/ProgressEvent.json"),
 };
 
 /** CommonJS packages arrive as { default } or { default: { default } } depending on the bundler. */
@@ -59,6 +68,9 @@ function loadAjv(): Promise<AjvLike> {
       return instance;
     },
   );
+  ajv.catch(() => {
+    ajv = null; // a failed download can be tried again
+  });
   return ajv;
 }
 
@@ -68,9 +80,19 @@ function validatorFor(name: ContractName): Promise<Validator> {
     v = Promise.all([loadAjv(), SCHEMAS[name]()]).then(([a, schema]) =>
       a.compile(schema.default as object),
     );
+    v.catch(() => validators.delete(name)); // a failed download can be tried again
     validators.set(name, v);
   }
   return v;
+}
+
+/** Fetches these schemas now, so a run doesn't need the network for them at its very end. */
+export function loadContracts(...names: ContractName[]) {
+  for (const name of names) {
+    validatorFor(name).catch(() => {
+      /* checking the first answer that needs it will try again, and say so if that fails too */
+    });
+  }
 }
 
 /** Returns the value typed as its contract, or throws ApiError("bad_response"). */
@@ -78,7 +100,13 @@ export async function checkContract<N extends ContractName>(
   name: N,
   value: unknown,
 ): Promise<Contracts[N]> {
-  const validate = await validatorFor(name);
+  let validate: Validator;
+  try {
+    validate = await validatorFor(name);
+  } catch {
+    // The schema's code couldn't be downloaded. That says nothing about the answer, or about the run.
+    throw new ApiError("network", MESSAGES.network);
+  }
   if (!validate(value)) throw new ApiError("bad_response", MESSAGES.badResponse);
   return value as Contracts[N];
 }

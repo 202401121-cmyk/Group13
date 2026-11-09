@@ -6,6 +6,9 @@
 import { expect, test } from "@playwright/test";
 import { checkRow, finishResearch, reachBrief, startScenario } from "./helpers";
 
+const BANNER =
+  "This result isn't saved. It stays at this address for up to 30 minutes, then it's gone.";
+
 test.describe("the privacy page", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/privacy");
@@ -63,21 +66,30 @@ test.describe("what the results page says about keeping results", () => {
     const id = await reachBrief(page);
     await startScenario(page, id, "success");
     await finishResearch(page);
-    await expect(
-      page.getByText("This result isn't saved. It will be gone if you close this page."),
-    ).toBeVisible();
+    await expect(page.getByText(BANNER)).toBeVisible();
   });
 
-  test("after a reload it says what it can't do, and the brief is still there", async ({
-    page,
-  }) => {
+  test("after a reload the result is still there", async ({ page }) => {
     const id = await reachBrief(page);
     await startScenario(page, id, "success");
     await finishResearch(page);
     await page.reload();
+    await expect(page.getByRole("heading", { level: 1, name: /Results for your/ })).toBeVisible();
+    await expect(page.getByText(BANNER)).toBeVisible();
+  });
+
+  test("the privacy page says how long a search is kept", async ({ page }) => {
+    await page.goto("/privacy");
+    await expect(page.getByText(/up to 30 minutes after it ends/)).toBeVisible();
+    await expect(page.getByText(/search ID, never your words/)).toBeVisible();
+    await expect(page.getByText(/can't load them/)).toHaveCount(0);
+  });
+
+  test("with no search to show it says so, and the brief is still there", async ({ page }) => {
+    const id = await reachBrief(page);
+    await page.goto(`/s/${id}/results`);
     await expect(page.getByRole("heading", { name: /aren't here any more/ })).toBeVisible();
-    await expect(page.getByText(/can't load results again/)).toBeVisible();
-    await expect(page.getByText("Results are only kept while this page is open")).toHaveCount(0);
+    await expect(page.getByText(/no search to show/)).toBeVisible();
     await page.getByRole("link", { name: "Back to your brief" }).first().click();
     await expect(page).toHaveURL(new RegExp(`/s/${id}/brief$`));
   });

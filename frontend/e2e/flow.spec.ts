@@ -57,7 +57,7 @@ test("a shopper goes from the home page to ranked results", async ({ page }) => 
   await expectAccessible(page, "brief");
   await page.getByRole("button", { name: /Start research/ }).click();
 
-  await expect(page).toHaveURL(/\/results$/);
+  await expect(page).toHaveURL(/\/results(\?search=srch_[0-9a-f]{24})?$/);
   await expect(page.getByRole("heading", { name: "Best match" })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText(/Sample laptop A/).first()).toBeVisible();
   await expectAccessible(page, "results");
