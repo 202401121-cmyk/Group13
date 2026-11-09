@@ -48,15 +48,40 @@ One row per finished search, in `public.searches` (US-52):
   database only. Never send it to Gemini's free tier or any other model service that may train on its inputs, and
   never paste rows into chat, Slack or an issue.
 - **No expiry, so no Reddit text (US-12, D-53):** rows stay until someone deletes them, and Reddit data may be kept at
-  most 24 hours. So Reddit's words never reach this table: `app/research/retention.py` runs before every save. A Reddit
-  source keeps its URL, community, fetch time, archive and counts, and loses its title, text, comments and author hash.
-  Any quote taken from one goes too. Other sources are saved whole. D-53 covers every copy, so the other two are limited
-  as well: a finished run stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES` (1 to 120 minutes), and the Reddit
-  cache serves an entry only while it is younger than 24 hours minus that
+  most 24 hours. So Reddit's words never reach this table ("What a saved result holds", below). D-53 covers every copy, so
+  the other two are limited as well: a finished run stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES` (1 to 120
+  minutes), and the Reddit cache serves an entry only while it is younger than 24 hours minus that
   ([api-setup.md](api-setup.md), "Keeping Reddit data", which gives the two small limits on this).
 - **Guests (decision D-36):** there is no sign-in yet, so every row is a guest's. A guest's request and search are
   stored only under the anonymous session ID, are never linked to an account, and are never used to remember
   preferences.
+
+### What a saved result holds
+
+`rubric` holds the rubric as it was searched with, in the shopper's own words. `result` holds the whole `SearchResult` the
+shopper saw, with one difference: no Reddit text. A row stays until someone deletes it, and D-53 lets us keep Reddit data
+for at most 24 hours, so `without_reddit_text` in `backend/app/research/retention.py` runs at the save, and nowhere else.
+The response to the shopper is not changed.
+
+| Part of the result | In the saved row |
+|---|---|
+| A Reddit source's title, text and comment bodies, at any depth | The marker `[Reddit text is not kept]`. A merged thread's `Same topic: <url>` lines stay at the end of its text, and only those naming a subreddit we search, so they hold an address and no free words |
+| A Reddit source's `text_hash` | The hash of what is saved, so it can't identify the original |
+| Author hashes, on the thread and on each comment | Cleared. A hash can follow one person from thread to thread, and a saved row has no use for that |
+| A Reddit source's URL, community, type, fetch time, publish time, archive, upvotes, comment count and quality | Kept |
+| Each comment's ID, parent, depth, upvotes and quality | Kept |
+| The `quote` of any claim, unless its source is listed and isn't Reddit | The marker. Its value, score and source link stay. A value can be a few of a poster's words, such as "about 8 hours" |
+| Web, review and shop sources, and everything else in the result | Saved whole |
+
+`SearchResult` has no claims today, so no saved row holds a quote yet. The rule is ready for when one does. A result with
+no Reddit sources is saved byte for byte as it was before.
+
+`tests/unit/research/test_retention.py` lists every text field in a `SearchResult` and what it can hold, so a new field
+fails until someone decides. It also fails when US-15, US-16, US-20 or US-42 makes real a stage whose fields could carry
+Reddit's words (product names, resolved values, community notes, explanations). Handle those in `retention.py` first.
+
+**For US-29 (Sprint 5):** a reopened search shows Reddit evidence as links, not quotes. Show the marker's meaning in plain
+words, and link to the thread by its URL. The words can only be read on Reddit, as they were never kept.
 
 Row level security is on with no policies, and the table is revoked from `anon` and `authenticated`, the same as
 `public.requests`. So the Data API cannot read or write it. **Who can read it:** the backend through `DATABASE_URL`,

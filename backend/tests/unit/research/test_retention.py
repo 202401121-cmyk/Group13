@@ -2,15 +2,24 @@
 
 from __future__ import annotations
 
+import ast
+import inspect
 import json
 import os
 import time
-from datetime import UTC, datetime, timedelta
+import types
+from collections import abc
+from collections.abc import Mapping, Sequence
+from datetime import UTC, date, datetime, timedelta
+from enum import Enum
 from pathlib import Path
+from typing import Annotated, Any, Literal, Union, get_args, get_origin
 
 import pytest
+from pydantic import BaseModel, HttpUrl, computed_field
 
-from app.contracts import SearchRequest, Source, SourceComment, SourceType
+import app
+from app.contracts import Claim, ClaimType, SearchRequest, SearchResult, Source, SourceComment, SourceType
 from app.contracts import examples as ex
 from app.db import InMemoryRequestStore
 from app.pipeline import DatabaseResultStore, InMemoryResultStore, PipelineRunner, default_search_stages
@@ -20,7 +29,7 @@ from app.research.reddit.archive import add_comments
 from app.research.reddit.cache import RedditCache, serve_limit
 from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
 from tests.fakes.reddit import NOW
-from tests.fakes.research import rubric, thread, web_source
+from tests.fakes.research import review_source, rubric, thread, web_source
 
 SECRET_TITLE = "A made-up thread title"
 SECRET_BODY = "A made-up post body."
@@ -67,8 +76,8 @@ def test_a_saved_reddit_source_keeps_its_url_fetch_time_and_counts() -> None:
     assert saved["source_detail"] == "arctic_shift"
     assert saved["upvotes"] == 7
     assert saved["comment_count"] == 2
-    assert saved["comments"] == []
-    assert saved["title"] == ""
+    assert [c["text"] for c in saved["comments"]] == [REDDIT_TEXT_NOT_KEPT]
+    assert saved["title"] == REDDIT_TEXT_NOT_KEPT
     assert saved["text"] == REDDIT_TEXT_NOT_KEPT
     assert saved["author_hash"] is None
 
@@ -98,16 +107,431 @@ def test_a_same_topic_line_written_by_a_poster_is_not_kept() -> None:
     assert saved["text"] == REDDIT_TEXT_NOT_KEPT
 
 
+def test_a_poster_line_in_the_exact_form_is_kept_only_as_a_trailing_link_to_a_subreddit_we_search() -> None:
+    real = "Same topic: https://www.reddit.com/r/laptops/comments/abc/"
+    middle = f"Some words.\n{real}\nMore words after it."
+    other_subreddit = "A post.\nSame topic: https://www.reddit.com/r/call_me_on_98765xxx/comments/abc/"
+    for text, kept in [(middle, ""), (other_subreddit, ""), (f"A post.\n{real}", f"\n{real}")]:
+        saved = without_reddit_text({"sources": [thread("bbb", "A title", text=text).model_dump(mode="json")]})
+        assert saved["sources"][0]["text"] == REDDIT_TEXT_NOT_KEPT + kept
+
+
+def test_with_no_subreddit_list_no_merged_line_is_kept(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from app.research import retention
+
+    def unreadable() -> object:
+        raise OSError("made up")
+
+    monkeypatch.setattr(retention, "load_subreddits", unreadable)
+    retention._searched_subreddits.cache_clear()
+    try:
+        text = "A post.\nSame topic: https://www.reddit.com/r/laptops/comments/abc/"
+        saved = without_reddit_text({"sources": [thread("bbb", "A title", text=text).model_dump(mode="json")]})
+        assert saved["sources"][0]["text"] == REDDIT_TEXT_NOT_KEPT
+    finally:
+        retention._searched_subreddits.cache_clear()
+
+
 def test_a_quote_taken_from_a_reddit_source_is_removed_wherever_it_is() -> None:
+    page = web_source("https://web.example/a")
     result = {
-        "sources": [thread("abc123", SECRET_TITLE, text=SECRET_BODY).model_dump(mode="json")],
+        "sources": [
+            thread("abc123", SECRET_TITLE, text=SECRET_BODY).model_dump(mode="json"),
+            page.model_dump(mode="json"),
+        ],
         "explanations": [{"nested": [{"source_id": thread("abc123").id, "quote": SECRET_BODY}]}],
-        "products": [{"claims": [{"source_id": "src_someotherpage00", "quote": "A quote from a web page."}]}],
+        "products": [{"claims": [{"source_id": page.id, "quote": "A quote from a web page."}]}],
     }
     saved = without_reddit_text(result)
     assert saved["explanations"][0]["nested"][0]["quote"] == REDDIT_TEXT_NOT_KEPT
     assert saved["products"][0]["claims"][0]["quote"] == "A quote from a web page."
     assert SECRET_BODY not in json.dumps(saved)
+
+
+# --- every field, so a new one can't slip through ------------------------------------------------------------------
+
+# Every text field of a SearchResult, and why it may or may not hold Reddit's words. test_every_text_field... fails on a
+# field missing here: decide about it, handle it in retention.py if it can hold Reddit's words, then add it.
+CLEARED = "holds Reddit's words on a Reddit source: replaced by the marker"
+HASH = "made from Reddit's words, or a person's name: replaced or cleared on a Reddit source"
+ID_OR_LINK = "an ID, a link or a subreddit's name: code builds it, and it stays"
+SEARCH_FROM_CODE = "written by code from fixed words, the rubric or numbers"
+SHOP_OR_SHOPPER = "from a shop, or the shopper's own words"
+WAITS_FOR_MATCH = "a product's name as written: holds no Reddit text until US-15 replaces MatchStage"
+WAITS_FOR_VERIFY = "holds no Reddit text until US-16 or US-42 replaces VerifyStage"
+WAITS_FOR_EXPLAIN = "holds no Reddit text until US-20 replaces ExplainStage"
+
+TEXT_FIELDS = {
+    "sources[].title": CLEARED,
+    "sources[].text": CLEARED,
+    "sources[].comments[].text": CLEARED,
+    "sources[].text_hash": HASH,
+    "sources[].author_hash": HASH,
+    "sources[].comments[].author_hash": HASH,
+    "sources[].id": ID_OR_LINK,
+    "sources[].site": ID_OR_LINK,
+    "sources[].community": ID_OR_LINK,
+    "sources[].comments[].id": ID_OR_LINK,
+    "sources[].comments[].parent_id": ID_OR_LINK,
+    "schema_version": SEARCH_FROM_CODE,
+    "search_id": SEARCH_FROM_CODE,
+    "coverage_note": SEARCH_FROM_CODE,
+    "stage_reports[].fallback_reason": SEARCH_FROM_CODE,
+    "stage_reports[].notes[]": SEARCH_FROM_CODE,
+    "decision.filtered[].product_id": SEARCH_FROM_CODE,
+    "decision.filtered[].reasons[]": SEARCH_FROM_CODE,
+    "decision.filtered[].rule_attribute": SEARCH_FROM_CODE,
+    "decision.ranked[].contributions[].criterion_key": SEARCH_FROM_CODE,
+    "decision.ranked[].product_id": SEARCH_FROM_CODE,
+    "decision.ranked[].separating_criterion": SEARCH_FROM_CODE,
+    "decision.ranked[].tied_with[]": SEARCH_FROM_CODE,
+    "decision.relaxation_hint": SEARCH_FROM_CODE,
+    "commerce.no_offer{key}": SHOP_OR_SHOPPER,
+    "commerce.offers[].listing_title": SHOP_OR_SHOPPER,
+    "commerce.offers[].price.currency": SHOP_OR_SHOPPER,
+    "commerce.offers[].product_id": SHOP_OR_SHOPPER,
+    "commerce.offers[].store": SHOP_OR_SHOPPER,
+    "commerce.offers[].variant_id": SHOP_OR_SHOPPER,
+    "request.raw_query": SHOP_OR_SHOPPER,
+    "request.session_id": SHOP_OR_SHOPPER,
+    "request.user_id": SHOP_OR_SHOPPER,
+    "request.rubric.budget.max.currency": SHOP_OR_SHOPPER,
+    "request.rubric.budget.min.currency": SHOP_OR_SHOPPER,
+    "request.rubric.category": SHOP_OR_SHOPPER,
+    "request.rubric.exclusions[].value": SHOP_OR_SHOPPER,
+    "request.rubric.hard_rules[].attribute": SHOP_OR_SHOPPER,
+    "request.rubric.hard_rules[].source_text": SHOP_OR_SHOPPER,
+    "request.rubric.hard_rules[].unit": SHOP_OR_SHOPPER,
+    "request.rubric.hard_rules[].value": SHOP_OR_SHOPPER,
+    "request.rubric.hard_rules[].value[]": SHOP_OR_SHOPPER,
+    "request.rubric.region": SHOP_OR_SHOPPER,
+    "request.rubric.use_case": SHOP_OR_SHOPPER,
+    "request.rubric.weights[].key": SHOP_OR_SHOPPER,
+    "products[].product.id": WAITS_FOR_MATCH,
+    "products[].product.name": WAITS_FOR_MATCH,
+    "products[].product.brand": WAITS_FOR_MATCH,
+    "products[].product.aliases[]": WAITS_FOR_MATCH,
+    "products[].product.variants[].id": WAITS_FOR_MATCH,
+    "products[].product.variants[].label": WAITS_FOR_MATCH,
+    "products[].product.variants[].attributes{key}": WAITS_FOR_MATCH,
+    "products[].product.variants[].attributes{}": WAITS_FOR_MATCH,
+    "products[].values[].value": WAITS_FOR_VERIFY,
+    "products[].values[].product_id": WAITS_FOR_VERIFY,
+    "products[].values[].criterion_key": WAITS_FOR_VERIFY,
+    "products[].values[].supporting_claim_ids[]": WAITS_FOR_VERIFY,
+    "products[].values[].conflicting_claim_ids[]": WAITS_FOR_VERIFY,
+    "products[].community.note": WAITS_FOR_VERIFY,
+    "products[].community.communities[]": WAITS_FOR_VERIFY,
+    "products[].community.product_id": WAITS_FOR_VERIFY,
+    "explanations[].product_id": WAITS_FOR_EXPLAIN,
+    "explanations[].sentences[].text": WAITS_FOR_EXPLAIN,
+    "explanations[].sentences[].claim_ids[]": WAITS_FOR_EXPLAIN,
+    "explanations[].trade_off": WAITS_FOR_EXPLAIN,
+    "explanations[].unverified[]": WAITS_FOR_EXPLAIN,
+}
+
+
+_SEQUENCES = (list, tuple, set, frozenset, abc.Sequence, abc.Set, abc.Collection, abc.Iterable)
+_MAPPINGS = (dict, abc.Mapping)
+# Kinds that can't hold words: numbers, times and built URLs. Anything else unknown is listed, so the table must say.
+_NOT_TEXT = (bool, int, float, datetime, date, Enum, HttpUrl, type(None))
+
+
+def _text_paths(annotation: Any, path: str = "") -> set[str]:
+    """Every path in this model that can hold text. An enum or Literal can't hold Reddit's words; a URL is built."""
+    origin = get_origin(annotation)
+    if origin is Annotated:
+        return _text_paths(get_args(annotation)[0], path)
+    if origin is Literal:
+        return set()
+    if origin in (Union, types.UnionType):
+        return set().union(*(_text_paths(arg, path) for arg in get_args(annotation)))
+    if annotation in _SEQUENCES or origin in _SEQUENCES:
+        args = [arg for arg in get_args(annotation) if arg is not Ellipsis] or [Any]
+        return set().union(*(_text_paths(arg, f"{path}[]") for arg in args))
+    if annotation in _MAPPINGS or origin in _MAPPINGS:
+        key, value = get_args(annotation) or (Any, Any)
+        return _text_paths(key, f"{path}{{key}}") | _text_paths(value, f"{path}{{}}")
+    if annotation is Any or annotation is object:
+        return {path}
+    if inspect.isclass(annotation) and issubclass(annotation, Enum):
+        return set()
+    if annotation is str or (inspect.isclass(annotation) and issubclass(annotation, str)):
+        return {path}
+    if inspect.isclass(annotation) and issubclass(annotation, BaseModel):
+        fields = {name: field.annotation for name, field in annotation.model_fields.items()}
+        fields |= {name: field.return_type for name, field in annotation.model_computed_fields.items()}
+        return set().union(*(_text_paths(kind, f"{path}.{name}" if path else name) for name, kind in fields.items()))
+    if inspect.isclass(annotation) and issubclass(annotation, _NOT_TEXT):
+        return set()
+    return {f"{path} <a kind this test does not know>"}
+
+
+def test_the_field_finder_finds_every_kind_of_text_field() -> None:
+    class Inner(BaseModel):
+        words: str
+
+    class Probe(BaseModel):
+        plain: str
+        maybe: str | None = None
+        listed: Sequence[str] = ()
+        mapped: Mapping[str, int] = {}
+        loose: list  # type: ignore[type-arg]
+        nested: tuple[Inner, ...] = ()
+        when: datetime | None = None
+        count: int = 0
+
+        @computed_field  # type: ignore[prop-decorator]
+        @property
+        def made(self) -> str:
+            return ""
+
+    assert _text_paths(Probe) == {
+        "plain",
+        "maybe",
+        "listed[]",
+        "mapped{key}",
+        "loose[]",
+        "nested[].words",
+        "made",
+    }
+
+
+def test_a_field_of_a_kind_the_finder_does_not_know_is_reported() -> None:
+    class Odd:
+        pass
+
+    assert _text_paths(Odd, "odd") == {"odd <a kind this test does not know>"}
+
+
+def test_every_text_field_of_a_saved_result_is_accounted_for() -> None:
+    found = _text_paths(SearchResult)
+    new = sorted(found - TEXT_FIELDS.keys())
+    assert not new, f"can these hold Reddit's words? Handle them in retention.py if so, then list them here: {new}"
+    assert not sorted(TEXT_FIELDS.keys() - found), "these are gone from the contract, so take them off the list"
+
+
+def _fill(node: Any, parts: list[str], value: str) -> int:
+    """Put `value` at this path in every element on the way. How many places it went."""
+    if not parts:
+        return 0
+    head, *rest = parts
+    name, many = head.removesuffix("[]"), head.endswith("[]")
+    if not isinstance(node, dict) or name not in node:
+        return 0
+    if not rest and not many:
+        node[name] = value
+        return 1
+    if many and isinstance(node[name], list):
+        if not rest:
+            node[name] = [value for _ in node[name]]
+            return len(node[name])
+        return sum(_fill(item, rest, value) for item in node[name])
+    return _fill(node[name], rest, value)
+
+
+def test_every_field_the_table_says_is_cleared_really_is() -> None:
+    """Listing a new field as cleared isn't enough: it is filled here, and must not reach the row."""
+    marked = {path: kind for path, kind in TEXT_FIELDS.items() if kind in (CLEARED, HASH)}
+    assert all(path.startswith("sources[].") for path in marked), "extend this test for a field outside the sources"
+    result = {"sources": [_deep_thread().model_dump(mode="json")]}
+    secrets: list[str] = []
+    for i, path in enumerate(sorted(marked)):
+        secret = f"{i:02d}" + "e" * 62 if marked[path] == HASH else f"Secret words number {i}."
+        assert _fill(result, path.split("."), secret), f"{path} isn't in a Reddit source, so it can't be checked here"
+        secrets.append(secret)
+    saved = json.dumps(without_reddit_text(result))
+    assert [secret for secret in secrets if secret in saved] == []
+
+
+def test_the_stages_that_could_carry_reddit_words_are_still_placeholders() -> None:
+    """When one of these becomes real, its fields can hold Reddit's words. Handle them in retention.py first."""
+    stages = default_search_stages()
+    assert stages.match.is_placeholder, f"US-15: {[k for k, v in TEXT_FIELDS.items() if v == WAITS_FOR_MATCH]}"
+    assert stages.verify.is_placeholder, f"US-16, US-42: {[k for k, v in TEXT_FIELDS.items() if v == WAITS_FOR_VERIFY]}"
+    assert stages.explain.is_placeholder, f"US-20: {[k for k, v in TEXT_FIELDS.items() if v == WAITS_FOR_EXPLAIN]}"
+
+
+def _deep_thread() -> Source:
+    """A thread with a comment at each depth, each with words and an author of its own."""
+    source = thread("abc123", SECRET_TITLE, upvotes=7, comment_count=3, text=SECRET_BODY, author_digest="b" * 64)
+    return add_comments(
+        source,
+        (
+            SourceComment(id="m1", depth=1, upvotes=3, text="Depth one words.", quality=0.7, author_hash="a" * 64),
+            SourceComment(id="m2", parent_id="m1", depth=2, upvotes=2, text="Depth two words.", author_hash="c" * 64),
+            SourceComment(
+                id="m3", parent_id="m2", depth=3, upvotes=-1, text="Depth three words.", author_hash="d" * 64
+            ),
+        ),
+    )
+
+
+def _claim(source: Source, **changes: object) -> dict[str, Any]:
+    claim = Claim.model_validate(
+        {
+            "id": "clm_" + "a" * 24,
+            "source_id": source.id,
+            "source_url": source.url,
+            "product_mention": "Nova Book 14",
+            "criterion_key": "battery_life",
+            "score": 8.0,
+            "quote": "A made-up quote about the battery.",
+            "claim_type": ClaimType.EXPERIENCE,
+            "polarity": "positive",
+            "retrieved_at": NOW,
+            "extracted_at": NOW,
+            **changes,
+        }
+    )
+    return claim.model_dump(mode="json")
+
+
+def test_reddit_text_in_every_field_is_gone() -> None:
+    """A row with Reddit's words in every field that can hold them, and an author in every field that names one."""
+    row = _saved_row([_deep_thread()])
+    for secret in (SECRET_TITLE, SECRET_BODY, "Depth one words.", "Depth two words.", "Depth three words."):
+        assert secret not in row
+    for author in ("a" * 64, "b" * 64, "c" * 64, "d" * 64):
+        assert author not in row
+    assert thread("abc123", SECRET_TITLE, text=SECRET_BODY).text_hash not in row  # the hash would identify the text
+
+
+def test_nested_comments_at_depth_3_are_cleared() -> None:
+    saved = json.loads(_saved_row([_deep_thread()]))["sources"][0]["comments"]
+    assert [c["depth"] for c in saved] == [1, 2, 3]
+    assert [c["text"] for c in saved] == [REDDIT_TEXT_NOT_KEPT] * 3
+    assert [c["author_hash"] for c in saved] == [None] * 3
+    assert [(c["id"], c["parent_id"], c["upvotes"]) for c in saved] == [
+        ("m1", None, 3),
+        ("m2", "m1", 2),
+        ("m3", "m2", -1),
+    ]
+    assert saved[0]["quality"] == 0.7
+
+
+def test_ids_urls_scores_and_times_stay() -> None:
+    before = _deep_thread().model_dump(mode="json")
+    after = without_reddit_text({"sources": [before]})["sources"][0]
+    changed = {key for key in before if before[key] != after[key]}
+    assert changed == {"title", "text", "text_hash", "author_hash", "comments"}
+    for old, new in zip(before["comments"], after["comments"], strict=True):
+        assert {key for key in old if old[key] != new[key]} == {"text", "author_hash"}
+    Source.model_validate(after)  # and what is saved still fits the contract
+
+
+def test_a_result_with_no_reddit_sources_is_saved_byte_for_byte() -> None:
+    result = ex.search_result()
+    pages = [web_source("https://web.example/a", "A title", "Web text."), review_source("https://reviews.example/b")]
+    result = SearchResult.model_validate({**result.model_dump(), "sources": pages})
+    store = InMemoryRequestStore()
+    assert DatabaseResultStore(store, time_limit_s=1).save(result)
+    assert store.searches[0].result == json.dumps(result.model_dump(mode="json"))
+
+
+def test_a_mixed_result_keeps_web_and_review_quotes_and_loses_only_reddit_text() -> None:
+    reddit = _deep_thread()
+    web = web_source("https://web.example/a", "A web title", "Web text.")
+    review = review_source("https://reviews.example/b", "A review title", "Review text.")
+    before = {
+        "sources": [source.model_dump(mode="json") for source in (reddit, web, review)],
+        "claims": [
+            _claim(reddit, quote="Words from Reddit here."),
+            _claim(web, quote="Words from a web page."),
+            _claim(review, quote="Words from a review."),
+        ],
+    }
+    after = without_reddit_text(before)
+    assert after["sources"][1:] == before["sources"][1:]
+    assert after["claims"][1:] == before["claims"][1:]
+    assert after["claims"][0]["quote"] == REDDIT_TEXT_NOT_KEPT
+    assert "Words from Reddit here." not in json.dumps(after)
+
+
+def test_a_claim_quoting_reddit_loses_its_quote_but_keeps_its_value_score_and_source_link() -> None:
+    reddit = _deep_thread()
+    scored = _claim(reddit)
+    valued = _claim(reddit, id="clm_" + "b" * 24, score=None, value="about 8 hours", unit="hours")
+    after = without_reddit_text({"sources": [reddit.model_dump(mode="json")], "claims": [scored, valued]})["claims"]
+    assert {key for key in scored if scored[key] != after[0][key]} == {"quote"}
+    assert {key for key in valued if valued[key] != after[1][key]} == {"quote"}
+    assert after[0]["score"] == 8.0
+    assert after[1]["value"] == "about 8 hours"
+    assert after[0]["source_url"] == reddit.model_dump(mode="json")["url"]
+    Claim.model_validate(after[0])  # the marker still fits the contract's quote
+
+
+def test_a_quote_whose_source_is_not_listed_is_not_kept() -> None:
+    web = web_source("https://web.example/a")
+    result = {
+        "sources": [web.model_dump(mode="json")],
+        "claims": [
+            {"source_id": "src_" + "f" * 16, "quote": "Words from who knows where."},
+            {"quote": "No source at all."},
+        ],
+    }
+    saved = json.dumps(without_reddit_text(result))
+    assert "who knows where" not in saved
+    assert "No source at all" not in saved
+
+
+def test_the_response_to_the_shopper_keeps_its_reddit_text() -> None:
+    store = InMemoryRequestStore()
+    request = SearchRequest(session_id="sess_aaaaaaaaaaaaaaaaaaaaaaaa", raw_query="a made-up request", rubric=rubric())
+    result = PipelineRunner(default_search_stages(), DatabaseResultStore(store, time_limit_s=1)).run(request)
+    reddit = [source for source in result.sources if source.type is SourceType.REDDIT]
+    assert reddit and result.saved
+    for source in reddit:
+        assert source.title and source.title != REDDIT_TEXT_NOT_KEPT
+        assert source.text != REDDIT_TEXT_NOT_KEPT
+        assert source.title not in store.searches[0].result  # and it is the row that lost it
+
+
+def test_the_rubric_is_saved_as_before() -> None:
+    store = InMemoryRequestStore()
+    result = ex.search_result()
+    assert DatabaseResultStore(store, time_limit_s=1).save(result)
+    assert json.loads(store.searches[0].rubric) == result.request.rubric.model_dump(mode="json")
+    assert json.loads(store.searches[0].result)["request"] == result.request.model_dump(mode="json")
+
+
+def _uses(tree: ast.AST, path: Path) -> list[str]:
+    """Every use of the function by name, called or not, with the function or class it sits in. Aliases count too."""
+    found: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.alias) and node.name == "without_reddit_text" and node.asname:
+            found.append(f"{path.name}: imported as {node.asname}")
+        if isinstance(node, ast.Attribute) and node.attr == "without_reddit_text":
+            found.append(f"{path.name}: reached through a module")
+
+    def visit(node: ast.AST, inside: str) -> None:
+        for child in ast.iter_child_nodes(node):
+            where = child.name if isinstance(child, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef) else inside
+            if isinstance(child, ast.Name) and child.id == "without_reddit_text":
+                found.append(f"{path.name}: {where}")
+            visit(child, where)
+
+    visit(tree, "<module>")
+    return found
+
+
+def test_the_function_is_called_at_the_save_boundary_and_nowhere_else() -> None:
+    uses = [use for p in Path(app.__file__).parent.rglob("*.py") for use in _uses(ast.parse(p.read_text("utf-8")), p)]
+    assert uses == ["pipeline.py: save"]
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "from app.research.retention import without_reddit_text as strip\nstrip({})\n",
+        "from app.research import retention\nretention.without_reddit_text({})\n",
+        "from app.research.retention import without_reddit_text\nrows = map(without_reddit_text, [])\n",
+        "from app.research.retention import without_reddit_text\ndef answer(r):\n    return without_reddit_text(r)\n",
+    ],
+    ids=["an alias", "through the module", "passed around", "in another function"],
+)
+def test_any_other_use_is_found(code: str) -> None:
+    assert _uses(ast.parse(code), Path("main.py")) != []
 
 
 def test_the_result_handed_in_is_not_changed() -> None:
@@ -264,7 +688,8 @@ def test_a_cached_answer_is_never_served_past_its_oldest_source() -> None:
 
 def test_a_poster_filling_a_thread_with_merged_lines_cannot_push_the_row_past_its_limit() -> None:
     line = "Same topic: https://www.reddit.com/r/laptops/comments/abc/"
-    post = thread("bbb", "A title", text="\n".join([line] * 300))
+    post = thread("bbb", "A title", text="\n".join([line] * 200))  # it all fits a source, so it ends on a whole line
+    assert post.text.count("Same topic") == 200
     saved = without_reddit_text({"sources": [post.model_dump(mode="json")]})["sources"][0]
     assert len(saved["text"]) <= 12_000
     assert saved["text"].count("Same topic") == 50

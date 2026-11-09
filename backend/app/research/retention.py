@@ -1,22 +1,26 @@
 """Reddit data may be kept at most 24 hours (D-53), but a saved search stays until someone deletes it.
 
-So Reddit's words never reach the saved row. A Reddit source keeps what says it was read (its URL, community, fetch
-time, archive and counts), and loses its title, text, comments and author hash. Any quote taken from it goes too,
-wherever in the result it sits: US-14's claims will carry them. The search itself, and the result the shopper sees, are
-untouched.
+So Reddit's words never reach the saved row. A Reddit source keeps what says it was read: its URL, community, fetch
+time, archive and counts, and each comment's ID, place in the thread and upvotes. Its title, text and comment bodies
+become the marker, and its author hashes go, as a hash can follow a person from thread to thread. The search itself, and
+the result the shopper sees, are untouched. This runs once, at the save (DatabaseResultStore.save), and nowhere else.
 
-Only `quote` is cleared outside the sources, because nothing else carries Reddit's words yet. US-14 and US-16 fill
-fields that can (ResolvedValue.value, ExplanationSentence.text, trade_off, CommunitySignal.note), and must extend this
-before those reach a saved row.
+A quote stays only if it names a source we know isn't Reddit. No saved result holds a quote today, because SearchResult
+has no claims, so this is ready for the day one does. The claim keeps its value, score and source link.
+
+No other field holds Reddit's words yet. tests/unit/research/test_retention.py lists every text field in a SearchResult,
+and fails on a new one, or when US-15, US-16, US-20 or US-42 makes real the stages whose fields could hold them.
 """
 
 from __future__ import annotations
 
 import copy
 import hashlib
+from functools import lru_cache
 from typing import Any
 
-from .dedupe import MAX_MERGED_LINES, MERGED_LINE
+from .dedupe import split_merged
+from .reddit.subreddits import load_subreddits
 
 REDDIT_TEXT_NOT_KEPT = "[Reddit text is not kept]"
 
@@ -27,36 +31,61 @@ def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
     sources = saved.get("sources")
     if not isinstance(sources, list):
         return saved
-    reddit = [s for s in sources if isinstance(s, dict) and s.get("type") == "reddit"]
-    for source in reddit:
-        _strip_source(source)
-    ids = {s.get("id") for s in reddit}
-    if ids:
-        _strip_quotes(saved, ids)
+    others: set[Any] = set()
+    for source in sources:
+        if isinstance(source, dict) and source.get("type") == "reddit":
+            _strip_source(source)
+        elif isinstance(source, dict):
+            others.add(source.get("id"))
+    _strip_quotes(saved, others)
     return saved
 
 
+@lru_cache(maxsize=1)
+def _searched_subreddits() -> frozenset[str]:
+    """Every subreddit research lists threads from, so the only ones a merged thread can be in. None if unreadable."""
+    try:
+        config = load_subreddits()
+    except Exception:  # a save must never fail on this: with no list, no merged line can be kept
+        return frozenset()
+    names = [name for names in config.categories.values() for name in names]
+    names += [name for group in config.shared for name in group.subreddits]
+    return frozenset(name.lower() for name in names)
+
+
+def _kept_link(line: str) -> bool:
+    """A "Same topic" line names a thread in one of our own subreddits, so it holds an address and no free words."""
+    subreddit = line.removeprefix("Same topic: https://www.reddit.com/r/").split("/", 1)[0]
+    return subreddit.lower() in _searched_subreddits()
+
+
 def _strip_source(source: dict[str, Any]) -> None:
-    # Only a merged thread's other URL survives (dedupe.py), in the exact form we write. A poster's own line in that
-    # exact form would survive too, but it can hold nothing except the address of a public thread.
-    merged = [line for line in str(source.get("text", "")).splitlines() if MERGED_LINE.match(line)]
-    merged = merged[-MAX_MERGED_LINES:]  # a poster's own lines can't push the saved text past its limit
-    text = "\n".join([REDDIT_TEXT_NOT_KEPT, *merged])
+    # A merged thread's other URL survives (dedupe.py): only the lines at the end, in the exact form we write, as dedupe
+    # reads them. A poster's own line in that form, anywhere else, goes. One at the end survives only if it names a
+    # thread in a subreddit we search, so the most it can hold is a thread's ID: an address, never a sentence.
+    _, merged = split_merged(str(source.get("text", "")))
+    text = "\n".join([REDDIT_TEXT_NOT_KEPT, *(line for line in merged if _kept_link(line))])
+    comments = source.get("comments")
     source.update(
-        title="",
+        title=REDDIT_TEXT_NOT_KEPT,
         text=text,
         text_hash=hashlib.sha256(text.encode()).hexdigest(),
-        comments=[],
+        comments=[_strip_comment(c) for c in comments] if isinstance(comments, list) else [],
         author_hash=None,
     )
 
 
-def _strip_quotes(node: Any, ids: set[Any]) -> None:
+def _strip_comment(comment: Any) -> Any:
+    return {**comment, "text": REDDIT_TEXT_NOT_KEPT, "author_hash": None} if isinstance(comment, dict) else None
+
+
+def _strip_quotes(node: Any, others: set[Any]) -> None:
+    """Keep a quote only if its source is one we know isn't Reddit: if we can't tell, it can't be kept."""
     if isinstance(node, dict):
-        if node.get("source_id") in ids and "quote" in node:
+        if "quote" in node and node.get("source_id") not in others:
             node["quote"] = REDDIT_TEXT_NOT_KEPT
         for value in node.values():
-            _strip_quotes(value, ids)
+            _strip_quotes(value, others)
     elif isinstance(node, list):
         for value in node:
-            _strip_quotes(value, ids)
+            _strip_quotes(value, others)
