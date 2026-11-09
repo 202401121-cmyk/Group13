@@ -1,0 +1,81 @@
+# How Reddit threads and comments are scored (US-13). Loaded by app/research/reddit/quality.py; a bad file logs a warning
+# and the defaults there are used, so a typo never stops a search. Change the weights here, never in code.
+#
+# Thread score = (upvotes_weight x upvotes + comments_weight x comments + relevance_weight x relevance) x age weight
+#   upvotes and comments are on a log scale: log(1 + n) / log(1 + full_at), at most 1. Negative upvotes count as none.
+#   age weight = 0.5 ^ (age in days / half_life_days), with age counted from when the thread was fetched, so the same
+#   thread always gets the same score.
+#   An unknown count or date takes the average of the search's other threads, and is marked estimated (build rule 6).
+#   With no others, a count is middling (0.5) and a date costs nothing.
+#   Threads scoring under min_score are dropped. When no thread passes, the best keep_if_none_pass stay, with their low
+#   scores: an old archive's threads can't pass, and an empty result would say nothing about why. 0 turns this off.
+#
+# Comment score = upvotes_weight x upvotes + length_weight x length + model_weight x (1 if it names a model, else 0)
+#   upvotes are on the same log scale. length = characters / length_full_at, at most 1.
+#   A comment names a model if it holds a token with letters and digits such as XM5 or G14. Scoring can also take a list
+#   of product names, but comments are scored before extraction finds any, so a search gives it none today.
+#   Comments are only scored here, never dropped.
+
+half_life_days: 180
+
+thread:
+  upvotes_weight: 0.4
+  comments_weight: 0.3
+  relevance_weight: 0.3
+  upvotes_full_at: 200
+  comments_full_at: 100
+  # Set from real listings (9 Nov 2026, threads 2 to 5 days old), which scored 0.22 and up: this dropped 3 of 47 laptop
+  # threads and 0 of 49 headphone threads. So a new thread with no votes or comments passes only in a category's best
+  # subreddits (0.3 x 0.9 or more), and is gone after 3 to 7 weeks. One with a vote and a comment in a searched subreddit
+  # with no row below (about 0.31) passes for about 8 weeks. A busy thread (50 votes, 20 comments) lasts about 9 months.
+  min_score: 0.25
+  keep_if_none_pass: 5
+
+comment:
+  upvotes_weight: 0.4
+  length_weight: 0.2
+  model_weight: 0.4
+  upvotes_full_at: 50
+  length_full_at: 500
+
+relevance:
+  listed: 0.7 # a subreddit we search for this category (config/reddit_subreddits.yaml) with no row below
+  unknown: 0.3 # any other subreddit
+  categories: # where a category's subreddits differ: advice subreddits above general or fan ones
+    laptop:
+      SuggestALaptop: 1.0
+      laptops: 0.9
+      GamingLaptops: 0.6
+    tablet:
+      tablets: 0.9
+      AndroidTablets: 0.7
+      ipad: 0.7
+    monitor:
+      Monitors: 1.0
+      ultrawidemasterrace: 0.6
+    keyboard:
+      MechanicalKeyboards: 0.9
+      keyboards: 0.8
+    smartphone:
+      PickAnAndroidForMe: 1.0
+      smartphones: 0.8
+      Android: 0.6
+    earbuds:
+      Earbuds: 1.0
+      HeadphoneAdvice: 0.9
+    headphones:
+      HeadphoneAdvice: 1.0
+      headphones: 0.9
+      BudgetAudiophile: 0.7
+    bluetooth_speaker:
+      audiophile: 0.6
+      JBL: 0.6
+      BudgetAudiophile: 0.7
+    television:
+      4kTV: 0.9
+      televisions: 0.9
+      OLED: 0.6
+    smartwatch:
+      smartwatch: 0.9
+      GalaxyWatch: 0.6
+      Garmin: 0.6

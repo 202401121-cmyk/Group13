@@ -48,6 +48,7 @@ from .pages import PageResult, ReviewPages
 from .queries import SearchQuery, build_queries, comparison_query, first_round, held_query, reddit_query
 from .reddit.base import FailureReason, RedditSource
 from .reddit.factory import build_reddit_source
+from .reddit.quality import ThreadScore
 from .reddit.settings import load_reddit_settings
 from .serper import SerperResult, SerperSource, host_is_under, host_of, shared_limiter, url_key
 from .settings import ResearchSettings, load_research_settings
@@ -145,6 +146,9 @@ class LiveResearchStage:
         self._usage = usage
         self._pool = pool
         self.last_report: ResearchReport | None = None
+        # For the CLI's --claims (US-13), and kept off the report, which the log reads and which holds no URL.
+        self.last_dropped_threads: tuple[ThreadScore, ...] = ()  # Reddit threads that scored too low
+        self.last_estimated_threads: frozenset[str] = frozenset()  # the URLs of those scored with an unknown value
 
     def fallback(self, inp: ResearchInput, ctx: StageContext, error: Exception) -> ResearchResult:
         return self.baseline.fallback(inp, ctx, error)
@@ -157,6 +161,8 @@ class LiveResearchStage:
         job = _Job(inp, ctx, settings, book.search(), pool, wiring)
         result = job.run()
         self.last_report = job.report(book)
+        self.last_dropped_threads = tuple(job.threads.dropped)
+        self.last_estimated_threads = job.threads.estimated
         _log_report(self.last_report)
         if wiring.client is not None and not job.unfinished:
             wiring.client.close()  # one that a worker still holds at the deadline is left for it to finish with

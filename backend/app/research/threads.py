@@ -1,4 +1,5 @@
-"""Reddit threads for the research stage (US-12): find them, merge near-duplicates, then read the top ones' comments.
+"""Reddit threads for the research stage (US-12): find them, merge near-duplicates, score them and drop the low scorers
+(US-13), then read the top ones' comments and score those.
 
 This runs on the fetch pool as two tasks, one after the other, and one request at a time, so waiting on an archive's
 rate limiter never fills the pool. Threads are published as soon as they are found, so a deadline during the comment
@@ -18,6 +19,7 @@ from app.contracts import Source
 
 from .dedupe import merge_near_duplicates
 from .reddit.base import FailureReason, RedditSource, RequestBudget
+from .reddit.quality import ThreadScore, load_quality_settings, score_comments, score_threads
 from .reddit.subreddits import subreddits_for
 from .settings import ResearchSettings
 from .usage import SearchUsage
@@ -56,6 +58,8 @@ class ThreadProgress:
         self._lock = threading.Lock()
         self.threads: list[Source] = []
         self.titles: list[tuple[str, str]] = []  # (thread URL, title) for all found, also those past the cap
+        self.dropped: list[ThreadScore] = []  # scored under the threshold (US-13)
+        self.estimated: frozenset[str] = frozenset()  # URLs of threads scored with an unknown count or date
         self.failures: list[FailureReason] = []
         self.finished = False
 
@@ -99,7 +103,12 @@ def find_threads(
         progress.finished = True
         return
     progress.titles = [(str(t.url), t.title) for t in found.sources]
-    progress.publish(merge_near_duplicates(found.sources)[: settings.max_reddit_threads])
+    # Sorted first, so which copy of a near-duplicate is kept never depends on the order they were listed in.
+    listed = sorted(found.sources, key=lambda t: t.id)
+    scored = score_threads(merge_near_duplicates(listed), category, load_quality_settings())
+    progress.dropped = scored.dropped
+    progress.estimated = frozenset(row.url for row in scored.scores if row.estimated)
+    progress.publish(scored.kept[: settings.max_reddit_threads])
 
 
 def read_comments(
@@ -115,14 +124,15 @@ def read_comments(
             return  # not finished: the stage reports the timeout, and keeps the threads
         try:
             read = reddit.with_comments(thread, depth=COMMENT_DEPTH, limit=COMMENTS_PER_THREAD, budget=budget)
+            scored = [score_comments(source, load_quality_settings()) for source in read.sources[:1]]
         except Exception as exc:  # one thread's comments must not lose the others (build rule 9)
             log.warning("research: reading a thread's comments failed: %s", type(exc).__name__)
             progress.add_failure("error")
             continue
         for problem in read.partial:
             progress.add_failure(problem.reason)
-        if read.sources:
-            progress.update(index, read.sources[0])
+        if scored:
+            progress.update(index, scored[0])
         elif read.failure is not None and read.failure.reason != "not_found":
             progress.add_failure(read.failure.reason)
     progress.finished = True

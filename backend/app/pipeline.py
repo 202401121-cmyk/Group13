@@ -47,6 +47,7 @@ from app.contracts import (
     ProductMention,
     ProductSummary,
     ProgressEvent,
+    RecommenderCount,
     ResearchInput,
     ResearchResult,
     SearchRequest,
@@ -69,6 +70,7 @@ from app.explain import ExplainStage
 from app.extract import default_extract_stage
 from app.llm.errors import AuthFailed, InvalidOutput, ProviderTimeout, RateLimited, ServerError
 from app.research import default_research_stage
+from app.research.reddit.recommenders import count_recommenders
 from app.research.retention import without_reddit_text
 from app.verify import VerifyStage
 
@@ -590,6 +592,9 @@ class _Search:
         self.claims: list[Claim] = []
         self.mentions: list[ProductMention] = []
         self.extract_note: str | None = None
+        self.recommender_counts: list[
+            RecommenderCount
+        ] = []  # counted after extract, from the products it found (US-13)
         self.match_out: MatchResult | None = None
         self.verify_out: VerifyResult | None = None
         self.enrich_out: EnrichResult | None = None
@@ -669,12 +674,26 @@ class _Search:
                 self.mentions += out.mentions
         collect_note = getattr(self.stages.extract, "coverage_note", None)
         self.extract_note = collect_note(self.ctx.search_id) if collect_note is not None else None
+        self.recommender_counts = self._counted_recommenders()
         if not done:
             return _skipped(StageName.EXTRACT, "the search stopped before any source was read")
         return _merge(StageName.EXTRACT, [report for _, report in done], int((monotonic() - started) * 1000))
 
+    def _counted_recommenders(self) -> list[RecommenderCount]:
+        """How many people name each product the run found, by code alone (US-13). Sample sources keep their own."""
+        research = _require(self.research_out, "research")
+        if self.sample_sources:
+            return list(research.recommender_counts)
+        try:
+            names = [mention.raw_name for mention in self.mentions if mention.is_product]
+            return count_recommenders(research.sources, names)
+        except Exception as exc:  # a bug here must not stop the search (build rule 9). The type only, never its text
+            log.warning("recommender counting failed: %s", type(exc).__name__)
+            return []
+
     def match(self) -> StageReport:
-        self.match_out, report = self._run(self.stages.match, MatchInput(mentions=self.mentions[:MAX_MENTIONS]))
+        inp = MatchInput(mentions=self.mentions[:MAX_MENTIONS], recommender_counts=self.recommender_counts)
+        self.match_out, report = self._run(self.stages.match, inp)
         return report
 
     def verify(self) -> StageReport:
