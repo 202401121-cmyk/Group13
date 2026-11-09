@@ -49,6 +49,9 @@ class CountingBudget(RequestBudget):
     def left(self) -> int:
         return self.usage.left(PROVIDER) if self._time_left() > 0 else 0
 
+    def time_left(self) -> float:
+        return self._time_left()
+
     def take(self) -> bool:
         if self._time_left() <= 0 or not self.usage.take(PROVIDER):
             return False

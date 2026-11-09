@@ -50,6 +50,7 @@ class ArcticShiftSource(ArchiveSource):
     comments_path = "/api/comments/search"
     lookup_path = "/api/posts/ids"
     rate_limit_statuses = frozenset({429, 422})
+    short_wait_statuses = frozenset({422})  # it comes often, and research's 36 seconds are better spent on comments
 
     def __init__(
         self,

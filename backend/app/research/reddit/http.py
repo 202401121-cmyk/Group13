@@ -1,9 +1,11 @@
 """One GET to a Reddit archive, with every limit applied (US-12). Shared by Arctic Shift and PullPush.
 
 In order: the search's request budget, the archive's circuit breaker, the app-wide interval limiter, then the
-request (10 s timeout, our User-Agent). A rate limit (HTTP 429, or Arctic Shift's 422 "slow down") waits for the
-archive's reset time, at most 30 seconds, and retries once. Nothing here raises: a failure comes back as a
-SourceFailure, and the archive's name and the HTTP status are the only details it carries.
+request (10 s timeout, our User-Agent). A rate limit (HTTP 429) waits for the archive's reset time, at most 30
+seconds, and retries once. Arctic Shift's 422 "slow down" comes often and can ask for 15 s, which would use up
+research's time, so it waits at most 5 seconds. Neither waits past research's deadline. After that the caller moves
+on, to the next subreddit for a listing. Nothing here raises: a failure comes back as a SourceFailure, and the archive's
+name and the HTTP status are the only details it carries.
 """
 
 from __future__ import annotations
@@ -25,6 +27,8 @@ from .settings import REQUEST_TIMEOUT_S, archive_user_agent
 log = logging.getLogger(__name__)
 
 MAX_RESET_WAIT_S = 30.0
+SHORT_RESET_WAIT_S = 5.0  # for the statuses in short_wait_statuses
+REPLY_MARGIN_S = 1.0  # less than this left after a wait, and the retry's reply would come too late to use
 DEFAULT_RETRY_WAIT_S = 2.0  # when a rate-limited reply gives no reset time
 
 
@@ -32,6 +36,7 @@ DEFAULT_RETRY_WAIT_S = 2.0  # when a rate-limited reply gives no reset time
 class Fetched:
     items: list[dict[str, Any]] = field(default_factory=list)
     failure: SourceFailure | None = None
+    still_answering: bool = False  # it refused, but it is up: this says nothing against it to the breaker
 
 
 class ArchiveHttp:
@@ -44,6 +49,7 @@ class ArchiveHttp:
         breaker: CircuitBreaker,
         *,
         rate_limit_statuses: frozenset[int] = frozenset({429}),
+        short_wait_statuses: frozenset[int] = frozenset(),
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
         self.label = label
@@ -52,6 +58,7 @@ class ArchiveHttp:
         self.limiter = limiter
         self.breaker = breaker
         self.rate_limit_statuses = rate_limit_statuses
+        self.short_wait_statuses = short_wait_statuses
         self._sleep = sleep
         self._headers = {"User-Agent": archive_user_agent(), "Accept": "application/json"}
 
@@ -63,7 +70,7 @@ class ArchiveHttp:
         if not self.breaker.allow():
             return Fetched(failure=failure("error", f"{self.label} is paused after repeated failures"))
         result = self._send(path, params, budget)
-        if result.failure is None or result.failure.reason == "not_found":
+        if result.failure is None or result.failure.reason == "not_found" or result.still_answering:
             self.breaker.record_success()  # the archive answered
         else:
             self.breaker.record_failure()
@@ -86,13 +93,25 @@ class ArchiveHttp:
                 return Fetched(failure=failure("error", f"{self.label}: request failed ({type(exc).__name__})"))
             status = response.status_code
             if status in self.rate_limit_statuses:
-                wait = reset_wait(response.headers)
-                if attempt == 1 and wait <= MAX_RESET_WAIT_S:
+                wait = self._wait_for(status, response.headers)
+                if (
+                    attempt == 1
+                    and wait is not None
+                    and (budget is None or wait + REPLY_MARGIN_S <= budget.time_left())
+                ):
                     self._sleep(wait)
                     continue
-                return Fetched(failure=failure("rate_limited", f"{self.label}: HTTP {status} (rate limited)"))
+                refused = failure("rate_limited", f"{self.label}: HTTP {status} (rate limited)")
+                return Fetched(failure=refused, still_answering=status in self.short_wait_statuses)
             return self._read(response)
         raise AssertionError("unreachable")  # pragma: no cover
+
+    def _wait_for(self, status: int, headers: httpx.Headers) -> float | None:
+        """How long to wait before the retry, or None if it asks for too long to be worth waiting."""
+        asked = reset_wait(headers)
+        if status in self.short_wait_statuses:
+            return min(asked, SHORT_RESET_WAIT_S)
+        return asked if asked <= MAX_RESET_WAIT_S else None
 
     def _read(self, response: httpx.Response) -> Fetched:
         status = response.status_code

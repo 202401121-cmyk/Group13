@@ -16,6 +16,9 @@ from app.research.reddit import IntervalLimiter, RequestBudget
 from app.research.reddit.archive import comment_depth
 from app.research.reddit.arctic_shift import COVERAGE_NOTE, ArcticShiftSource
 from app.research.reddit.cache import RedditCache
+from app.research.settings import ProviderCap
+from app.research.threads import CountingBudget
+from app.research.usage import UsageBook
 from tests.fakes.reddit import NOW, Archive, Clock, fixture, ok
 
 POSTS = "/api/posts/search"
@@ -211,18 +214,153 @@ def test_failures_are_reported_never_raised(answer: Exception | httpx.Response, 
 # --- rate limits, the limiter, the breaker and the budget ------------------------------------------
 
 
-@pytest.mark.parametrize("status", [429, 422])
-def test_a_rate_limit_waits_for_the_reset_and_retries_once(status: int) -> None:
+def test_a_rate_limit_waits_for_the_reset_and_retries_once() -> None:
     clock = Clock()
-    limited = httpx.Response(
-        status, headers={"X-RateLimit-Reset": "7"}, json={"error": "Timeout. Maybe slow down a bit"}
-    )
+    limited = httpx.Response(429, headers={"X-RateLimit-Reset": "7"}, json={"error": "Slow down"})
     archive = Archive().on(POSTS, limited, ok(fixture("arctic_shift_posts.json")))
     budget = RequestBudget(10)
     result = _source(archive, clock=clock).search_threads("laptop", ["SuggestALaptop"], budget=budget)
     assert result.failure is None and len(result.sources) == 2
     assert len(archive.requests) == 2 and budget.used == 2  # the retry is a request too
     assert 7.0 in clock.slept
+
+
+def test_a_429_still_waits_up_to_30_seconds() -> None:
+    clock = Clock()
+    limited = httpx.Response(429, headers={"X-RateLimit-Reset": "30"})
+    archive = Archive().on(POSTS, limited, ok(fixture("arctic_shift_posts.json")))
+    assert _source(archive, clock=clock).search_threads("laptop", ["SuggestALaptop"]).failure is None
+    assert 30.0 in clock.slept
+
+
+def _slow_down(reset: str = "15") -> httpx.Response:
+    return httpx.Response(422, headers={"X-RateLimit-Reset": reset}, json={"error": "Timeout. Maybe slow down a bit"})
+
+
+def test_a_422_waits_at_most_5_seconds_however_long_it_asks() -> None:
+    clock = Clock()
+    archive = Archive().on(POSTS, _slow_down("15"), ok(fixture("arctic_shift_posts.json")))
+    result = _source(archive, clock=clock).search_threads("laptop", ["SuggestALaptop"])
+    assert result.failure is None and len(archive.requests) == 2
+    assert 5.0 in clock.slept
+    assert 15.0 not in clock.slept
+    assert max(clock.slept) == 5.0
+
+
+def test_a_422_asking_for_more_than_30_seconds_still_gets_its_5() -> None:
+    clock = Clock()
+    archive = Archive().on(POSTS, _slow_down("45"), ok(fixture("arctic_shift_posts.json")))
+    assert _source(archive, clock=clock).search_threads("laptop", ["SuggestALaptop"]).failure is None
+    assert max(clock.slept) == 5.0
+
+
+def test_a_422_that_asks_for_less_waits_only_that_long() -> None:
+    clock = Clock()
+    archive = Archive().on(POSTS, _slow_down("3"), ok(fixture("arctic_shift_posts.json")))
+    _source(archive, clock=clock).search_threads("laptop", ["SuggestALaptop"])
+    assert 3.0 in clock.slept
+    assert 5.0 not in clock.slept
+
+
+def test_a_422_is_retried_once_then_the_next_subreddit_is_tried() -> None:
+    clock = Clock()
+    archive = Archive().on(POSTS, _slow_down(), _slow_down(), ok(fixture("arctic_shift_posts.json")))
+    budget = RequestBudget(10)
+    result = _source(archive, clock=clock).search_threads("laptop", ["SuggestALaptop", "laptops"], budget=budget)
+    asked = [request.url.params["subreddit"] for request in archive.requests]
+    assert asked == ["SuggestALaptop", "SuggestALaptop", "laptops"]
+    assert budget.used == 3
+    assert len(result.sources) == 2  # the next subreddit answered
+    assert result.failure is None
+    assert [problem.reason for problem in result.partial] == ["rate_limited"]  # and the lost one is named
+    assert max(clock.slept) == 5.0
+
+
+def _timed_budget(seconds_left: float) -> RequestBudget:
+    book = UsageBook({"reddit_archive": ProviderCap(per_search=14, per_day=500)}, path=None)
+    return CountingBudget(book.search(), lambda: seconds_left)
+
+
+def test_a_422_wait_stays_inside_the_deadline() -> None:
+    """With 3 seconds left, 5 seconds of waiting would outlast research: it moves on at once."""
+    clock = Clock()
+    archive = Archive().on(POSTS, _slow_down(), ok(fixture("arctic_shift_posts.json")))
+    budget = _timed_budget(3.0)
+    result = _source(archive, clock=clock).search_threads("laptop", ["SuggestALaptop", "laptops"], budget=budget)
+    asked = [request.url.params["subreddit"] for request in archive.requests]
+    assert asked == ["SuggestALaptop", "laptops"]
+    assert 5.0 not in clock.slept
+    assert len(result.sources) == 2
+
+
+def test_a_wait_leaves_time_for_the_reply() -> None:
+    """With 5.5 seconds left, a 5 second wait would leave too little for the retry to be answered."""
+    clock = Clock()
+    archive = Archive().on(POSTS, _slow_down(), ok(fixture("arctic_shift_posts.json")))
+    _source(archive, clock=clock).search_threads("laptop", ["SuggestALaptop"], budget=_timed_budget(5.5))
+    assert 5.0 not in clock.slept
+    assert len(archive.requests) == 1
+
+
+def test_422s_never_pause_the_archive() -> None:
+    """A slow-down means the archive is up. Three lost subreddits must not stop the fourth, or the comments."""
+    clock = Clock()
+    archive = Archive().on(POSTS, _slow_down())
+    source = _source(archive, clock=clock)
+    names = ["SuggestALaptop", "laptops", "GamingLaptops", "thinkpad"]
+    result = source.search_threads("laptop", names, budget=RequestBudget(20))
+    asked = [request.url.params["subreddit"] for request in archive.requests]
+    assert asked == [name for name in names for _ in range(2)]  # each asked twice, and none skipped
+    assert source.breaker.state == "closed"
+    assert result.failure is not None and result.failure.reason == "rate_limited"
+
+
+def test_a_422_also_ends_a_half_open_trial() -> None:
+    """After an outage the one trial request gets a 422: the archive is up, so the trial isn't left hanging."""
+    clock = Clock()
+    archive = Archive().on(
+        POSTS,
+        httpx.Response(503),
+        httpx.Response(503),
+        httpx.Response(503),
+        _slow_down(),
+        _slow_down(),
+        ok({"data": []}),
+    )
+    source = _source(archive, clock=clock)
+    for _ in range(3):
+        source.search_threads("laptop", ["laptops"])
+    assert source.breaker.state != "closed"
+    clock.now += 601
+    source.search_threads("laptop", ["laptops"])
+    assert source.breaker.state == "closed"
+    assert source.search_threads("laptop", ["laptops"]).failure is None
+
+
+def test_a_429_twice_still_counts_toward_the_pause() -> None:
+    clock = Clock()
+    archive = Archive().on(POSTS, httpx.Response(429, headers={"X-RateLimit-Reset": "1"}))
+    source = _source(archive, clock=clock)
+    for _ in range(3):
+        source.search_threads("laptop", ["laptops"])
+    assert source.breaker.state != "closed"
+
+
+def test_a_422_with_enough_time_left_does_wait() -> None:
+    clock = Clock()
+    archive = Archive().on(POSTS, _slow_down(), ok(fixture("arctic_shift_posts.json")))
+    budget = _timed_budget(6.0)
+    _source(archive, clock=clock).search_threads("laptop", ["SuggestALaptop"], budget=budget)
+    assert 5.0 in clock.slept
+
+
+def test_a_429_wait_stays_inside_the_deadline_too() -> None:
+    clock = Clock()
+    limited = httpx.Response(429, headers={"X-RateLimit-Reset": "20"})
+    archive = Archive().on(POSTS, limited, ok(fixture("arctic_shift_posts.json")))
+    _source(archive, clock=clock).search_threads("laptop", ["SuggestALaptop"], budget=_timed_budget(10.0))
+    assert 20.0 not in clock.slept
+    assert len(archive.requests) == 1
 
 
 def test_a_second_rate_limit_gives_up() -> None:

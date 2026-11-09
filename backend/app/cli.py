@@ -23,8 +23,9 @@ from __future__ import annotations
 import argparse
 import io
 import os
+import statistics
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from typing import Any
 
 from app import db
@@ -38,6 +39,7 @@ from app.contracts import (
     InterviewState,
     InterviewStep,
     InterviewTurn,
+    LLMCallRecord,
     MatchInput,
     MatchResult,
     Money,
@@ -58,7 +60,7 @@ from app.extract.tiers import tier_of
 from app.intake import EXAMPLE_REQUESTS
 from app.interview import QUICK_REPLIES
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
-from app.presearch import interview_turn, make_criteria, start_request
+from app.presearch import default_llm, interview_turn, make_criteria, start_request
 from app.research.reddit.quality import ThreadScore
 from app.research.stage import ResearchReport
 
@@ -149,6 +151,7 @@ def run(query: str, interactive: bool, store: db.RequestStore, show_claims: bool
         dropped: tuple[ThreadScore, ...] = getattr(stages.research, "last_dropped_threads", ())
         estimated: frozenset[str] = getattr(stages.research, "last_estimated_threads", frozenset())
         print(reddit_block(result.sources, dropped, sees_counts.counts, estimated, salt_set=salt_is_set()))
+        print(llm_summary(getattr(getattr(default_llm(), "call_log", None), "records", ())))
     return 0
 
 
@@ -290,6 +293,30 @@ def claims_block(
 
 
 NO_SALT = "REDDIT_USER_SALT is not set"
+
+
+def llm_summary(records: Iterable[LLMCallRecord]) -> str:
+    """Per provider: the calls that really went out, their median and slowest time, timeouts and 429s. Numbers only.
+
+    A call our own limits refused has no input tokens, as it never went out: it isn't a call, or a provider's 429.
+    """
+    sent: dict[str, list[LLMCallRecord]] = {}
+    for record in records:
+        if record.input_tokens > 0:
+            sent.setdefault(record.provider.value, []).append(record)
+    lines = ["\nLLM calls per provider:"]
+    if not sent:
+        return "\n".join([*lines, "  No LLM calls went out."])
+    lines.append(f"  {'provider':<12} {'calls':>5} {'median':>8} {'slowest':>8} {'timeouts':>8} {'429s':>5}")
+    for provider, rows in sorted(sent.items()):
+        times = [row.duration_ms / 1000 for row in rows]
+        timeouts = sum(row.outcome == "timeout" for row in rows)
+        limited = sum(row.outcome == "rate_limited" for row in rows)
+        median = f"{statistics.median(times):.1f} s"
+        lines.append(
+            f"  {provider:<12} {len(rows):>5} {median:>8} {f'{max(times):.1f} s':>8} {timeouts:>8} {limited:>5}"
+        )
+    return "\n".join(lines)
 
 
 def salt_is_set() -> bool:

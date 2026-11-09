@@ -95,9 +95,19 @@ class Relevance(BaseModel):
     categories: dict[str, dict[str, Annotated[float, Field(ge=0, le=1)]]] = Field(default_factory=dict)
 
 
+class CountingWords(BaseModel):
+    """What the recommender counts skip: a name made only of these words is not a product of its own."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    brands: tuple[str, ...] = ()
+    generic_words: tuple[str, ...] = ()
+
+
 class QualitySettings(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
+    counting: CountingWords = Field(default_factory=CountingWords)
     half_life_days: float = Field(default=180, gt=0)
     thread: ThreadWeights = Field(default_factory=ThreadWeights)
     comment: CommentWeights = Field(default_factory=CommentWeights)

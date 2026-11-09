@@ -109,6 +109,10 @@ class RequestBudget:
     def left(self) -> int:
         return max(0, self.max_requests - self.used)
 
+    def time_left(self) -> float:
+        """Seconds until the search stops listening. A bare budget has no deadline."""
+        return float("inf")
+
     def take(self) -> bool:
         with self._lock:
             if self.used >= self.max_requests:
