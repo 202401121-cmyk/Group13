@@ -1,0 +1,16 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "The MacBook is fine."
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "MacBook",
+        "is_product": true
+      }
+    ],
+    "claims": []
+  }
+}

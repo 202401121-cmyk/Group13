@@ -1,0 +1,19 @@
+{
+  "kind": "specific",
+  "given": {
+    "request": "blue plastic kids garden water spray toy"
+  },
+  "outcome": "canonical",
+  "object": {
+    "raw_query": "blue plastic kids garden water spray toy",
+    "detected_by": "llm",
+    "needs_clarification": true,
+    "clarification_question": "What kind of product are you looking for?",
+    "clarification_options": [
+      "Smartphone",
+      "Laptop",
+      "Mixer grinder",
+      "Smartwatch"
+    ]
+  }
+}

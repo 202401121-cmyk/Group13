@@ -1,0 +1,26 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "A laptop like this is rare. Nova Book 14 scored 8 out of 10 for battery_life in our tests."
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "laptop",
+        "is_product": false
+      }
+    ],
+    "claims": [
+      {
+        "product_mention": "laptop",
+        "criterion_key": "battery_life",
+        "score": 8.0,
+        "quote": "A laptop like this is rare.",
+        "claim_type": "experience",
+        "polarity": "positive",
+        "is_product_type": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "kind": "out_of_range",
+  "outcome": "canonical",
+  "object": {
+    "raw_query": "gaming laptop under 80k with at least 16 GB RAM, no HP",
+    "detected_by": "llm",
+    "category": "laptop",
+    "category_label": "Laptop",
+    "budget": {
+      "max": {
+        "amount": 80000.0
+      }
+    },
+    "hard_rules": [
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      },
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM"
+      }
+    ]
+  }
+}

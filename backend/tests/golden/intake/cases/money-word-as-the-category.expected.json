@@ -1,0 +1,18 @@
+{
+  "kind": "specific",
+  "given": {
+    "request": "tv under 1.5 lakh"
+  },
+  "outcome": "canonical",
+  "object": {
+    "raw_query": "tv under 1.5 lakh",
+    "detected_by": "llm",
+    "category": "television",
+    "category_label": "Television",
+    "budget": {
+      "max": {
+        "amount": 150000.0
+      }
+    }
+  }
+}

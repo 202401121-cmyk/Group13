@@ -1,0 +1,5 @@
+{
+  "kind": "trailing_comma",
+  "outcome": "fallback",
+  "fallback": "keyword_rules"
+}

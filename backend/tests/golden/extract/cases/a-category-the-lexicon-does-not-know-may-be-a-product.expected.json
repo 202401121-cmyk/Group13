@@ -1,0 +1,17 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "The Kindle is fine.",
+    "category": "kindle"
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "Kindle",
+        "is_product": true
+      }
+    ],
+    "claims": []
+  }
+}

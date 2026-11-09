@@ -1,0 +1,25 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "I would rank the Nova Book 14 first for battery_life."
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "Nova Book 14",
+        "is_product": true
+      }
+    ],
+    "claims": [
+      {
+        "product_mention": "Nova Book 14",
+        "criterion_key": "battery_life",
+        "score": 8.0,
+        "quote": "I would rank the Nova Book 14 first for battery_life.",
+        "claim_type": "experience",
+        "polarity": "positive"
+      }
+    ]
+  }
+}

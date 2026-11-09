@@ -1,0 +1,13 @@
+{
+  "kind": "specific",
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "Nova Book 14",
+        "is_product": true
+      }
+    ],
+    "claims": []
+  }
+}

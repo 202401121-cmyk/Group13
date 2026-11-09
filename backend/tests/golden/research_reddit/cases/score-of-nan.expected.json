@@ -1,0 +1,12 @@
+{
+  "kind": "specific",
+  "outcome": "canonical",
+  "object": {
+    "items": [
+      {
+        "id": "abc123",
+        "subreddit": "laptops"
+      }
+    ]
+  }
+}

@@ -17,6 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 
 from app.contracts import CriteriaInput, CriteriaSet, Criterion, Direction
 from app.contracts.criteria import VAGUE_CRITERIA
+from app.llm.output import looks_like_instruction
 
 from .fallback import fallback_criteria
 
@@ -37,11 +38,6 @@ VAGUE_WORDS = {
     *("feature", "features", "design", "designs", "look", "looks", "brand", "brands"),
     *("spec", "specs", "specification", "specifications"),
 }
-_INJECTION = re.compile(
-    r"ignore\s+(?:all\s+|any\s+|the\s+)?(?:previous|prior|above|earlier)\s+(?:instructions|rules|prompts?)"
-    r"|disregard\s+(?:all\s+|the\s+)?(?:previous|prior|above)|system\s+prompt|you\s+are\s+now",
-    re.IGNORECASE,
-)
 _ALIASES = {"name": "label", "description": "definition", "weight": "default_weight", "importance": "default_weight"}
 
 
@@ -79,7 +75,10 @@ class RawCriterion(BaseModel):
         if isinstance(value, bool):
             return None
         if isinstance(value, int | float):
-            return float(value)
+            try:
+                return float(value)
+            except OverflowError:
+                return math.inf  # too big to be a weight, so cleaning drops this criterion and no other
         if isinstance(value, str):
             try:
                 return float(value.strip())
@@ -169,8 +168,8 @@ def _clean_one(item: RawCriterion) -> Criterion | None:
     definition = item.definition or ""
     if len(definition.split()) < MIN_DEFINITION_WORDS or len(definition) > MAX_DEFINITION_CHARS:
         return _drop(f"{key} has a missing, too-short or too-long definition")
-    if _INJECTION.search(definition) or _INJECTION.search(item.label or ""):
-        return _drop(f"{key} reads like an instruction, not a definition")
+    if any(looks_like_instruction(text) for text in (definition, item.label or "", key.replace("_", " "))):
+        return _drop("a criterion reads like an instruction, not a definition")
 
     weight = DEFAULT_WEIGHT if item.default_weight is None else item.default_weight
     if not (math.isfinite(weight) and 0 <= weight <= 10):

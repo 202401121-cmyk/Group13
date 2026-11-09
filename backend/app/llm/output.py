@@ -25,6 +25,15 @@ M = TypeVar("M", bound=BaseModel)
 
 JSON_INSTRUCTION = "Reply with only a JSON object that matches this JSON schema, and no other text:"
 
+# Words that only make sense as an order to a model, in a field that should hold a name or a description.
+_INSTRUCTION = re.compile(
+    r"ignore\s+(?:all\s+|any\s+|the\s+)?(?:previous|prior|above|earlier)\s+(?:instructions|rules|prompts?)"
+    r"|disregard\s+(?:all\s+|the\s+)?(?:previous|prior|above)|system\s+prompt|you\s+are\s+now"
+    r"|\b(?:always|must|should|please)\s+(?:\w+\s+){0,2}?rank\b.{0,60}\bfirst\b(?!-)"
+    r"|^\s*rank\b.{0,60}\bfirst\b(?!-)",
+    re.IGNORECASE,
+)
+
 _FENCE = re.compile(r"```[A-Za-z]*[ \t]*\n?(.*?)```", re.DOTALL)
 _WHOLE_FENCE = re.compile(r"```[A-Za-z]*[ \t]*\n?(.*)```", re.DOTALL)
 
@@ -32,6 +41,10 @@ _WHOLE_FENCE = re.compile(r"```[A-Za-z]*[ \t]*\n?(.*)```", re.DOTALL)
 RETRIEVED_TEXT_TASKS: frozenset[LLMTask] = frozenset(
     {LLMTask.EXTRACT_CLAIMS, LLMTask.DISCOVER_ALIASES, LLMTask.ENRICH_EXTRACT, LLMTask.WRITE_EXPLANATION}
 )
+
+
+def looks_like_instruction(text: str) -> bool:
+    return _INSTRUCTION.search(text) is not None
 
 
 def build_system_prompt(system: str, schema: type[BaseModel]) -> str:
@@ -56,7 +69,7 @@ def _find_object(text: str, strict: bool) -> dict[str, Any]:
     for candidate in _whole_reply(text.strip()) if strict else _candidates(text.strip()):
         try:
             value = json.loads(candidate)
-        except json.JSONDecodeError:
+        except (ValueError, RecursionError):  # not JSON, a number too long to read, or nested too deep to read
             continue
         if isinstance(value, dict):
             return value

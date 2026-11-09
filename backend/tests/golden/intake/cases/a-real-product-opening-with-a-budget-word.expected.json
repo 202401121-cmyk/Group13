@@ -1,0 +1,13 @@
+{
+  "kind": "specific",
+  "given": {
+    "request": "under desk treadmill"
+  },
+  "outcome": "canonical",
+  "object": {
+    "raw_query": "under desk treadmill",
+    "detected_by": "llm",
+    "category": "under_desk_treadmill",
+    "category_label": "Under desk treadmill"
+  }
+}

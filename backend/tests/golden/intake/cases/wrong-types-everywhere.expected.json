@@ -1,0 +1,5 @@
+{
+  "kind": "wrong_types",
+  "outcome": "fallback",
+  "fallback": "keyword_rules"
+}

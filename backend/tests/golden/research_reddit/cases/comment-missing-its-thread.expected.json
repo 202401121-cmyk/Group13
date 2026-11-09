@@ -1,0 +1,8 @@
+{
+  "kind": "specific",
+  "given": {
+    "model": "comment"
+  },
+  "outcome": "fallback",
+  "fallback": "items_skipped"
+}
