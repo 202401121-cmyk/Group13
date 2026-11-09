@@ -32,6 +32,7 @@ class FakeCall:
     search_id: str | None
     data_class: DataClass
     difficulty: Difficulty
+    max_output_tokens: int = 1024
 
 
 class FakeLLMClient:
@@ -53,7 +54,9 @@ class FakeLLMClient:
         search_id: str | None = None,
         max_output_tokens: int = 1024,
     ) -> T:
-        self.calls.append(FakeCall(task, system, user, schema.__name__, search_id, data_class, difficulty))
+        self.calls.append(
+            FakeCall(task, system, user, schema.__name__, search_id, data_class, difficulty, max_output_tokens)
+        )
         if task not in self.canned:
             raise LLMUnavailable(f"fake: no canned answer for {task.value}")
         answer = self.canned[task]

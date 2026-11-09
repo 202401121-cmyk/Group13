@@ -51,7 +51,14 @@ class Row:
 
 
 def check(settings: ProviderSettings, model: str, key: str, http: httpx.Client) -> Row:
-    adapter = OpenAICompatibleAdapter(settings.name, settings.base_url, key, http, json_mode=settings.json_mode)
+    adapter = OpenAICompatibleAdapter(
+        settings.name,
+        settings.base_url,
+        key,
+        http,
+        json_mode=settings.json_mode,
+        reasoning_effort=settings.reasoning_effort,
+    )
     name, trains = settings.name.value, _yes_no(settings.trains_on_inputs)
     started = monotonic()
     try:

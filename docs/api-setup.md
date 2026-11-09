@@ -119,8 +119,30 @@ fixtures repeated up to `MAX_SOURCE_CHARS`:
 2,000 for shoppers' calls. An intake call plans about 1,700.
 
 The pool counts planned tokens, so each member takes one full-size source a minute, and the pool about 3, although
-6 would fit as really used. Smaller sources or a smaller output request fit more: two calls fit a member's minute
-once each plans 4,000 tokens or fewer.
+6 would fit as really used.
+
+Extraction (US-14) asks for 1,200 tokens of output on Reddit calls, for the reply and the thinking the reasoning models do
+first. A thread near its prompt's limits (10 claims and 15 mentions) can still be cut off, but asking for more would stop a
+full-size source fitting a member's minute. It keeps 2,000 of each member's 8,000 free for shoppers, so a member has 6,000
+for it. With a laptop's 8 criteria in the prompt:
+
+| Source | Planned | Per member | Pool, per minute | In 18,000 |
+|---|---|---|---|---|
+| Full size (3,000 tokens) | 5,697 | 1 | **3** | 3.2 |
+| Short thread (250 tokens, with its title) | about 2,960 | 2 | 6 | 6 |
+
+A smaller output request can't lift the full-size number. Two calls would need 3,000 each, and the input estimate alone
+is about 4,500. So a search reads 3 full threads or about 6 short ones, of the 20 or so research finds. Keeping the
+minute's count at what each call really used would fit about twice as many, if Groq counts its own limit that way.
+
+In live runs on short threads (9 November 2026), `openai/gpt-oss-120b` and `qwen/qwen3.8-27b` answered in 391 to 783
+tokens. `openai/gpt-oss-20b` used all 1,200 on the same kind of thread, so its replies were cut off and that source was
+lost.
+
+Public calls aren't booked against the pool, so they ask for 2,000. A live reply used 566 on 15 mentions alone. Gemini's
+thinking is off (`reasoning_effort: "none"` in models.yaml), because it counts against the output limit: on a public page
+with a 1,577-token prompt and a limit of 1,200, thinking used 1,245 tokens and the reply was cut off at 43. With it off, the
+same call stopped normally at 566 tokens, in 5 seconds. The longest reply seen with it off was 1,147 tokens.
 
 ### Run the LLM smoke test
 
@@ -373,16 +395,20 @@ Each Groq text model is a member of the pool with its own limits. Read from
   hangs. httpx applies a timeout to each phase of a request, so a slow connection can make an attempt run a little over.
   No call starts in the last second. If no member can take it by then, it raises `LLMUnavailable` and the stage uses
   its fallback.
-- **One call's size:** input is fitted to the member's tokens a minute as well as its window, because a bigger call
-  could never get a slot. Text too long for that is trimmed to one call, not chunked, because chunks over a minute's
+- **One call's size:** input is fitted to the member's tokens a minute (less the reserve, for bulk work) as well as its
+  window, because a bigger call could never get a slot. Text too long for that is trimmed to one call, not chunked, because chunks over a minute's
   tokens couldn't all go out before the stage's limit. Callers put the most important text first, so the
   lowest-ranked comments go.
 - **Daily budget:** a call's planned tokens are held before it runs, then swapped for what it really used, so
   calls running together can't pass the budget. This covers provider budgets too. The count is in memory, per UTC day.
-- **Reddit budget:** `reddit_tokens_per_search` is what a search's Reddit extraction should plan to use, for US-14 to
-  keep to. See [Last measured](#last-measured-7-november-2026).
-- **No priority for shoppers:** the pool shares each minute between all calls. A search using a member's whole minute
-  leaves a shopper's next call on the other members, or on its fallback.
+- **Reddit budget:** the extract stage keeps a search's planned Reddit tokens within `reddit_tokens_per_search`. A thread
+  past it is skipped with no call, and the coverage note says how many. See
+  [Last measured](#last-measured-7-november-2026).
+- **Room for shoppers:** bulk work never takes a member below `extract_reserve_tokens_per_minute` (2,000) of its current
+  minute, so intake and reply parsing, which plan about 1,700, always find room. Extraction waits inside its 15-second
+  limit, or skips the source with a coverage note. A call a shopper waits on may use the reserve.
+- **Sources per search:** `max_sources_per_search` in `config/extract.yaml` (40) limits how many sources one search sends
+  to a model. `EXTRACT_MAX_SOURCES` overrides it, for a live run with a small budget.
 
 A member's limits sit in `pool:`, not on its `models:` row, because that row is the `ModelLimits` contract.
 
@@ -406,7 +432,7 @@ When a provider's terms change, update its flag, `terms_url` and `terms_checked`
 | `app/intake/stage.py` | `detect_intent` | the shopper's request and their reply to our question | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | category label and the shopper's use case | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | only a category label from our lexicon (no use case) | public | short |
-| `app/extract/stage.py` (not wired in until P10) | `extract_claims` | one source's retrieved text, and our own criterion keys | reddit for Reddit, otherwise public | long |
+| `app/extract/stage.py` | `extract_claims` | one source's retrieved text. Criterion keys and the category label from our config in every call; any others, which may hold the shopper's words, in Reddit calls only | reddit for Reddit, otherwise public | long |
 
 `detect_intent`, `classify_reply`, `answer_user_question`, `write_question` and `write_explanation` always carry
 the shopper's words, so the wrapper refuses any class but private for them (`PERSONAL_TASKS`). A new call site

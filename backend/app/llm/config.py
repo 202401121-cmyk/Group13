@@ -37,6 +37,10 @@ class ProviderSettings(BaseModel):
     terms_url: str
     terms_checked: date
     # Limits we hold ourselves to (US-46). None = no limit of our own; the provider's limits still apply.
+    reasoning_effort: str | None = Field(
+        default=None,
+        description="Sent as is. Thinking counts against a model's output limit, so a long think can cut off",
+    )
     json_mode: bool = Field(default=False, description="Send response_format json_object (Mistral supports it)")
     requests_per_second: float | None = Field(default=None, gt=0)
     tokens_per_minute: int | None = Field(default=None, gt=0)
@@ -79,7 +83,10 @@ class PoolSettings(BaseModel):
 
     limits_url: str
     limits_checked: date
-    reddit_tokens_per_search: int = Field(gt=0, description="What a search's Reddit extraction should plan to use")
+    reddit_tokens_per_search: int = Field(gt=0, description="What a search's Reddit extraction may plan to use")
+    extract_reserve_tokens_per_minute: int = Field(
+        default=0, ge=0, description="What bulk work must leave of each member's minute, for calls a shopper waits on"
+    )
     members: list[PoolMember] = Field(min_length=1)
 
     @property
@@ -158,7 +165,7 @@ class LLMConfig(BaseModel):
                     raise ValueError(f"route {where} names an unavailable provider: {unavailable}")
 
     def _check_pool(self, known_models: set[tuple[Provider, str]]) -> None:
-        """Every member is a real model row, listed once, and the Reddit budget fits a minute of the whole pool."""
+        """Every member is a real model, listed once. The reserve leaves room, and the Reddit budget fits above it."""
         members = [(m.provider, m.model) for m in self.pool.members]
         unknown = sorted(f"{p.value}/{m}" for p, m in members if (p, m) not in known_models)
         if unknown:
@@ -167,6 +174,11 @@ class LLMConfig(BaseModel):
             raise ValueError("each pool member may appear only once")
         if self.pool.reddit_tokens_per_search > self.pool.combined_tokens_per_minute:
             raise ValueError("reddit_tokens_per_search must fit in one minute of the pool's combined token rate")
+        reserve = self.pool.extract_reserve_tokens_per_minute
+        if any(m.tokens_per_minute <= reserve for m in self.pool.members):
+            raise ValueError("extract_reserve_tokens_per_minute must leave every pool member room for bulk work")
+        if self.pool.reddit_tokens_per_search > sum(m.tokens_per_minute - reserve for m in self.pool.members):
+            raise ValueError("reddit_tokens_per_search must fit in the pool's minute above the reserve")
 
     def chain(self, data_class: DataClass, difficulty: Difficulty) -> list[Provider]:
         """The providers to try, in order, for one kind of call."""

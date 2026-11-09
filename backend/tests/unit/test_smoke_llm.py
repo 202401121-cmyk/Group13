@@ -45,6 +45,18 @@ def test_mistral_is_checked_in_json_mode_and_marked_as_training() -> None:
     assert str(seen[0].url) == "https://api.mistral.ai/v1/chat/completions"
 
 
+def test_a_provider_is_checked_with_its_reasoning_setting() -> None:
+    """This script says it uses the app's settings. If Gemini ever refuses the app's setting, it must show here."""
+    seen: list[httpx.Request] = []
+    reply = {
+        "choices": [{"message": {"content": '{"ok": true}'}}],
+        "usage": {"prompt_tokens": 9, "completion_tokens": 4},
+    }
+    settings = load_llm_config().provider(Provider.GEMINI)
+    check(settings, "gemini-3.5-flash", FAKE_KEY, _http(seen, httpx.Response(200, json=reply)))
+    assert json.loads(seen[0].content)["reasoning_effort"] == "none"
+
+
 def test_a_failing_provider_is_reported_without_its_key() -> None:
     http = _http([], httpx.Response(401, text=f"bad key {FAKE_KEY}"))
     row = check(load_llm_config().provider(Provider.GROQ), "openai/gpt-oss-120b", FAKE_KEY, http)

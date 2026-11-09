@@ -198,6 +198,30 @@ def test_json_mode_asks_for_a_json_object() -> None:
     assert body["model"] == "ministral-8b-latest"
 
 
+def test_a_reasoning_setting_is_sent_when_set() -> None:
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, json=_completion('{"ok": true}'))
+
+    http = httpx.Client(transport=httpx.MockTransport(handler))
+    adapter = OpenAICompatibleAdapter(Provider.GEMINI, BASE_URL, FAKE_KEY, http, reasoning_effort="none")
+    adapter.call("gemini-3.5-flash", "be brief", "hello", max_output_tokens=64, timeout_s=5)
+    assert json.loads(seen[0].content)["reasoning_effort"] == "none"
+
+
+def test_without_a_reasoning_setting_none_is_sent() -> None:
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, json=_completion('{"ok": true}'))
+
+    _call(_adapter(handler))
+    assert "reasoning_effort" not in json.loads(seen[0].content)
+
+
 def test_without_json_mode_no_response_format_is_sent() -> None:
     seen: list[httpx.Request] = []
 

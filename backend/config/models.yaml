@@ -30,7 +30,10 @@ providers:
     terms_url: https://console.groq.com/docs/your-data
     terms_checked: 2026-11-03
   # Unpaid services: prompts may be used to improve Google's products and machine learning, and people may read them.
+  # Thinking off: it counts against the output limit. On a public page in a live check (9 Nov 2026) with a limit of 1,200,
+  # thinking used 1,245 tokens, and the reply was cut off at 43. Off, the same call stopped normally at 566, in 5 s.
   - name: gemini
+    reasoning_effort: "none"
     base_url: https://generativelanguage.googleapis.com/v1beta/openai
     api_key_env: GEMINI_API_KEY
     request_timeout_s: 30
@@ -154,8 +157,10 @@ routes:
 # Each member paces itself to its own limits, so a call waits for a slot instead of earning a 429. The token count is
 # the input the wrapper measures plus the requested output, so one call can never be bigger than tokens_per_minute.
 # Run `python -m scripts.smoke_apis --only groq`: if the API's headers differ from these numbers, the headers win.
-# reddit_tokens_per_search: what a search's Reddit extraction should plan to use, for US-14 to keep to. It fits in about
-# one minute of the pool's combined token rate, with room left for shoppers' calls on the same models.
+# reddit_tokens_per_search: what a search's Reddit extraction may plan to use. The extract stage keeps to it (US-14), and
+# skips the Reddit sources past it. It fits in about one minute of the pool's combined token rate, above the reserve.
+# extract_reserve_tokens_per_minute: what bulk work must leave of each member's minute (US-14), so intake and reply
+# parsing, which plan about 1,700, always find room. Extraction waits inside its stage limit, or skips the source.
 # 7 Nov 2026: a full source used 3,216 tokens and the wrapper planned 5,129, so 18,000 is about 3 full-size sources
 # as the pool counts them. It is 75% of the 24,000 a minute. Re-measure with
 # `python -m scripts.smoke_apis --measure-extraction`.
@@ -163,6 +168,7 @@ pool:
   limits_url: https://console.groq.com/docs/rate-limits
   limits_checked: 2026-11-07
   reddit_tokens_per_search: 18000
+  extract_reserve_tokens_per_minute: 2000
   members:
     - provider: groq
       model: openai/gpt-oss-120b

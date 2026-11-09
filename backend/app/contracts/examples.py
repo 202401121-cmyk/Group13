@@ -208,6 +208,17 @@ _SOURCE_TEXT = {
 }
 
 
+def _lines_quoted_from(key: str) -> list[str]:
+    """What the example claims quote from this source, so each quote is word for word in its text (build rule 4)."""
+    ratings = [
+        _rating_line(pid, criterion, score)
+        for pid, scores in _SCORES.items()
+        for criterion, score in scores.items()
+        if _rating_source(pid, criterion) == key
+    ]
+    return ratings + [_ram_line(pid) for pid in _RAM if _ram_source(pid) == key]
+
+
 def sources() -> list[Source]:
     def src(
         key: str,
@@ -219,7 +230,7 @@ def sources() -> list[Source]:
         site: str | None = None,
         via: str = "api",
     ) -> Source:
-        text = _SOURCE_TEXT[key]
+        text = " ".join([_SOURCE_TEXT[key], *_lines_quoted_from(key)])
         return Source(
             id=f"src_{_h(url)[:16]}",
             url=url,
@@ -345,6 +356,28 @@ _SCORES = {
 }
 
 
+# Hard-rule attribute: RAM, known for three products, unknown for Vela Pro 14.
+_RAM = {"prd_nova_book_14": 16.0, "prd_kestrel_slim_15": 16.0, "prd_orion_play_15": 16.0}
+
+
+def _rating_line(product_id: str, key: str, score: float) -> str:
+    return f"{PRODUCTS[product_id][0]}: {key.replace('_', ' ')} rated {score}/10."
+
+
+def _rating_source(product_id: str, key: str) -> str | None:
+    if product_id == "prd_kestrel_slim_15" and key == "battery_life":
+        return None  # built separately below as a real disagreement
+    return "reddit" if key in ("keyboard_comfort", "value_for_money") else "review"
+
+
+def _ram_line(product_id: str) -> str:
+    return f"{PRODUCTS[product_id][0]} ships with {int(_RAM[product_id])} GB RAM."
+
+
+def _ram_source(product_id: str) -> str:
+    return "maker" if product_id == "prd_kestrel_slim_15" else "review"
+
+
 def _claim(
     source: Source,
     product_id: str,
@@ -373,13 +406,13 @@ def _claim(
 
 def claims() -> list[Claim]:
     reddit, review, maker = sources()
+    by_key = {"reddit": reddit, "review": review, "maker": maker}
     out: list[Claim] = []
     for pid, scores in _SCORES.items():
         for key, score in scores.items():
-            if pid == "prd_kestrel_slim_15" and key == "battery_life":
-                continue  # built separately below as a real disagreement
-            src = reddit if key in ("keyboard_comfort", "value_for_money") else review
-            out.append(_claim(src, pid, key, score, f"{PRODUCTS[pid][0]}: {key.replace('_', ' ')} rated {score}/10."))
+            where = _rating_source(pid, key)
+            if where is not None:
+                out.append(_claim(by_key[where], pid, key, score, _rating_line(pid, key, score)))
     # Disputed: the maker says 10 hours, an owner on Reddit says about 6.
     out.append(
         _claim(
@@ -403,12 +436,8 @@ def claims() -> list[Claim]:
             value=6.0,
         )
     )
-    # Hard-rule attribute: RAM, known for three products, unknown for Vela Pro 14.
-    for pid, ram in [("prd_nova_book_14", 16.0), ("prd_kestrel_slim_15", 16.0), ("prd_orion_play_15", 16.0)]:
-        src = maker if pid == "prd_kestrel_slim_15" else review
-        out.append(
-            _claim(src, pid, "ram_gb", None, f"{PRODUCTS[pid][0]} ships with {int(ram)} GB RAM.", ClaimType.SPEC, ram)
-        )
+    for pid, ram in _RAM.items():
+        out.append(_claim(by_key[_ram_source(pid)], pid, "ram_gb", None, _ram_line(pid), ClaimType.SPEC, ram))
     return out
 
 

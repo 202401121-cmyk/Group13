@@ -1,0 +1,53 @@
+# How the extract stage reads sources (US-14). Loaded by app/extract/settings.py; a bad file logs a warning and the
+# defaults there are used, so a typo never stops a search. docs/api-setup.md has the numbers behind these limits.
+
+# The output one extraction call asks for. Too low and a cut-off reply loses the whole source. Too high and a capped
+# source stops fitting a model, so trimming could cut the end of the data block: test_data_block.py guards this.
+#
+# Reddit calls go to the pool, whose reasoning models also spend output tokens thinking before they answer: on short
+# threads in live runs, two of them used 391 to 783. Each token asked for is also booked against a member's minute.
+reddit_output_tokens: 1200
+# Public calls aren't booked against the pool. The prompt allows 10 claims (about 70 tokens each) and 15 mentions: a live
+# reply used 566 on 15 mentions alone.
+public_output_tokens: 2000
+
+# The most sources one search sends to a model. A normal search has about 30 public sources and 4 Reddit sources that
+# fit their budget, so this is only a safety limit. EXTRACT_MAX_SOURCES in the environment overrides it.
+max_sources_per_search: 40
+
+# What kind of site each domain is. A domain covers its subdomains, and the longest match wins. A domain not listed
+# here counts as whatever research said, which is editorial for web and review pages. Reddit is always community, and so
+# is a subdomain or folder named as a forum, even on a maker's domain (app/extract/tiers.py), so most forums need no line.
+# A claim's type follows from this: manufacturer and lab give spec, and the rest give experience (DR-05).
+# A small list on purpose: US-16 replaces it in Sprint 3.
+tiers:
+  manufacturer:
+    - acer.com
+    - apple.com
+    - asus.com
+    - bose.com
+    - dell.com
+    - hp.com
+    - lenovo.com
+    - lg.com
+    - mi.com
+    - msi.com
+    - oneplus.in
+    - samsung.com
+    - sony.co.in
+  lab:
+    - notebookcheck.net
+    - rtings.com
+  community:
+    - c.mi.com
+    - h30434.www3.hp.com
+    - head-fi.org
+    - quora.com
+    - stackexchange.com
+    - zentalk.asus.com
+  retailer:
+    - amazon.in
+    - croma.com
+    - flipkart.com
+    - reliancedigital.in
+    - vijaysales.com
