@@ -8,6 +8,7 @@ tests/faults/test_result_save_faults.py, so they also run on Windows.
 
 from __future__ import annotations
 
+import json
 import re
 import secrets
 import time
@@ -19,12 +20,14 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.cli import main as cli_main
-from app.contracts import SearchRequest, SearchResult
+from app.contracts import SearchRequest, SearchResult, Source, SourceComment, SourceType
 from app.contracts import examples as ex
 from app.db import DatabaseSettings, PostgresRequestStore
 from app.main import create_app
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
-from app.research.retention import without_reddit_text
+from app.research.reddit.archive import add_comments
+from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
+from tests.fakes.research import thread, web_source
 from tests.integration import test_requests_table as requests_table
 
 pytestmark = pytest.mark.db
@@ -143,3 +146,56 @@ def test_with_the_breaker_open_the_result_is_unsaved_and_nothing_reaches_the_tab
     assert run_search(store, session).saved is False
     assert store._pool is None
     assert stored_results(database_url, session) == []
+
+
+# --- D-53: what the row really holds, read back with a separate connection --------------------------------------
+
+REDDIT_WORDS = ("A made-up thread title", "A made-up post body.", "Comment one.", "Comment two.", "Comment three.")
+
+
+def _thread_with_words() -> Source:
+    source = thread("abc123", REDDIT_WORDS[0], upvotes=7, comment_count=3, text=REDDIT_WORDS[1], author_digest="b" * 64)
+    return add_comments(
+        source,
+        (
+            SourceComment(id="m1", depth=1, upvotes=3, text=REDDIT_WORDS[2], author_hash="a" * 64),
+            SourceComment(id="m2", parent_id="m1", depth=2, upvotes=2, text=REDDIT_WORDS[3]),
+            SourceComment(id="m3", parent_id="m2", depth=3, upvotes=1, text=REDDIT_WORDS[4]),
+        ),
+    )
+
+
+def _saved_with(store: PostgresRequestStore, url: str, sources: list[Source]) -> dict[str, Any]:
+    session = new_session()
+    result = SearchResult.model_validate(
+        {**ex.search_result().model_dump(), "request": request(session), "sources": sources}
+    )
+    assert DatabaseResultStore(store).save(result)
+    [row] = stored_results(url, session)
+    return row
+
+
+def test_a_saved_row_read_back_holds_no_reddit_text(database_url: str, store: PostgresRequestStore) -> None:
+    row = _saved_with(store, database_url, [_thread_with_words()])
+    text = json.dumps(row)
+    for words in REDDIT_WORDS:
+        assert words not in text
+    for author in ("a" * 64, "b" * 64):
+        assert author not in text
+    assert SearchResult.model_validate(row).sources[0].type is SourceType.REDDIT  # and it still reads back
+
+
+def test_a_saved_row_read_back_keeps_web_text_and_reddit_links(database_url: str, store: PostgresRequestStore) -> None:
+    page = web_source("https://web.example/a", "A web title", "Web text.")
+    row = _saved_with(store, database_url, [_thread_with_words(), page])
+    reddit, web = row["sources"]
+    assert (reddit["url"], reddit["upvotes"], reddit["comment_count"]) == (
+        "https://www.reddit.com/r/laptops/comments/abc123/",
+        7,
+        3,
+    )
+    assert reddit["fetched_at"]
+    assert reddit["type"] == "reddit"
+    assert [c["text"] for c in reddit["comments"]] == [REDDIT_TEXT_NOT_KEPT] * 3
+    assert [c["upvotes"] for c in reddit["comments"]] == [3, 2, 1]
+    assert (web["title"], web["text"]) == ("A web title", "Web text.")

@@ -19,7 +19,7 @@ from app.db import InMemoryRequestStore, NullRequestStore, RequestStore
 from app.main import create_app
 from app.pipeline import DatabaseResultStore, InMemoryResultStore, PipelineRunner, default_search_stages
 from app.research import ResearchStage
-from app.research.retention import without_reddit_text
+from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
 
 QUERY = "best laptop for coding under 70k"
 NOT_SAVED_LINE = "This search could not be saved."
@@ -115,6 +115,17 @@ def test_the_api_saves_the_finished_search(monkeypatch: pytest.MonkeyPatch) -> N
     assert C.SearchResult.model_validate(json.loads(row.result)) == C.SearchResult.model_validate(
         without_reddit_text(body)
     )
+
+
+def test_the_api_answer_keeps_its_reddit_text(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Only the saved row loses Reddit's words: the shopper's answer is never stripped."""
+    database = InMemoryRequestStore()
+    body = api_search(monkeypatch, database)
+    reddit = [s for s in body["sources"] if s["type"] == "reddit"]
+    assert reddit
+    assert all(s["title"] and s["title"] != REDDIT_TEXT_NOT_KEPT for s in reddit)
+    assert all(s["text"] != REDDIT_TEXT_NOT_KEPT for s in reddit)
+    assert all(s["title"] not in database.searches[0].result for s in reddit)
 
 
 def test_the_api_says_not_saved_with_the_database_off(monkeypatch: pytest.MonkeyPatch) -> None:
