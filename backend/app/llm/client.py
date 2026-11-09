@@ -39,10 +39,11 @@ from .config import LLMConfig, load_llm_config, with_env_overrides
 from .errors import AttemptOutcome, InvalidOutput, ProviderFailure, ProviderTimeout
 from .fitting import CHUNKABLE_TASKS, FitResult, estimate_tokens, fit, merge_chunk_results, reserve_output
 from .health import ProviderHealth
-from .limits import DailyTokenBudget, RateLimiter
+from .limits import Booking, DailyTokenBudget, RateLimiter
 from .output import RETRIEVED_TEXT_TASKS, build_system_prompt, parse_output
-from .pool import ATTEMPT_SHARE, BULK_TASKS, CALL_MARGIN_S, ModelPool, time_limit_s
+from .pool import ATTEMPT_SHARE, BULK_TASKS, CALL_MARGIN_S, RUNNING_CALL_LOOK_S, ModelPool, time_limit_s
 from .providers import Adapter, OpenAICompatibleAdapter, build_http_client, note_no_client
+from .usage import record_use, time_already_spent
 
 log = logging.getLogger(__name__)
 
@@ -110,6 +111,13 @@ def should_retry(outcome: AttemptOutcome, retries_done: int) -> bool:
     return outcome == "invalid_output" and retries_done < MAX_INVALID_OUTPUT_RETRIES
 
 
+def _real_use(error: Exception | None, reported: int, usage_reported: bool) -> int | None:
+    """What a finished call counts for in this minute. None keeps what was held, because the real use isn't known."""
+    if error is not None:
+        return error.used_tokens if isinstance(error, ProviderFailure) else 0
+    return reported if usage_reported else None
+
+
 def planned_tokens(system: str, fitted: FitResult, reserve: int) -> int:
     """The most one attempt may use: every chunk's input plus the output kept free for its answer."""
     return sum(estimate_tokens(system) + estimate_tokens(text) + reserve for text in fitted.texts)
@@ -118,9 +126,9 @@ def planned_tokens(system: str, fitted: FitResult, reserve: int) -> int:
 def default_limiters(config: LLMConfig) -> dict[Provider, RateLimiter]:
     """One rate limiter for each provider that has a limit of our own in models.yaml (or .env)."""
     return {
-        p.name: RateLimiter(p.requests_per_second, p.tokens_per_minute)
+        p.name: RateLimiter(p.requests_per_second, p.tokens_per_minute, requests_per_minute=p.requests_per_minute)
         for p in config.providers
-        if p.requests_per_second is not None or p.tokens_per_minute is not None
+        if p.requests_per_second is not None or p.tokens_per_minute is not None or p.requests_per_minute is not None
     }
 
 
@@ -204,7 +212,7 @@ class WrapperLLMClient:
         limit_s = time_limit_s(task)
         order = self.pool.order(self.candidates(data_class, difficulty), data_class, rotate=task in BULK_TASKS)
         first = order[0] if order else None
-        ends_at = self.pool.now() + limit_s
+        ends_at = self.pool.now() + limit_s - time_already_spent()
         call = _Call(
             task, data_class, full_system, schema, search_id, limit_s, ends_at, first, self.pool.keep_free(task)
         )
@@ -247,10 +255,10 @@ class WrapperLLMClient:
         """One model, retrying invalid output once. A busy model is left to come back to."""
         name = plan.model.model
         while True:
-            state = self._may_call(call, plan)
+            state, booking = self._may_call(call, plan)
             if state != "go":
                 return None, state
-            result, outcome = self._attempt(call, plan)
+            result, outcome = self._attempt(call, plan, booking)
             if result is not None:
                 return result, "go"
             if not should_retry(outcome, retries.get(name, 0)):
@@ -261,6 +269,11 @@ class WrapperLLMClient:
         """Sleep until the soonest slot opens. False if nothing can open in time for a call to run."""
         waits = [self.pool.seconds_until_room(p.model, p.planned, call.keep_free) for p in busy]
         soonest = min((w for w in waits if w is not None), default=None)
+        if soonest is not None and self._a_running_call_may_free_room(call, busy):
+            look = min(soonest, RUNNING_CALL_LOOK_S)
+            if self.pool.now() + look <= call.latest_start:
+                self.pool.pause(look)
+                return True
         if soonest is None or self.pool.now() + soonest > call.latest_start:
             for plan in busy:
                 log.info("llm %s skipped: no room before the time limit", plan.model.model)
@@ -268,6 +281,15 @@ class WrapperLLMClient:
             return False
         self.pool.pause(soonest)
         return True
+
+    def _a_running_call_may_free_room(self, call: _Call[T], busy: Sequence[_Plan]) -> bool:
+        """A reservation shrinks when its call ends, and the minute's count can't know when that will be.
+
+        Only bulk work waits for that. A shopper's call has a quicker fallback, and a late start could only time out.
+        """
+        if not self.config.pool.book_real_use or call.task not in BULK_TASKS:
+            return False
+        return any(self.pool.running_calls_may_free_room(p.model, p.planned, call.keep_free) for p in busy)
 
     def _with_keys(self, models: Sequence[ModelLimits]) -> list[ModelLimits]:
         """Drop models whose provider has no API key, saying so once (the variable name, never a value)."""
@@ -285,28 +307,28 @@ class WrapperLLMClient:
         """The name health tracks this model under: its own for a pool member, its provider's for the rest."""
         return model.model if self.pool.has(model) else None
 
-    def _may_call(self, call: _Call[T], plan: _Plan) -> ModelState:
+    def _may_call(self, call: _Call[T], plan: _Plan) -> tuple[ModelState, Booking | None]:
         """Time, budgets, health and rate limit, checked before every call. A call that fails one is never sent."""
         model, planned = plan.model, plan.planned
         provider, member = model.provider, self._member(model)
         if self.pool.now() > call.latest_start:
             log.info("llm %s skipped: too close to the stage's time limit", model.model)
-            return "no"
+            return "no", None
         if not self._reserve(model, planned):
             log.info("llm %s skipped: today's token budget is spent", model.model)
             self._record(call, plan, "skipped_budget")
-            return "no"
+            return "no", None
         if not self.health.allow(provider, member):
             self._release(model, planned)
             log.info("llm %s skipped: %s", model.model, self.health.state(provider, member))
-            return "no"
-        state = self._take_slot(call, plan)
+            return "no", None
+        state, booking = self._take_slot(call, plan)
         if state == "go" and call.task in BULK_TASKS and model != call.first_choice:
             self.pool.served(model, call.data_class)  # the claimed member was skipped: the turn moved on
         if state != "go":
             self._release(model, planned)
             self.health.release(provider, member)
-        return state
+        return state, booking
 
     def _reserve(self, model: ModelLimits, tokens: int) -> bool:
         """Hold today's tokens before the call runs, so calls running together can't pass a budget."""
@@ -321,16 +343,40 @@ class WrapperLLMClient:
         self.budget.settle(model.provider, tokens, 0)
         self.pool.release(model, tokens)
 
-    def _take_slot(self, call: _Call[T], plan: _Plan) -> ModelState:
+    def _take_slot(self, call: _Call[T], plan: _Plan) -> tuple[ModelState, Booking | None]:
         model = plan.model
         if self.pool.has(model):
-            return "go" if self.pool.try_take(model, plan.planned, call.keep_free) else "busy"
+            booking = self.pool.try_take(model, plan.planned, call.keep_free)
+            return ("go", booking) if booking is not None else ("busy", None)
         limiter = self.limiters.get(model.provider)
-        if limiter is not None and not limiter.acquire(plan.planned):
-            log.info("llm %s skipped: no room in its rate limit within %gs", model.provider.value, limiter.max_wait_s)
+        if limiter is None:
+            return "go", None
+        room = self._wait_for_pace(call, plan, limiter) if call.task in BULK_TASKS else limiter.acquire(plan.planned)
+        if not room:
+            log.info("llm %s skipped: no room in its rate limit in time", model.provider.value)
             self._record(call, plan, "rate_limited")
-            return "no"
-        return "go"
+            return "no", None
+        return "go", None
+
+    def _wait_for_pace(self, call: _Call[T], plan: _Plan, limiter: RateLimiter) -> bool:
+        """Bulk work waits for a provider's own limit, if that still leaves a full attempt's time. Else the next model.
+
+        Sources run in parallel, so this never holds the limiter's lock while it waits: each keeps its own time limit.
+        """
+        leaves_an_attempt = call.stage_ends_at - self._full_timeout_s(call, plan.model) - CALL_MARGIN_S
+        provider, member = plan.model.provider, self._member(plan.model)
+        while limiter.try_book(plan.planned) is None:
+            wait = limiter.seconds_until_room(plan.planned)
+            if wait is None:
+                return False
+            start = self.pool.now() + wait
+            short = wait <= limiter.max_wait_s and start <= call.latest_start
+            if not short and start > leaves_an_attempt:
+                return False
+            self.pool.pause(wait)
+            if self.health.state(provider, member) == "cooling":  # another source just earned a 429 here
+                return False
+        return True
 
     def _full_timeout_s(self, call: _Call[T], model: ModelLimits) -> float:
         """The longest one attempt may take, which leaves another model time to answer if this one hangs."""
@@ -340,7 +386,7 @@ class WrapperLLMClient:
         left = max(call.stage_ends_at - self.pool.now(), CALL_MARGIN_S)
         return min(self._full_timeout_s(call, model), left)
 
-    def _attempt(self, call: _Call[T], plan: _Plan) -> tuple[T | None, AttemptOutcome]:
+    def _attempt(self, call: _Call[T], plan: _Plan, booking: Booking | None = None) -> tuple[T | None, AttemptOutcome]:
         """One attempt on one model: every chunk is sent and parsed. Always writes one call record."""
         model, fitted, system = plan.model, plan.fitted, call.system
         provider, member = model.provider, self._member(model)
@@ -348,6 +394,7 @@ class WrapperLLMClient:
         timeout_s = self._timeout_s(call, model)
         started = monotonic()
         tokens_in = tokens_out = 0
+        usage_reported = True
         unanswered = 0  # estimated input of a chunk whose call failed: it was still sent
         result: T | None = None
         outcome: AttemptOutcome = "ok"
@@ -356,10 +403,12 @@ class WrapperLLMClient:
             answers: list[T] = []
             for text in fitted.texts:
                 unanswered = estimate_tokens(system) + estimate_tokens(text)
-                raw = adapter.call(model.model, system, text, plan.reserve, timeout_s)
+                extra = self.config.request_fields(call.task, model.model)
+                raw = adapter.call(model.model, system, text, plan.reserve, timeout_s, extra)
                 unanswered = 0
                 tokens_in += raw.input_tokens
                 tokens_out += raw.output_tokens
+                usage_reported = usage_reported and raw.usage_reported
                 answers.append(parse_output(raw.text, call.schema, strict=call.task in RETRIEVED_TEXT_TASKS))
             result = merge_chunk_results(answers, call.schema) if fitted.mode == "chunked" else answers[0]
         except (InvalidOutput, ValidationError):
@@ -377,6 +426,10 @@ class WrapperLLMClient:
         else:
             self.health.record_failure(provider, error, member)
         used = tokens_in + unanswered + tokens_out
+        real_use = _real_use(error, tokens_in + tokens_out, usage_reported)
+        if booking is not None and self.config.pool.book_real_use:
+            self.pool.book_real_use(model, booking, real_use)
+        record_use(plan.planned if real_use is None else real_use)
         self.budget.settle(provider, plan.planned, used)
         self.pool.settle(model, plan.planned, used)
         duration_ms = int((monotonic() - started) * 1000)

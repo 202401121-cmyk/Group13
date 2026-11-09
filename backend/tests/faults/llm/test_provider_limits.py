@@ -21,7 +21,7 @@ class Claims(BaseModel):
 
 
 def test_dead_and_cooling_providers_are_skipped_quickly_and_the_call_gives_up_cleanly() -> None:
-    adapters: dict[Provider, Adapter] = {  # the public/long route: gemini, mistral, cerebras (openrouter: no key)
+    adapters: dict[Provider, Adapter] = {  # the public/long route: gemini, mistral (openrouter: no key)
         Provider.GEMINI: FakeAdapter(Provider.GEMINI, replies=(RateLimited(Provider.GEMINI, "HTTP 429"),)),
         Provider.MISTRAL: FakeAdapter(Provider.MISTRAL, replies=(AuthFailed(Provider.MISTRAL, "HTTP 401"),)),
         Provider.CEREBRAS: FakeAdapter(Provider.CEREBRAS, replies=(NoCredit(Provider.CEREBRAS, "HTTP 402"),)),
@@ -46,7 +46,7 @@ def test_dead_and_cooling_providers_are_skipped_quickly_and_the_call_gives_up_cl
     assert {p: len(a.calls) for p, a in adapters.items()} == {  # type: ignore[attr-defined]
         Provider.GEMINI: 1,
         Provider.MISTRAL: 1,
-        Provider.CEREBRAS: 0,  # unavailable, so it is skipped with no call
+        Provider.CEREBRAS: 0,  # not on this route, and unavailable as well
     }
 
 

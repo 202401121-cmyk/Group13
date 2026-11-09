@@ -16,13 +16,16 @@ from __future__ import annotations
 import io
 import os
 import sys
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from time import monotonic
+from typing import Any
 
 import httpx
 from dotenv import load_dotenv
 from pydantic import BaseModel
 
+from app.contracts import LLMTask
 from app.llm import load_llm_config
 from app.llm.config import LLMConfig, ProviderSettings, with_env_overrides
 from app.llm.errors import InvalidOutput, ProviderFailure
@@ -50,7 +53,9 @@ class Row:
     ratelimit_headers: dict[str, str] = field(default_factory=dict)
 
 
-def check(settings: ProviderSettings, model: str, key: str, http: httpx.Client) -> Row:
+def check(
+    settings: ProviderSettings, model: str, key: str, http: httpx.Client, extra: Mapping[str, Any] | None = None
+) -> Row:
     adapter = OpenAICompatibleAdapter(
         settings.name,
         settings.base_url,
@@ -63,7 +68,7 @@ def check(settings: ProviderSettings, model: str, key: str, http: httpx.Client) 
     started = monotonic()
     try:
         raw = adapter.call(
-            model, build_system_prompt(SYSTEM, Pong), USER, MAX_OUTPUT_TOKENS, settings.request_timeout_s
+            model, build_system_prompt(SYSTEM, Pong), USER, MAX_OUTPUT_TOKENS, settings.request_timeout_s, extra
         )
         parse_output(raw.text, Pong)
     except ProviderFailure as exc:  # the message names the provider and status only, never the key
@@ -82,11 +87,13 @@ def our_limits(config: LLMConfig) -> list[str]:
     """One line per provider that has limits of our own (US-46)."""
     lines = []
     for p in config.providers:
-        if p.requests_per_second is None and p.tokens_per_minute is None and p.daily_tokens is None:
+        limits = (p.requests_per_second, p.requests_per_minute, p.tokens_per_minute, p.daily_tokens)
+        if all(limit is None for limit in limits):
             continue
         lines.append(
             f"  {p.name.value}: {_or_none(p.requests_per_second)} requests/s, "
-            f"{_or_none(p.tokens_per_minute)} tokens/min, {_or_none(p.daily_tokens)} tokens/day"
+            + (f"{p.requests_per_minute:,} requests/min, " if p.requests_per_minute else "")
+            + f"{_or_none(p.tokens_per_minute)} tokens/min, {_or_none(p.daily_tokens)} tokens/day"
         )
     return lines
 
@@ -116,7 +123,9 @@ def main() -> int:
                     note = f"{settings.api_key_env} not set"
                     rows.append(Row(settings.name.value, limits.model, trains, "skipped", note=note))
                 else:
-                    rows.append(check(settings, limits.model, key, http))
+                    # Extraction's settings, so a model that refuses them shows up here and not in a search.
+                    extra = config.request_fields(LLMTask.EXTRACT_CLAIMS, limits.model)
+                    rows.append(check(settings, limits.model, key, http, extra))
 
     print(f"{'provider':<11} {'model':<40} {'trains':<7} {'works':<8} {'latency':<9} {'tokens':<18} note")
     for r in rows:

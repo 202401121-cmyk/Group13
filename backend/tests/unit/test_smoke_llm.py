@@ -53,8 +53,8 @@ def test_a_provider_is_checked_with_its_reasoning_setting() -> None:
         "usage": {"prompt_tokens": 9, "completion_tokens": 4},
     }
     settings = load_llm_config().provider(Provider.GEMINI)
-    check(settings, "gemini-3.5-flash", FAKE_KEY, _http(seen, httpx.Response(200, json=reply)))
-    assert json.loads(seen[0].content)["reasoning_effort"] == "none"
+    check(settings, "gemini-3.5-flash-lite", FAKE_KEY, _http(seen, httpx.Response(200, json=reply)))
+    assert json.loads(seen[0].content)["reasoning_effort"] == "minimal"
 
 
 def test_a_failing_provider_is_reported_without_its_key() -> None:
@@ -65,7 +65,42 @@ def test_a_failing_provider_is_reported_without_its_key() -> None:
 
 
 def test_our_limits_lists_mistral() -> None:
-    assert our_limits(load_llm_config()) == ["  mistral: 2 requests/s, 500,000 tokens/min, 1,000,000 tokens/day"]
+    assert "  mistral: 2 requests/s, 500,000 tokens/min, 1,000,000 tokens/day" in our_limits(load_llm_config())
+
+
+def test_our_limits_lists_geminis_requests_a_minute() -> None:
+    assert any(line.startswith("  gemini: ") and "15 requests/min" in line for line in our_limits(load_llm_config()))
+
+
+def test_check_sends_the_settings_it_is_given() -> None:
+    seen: list[httpx.Request] = []
+    reply = {
+        "choices": [{"message": {"content": '{"ok": true}'}}],
+        "usage": {"prompt_tokens": 9, "completion_tokens": 4},
+    }
+    settings = load_llm_config().provider(Provider.GROQ)
+    extra = {"reasoning_effort": "low", "include_reasoning": False}
+    check(settings, "openai/gpt-oss-20b", FAKE_KEY, _http(seen, httpx.Response(200, json=reply)), extra)
+    body = json.loads(seen[0].content)
+    assert (body["reasoning_effort"], body["include_reasoning"]) == ("low", False)
+
+
+def test_main_sends_each_models_extraction_settings(monkeypatch: pytest.MonkeyPatch) -> None:
+    config = load_llm_config()
+    for settings in config.providers:
+        monkeypatch.delenv(settings.api_key_env, raising=False)
+    monkeypatch.setenv(config.provider(Provider.GROQ).api_key_env, FAKE_KEY)
+    monkeypatch.setattr("scripts.smoke_llm.load_dotenv", lambda: None)
+    seen: list[httpx.Request] = []
+    reply = {
+        "choices": [{"message": {"content": '{"ok": true}'}}],
+        "usage": {"prompt_tokens": 9, "completion_tokens": 4},
+    }
+    monkeypatch.setattr("scripts.smoke_llm.build_http_client", lambda _: _http(seen, httpx.Response(200, json=reply)))
+    main()
+    bodies = {json.loads(r.content)["model"]: json.loads(r.content) for r in seen}
+    assert bodies["openai/gpt-oss-20b"]["reasoning_effort"] == "low"
+    assert bodies["qwen/qwen3.8-27b"]["reasoning_effort"] == "none"
 
 
 def test_main_builds_its_client_the_way_the_app_does(monkeypatch: pytest.MonkeyPatch) -> None:

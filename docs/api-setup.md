@@ -115,11 +115,14 @@ fixtures repeated up to `MAX_SOURCE_CHARS`:
 | **Used** | **3,216** |
 | Planned the wrapper's way (its input estimate plus 1,024 of output) | 5,129 |
 
+That was 7 November. The script now sends what extraction sends: its prompt, its message with a laptop's criteria, a thread
+capped to 3,000 tokens, its output request, its reasoning settings and its time limit. So a new measurement matches a real
+call and won't match this table.
+
 `reddit_tokens_per_search` is **18,000**: 75% of the pool's 24,000 tokens a minute, which leaves each member about
 2,000 for shoppers' calls. An intake call plans about 1,700.
 
-The pool counts planned tokens, so each member takes one full-size source a minute, and the pool about 3, although
-6 would fit as really used.
+That day's pool counted planned tokens, so each member took one full-size source a minute, and the pool about 3.
 
 Extraction (US-14) asks for 1,200 tokens of output on Reddit calls, for the reply and the thinking the reasoning models do
 first. A thread near its prompt's limits (10 claims and 15 mentions) can still be cut off, but asking for more would stop a
@@ -132,16 +135,65 @@ for it. With a laptop's 8 criteria in the prompt:
 | Short thread (250 tokens, with its title) | about 2,960 | 2 | 6 | 6 |
 
 A smaller output request can't lift the full-size number. Two calls would need 3,000 each, and the input estimate alone
-is about 4,500. So a search reads 3 full threads or about 6 short ones, of the 20 or so research finds. Keeping the
-minute's count at what each call really used would fit about twice as many, if Groq counts its own limit that way.
+is about 4,500. While the Reddit budget counted what calls hold, a search read 3 full threads or about 6 short ones, of
+the 20 or so research finds. It now counts real use: see below.
+
+#### What Groq counts (9 November 2026)
+
+Pairs of calls with a short answer, read through `x-ratelimit-remaining-tokens`. The minute refills about 133 tokens a
+second, so each fall is net of whatever came back before the header was read. The last column is what a prompt plus a whole
+request would come to.
+
+| Model | Requested output | Prompt + reply | Remaining afterwards | Fell by | Prompt + request |
+|---|---|---|---|---|---|
+| `openai/gpt-oss-120b` | 64 | 106 | 7,858 of 8,000 | 142 | 142 |
+| | 4,000 | 106 | 7,516 | 342 | 4,078 |
+| `openai/gpt-oss-20b` | 1,200 | 95 | 7,666 of 8,000 | 334 | 1,278 |
+| | 1,200 | 95 | 7,617 | 49 | 1,278 |
+
+In three of these four, the fall is far below the whole request and nearer real use. The first row can't tell the two
+apart: at a request of 64 they differ by only 36. Groq doesn't charge exactly real use either, as a first call can cost more.
+Two recordings in `tests/fixtures/recorded` show that, each asking for 1,024: `laptop_coding_70k` fell by 1,638, exactly its
+prompt plus request, for a real use of 989, and `research_laptop_coding_70k` fell by 1,074 for a real use of 906. So real
+use is the better count, not an exact one. This rests on few calls, and `book_real_use` in models.yaml turns it off if 429s
+appear.
+
+The pool now holds a call's input and whole requested output while it runs, then books what it really used. A failed call
+books nothing, unless its reply reports what it used: a reply with no text was still charged for. A reply with no token
+counts keeps what was held. Bulk work with no room looks again every half second while a running call could still free
+enough. A shopper's call doesn't wait for this, as its fallback is quicker.
+
+**This doesn't change how many full-size threads fit a minute: still 3.** A full-size thread really uses about 3,600
+tokens, but the next one must hold 5,697, and a member has 6,000 above the reserve. Even with no reserve, 3,600 + 5,697 is
+over the 8,000, and even with a perfect estimate, two come to 7,200. It helps when a call uses far less than it holds, such
+as a thread with little to say. Only a smaller source cap would change the full-size number.
+
+A live extraction run on 9 November 2026 backs this up at real size. After two calls on each member, the pool counted 2,805,
+2,938 and 3,925 tokens. Groq's own count, 8,000 less `x-ratelimit-remaining-tokens`, read 2,707, 3,376 and 3,682, and no
+Groq call got a 429.
+
+The 18,000 Reddit budget counts real use the same way: a call's whole request counts while it runs, then what it used.
+`book_real_use` turns both back to holds. A thread with no room waits up to 5 seconds while running calls could still free
+enough, and that wait comes off its call's time limit. In a fresh run on 9 November 2026, 8 threads really used 10,718 of the
+18,000, so the budget no longer sets the limit. The pool's minute does: at about 2,500 held and 1,300 used, each member takes
+3 a minute, and 10 more threads could not be read.
 
 In live runs on short threads (9 November 2026), `openai/gpt-oss-120b` and `qwen/qwen3.8-27b` answered in 391 to 783
 tokens. `openai/gpt-oss-20b` used all 1,200 on the same kind of thread, so its replies were cut off and that source was
 lost.
 
+So extraction now asks these models to think less, per task in models.yaml (`task_settings`): `reasoning_effort` `low` and
+`include_reasoning` false on the two gpt-oss models, and `reasoning_effort` `none` on qwen. No other task sends these.
+With them, five Reddit threads came back in 16 to 396 output tokens, and none was cut off. `openai/gpt-oss-20b` answered both
+of its threads in 25 tokens with no claims, so two threads can't yet show whether low effort makes it miss any.
+
+A search result that holds only a snippet stays a source and a link, but isn't sent to extraction: earlier live runs spent
+20 calls a search on them and got no claims. A page that was fetched is read as before.
+
 Public calls aren't booked against the pool, so they ask for 2,000. A live reply used 566 on 15 mentions alone. Gemini's
-thinking is off (`reasoning_effort: "none"` in models.yaml), because it counts against the output limit: on a public page
-with a 1,577-token prompt and a limit of 1,200, thinking used 1,245 tokens and the reply was cut off at 43. With it off, the
+thinking is as low as it goes (`reasoning_effort: minimal` in models.yaml; Flash Lite has no `none`), because it counts
+against the output limit. On `gemini-3.5-flash`, on a public page with a 1,577-token prompt and a limit of 1,200, thinking
+used 1,245 tokens and the reply was cut off at 43. With it off, the
 same call stopped normally at 566 tokens, in 5 seconds. The longest reply seen with it off was 1,147 tokens.
 
 ### Run the LLM smoke test
@@ -155,7 +207,9 @@ python -m scripts.smoke_llm
 It sends one tiny JSON request (fixed public text) to each provider that has a key, Mistral included, through
 the same adapter and settings the app uses, and prints a table: provider, model, whether it trains on inputs,
 works (yes/no/skipped), latency, tokens used, and the provider's rate-limit response headers. Then it prints our
-own limits (Mistral's requests a second, tokens a minute and tokens a day). It never prints a key, calls real
+own limits (Mistral's requests a second, tokens a minute and tokens a day, and Gemini's requests and tokens a minute).
+Each call carries extraction's `task_settings` for its model, so a model that refuses them shows up here and not in a
+search. It never prints a key, calls real
 APIs (so it never runs in CI), and always exits 0.
 
 Then copy what you saw into the results table below and into `backend/config/models.yaml` (model name,
@@ -206,9 +260,20 @@ actually saw. Quotes are copied from the provider's page.
 
 - **Used for:** LLM calls with public text only. It is first for long public inputs (1M-token window).
 - **Sign up:** [aistudio.google.com](https://aistudio.google.com) → Get API key. **Env:** `GEMINI_API_KEY`.
-- **Free limits** ([rate limits](https://aistudio.google.com/docs/rate-limits), 3 Nov 2026): not published; the page
-  says they can be viewed in Google AI Studio. Daily quotas reset at midnight Pacific time. Smoke test: ok; Gemini
-  sends no rate-limit headers.
+- **Model:** `gemini-3.5-flash-lite`, first for long public text, then Mistral, then OpenRouter.
+- **Free limits** (read 9 Nov 2026): Google's [public page](https://aistudio.google.com/docs/rate-limits) lists no
+  numbers for this tier. [AI Studio's page](https://aistudio.google.com/rate-limit), signed in, lists Gemini 3.5 Flash Lite
+  at **15 requests a minute, 250,000 input tokens a minute and 500 requests a day**. Other Flash models there have 5, 250,000
+  and 20. Daily quotas reset at midnight Pacific time. Gemini sends no rate-limit headers.
+- **Thinking:** `reasoning_effort: minimal`. Flash Lite answered HTTP 400 to `none` on all 8 calls, and to `minimal` it
+  answered at once.
+- **Pacing:** `requests_per_minute` and `tokens_per_minute` in models.yaml. A bulk call with no room waits if that still
+  leaves a full attempt's time (up to 5 of the stage's 15 seconds), and otherwise goes to the next provider on its route
+  with no call to Gemini. The 500 a day isn't paced: a 429 from it cools Gemini down, and calls move on.
+- **Live check** (9 Nov 2026): 10 review pages started together, from the caches. Flash Lite answered all 10 with no 429, in
+  1.2 to 3.2 seconds each, and 4 of the pages gave 11 claims. On `gemini-3.5-flash` at 5 a minute the same pages gave 5
+  answers, and the other 5 moved on: Mistral timed out twice at the 9-second attempt limit and answered one 429, and 2
+  OpenRouter calls had not answered by the stage's limit. So those two are weak backups for a burst.
 - **Terms** ([Gemini API terms](https://aistudio.google.com/docs/terms), effective 23 Mar 2026): on the unpaid tier,
   what we send is used to improve Google's products, and "human reviewers may read, annotate, and process your API
   input and output." Also: "Do not submit sensitive, confidential, or personal information to the Unpaid Services."
@@ -244,7 +309,7 @@ actually saw. Quotes are copied from the provider's page.
 - **Verdict: Not OK: fallback is Groq alone** for private and Reddit text, then each stage's own fallback. Its data
   terms are fine; the problem is cost. Whether to add a card for the trial credit is a team decision for Om.
 - **While it answers 402:** `available: false` in models.yaml, so it is skipped with no call. It left the private and
-  Reddit routes on 7 Nov 2026 and stays listed on the public long route. Its "trains on inputs" flag stays. If the
+  Reddit routes on 7 Nov 2026 and the public long route on 9 Nov 2026. Its "trains on inputs" flag stays. If the
   account gets credits, set `available: true`, run the smoke test, and put it back in those routes as a team decision.
 
 ### Mistral
@@ -365,7 +430,7 @@ fine-tune any model of ours either.
 |---|---|---|---|
 | private | groq | groq | groq |
 | reddit | groq | groq | groq |
-| public | mistral, groq | mistral, gemini, groq, openrouter | gemini, mistral, cerebras, openrouter |
+| public | mistral, groq | mistral, gemini, groq, openrouter | gemini, mistral, openrouter |
 
 Groq's free tier has a small daily token allowance, so public work goes to Mistral and Gemini first and Groq is
 kept for private text. Long public inputs start on Gemini for its 1M-token window. Groq in a route means all of its
@@ -387,7 +452,7 @@ Each Groq text model is a member of the pool with its own limits. Read from
   keep the order in models.yaml, with the other members as backups. Public chains keep their order, so models outside
   the pool are not rotated.
 - **Pacing:** each member counts its requests and tokens over the last minute: the input the wrapper measures plus
-  the requested output. A member with no room is passed over for one with room. If all are busy, the call waits for
+  the requested output while a call runs, then what it really used, or nothing if it failed. A member with no room is passed over for one with room. If all are busy, the call waits for
   the soonest slot, so it doesn't earn a 429.
 - **Time limit:** `complete()` has no time-limit argument, so the limit comes from the task's stage and is counted from
   each `complete()`. A stage that calls it twice gets the limit twice, but `run_stage` still stops waiting on time and
@@ -401,8 +466,8 @@ Each Groq text model is a member of the pool with its own limits. Read from
   lowest-ranked comments go.
 - **Daily budget:** a call's planned tokens are held before it runs, then swapped for what it really used, so
   calls running together can't pass the budget. This covers provider budgets too. The count is in memory, per UTC day.
-- **Reddit budget:** the extract stage keeps a search's planned Reddit tokens within `reddit_tokens_per_search`. A thread
-  past it is skipped with no call, and the coverage note says how many. See
+- **Reddit budget:** the extract stage keeps a search's Reddit tokens within `reddit_tokens_per_search`: a call's whole
+  request while it runs, then its real use. A thread past it is skipped with no call, and the coverage note says how many. See
   [Last measured](#last-measured-7-november-2026).
 - **Room for shoppers:** bulk work never takes a member below `extract_reserve_tokens_per_minute` (2,000) of its current
   minute, so intake and reply parsing, which plan about 1,700, always find room. Extraction waits inside its 15-second
@@ -432,7 +497,7 @@ When a provider's terms change, update its flag, `terms_url` and `terms_checked`
 | `app/intake/stage.py` | `detect_intent` | the shopper's request and their reply to our question | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | category label and the shopper's use case | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | only a category label from our lexicon (no use case) | public | short |
-| `app/extract/stage.py` | `extract_claims` | one source's retrieved text. Criterion keys and the category label from our config in every call; any others, which may hold the shopper's words, in Reddit calls only | reddit for Reddit, otherwise public | long |
+| `app/extract/stage.py` | `extract_claims` | one fetched source's retrieved text, never a search snippet alone. Criterion keys and the category label from our config in every call; any others, which may hold the shopper's words, in Reddit calls only | reddit for Reddit, otherwise public | long |
 
 `detect_intent`, `classify_reply`, `answer_user_question`, `write_question` and `write_explanation` always carry
 the shopper's words, so the wrapper refuses any class but private for them (`PERSONAL_TASKS`). A new call site

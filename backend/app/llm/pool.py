@@ -5,7 +5,9 @@ Groq's limits are per model, so three models give about three times the room of 
 - keeps each member under its daily token budget, holding a call's tokens before it runs;
 - rotates bulk work (BULK_TASKS) so it spreads across members. A shopper's calls keep the order in models.yaml, with
   the other members as their backups, and models outside the pool always keep their place in the route;
-- keeps part of each member's minute free of bulk work (US-14), so a shopper's next call always finds room.
+- keeps part of each member's minute free of bulk work (US-14), so a shopper's next call always finds room;
+- holds a call's input and whole requested output while it runs, then books what it really used (US-14), because Groq
+  doesn't charge the requested output in full. A failed call gives its tokens back, less any its reply says it used.
 
 The client decides who may see a prompt and who is healthy; the pool only answers "is there room?". All state is in
 memory and per process (build rule 10), and shared by every search.
@@ -22,7 +24,7 @@ from app.contracts import STAGE_TIME_LIMITS_S, DataClass, LLMTask, ModelLimits, 
 
 from .config import PoolSettings
 from .fitting import CHUNKABLE_TASKS
-from .limits import DailyTokenBudget, RateLimiter, utc_today
+from .limits import Booking, DailyTokenBudget, RateLimiter, utc_today
 
 MemberKey = tuple[Provider, str]
 
@@ -34,6 +36,7 @@ CALL_MARGIN_S = 1.0  # no call starts later than this before the stage's limit
 # Groq calls in Sprint 1 took at most 1.8 s (detect_intent, limit 5 s) and 5.1 s (generate_criteria, limit 10 s).
 ATTEMPT_SHARE = 0.6
 MIN_PAUSE_S = 0.05  # a wake-up can land a moment early: never spin
+RUNNING_CALL_LOOK_S = 0.5  # how often a waiting call looks again while another runs: a call's end wakes nobody
 
 # Which stage's time limit each task runs under. complete() has no time-limit argument, so the task says it.
 TASK_STAGES: dict[LLMTask, StageName] = {
@@ -123,9 +126,16 @@ class ModelPool:
             with self._lock:
                 self._last_served[data_class] = _key(model)
 
-    def try_take(self, model: ModelLimits, tokens: int, keep_free: int = 0) -> bool:
+    def try_take(self, model: ModelLimits, tokens: int, keep_free: int = 0) -> Booking | None:
         """Take a slot now if there is room. Only for a member of the pool."""
-        return self._pacers[_key(model)].try_acquire(tokens, keep_free)
+        return self._pacers[_key(model)].try_book(tokens, keep_free)
+
+    def book_real_use(self, model: ModelLimits, booking: Booking, tokens: int | None) -> None:
+        """A slot's call is over, and used this many tokens. None keeps what was held for it."""
+        self._pacers[_key(model)].rebook(booking, tokens)
+
+    def running_calls_may_free_room(self, model: ModelLimits, tokens: int, keep_free: int = 0) -> bool:
+        return self._pacers[_key(model)].running_calls_may_free_room(tokens, keep_free)
 
     def seconds_until_room(self, model: ModelLimits, tokens: int, keep_free: int = 0) -> float | None:
         return self._pacers[_key(model)].seconds_until_room(tokens, keep_free)

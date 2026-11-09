@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import threading
+import time
 from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -33,6 +34,8 @@ from app.contracts import (
 )
 from app.llm.fitting import estimate_tokens
 from app.llm.output import build_system_prompt
+from app.llm.pool import ATTEMPT_SHARE, CALL_MARGIN_S, time_limit_s
+from app.llm.usage import TokenMeter
 
 from .parsing import RawExtraction, to_extraction_result
 from .prompts import SYSTEM_PROMPT, allowed_criteria, user_message
@@ -41,6 +44,9 @@ from .settings import ExtractSettings, load_extract_settings
 log = logging.getLogger(__name__)
 
 MAX_TRACKED_SEARCHES = 64  # a search that never collects its note must not grow this stage's memory for ever
+SEARCH_SNIPPET = "search_snippet"  # Source.via for a search result whose page was not fetched
+# The longest a Reddit thread waits for running calls to free the budget: it still leaves a full attempt's time.
+BUDGET_WAIT_S = time_limit_s(LLMTask.EXTRACT_CLAIMS) * (1 - ATTEMPT_SHARE) - CALL_MARGIN_S
 
 _FULL_SYSTEM_TOKENS = estimate_tokens(build_system_prompt(SYSTEM_PROMPT, RawExtraction))
 
@@ -72,6 +78,7 @@ class _Counts:
     """One search so far. Numbers only, so it holds nothing from a source."""
 
     reddit_booked: int = 0
+    reddit_running: int = 0  # the part of reddit_booked held by calls still running
     sent: int = 0
     over_reddit_budget: int = 0
     over_source_cap: int = 0
@@ -115,30 +122,41 @@ class GuardedExtractStage:
         self.settings = settings if settings is not None else load_extract_settings()
         self._now = now
         self._lock = threading.Lock()
+        self._settled = threading.Condition(self._lock)  # wakes a thread waiting for the Reddit budget
         self._counts: OrderedDict[str, _Counts] = OrderedDict()
 
     def run(self, inp: ExtractInput, ctx: StageContext) -> ExtractionResult:
+        started = time.monotonic()
         source = inp.source
+        if source.via == SEARCH_SNIPPET:  # it stays a source and a link, but a few words are too little to quote from
+            return ExtractionResult(source_id=source.id)
         criteria = allowed_criteria(inp, source.data_class)
         user = user_message(source, criteria)
-        if not self._may_send(ctx.search_id, source, self._booking(user, source.data_class)):
+        held = self._booking(user, source.data_class)
+        if not self._may_send(ctx.search_id, source, held):
             return ExtractionResult(source_id=source.id)
+        meter = TokenMeter(already_spent_s=time.monotonic() - started)  # the runner's limit started with this run
+        failed = False
         try:
-            raw = self.llm.complete(
-                LLMTask.EXTRACT_CLAIMS,
-                SYSTEM_PROMPT,
-                user,
-                RawExtraction,
-                data_class=source.data_class,
-                difficulty=Difficulty.LONG,
-                search_id=ctx.search_id,
-                max_output_tokens=self.settings.output_tokens(source.data_class),
-            )
+            with meter.counting():
+                raw = self.llm.complete(
+                    LLMTask.EXTRACT_CLAIMS,
+                    SYSTEM_PROMPT,
+                    user,
+                    RawExtraction,
+                    data_class=source.data_class,
+                    difficulty=Difficulty.LONG,
+                    search_id=ctx.search_id,
+                    max_output_tokens=self.settings.output_tokens(source.data_class),
+                )
         except LLMUnavailable:
+            failed = True
             log.info("extract: a %s source was dropped: no valid answer", source.type.value)
             with self._lock:
                 self._for(ctx.search_id).unreadable += 1
             return ExtractionResult(source_id=source.id)
+        finally:
+            self._book_real_use(ctx.search_id, source, held, meter, failed)
         return to_extraction_result(raw, source, criteria.keys, self._now(), self.settings.domain_tiers)
 
     def fallback(self, inp: ExtractInput, ctx: StageContext, error: Exception) -> ExtractionResult:
@@ -161,22 +179,44 @@ class GuardedExtractStage:
     def _may_send(self, search_id: str, source: Source, booking: int) -> bool:
         """Book this source if it fits the search's limits. Under one lock, as sources run in parallel.
 
-        A retry isn't counted, because the wrapper does it out of sight. Bookings run well above real use (5,129 booked
-        for 3,216 used when measured), so real use stays inside the budget even so.
+        A Reddit call's whole booking counts while it runs, then its real use. So a thread with no room waits while the
+        running calls could still free enough, as it would otherwise be skipped for tokens about to come back.
         """
         reddit = source.data_class is DataClass.REDDIT
-        with self._lock:
+        give_up_at = time.monotonic() + BUDGET_WAIT_S
+        with self._settled:
             counts = self._for(search_id)
-            if reddit and counts.reddit_booked + booking > self.settings.reddit_tokens_per_search:
-                counts.over_reddit_budget += 1
-                return False
+            while reddit and counts.reddit_booked + booking > self.settings.reddit_tokens_per_search:
+                left = give_up_at - time.monotonic()
+                if left <= 0 or not self._running_calls_may_free(counts, booking):
+                    counts.over_reddit_budget += 1
+                    return False
+                self._settled.wait(left)
             if counts.sent >= self.settings.max_sources_per_search:
                 counts.over_source_cap += 1
                 return False
             counts.sent += 1
             if reddit:
                 counts.reddit_booked += booking
+                counts.reddit_running += booking
             return True
+
+    def _running_calls_may_free(self, counts: _Counts, booking: int) -> bool:
+        """Would this booking fit if the calls running now used nothing? The caller holds the lock."""
+        unused = counts.reddit_booked - counts.reddit_running + booking <= self.settings.reddit_tokens_per_search
+        return self.settings.book_real_use and unused
+
+    def _book_real_use(self, search_id: str, source: Source, held: int, meter: TokenMeter, failed: bool) -> None:
+        """A Reddit call is over: swap what it held for what it used. A client that reports nothing keeps the hold."""
+        if source.data_class is not DataClass.REDDIT:
+            return
+        used = meter.tokens if meter.attempts else (0 if failed else held)
+        with self._settled:
+            counts = self._for(search_id)
+            counts.reddit_running = max(0, counts.reddit_running - held)
+            if self.settings.book_real_use:
+                counts.reddit_booked = max(0, counts.reddit_booked - held + used)
+            self._settled.notify_all()
 
     def _for(self, search_id: str) -> _Counts:
         """This search's counts. The caller holds the lock."""

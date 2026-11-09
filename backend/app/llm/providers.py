@@ -7,6 +7,7 @@ used: Groq, Gemini, OpenRouter, Cerebras and Mistral all accept the same request
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from functools import cache
 from typing import Any, Protocol
@@ -87,6 +88,7 @@ class RawCompletion:
     input_tokens: int
     output_tokens: int
     ratelimit_headers: dict[str, str] = field(default_factory=dict)  # response headers only, for the smoke test
+    usage_reported: bool = True  # False when the token counts above are our estimates, which can't see hidden thinking
 
 
 class Adapter(Protocol):
@@ -94,7 +96,15 @@ class Adapter(Protocol):
 
     provider: Provider
 
-    def call(self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float) -> RawCompletion: ...
+    def call(
+        self,
+        model: str,
+        system: str,
+        user: str,
+        max_output_tokens: int,
+        timeout_s: float,
+        extra: Mapping[str, Any] | None = None,
+    ) -> RawCompletion: ...
 
 
 class OpenAICompatibleAdapter:
@@ -102,7 +112,7 @@ class OpenAICompatibleAdapter:
 
     json_mode adds response_format {"type": "json_object"}, for providers that support it (Mistral). The reply is
     still parsed and checked against the schema exactly as for the others. reasoning_effort, when set, goes with every
-    call: Gemini's is "none", because its hidden thinking uses up the output limit.
+    call: Gemini's is "minimal", its lowest, because its hidden thinking uses up the output limit.
     """
 
     def __init__(
@@ -124,7 +134,16 @@ class OpenAICompatibleAdapter:
     def __repr__(self) -> str:
         return f"OpenAICompatibleAdapter(provider={self.provider.value!r}, url={self._url!r})"  # never the key
 
-    def call(self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float) -> RawCompletion:
+    def call(
+        self,
+        model: str,
+        system: str,
+        user: str,
+        max_output_tokens: int,
+        timeout_s: float,
+        extra: Mapping[str, Any] | None = None,
+    ) -> RawCompletion:
+        """`extra` holds fields for this task on this model (models.yaml), and wins over the provider's own."""
         payload: dict[str, Any] = {
             "model": model,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
@@ -135,6 +154,7 @@ class OpenAICompatibleAdapter:
             payload["response_format"] = {"type": "json_object"}
         if self.reasoning_effort is not None:
             payload["reasoning_effort"] = self.reasoning_effort
+        payload.update(extra or {})
         try:
             response = self._http.post(
                 self._url,
@@ -173,18 +193,31 @@ class OpenAICompatibleAdapter:
             input_tokens=_int(usage.get("prompt_tokens"), estimate_tokens(system) + estimate_tokens(user)),
             output_tokens=_int(usage.get("completion_tokens"), estimate_tokens(text)),
             ratelimit_headers=limits,
+            usage_reported=_reported_use(usage) is not None,
         )
 
     def _read_body(self, response: httpx.Response) -> tuple[str, dict[str, Any]]:
+        """The reply's text and usage. A 2xx was charged for even if it's no use, so a failure says what it cost."""
         try:
             data = response.json()
+        except ValueError:
+            data = None
+        usage = data.get("usage") if isinstance(data, dict) else None
+        usage = usage if isinstance(usage, dict) else {}
+        try:
             text = data["choices"][0]["message"]["content"]
-        except (ValueError, KeyError, IndexError, TypeError):
-            raise ProviderError(self.provider, "the reply was not a chat completion") from None
+        except (KeyError, IndexError, TypeError):
+            used = _reported_use(usage)
+            raise ProviderError(self.provider, "the reply was not a chat completion", used_tokens=used) from None
         if not isinstance(text, str):
-            raise ProviderError(self.provider, "the reply had no message text")
-        usage = data.get("usage")
-        return text, usage if isinstance(usage, dict) else {}
+            raise ProviderError(self.provider, "the reply had no message text", used_tokens=_reported_use(usage))
+        return text, usage
+
+
+def _reported_use(usage: Mapping[str, Any]) -> int | None:
+    """The reply's input and output tokens, or None unless the provider reported both."""
+    prompt, completion = _int(usage.get("prompt_tokens"), -1), _int(usage.get("completion_tokens"), -1)
+    return prompt + completion if prompt >= 0 and completion >= 0 else None
 
 
 def _error_code(response: httpx.Response) -> str | None:

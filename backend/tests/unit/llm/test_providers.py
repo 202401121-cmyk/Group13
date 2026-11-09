@@ -198,6 +198,67 @@ def test_json_mode_asks_for_a_json_object() -> None:
     assert body["model"] == "ministral-8b-latest"
 
 
+def _reply(body: dict[str, object]) -> OpenAICompatibleAdapter:
+    http = httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, json=body)))
+    return OpenAICompatibleAdapter(Provider.GROQ, BASE_URL, FAKE_KEY, http)
+
+
+def test_a_reply_says_when_its_usage_was_reported() -> None:
+    usage = {"prompt_tokens": 9, "completion_tokens": 4}
+    message = {"choices": [{"message": {"content": "ok"}}]}
+    assert _reply({**message, "usage": usage}).call("m", "s", "u", 64, 5.0).usage_reported is True
+    assert _reply(message).call("m", "s", "u", 64, 5.0).usage_reported is False
+    assert _reply({**message, "usage": {"prompt_tokens": 9}}).call("m", "s", "u", 64, 5.0).usage_reported is False
+
+
+def test_a_reply_with_no_text_says_what_it_used() -> None:
+    no_text = {"choices": [{"message": {"content": None}}]}
+    usage = {"prompt_tokens": 1270, "completion_tokens": 1200}
+    with pytest.raises(ProviderError) as info:
+        _reply({**no_text, "usage": usage}).call("m", "s", "u", 64, 5.0)
+    assert info.value.used_tokens == 2470
+    with pytest.raises(ProviderError) as unknown:
+        _reply(no_text).call("m", "s", "u", 64, 5.0)
+    assert unknown.value.used_tokens is None
+
+
+def test_a_reply_with_no_message_says_what_it_used() -> None:
+    usage = {"prompt_tokens": 1270, "completion_tokens": 1200}
+    for body in ({"choices": [{"message": {"role": "assistant"}}]}, {"choices": []}, {}):
+        with pytest.raises(ProviderError) as info:
+            _reply({**body, "usage": usage}).call("m", "s", "u", 64, 5.0)
+        assert info.value.used_tokens == 2470, body
+
+
+def test_a_reply_that_cant_be_read_used_an_unknown_amount() -> None:
+    http = httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, text="not json")))
+    with pytest.raises(ProviderError) as info:
+        OpenAICompatibleAdapter(Provider.GROQ, BASE_URL, FAKE_KEY, http).call("m", "s", "u", 64, 5.0)
+    assert info.value.used_tokens is None
+    http = httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, json=["a list"])))
+    with pytest.raises(ProviderError) as listed:
+        OpenAICompatibleAdapter(Provider.GROQ, BASE_URL, FAKE_KEY, http).call("m", "s", "u", 64, 5.0)
+    assert listed.value.used_tokens is None
+
+
+@pytest.mark.parametrize(
+    "usage",
+    [
+        {"prompt_tokens": -1, "completion_tokens": 5},
+        {"prompt_tokens": 5, "completion_tokens": -1},
+        {"prompt_tokens": True, "completion_tokens": 5},
+        {"prompt_tokens": "9", "completion_tokens": 5},
+    ],
+)
+def test_odd_usage_counts_as_not_reported(usage: dict[str, object]) -> None:
+    body = {"choices": [{"message": {"content": "ok"}}], "usage": usage}
+    assert _reply(body).call("m", "s", "u", 64, 5.0).usage_reported is False
+
+
+def test_any_other_failure_used_nothing() -> None:
+    assert ProviderError(Provider.GROQ, "HTTP 500").used_tokens == 0
+
+
 def test_a_reasoning_setting_is_sent_when_set() -> None:
     seen: list[httpx.Request] = []
 

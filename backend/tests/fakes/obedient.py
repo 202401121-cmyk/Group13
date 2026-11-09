@@ -74,7 +74,9 @@ class ObedientAdapter:
     provider: Provider
     prompts: list[tuple[str, str]] = field(default_factory=list)
 
-    def call(self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float) -> RawCompletion:
+    def call(
+        self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float, extra: object = None
+    ) -> RawCompletion:
         self.prompts.append((system, user))
         text = obedient_reply(f"{system}\n{user}")
         used = estimate_tokens(system) + estimate_tokens(user)

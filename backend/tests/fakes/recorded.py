@@ -12,6 +12,7 @@ never stored, so tests that need it use synthetic threads.
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -91,5 +92,13 @@ class RecordedAdapter:
         http = httpx.Client(transport=recorded_transport(recording, provider.value))
         self._adapter = OpenAICompatibleAdapter(provider, "https://recorded.invalid/v1", "recorded", http)
 
-    def call(self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float) -> RawCompletion:
-        return self._adapter.call(model, system, user, max_output_tokens, timeout_s)
+    def call(
+        self,
+        model: str,
+        system: str,
+        user: str,
+        max_output_tokens: int,
+        timeout_s: float,
+        extra: Mapping[str, object] | None = None,
+    ) -> RawCompletion:
+        return self._adapter.call(model, system, user, max_output_tokens, timeout_s, extra)

@@ -9,11 +9,12 @@ import re
 from collections.abc import Mapping
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs; adding types-PyYAML is a dependency
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
-from app.contracts import DataClass, Difficulty, ModelLimits, Provider
+from app.contracts import DataClass, Difficulty, LLMTask, ModelLimits, Provider
 
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "models.yaml"
 
@@ -43,7 +44,9 @@ class ProviderSettings(BaseModel):
     )
     json_mode: bool = Field(default=False, description="Send response_format json_object (Mistral supports it)")
     requests_per_second: float | None = Field(default=None, gt=0)
+    requests_per_minute: int | None = Field(default=None, gt=0)
     tokens_per_minute: int | None = Field(default=None, gt=0)
+    limits_checked: date | None = Field(default=None, description="When the provider's own limits were last read")
     daily_tokens: int | None = Field(default=None, gt=0, description="Tokens per UTC day, counted in memory")
     # False = skip it with no call, for example while the account answers HTTP 402. Its row and flags stay.
     available: bool = True
@@ -84,6 +87,9 @@ class PoolSettings(BaseModel):
     limits_url: str
     limits_checked: date
     reddit_tokens_per_search: int = Field(gt=0, description="What a search's Reddit extraction may plan to use")
+    book_real_use: bool = Field(
+        default=False, description="After a call, book what it really used in place of what was held for it"
+    )
     extract_reserve_tokens_per_minute: int = Field(
         default=0, ge=0, description="What bulk work must leave of each member's minute, for calls a shopper waits on"
     )
@@ -95,6 +101,15 @@ class PoolSettings(BaseModel):
 
     def member(self, provider: Provider, model: str) -> PoolMember | None:
         return next((m for m in self.members if (m.provider, m.model) == (provider, model)), None)
+
+
+class ModelRequestSettings(BaseModel):
+    """Fields sent with one task's calls to one model. Not a contract: it never leaves the LLM wrapper."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    reasoning_effort: str | None = None
+    include_reasoning: bool | None = None
 
 
 # Which providers a call may use, in order, by what its prompt carries and how big the job is (US-46).
@@ -111,6 +126,7 @@ class LLMConfig(BaseModel):
     routes: Routes
     pool: PoolSettings
     force_ipv4: bool = Field(default=True, description="Connect to every provider over IPv4 only (docs/api-setup.md)")
+    task_settings: dict[LLMTask, dict[str, ModelRequestSettings]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _check(self) -> LLMConfig:
@@ -142,6 +158,7 @@ class LLMConfig(BaseModel):
             raise ValueError(f"trains_on_free_tier must match the provider's trains_on_inputs: {mismatched}")
         self._check_routes(trains)
         self._check_pool(set(pairs))
+        self._check_task_settings({model for _, model in pairs})
         return self
 
     def _check_routes(self, trains: dict[Provider, bool]) -> None:
@@ -179,6 +196,16 @@ class LLMConfig(BaseModel):
             raise ValueError("extract_reserve_tokens_per_minute must leave every pool member room for bulk work")
         if self.pool.reddit_tokens_per_search > sum(m.tokens_per_minute - reserve for m in self.pool.members):
             raise ValueError("reddit_tokens_per_search must fit in the pool's minute above the reserve")
+
+    def _check_task_settings(self, known_models: set[str]) -> None:
+        unknown = sorted({model for rows in self.task_settings.values() for model in rows} - known_models)
+        if unknown:
+            raise ValueError(f"task_settings names no such model: {unknown}")
+
+    def request_fields(self, task: LLMTask, model: str) -> dict[str, Any]:
+        """The fields this task sends to this model. Empty for almost every task and model."""
+        row = self.task_settings.get(task, {}).get(model)
+        return row.model_dump(exclude_none=True) if row is not None else {}
 
     def chain(self, data_class: DataClass, difficulty: Difficulty) -> list[Provider]:
         """The providers to try, in order, for one kind of call."""
@@ -242,6 +269,7 @@ def with_env_overrides(config: LLMConfig, env: Mapping[str, str]) -> LLMConfig:
                 "models": models,
                 "routes": config.routes,
                 "pool": config.pool,
+                "task_settings": config.task_settings,
                 "force_ipv4": config.force_ipv4,
             }
         )

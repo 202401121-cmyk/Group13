@@ -13,6 +13,7 @@ import threading
 import time
 from collections import deque
 from collections.abc import Callable, Hashable, Mapping
+from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from typing import Generic, TypeVar
 
@@ -77,6 +78,15 @@ class DailyTokenBudget(Generic[K]):
             self._used.clear()
 
 
+@dataclass
+class Booking:
+    """One call's place in the last minute's count. Its tokens can change once its real use is known."""
+
+    started: float
+    tokens: int
+    running: bool = True
+
+
 class RateLimiter:
     """Spaces requests to `requests_per_second`, and keeps the last minute under its request and token limits."""
 
@@ -98,7 +108,7 @@ class RateLimiter:
         self._sleep = sleep
         self._lock = threading.Lock()
         self._last_start: float | None = None
-        self._window: deque[tuple[float, int]] = deque()  # (start time, tokens) of the last minute's calls
+        self._window: deque[Booking] = deque()  # the last minute's calls
 
     def acquire(self, tokens: int) -> bool:
         """Wait until a call of `tokens` fits, then count it. False if that would take longer than max_wait_s."""
@@ -113,13 +123,37 @@ class RateLimiter:
 
     def try_acquire(self, tokens: int, keep_free: int = 0) -> bool:
         """Count a call of `tokens` only if it fits right now and leaves `keep_free` of the minute. Never waits."""
+        return self.try_book(tokens, keep_free) is not None
+
+    def try_book(self, tokens: int, keep_free: int = 0) -> Booking | None:
+        """The same, and returns the call's place in the count, so `rebook` can change it later."""
         with self._lock:
             now = self._clock()
             wait = self._wait_needed(now, tokens + keep_free)
             if wait is None or wait > 0:
+                return None
+            return self._take(now, tokens)
+
+    def rebook(self, booking: Booking, tokens: int | None) -> None:
+        """The call is over, and used this many tokens, not what was held for it. None keeps what was held.
+
+        It still counts as a request.
+        """
+        with self._lock:
+            booking.running = False
+            if tokens is not None:
+                booking.tokens = max(0, tokens)
+
+    def running_calls_may_free_room(self, tokens: int, keep_free: int = 0) -> bool:
+        """Would a call of `tokens` fit if the calls running now used nothing? If not, looking again can't help."""
+        with self._lock:
+            self._forget_old_calls(self._clock())
+            if self.tokens_per_minute is None or not any(booking.running for booking in self._window):
                 return False
-            self._take(now, tokens)
-            return True
+            if self.requests_per_minute is not None and len(self._window) >= self.requests_per_minute:
+                return False  # a finished call still counts as a request
+            finished = sum(booking.tokens for booking in self._window if not booking.running)
+            return finished + tokens + keep_free <= self.tokens_per_minute
 
     def seconds_until_room(self, tokens: int, keep_free: int = 0) -> float | None:
         """Seconds until a call of `tokens` fits and leaves `keep_free` of the minute, or None if it never can."""
@@ -129,14 +163,16 @@ class RateLimiter:
     def tokens_this_minute(self) -> int:
         with self._lock:
             self._forget_old_calls(self._clock())
-            return sum(n for _, n in self._window)
+            return sum(booking.tokens for booking in self._window)
 
-    def _take(self, now: float, tokens: int) -> None:
+    def _take(self, now: float, tokens: int) -> Booking:
         self._last_start = now
-        self._window.append((now, tokens))
+        booking = Booking(now, tokens)
+        self._window.append(booking)
+        return booking
 
     def _forget_old_calls(self, now: float) -> None:
-        while self._window and self._window[0][0] <= now - WINDOW_S:
+        while self._window and self._window[0].started <= now - WINDOW_S:
             self._window.popleft()
 
     def _wait_needed(self, now: float, tokens: int) -> float | None:
@@ -146,14 +182,14 @@ class RateLimiter:
         if self.requests_per_second and self._last_start is not None:
             waits.append(self._last_start + 1 / self.requests_per_second - now)
         if self.requests_per_minute and len(self._window) >= self.requests_per_minute:
-            waits.append(self._window[-self.requests_per_minute][0] + WINDOW_S - now)
+            waits.append(self._window[-self.requests_per_minute].started + WINDOW_S - now)
         if self.tokens_per_minute:
             if tokens > self.tokens_per_minute:
                 return None
-            over = sum(n for _, n in self._window) + tokens - self.tokens_per_minute
-            for started, n in self._window:
+            over = sum(booking.tokens for booking in self._window) + tokens - self.tokens_per_minute
+            for booking in self._window:
                 if over <= 0:
                     break
-                over -= n
-                waits.append(started + WINDOW_S - now)
+                over -= booking.tokens
+                waits.append(booking.started + WINDOW_S - now)
         return max(waits)
