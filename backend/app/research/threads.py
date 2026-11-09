@@ -34,18 +34,23 @@ SEARCH_LIMIT = 50  # before near-duplicates are merged
 
 
 class CountingBudget(RequestBudget):
-    """The search's Reddit requests, counted through the usage book, so its caps hold and counts survive a restart."""
+    """The search's Reddit requests, counted through the usage book, so its caps hold and counts survive a restart.
 
-    def __init__(self, usage: SearchUsage) -> None:
+    It also ends at research's deadline, so a read already running can't retry or try the next archive after that: the
+    reply would come too late to use, and the request would still count.
+    """
+
+    def __init__(self, usage: SearchUsage, time_left: Callable[[], float] = lambda: float("inf")) -> None:
         super().__init__(usage.per_search(PROVIDER))
         self.usage = usage
+        self._time_left = time_left
 
     @property
     def left(self) -> int:
-        return self.usage.left(PROVIDER)
+        return self.usage.left(PROVIDER) if self._time_left() > 0 else 0
 
     def take(self) -> bool:
-        if not self.usage.take(PROVIDER):
+        if self._time_left() <= 0 or not self.usage.take(PROVIDER):
             return False
         self.used += 1
         return True
@@ -119,7 +124,7 @@ def read_comments(
     time_left: Callable[[], float] = lambda: float("inf"),
 ) -> None:
     """Step two: the top threads' comments, one request at a time. A thread keeps going without them if a read fails."""
-    for index, thread in enumerate(progress.snapshot()[: settings.threads_with_comments]):
+    for index, thread in enumerate(progress.snapshot()[: settings.reddit_comment_threads]):
         if time_left() < MIN_SECONDS_FOR_COMMENTS:
             return  # not finished: the stage reports the timeout, and keeps the threads
         try:

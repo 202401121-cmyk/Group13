@@ -276,7 +276,7 @@ def test_read_threads_merges_duplicates_and_reads_comments_for_the_top_threads()
     threads.append(thread("dup", "Topic number9 words9", upvotes=1))
     reddit = FakeReddit(threads=threads)
     progress = ThreadProgress()
-    read_threads(reddit, "laptop recommendations", "laptop", _budget(), _settings(threads_with_comments=3), progress)
+    read_threads(reddit, "laptop recommendations", "laptop", _budget(), _settings(reddit_comment_threads=3), progress)
     assert progress.finished
     assert progress.failure is None
     assert len(progress.threads) == 10

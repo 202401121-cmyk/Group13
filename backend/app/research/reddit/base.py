@@ -98,7 +98,7 @@ def worth_naming(failures: Sequence[SourceFailure]) -> tuple[SourceFailure, ...]
 
 
 class RequestBudget:
-    """How many requests one search may still send (about 10, US-12). Cached answers cost nothing."""
+    """How many requests one search may still send (`reddit_archive` in research.yaml, US-12). A cache hit is free."""
 
     def __init__(self, max_requests: int = 10) -> None:
         self.max_requests = max_requests

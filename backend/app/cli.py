@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import io
+import os
 import sys
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -147,7 +148,7 @@ def run(query: str, interactive: bool, store: db.RequestStore, show_claims: bool
         print(claims_block(result.sources, recorder.results, load_extract_settings().domain_tiers))
         dropped: tuple[ThreadScore, ...] = getattr(stages.research, "last_dropped_threads", ())
         estimated: frozenset[str] = getattr(stages.research, "last_estimated_threads", frozenset())
-        print(reddit_block(result.sources, dropped, sees_counts.counts, estimated))
+        print(reddit_block(result.sources, dropped, sees_counts.counts, estimated, salt_set=salt_is_set()))
     return 0
 
 
@@ -288,11 +289,20 @@ def claims_block(
     return "\n".join(lines)
 
 
+NO_SALT = "REDDIT_USER_SALT is not set"
+
+
+def salt_is_set() -> bool:
+    return bool(os.environ.get("REDDIT_USER_SALT", "").strip())
+
+
 def reddit_block(
     sources: Sequence[Source],
     dropped: Sequence[ThreadScore],
     counts: Sequence[RecommenderCount] | None,
     estimated: frozenset[str] = frozenset(),
+    *,
+    salt_set: bool = False,
 ) -> str:
     """Each Reddit thread's score, the threads dropped, and how many different people name each product."""
     threads = [s for s in sources if s.type is SourceType.REDDIT]
@@ -315,7 +325,8 @@ def reddit_block(
     if not counts:
         lines.append("  No products were counted.")
         if threads and not any(t.author_hash or any(c.author_hash for c in t.comments) for t in threads):
-            lines.append("  No Reddit author is known, so nobody can be counted: REDDIT_USER_SALT is not set.")
+            why = "these threads carry no author hashes (they were cached before the salt was set)"
+            lines.append(f"  No Reddit author is known, so nobody can be counted: {why if salt_set else NO_SALT}.")
     return "\n".join(lines)
 
 

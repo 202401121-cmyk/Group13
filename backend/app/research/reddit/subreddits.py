@@ -17,7 +17,7 @@ from app.intake.lexicon import load_lexicon
 from .base import valid_subreddit
 
 DEFAULT_SUBREDDITS_PATH = Path(__file__).resolve().parents[3] / "config" / "reddit_subreddits.yaml"
-MAX_PER_SEARCH = 4  # one request each, out of the search's budget of about 10 (US-12)
+MAX_PER_SEARCH = 4  # one request each, out of the search's budget of 14 (US-12)
 
 
 class SubredditConfigError(ValueError):
