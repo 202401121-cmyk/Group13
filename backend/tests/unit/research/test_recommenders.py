@@ -10,6 +10,7 @@ import pytest
 
 from app.contracts import RecommenderCount, Source, SourceComment
 from app.research.reddit import recommenders as recommenders_module
+from app.research.reddit.quality import CountingWords, load_quality_settings
 from app.research.reddit.recommenders import MAX_COUNTS, ProductMatcher, count_recommenders
 from tests.fakes.research import thread, web_source
 
@@ -367,3 +368,86 @@ def test_the_module_never_writes_a_file_or_calls_a_model() -> None:
     """Counted by code with no LLM (build rule 2), and Reddit text stays in memory (D-53)."""
     code = Path(recommenders_module.__file__).read_text(encoding="utf-8")
     assert not re.search(r"\bopen\(|write_text|write_bytes|LLMClient|app\.llm", code)
+
+
+# --- what counts as a product ------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("name", ["dell", "Dell", "LENOVO", "Sony", "HP", "apple"])
+def test_a_brand_alone_is_not_counted(name: str) -> None:
+    assert _counts([_thread("aaa", (ANN, f"I like the {name} one."))], name) == {}
+
+
+@pytest.mark.parametrize(
+    "name", ["gaming laptop", "Gaming Laptops", "budget phone", "best headphones", "laptop", "gaming-laptop"]
+)
+def test_an_all_generic_phrase_is_not_counted(name: str) -> None:
+    assert _counts([_thread("aaa", (ANN, f"Buy a {name} today."))], name) == {}
+
+
+@pytest.mark.parametrize("name", ["Dell's", "dell\u2019s", "Lenovo's laptop", "the gaming laptops"])
+def test_a_possessive_is_still_only_a_brand(name: str) -> None:
+    assert _counts([_thread("aaa", (ANN, f"Buy {name} today."))], name) == {}
+
+
+@pytest.mark.parametrize(
+    "name", ["dell laptop", "Samsung ultra book", "HP gaming laptop", "Sony headphones", "Samsung TV", "Canon"]
+)
+def test_a_brand_and_generic_words_together_are_not_counted(name: str) -> None:
+    assert _counts([_thread("aaa", (ANN, f"Buy a {name} today."))], name) == {}
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "MacBook",
+        "WH-1000XM5",
+        "ThinkPad",
+        "Yoga",
+        "Legion 5",
+        "XPS 13",
+        "LG Gram",
+        "Apple Watch",
+        "Apple Watch Ultra",
+        "OnePlus One",
+        "OnePlus Buds",
+        "Galaxy Book",
+    ],
+)
+def test_a_real_model_name_still_counts(name: str) -> None:
+    assert _counts([_thread("aaa", (ANN, f"Buy the {name} today."))], name) == {name: (1, 1)}
+
+
+@pytest.mark.parametrize("name", ["Sony WH-1000XM5", "Dell XPS 13", "Apple MacBook Air", "HP Elitebook"])
+def test_a_brand_with_a_model_still_counts(name: str) -> None:
+    assert _counts([_thread("aaa", (ANN, f"Buy the {name} today."))], name) == {name: (1, 1)}
+
+
+def test_a_brand_name_no_longer_hides_inside_a_longer_model() -> None:
+    counts = _counts([_thread("aaa", (ANN, "Dell XPS 13 beats any Dell."))], "Dell", "Dell XPS 13")
+    assert counts == {"Dell XPS 13": (1, 1)}
+
+
+def test_an_alias_of_only_generic_words_is_not_matched() -> None:
+    """Only this person's words "gaming laptop" could count for the XPS 13 here, and they mustn't."""
+    rows = count_recommenders([_thread("aaa", (ANN, "A gaming laptop."))], ["XPS 13"], {"gaming laptop": "XPS 13"})
+    assert rows == []
+
+
+def test_a_real_alias_still_counts() -> None:
+    rows = count_recommenders([_thread("aaa", (ANN, "The XPS13 is good."))], ["XPS 13"], {"XPS13": "XPS 13"})
+    assert [(r.product_mention, r.distinct_recommenders) for r in rows] == [("XPS 13", 1)]
+
+
+def test_the_word_lists_come_from_config() -> None:
+    counting = load_quality_settings().counting
+    assert {"dell", "lenovo", "sony", "apple"} <= set(counting.brands)
+    assert {"laptop", "gaming", "budget", "phone", "headphones"} <= set(counting.generic_words)
+    assert not {"macbook", "thinkpad", "1000xm5"} & (set(counting.brands) | set(counting.generic_words))
+
+
+def test_a_name_on_a_config_list_is_only_skipped_because_of_the_list() -> None:
+    plain = CountingWords()
+    source = _thread("aaa", (ANN, "I like the dell."))
+    rows = count_recommenders([source], ["dell"], words=plain)
+    assert [r.product_mention for r in rows] == ["dell"]

@@ -69,6 +69,7 @@ class ArchiveSource:
     comments_path: str
     lookup_path: str
     rate_limit_statuses: frozenset[int] = frozenset({429})
+    short_wait_statuses: frozenset[int] = frozenset()
 
     def __init__(
         self,
@@ -86,7 +87,14 @@ class ArchiveSource:
         self.cache = cache if cache is not None else RedditCache()
         self.breaker = breaker
         self.http = ArchiveHttp(
-            self.label, base_url, http, limiter, breaker, rate_limit_statuses=self.rate_limit_statuses, sleep=sleep
+            self.label,
+            base_url,
+            http,
+            limiter,
+            breaker,
+            rate_limit_statuses=self.rate_limit_statuses,
+            short_wait_statuses=self.short_wait_statuses,
+            sleep=sleep,
         )
         self._now = now
         self._threads: dict[str, ThreadInfo] = {}

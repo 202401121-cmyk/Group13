@@ -393,6 +393,7 @@ class WrapperLLMClient:
         adapter = self.adapters[provider]
         timeout_s = self._timeout_s(call, model)
         started = monotonic()
+        started_at = datetime.now(UTC)
         tokens_in = tokens_out = 0
         usage_reported = True
         unanswered = 0  # estimated input of a chunk whose call failed: it was still sent
@@ -433,7 +434,7 @@ class WrapperLLMClient:
         self.budget.settle(provider, plan.planned, used)
         self.pool.settle(model, plan.planned, used)
         duration_ms = int((monotonic() - started) * 1000)
-        self._record(call, plan, outcome, tokens_in + unanswered, tokens_out, duration_ms)
+        self._record(call, plan, outcome, tokens_in + unanswered, tokens_out, duration_ms, started_at)
         return result, outcome
 
     def _record(
@@ -444,6 +445,7 @@ class WrapperLLMClient:
         input_tokens: int = 0,
         output_tokens: int = 0,
         duration_ms: int = 0,
+        started_at: datetime | None = None,
     ) -> None:
         self.call_log.record(
             LLMCallRecord(
@@ -457,7 +459,7 @@ class WrapperLLMClient:
                 duration_ms=duration_ms,
                 outcome=outcome,
                 fitted=plan.fitted.mode,
-                at=datetime.now(UTC),
+                at=started_at or datetime.now(UTC),  # when the attempt began: the end is at + duration_ms
             )
         )
 

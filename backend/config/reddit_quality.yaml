@@ -16,6 +16,26 @@
 #   of product names, but comments are scored before extraction finds any, so a search gives it none today.
 #   Comments are only scored here, never dropped.
 
+# Which names the recommender counts skip (US-13). Extraction marks what is a product at all. A name it marked is still
+# skipped when it is made only of these words: "dell", "gaming laptop", "dell laptop". "MacBook" and "WH-1000XM5" have a
+# word of their own, so they count. Add a brand or a generic word here, never in code.
+counting:
+  brands: [
+    acer, alienware, anker, apple, asus, beats, bose, boat, dell, gigabyte, google, hp, honor, huawei, infinix, jabra, jbl,
+    lenovo, lg, logitech, microsoft, motorola, msi, nokia, oneplus, oppo, razer, realme, redmi, samsung, sennheiser, sony,
+    tecno, vivo, xiaomi, canon, fitbit, garmin, nikon, panasonic, philips, sharp, tcl, toshiba,
+  ]
+  generic_words: [
+    a, an, and, any, best, bluetooth, book, books, brand, brands, budget, business, camera, cameras, cheap, coding,
+    computer, computers, desktop, desktops, device, devices, display, displays, earbud, earbuds, earphone, earphones, end,
+    entry, for, game, gamer, gaming, good, great, headphone, headphones, headset, headsets, high, in, keyboard, keyboards,
+    laptop, laptops, level, light, lightweight, low, machine, machines, mice, mid, mobile, mobiles, model, models, monitor,
+    monitors, mouse, my, new, notebook, notebooks, of, office, old, "on", or, pc, pcs, phone, phones, portable,
+    premium, fridge, fridges, refrigerator, refrigerators, television, televisions, tv, tvs, under, product, products, programming, range, refurbished, series, smartphone, smartphones, smartwatch, smartwatches,
+    speaker, speakers, student, tablet, tablets, the, thin, this, ultra, ultrabook, ultrabooks, used, wireless,
+    with, work,
+  ]
+
 half_life_days: 180
 
 thread:

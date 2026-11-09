@@ -40,6 +40,7 @@ def network_guard(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatc
 @pytest.fixture(autouse=True)
 def _no_live_llm(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("app.presearch.default_llm", lambda: FakeLLMClient())
+    monkeypatch.setattr("app.cli.default_llm", lambda: FakeLLMClient())
 
 
 @pytest.fixture(autouse=True)

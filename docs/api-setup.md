@@ -593,7 +593,7 @@ merged: the higher-scored thread stays, with the others' URLs as the last lines 
 | Provider | Rate limit | Per search | Per day | In total |
 |---|---|---|---|---|
 | Serper | 5 a second | 6 | 60 | 2,400 |
-| Reddit archives | 1 a second (Arctic Shift), 1 every 2 s (PullPush) | 10 | 500 | |
+| Reddit archives | 1 a second (Arctic Shift), 1 every 2 s (PullPush) | 14 | 500 | |
 | Review sites, robots.txt included | 1 every 2 s per site, or its longer `Crawl-delay` (over 10 s skips the site) | 24 | 200 | |
 
 **Counts.** Each request really sent is counted in the git-ignored `backend/.cache/research/usage.json`, per UTC day and in
@@ -689,6 +689,29 @@ or two after it is posted (threads from 31 Oct had theirs on 3 Nov; most from 1-
 2.6 seconds each, one at a time, and 5 of the 8 finished before the deadline. So replies aren't the slow part: the listings
 are. Arctic Shift answered the first listing with HTTP 422 in 0.9 seconds, and the retry went out 15 seconds later, the wait
 it asks for. A later listing got 422 twice and was lost, so only 2 of the 3 subreddits were listed.
+
+So a 422 now waits at most 5 seconds and retries once, then the next subreddit is tried. A 429, and PullPush, keep their 30
+seconds. No wait runs past research's deadline, and each leaves a second for the reply. A 422 means the archive is up, so it
+never counts toward the 10-minute pause that real failures lead to. In a live run the same day, with an empty cache, one 422
+cost 5 seconds, 7 of the 8 comment reads finished before the deadline, and they took 1.2 to 7.5 seconds each.
+
+**Who counts as a recommended product.** Extraction marks what is a product at all (`is_product`). The recommender counts then
+skip any name made only of the `brands` and `generic_words` in `config/reddit_quality.yaml`: "dell", "gaming laptop" and "dell
+laptop" don't count, while "MacBook", "WH-1000XM5" and "Apple Watch" do, as each has a word of its own. Parts and odd names
+such as "5060 rtx" still count for now.
+
+**What each LLM call leaves.** Every attempt records its provider, model, task, start, duration, status and token counts, and
+never any text. `python -m app.cli "..." --claims` ends with a summary per provider: calls, median and slowest time, timeouts
+and 429s. Only calls that went out are counted. A call our own limits refused has no input tokens, so it isn't counted as a
+call, or as a 429. A call still running when the search ends isn't in the summary, because its record isn't written yet.
+
+| Provider, live run on 9 November 2026 | Calls | Median | Slowest | Timeouts | 429s |
+|---|---|---|---|---|---|
+| Gemini 3.5 Flash Lite | 10 | 7.9 s | 9.0 s | 1 | 0 |
+| Groq | 7 | 1.2 s | 2.0 s | 0 | 0 |
+
+Each attempt may take 9 of a source's 15 seconds. Flash Lite answered in 1.2 to 3.2 seconds earlier that day, on the same
+pages, so its speed changes from one run to the next.
 
 **Which subreddits.** `backend/config/reddit_subreddits.yaml` lists them for each of the 49 categories, plus shared
 India-wide and buy-it-for-life lists by product family. Every name was checked on Arctic Shift on 3 Nov 2026; six

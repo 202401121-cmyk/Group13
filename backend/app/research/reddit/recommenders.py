@@ -11,6 +11,7 @@ memory (D-53).
 
 from __future__ import annotations
 
+import re
 import unicodedata
 from collections import deque
 from collections.abc import Iterable, Iterator, Mapping, Sequence
@@ -18,6 +19,7 @@ from collections.abc import Iterable, Iterator, Mapping, Sequence
 from app.contracts import RecommenderCount, Source, SourceType
 
 from ..dedupe import MERGED_LINE
+from .quality import CountingWords, load_quality_settings
 
 MAX_COUNTS = 200  # ResearchResult.recommender_counts and MatchInput.recommender_counts limit
 MIN_NAME_CHARS = 2
@@ -26,6 +28,7 @@ _HYPHEN = "-"
 _LONG_DASH = chr(0x2013)  # in a sentence it is punctuation, though inside a name it can stand for a hyphen
 _HYPHENS = str.maketrans(dict.fromkeys(map(chr, (0x2010, 0x2011, 0x2012)), _HYPHEN))
 _LONG_DASHES = str.maketrans(dict.fromkeys(map(chr, (0x2014, 0x2015, 0x2212)), _LONG_DASH))
+_POSSESSIVE = re.compile("['\u2019]s\\b")
 
 
 def _plain(text: str) -> str:
@@ -141,12 +144,27 @@ def _can_be_a_name(name: str) -> bool:
     return len(plain) >= MIN_NAME_CHARS and any(c.isalpha() for c in plain)
 
 
+def _names_a_product(name: str, skip: frozenset[str]) -> bool:
+    """False for a name made only of brand and generic words: "dell", "gaming laptop", "dell laptop", not "MacBook"."""
+    words = re.findall(r"[^\W_]+", _POSSESSIVE.sub("", _plain_name(name)))
+    return any(word not in skip for word in words)
+
+
 def count_recommenders(
-    threads: Sequence[Source], names: Iterable[str], aliases: Mapping[str, str] | None = None
+    threads: Sequence[Source],
+    names: Iterable[str],
+    aliases: Mapping[str, str] | None = None,
+    words: CountingWords | None = None,
 ) -> list[RecommenderCount]:
-    """Distinct people per product, most first. `aliases` maps another spelling to the product's own name."""
-    spellings = {name: name for name in sorted(names)}
-    spellings.update(aliases or {})
+    """Distinct people per product, most first. `aliases` maps another spelling to the product's own name.
+
+    Extraction marks what is a product at all, and its caller passes only those. `words` is the config's brand and
+    generic word lists, for the names that aren't a product on their own all the same.
+    """
+    lists = words if words is not None else load_quality_settings().counting
+    skip = frozenset(_plain_name(word) for word in (*lists.brands, *lists.generic_words))
+    spellings = {name: name for name in sorted(names) if _names_a_product(name, skip)}
+    spellings.update({spelling: name for spelling, name in (aliases or {}).items() if _names_a_product(spelling, skip)})
     matcher = ProductMatcher({spelling: product for spelling, product in spellings.items() if _can_be_a_name(spelling)})
     people: dict[str, set[str]] = {}
     places: dict[str, set[str]] = {}
