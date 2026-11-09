@@ -60,8 +60,10 @@ def test_all_members_busy_past_the_time_limit_gives_the_fallback() -> None:
     clock = Clock()
     client = _client(clock)
     for model in client.config.models:
-        if client.pool.has(model):  # every member has used its whole minute just now
-            assert client.pool.try_take(model, 8000)
+        if client.pool.has(model):  # every member has used its whole minute just now, in a call that has finished
+            booking = client.pool.try_take(model, 8000)
+            assert booking is not None
+            client.pool.book_real_use(model, booking, 8000)
 
     intent = IntakeStage(client).run(IntakeInput(raw_query="gaming laptop under 80k"), StageContext("srch_busy"))
 

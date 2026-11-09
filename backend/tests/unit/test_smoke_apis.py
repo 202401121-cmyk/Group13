@@ -12,8 +12,13 @@ import pytest
 
 from app.contracts import Provider
 from app.contracts.research import MAX_SOURCE_CHARS
+from app.extract.parsing import RawExtraction
+from app.extract.prompts import SYSTEM_PROMPT
+from app.extract.settings import load_extract_settings
 from app.llm import load_llm_config
 from app.llm.config import LLMConfigError
+from app.llm.fitting import estimate_tokens
+from app.llm.output import build_system_prompt
 from scripts.smoke_apis import SERVICES, TIMEOUT_S, limit_differences, llm_check, main, recorded_thread
 
 FAKE = "fake-key-DO-NOT-LEAK-123"
@@ -190,7 +195,7 @@ def test_the_llm_check_uses_the_providers_reasoning_setting() -> None:
 
     http = httpx.Client(transport=httpx.MockTransport(record))
     llm_check(Provider.GEMINI)({"GEMINI_API_KEY": "a-made-up-key"}, http)
-    assert json.loads(seen[0].content)["reasoning_effort"] == "none"
+    assert json.loads(seen[0].content)["reasoning_effort"] == "minimal"
 
 
 def test_the_llm_check_sends_the_fixed_prompt_with_5_output_tokens(capsys: pytest.CaptureFixture[str]) -> None:
@@ -199,7 +204,7 @@ def test_the_llm_check_sends_the_fixed_prompt_with_5_output_tokens(capsys: pytes
     assert code == 0 and len(seen) == 1
     assert body["max_tokens"] == 5
     assert body["messages"][1]["content"] == "Reply with the single word OK."
-    assert body["model"] == "gemini-3.5-flash"
+    assert body["model"] == "gemini-3.5-flash-lite"
     assert "response_format" not in body
 
 
@@ -258,8 +263,65 @@ def test_measure_extraction_makes_one_call_the_size_of_a_full_source(capsys: pyt
     assert (code, len(seen)) == (0, 1)
     body = json.loads(seen[0].content)
     assert body["model"] == GROQ_MODELS[0]
-    assert len(body["messages"][1]["content"]) == MAX_SOURCE_CHARS
+    assert 8000 < len(body["messages"][1]["content"]) < MAX_SOURCE_CHARS  # research caps a source at 3,000 tokens
     assert "input 2,900 + output 300 = 3,200 tokens used" in out
+
+
+def test_measure_extraction_matches_real_extraction(capsys: pytest.CaptureFixture[str]) -> None:
+    def answered(request: httpx.Request) -> httpx.Response:
+        usage = {"prompt_tokens": 2900, "completion_tokens": 300}
+        return httpx.Response(200, json={"choices": [{"message": {"content": "{}"}}], "usage": usage})
+
+    code, out, seen = run(capsys, ["--measure-extraction"], ALL_KEYS, answered)
+    body = json.loads(seen[0].content)
+    assert code == 0
+    assert (body["reasoning_effort"], body["include_reasoning"]) == ("low", False)
+    assert body["max_tokens"] == load_extract_settings(env={}).reddit_output_tokens
+    assert body["messages"][0]["content"] == build_system_prompt(SYSTEM_PROMPT, RawExtraction)
+    assert "1,200 of output" in out
+
+
+def test_the_measurement_sends_what_the_stage_sends(capsys: pytest.CaptureFixture[str]) -> None:
+    def answered(request: httpx.Request) -> httpx.Response:
+        usage = {"prompt_tokens": 2900, "completion_tokens": 300}
+        return httpx.Response(200, json={"choices": [{"message": {"content": "{}"}}], "usage": usage})
+
+    _, out, seen = run(capsys, ["--measure-extraction"], ALL_KEYS, answered)
+    system, user = (message["content"] for message in json.loads(seen[0].content)["messages"])
+    assert "Category: laptop" in user or "Category: Laptop" in user
+    assert "battery_life" in user
+    assert "<" in user and "Nova Book 14" in user  # the thread is inside the data block, as in a real call
+    planned = estimate_tokens(system) + estimate_tokens(user) + 1200
+    assert planned <= 6000  # it must fit a member's minute, or the wrapper would trim it
+    assert f"holds {planned:,} tokens" in out
+    assert "as the pool counts them" not in out
+
+
+def test_the_measurement_gets_the_time_a_real_attempt_gets(capsys: pytest.CaptureFixture[str]) -> None:
+    def answered(request: httpx.Request) -> httpx.Response:
+        assert request.extensions["timeout"]["read"] == pytest.approx(9)
+        usage = {"prompt_tokens": 2900, "completion_tokens": 300}
+        return httpx.Response(200, json={"choices": [{"message": {"content": "{}"}}], "usage": usage})
+
+    code, _, _ = run(capsys, ["--measure-extraction"], ALL_KEYS, answered)
+    assert code == 0
+
+
+def test_the_measurement_says_when_its_numbers_are_estimates(capsys: pytest.CaptureFixture[str]) -> None:
+    def no_usage(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"choices": [{"message": {"content": "{}"}}]})
+
+    _, out, _ = run(capsys, ["--measure-extraction"], ALL_KEYS, no_usage)
+    assert "no token counts" in out
+
+
+def test_the_groq_check_sends_each_models_settings(capsys: pytest.CaptureFixture[str]) -> None:
+    _, _, seen = run(capsys, ["--only", "groq"], ALL_KEYS)
+    bodies = {json.loads(r.content)["model"]: json.loads(r.content) for r in seen}
+    assert (bodies[GROQ_MODELS[0]]["reasoning_effort"], bodies[GROQ_MODELS[0]]["include_reasoning"]) == ("low", False)
+    assert (bodies[GROQ_MODELS[1]]["reasoning_effort"], bodies[GROQ_MODELS[1]]["include_reasoning"]) == ("low", False)
+    assert bodies[GROQ_MODELS[2]]["reasoning_effort"] == "none"
+    assert "include_reasoning" not in bodies[GROQ_MODELS[2]]
 
 
 def test_the_measurement_sends_thread_text_and_never_a_username() -> None:

@@ -108,10 +108,10 @@ def test_config_refuses_a_negative_reserve(tmp_path: Path) -> None:
         load_llm_config(_write(tmp_path, data))
 
 
-def test_gemini_has_its_thinking_off() -> None:
+def test_gemini_has_its_thinking_as_low_as_it_goes() -> None:
     """Its thinking counts against the output limit: with a limit of 1,200, a reply was once cut off at 43 tokens."""
     config = load_llm_config()
-    assert config.provider(Provider.GEMINI).reasoning_effort == "none"
+    assert config.provider(Provider.GEMINI).reasoning_effort == "minimal"
     others = [p.name for p in config.providers if p.reasoning_effort is not None and p.name is not Provider.GEMINI]
     assert others == []
 
@@ -119,7 +119,7 @@ def test_gemini_has_its_thinking_off() -> None:
 def test_the_client_hands_the_setting_to_the_provider() -> None:
     client = build_llm_client(env={"GEMINI_API_KEY": "a-made-up-key", "GROQ_API_KEY": "a-made-up-key"})
     gemini, groq = client.adapters[Provider.GEMINI], client.adapters[Provider.GROQ]
-    assert isinstance(gemini, OpenAICompatibleAdapter) and gemini.reasoning_effort == "none"
+    assert isinstance(gemini, OpenAICompatibleAdapter) and gemini.reasoning_effort == "minimal"
     assert isinstance(groq, OpenAICompatibleAdapter) and groq.reasoning_effort is None
 
 

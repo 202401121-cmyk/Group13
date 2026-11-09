@@ -1,7 +1,7 @@
 # LLM providers and model limits (US-26, US-46). Loaded and checked at startup by app/llm/config.py.
 #
 # providers: how to reach each provider, and what its terms say.
-#            json_mode, requests_per_second, tokens_per_minute and daily_tokens are optional limits we hold
+#            json_mode, requests_per_second, requests_per_minute, tokens_per_minute and daily_tokens are optional limits we hold
 #            ourselves to (US-46); daily_tokens is counted per UTC day, in memory.
 #            trains_on_inputs: may the provider, on the plan we use, train on what we send? true means public
 #            data only: private and Reddit text never go there (build rule 8). Each flag comes from the
@@ -30,10 +30,16 @@ providers:
     terms_url: https://console.groq.com/docs/your-data
     terms_checked: 2026-11-03
   # Unpaid services: prompts may be used to improve Google's products and machine learning, and people may read them.
-  # Thinking off: it counts against the output limit. On a public page in a live check (9 Nov 2026) with a limit of 1,200,
-  # thinking used 1,245 tokens, and the reply was cut off at 43. Off, the same call stopped normally at 566, in 5 s.
+  # Thinking as low as it goes: it counts against the output limit. On gemini-3.5-flash, on a public page in a live check
+  # (9 Nov 2026) with a limit of 1,200, thinking used 1,245 tokens, and the reply was cut off at 43.
+  # Free-tier limits of Gemini 3.5 Flash Lite, read from aistudio.google.com/rate-limit on 9 Nov 2026: Google's public
+  # rate-limits page lists no numbers for this tier. 15 requests a minute, 250,000 input tokens a minute and 500 requests
+  # a day. The 500 a day isn't paced: see docs/api-setup.md.
   - name: gemini
-    reasoning_effort: "none"
+    requests_per_minute: 15
+    tokens_per_minute: 250000
+    limits_checked: 2026-11-09
+    reasoning_effort: minimal  # its lowest: Flash Lite has no "none", and answered HTTP 400 to it on 9 Nov 2026
     base_url: https://generativelanguage.googleapis.com/v1beta/openai
     api_key_env: GEMINI_API_KEY
     request_timeout_s: 30
@@ -104,10 +110,10 @@ models:
     context_window_tokens: 131072
     max_output_tokens: 8192
     trains_on_free_tier: false
-  # Verified 3 Nov 2026 with scripts/smoke_llm.py. The free tier sometimes answers HTTP 503 (busy); the wrapper
-  # then moves on to the next provider.
+  # Listed by Google's models API on 9 Nov 2026, with a window of 1,048,576 and an output limit of 65,536. The free tier
+  # sometimes answers HTTP 503 (busy); the wrapper then moves on to the next provider.
   - provider: gemini
-    model: gemini-3.5-flash
+    model: gemini-3.5-flash-lite
     context_window_tokens: 1048576
     max_output_tokens: 8192
     trains_on_free_tier: true
@@ -140,6 +146,15 @@ models:
 #   private: the shopper's own words.          reddit: posts and comments from Reddit.
 #   public:  our own fixed text, or public web pages.
 #   short: a small prompt and answer.  medium: a longer answer.  long: a long input (many pages or comments).
+# task_settings: fields sent with one task's calls to one model, on top of its provider's own. Each model takes its own
+# values (console.groq.com/docs/reasoning, read 9 Nov 2026). A task or a model not listed sends none of these.
+# gpt-oss-20b spent all 1,200 output tokens thinking in P10's live runs, and each such source was lost.
+task_settings:
+  extract_claims:
+    openai/gpt-oss-120b: {reasoning_effort: low, include_reasoning: false}
+    openai/gpt-oss-20b: {reasoning_effort: low, include_reasoning: false}
+    qwen/qwen3.8-27b: {reasoning_effort: "none"}
+
 routes:
   private:
     short: [groq]
@@ -152,13 +167,13 @@ routes:
   public:
     short: [mistral, groq]
     medium: [mistral, gemini, groq, openrouter]
-    long: [gemini, mistral, cerebras, openrouter]
+    long: [gemini, mistral, openrouter]
 
 # Each member paces itself to its own limits, so a call waits for a slot instead of earning a 429. The token count is
 # the input the wrapper measures plus the requested output, so one call can never be bigger than tokens_per_minute.
 # Run `python -m scripts.smoke_apis --only groq`: if the API's headers differ from these numbers, the headers win.
-# reddit_tokens_per_search: what a search's Reddit extraction may plan to use. The extract stage keeps to it (US-14), and
-# skips the Reddit sources past it. It fits in about one minute of the pool's combined token rate, above the reserve.
+# reddit_tokens_per_search: what a search's Reddit extraction may use. A call's whole request counts while it runs, then
+# its real use if book_real_use is on. The extract stage keeps to it (US-14), and skips the Reddit sources past it. It fits in about one minute of the pool's combined token rate, above the reserve.
 # extract_reserve_tokens_per_minute: what bulk work must leave of each member's minute (US-14), so intake and reply
 # parsing, which plan about 1,700, always find room. Extraction waits inside its stage limit, or skips the source.
 # 7 Nov 2026: a full source used 3,216 tokens and the wrapper planned 5,129, so 18,000 is about 3 full-size sources
@@ -169,6 +184,11 @@ pool:
   limits_checked: 2026-11-07
   reddit_tokens_per_search: 18000
   extract_reserve_tokens_per_minute: 2000
+  # A call holds its input and whole requested output while it runs, then books what it really used. A failed call books
+  # nothing unless its reply reports a use. Groq doesn't charge the requested output in full: on 9 Nov 2026, two calls asking
+  # for 1,200 each, with a prompt and reply of 95, moved x-ratelimit-remaining-tokens by 334 and 49 (docs/api-setup.md). Set
+  # this to false if that changes: the pool and the extract stage's Reddit budget then both go back to counting holds.
+  book_real_use: true
   members:
     - provider: groq
       model: openai/gpt-oss-120b

@@ -80,7 +80,9 @@ class GroqFake:
     sent: list[str] = field(default_factory=list)
     timeouts: list[float] = field(default_factory=list)
 
-    def call(self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float) -> RawCompletion:
+    def call(
+        self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float, extra: object = None
+    ) -> RawCompletion:
         self.calls.append(model)
         self.sent.append(user)
         self.timeouts.append(timeout_s)
@@ -99,7 +101,9 @@ class HangingGroq(GroqFake):
     hangs: frozenset[str] = frozenset()
     hang_s: float | None = None  # how long it takes; None means its whole timeout
 
-    def call(self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float) -> RawCompletion:
+    def call(
+        self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float, extra: object = None
+    ) -> RawCompletion:
         if model in self.hangs:
             self.calls.append(model)
             self.timeouts.append(timeout_s)
@@ -113,6 +117,7 @@ def _config(**limits: int) -> LLMConfig:
     base = load_llm_config()
     pool = base.pool.model_dump()
     pool["extract_reserve_tokens_per_minute"] = 0  # test_pool_reserve.py covers the reserve
+    pool["book_real_use"] = False  # test_real_use_booking.py covers real-use booking
     if limits:
         pool["members"] = [{**m, **limits} for m in pool["members"]]
         pool["reddit_tokens_per_search"] = 1
@@ -553,7 +558,9 @@ class TogetherGroq(GroqFake):
 
     gate: Barrier = field(default_factory=lambda: Barrier(3, timeout=10))
 
-    def call(self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float) -> RawCompletion:
+    def call(
+        self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float, extra: object = None
+    ) -> RawCompletion:
         self.gate.wait()
         return super().call(model, system, user, max_output_tokens, timeout_s)
 

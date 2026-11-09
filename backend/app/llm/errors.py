@@ -20,10 +20,20 @@ class ProviderFailure(Exception):
 
     outcome: AttemptOutcome = "error"
 
-    def __init__(self, provider: Provider, detail: str, ratelimit_headers: Mapping[str, str] | None = None) -> None:
+    def __init__(
+        self,
+        provider: Provider,
+        detail: str,
+        ratelimit_headers: Mapping[str, str] | None = None,
+        *,
+        used_tokens: int | None = 0,
+    ) -> None:
         super().__init__(f"{provider.value}: {detail}")
         self.provider = provider
         self.ratelimit_headers = dict(ratelimit_headers or {})
+        # What this failure really cost: almost always nothing, but a reply with usage and no text was still charged.
+        # None means it was charged an unknown amount.
+        self.used_tokens = used_tokens
 
 
 class RateLimited(ProviderFailure):

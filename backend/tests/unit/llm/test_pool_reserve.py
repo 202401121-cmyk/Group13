@@ -53,7 +53,7 @@ def _text_booking(tokens: int, output: int) -> str:
 def _client(
     clock: Clock, config: LLMConfig | None = None, adapters: dict[Provider, FakeAdapter] | None = None
 ) -> tuple[WrapperLLMClient, InMemoryCallLog]:
-    config = config or load_llm_config()
+    config = config or _with_reserve(RESERVE)
     pool = ModelPool(config.pool, clock=clock, sleep=clock.sleep, today=lambda: date(2026, 11, 9))
     log = InMemoryCallLog()
     client = WrapperLLMClient(
@@ -96,7 +96,8 @@ def _booked(client: WrapperLLMClient) -> list[int]:
 
 def _with_reserve(reserve: int) -> LLMConfig:
     base = load_llm_config()
-    pool = {**base.pool.model_dump(), "extract_reserve_tokens_per_minute": reserve}
+    # Bookings stay whole here, so these tests pin the reserve alone: test_real_use_booking.py has them together.
+    pool = {**base.pool.model_dump(), "extract_reserve_tokens_per_minute": reserve, "book_real_use": False}
     return LLMConfig.model_validate(
         {"providers": base.providers, "models": base.models, "routes": base.routes, "pool": pool}
     )

@@ -31,7 +31,7 @@ from app.pipeline import (
 )
 from tests.fakes.llm import FakeLLMClient
 from tests.fakes.reddit import NOW
-from tests.fakes.research import rubric, thread, web_source
+from tests.fakes.research import review_source, rubric, thread, web_source
 
 QUOTE = "Nova Book 14 lasts nine hours."
 SECRET_COMMENT = "A made-up Reddit comment that must not be saved."
@@ -39,6 +39,11 @@ SECRET_COMMENT = "A made-up Reddit comment that must not be saved."
 
 def _web(name: str) -> Source:
     return web_source(f"https://{name}.example/", text=f"{QUOTE} Page {name}.")
+
+
+def _page(name: str) -> Source:
+    """A fetched page, which the real stage reads. It passes over a snippet like `_web`."""
+    return review_source(f"https://{name}.example/", text=f"{QUOTE} Page {name}.")
 
 
 def _claim(source: Source) -> C.Claim:
@@ -242,7 +247,7 @@ def test_a_real_claim_reaches_verify_through_the_runner() -> None:
             ],
         }
     )
-    source = _web("a")
+    source = _page("a")
     stage = GuardedExtractStage(FakeLLMClient({C.LLMTask.EXTRACT_CLAIMS: raw}), now=lambda: NOW)
     _, spy = _search(stage, source)
     (claim,) = spy.claims
@@ -250,7 +255,7 @@ def test_a_real_claim_reaches_verify_through_the_runner() -> None:
 
 
 def test_every_provider_failing_gives_no_claims_and_a_coverage_note() -> None:
-    sources = [_web("a"), _web("b"), thread("aaa", text=QUOTE)]
+    sources = [_page("a"), _page("b"), thread("aaa", text=QUOTE)]
     result, spy = _search(GuardedExtractStage(_failing_client(), now=lambda: NOW), *sources)
     assert spy.claims == []
     assert _report(result).status is C.StageStatus.OK

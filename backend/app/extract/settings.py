@@ -29,6 +29,7 @@ class ExtractSettings(BaseModel):
     public_output_tokens: int = Field(default=2000, ge=100, le=3500)
     max_sources_per_search: int = Field(default=40, ge=1, le=100)
     reddit_tokens_per_search: int = Field(default=18_000, gt=0)
+    book_real_use: bool = Field(default=False, description="Count real use in the Reddit budget, as the pool does")
     tiers: dict[str, list[str]] = Field(default_factory=dict)
 
     @field_validator("tiers")
@@ -54,7 +55,8 @@ def load_extract_settings(path: Path | str | None = None, env: Mapping[str, str]
     if env is None:
         load_dotenv()
         env = os.environ
-    budget = {"reddit_tokens_per_search": load_llm_config().pool.reddit_tokens_per_search}
+    pool = load_llm_config().pool
+    budget = {"reddit_tokens_per_search": pool.reddit_tokens_per_search, "book_real_use": pool.book_real_use}
     where = Path(path) if path is not None else DEFAULT_CONFIG_PATH
     try:
         values = yaml.safe_load(where.read_text(encoding="utf-8"))

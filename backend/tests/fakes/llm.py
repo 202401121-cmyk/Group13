@@ -71,6 +71,7 @@ class SentCall:
     system: str
     user: str
     max_output_tokens: int
+    extra: Mapping[str, object] | None = None
 
 
 @dataclass
@@ -87,8 +88,16 @@ class FakeAdapter:
     journal: list[Provider] | None = None  # shared across adapters to check the order of calls
     calls: list[SentCall] = field(default_factory=list)
 
-    def call(self, model: str, system: str, user: str, max_output_tokens: int, timeout_s: float) -> RawCompletion:
-        self.calls.append(SentCall(model, system, user, max_output_tokens))
+    def call(
+        self,
+        model: str,
+        system: str,
+        user: str,
+        max_output_tokens: int,
+        timeout_s: float,
+        extra: Mapping[str, object] | None = None,
+    ) -> RawCompletion:
+        self.calls.append(SentCall(model, system, user, max_output_tokens, extra))
         if self.journal is not None:
             self.journal.append(self.provider)
         used = estimate_tokens(system) + estimate_tokens(user)

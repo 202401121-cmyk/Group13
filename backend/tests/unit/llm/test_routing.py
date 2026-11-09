@@ -32,7 +32,7 @@ from app.llm.output import build_system_prompt
 from app.llm.providers import Adapter
 from tests.fakes.llm import FakeAdapter
 
-G, C, GE, OR, M = Provider.GROQ, Provider.CEREBRAS, Provider.GEMINI, Provider.OPENROUTER, Provider.MISTRAL
+G, GE, OR, M = Provider.GROQ, Provider.GEMINI, Provider.OPENROUTER, Provider.MISTRAL
 TRAINING = {GE, OR, M}
 EXPECTED_ROUTES = {
     DataClass.PRIVATE: {Difficulty.SHORT: [G], Difficulty.MEDIUM: [G], Difficulty.LONG: [G]},
@@ -40,7 +40,7 @@ EXPECTED_ROUTES = {
     DataClass.PUBLIC: {
         Difficulty.SHORT: [M, G],
         Difficulty.MEDIUM: [M, GE, G, OR],
-        Difficulty.LONG: [GE, M, C, OR],
+        Difficulty.LONG: [GE, M, OR],
     },
 }
 OK = '{"product": "Nova Book 14"}'
@@ -88,8 +88,8 @@ def test_each_call_follows_its_route_in_order(data_class: DataClass, difficulty:
         _client(adapters).complete(
             LLMTask.DISCOVER_ALIASES, "s", "u", Answer, data_class=data_class, difficulty=difficulty
         )
-    # Groq's three models are tried in turn; Cerebras stays in its public route, but is skipped with no call.
-    assert list(dict.fromkeys(journal)) == [p for p in EXPECTED_ROUTES[data_class][difficulty] if p is not C]
+    # Groq's three models are tried in turn.
+    assert list(dict.fromkeys(journal)) == EXPECTED_ROUTES[data_class][difficulty]
     if data_class is not DataClass.PUBLIC:
         assert not TRAINING & set(journal)
 
