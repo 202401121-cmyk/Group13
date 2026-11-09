@@ -7,6 +7,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { focusStop, tabTo, walkFocus, type FocusStop } from "./layout";
 import {
+  RESULTS_URL,
   finishResearch,
   LAPTOP_REQUEST,
   reachBrief,
@@ -92,7 +93,7 @@ test.describe("keyboard only", () => {
     await tab(/Start research/);
     await page.keyboard.press("Space");
 
-    await expect(page).toHaveURL(/\/results$/);
+    await expect(page).toHaveURL(RESULTS_URL);
     await finishResearch(page);
     const h1 = page.getByRole("heading", { level: 1, name: /Results for your/ });
     await expect(h1).toBeFocused();
@@ -147,7 +148,7 @@ test.describe("keyboard only", () => {
     await reachBrief(page);
     await tabTo(page, (n) => /Start research/.test(n));
     await page.keyboard.press("Enter");
-    await expect(page).toHaveURL(/\/results$/);
+    await expect(page).toHaveURL(RESULTS_URL);
     await page.clock.runFor(1_500);
     const home = page.getByRole("navigation", { name: "Main" }).getByRole("link", {
       name: "Home",
@@ -166,7 +167,7 @@ test.describe("keyboard only", () => {
     }
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
-    await expect(page).toHaveURL(/\/results$/);
+    await expect(page).toHaveURL(RESULTS_URL);
     await expect(home).toBeFocused();
     const stop = await focusStop(page);
     expect(stop.isBody).toBe(false);

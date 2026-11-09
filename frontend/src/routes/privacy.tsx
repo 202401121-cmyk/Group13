@@ -130,9 +130,10 @@ function Privacy() {
         <Section title="In your browser">
           <p>
             Your brief and your answers are kept in this browser tab, so reloading the page doesn't
-            lose them. They are gone when you close the tab. Results stay only while the results
-            page is open: closing or reloading it clears them here, and the page can't load them
-            back. Your light or dark theme choice is kept in this browser.
+            lose them. They are gone when you close the tab. The results page's address holds a
+            search ID, never your words. ShopSense keeps a search's progress and results in memory
+            for up to 30 minutes after it ends, so reloading the page shows them again. Your light
+            or dark theme choice is kept in this browser.
           </p>
         </Section>
       </article>

@@ -1,7 +1,7 @@
 /**
- * Frontend view of a research run. No backend contract for research exists in
- * this project yet, so these types describe what the UI can render; every
- * optional field is genuinely optional and the UI omits it when missing.
+ * Frontend view of a research run: what the screens can render. The contract's types stay in
+ * liveAdapter.ts, the one place that maps between the two. Every optional field is genuinely
+ * optional, and the UI omits it when missing.
  */
 
 export type WeightOrigin = "answer" | "standard" | "remembered";
@@ -14,18 +14,28 @@ export interface RubricItem {
   origin?: WeightOrigin | undefined;
 }
 
-/** The four research stages, in order. */
-export const RESEARCH_STAGES = [
-  "Finding products that fit your must-haves",
-  "Checking prices across stores",
-  "Reading specs and reviews",
-  "Scoring each option against your brief",
-] as const;
+export type ProgressStatus = "started" | "done" | "fallback" | "failed";
 
+/** One thing that happened in a run. */
 export interface ProgressEvent {
-  type: "stage_done";
-  /** Index into RESEARCH_STAGES. */
-  stage: number;
+  /** Counts up from 1 within a run. Order and repeats are decided by this, never by arrival. */
+  id: number;
+  stage: string;
+  status: ProgressStatus;
+  message: string;
+  /** Sources found so far, per source type. */
+  sources: Record<string, number>;
+}
+
+/** A run as the backend has it now. Queued counts as running, and partial results as done. */
+export interface RunSnapshot {
+  searchId: string;
+  status: "running" | "done" | "failed" | "cancelled";
+  /** When the run began, in ms since 1970. */
+  startedAt: number;
+  events: ProgressEvent[];
+  /** Set exactly when the status is "done". */
+  result: ResearchResult | null;
 }
 
 export type ValueState = "verified" | "estimated" | "unknown" | "disputed";
@@ -101,7 +111,7 @@ export interface ResearchResult {
   source: "mock" | "live";
 }
 
-export type ResearchErrorKind = "network" | "server" | "unknown";
+export type ResearchErrorKind = "network" | "server" | "unknown" | "busy" | "notFound";
 
 export class ResearchError extends Error {
   constructor(
@@ -121,14 +131,29 @@ export interface ResearchInput {
   scenario?: string | undefined;
 }
 
+export interface FollowHandlers {
+  onEvent(event: ProgressEvent): void;
+  /** The run has ended. Nothing more is called after this. */
+  onEnd(run: RunSnapshot): void;
+  /** Following it failed for good. Nothing more is called after this. */
+  onError(error: unknown): void;
+}
+
+/** "stopping": it will end soon as cancelled. "tooLate": it will finish anyway. "stopped": it already had. */
+export type CancelOutcome = "stopping" | "tooLate" | "stopped";
+
 export interface ResearchService {
-  /** True when the service emits ProgressEvents; otherwise the UI shows no ticks. */
-  streamsProgress: boolean;
   isMock: boolean;
-  run(
-    input: ResearchInput,
-    opts: { signal: AbortSignal; onEvent: (e: ProgressEvent) => void },
-  ): Promise<ResearchResult>;
+  /** Starts a run and gives its search ID. */
+  start(input: ResearchInput): Promise<string>;
+  /** The run's state now. */
+  read(searchId: string, input: ResearchInput): Promise<RunSnapshot>;
+  /** Follows the run until it ends. Gives back the function that stops following. */
+  follow(searchId: string, input: ResearchInput, handlers: FollowHandlers): () => void;
+  /** Asks the run to stop. */
+  cancel(searchId: string): Promise<CancelOutcome>;
 }
 
 export const RESEARCH_TIMEOUT_MS = 170_000;
+/** With no event for this long, the screen says so and offers to read the result by search ID. */
+export const QUIET_AFTER_MS = 60_000;

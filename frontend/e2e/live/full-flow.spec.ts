@@ -72,7 +72,7 @@ test("@live a shopper goes from a typed request to ranked results with sources",
   lap("brief");
   await page.getByRole("button", { name: /Start research/ }).click();
 
-  await expect(page).toHaveURL(/\/results$/);
+  await expect(page).toHaveURL(/\/results(\?search=srch_[0-9a-f]{24})?$/);
   await expect(page.getByRole("heading", { name: "Best match" })).toBeVisible({ timeout: 180_000 });
   const best = page.getByRole("list", { name: "Best match" });
   // Tied products share this list, so there can be more than one.

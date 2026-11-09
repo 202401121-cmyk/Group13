@@ -12,15 +12,18 @@ import {
 import { giveFocusBack } from "@/lib/results/view";
 
 /**
- * "Stop research?" when the shopper leaves the results page while research runs. It is loaded only when
- * needed (the results page imports it lazily), so its dialog library stays out of the page's first load.
- * Escape and "Keep researching" both keep the research going, and focus goes back to the control that opened
- * the dialog, or to the page's main heading if that control is gone.
+ * "Stop research?" when the shopper presses "Stop research", or leaves the results page while research runs.
+ * It is loaded only when needed (the results page imports it lazily), so its dialog library stays out of the
+ * page's first load. Escape and "Keep researching" both keep the research going, and focus goes back to the
+ * control that opened the dialog, or to the page's main heading if that control is gone.
  */
 export default function StopResearchDialog({
+  leaving,
   onKeep,
   onStop,
 }: {
+  /** The shopper is leaving the page, not pressing the page's own "Stop research" button. */
+  leaving: boolean;
   onKeep: () => void;
   onStop: () => void;
 }) {
@@ -47,7 +50,8 @@ export default function StopResearchDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Stop research?</AlertDialogTitle>
           <AlertDialogDescription>
-            Leaving this page stops the research. Your brief and answers are kept.
+            {leaving ? "Leaving this page stops the research." : "This ends the search."} Your brief
+            and answers are kept.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

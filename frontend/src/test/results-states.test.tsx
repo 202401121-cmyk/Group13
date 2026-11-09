@@ -483,7 +483,8 @@ describe("focus after the stop-research dialog", () => {
 });
 
 describe("the saved banner", () => {
-  const BANNER = "This result isn't saved. It will be gone if you close this page.";
+  const BANNER =
+    "This result isn't saved. It stays at this address for up to 30 minutes, then it's gone.";
   const banner = (saved: boolean) => {
     const r = resultFromSearch({ ...example, saved }, rubric, T0);
     return show(<NotSavedNotice saved={r.saved} />);

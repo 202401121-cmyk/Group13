@@ -68,6 +68,12 @@ describe("errors become plain messages", () => {
     ],
     [500, { detail: "Traceback (most recent call last) ..." }, "server", MESSAGES.server],
     [503, "not json", "server", MESSAGES.server],
+    [
+      503,
+      { detail: "ShopSense is busy. Please try again." },
+      "server",
+      "ShopSense is busy. Please try again.",
+    ],
   ];
   for (const [status, body, kind, message] of cases) {
     it(`${status} -> ${kind}`, async () => {
@@ -90,6 +96,50 @@ describe("errors become plain messages", () => {
     const { client } = fakeBackend(() => new Response("<html>", { status: 200 }));
     await expect(client.get("/api/x", { timeoutMs: 1000 })).rejects.toMatchObject({
       kind: "bad_response",
+    });
+  });
+});
+
+describe("an answer cut off halfway", () => {
+  it("is a lost connection, not an unreadable answer", async () => {
+    const cut = () =>
+      ({
+        ok: true,
+        status: 200,
+        json: () => Promise.reject(new TypeError("network error")),
+      }) as Response;
+    const { client } = fakeBackend(cut);
+    await expect(client.get("/api/x", { timeoutMs: 1000 })).rejects.toMatchObject({
+      kind: "network",
+      message: MESSAGES.network,
+    });
+  });
+
+  it("an answer that isn't JSON is still an unreadable one", async () => {
+    const { client } = fakeBackend(() => new Response("<html>", { status: 200 }));
+    await expect(client.get("/api/x", { timeoutMs: 1000 })).rejects.toMatchObject({
+      kind: "bad_response",
+    });
+  });
+});
+
+describe("an answer that stalls", () => {
+  it("is ended by the time limit, even after its headers have come", async () => {
+    const stalled = (init: RequestInit) =>
+      ({
+        ok: true,
+        status: 200,
+        json: () =>
+          new Promise((_resolve, reject) => {
+            init.signal?.addEventListener("abort", () =>
+              reject(new DOMException("Aborted", "AbortError")),
+            );
+          }),
+      }) as Response;
+    const { client } = fakeBackend((_call, init) => stalled(init));
+    await expect(client.get("/api/x", { timeoutMs: 20 })).rejects.toMatchObject({
+      kind: "timeout",
+      message: MESSAGES.timeout,
     });
   });
 });

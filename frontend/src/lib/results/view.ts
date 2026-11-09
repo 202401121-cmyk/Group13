@@ -1,7 +1,8 @@
 /** Plain helpers for the brief and results screens (no components, so fast refresh keeps working). */
 import { describeBudget } from "@/lib/request/format";
 import type { Brief } from "@/lib/request/types";
-import type { ProductResult } from "./types";
+import { inSentence } from "@/lib/text";
+import type { ProductResult, ResearchInput, RubricItem } from "./types";
 
 /** A price older than this may have changed (the contract's PRICE_STALE_AFTER, backend/app/contracts/commerce.py). */
 export const PRICE_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
@@ -38,6 +39,23 @@ export function giveFocusBack(opener: HTMLElement | null) {
 export function mustHavesOf(brief: Brief): string[] {
   const budget = describeBudget(brief.budget);
   return [...(budget ? [`Budget: ${budget}`] : []), ...brief.mustHaves];
+}
+
+/** What a search needs from the brief: the same when it starts and when a reload picks it up. */
+export function researchInput(
+  sessionId: string,
+  brief: Brief,
+  rubric: RubricItem[],
+  scenario?: string | undefined,
+): ResearchInput {
+  return {
+    sessionId,
+    category: inSentence(brief.product ?? "product"),
+    rubric,
+    mustHaves: mustHavesOf(brief),
+    exclusions: brief.exclusions,
+    scenario,
+  };
 }
 
 export function formatCheckTime(iso: string | null | undefined) {

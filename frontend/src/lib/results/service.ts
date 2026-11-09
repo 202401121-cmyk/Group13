@@ -10,7 +10,10 @@ export function getResearchService(): ResearchService {
   const config = apiConfig();
   service ??=
     config.mode === "live"
-      ? createLiveResearchService(createApiClient(config.baseUrl))
+      ? createLiveResearchService(createApiClient(config.baseUrl), {
+          baseUrl: config.baseUrl,
+          openStream: (url) => new EventSource(url),
+        })
       : createMockResearchService();
   return service;
 }

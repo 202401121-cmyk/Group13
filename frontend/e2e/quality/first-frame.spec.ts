@@ -7,6 +7,7 @@
  */
 import { expect, test, type Page } from "@playwright/test";
 import {
+  RESULTS_URL,
   answerAll,
   axeViolations,
   checkRow,
@@ -283,7 +284,7 @@ for (const size of SIZES) {
         await pauseClock(page);
         await page.getByRole("button", { name: /Start research/ }).click();
         await page.clock.runFor(100); // the brief page opens the results page one frame after the tap
-        await expect(page).toHaveURL(/\/results$/);
+        await expect(page).toHaveURL(RESULTS_URL);
         await page.clock.runFor(1_400);
         await expect(page.getByRole("heading", { name: /What ShopSense is doing/ })).toBeVisible();
         await heldFrame(page, row("results, researching"), theme);
@@ -294,10 +295,13 @@ for (const size of SIZES) {
         await page.getByRole("button", { name: "Keep researching" }).click();
 
         await page.getByRole("button", { name: "Stop research" }).click();
+        await page
+          .getByRole("alertdialog", { name: "Stop research?" })
+          .getByRole("button", { name: "Stop research" })
+          .click();
         await page.clock.resume();
-        await expect(page).toHaveURL(/\/brief$/);
-        await expect(page.getByText("Research stopped").first()).toBeVisible();
-        await firstFrame(page, row("brief, research stopped message"));
+        await expect(page.getByRole("heading", { level: 1, name: "Search stopped" })).toBeVisible();
+        await firstFrame(page, row("results, search stopped"));
       });
 
       for (const group of SCENARIOS) {
@@ -335,9 +339,9 @@ for (const size of SIZES) {
         await expect(page.getByText(/took too long/).first()).toBeVisible();
         await firstFrame(page, row("results, research timed out"));
 
-        await page.reload();
+        await page.goto(`/s/${id}/results`);
         await expect(page.getByRole("heading", { name: /aren't here any more/ })).toBeVisible();
-        await firstFrame(page, row("results, gone after reload"));
+        await firstFrame(page, row("results, no search to show"));
 
         await page.goto(`/s/${MISSING}/results`);
         await firstFrame(page, row("results, search not found"));
@@ -399,7 +403,7 @@ test.describe("reduced motion", () => {
     await pauseClock(page);
     await page.getByRole("button", { name: /Start research/ }).click();
     await page.clock.runFor(100);
-    await expect(page).toHaveURL(/\/results$/);
+    await expect(page).toHaveURL(RESULTS_URL);
     await page.clock.runFor(1_400);
     await headerHome(page, 1280);
     await expect(page.getByRole("alertdialog", { name: "Stop research?" })).toBeVisible();
@@ -407,7 +411,7 @@ test.describe("reduced motion", () => {
 
     await page.getByRole("button", { name: "Stop research" }).last().click();
     await page.clock.resume();
-    await expect(page.getByText("Research stopped").first()).toBeVisible();
+    await expect(page.getByText("Search stopped").first()).toBeVisible();
     expect(await moving(page), "toast").toEqual([]);
   });
 });

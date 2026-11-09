@@ -6,12 +6,17 @@ import { PillButton } from "@/components/shopsense/ui";
 import { pillButton } from "@/components/shopsense/pill-button";
 import { MissingSession, PageLoading } from "@/components/interview/shared";
 import { BriefSections } from "@/components/results/BriefSections";
-import { mustHavesOf } from "@/lib/results/view";
+import { researchInput } from "@/lib/results/view";
 import { useInterview } from "@/lib/interview/useInterview";
 import { interviewReducer, toInterviewSnapshot } from "@/lib/interview/reducer";
 import { saveSession } from "@/lib/session/store";
 import { rubricForBrief, weightRows } from "@/lib/results/rubric";
-import { researchServiceInfo, startResearch, useResearch } from "@/lib/results/controller";
+import {
+  leaveResearch,
+  researchServiceInfo,
+  startResearch,
+  useResearch,
+} from "@/lib/results/controller";
 import { MOCK_SCENARIOS } from "@/lib/results/mockService";
 import { inSentence } from "@/lib/text";
 
@@ -68,7 +73,6 @@ function BriefReview() {
   // Live mode shows the backend's own weights, which exist only once the interview is finished.
   const rubric = rubricForBrief(state, !info.isMock);
   const rows = weightRows(rubric ?? []);
-  const active = research.status === "researching" || research.status === "starting";
 
   function change(criterionId: string) {
     if (!session) return;
@@ -80,16 +84,14 @@ function BriefReview() {
   function start() {
     if (!session || starting || !rubric) return;
     setStarting(true);
-    if (!active) {
-      startResearch({
-        sessionId,
-        category,
-        rubric,
-        mustHaves: mustHavesOf(session.brief),
-        exclusions: session.brief.exclusions,
-        scenario: info.isMock ? scenario : undefined,
-      });
+    // A run being stopped or read again isn't the search the shopper is asking for now. One that is simply
+    // still going is left alone, and the results page shows it.
+    if (research.status === "stopping" || research.status === "attaching") {
+      void leaveResearch(sessionId);
     }
+    startResearch(
+      researchInput(sessionId, session.brief, rubric, info.isMock ? scenario : undefined),
+    );
     saveSession({ ...session, stage: "research" });
     // Paint the busy button first, then draw the results page in the next frame. The results page's code
     // is already loaded, so drawing it inside this tap made the tap's response slow (INP).
