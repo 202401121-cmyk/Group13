@@ -10,6 +10,7 @@ import {
 } from "@/lib/interview/liveAdapter";
 import { ALREADY_ANSWERED } from "@/lib/interview/questions";
 import { initialInterview, interviewReducer } from "@/lib/interview/reducer";
+import type { Turn } from "@/lib/interview/types";
 import type { InterviewStep } from "@/types/contracts/InterviewStep";
 import { fakeBackend, hang, json, scripted } from "./helpers/fakeBackend";
 import { SID, asked, criteria, rubric, sessionWith, stepOf } from "./helpers/interviewSteps";
@@ -98,7 +99,7 @@ describe("steps", () => {
           criterionId: "cpu_performance",
           question: step.question!.text,
           why: step.question!.why_asking,
-          replies: ["Low", "Medium", "High"], // Skip has its own button
+          replies: ["Low", "Medium", "High", "Good enough"], // Skip has its own button
         });
         expect(r.rubric).toBeUndefined();
       }
@@ -122,7 +123,7 @@ describe("turns", () => {
       [`/api/presearch/${SID}/interview/start`, undefined],
       [
         `/api/presearch/${SID}/interview/reply`,
-        { reply_text: "High", question_id: "q_cpu_performance" },
+        { reply_text: "High", question_id: "q_cpu_performance", level: "high" },
       ],
       [
         `/api/presearch/${SID}/interview/reply`,
@@ -190,7 +191,7 @@ describe("turns", () => {
       [`/api/presearch/${SID}/interview/back`, { question_id: "q_cpu_performance" }],
       [
         `/api/presearch/${SID}/interview/reply`,
-        { reply_text: "Low", question_id: "q_cpu_performance" },
+        { reply_text: "Low", question_id: "q_cpu_performance", level: "low" },
       ],
     ]);
     expect(r.laterChanged).toBe(true);
@@ -343,6 +344,206 @@ describe("question_id", () => {
       vi.useRealTimers();
     }
   });
+});
+
+describe("rough and exact replies", () => {
+  const asking = viewStepFor("cpu_performance");
+  const sendFrom = (text: string | null) =>
+    interviewReducer(
+      { ...initialInterview, phase: "asking", criteria: viewCriteria, step: asking },
+      { type: "SEND", text },
+    ).pending!;
+
+  async function bodyFor(turn: Turn) {
+    const { client, calls } = fakeBackend(() => json(200, STEPS.finished));
+    await createLiveInterviewService(client).turn({ ...base, turn });
+    return calls[0]?.body as Record<string, unknown>;
+  }
+
+  it.each([
+    ["Low", "low"],
+    ["Medium", "medium"],
+    ["High", "high"],
+    ["Good enough", "good_enough"],
+  ] as const)("the %s button sends its level and question id", async (text, level) => {
+    expect(await bodyFor(sendFrom(text))).toEqual({
+      reply_text: text,
+      question_id: "q_cpu_performance",
+      level,
+    });
+  });
+
+  it("the exact box sends a number and never a level", async () => {
+    const body = await bodyFor(sendFrom("7.5"));
+    expect(body).toEqual({
+      reply_text: "7.5",
+      question_id: "q_cpu_performance",
+      exact_weight: 7.5,
+    });
+    expect(body).not.toHaveProperty("level");
+  });
+
+  it("an exact zero is still sent", async () => {
+    const body = await bodyFor(sendFrom("0"));
+    expect(body["exact_weight"]).toBe(0);
+  });
+
+  it("a typed level or number is sent the same way as a button or the box", async () => {
+    expect(await bodyFor(sendFrom("high"))).toMatchObject({ reply_text: "high", level: "high" });
+    expect(await bodyFor(sendFrom("7.5"))).toMatchObject({ exact_weight: 7.5 });
+  });
+
+  it.each(["Quite important", "7/10", "11", "-1"])("typed %j sends neither", async (text) => {
+    expect(await bodyFor(sendFrom(text))).toEqual({
+      reply_text: text,
+      question_id: "q_cpu_performance",
+    });
+  });
+
+  it("a reworded question's own button sends neither", async () => {
+    expect(await bodyFor(sendFrom("Yes, a lot"))).toEqual({
+      reply_text: "Yes, a lot",
+      question_id: "q_cpu_performance",
+    });
+  });
+
+  it("a skip sends neither", async () => {
+    const body = await bodyFor(sendFrom(null));
+    expect(body).toEqual({ reply_text: SKIP_REPLY, question_id: "q_cpu_performance" });
+  });
+
+  it("changing an answer sends it the same way, after reopening the question", async () => {
+    const { client, calls } = fakeBackend(() => json(200, STEPS.finished));
+    await createLiveInterviewService(client).turn({
+      ...base,
+      turn: { ...sendFrom("6"), revise: true },
+    });
+    expect(calls.map((c) => c.path.split("/").pop())).toEqual(["back", "reply"]);
+    expect(calls[1]?.body).toMatchObject({ exact_weight: 6, question_id: "q_cpu_performance" });
+  });
+
+  const answered = stepOf("question", [asked("cpu_performance", "answered", "High")], {
+    key: "battery_life",
+  });
+  const reopened = stepOf("question", [asked("cpu_performance", "pending")]);
+
+  it("a reply to a question already reopened does not reopen it again", async () => {
+    // The backend reworded it: the question is still open, and going back to it again would be refused.
+    const { client, calls } = fakeBackend(
+      scripted(
+        json(200, answered),
+        json(200, reopened),
+        json(200, STEPS.rephrase),
+        json(200, STEPS.finished),
+      ),
+    );
+    const svc = createLiveInterviewService(client);
+    await svc.turn(base);
+    const revise = { ...sendFrom("not sure"), revise: true };
+    await svc.turn({ ...base, turn: revise });
+    await svc.turn({ ...base, turn: { ...sendFrom("7.5"), revise: true } });
+    expect(calls.map((c) => c.path.split("/").pop())).toEqual(["start", "back", "reply", "reply"]);
+    expect(calls[3]?.body).toMatchObject({ exact_weight: 7.5 });
+  });
+
+  it("a question this tab didn't know was open still takes the new answer", async () => {
+    // A reload forgot the backend's state, and the backend already has the question open, so it refuses to reopen it.
+    const session = sessionWith(reopened);
+    const { client, calls } = fakeBackend(
+      scripted(
+        json(409, { detail: "not answered" }),
+        json(200, session),
+        json(200, STEPS.finished),
+      ),
+    );
+    const result = await createLiveInterviewService(client).turn({
+      ...base,
+      turn: { ...sendFrom("Low"), revise: true },
+    });
+    expect(calls.map((c) => c.path.split("/").pop())).toEqual(["back", SID, "reply"]);
+    expect(calls[2]?.body).toMatchObject({ level: "low", question_id: "q_cpu_performance" });
+    expect(result.notice).toBeUndefined();
+  });
+
+  it("a question that really has moved on still says so", async () => {
+    const moved = stepOf("question", [asked("cpu_performance", "answered", "High")], {
+      key: "battery_life",
+    });
+    const { client, calls } = fakeBackend(
+      scripted(json(409, { detail: "not answered" }), json(200, sessionWith(moved))),
+    );
+    const result = await createLiveInterviewService(client).turn({
+      ...base,
+      turn: { ...sendFrom("Low"), revise: true },
+    });
+    expect(calls.map((c) => c.path.split("/").pop())).toEqual(["back", SID]);
+    expect(result.notice).toBe(ALREADY_ANSWERED);
+  });
+
+  it("a retry of a changed answer does not reopen the question again", async () => {
+    vi.useFakeTimers();
+    try {
+      const { client, calls } = fakeBackend(
+        scripted(json(200, answered), json(200, reopened), hang, json(200, STEPS.finished)),
+      );
+      const svc = createLiveInterviewService(client);
+      await svc.turn(base);
+      const turn = { ...sendFrom("9"), revise: true };
+      const failed = svc.turn({ ...base, turn }).catch((e: unknown) => e);
+      await vi.advanceTimersByTimeAsync(TIMEOUTS.step);
+      await expect(failed).resolves.toMatchObject({ kind: "timeout" });
+      const result = await svc.turn({ ...base, turn });
+      expect(calls.map((c) => c.path.split("/").pop())).toEqual([
+        "start",
+        "back",
+        "reply",
+        "reply",
+      ]);
+      expect(calls[3]?.body).toMatchObject({ exact_weight: 9 });
+      expect(result.notice).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it.each(["Good enough", "7.5", "7", "0"])(
+    "live validation passes for the reply %j",
+    async (text) => {
+      const body = await bodyFor(sendFrom(text));
+      await expect(checkContract("ReplyRequest", body)).resolves.toEqual(body);
+    },
+  );
+
+  it("live validation refuses a number out of range", async () => {
+    await expect(
+      checkContract("ReplyRequest", { reply_text: "11", exact_weight: 11 }),
+    ).rejects.toMatchObject({ kind: "bad_response" });
+  });
+
+  it.each(["Medium", "7.5"])(
+    "a retried reply of %j after a timeout reuses the same question id and answer",
+    async (text) => {
+      vi.useFakeTimers();
+      try {
+        const { client, calls } = fakeBackend(scripted(hang, json(200, STEPS.finished)));
+        const svc = createLiveInterviewService(client);
+        let s = interviewReducer(
+          { ...initialInterview, phase: "asking", criteria: viewCriteria, step: asking },
+          { type: "SEND", text },
+        );
+        const failed = svc.turn({ ...base, turn: s.pending! }).catch((e: unknown) => e);
+        await vi.advanceTimersByTimeAsync(TIMEOUTS.step);
+        await expect(failed).resolves.toMatchObject({ kind: "timeout" });
+        s = interviewReducer(s, { type: "TURN_FAILED", message: "Try again" });
+        s = interviewReducer(s, { type: "RETRY" });
+        await svc.turn({ ...base, turn: s.pending! });
+        expect(calls[1]?.body).toEqual(calls[0]?.body);
+        expect(calls[1]?.body).toMatchObject({ question_id: "q_cpu_performance" });
+      } finally {
+        vi.useRealTimers();
+      }
+    },
+  );
 });
 
 describe("a reply the backend refuses as out of date (409)", () => {
