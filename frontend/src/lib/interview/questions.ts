@@ -4,7 +4,7 @@ import type { Criterion, Step } from "./types";
  * The buttons under every question. The backend understands exactly these (backend/app/interview/answers.py),
  * plus Skip, which the screen has its own button for.
  */
-export const IMPORTANCE_REPLIES = ["Low", "Medium", "High"];
+export const IMPORTANCE_REPLIES = ["Low", "Medium", "High", "Good enough"];
 
 /** Shown when the backend refuses a reply as out of date and the screen has caught up with it. */
 export const ALREADY_ANSWERED = "This question was already answered. Here is where you are.";

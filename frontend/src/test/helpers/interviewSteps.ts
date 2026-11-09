@@ -27,7 +27,7 @@ export function question(key: string): InterviewQuestion {
     id: `q_${key}`,
     criterion_key: key,
     text: `${labels.get(key) ?? key}: how much does it matter to you?`,
-    quick_replies: ["Low", "Medium", "High", "Skip"],
+    quick_replies: ["Low", "Medium", "High", "Good enough", "Skip"],
     why_asking: criteria.criteria.find((c) => c.key === key)?.definition ?? null,
   };
 }

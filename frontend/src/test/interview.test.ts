@@ -98,6 +98,51 @@ describe("full interview scenario", () => {
   });
 });
 
+describe("rough and exact answers in mock mode", () => {
+  const answer = (s: InterviewState, text: string) => send(s, text);
+
+  it("mock mode offers all four buttons", () => {
+    expect(started().step?.replies).toEqual(["Low", "Medium", "High", "Good enough"]);
+  });
+
+  it("mock mode finishes with all four buttons and an exact value", () => {
+    let s = started();
+    s = answer(s, "Low");
+    s = answer(s, "Medium");
+    s = answer(s, "High");
+    s = answer(s, "Good enough");
+    s = answer(s, "7.5");
+    expect(s.phase).toBe("finished");
+    expect(Object.values(s.answers).map((a) => a.value)).toEqual(
+      expect.arrayContaining(["Low", "Medium", "High", "Good enough", "7.5"]),
+    );
+  });
+
+  it("a number is always an answer", () => {
+    const s = answer(started(), "4");
+    expect(s.answers["cpu"]).toEqual({ status: "answered", value: "4" });
+  });
+
+  it("changing an earlier answer offers the same choice", () => {
+    let s = started();
+    s = answer(s, "7.5");
+    s = interviewReducer(s, { type: "GO_BACK", criterionId: "cpu" });
+    expect(s.step?.replies).toEqual(["Low", "Medium", "High", "Good enough"]);
+    expect(s.answers["cpu"]?.value).toBe("7.5");
+  });
+
+  it("later questions update after an exact change", () => {
+    let s = started();
+    s = answer(s, "High");
+    s = answer(s, "Medium");
+    s = interviewReducer(s, { type: "GO_BACK", criterionId: "cpu" });
+    s = answer(s, "2.5");
+    expect(s.laterChanged).toBe(true);
+    expect(s.answers["memory"]).toBeUndefined();
+    expect(s.answers["cpu"]?.value).toBe("2.5");
+  });
+});
+
 describe("sending rules", () => {
   it("ignores duplicate sends while pending", () => {
     const s1 = interviewReducer(started(), { type: "SEND", text: "Very important" });
@@ -137,6 +182,20 @@ describe("sending rules", () => {
     expect(interviewReducer(s, { type: "SEND", text: "High" }).notice).toBeNull();
     expect(interviewReducer(s, { type: "GO_BACK", criterionId: "cpu" }).notice).toBeNull();
   });
+  it("sending again after a failed send replaces the answer, and Try again sends the new one", () => {
+    const asking = started();
+    let s = interviewReducer(asking, { type: "SEND", text: "7" });
+    s = interviewReducer(s, { type: "TURN_FAILED", message: "x" });
+    expect(s.phase).toBe("error");
+    s = interviewReducer(s, { type: "SEND", text: "9" });
+    expect(s.phase).toBe("sending");
+    expect(s.pending?.text).toBe("9");
+    expect(s.error).toBeNull();
+    s = interviewReducer(s, { type: "TURN_FAILED", message: "x" });
+    s = interviewReducer(s, { type: "RETRY" });
+    expect(s.pending?.text).toBe("9");
+  });
+
   it("caps typed answers at 500 characters", () => {
     const s = interviewReducer(started(), { type: "SEND", text: "a".repeat(600) });
     expect(s.pending?.text).toHaveLength(500);

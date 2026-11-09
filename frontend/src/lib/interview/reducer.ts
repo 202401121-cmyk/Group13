@@ -84,7 +84,8 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
       if (s.step) return { ...s, phase: s.step.kind === "finished" ? "finished" : "asking" };
       return { ...s, phase: "starting", pending: null, error: null, requestId: s.requestId + 1 };
     case "SEND": {
-      if (s.phase !== "asking" || !s.step?.criterionId) return s;
+      // After a failed send the shopper may send something else: it replaces what "Try again" would send.
+      if ((s.phase !== "asking" && s.phase !== "error") || !s.step?.criterionId) return s;
       const text = a.text === null ? null : a.text.trim().slice(0, MAX_ANSWER_LENGTH);
       if (text === "") return s;
       const id = s.step.criterionId;

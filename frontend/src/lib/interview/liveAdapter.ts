@@ -13,13 +13,16 @@ import type { RubricItem, WeightOrigin } from "@/lib/results/types";
 import { keyInWords } from "@/lib/text";
 import type { CriteriaSet } from "@/types/contracts/CriteriaSet";
 import type { InterviewState, InterviewStep, Rubric } from "@/types/contracts/InterviewStep";
+import type { ReplyRequest } from "@/types/contracts/ReplyRequest";
 import { ALREADY_ANSWERED } from "./questions";
+import { exactFromAnswer, levelOf } from "./roughLevels";
 import type {
   Answers,
   CriteriaResult,
   Criterion,
   InterviewService,
   Step,
+  Turn,
   TurnInput,
 } from "./types";
 
@@ -112,6 +115,24 @@ function questionId(criterionId: string, last: InterviewState | undefined): stri
   );
 }
 
+/**
+ * What a reply sends: its level from the shared table or its number, never both, and other words or a skip send neither.
+ * Worked out from the reply's words here alone, so a button, a number key, the exact box and typing all send the same.
+ */
+export function replyBody(t: Turn, question_id: string): ReplyRequest {
+  const body: ReplyRequest = { reply_text: t.text ?? SKIP_REPLY, question_id };
+  if (t.text === null) return body;
+  const exact = exactFromAnswer(t.text);
+  if (exact !== null) return { ...body, exact_weight: exact };
+  const level = levelOf(t.text);
+  return level ? { ...body, level } : body;
+}
+
+/** Already open: reworded while being changed, or reopened by a try whose reply never arrived. The backend refuses to reopen one. */
+function isOpen(last: InterviewState | undefined, question_id: string): boolean {
+  return last?.history.find((e) => e.question.id === question_id)?.status === "pending";
+}
+
 function checkedSessionId(sessionId: string | undefined): string {
   if (!sessionId || !SESSION_ID_PATTERN.test(sessionId))
     throw new ApiError("expired", MESSAGES.expired);
@@ -137,6 +158,22 @@ export function createLiveInterviewService(client: ApiClient): InterviewService 
     return latest;
   }
 
+  /**
+   * Reopens a question to change it. Refused because it is open already, the reply can simply go ahead: null. Refused
+   * because the interview has moved on, this is the step it is on now.
+   */
+  async function reopen(sessionId: string, question_id: string): Promise<InterviewStep | null> {
+    try {
+      await step(sessionId, "back", { question_id });
+      return null;
+    } catch (e) {
+      const latest =
+        e instanceof ApiError && e.kind === "conflict" ? await latestStep(sessionId) : null;
+      if (!latest) throw e;
+      return isOpen(latest.state, question_id) ? null : latest;
+    }
+  }
+
   return {
     async getCriteria(_brief, sessionId) {
       const id = checkedSessionId(sessionId);
@@ -154,8 +191,12 @@ export function createLiveInterviewService(client: ApiClient): InterviewService 
         const question_id = t.questionId ?? questionId(t.criterionId, lastState.get(id));
         try {
           // "Go back" is local until the next reply: then the backend reopens the question and takes the answer.
-          if (t.revise) await step(id, "back", { question_id });
-          result = await step(id, "reply", { reply_text: t.text ?? SKIP_REPLY, question_id });
+          const moved =
+            t.revise && !isOpen(lastState.get(id), question_id)
+              ? await reopen(id, question_id)
+              : null;
+          outOfDate = moved !== null;
+          result = moved ?? (await step(id, "reply", replyBody(t, question_id)));
         } catch (e) {
           const latest =
             e instanceof ApiError && e.kind === "conflict" ? await latestStep(id) : null;

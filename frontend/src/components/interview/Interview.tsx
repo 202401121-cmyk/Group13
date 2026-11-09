@@ -1,11 +1,13 @@
-import { forwardRef, useState, type KeyboardEvent } from "react";
+import { forwardRef, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, CheckCircle2, Loader2, Send } from "lucide-react";
 import { PillButton } from "@/components/shopsense/ui";
 import { pillButton } from "@/components/shopsense/pill-button";
+import { ExactValue } from "./ExactValue";
 import { InlineError, StatusChip } from "./shared";
 import { noteContainsQuestion } from "@/lib/interview/view";
 import { statusOf, type InterviewState } from "@/lib/interview/reducer";
+import { exactFromAnswer, levelOf } from "@/lib/interview/roughLevels";
 import { ANSWER_COUNTER_FROM, MAX_ANSWER_LENGTH, type Step } from "@/lib/interview/types";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +31,16 @@ export const FocusCard = forwardRef<
   ref,
 ) {
   const [whyOpen, setWhyOpen] = useState(false);
+  // An earlier number reopens in the box, and anything else on the buttons.
+  const earlierNumber = exactFromAnswer(selected);
+  const earlierLevel = selected === null ? null : levelOf(selected);
+  const [exactOpen, setExactOpen] = useState(earlierNumber !== null);
+  const exactSwitch = useRef<HTMLButtonElement>(null);
+  const backFromExact = useRef(false);
+  useEffect(() => {
+    if (!exactOpen && backFromExact.current) exactSwitch.current?.focus();
+    backFromExact.current = false;
+  }, [exactOpen]);
   const hideQuestion = noteContainsQuestion(step.note, step.question);
   return (
     <section
@@ -76,40 +88,63 @@ export const FocusCard = forwardRef<
         </div>
       )}
 
-      <div
-        role="group"
-        aria-label={`Quick replies for question ${number}`}
-        className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3"
-      >
-        {step.replies.slice(0, 6).map((r, i) => {
-          const isSel = selected === r;
-          return (
-            <button
-              key={r}
-              type="button"
-              disabled={busy}
-              aria-pressed={isSel}
-              onClick={() => onReply(r)}
-              className={cn(
-                "flex min-h-12 items-center gap-3 rounded-2xl border px-4 py-3 text-left font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
-                isSel
-                  ? "border-primary bg-primary-soft text-primary-soft-foreground"
-                  : "border-border bg-surface text-foreground hover:border-primary/50 hover:bg-primary-soft/50",
-              )}
-            >
-              <kbd
-                className="grid h-6 w-6 shrink-0 place-items-center rounded-md border border-border bg-background text-xs text-muted-foreground"
-                aria-hidden
+      {exactOpen ? (
+        <ExactValue
+          initial={earlierNumber}
+          busy={busy}
+          onSend={(value) => onReply(String(value))}
+          onUseButtons={() => {
+            backFromExact.current = true;
+            setExactOpen(false);
+          }}
+        />
+      ) : (
+        <div
+          role="group"
+          aria-label={`Quick replies for question ${number}`}
+          className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3"
+        >
+          {step.replies.slice(0, 6).map((r, i) => {
+            const isSel = selected === r || (earlierLevel !== null && earlierLevel === levelOf(r));
+            return (
+              <button
+                key={r}
+                type="button"
+                disabled={busy}
+                aria-pressed={isSel}
+                onClick={() => onReply(r)}
+                className={cn(
+                  "flex min-h-12 items-center gap-3 rounded-2xl border px-4 py-3 text-left font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+                  isSel
+                    ? "border-primary bg-primary-soft text-primary-soft-foreground"
+                    : "border-border bg-surface text-foreground hover:border-primary/50 hover:bg-primary-soft/50",
+                )}
               >
-                {i + 1}
-              </kbd>
-              <span className="min-w-0 break-words">{r}</span>
-            </button>
-          );
-        })}
-      </div>
+                <kbd
+                  className="grid h-6 w-6 shrink-0 place-items-center rounded-md border border-border bg-background text-xs text-muted-foreground"
+                  aria-hidden
+                >
+                  {i + 1}
+                </kbd>
+                <span className="min-w-0 break-words">{r}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        {!exactOpen && (
+          <button
+            ref={exactSwitch}
+            type="button"
+            disabled={busy}
+            onClick={() => setExactOpen(true)}
+            className="min-h-11 rounded-full px-3 text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-2 disabled:opacity-60"
+          >
+            Set an exact value
+          </button>
+        )}
         <button
           type="button"
           disabled={busy}

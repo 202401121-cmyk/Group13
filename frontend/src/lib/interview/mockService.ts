@@ -1,7 +1,7 @@
 /**
  * Deterministic mock interview adapter. No AI or backend is contacted.
  *
- * Scripted rules for a typed answer:
+ * A rough level and an exact number are always recorded as the answer. Scripted rules for other typed words:
  * - ends with "?"                      -> answer_then_repeat (explain, ask again)
  * - "not sure" / "don't know" / "what do you mean" -> rephrase
  * - mentions price / cost / budget / brand        -> redirect (note, keep question)
@@ -12,6 +12,7 @@
  */
 import type { Brief } from "@/lib/request/types";
 import { ALREADY_ANSWERED, questionFor } from "./questions";
+import { exactFromAnswer, levelOf } from "./roughLevels";
 import type {
   Answers,
   Criterion,
@@ -173,8 +174,10 @@ export function runTurn({ criteria, answers, turn }: TurnInput): TurnResult {
     if (!c) throw new Error("That question is no longer part of this interview.");
     const base = questionFor(c);
     const t = turn.text?.trim() ?? null;
+    // A button or the exact box is always an answer. Only typed words can be a question or a detour.
+    const typed = t !== null && levelOf(t) === null && exactFromAnswer(t) === null;
 
-    if (t !== null) {
+    if (typed) {
       if (/^test a conflict$/i.test(t)) {
         return { ...nextStep(criteria, current), laterChanged, notice: ALREADY_ANSWERED };
       }

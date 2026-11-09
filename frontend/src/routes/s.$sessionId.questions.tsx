@@ -5,6 +5,7 @@ import { PageShell } from "@/components/shopsense/PageShell";
 import { BriefPanel } from "@/components/request/BriefPanel";
 import { InlineError, MissingSession, PageLoading } from "@/components/interview/shared";
 import { AnswersSoFar, Completion, Composer, FocusCard } from "@/components/interview/Interview";
+import { EXACT_INPUT_ID } from "@/components/interview/ExactValue";
 import { useInterview } from "@/lib/interview/useInterview";
 import { counts } from "@/lib/interview/reducer";
 import { briefCriteria, progressOf } from "@/lib/interview/view";
@@ -85,9 +86,11 @@ function QuestionsPage() {
   // Number keys 1–6 pick a quick reply when focus is outside the composer.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (state.phase !== "asking" || !step || e.ctrlKey || e.metaKey || e.altKey) return;
+      const canSend = state.phase === "asking" || state.phase === "error";
+      if (!canSend || !step || e.ctrlKey || e.metaKey || e.altKey) return;
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.isContentEditable)) return;
+      if (document.getElementById(EXACT_INPUT_ID)) return; // the buttons are hidden while the exact box is open
       const n = Number(e.key);
       if (n >= 1 && n <= 6 && step.replies[n - 1]) {
         e.preventDefault();

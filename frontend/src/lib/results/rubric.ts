@@ -1,4 +1,5 @@
 import type { InterviewState } from "@/lib/interview/reducer";
+import { exactFromAnswer, levelOf, weightOf, type RoughLevel } from "@/lib/interview/roughLevels";
 import type { RubricItem, WeightOrigin } from "./types";
 
 /**
@@ -37,35 +38,38 @@ export function weightRows(rubric: RubricItem[]): WeightRow[] {
 }
 
 /**
- * Builds the rubric from the F2 interview in mock mode. Only the quick-reply
- * importance answers map to a weight; anything else (typed answers, skipped,
- * not asked) uses the standard weight, so no user choice is invented.
- * In live mode the backend works out the weights itself (see rubricForBrief).
+ * Builds the rubric from the F2 interview in mock mode, with the same table the backend uses. A rough answer weighs
+ * its level, and an exact one weighs itself. Anything else (typed words, skipped, not asked) uses the standard weight,
+ * so no user choice is invented. In live mode the backend works out the weights itself (see rubricForBrief).
  */
-const ANSWER_WEIGHT: Record<string, number> = {
-  high: 3,
-  medium: 2,
-  low: 1,
-  "very important": 3,
-  "yes, a lot": 3,
-  "somewhat important": 2,
-  "a little": 2,
-  "not important": 1,
-  "not really": 1,
+const PHRASE_LEVEL: Record<string, RoughLevel> = {
+  "very important": "high",
+  "yes, a lot": "high",
+  "somewhat important": "medium",
+  "a little": "medium",
+  "not important": "low",
+  "not really": "low",
 };
-const STANDARD_WEIGHT = 2;
+const STANDARD_LEVEL: RoughLevel = "medium";
+
+function answerWeight(value: string): number | null {
+  const phrase = value.trim().toLowerCase();
+  const level =
+    levelOf(value) ?? (Object.hasOwn(PHRASE_LEVEL, phrase) ? PHRASE_LEVEL[phrase] : null);
+  return level ? weightOf(level) : exactFromAnswer(value);
+}
 
 export function rubricFromInterview(s: Pick<InterviewState, "criteria" | "answers">): RubricItem[] {
   return s.criteria.map((c) => {
     const a = s.answers[c.id];
-    const mapped = a?.value ? ANSWER_WEIGHT[a.value.trim().toLowerCase()] : undefined;
+    const mapped = a?.value ? answerWeight(a.value) : null;
     let origin: WeightOrigin = "standard";
-    if (mapped && a?.status === "answered") origin = "answer";
-    else if (mapped && a?.status === "remembered") origin = "remembered";
+    if (mapped !== null && a?.status === "answered") origin = "answer";
+    else if (mapped !== null && a?.status === "remembered") origin = "remembered";
     return {
       criterionId: c.id,
       title: c.title,
-      weight: origin === "standard" ? STANDARD_WEIGHT : mapped!,
+      weight: origin === "standard" || mapped === null ? weightOf(STANDARD_LEVEL) : mapped,
       origin,
     };
   });

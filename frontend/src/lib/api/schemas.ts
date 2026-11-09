@@ -9,6 +9,7 @@ import type { IntakeResponse } from "@/types/contracts/IntakeResponse";
 import type { Intent } from "@/types/contracts/Intent";
 import type { InterviewStep } from "@/types/contracts/InterviewStep";
 import type { PresearchSession } from "@/types/contracts/PresearchSession";
+import type { ReplyRequest } from "@/types/contracts/ReplyRequest";
 import type { SearchResult } from "@/types/contracts/SearchResult";
 import { ApiError, MESSAGES } from "./client";
 
@@ -18,6 +19,7 @@ export interface Contracts {
   CriteriaSet: CriteriaSet;
   InterviewStep: InterviewStep;
   PresearchSession: PresearchSession;
+  ReplyRequest: ReplyRequest;
   SearchResult: SearchResult;
 }
 export type ContractName = keyof Contracts;
@@ -30,6 +32,7 @@ const SCHEMAS: Record<ContractName, () => Promise<{ default: unknown }>> = {
   CriteriaSet: () => import("@contracts/schema/CriteriaSet.json"),
   InterviewStep: () => import("@contracts/schema/InterviewStep.json"),
   PresearchSession: () => import("@contracts/schema/PresearchSession.json"),
+  ReplyRequest: () => import("@contracts/schema/ReplyRequest.json"),
   SearchResult: () => import("@contracts/schema/SearchResult.json"),
 };
 
