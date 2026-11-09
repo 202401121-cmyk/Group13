@@ -13,8 +13,9 @@ By default it answers "Skip" to every interview question, so the rubric uses the
 The request and the finished search are each saved once, under a new session ID, when DATABASE_URL is set (US-01,
 US-52). A database that is off, down or slow never stops the search; --no-db skips it altogether.
 
---claims also prints what was read from each source (US-14). Ranking stays on sample data until Sprint 3, so this is
-where real claims can be seen. They are printed and never saved.
+--claims also prints what was read from each source (US-14), each Reddit thread's score, the threads dropped and how
+many people name each product (US-13). Ranking stays on sample data until Sprint 3, so this is where real claims can be
+seen. They are printed and never saved.
 """
 
 from __future__ import annotations
@@ -23,6 +24,7 @@ import argparse
 import io
 import sys
 from collections.abc import Mapping, Sequence
+from typing import Any
 
 from app import db
 from app.api.sessions import new_session_id
@@ -35,12 +37,19 @@ from app.contracts import (
     InterviewState,
     InterviewStep,
     InterviewTurn,
+    MatchInput,
+    MatchResult,
     Money,
+    RecommenderCount,
     Rubric,
     SearchRequest,
     SearchResult,
     Source,
     SourceTier,
+    SourceType,
+    Stage,
+    StageContext,
+    StageName,
 )
 from app.extract.recorder import RecordingStage
 from app.extract.settings import load_extract_settings
@@ -49,11 +58,33 @@ from app.intake import EXAMPLE_REQUESTS
 from app.interview import QUICK_REPLIES
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
 from app.presearch import interview_turn, make_criteria, start_request
+from app.research.reddit.quality import ThreadScore
 from app.research.stage import ResearchReport
 
 SKIP_REPLY = "Skip"
 SOURCES_PER_PRODUCT = 2
 MAX_TURNS = 40  # a safety stop: 10 questions, each asked at most twice, plus corrections
+
+
+class _SeesCounts:
+    """Wraps the match stage for --claims, to keep the counts the runner gives it. SearchResult holds none."""
+
+    name = StageName.MATCH
+
+    def __init__(self, inner: Stage[MatchInput, MatchResult]) -> None:
+        self.inner = inner
+        self.is_placeholder = bool(getattr(inner, "is_placeholder", False))
+        self.counts: list[RecommenderCount] | None = None  # None until the runner reaches this stage
+
+    def run(self, inp: MatchInput, ctx: StageContext) -> MatchResult:
+        self.counts = list(inp.recommender_counts)
+        return self.inner.run(inp, ctx)
+
+    def fallback(self, inp: MatchInput, ctx: StageContext, error: Exception) -> MatchResult:
+        return self.inner.fallback(inp, ctx, error)
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.inner, name)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -104,15 +135,19 @@ def run(query: str, interactive: bool, store: db.RequestStore, show_claims: bool
     request = SearchRequest(session_id=session_id, raw_query=query, rubric=step.rubric)
     stages = default_search_stages()
     recorder = RecordingStage(stages.extract) if show_claims else None
-    if recorder is not None:
-        stages.extract = recorder
+    sees_counts = _SeesCounts(stages.match) if show_claims else None
+    if recorder is not None and sees_counts is not None:
+        stages.extract, stages.match = recorder, sees_counts
     result = PipelineRunner(stages, DatabaseResultStore(store)).run(request)
     print(render(result))
     report = getattr(stages.research, "last_report", None)
     if report is not None:  # the live research stage ran: show what it read
         print(research_block(result, report))
-    if recorder is not None:
+    if recorder is not None and sees_counts is not None:
         print(claims_block(result.sources, recorder.results, load_extract_settings().domain_tiers))
+        dropped: tuple[ThreadScore, ...] = getattr(stages.research, "last_dropped_threads", ())
+        estimated: frozenset[str] = getattr(stages.research, "last_estimated_threads", frozenset())
+        print(reddit_block(result.sources, dropped, sees_counts.counts, estimated))
     return 0
 
 
@@ -251,6 +286,45 @@ def claims_block(
         found = results.get(source.id)
         lines += [claim_line(claim) for claim in found.claims] if found and found.claims else ["    No claims."]
     return "\n".join(lines)
+
+
+def reddit_block(
+    sources: Sequence[Source],
+    dropped: Sequence[ThreadScore],
+    counts: Sequence[RecommenderCount] | None,
+    estimated: frozenset[str] = frozenset(),
+) -> str:
+    """Each Reddit thread's score, the threads dropped, and how many different people name each product."""
+    threads = [s for s in sources if s.type is SourceType.REDDIT]
+    lines = [f"\nReddit threads ({len(threads)} kept, {len(dropped)} dropped):"]
+    for source in threads:
+        mark = "  (estimated)" if str(source.url) in estimated else ""
+        lines.append(f"  kept     {source.quality:.3f}  {source.community}  {source.url}{mark}")
+    for row in dropped:
+        mark = "  (estimated)" if row.estimated else ""
+        lines.append(f"  dropped  {row.score:.3f}  {row.community}  {row.url}{mark}")
+    if not threads and not dropped:
+        lines.append("  No Reddit threads.")
+    lines.append("\nRecommenders per product:")
+    if counts is None:
+        lines.append("  The search stopped before the counts were used.")
+        return "\n".join(lines)
+    lines += [
+        f"  {row.product_mention}: {_people(row.distinct_recommenders)} in {_threads(row.threads)}" for row in counts
+    ]
+    if not counts:
+        lines.append("  No products were counted.")
+        if threads and not any(t.author_hash or any(c.author_hash for c in t.comments) for t in threads):
+            lines.append("  No Reddit author is known, so nobody can be counted: REDDIT_USER_SALT is not set.")
+    return "\n".join(lines)
+
+
+def _people(count: int) -> str:
+    return f"{count} person" if count == 1 else f"{count} people"
+
+
+def _threads(count: int) -> str:
+    return f"{count} thread" if count == 1 else f"{count} threads"
 
 
 def claim_line(claim: Claim) -> str:
