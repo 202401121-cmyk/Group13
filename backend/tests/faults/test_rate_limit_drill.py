@@ -1,8 +1,11 @@
 """P18's rate-limit drill as a test (US-46, F-6): Gemini answers every call with HTTP 429.
 
 The search reads three web pages, and the real adapters run over a fake transport, as in P18's live drill. Every
-provider is paced at its real limits from models.yaml, on a fake clock, so Mistral takes 2 requests a minute. Gemini's
-host answers 429, so Mistral reads two pages and the third goes to OpenRouter, the fallback after both.
+provider is paced at its real limits from models.yaml, on a fake clock, so Mistral takes 2 requests a minute.
+- With Groq's key, as in P18b's live drill: Gemini says 429, Mistral's minute is already full and OpenRouter trickles.
+  Groq, the last resort for public pages, reads every page, so the coverage note has no extraction message.
+The other tests build no Groq adapter, as for a set-up without Groq's key. Gemini's host answers 429, so Mistral reads
+two pages and the third goes to OpenRouter, the fallback after both.
 - When OpenRouter answers, every page is read: the Extract stage is OK and the coverage note has no extraction message.
 - When OpenRouter keeps sending keep-alive bytes for 40 s, as it did in P18, its attempt is cut off at its time limit.
   The third page then honestly "could not be read": Gemini said 429, Mistral had no room in its minute, and
@@ -129,7 +132,7 @@ def _real_limits(config: LLMConfig, clock: Clock) -> dict[Provider, RateLimiter]
 
 
 def _drill(
-    mistral_limited: bool = False, openrouter_trickles: bool = False
+    mistral_limited: bool = False, openrouter_trickles: bool = False, groq: bool = False, mistral_full: bool = False
 ) -> tuple[C.SearchResult, WrapperLLMClient, list[str]]:
     config = load_llm_config()
     clock = Clock()
@@ -148,14 +151,18 @@ def _drill(
             clock=trickle_clock if p.name is Provider.OPENROUTER else clock,
         )
         for p in config.providers
-        if p.name in (Provider.GEMINI, Provider.MISTRAL, Provider.OPENROUTER)
+        if p.name in (Provider.GEMINI, Provider.MISTRAL, Provider.OPENROUTER) or (groq and p.name is Provider.GROQ)
     }
+    limiters = _real_limits(config, clock)
+    if mistral_full:  # an earlier search took Mistral's 2 requests this minute
+        assert limiters[Provider.MISTRAL].try_book(1) is not None
+        assert limiters[Provider.MISTRAL].try_book(1) is not None
     llm = WrapperLLMClient(
         config,
         adapters,
         InMemoryCallLog(),
         health=ProviderHealth(clock),
-        limiters=_real_limits(config, clock),
+        limiters=limiters,
         pool=ModelPool(config.pool, clock=clock, sleep=clock.sleep, today=lambda: date(2026, 11, 10)),
     )
     pages = [review_source(f"https://page-{n}.example/", text=f"{QUOTE} Page {n}.") for n in "abc"]
@@ -213,3 +220,15 @@ def test_with_no_allowed_provider_free_the_note_says_so_and_nothing_takes_too_lo
     assert (Provider.MISTRAL, "rate_limited") in records
     assert (Provider.OPENROUTER, "timeout") in records  # tried last, and its trickling reply cut off in time
     assert not any(outcome == "ok" for _, outcome in records)
+
+
+def test_the_p18b_drill_reads_every_page_through_groq() -> None:
+    result, llm, hosts = _drill(openrouter_trickles=True, groq=True, mistral_full=True)
+    assert _extract_status(result) is C.StageStatus.OK
+    note = result.coverage_note or ""
+    assert not any(message in note for message in EXTRACTION_MESSAGES), note
+    assert "generativelanguage.googleapis.com" in hosts  # Gemini was asked, and said 429
+    assert "api.mistral.ai" not in hosts  # its minute was full, so nothing was sent to it
+    assert "openrouter.ai" not in hosts  # Groq had room, so the slow fallback was never needed
+    answered = [provider for provider, outcome in _records(llm) if outcome == "ok"]
+    assert answered == [Provider.GROQ] * 3  # every page was read, each by Groq

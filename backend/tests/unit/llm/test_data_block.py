@@ -112,8 +112,11 @@ def test_a_capped_source_fits_every_model_on_the_extraction_routes(data_class: D
     user = user_message(source, criteria)
     assert LLMTask.EXTRACT_CLAIMS.value == "extract_claims"
     for model in route_models(config, data_class, Difficulty.LONG):
-        budget = input_budget_for(model, output)
+        answer = output
+        if data_class is DataClass.PUBLIC and pool.has(model) and config.pool.public_output_tokens is not None:
+            answer = min(output, config.pool.public_output_tokens)  # a public page on Groq, the last resort (F-6)
+        budget = input_budget_for(model, answer)
         ceiling = pool.token_ceiling(model, keep_free)
         if ceiling is not None:
-            budget = min(budget, ceiling - output)
+            budget = min(budget, ceiling - answer)
         assert fit(user, system, budget, chunkable=True).mode == "as_is", model.model

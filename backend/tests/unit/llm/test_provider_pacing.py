@@ -89,7 +89,7 @@ def test_the_real_client_paces_gemini() -> None:
     assert limiter.requests_per_second is None
 
 
-def test_public_extraction_goes_flash_lite_then_mistral_then_openrouter() -> None:
+def test_public_extraction_goes_flash_lite_then_mistral_then_groq_then_openrouter() -> None:
     """Each one refuses here, so each one that's on the route gets asked, in order."""
     config = load_llm_config()
     journal: list[Provider] = []
@@ -103,7 +103,7 @@ def test_public_extraction_goes_flash_lite_then_mistral_then_openrouter() -> Non
     client = WrapperLLMClient(config, dict(every), InMemoryCallLog(), limiters={})
     with pytest.raises(LLMUnavailable):
         _public(client)
-    assert journal == [Provider.GEMINI, Provider.MISTRAL, Provider.OPENROUTER]
+    assert journal == [Provider.GEMINI, Provider.MISTRAL, *[Provider.GROQ] * 3, Provider.OPENROUTER]
     assert every[Provider.GEMINI].calls[0].model == "gemini-3.5-flash-lite"
 
 

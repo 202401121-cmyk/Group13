@@ -41,9 +41,13 @@ def test_all_providers_down_raises_llm_unavailable_and_logs_every_attempt() -> N
         )
     assert monotonic() - started < 1
 
-    # Every provider on the public/long route, in route order. Groq and Cerebras are not on it.
+    # Every provider on the public/long route, in route order: Groq's three models as the last resort, then OpenRouter.
+    # Cerebras is not on it.
     assert [(r.provider, r.outcome) for r in log.records] == [
         (Provider.GEMINI, "error"),
         (Provider.MISTRAL, "error"),
+        (Provider.GROQ, "rate_limited"),
+        (Provider.GROQ, "rate_limited"),
+        (Provider.GROQ, "rate_limited"),
         (Provider.OPENROUTER, "timeout"),
     ]

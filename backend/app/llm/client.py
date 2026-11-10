@@ -4,7 +4,8 @@ complete() tries the providers that the routes table in models.yaml gives for th
 difficulty, skipping any that may not see that class or are unavailable, and re-fits the input to each model.
 Bulk tasks rotate through those models (app/llm/pool.py). Before every call it checks the daily token budget,
 health (cool-downs and dead keys) and the rate limit. A pool member with no room is left to come back to, so a
-free member goes first; if all are busy the call waits for a slot, up to its stage's time limit. It retries
+free member goes first; if all are busy the call waits for a slot, up to its stage's time limit. A public page that
+reaches the pool (Groq, the last resort) never waits for one: the next provider is tried at once (F-6). It retries
 invalid output once, moves on after any provider failure, and raises LLMUnavailable when no model answered. It
 never invents an answer: the calling stage's fallback decides what happens next.
 """
@@ -206,16 +207,29 @@ class WrapperLLMClient:
         return self._with_keys([m for m in allowed if self.config.provider(m.provider).available])
 
     def order(self, task: LLMTask, data_class: DataClass, difficulty: Difficulty) -> list[ModelLimits]:
-        """The models to try, in order. Bulk work takes turns across the models whose provider rotates; a provider
-        that doesn't (OpenRouter) follows them all as the fallback. Any other task keeps the route's order."""
+        """The models to try, in order. Any task but bulk work keeps the route's order.
+
+        Bulk work takes turns across the models that take turns. For public pages, Groq's models (the private and
+        Reddit pool) come next, as the last resort, in their fixed order: taking no turn, they move no rotation. A
+        provider that doesn't rotate (OpenRouter) follows them all as the fallback.
+        """
         models = self.candidates(data_class, difficulty)
         if task not in BULK_TASKS:
             return self.pool.order(models, data_class, rotate=False)
-        turns = [m for m in models if self._rotates(m)]
-        return [*self.pool.order(turns, data_class, rotate=True), *(m for m in models if not self._rotates(m))]
+        turns = [m for m in models if self._takes_turns(m, task, data_class)]
+        last_resort = [m for m in models if self._last_resort(m, task, data_class)]
+        fallback = [m for m in models if not self._rotates(m)]
+        return [*self.pool.order(turns, data_class, rotate=True), *last_resort, *fallback]
 
     def _rotates(self, model: ModelLimits) -> bool:
         return self.config.provider(model.provider).rotates
+
+    def _last_resort(self, model: ModelLimits, task: LLMTask, data_class: DataClass) -> bool:
+        """A pool member asked for a public page's bulk work: it takes no turn, and is never waited for (F-6)."""
+        return task in BULK_TASKS and data_class is DataClass.PUBLIC and self.pool.has(model)
+
+    def _takes_turns(self, model: ModelLimits, task: LLMTask, data_class: DataClass) -> bool:
+        return self._rotates(model) and not self._last_resort(model, task, data_class)
 
     def complete(
         self,
@@ -259,8 +273,14 @@ class WrapperLLMClient:
         A pool member can't take a call over a minute's tokens, and chunks over a minute's tokens couldn't all go out
         before the stage's limit. So when its rate is the tighter limit, the input is trimmed to one call instead:
         callers put the most important text first, so the lowest-ranked comments go.
+
+        A public page that a pool member reads as the last resort asks for the pool's public answer size, and is never
+        trimmed: a trimmed page could lose its data block's closing marker, so that member is skipped instead (F-6).
         """
+        last_resort = self._last_resort(model, call.task, call.data_class)
         reserve = reserve_output(model, max_output_tokens)
+        if last_resort and self.config.pool.public_output_tokens is not None:
+            reserve = min(reserve, self.config.pool.public_output_tokens)
         try:
             budget = model.input_budget(reserve_output=reserve)
             ceiling = self.pool.token_ceiling(model, call.keep_free)
@@ -270,6 +290,9 @@ class WrapperLLMClient:
             fitted = fit(user, call.system, budget, call.task in CHUNKABLE_TASKS and not limited_by_rate)
         except ValueError as exc:
             log.info("llm %s skipped for %s: %s", model.provider.value, call.task.value, exc)
+            return None
+        if last_resort and fitted.mode == "trimmed":
+            log.info("llm %s skipped: a public page is never trimmed to fit it", model.model)
             return None
         return _Plan(model, fitted, reserve, planned_tokens(call.system, fitted, reserve))
 
@@ -350,7 +373,8 @@ class WrapperLLMClient:
             log.info("llm %s skipped: %s", model.model, self.health.state(provider, member))
             return "no", None
         state, booking = self._take_slot(call, plan)
-        if state == "go" and call.task in BULK_TASKS and model != call.first_choice and self._rotates(model):
+        takes_turns = self._takes_turns(model, call.task, call.data_class)
+        if state == "go" and call.task in BULK_TASKS and model != call.first_choice and takes_turns:
             self.pool.served(model, call.data_class)  # the claimed member was skipped: the turn moved on
         if state != "go":
             self._release(plan)
@@ -378,8 +402,14 @@ class WrapperLLMClient:
     def _take_slot(self, call: _Call[T], plan: _Plan) -> tuple[ModelState, Booking | None]:
         model = plan.model
         if self.pool.has(model):
-            booking = self.pool.try_take(model, plan.planned, call.keep_free)
-            return ("go", booking) if booking is not None else ("busy", None)
+            booking = self.pool.try_take(model, plan.planned, call.keep_free)  # keep_free: the shopper's reserve
+            if booking is not None:
+                return "go", booking
+            if self._last_resort(model, call.task, call.data_class):
+                log.info("llm %s skipped: no room right now, and a public page never waits for it", model.model)
+                self._record(call, plan, "rate_limited")
+                return "no", None
+            return "busy", None
         limiter = self.limiters.get(model.provider)
         if limiter is None:
             return "go", None

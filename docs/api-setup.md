@@ -190,7 +190,9 @@ of its threads in 25 tokens with no claims, so two threads can't yet show whethe
 A search result that holds only a snippet stays a source and a link, but isn't sent to extraction: earlier live runs spent
 20 calls a search on them and got no claims. A page that was fetched is read as before.
 
-Public calls aren't booked against the pool, so they ask for 2,000. A live reply used 566 on 15 mentions alone. Gemini's
+Public calls to Gemini, Mistral and OpenRouter aren't booked against the pool, so they ask for 2,000. A public page
+that Groq reads as the last resort is booked against the pool and asks for 1,200 (`public_output_tokens`, F-6). A
+live reply used 566 on 15 mentions alone. Gemini's
 thinking is as low as it goes (`reasoning_effort: minimal` in models.yaml; Flash Lite has no `none`), because it counts
 against the output limit. On `gemini-3.5-flash`, on a public page with a 1,577-token prompt and a limit of 1,200, thinking
 used 1,245 tokens and the reply was cut off at 43. With it off, the
@@ -260,8 +262,9 @@ actually saw. Quotes are copied from the provider's page.
 
 - **Used for:** LLM calls with public text only. It is first for long public inputs (1M-token window).
 - **Sign up:** [aistudio.google.com](https://aistudio.google.com) → Get API key. **Env:** `GEMINI_API_KEY`.
-- **Model:** `gemini-3.5-flash-lite`, first for a long public call a shopper waits on, then Mistral, then OpenRouter.
-  Public bulk work takes turns between Gemini and Mistral, with OpenRouter as the fallback after both.
+- **Model:** `gemini-3.5-flash-lite`, first for a long public call a shopper waits on, then Mistral, then Groq, then
+  OpenRouter. Public bulk work takes turns between Gemini and Mistral; Groq is the last resort after both, then
+  OpenRouter (F-6).
 - **Free limits** (read 9 Nov 2026): Google's [public page](https://aistudio.google.com/docs/rate-limits) lists no
   numbers for this tier. [AI Studio's page](https://aistudio.google.com/rate-limit), signed in, lists Gemini 3.5 Flash Lite
   at **15 requests a minute, 250,000 input tokens a minute and 500 requests a day**. Other Flash models there have 5, 250,000
@@ -283,7 +286,7 @@ actually saw. Quotes are copied from the provider's page.
 
 ### OpenRouter
 
-- **Used for:** LLM calls with public text only, always last: the fallback after Gemini and Mistral, for a shopper's
+- **Used for:** LLM calls with public text only, always last: the fallback after Gemini, Mistral and Groq, for a shopper's
   call and for public bulk work alike (`rotates: false`). It takes no turn in the rotation, because its free models
   allow 50 requests a day and answer slowly. Paced at 20 requests a minute, and its 50 requests a day are counted
   (`requests_per_day`), so a call past them is skipped instead of earning a 429.
@@ -438,10 +441,13 @@ fine-tune any model of ours either.
 |---|---|---|---|
 | private | groq | groq | groq |
 | reddit | groq | groq | groq |
-| public | mistral, groq | mistral, gemini, groq, openrouter | gemini, mistral, openrouter |
+| public | mistral, groq | mistral, gemini, groq, openrouter | gemini, mistral, groq, openrouter |
 
 Groq's free tier has a small daily token allowance, so public work goes to Mistral and Gemini first and Groq is
-kept for private text. Long public inputs start on Gemini for its 1M-token window. Groq in a route means all of its
+kept for private and Reddit text. Public bulk work reaches Groq only as the last resort (F-6, 10 Nov 2026): when
+neither Gemini nor Mistral has room, and only if a Groq model has room right now, outside the shopper's reserve. Such
+a page asks for a 1,200-token answer (`public_output_tokens` in `pool:`) so that a page at the 3,000-token cap goes
+whole, and a page that still can't go whole is skipped, never trimmed. Long public inputs start on Gemini for its 1M-token window. Groq in a route means all of its
 models, in models.yaml order. Cerebras is skipped while it is unavailable, and no private or Reddit route may name an
 unavailable provider.
 
@@ -458,8 +464,9 @@ Each Groq text model is a member of the pool with its own limits. Read from
 
 - **Rotation:** bulk work (`extract_claims`, `enrich_extract`) goes round every model its route allows, in turn (F-3,
   10 Nov 2026): Groq's three models for private and Reddit text (D-51), and for public text Gemini and Mistral.
-  OpenRouter takes no turn (`rotates: false` in models.yaml): it follows both as the fallback, used only when neither
-  has room, and its 50 requests a day are counted. Each is paced by its own limits: these members by the table above,
+  For public text Groq's models take no turn: they follow Gemini and Mistral as the last resort, in their fixed order,
+  never waited for, and they move no rotation. OpenRouter takes no turn (`rotates: false` in models.yaml): it follows
+  them all as the fallback, used only when none has room, and its 50 requests a day are counted. Each is paced by its own limits: these members by the table above,
   Gemini at 15 requests a minute, Mistral at 2 a minute and 40,000 tokens a minute (its headers, 10 Nov 2026),
   OpenRouter at 20 a minute. A model whose window can't hold the prompt and its answer is
   skipped, and the next one takes the turn; a longer input still fits by being split into chunks, as before (public
@@ -467,7 +474,8 @@ Each Groq text model is a member of the pool with its own limits. Read from
   as backups.
 - **Pacing:** each member counts its requests and tokens over the last minute: the input the wrapper measures plus
   the requested output while a call runs, then what it really used, or nothing if it failed. A member with no room is passed over for one with room. If all are busy, the call waits for
-  the soonest slot, so it doesn't earn a 429.
+  the soonest slot, so it doesn't earn a 429. A public page on Groq, the last resort, never waits: with no room right
+  now, the next provider is tried.
 - **Time limit:** `complete()` has no time-limit argument, so the limit comes from the task's stage and is counted from
   each `complete()`. A stage that calls it twice gets the limit twice, but `run_stage` still stops waiting on time and
   uses the fallback. One attempt gets a timeout of at most 60% of the limit, so another member has time to answer if it
@@ -480,7 +488,7 @@ Each Groq text model is a member of the pool with its own limits. Read from
 - **One call's size:** input is fitted to the member's tokens a minute (less the reserve, for bulk work) as well as its
   window, because a bigger call could never get a slot. Text too long for that is trimmed to one call, not chunked, because chunks over a minute's
   tokens couldn't all go out before the stage's limit. Callers put the most important text first, so the
-  lowest-ranked comments go.
+  lowest-ranked comments go. A public page is never trimmed for Groq: that member is skipped instead.
 - **Daily budget:** a call's planned tokens are held before it runs, then swapped for what it really used, so
   calls running together can't pass the budget. This covers provider budgets too. The count is in memory, per UTC day.
 - **Reddit budget:** the extract stage keeps a search's Reddit tokens within `reddit_tokens_per_search`: a call's whole

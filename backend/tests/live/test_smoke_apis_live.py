@@ -22,7 +22,12 @@ pytestmark = [
 ]
 
 
-def test_the_real_run_reports_every_service_and_never_a_key(capsys: pytest.CaptureFixture[str]) -> None:
+def test_the_real_run_reports_every_service_and_never_a_key(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv(
+        "PYTHON_DOTENV_DISABLED", raising=False
+    )  # this live test reads the real keys (tests/conftest.py)
     load_dotenv()
     main([])
     out = capsys.readouterr().out
