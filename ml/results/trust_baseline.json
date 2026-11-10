@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-10",
+  "tool": "ml/scripts/trust_baseline.py",
+  "python_version": "3.11.15",
+  "conflicts_file": "ml/labelling/conflicts.csv",
+  "synthetic": false,
+  "conflicts": 5,
+  "claims": 15,
+  "all_agree": 0,
+  "answer_source_is_a_claim": 2,
+  "tier_order": [
+    "manufacturer",
+    "lab",
+    "editorial",
+    "community",
+    "retailer"
+  ],
+  "scoring_rule": "a number is correct within the conflict's tolerance, text after ignoring case and spacing; no answer is never correct; accuracy = correct / the conflicts in that table",
+  "ties_rule": "majority: an even top vote, which is also no answer; tier order: the top tier's vote was even, even when the fallback to the whole conflict's majority then answered",
+  "undefined": "null means 0/0",
+  "all_conflicts": {
+    "conflicts": 5,
+    "majority_vote": {
+      "correct": 0,
+      "wrong": 2,
+      "ties": 3,
+      "no_answer": 3,
+      "accuracy": 0.0
+    },
+    "tier_order_baseline": {
+      "correct": 3,
+      "wrong": 2,
+      "ties": 0,
+      "no_answer": 0,
+      "accuracy": 0.6
+    }
+  },
+  "source_not_a_claim": {
+    "conflicts": 3,
+    "majority_vote": {
+      "correct": 0,
+      "wrong": 2,
+      "ties": 1,
+      "no_answer": 1,
+      "accuracy": 0.0
+    },
+    "tier_order_baseline": {
+      "correct": 1,
+      "wrong": 2,
+      "ties": 0,
+      "no_answer": 0,
+      "accuracy": 0.333333
+    }
+  },
+  "per_conflict": [
+    {
+      "conflict_id": "c001",
+      "category": "earbuds",
+      "product": "Noise Buds VS104",
+      "criterion": "fast_charge_playback",
+      "known": "150 min",
+      "tolerance": "0",
+      "claims": 4,
+      "all_agree": false,
+      "answer_source_is_a_claim": false,
+      "majority": "200 min",
+      "majority_correct": false,
+      "tier_order": "200 min",
+      "tier_order_correct": false,
+      "decided_by": "editorial"
+    },
+    {
+      "conflict_id": "c002",
+      "category": "earbuds",
+      "product": "Noise Buds VS104",
+      "criterion": "total_playtime",
+      "known": "30 h",
+      "tolerance": "2",
+      "claims": 4,
+      "all_agree": false,
+      "answer_source_is_a_claim": false,
+      "majority": null,
+      "majority_correct": false,
+      "tier_order": "30 h",
+      "tier_order_correct": true,
+      "decided_by": "editorial"
+    },
+    {
+      "conflict_id": "c006",
+      "category": "smartwatch",
+      "product": "Fire-Boltt Ninja Call Pro Plus",
+      "criterion": "battery_life_typical",
+      "known": "7 days",
+      "tolerance": "0",
+      "claims": 2,
+      "all_agree": false,
+      "answer_source_is_a_claim": true,
+      "majority": null,
+      "majority_correct": false,
+      "tier_order": "7 days",
+      "tier_order_correct": true,
+      "decided_by": "manufacturer"
+    },
+    {
+      "conflict_id": "c007",
+      "category": "air_fryer",
+      "product": "Instant Vortex Plus 6-quart (5.7 L)",
+      "criterion": "capacity",
+      "known": "5.7 L",
+      "tolerance": "0.05",
+      "claims": 3,
+      "all_agree": false,
+      "answer_source_is_a_claim": false,
+      "majority": "6 L",
+      "majority_correct": false,
+      "tier_order": "6 L",
+      "tier_order_correct": false,
+      "decided_by": "retailer"
+    },
+    {
+      "conflict_id": "c008",
+      "category": "laptop",
+      "product": "ASUS TUF Gaming A15 FA507NUR-LP082W (AMD Ryzen 7 7435HS)",
+      "criterion": "cpu_cores",
+      "known": "8 cores",
+      "tolerance": "0",
+      "claims": 2,
+      "all_agree": false,
+      "answer_source_is_a_claim": true,
+      "majority": null,
+      "majority_correct": false,
+      "tier_order": "8 cores",
+      "tier_order_correct": true,
+      "decided_by": "manufacturer"
+    }
+  ]
+}

@@ -100,6 +100,29 @@ questions in order:
 - `unsure` rows are left out of training. Bring the list to the next labelling review, where two people agree a
   label or keep it `unsure`. When a case keeps coming up, add it to this guide as a new example.
 
+### More cases
+
+These come from our own listings. Apply them in the same order as the questions above: first the model, then the
+configuration.
+
+| Case | Label | Example | Why |
+|---|---|---|---|
+| One title names a colour, memory or storage and the other names none, and the product comes in more than one | `unsure` | Apple iPhone 16 (128GB, Black) / iPhone 16 5G Mobile Phone - 128 GB | The missing detail can't be confirmed |
+| Neither title names the colour (or the memory), and everything both name matches | `same` | JBL Tune 215TWS with 25 Hours of Playtime Bluetooth / JBL Tune 215TWS Bluetooth | Nothing differs |
+| Refurbished, renewed or open-box against new | `variant` | (Refurbished) JBL Tour One M2 / JBL Tour One M2 (Black) | Same model, but a shopper buying new must not see the refurbished price |
+| A bundle (the product with something else) against the product alone | `variant` | Sony WH-1000XM5 ... Bundle (Black) / Sony WH-1000XM5 (Black) | Same model, different offer |
+| Watch case material, band size, or GPS against GPS + Cellular | `variant` | Series 11 GPS 42mm, Band M/L / Series 11 GPS 42mm, Band S/M | Configurations of one model |
+| A different capacity in one appliance series | `different` | Philips 1000 Series 4.2L 1500 Watt / Philips 1000 Series 6.2L 1700 Watt | Unlike phone storage, it is a different basket and power rating |
+| The same generation code with a different configuration | `variant` | HP Victus 15-fa1327TX / HP Victus 15-FA1310TX; HP 15-fd0013TU / HP 15-fd0221TU | One model generation |
+| A different generation code | `different` | HP Victus 15-fa1... / 15-fa2...; IdeaPad Slim 3 15IAH8 / 15IRH10 | A new generation is a new model |
+| A letter or "+" after the model name | `different` | Rockerz 450 / Rockerz 450R; Nord Buds 2 / Nord Buds 2r; Healthifry / HealthiFry+ | It names another model. "+" and "Plus" are the same word |
+| One title may have left such a suffix out | `unsure` | Pigeon Healthifry Plus 1400W / Pigeon Healthifry 1400 W | We can't tell which model it is |
+| A title that names two models, against one of them | `unsure` | boAt Rockerz 450/450R / boAt Rockerz 450R | It could be either. Against a third model it is `different` |
+| A mention without "5G" when the maker sells a model of that name with and without it | `unsure` | vivo Y19s / vivo Y19s 5G (4GB RAM, 128GB) | They may be different phones |
+
+Store words are not part of the product: "Smartchoice", "with No Cost EMI", "(One Size)", "Rs.89000". A value that
+can't be true, such as "0 GB RAM" on an iPhone, is a store error: ignore it.
+
 ## 4. Agreement rule
 
 Before anyone labels alone, the guide must be clear enough that two people give the same labels.
