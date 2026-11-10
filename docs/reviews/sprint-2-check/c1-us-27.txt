@@ -1,0 +1,16 @@
+C1 US-27: the proving tests, run verbosely in the clean clone of main b6ec081 (Python 3.11), 2026-11-10T09:17:59Z
+$ cd backend && python -m pytest -o addopts= -m 'not live' -v tests/unit/research/test_fetching.py::test_the_pool_never_runs_more_than_its_fixed_size tests/unit/research/test_fetching.py::test_the_shared_pool_has_the_size_it_was_asked_for_and_is_one_pool tests/faults/research/test_source_faults.py::test_with_no_pool_given_the_stage_uses_the_shared_pool_of_the_configured_size tests/unit/research/test_fetching.py::test_three_sources_of_1_2_and_3_seconds_finish_in_under_3_5_seconds tests/faults/research/test_source_faults.py::test_sources_of_1_2_and_3_seconds_through_the_whole_stage_stay_close_to_the_slowest tests/unit/research/test_serper.py::test_each_request_waits_for_the_limiter_and_a_cache_hit_does_not tests/unit/research/test_fetching.py::test_each_archive_keeps_the_rate_it_asks_for tests/unit/research/test_review_pages.py::test_each_review_domain_has_its_own_limiter tests/unit/llm/test_limits.py::test_requests_are_spaced_to_the_requests_per_second_limit tests/unit/llm/test_pool.py::test_a_request_per_minute_limit_makes_the_next_call_wait
+
+============================= test session starts =============================
+tests/unit/research/test_fetching.py::test_the_pool_never_runs_more_than_its_fixed_size PASSED [ 10%]
+tests/unit/research/test_fetching.py::test_the_shared_pool_has_the_size_it_was_asked_for_and_is_one_pool PASSED [ 20%]
+tests/faults/research/test_source_faults.py::test_with_no_pool_given_the_stage_uses_the_shared_pool_of_the_configured_size PASSED [ 30%]
+tests/unit/research/test_fetching.py::test_three_sources_of_1_2_and_3_seconds_finish_in_under_3_5_seconds PASSED [ 40%]
+tests/faults/research/test_source_faults.py::test_sources_of_1_2_and_3_seconds_through_the_whole_stage_stay_close_to_the_slowest PASSED [ 50%]
+tests/unit/research/test_serper.py::test_each_request_waits_for_the_limiter_and_a_cache_hit_does_not PASSED [ 60%]
+tests/unit/research/test_fetching.py::test_each_archive_keeps_the_rate_it_asks_for PASSED [ 70%]
+tests/unit/research/test_review_pages.py::test_each_review_domain_has_its_own_limiter PASSED [ 80%]
+tests/unit/llm/test_limits.py::test_requests_are_spaced_to_the_requests_per_second_limit PASSED [ 90%]
+tests/unit/llm/test_pool.py::test_a_request_per_minute_limit_makes_the_next_call_wait PASSED [100%]
+============================= 10 passed in 8.67s ==============================
+exit 0, 12.0 s

@@ -1,0 +1,34 @@
+C7 Supabase, read-only, 2026-11-10 (project "ShopSense IT314 Group 13", Postgres 17)
+
+## Migration history (list_migrations) against supabase/migrations/
+history: 20261026170303 create_requests | 20261103102906 lock_rls_auto_enable | 20261106160150 create_searches
+files:   20261026170303_create_requests.sql | 20261103102906_lock_rls_auto_enable.sql | 20261106160150_create_searches.sql
+result: identical (3 of 3, same versions, same names, same order)
+
+## Row level security and access, every table in schema public
+$ select c.relname, c.relrowsecurity, (policies), has_table_privilege('anon', ...), has_table_privilege('authenticated', ...),
+         (grants to anon or authenticated in information_schema.role_table_grants)
+  from pg_class c join pg_namespace n ... where n.nspname = 'public' and c.relkind in ('r','p','v','m','f')
+table     rls_on  policies  anon_any  authenticated_any  grants_to_anon_or_authenticated
+requests  true    0         false     false              0
+searches  true    0         false     false              0
+
+## Row baseline at the check's start (2026-11-10T08:49:02Z), before any live run
+table     all_rows  since_check_start
+requests  15        0
+searches  9         0
+
+## Rows this check created (read after the live runs, session_id and created_at only)
+$ select 'requests', session_id, created_at from public.requests where created_at >= '2026-11-10T08:49:02Z'
+  union all select 'searches', session_id, created_at from public.searches where created_at >= '2026-11-10T08:49:02Z'
+  order by created_at
+table     session_id                      created_at (UTC)
+requests  sess_736269c49abf68a3400dc02e   2026-11-10 09:19:40.485974   (R1, CLI, database on)
+searches  sess_736269c49abf68a3400dc02e   2026-11-10 09:19:48.076055   (R1)
+requests  sess_ae81291919a74bd5cea0b54f   2026-11-10 09:21:29.876407   (R2, live e2e, database on)
+searches  sess_ae81291919a74bd5cea0b54f   2026-11-10 09:21:40.816476   (R2)
+4 rows: 2 sessions, each with its request and its search. R3 to R6 ran with the database off and saved nothing.
+
+## For Om to review and run (not run here). The tables have no foreign key between them, so the order does not matter.
+delete from public.searches where session_id in ('sess_736269c49abf68a3400dc02e', 'sess_ae81291919a74bd5cea0b54f');
+delete from public.requests where session_id in ('sess_736269c49abf68a3400dc02e', 'sess_ae81291919a74bd5cea0b54f');

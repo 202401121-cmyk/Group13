@@ -1,0 +1,19 @@
+R2 (live e2e, database on): the search run's event stream, replayed after the run, 2026-11-10T09:22:17Z
+$ curl -s -N http://localhost:8000/api/search/runs/srch_a22b8511f8b230291ee1c380/events   (parsed: event id, time, stage, status, non-zero counts, message; the final run event: status only)
+ 1  09:21:37.063Z  research  started    Looking for reviews, videos and discussions.
+ 2  09:21:38.153Z  research  done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Found 47 sources.
+ 3  09:21:38.153Z  extract   started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Reading what each source says.
+ 4  09:21:41.285Z  extract   done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Finished reading the sources.
+ 5  09:21:41.285Z  match     started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Working out which products the sources mean.
+ 6  09:21:41.287Z  match     done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Matched the products.
+ 7  09:21:41.287Z  verify    started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Checking the facts against the sources.
+ 8  09:21:41.290Z  verify    done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Checked the facts.
+ 9  09:21:41.290Z  enrich    started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Filling in missing details.
+10  09:21:41.291Z  enrich    done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Finished filling in details.
+11  09:21:41.291Z  decide    started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Scoring the products on what matters to you.
+12  09:21:41.296Z  decide    done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Scored and ranked the products.
+13  09:21:41.296Z  explain   started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Writing a short reason for each pick.
+14  09:21:41.299Z  explain   done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Wrote the reasons.
+15  09:21:41.299Z  commerce  started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Checking prices and where to buy.
+16  09:21:41.300Z  commerce  done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Checked the prices.
+run event: status done, result present True

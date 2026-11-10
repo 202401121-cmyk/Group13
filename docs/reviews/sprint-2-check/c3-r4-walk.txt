@@ -1,0 +1,26 @@
+C3 the live research screen, stage by stage, and a stopped search (a Playwright script kept outside the repository: it walks the real flow with the made-up request, screenshots the progress list on every change and presses Stop research)
+
+## R4a: first walk. Fault in the walk script, not the app: it waited for two finished stages before pressing Stop, the cached search finished first, and the click then timed out waiting for a Stop button that was gone. Its screenshots c3-stage-01 and 02 (progress) and 04 (the finished results page, sample data only) are kept; 03 showed the same results page and is left out. The run's own events are in c3-r4a-progress-events.txt.
+Running 1 test using 1 worker
+[1/1] <scratch>\s2\walk\walk.spec.ts:12:5 › live research screen, stage by stage, then Stop
+  1) <scratch>\s2\walk\walk.spec.ts:12:5 › live research screen, stage by stage, then Stop 
+    Test timeout of 300000ms exceeded.
+    Error: locator.click: Test timeout of 300000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: 'Stop research' }).first()
+      56 |     await page.waitForTimeout(300);
+      57 |   }
+    > 58 |   await page.getByRole("button", { name: "Stop research" }).first().click();
+         |                                                                     ^
+      59 |   const dialog = page.getByRole("alertdialog", { name: "Stop research?" });
+
+## R4b: the walk presses Stop as soon as research is done and the sources are being read
+Running 1 test using 1 worker
+[1/1] <scratch>\s2\walk\walk.spec.ts:12:5 › live research screen, stage by stage, then Stop
+<scratch>\s2\walk\walk.spec.ts:12:5 › live research screen, stage by stage, then Stop
+WALK_STAGE +0.1 s  Finding reviews, videos and discussions Running | 2 Reading what each source says Waiting | 3 Working out which products they mean Waiting | 4 Checking the facts against the sources Waiting | 5 Filling in missing details Waiting | 6 Scoring the products on what matters to you Waiting | 7 Writing a short reason for each pick Waiting | 8 Checking prices and where to buy Waiting
+WALK_STAGE +1.2 s  Finding reviews, videos and discussions Found 47 sources. Done | Reading what each source says Running | 3 Working out which products they mean Waiting | 4 Checking the facts against the sources Waiting | 5 Filling in missing details Waiting | 6 Scoring the products on what matters to you Waiting | 7 Writing a short reason for each pick Waiting | 8 Checking prices and where to buy Waiting
+WALK_SESSION sess_c8ce6802cd41b27d792c0a4e
+WALK_SEARCH srch_ef489ccc8e9f457d1240a005
+WALK_STOPPED shown
+  1 passed (19.3s)

@@ -1,0 +1,173 @@
+$ python -m app.cli 'Laptop for coding under 80k' --claims --no-db
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Laptop · use coding · budget up to ₹80,000 · region IN · detected by llm
+Criteria (cached):
+  - CPU Clock Speed: Measures the processor's single‑core clock frequency in gigahertz, affecting compile times and responsiveness while coding.
+  - RAM Size: Indicates total volatile memory in gigabytes, allowing many IDEs, virtual machines, and browsers to run simultaneously.
+  - SSD Read Speed: Measures sequential read throughput in megabytes per second, speeding up project loading and file operations.
+  - Keyboard Travel: Distance each key moves in millimeters, influencing typing comfort and fatigue during long coding sessions.
+  - Display PPI: Pixels per inch of the screen, determining how sharp text appears and reducing eye strain while reading code.
+  - Battery Life: Total runtime on a full charge measured in hours, important for working away from outlets.
+  - Laptop Weight: Physical mass of the laptop in kilograms, affecting how easy it is to carry between workspaces.
+  - Connectivity Ports: Number of useful ports (USB‑C, HDMI, Ethernet) available, enabling connection of external monitors and devices without adapters.
+  - Max CPU Temp: Highest processor temperature in degrees Celsius under load, indicating cooling efficiency for sustained coding tasks.
+  - Value for Money: Compares the laptop's overall capability to its price, showing how much performance you receive per dollar spent.
+Q: CPU Clock Speed: how much does it matter to you?
+A: Skip
+Q: RAM Size: how much does it matter to you?
+A: Skip
+Q: SSD Read Speed: how much does it matter to you?
+A: Skip
+Q: Keyboard Travel: how much does it matter to you?
+A: Skip
+Q: Display PPI: how much does it matter to you?
+A: Skip
+Q: Battery Life: how much does it matter to you?
+A: Skip
+Q: Laptop Weight: how much does it matter to you?
+A: Skip
+Q: Connectivity Ports: how much does it matter to you?
+A: Skip
+Q: Max CPU Temp: how much does it matter to you?
+A: Skip
+Q: Value for Money: how much does it matter to you?
+A: Skip
+Rubric (what matters to you):
+  - CPU Clock Speed: 9/10, 13% of the score (skipped)
+  - RAM Size: 8.5/10, 12% of the score (skipped)
+  - SSD Read Speed: 8/10, 12% of the score (skipped)
+  - Keyboard Travel: 7.5/10, 11% of the score (skipped)
+  - Display PPI: 7/10, 10% of the score (skipped)
+  - Battery Life: 6.5/10, 10% of the score (skipped)
+  - Laptop Weight: 6/10, 9% of the score (skipped)
+  - Connectivity Ports: 5.5/10, 8% of the score (skipped)
+  - Max CPU Temp: 5/10, 7% of the score (skipped)
+  - Value for Money: 5/10, 7% of the score (skipped)
+
+Results for: Laptop for coding under 80k
+
+Ranked:
+  1. Nova Book 14: score 78.3, coverage 100%, chance of being first 46%
+  2. Kestrel Slim 15: score 75.9, coverage 100%, chance of being first 41%
+  3. Orion Play 15: score 67.0, coverage 90%, chance of being first 13%
+
+Filtered out:
+  - Aurora Air 13: ₹84,990 is above your ₹70,000 budget
+
+Can't tell:
+  - Vela Pro 14: We couldn't confirm it has at least 16 GB RAM
+
+Coverage note: Reddit could not be read. 4 sources were not read, to keep the search from running too long. These are sample results while live research is being built. They are not real recommendations.
+
+This search could not be saved.
+
+Sources (27):
+  web_search   2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=YXaoe3na9yU
+  web_search   2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+  web_search   2026-11-10 09:19:44Z  https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+  web_search   2026-11-10 09:19:44Z  https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+  web_search   2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=r023nwE441U
+  web_search   2026-11-10 09:19:44Z  https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+  web_search   2026-11-10 09:19:44Z  https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+  web_search   2026-11-10 09:19:44Z  https://www.smartprix.com/laptops/best-laptops-under-80000-list
+  web_search   2026-11-09 14:38:36Z  https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+  web_search   2026-11-09 14:38:36Z  https://www.91mobiles.com/reviews/best-laptops-under-rs-100000-in-india/
+  web_search   2026-11-09 14:38:36Z  https://www.91mobiles.com/reviews/best-laptops-in-india-across-price-ranges-tested-and-monthly-updated/
+  web_search   2026-11-09 14:38:35Z  https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vKSgPFwxSNJaCx4qXjWd6kS9YDbYmNhomcMDetMuwh4e_-2BO16
+  web_search   2026-11-09 14:38:35Z  https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vK66dcS5uc0qS62TWlH6eoeiOcfhVNW8zqOnVuw9F-NSmsNxUVs
+  web_search   2026-11-09 14:38:35Z  https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+  web_search   2026-11-09 14:38:35Z  https://www.91mobiles.com/laptopfinder.php
+  web_search   2026-11-09 14:38:35Z  https://www.amazon.in/b?ie=UTF8&node=16092374031
+  web_search   2026-11-09 14:38:35Z  https://edify.club/blog/laptop-buying-checklist-india-2026/
+  web_search   2026-11-09 14:38:35Z  https://www.youtube.com/watch?v=RrM81BTJEnY
+  web_search   2026-11-09 14:38:35Z  https://www.hp.com/in-en/tech-takes/laptops/guide/which-laptop-is-right-for-me-buyers-guide.html
+  web_search   2026-11-09 14:38:35Z  https://www.microsoft.com/en-gb/windows/laptop-buying-guide
+  review_site  2026-11-09 14:38:40Z  https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+  review_site  2026-11-09 14:38:39Z  https://www.rtings.com/laptop/reviews/best/by-usage/programming
+  review_site  2026-11-09 14:38:40Z  https://www.91mobiles.com/reviews/best-laptops-for-programming-and-coding-in-india-2026/
+  review_site  2026-11-09 14:38:39Z  https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+  review_site  2026-11-09 14:38:41Z  https://www.rtings.com/laptop/reviews/best/by-usage/video-editing
+  review_site  2026-11-09 14:38:41Z  https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+  review_site  2026-11-09 14:38:43Z  https://www.rtings.com/laptop/reviews/best/travel
+
+Time per source: reddit 0.0 s, web_search 0.0 s, review_site 0.3 s; total 0.3 s
+Provider use (this search / today / daily cap): serper 0 / 2 / 60, reddit_archive 0 / 0 / 500, pages 2 / 14 / 200
+Comparison query: none (fewer than two candidates)
+
+Claims per source:
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=YXaoe3na9yU
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+    No claims.
+  web_search (community)  2026-11-10 09:19:44Z  https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+    No claims.
+  web_search (retailer)  2026-11-10 09:19:44Z  https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=r023nwE441U
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.smartprix.com/laptops/best-laptops-under-80000-list
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:36Z  https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:36Z  https://www.91mobiles.com/reviews/best-laptops-under-rs-100000-in-india/
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:36Z  https://www.91mobiles.com/reviews/best-laptops-in-india-across-price-ranges-tested-and-monthly-updated/
+    No claims.
+  web_search (manufacturer)  2026-11-09 14:38:35Z  https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vKSgPFwxSNJaCx4qXjWd6kS9YDbYmNhomcMDetMuwh4e_-2BO16
+    No claims.
+  web_search (retailer)  2026-11-09 14:38:35Z  https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vK66dcS5uc0qS62TWlH6eoeiOcfhVNW8zqOnVuw9F-NSmsNxUVs
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:35Z  https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:35Z  https://www.91mobiles.com/laptopfinder.php
+    No claims.
+  web_search (retailer)  2026-11-09 14:38:35Z  https://www.amazon.in/b?ie=UTF8&node=16092374031
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:35Z  https://edify.club/blog/laptop-buying-checklist-india-2026/
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:35Z  https://www.youtube.com/watch?v=RrM81BTJEnY
+    No claims.
+  web_search (manufacturer)  2026-11-09 14:38:35Z  https://www.hp.com/in-en/tech-takes/laptops/guide/which-laptop-is-right-for-me-buyers-guide.html
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:35Z  https://www.microsoft.com/en-gb/windows/laptop-buying-guide
+    No claims.
+  review_site (editorial)  2026-11-09 14:38:40Z  https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+    - HP 14-ep1181TU (CJ9E0PA) Laptop | battery_life | 8.3 Hrs | experience | "8.30 Hrs Battery Life"
+    - HP 14-ep1152TU (C72QJPA) Laptop | battery_life | 8.5 Hrs | experience | "8.5 Hrs Battery Life"
+    - HP 14-gr1036TU (C33RKPA) Laptop | battery_life | 8.3 Hrs | experience | "8.30 Hrs Battery Life"
+    - Acer Swift Neo OLED AI PC SFN14-54H (UN.35GSI.002) Laptop | battery_life | 8 Hrs | experience | "8 Hrs Battery Life"
+  review_site (lab)  2026-11-09 14:38:39Z  https://www.rtings.com/laptop/reviews/best/by-usage/programming
+    No claims.
+  review_site (editorial)  2026-11-09 14:38:40Z  https://www.91mobiles.com/reviews/best-laptops-for-programming-and-coding-in-india-2026/
+    No claims.
+  review_site (editorial)  2026-11-09 14:38:39Z  https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+    No claims.
+  review_site (lab)  2026-11-09 14:38:41Z  https://www.rtings.com/laptop/reviews/best/by-usage/video-editing
+    No claims.
+  review_site (editorial)  2026-11-09 14:38:41Z  https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+    No claims.
+  review_site (lab)  2026-11-09 14:38:43Z  https://www.rtings.com/laptop/reviews/best/travel
+    No claims.
+
+Reddit threads (0 kept, 0 dropped):
+  No Reddit threads.
+
+Recommenders per product:
+  No products were counted.
+
+LLM calls per provider:
+  provider     calls   median  slowest timeouts  429s
+  gemini           3    4.0 s    4.9 s        0     0
+  groq             1    1.0 s    1.0 s        0     0
+  mistral          1    5.9 s    5.9 s        0     0
+exit 0, 13.4 s
+warnings logged: 5
+  llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=613 out=166 ms=1038
+  llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok fitted=as_is in=2847 out=15 ms=1943
+  llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=error fitted=as_is in=1697 out=0 ms=4005
+  llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok fitted=as_is in=1784 out=553 ms=4860
+  llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=ok fitted=as_is in=1583 out=635 ms=5924

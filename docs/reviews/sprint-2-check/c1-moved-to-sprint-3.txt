@@ -1,0 +1,80 @@
+C1 items moved to Sprint 3 by D-61: what exists now on main b6ec081, 2026-11-10T09:01:03Z
+
+## #30: check_conflicts.py
+$ <scratch>/s2/v311/Scripts/python.exe ml/scripts/check_conflicts.py ml/labelling/conflicts.csv
+ml/labelling/conflicts.csv: 15 rows checked, 5 conflicts, 0 errors, 0 warnings
+exit 0, 0.2 s
+
+## #30: trust_baseline.py (writes into the scratch clone only)
+$ <scratch>/s2/v311/Scripts/python.exe ml/scripts/trust_baseline.py 2>&1 | sed -E 's#[A-Za-z]:[^ ]*clone[/\]#<clone>/#'
+Trust baselines on ml/labelling/conflicts.csv
+Conflicts: 5 (targets: 15 by the Sprint 2 review, 30 in Sprint 3). Claims: 15.
+All sources agree on: 0. Known answer's source is also a claim on: 2.
+
+All conflicts (5)
+Method      Correct  Wrong  Ties  No answer  Accuracy
+majority    0        2      3     3          0.000
+tier order  3        2      0     0          0.600
+
+Known answer's source is not a claim (3)
+Method      Correct  Wrong  Ties  No answer  Accuracy
+majority    0        2      1     1          0.000
+tier order  1        2      0     0          0.333
+
+Conflict  Product                       Criterion             Known        Majority       Tier order     Decided by
+c001      Noise Buds VS104              fast_charge_playback  150 min      200 min wrong  200 min wrong  editorial
+c002      Noise Buds VS104              total_playtime        30 h ±2      no answer      30 h right     editorial
+c006      Fire-Boltt Ninja Call Pro...  battery_life_typical  7 days       no answer      7 days right   manufacturer
+c007      Instant Vortex Plus 6-qua...  capacity              5.7 L ±0.05  6 L wrong      6 L wrong      retailer
+c008      ASUS TUF Gaming A15 FA507...  cpu_cores             8 cores      no answer      8 cores right  manufacturer
+
+Wrote <clone>/ml\results\trust_baseline.json
+exit 0, 0.2 s
+
+## L1 / own-pairs labelling: labelling_status.py
+$ <scratch>/s2/v311/Scripts/python.exe ml/scripts/labelling_status.py 2>&1 | sed -E 's#[A-Za-z]:[^ ]*clone[/\]#<clone>/#'
+Labelling status for <clone>/ml\labelling
+
+Batches (pairs labelled per labeller):
+  agree-1  50 pairs  machine-a 50/50  machine-b 50/50
+  solo-1  50 pairs  machine-a 50/50
+  solo-2  50 pairs  machine-b 50/50
+  solo-3  50 pairs  machine-a 50/50
+  solo-4  50 pairs  machine-b 50/50
+  solo-5  50 pairs  machine-a 50/50
+
+Labelled: 350 rows by 2 labellers, 275 distinct pairs (target: 150 by the Sprint 2 review, 250 in Sprint 3)
+Label mix (finished batches): same 28, variant 49, different 213, unsure 60
+
+Agreement within each batch (shown once everyone on it has finished):
+  agree-1, machine-a and machine-b: 50 pairs, 48 agree (96.0%)
+    four-class kappa 0.933, binary kappa 1.000 (11 dropped as unsure)
+    disagreements (2):
+      p0006  machine-a: unsure     machine-b: different
+      p0032  machine-a: different  machine-b: unsure
+
+Repeated pairs (labelled again in a later batch):
+  machine-a first, machine-b again: 10 pairs, 9 agree (90.0%)
+    four-class kappa 0.630, binary kappa 1.000 (1 dropped as unsure)
+    disagreements (1):
+      p0178  machine-a: different  machine-b: unsure
+  machine-b first, machine-a again: 15 pairs, 15 agree (100.0%)
+    four-class kappa 1.000, binary kappa 1.000 (2 dropped as unsure)
+    disagreements (0):
+      none
+  machine-a labelled 5 pairs twice, 5 the same
+
+Next step: make solo-6: python ml/scripts/make_pairs.py ml/labelling/listings.csv --batch solo-6 --seed 206 --overlap 5 --overlap-from <the other labeller's solo batch>
+exit 0, 0.4 s
+
+## #29: matcher training data and notebook v0
+$ ls ml/notebooks 2>/dev/null; ls ml/scripts | grep -i -E 'mine|negative|train|colab' || echo 'no hard-negative miner, training script or notebook in ml/'
+no hard-negative miner, training script or notebook in ml/
+exit 0, 0.1 s
+
+## L2: own-pairs evaluation
+$ grep -n 'Our own pairs' ml/MODELS.md; ls ml/results
+148:- Our own pairs are labelled (machine labels, [DATA.md](DATA.md) section 4.1) but not scored yet. Run
+matching_baseline.json
+trust_baseline.json
+exit 0, 0.0 s

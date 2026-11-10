@@ -1,0 +1,12 @@
+Live-call ledger: every outgoing call the live runs made, counted by the review-check guard at the point it leaves the process (LLM: the provider adapter; others: the HTTP client). Caps per run were set by environment variable; no call was refused by a cap.
+
+run | llm (sent, by provider) | serper | reddit archive | review pages | faked 429 (not sent) | refused
+R1 CLI --claims, database on, 6 sources, Reddit archive mode | 6 (groq 6) | 2 | 0 | 2 | 0 | 0
+R2 live e2e (full-flow.spec.ts), database on, 3 sources | 4 (groq 4) | 0 | 0 | 2 | 0 | 0
+R3 live e2e (full-flow.spec.ts), database off, 3 sources; R4a screen walk on the same stack | 8 (groq 8) | 0 | 0 | 4 | 0 | 0
+R4b screen walk, then Stop, database off, 3 sources | 4 (groq 4) | 0 | 0 | 2 | 0 | 0
+R5 rate-limit drill: Gemini answers with a fake 429; Reddit off; 3 sources | 5 (groq 1, mistral 3, openrouter 1) | 0 | 0 | 2 | 2 | 0
+R6 Reddit-off drill: REDDIT_SOURCE=off; 3 sources | 5 (gemini 3, groq 1, mistral 1) | 0 | 0 | 2 | 0 | 0
+
+TOTAL | llm 32 of 40 | serper 2 of 15 | reddit archive 0 of 30 | review pages 14 | faked 429 2 | refused 0
+R3's ledger also holds R4a (the first walk ran on the R3 stack).

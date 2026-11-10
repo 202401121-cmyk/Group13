@@ -1,0 +1,231 @@
+C1 frontend tests for US-08, #27 and #28, clean clone of main b6ec081, 2026-11-10T09:19:00Z
+
+## vitest, verbose
+$ npx vitest run src/test/rough-levels.test.ts src/test/exact-value.test.tsx src/test/interview-adapter.test.ts src/test/live-schemas.test.ts src/test/research-progress.test.tsx src/test/research-adapter.test.ts src/test/research-controller.test.ts --reporter=verbose 2>&1 | grep -E '✓|✗|×|Test Files|Tests |FAIL' | sed -E 's/ [0-9]+ms$//'
+ ✓ src/test/research-controller.test.ts > starting > shows starting, then follows the run it was given
+ ✓ src/test/research-controller.test.ts > starting > a second start does nothing
+ ✓ src/test/research-controller.test.ts > starting > a full pool says so
+ ✓ src/test/research-controller.test.ts > progress > events are kept in event_id order, once each
+ ✓ src/test/research-controller.test.ts > progress > the end of the stream shows the result and closes it
+ ✓ src/test/research-controller.test.ts > progress > a run that failed shows the clear error
+ ✓ src/test/research-controller.test.ts > progress > an invalid event ends the wait with the clear error
+ ✓ src/test/research-controller.test.ts > a quiet connection > 60 seconds with no event says so and keeps the progress
+ ✓ src/test/research-controller.test.ts > a quiet connection > each event starts the 60 seconds again, and clears the notice
+ ✓ src/test/research-controller.test.ts > a quiet connection > checking for results merges what was missed
+ ✓ src/test/research-controller.test.ts > a quiet connection > checking for results shows a run that has ended
+ ✓ src/test/research-controller.test.ts > a quiet connection > a check that fails says so and keeps the progress
+ ✓ src/test/research-controller.test.ts > a quiet connection > a check that reads something invalid shows the clear error
+ ✓ src/test/research-controller.test.ts > a quiet connection > replayed events don't put off the notice, and it stays until there is news
+ ✓ src/test/research-controller.test.ts > a quiet connection > a check can be made while a stop is waiting, and the wait starts again
+ ✓ src/test/research-controller.test.ts > a quiet connection > a check during a stop can find the run has stopped
+ ✓ src/test/research-controller.test.ts > a quiet connection > a check that finds nothing there says it can't be found
+ ✓ src/test/research-controller.test.ts > the time limit > 170 seconds with no final event times out, and a retry keeps the brief
+ ✓ src/test/research-controller.test.ts > the time limit > events don't push the limit back
+ ✓ src/test/research-controller.test.ts > the time limit > a reload's timeout counts from the run's start
+ ✓ src/test/research-controller.test.ts > the time limit > a read that never answers still ends at the limit
+ ✓ src/test/research-controller.test.ts > the time limit > a reload past the limit times out at once, with no stream
+ ✓ src/test/research-controller.test.ts > a reload > a reload mid-run re-attaches
+ ✓ src/test/research-controller.test.ts > a reload > an ended run shows its outcome and opens no stream
+ ✓ src/test/research-controller.test.ts > a reload > an unknown search ID says it can't be found
+ ✓ src/test/research-controller.test.ts > a reload > a retry after a lost connection reads the run again, and starts nothing new
+ ✓ src/test/research-controller.test.ts > a reload > a retry after a stream's lost connection reads the same run
+ ✓ src/test/research-controller.test.ts > a reload > a retry that starts a new search stops the old run
+ ✓ src/test/research-controller.test.ts > a reload > a retry before there was any run starts one
+ ✓ src/test/research-controller.test.ts > a reload > a retry after a reload still has the brief
+ ✓ src/test/research-controller.test.ts > stopping > cancel while a stage runs
+ ✓ src/test/research-controller.test.ts > stopping > a stop that came too late keeps following, and the results say so
+ ✓ src/test/research-controller.test.ts > stopping > a run that had already stopped ends as stopped
+ ✓ src/test/research-controller.test.ts > stopping > a stop that fails says so and the search goes on
+ ✓ src/test/research-controller.test.ts > stopping > a stop that fails doesn't lose the quiet notice
+ ✓ src/test/research-controller.test.ts > stopping > a stop still on its way isn't called stopped when time runs out
+ ✓ src/test/research-controller.test.ts > stopping > a stop the backend accepted is called stopped when time runs out
+ ✓ src/test/research-controller.test.ts > stopping > an invalid answer to a stop shows the clear error
+ ✓ src/test/research-controller.test.ts > stopping > a stop for a run that's gone says it can't be found
+ ✓ src/test/research-controller.test.ts > leaving the page > sends DELETE, and a new search can start at once
+ ✓ src/test/research-controller.test.ts > leaving the page > says when the stop didn't get through
+ ✓ src/test/research-controller.test.ts > leaving the page > a run the backend no longer has counts as stopped
+ ✓ src/test/research-controller.test.ts > leaving the page > leaving while a run is being read again still stops it
+ ✓ src/test/research-controller.test.ts > leaving the page > a new search can start while the old one is still stopping
+ ✓ src/test/research-controller.test.ts > leaving the page > says when the search had nearly finished
+ ✓ src/test/research-controller.test.ts > leaving the page > leaving before the backend answers still stops the run it started
+ ✓ src/test/research-progress.test.tsx > event order > events arriving out of order are shown in event_id order
+ ✓ src/test/research-progress.test.tsx > event order > the rows come out the same whatever order the events are in
+ ✓ src/test/research-progress.test.tsx > event order > a duplicate event after a reconnect is ignored
+ ✓ src/test/research-progress.test.tsx > event order > a replay after the stream reopens keeps each event once
+ ✓ src/test/research-progress.test.tsx > stage rows > lists the eight stages in the run's order, all waiting at first
+ ✓ src/test/research-progress.test.tsx > stage rows > a stage goes waiting, running, done
+ ✓ src/test/research-progress.test.tsx > stage rows > a skipped stage shows its reason
+ ✓ src/test/research-progress.test.tsx > stage rows > a stage the backend calls done stays done, whatever its message says
+ ✓ src/test/research-progress.test.tsx > stage rows > a failed stage shows it failed
+ ✓ src/test/research-progress.test.tsx > stage rows > a stage this screen doesn't know still gets a row, in plain words
+ ✓ src/test/research-progress.test.tsx > sources found > sources found are shown per type as they arrive
+ ✓ src/test/research-progress.test.tsx > sources found > the newest counts win, in event_id order
+ ✓ src/test/research-progress.test.tsx > sources found > a later event with no counts doesn't wipe them
+ ✓ src/test/research-progress.test.tsx > sources found > a source type this screen doesn't know is shown in plain words
+ ✓ src/test/research-progress.test.tsx > what a screen reader hears > a stage change is announced
+ ✓ src/test/research-progress.test.tsx > what a screen reader hears > a count tick announces nothing
+ ✓ src/test/research-progress.test.tsx > what a screen reader hears > a count tick on an earlier stage doesn't announce that stage again
+ ✓ src/test/research-progress.test.tsx > the progress list > says each state in words, not only by colour
+ ✓ src/test/research-progress.test.tsx > the progress list > stops the spinner when reduced motion is on
+ ✓ src/test/research-progress.test.tsx > the progress list > says so when looking found nothing
+ ✓ src/test/research-progress.test.tsx > the progress list > holds a place for the counts, so the page doesn't jump when they arrive
+ ✓ src/test/research-adapter.test.ts > SearchResult -> results page > is labelled live, with the backend's notes
+ ✓ src/test/research-adapter.test.ts > SearchResult -> results page > orders products by rank, and gives tied products the same rank
+ ✓ src/test/research-adapter.test.ts > SearchResult -> results page > keeps score, confidence and chance of being first
+ ✓ src/test/research-adapter.test.ts > SearchResult -> results page > points add up to the score
+ ✓ src/test/research-adapter.test.ts > SearchResult -> results page > keeps every value state and never invents a missing one
+ ✓ src/test/research-adapter.test.ts > SearchResult -> results page > a criterion with no value at all is unknown, not zero
+ ✓ src/test/research-adapter.test.ts > SearchResult -> results page > offers older than 24 hours are marked stale
+ ✓ src/test/research-adapter.test.ts > SearchResult -> results page > only rupee prices are shown
+ ✓ src/test/research-adapter.test.ts > SearchResult -> results page > joins the explanation and the trade-off
+ ✓ src/test/research-adapter.test.ts > SearchResult -> results page > lists left-out and can't-tell products with their reasons
+ ✓ src/test/research-adapter.test.ts > SearchResult -> results page > a relaxation hint names the shopper's own words for the rule, or nothing
+ ✓ src/test/live-schemas.test.ts > ReplyRequest > accepts the exported rough reply
+ ✓ src/test/interview-adapter.test.ts > fixtures > every hand-built step passes the InterviewStep schema
+ ✓ src/test/research-adapter.test.ts > starting a run > starting a run posts to the run routes and opens the stream
+ ✓ src/test/live-schemas.test.ts > ReplyRequest > accepts the exported exact reply
+ ✓ src/test/live-schemas.test.ts > ReplyRequest > refuses a level that is not in the table
+ ✓ src/test/live-schemas.test.ts > IntakeResponse > accepts a valid answer
+ ✓ src/test/live-schemas.test.ts > IntakeResponse > refuses an invalid one
+ ✓ src/test/live-schemas.test.ts > PresearchSession > accepts a valid session, with or without an interview
+ ✓ src/test/interview-adapter.test.ts > criteria > maps the CriteriaSet and calls the session's criteria route
+ ✓ src/test/interview-adapter.test.ts > criteria > says when the backend used its fallback list
+ ✓ src/test/interview-adapter.test.ts > steps > maps a 'question' step
+ ✓ src/test/interview-adapter.test.ts > steps > maps a 'answer_then_repeat' step
+ ✓ src/test/interview-adapter.test.ts > steps > maps a 'rephrase' step
+ ✓ src/test/interview-adapter.test.ts > steps > maps a 'redirect' step
+ ✓ src/test/interview-adapter.test.ts > steps > maps a 'finished' step
+ ✓ src/test/interview-adapter.test.ts > turns > starts, replies and skips through the session's interview routes
+ ✓ src/test/interview-adapter.test.ts > turns > answers come from the backend's history, including remembered ones
+ ✓ src/test/interview-adapter.test.ts > turns > going back reopens the question by its id, then sends the new answer
+ ✓ src/test/interview-adapter.test.ts > turns > an ordinary reply never reports later changes
+ ✓ src/test/interview-adapter.test.ts > turns > the finished rubric uses the backend's shares and labels
+ ✓ src/test/interview-adapter.test.ts > turns > rejects a step that breaks the contract
+ ✓ src/test/interview-adapter.test.ts > turns > passes on the backend's out-of-order message
+ ✓ src/test/interview-adapter.test.ts > turns > an expired session asks for a new search
+ ✓ src/test/live-schemas.test.ts > PresearchSession > refuses an invalid one
+ ✓ src/test/rough-levels.test.ts > the table > is the story's table: low 2, medium 5, high 8, good enough 3
+ ✓ src/test/rough-levels.test.ts > the table > every reply button has a row in the exported table
+ ✓ src/test/rough-levels.test.ts > the table > a button's label gives its level
+ ✓ src/test/rough-levels.test.ts > the table > a reply that is not in the table has no level
+ ✓ src/test/rough-levels.test.ts > the table > the words shown come from the table
+ ✓ src/test/rough-levels.test.ts > the table > a level weighs what the table says
+ ✓ src/test/rough-levels.test.ts > the table > no file in src holds its own copy of the table
+ ✓ src/test/rough-levels.test.ts > the exact value > takes "0"
+ ✓ src/test/rough-levels.test.ts > the exact value > takes "10"
+ ✓ src/test/rough-levels.test.ts > the exact value > takes "7"
+ ✓ src/test/rough-levels.test.ts > the exact value > takes "7.5"
+ ✓ src/test/rough-levels.test.ts > the exact value > takes " 7 "
+ ✓ src/test/rough-levels.test.ts > the exact value > takes "0.25"
+ ✓ src/test/rough-levels.test.ts > the exact value > refuses "" with a plain message
+ ✓ src/test/rough-levels.test.ts > the exact value > refuses "   " with a plain message
+ ✓ src/test/rough-levels.test.ts > the exact value > refuses "11" with a plain message
+ ✓ src/test/rough-levels.test.ts > the exact value > refuses "-1" with a plain message
+ ✓ src/test/rough-levels.test.ts > the exact value > refuses "10.5" with a plain message
+ ✓ src/test/rough-levels.test.ts > the exact value > refuses "abc" with a plain message
+ ✓ src/test/rough-levels.test.ts > the exact value > refuses "1e1" with a plain message
+ ✓ src/test/rough-levels.test.ts > the exact value > refuses "NaN" with a plain message
+ ✓ src/test/rough-levels.test.ts > the exact value > refuses "7,5" with a plain message
+ ✓ src/test/rough-levels.test.ts > the exact value > refuses "Infinity" with a plain message
+ ✓ src/test/rough-levels.test.ts > the exact value > an earlier answer that was a number opens the exact box with it
+ ✓ src/test/rough-levels.test.ts > the exact value > an earlier rough, typed or missing answer does not
+ ✓ src/test/interview-adapter.test.ts > turns > a session ID in the wrong shape is never sent
+ ✓ src/test/interview-adapter.test.ts > turns > a turn gives up after 12 seconds
+ ✓ src/test/interview-adapter.test.ts > question_id > every reply names the question from the step the shopper is looking at
+ ✓ src/test/interview-adapter.test.ts > question_id > a skip names its question too
+ ✓ src/test/interview-adapter.test.ts > question_id > a tab reloaded mid-interview still sends the id the step was saved with
+ ✓ src/test/interview-adapter.test.ts > question_id > a retry after a timeout sends the same question_id
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > the Low button sends its level and question id
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > the Medium button sends its level and question id
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > the High button sends its level and question id
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > the Good enough button sends its level and question id
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > the exact box sends a number and never a level
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > an exact zero is still sent
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > a typed level or number is sent the same way as a button or the box
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > typed "Quite important" sends neither
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > typed "7/10" sends neither
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > typed "11" sends neither
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > typed "-1" sends neither
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > a reworded question's own button sends neither
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > a skip sends neither
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > changing an answer sends it the same way, after reopening the question
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > a reply to a question already reopened does not reopen it again
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > a question this tab didn't know was open still takes the new answer
+ ✓ src/test/research-adapter.test.ts > starting a run > the shopper's words go in the request's body, never in a URL
+ ✓ src/test/research-adapter.test.ts > starting a run > won't search before the interview is finished
+ ✓ src/test/research-adapter.test.ts > starting a run > a lost connection is a network error, a 5xx a server error
+ ✓ src/test/research-adapter.test.ts > starting a run > a full pool shows the backend's message
+ ✓ src/test/research-adapter.test.ts > starting a run > an answer that breaks the contract shows the clear error
+ ✓ src/test/research-adapter.test.ts > starting a run > an invalid session shows the clear error and starts no search
+ ✓ src/test/research-adapter.test.ts > starting a run > a session ID in the wrong shape is never sent
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > a question that really has moved on still says so
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > a retry of a changed answer does not reopen the question again
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > live validation passes for the reply "Good enough"
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > live validation passes for the reply "7.5"
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > live validation passes for the reply "7"
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > live validation passes for the reply "0"
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > live validation refuses a number out of range
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > a retried reply of "Medium" after a timeout reuses the same question id and answer
+ ✓ src/test/interview-adapter.test.ts > rough and exact replies > a retried reply of "7.5" after a timeout reuses the same question id and answer
+ ✓ src/test/interview-adapter.test.ts > a reply the backend refuses as out of date (409) > reads the session again and shows the current question with the notice
+ ✓ src/test/interview-adapter.test.ts > a reply the backend refuses as out of date (409) > the screen moves on, and the notice goes with the next reply
+ ✓ src/test/interview-adapter.test.ts > a reply the backend refuses as out of date (409) > if the interview has finished, it says so and keeps the finished weights
+ ✓ src/test/interview-adapter.test.ts > a reply the backend refuses as out of date (409) > going back to a question the backend refuses recovers the same way
+ ✓ src/test/interview-adapter.test.ts > a reply the backend refuses as out of date (409) > with no interview to show, the backend's own sentence stands
+ ✓ src/test/interview-adapter.test.ts > a reply the backend refuses as out of date (409) > an unreadable session is the usual clear error, never a guess
+ ✓ src/test/interview-adapter.test.ts > a reply the backend refuses as out of date (409) > any other failure is not treated as a conflict
+ ✓ src/test/exact-value.test.tsx > the exact box > has a labelled number box from 0 to 10 and a matching slider
+ ✓ src/test/exact-value.test.tsx > the exact box > is focused as soon as it opens
+ ✓ src/test/exact-value.test.tsx > the exact box > the box moves the slider, and the slider fills the box
+ ✓ src/test/exact-value.test.tsx > the exact box > sends a number
+ ✓ src/test/exact-value.test.tsx > the exact box > sends zero, which is a real answer
+ ✓ src/test/research-adapter.test.ts > following a run > hands over each event in view form
+ ✓ src/test/exact-value.test.tsx > the exact box > refuses "11" with a message and sends nothing
+ ✓ src/test/exact-value.test.tsx > the exact box > refuses "-1" with a message and sends nothing
+ ✓ src/test/exact-value.test.tsx > the exact box > refuses "" with a message and sends nothing
+ ✓ src/test/exact-value.test.tsx > the exact box > a refused number's message goes once it is corrected
+ ✓ src/test/exact-value.test.tsx > the exact box > sends nothing while a reply is going out
+ ✓ src/test/exact-value.test.tsx > the exact box > clicking the slider where it already sits fills the box
+ ✓ src/test/exact-value.test.tsx > the exact box > clicking the slider never overwrites what is typed
+ ✓ src/test/exact-value.test.tsx > the exact box > shows the rough levels' weights from the table
+ ✓ src/test/exact-value.test.tsx > the exact box > starts with an earlier number already in it
+ ✓ src/test/research-adapter.test.ts > following a run > an invalid event shows the clear error
+ ✓ src/test/research-adapter.test.ts > following a run > text that isn't JSON shows the clear error
+ ✓ src/test/exact-value.test.tsx > the switch > each button sends its reply, with all four offered
+ ✓ src/test/exact-value.test.tsx > the switch > switching rough to exact and back takes one click each way
+ ✓ src/test/exact-value.test.tsx > the switch > going back to the buttons puts focus on the switch
+ ✓ src/test/exact-value.test.tsx > the switch > the exact box sends a number and never a reply
+ ✓ src/test/exact-value.test.tsx > the switch > changing an earlier exact answer opens the box with that number
+ ✓ src/test/exact-value.test.tsx > the switch > an earlier answer typed in other words still marks its button
+ ✓ src/test/exact-value.test.tsx > the switch > changing an earlier rough answer opens the buttons with it marked
+ ✓ src/test/research-adapter.test.ts > following a run > an event from another search is invalid
+ ✓ src/test/research-adapter.test.ts > following a run > the final event fetches the run state
+ ✓ src/test/research-adapter.test.ts > following a run > if that fetch fails, the final event's own data is used
+ ✓ src/test/research-adapter.test.ts > following a run > an invalid run state shows the clear error
+ ✓ src/test/research-adapter.test.ts > following a run > a result that breaks the contract shows the clear error
+ ✓ src/test/research-adapter.test.ts > following a run > a finished run with no result shows the clear error
+ ✓ src/test/research-adapter.test.ts > following a run > a final event that says the run is still going shows the clear error
+ ✓ src/test/research-adapter.test.ts > following a run > a dropped connection is left to the browser, which sends Last-Event-ID
+ ✓ src/test/research-adapter.test.ts > following a run > a closed stream reads the run and reopens it
+ ✓ src/test/research-adapter.test.ts > following a run > a read cut off halfway doesn't fail the search: the stream goes on trying
+ ✓ src/test/research-adapter.test.ts > following a run > a final fetch cut off halfway still shows the result it has
+ ✓ src/test/research-adapter.test.ts > following a run > a stream that closes after the end reads the result
+ ✓ src/test/research-adapter.test.ts > following a run > a stream that keeps closing keeps trying, and never fails the search by itself
+ ✓ src/test/research-adapter.test.ts > following a run > while the backend can't be reached, a closed stream goes on trying
+ ✓ src/test/research-adapter.test.ts > following a run > an unknown search ID says it can't be found
+ ✓ src/test/research-adapter.test.ts > following a run > a malformed search ID never reaches the backend
+ ✓ src/test/research-adapter.test.ts > following a run > closing stops everything
+ ✓ src/test/research-adapter.test.ts > stopping a run > stopping sends DELETE
+ ✓ src/test/research-adapter.test.ts > stopping a run > a stop that came too late keeps following
+ ✓ src/test/research-adapter.test.ts > stopping a run > a run that had already stopped says so
+ ✓ src/test/research-adapter.test.ts > stopping a run > a cancelled run ends as stopped
+ ✓ src/test/research-adapter.test.ts > stopping a run > an invalid answer to a stop shows the clear error
+ ✓ src/test/research-adapter.test.ts > stopping a run > a stop for an unknown run says it can't be found
+ ✓ src/test/research-adapter.test.ts > reading a run > maps each status the way the screen needs it
+ ✓ src/test/research-adapter.test.ts > reading a run > gives the run's own start time, so a reload can't reset the time limit
+ ✓ src/test/research-adapter.test.ts > reading a run > a run state that breaks its contract is invalid, whatever else it has
+ ✓ src/test/research-adapter.test.ts > reading a run > a run whose events or result name another search is invalid
+ ✓ src/test/research-adapter.test.ts > reading a run > another run's state is invalid
+ Test Files  7 passed (7)
+      Tests  224 passed (224)
+exit 0, 19.5 s

@@ -1,0 +1,19 @@
+R4a (live screen walk, database off): the run's event stream, replayed after the run, 2026-11-10T09:30:03Z
+$ curl -s -N http://localhost:8000/api/search/runs/srch_71d078560202e53d63e3da6d/events   (parsed as for R2)
+ 1  09:24:32.053Z  research  started    Looking for reviews, videos and discussions.
+ 2  09:24:33.155Z  research  done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Found 47 sources.
+ 3  09:24:33.155Z  extract   started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Reading what each source says.
+ 4  09:24:45.101Z  extract   done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Finished reading the sources.
+ 5  09:24:45.101Z  match     started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Working out which products the sources mean.
+ 6  09:24:45.102Z  match     done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Matched the products.
+ 7  09:24:45.102Z  verify    started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Checking the facts against the sources.
+ 8  09:24:45.104Z  verify    done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Checked the facts.
+ 9  09:24:45.104Z  enrich    started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Filling in missing details.
+10  09:24:45.105Z  enrich    done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Finished filling in details.
+11  09:24:45.105Z  decide    started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Scoring the products on what matters to you.
+12  09:24:45.108Z  decide    done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Scored and ranked the products.
+13  09:24:45.108Z  explain   started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Writing a short reason for each pick.
+14  09:24:45.110Z  explain   done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Wrote the reasons.
+15  09:24:45.110Z  commerce  started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Checking prices and where to buy.
+16  09:24:45.111Z  commerce  done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Checked the prices.
+run event: status done, result present True

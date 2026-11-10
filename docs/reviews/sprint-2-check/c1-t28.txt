@@ -1,0 +1,23 @@
+C1 T28: the proving tests, run verbosely in the clean clone of main b6ec081 (Python 3.11), 2026-11-10T09:18:43Z
+$ cd backend && python -m pytest -o addopts= -m 'not live' -v tests/unit/api/test_presearch_api.py::test_the_route_passes_the_level_on tests/unit/api/test_presearch_api.py::test_the_route_passes_the_exact_weight_on tests/unit/api/test_presearch_api.py::test_level_and_exact_weight_together_get_the_plain_422_and_change_nothing tests/unit/api/test_presearch_api.py::test_an_exact_weight_outside_0_to_10_gets_the_plain_422 tests/contract/test_sprint2_contracts.py::test_the_route_accepts_either_one tests/unit/api/test_reply_idempotency.py::test_a_retried_rough_or_exact_reply_changes_nothing
+
+============================= test session starts =============================
+tests/unit/api/test_presearch_api.py::test_the_route_passes_the_level_on PASSED [  6%]
+tests/unit/api/test_presearch_api.py::test_the_route_passes_the_exact_weight_on PASSED [ 12%]
+tests/unit/api/test_presearch_api.py::test_level_and_exact_weight_together_get_the_plain_422_and_change_nothing PASSED [ 18%]
+tests/unit/api/test_presearch_api.py::test_an_exact_weight_outside_0_to_10_gets_the_plain_422[below] PASSED [ 25%]
+tests/unit/api/test_presearch_api.py::test_an_exact_weight_outside_0_to_10_gets_the_plain_422[just_above] PASSED [ 31%]
+tests/unit/api/test_presearch_api.py::test_an_exact_weight_outside_0_to_10_gets_the_plain_422[above] PASSED [ 37%]
+tests/unit/api/test_presearch_api.py::test_an_exact_weight_outside_0_to_10_gets_the_plain_422[text] PASSED [ 43%]
+tests/unit/api/test_presearch_api.py::test_an_exact_weight_outside_0_to_10_gets_the_plain_422[boolean] PASSED [ 50%]
+tests/contract/test_sprint2_contracts.py::test_the_route_accepts_either_one[level] PASSED [ 56%]
+tests/contract/test_sprint2_contracts.py::test_the_route_accepts_either_one[exact_weight] PASSED [ 62%]
+tests/unit/api/test_reply_idempotency.py::test_a_retried_rough_or_exact_reply_changes_nothing[level] PASSED [ 68%]
+tests/unit/api/test_reply_idempotency.py::test_a_retried_rough_or_exact_reply_changes_nothing[exact_weight] PASSED [ 75%]
+tests/unit/api/test_reply_idempotency.py::test_a_retried_rough_or_exact_reply_changes_nothing[typed] PASSED [ 81%]
+tests/unit/api/test_reply_idempotency.py::test_a_retried_rough_or_exact_reply_changes_nothing[only_the_level_says] PASSED [ 87%]
+tests/unit/api/test_reply_idempotency.py::test_a_retried_rough_or_exact_reply_changes_nothing[only_the_weight_says] PASSED [ 93%]
+tests/unit/api/test_reply_idempotency.py::test_a_retried_rough_or_exact_reply_changes_nothing[exact_0] PASSED [100%]
+============================== warnings summary ===============================
+======================== 16 passed, 1 warning in 2.65s ========================
+exit 0, 6.0 s

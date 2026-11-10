@@ -1,0 +1,21 @@
+C2 fast suite, timed (the first runs' timer failed: no bc in Git Bash), 2026-11-10T09:00:31Z
+
+## collect: the CI command's selection (not live)
+$ <scratch>/s2/v311/Scripts/python.exe -m pytest --collect-only -q -m 'not live' -p no:cacheprovider 2>&1 | tail -1
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+exit 0, 3.3 s
+
+## collect: the fast suite (repo default: not slow and not live)
+$ <scratch>/s2/v311/Scripts/python.exe -m pytest --collect-only -q -p no:cacheprovider 2>&1 | tail -1
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+exit 0, 3.3 s
+
+## fast suite, Python 3.11
+$ bash <scratch>/s2/fast.sh <scratch>/s2/v311/Scripts/python.exe <scratch>/s2/out/fast311.xml
+tests 3846 failures 0 errors 0 skipped 37 pytest time 64.060 s
+exit 0, 66.4 s
+
+## fast suite, Python 3.13
+$ bash <scratch>/s2/fast.sh <scratch>/s2/v313/Scripts/python.exe <scratch>/s2/out/fast313.xml
+tests 3846 failures 0 errors 0 skipped 37 pytest time 58.353 s
+exit 0, 60.8 s

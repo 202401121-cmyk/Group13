@@ -1,0 +1,27 @@
+C1 US-46: the proving tests, run verbosely in the clean clone of main b6ec081 (Python 3.11), 2026-11-10T09:18:19Z
+$ cd backend && python -m pytest -o addopts= -m 'not live' -v tests/unit/llm/test_health.py::test_three_failures_in_a_row_switch_a_provider_off_for_90_seconds tests/unit/llm/test_health.py::test_failures_only_count_within_the_window tests/unit/llm/test_health.py::test_one_server_error_cools_for_60_to_120_seconds tests/unit/llm/test_health.py::test_a_bad_key_or_an_account_without_credit_is_dead_for_the_run tests/unit/llm/test_pool.py::test_a_rate_limited_member_cools_60_to_120_seconds_and_is_skipped tests/unit/llm/test_pool.py::test_members_rotate_in_order_across_three_members tests/unit/llm/test_pool.py::test_bulk_tasks_rotate tests/unit/llm/test_pool.py::test_parallel_extractions_start_on_different_members tests/unit/llm/test_pool.py::test_public_bulk_work_keeps_its_chain tests/unit/llm/test_pool.py::test_a_daily_budget_stops_calls_before_it_is_exceeded tests/unit/llm/test_pool.py::test_parallel_calls_cannot_overshoot_the_daily_budget tests/unit/llm/test_limits.py::test_the_budget_stops_calls_once_spent_and_resets_the_next_utc_day tests/unit/llm/test_limits.py::test_a_provider_without_a_budget_is_never_stopped tests/unit/llm/test_pool.py::test_a_failing_member_trips_the_breaker tests/unit/llm/test_pool.py::test_a_slow_member_times_out_and_the_next_answers tests/faults/llm/test_provider_limits.py::test_dead_and_cooling_providers_are_skipped_quickly_and_the_call_gives_up_cleanly
+
+============================= test session starts =============================
+tests/unit/llm/test_health.py::test_three_failures_in_a_row_switch_a_provider_off_for_90_seconds[ProviderTimeout] PASSED [  4%]
+tests/unit/llm/test_health.py::test_three_failures_in_a_row_switch_a_provider_off_for_90_seconds[ProviderError] PASSED [  9%]
+tests/unit/llm/test_health.py::test_failures_only_count_within_the_window PASSED [ 14%]
+tests/unit/llm/test_health.py::test_one_server_error_cools_for_60_to_120_seconds[headers0-90.0] PASSED [ 19%]
+tests/unit/llm/test_health.py::test_one_server_error_cools_for_60_to_120_seconds[headers1-60.0] PASSED [ 23%]
+tests/unit/llm/test_health.py::test_a_bad_key_or_an_account_without_credit_is_dead_for_the_run[AuthFailed] PASSED [ 28%]
+tests/unit/llm/test_health.py::test_a_bad_key_or_an_account_without_credit_is_dead_for_the_run[NoCredit] PASSED [ 33%]
+tests/unit/llm/test_pool.py::test_a_rate_limited_member_cools_60_to_120_seconds_and_is_skipped[5-60.0] PASSED [ 38%]
+tests/unit/llm/test_pool.py::test_a_rate_limited_member_cools_60_to_120_seconds_and_is_skipped[90-90.0] PASSED [ 42%]
+tests/unit/llm/test_pool.py::test_a_rate_limited_member_cools_60_to_120_seconds_and_is_skipped[600-120.0] PASSED [ 47%]
+tests/unit/llm/test_pool.py::test_members_rotate_in_order_across_three_members PASSED [ 52%]
+tests/unit/llm/test_pool.py::test_bulk_tasks_rotate PASSED               [ 57%]
+tests/unit/llm/test_pool.py::test_parallel_extractions_start_on_different_members PASSED [ 61%]
+tests/unit/llm/test_pool.py::test_public_bulk_work_keeps_its_chain PASSED [ 66%]
+tests/unit/llm/test_pool.py::test_a_daily_budget_stops_calls_before_it_is_exceeded PASSED [ 71%]
+tests/unit/llm/test_pool.py::test_parallel_calls_cannot_overshoot_the_daily_budget PASSED [ 76%]
+tests/unit/llm/test_limits.py::test_the_budget_stops_calls_once_spent_and_resets_the_next_utc_day PASSED [ 80%]
+tests/unit/llm/test_limits.py::test_a_provider_without_a_budget_is_never_stopped PASSED [ 85%]
+tests/unit/llm/test_pool.py::test_a_failing_member_trips_the_breaker PASSED [ 90%]
+tests/unit/llm/test_pool.py::test_a_slow_member_times_out_and_the_next_answers PASSED [ 95%]
+tests/faults/llm/test_provider_limits.py::test_dead_and_cooling_providers_are_skipped_quickly_and_the_call_gives_up_cleanly PASSED [100%]
+============================= 21 passed in 1.76s ==============================
+exit 0, 5.2 s

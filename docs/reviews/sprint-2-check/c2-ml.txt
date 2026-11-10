@@ -1,0 +1,92 @@
+C2 ml job (Python 3.11, fresh venv, clean clone of main b6ec081), 2026-11-10T09:02:45Z
+
+## ruff check
+$ <scratch>/s2/v311/Scripts/ruff.exe check --config backend/pyproject.toml ml
+All checks passed!
+exit 0, 0.1 s
+
+## ruff format
+$ <scratch>/s2/v311/Scripts/ruff.exe format --check --config backend/pyproject.toml ml
+31 files already formatted
+exit 0, 0.1 s
+
+## mypy strict
+$ <scratch>/s2/v311/Scripts/mypy.exe --config-file backend/pyproject.toml --strict ml/scripts ml/tests
+Success: no issues found in 26 source files
+exit 0, 4.6 s
+
+## pytest
+$ <scratch>/s2/v311/Scripts/python.exe -m pytest ml/tests -q -p no:cacheprovider
+........................................................................ [ 11%]
+........................................................................ [ 22%]
+........................................................................ [ 33%]
+........................................................................ [ 44%]
+........................................................................ [ 55%]
+........................................................................ [ 66%]
+.....................................
+--- dry run: make_pairs agree-1 (seed 101), five scripted answers each for Alex and Sam ---
+Labelling status for <temp>\pytest-of-<user>\pytest-3147\test_a_dry_run_on_the_syntheti0\labelling
+
+Batches (pairs labelled per labeller):
+  agree-1  50 pairs  alex 5/50  sam 5/50
+
+Labelled: 10 rows by 2 labellers, 9 distinct pairs (target: 150 by the Sprint 2 review, 250 in Sprint 3)
+Label mix (finished batches): same 0, variant 0, different 0, unsure 0
+
+Agreement within each batch (shown once everyone on it has finished):
+  agree-1: hidden until everyone has finished it
+
+Repeated pairs (labelled again in a later batch):
+  none yet
+
+Next step: label agree-1 (alex has 45 pairs left, sam has 45 pairs left)
+................................... [ 77%]
+........................................................................ [ 88%]
+........................................................................ [100%]
+648 passed in 10.16s
+exit 0, 10.8 s
+
+## check_labels
+$ <scratch>/s2/v311/Scripts/python.exe ml/scripts/check_labels.py ml/labelling/pairs_template.csv ml/examples/pairs_labeller_a.csv ml/examples/pairs_labeller_b.csv
+ml/labelling/pairs_template.csv: 3 rows checked, 0 errors
+  labels: same 1, variant 1, different 1, unsure 0
+  families per category: earbuds 1, laptop 1, smartphone 1
+ml/examples/pairs_labeller_a.csv: 50 rows checked, 0 errors
+  labels: same 15, variant 16, different 15, unsure 4
+  families per category: earbuds 5, laptop 5, smartphone 5
+ml/examples/pairs_labeller_b.csv: 50 rows checked, 0 errors
+  labels: same 16, variant 15, different 15, unsure 4
+  families per category: earbuds 5, laptop 5, smartphone 5
+OK: 3 files, 103 rows checked, no errors.
+exit 0, 0.1 s
+
+## kappa
+$ <scratch>/s2/v311/Scripts/python.exe ml/scripts/kappa.py ml/examples/pairs_labeller_a.csv ml/examples/pairs_labeller_b.csv --min 0.8
+A: ml/examples/pairs_labeller_a.csv (labeller: Alex)
+B: ml/examples/pairs_labeller_b.csv (labeller: Sam)
+Pairs compared: 50 (only in A: 0, only in B: 0)
+Agreement: 45 of 50 pairs (90.0%)
+Four-class kappa: 0.859
+Binary kappa (same vs variant or different): 0.900 (5 pairs dropped because a label is unsure)
+
+Confusion matrix (rows: A, columns: B)
+                   same    variant  different     unsure
+  same               14          1          0          0
+  variant             1         14          1          0
+  different           0          0         14          1
+  unsure              1          0          0          3
+
+Disagreements (5):
+  p0007  A: same       B: variant
+  p0014  A: variant    B: same
+  p0023  A: variant    B: different
+  p0031  A: different  B: unsure
+  p0042  A: unsure     B: same
+
+PASS: four-class kappa 0.859 is at least 0.800.
+exit 0, 0.1 s
+
+## repository limits (the CI shell guard)
+$ bash <scratch>/s2/ml-limits.sh
+no raw data or models tracked; every tracked ml file is 1 MiB or less (66 files)
+exit 0, 1.6 s

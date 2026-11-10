@@ -1,0 +1,280 @@
+$ python -m app.cli 'Laptop for coding under 80k' --claims
+Saved: yes (session sess_736269c49abf68a3400dc02e)
+Understood: Laptop · use coding · budget up to ₹80,000 · region IN · detected by llm
+Criteria (cached):
+  - CPU Clock Speed: Measures the processor's single‑core clock frequency in gigahertz, affecting compile times and responsiveness while coding.
+  - RAM Size: Indicates total volatile memory in gigabytes, allowing many IDEs, virtual machines, and browsers to run simultaneously.
+  - SSD Read Speed: Measures sequential read throughput in megabytes per second, speeding up project loading and file operations.
+  - Keyboard Travel: Distance each key moves in millimeters, influencing typing comfort and fatigue during long coding sessions.
+  - Display PPI: Pixels per inch of the screen, determining how sharp text appears and reducing eye strain while reading code.
+  - Battery Life: Total runtime on a full charge measured in hours, important for working away from outlets.
+  - Laptop Weight: Physical mass of the laptop in kilograms, affecting how easy it is to carry between workspaces.
+  - Connectivity Ports: Number of useful ports (USB‑C, HDMI, Ethernet) available, enabling connection of external monitors and devices without adapters.
+  - Max CPU Temp: Highest processor temperature in degrees Celsius under load, indicating cooling efficiency for sustained coding tasks.
+  - Value for Money: Compares the laptop's overall capability to its price, showing how much performance you receive per dollar spent.
+Q: CPU Clock Speed: how much does it matter to you?
+A: Skip
+Q: RAM Size: how much does it matter to you?
+A: Skip
+Q: SSD Read Speed: how much does it matter to you?
+A: Skip
+Q: Keyboard Travel: how much does it matter to you?
+A: Skip
+Q: Display PPI: how much does it matter to you?
+A: Skip
+Q: Battery Life: how much does it matter to you?
+A: Skip
+Q: Laptop Weight: how much does it matter to you?
+A: Skip
+Q: Connectivity Ports: how much does it matter to you?
+A: Skip
+Q: Max CPU Temp: how much does it matter to you?
+A: Skip
+Q: Value for Money: how much does it matter to you?
+A: Skip
+Rubric (what matters to you):
+  - CPU Clock Speed: 9/10, 13% of the score (skipped)
+  - RAM Size: 8.5/10, 12% of the score (skipped)
+  - SSD Read Speed: 8/10, 12% of the score (skipped)
+  - Keyboard Travel: 7.5/10, 11% of the score (skipped)
+  - Display PPI: 7/10, 10% of the score (skipped)
+  - Battery Life: 6.5/10, 10% of the score (skipped)
+  - Laptop Weight: 6/10, 9% of the score (skipped)
+  - Connectivity Ports: 5.5/10, 8% of the score (skipped)
+  - Max CPU Temp: 5/10, 7% of the score (skipped)
+  - Value for Money: 5/10, 7% of the score (skipped)
+
+Results for: Laptop for coding under 80k
+
+Ranked:
+  1. Nova Book 14: score 78.3, coverage 100%, chance of being first 46%
+  2. Kestrel Slim 15: score 75.9, coverage 100%, chance of being first 41%
+  3. Orion Play 15: score 67.0, coverage 90%, chance of being first 13%
+
+Filtered out:
+  - Aurora Air 13: ₹84,990 is above your ₹70,000 budget
+
+Can't tell:
+  - Vela Pro 14: We couldn't confirm it has at least 16 GB RAM
+
+Coverage note: 21 sources were not read, to keep the search from running too long. 1 source could not be read, because the AI services were busy or their answers could not be used. These are sample results while live research is being built. They are not real recommendations.
+
+Sources (47):
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xpo5c3/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xpkzu8/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/SuggestALaptop/comments/1xp14qn/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xpo4al/
+  reddit       2026-11-09 12:08:13Z  https://www.reddit.com/r/GamingLaptops/comments/1xpqy4w/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xpnpnu/
+  reddit       2026-11-09 12:08:10Z  https://www.reddit.com/r/SuggestALaptop/comments/1xpaiu2/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/SuggestALaptop/comments/1xoto3r/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xoyfj9/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xprbbc/
+  reddit       2026-11-09 12:08:10Z  https://www.reddit.com/r/SuggestALaptop/comments/1xp7nf8/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xp3rxn/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xp640w/
+  reddit       2026-11-09 12:08:13Z  https://www.reddit.com/r/GamingLaptops/comments/1xpobwa/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/SuggestALaptop/comments/1xp3fx0/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xph833/
+  reddit       2026-11-09 12:08:10Z  https://www.reddit.com/r/SuggestALaptop/comments/1xpkykt/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xpmn2m/
+  reddit       2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xp71s0/
+  reddit       2026-11-09 12:08:10Z  https://www.reddit.com/r/SuggestALaptop/comments/1xpj8x6/
+  web_search   2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=YXaoe3na9yU
+  web_search   2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+  web_search   2026-11-10 09:19:44Z  https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+  web_search   2026-11-10 09:19:44Z  https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+  web_search   2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=r023nwE441U
+  web_search   2026-11-10 09:19:44Z  https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+  web_search   2026-11-10 09:19:44Z  https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+  web_search   2026-11-10 09:19:44Z  https://www.smartprix.com/laptops/best-laptops-under-80000-list
+  web_search   2026-11-09 14:38:36Z  https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+  web_search   2026-11-09 14:38:36Z  https://www.91mobiles.com/reviews/best-laptops-under-rs-100000-in-india/
+  web_search   2026-11-09 14:38:36Z  https://www.91mobiles.com/reviews/best-laptops-in-india-across-price-ranges-tested-and-monthly-updated/
+  web_search   2026-11-09 14:38:35Z  https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vKSgPFwxSNJaCx4qXjWd6kS9YDbYmNhomcMDetMuwh4e_-2BO16
+  web_search   2026-11-09 14:38:35Z  https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vK66dcS5uc0qS62TWlH6eoeiOcfhVNW8zqOnVuw9F-NSmsNxUVs
+  web_search   2026-11-09 14:38:35Z  https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+  web_search   2026-11-09 14:38:35Z  https://www.91mobiles.com/laptopfinder.php
+  web_search   2026-11-09 14:38:35Z  https://www.amazon.in/b?ie=UTF8&node=16092374031
+  web_search   2026-11-09 14:38:35Z  https://edify.club/blog/laptop-buying-checklist-india-2026/
+  web_search   2026-11-09 14:38:35Z  https://www.youtube.com/watch?v=RrM81BTJEnY
+  web_search   2026-11-09 14:38:35Z  https://www.hp.com/in-en/tech-takes/laptops/guide/which-laptop-is-right-for-me-buyers-guide.html
+  web_search   2026-11-09 14:38:35Z  https://www.microsoft.com/en-gb/windows/laptop-buying-guide
+  review_site  2026-11-09 14:38:40Z  https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+  review_site  2026-11-09 14:38:39Z  https://www.rtings.com/laptop/reviews/best/by-usage/programming
+  review_site  2026-11-09 14:38:40Z  https://www.91mobiles.com/reviews/best-laptops-for-programming-and-coding-in-india-2026/
+  review_site  2026-11-09 14:38:39Z  https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+  review_site  2026-11-09 14:38:41Z  https://www.rtings.com/laptop/reviews/best/by-usage/video-editing
+  review_site  2026-11-09 14:38:41Z  https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+  review_site  2026-11-09 14:38:43Z  https://www.rtings.com/laptop/reviews/best/travel
+
+Time per source: reddit 0.2 s, web_search 2.4 s, review_site 2.6 s; total 2.6 s
+Provider use (this search / today / daily cap): serper 2 / 2 / 60, reddit_archive 0 / 0 / 500, pages 2 / 2 / 200
+Comparison query: none (fewer than two candidates)
+
+Claims per source:
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xpo5c3/
+    No claims.
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xpkzu8/
+    No claims.
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/SuggestALaptop/comments/1xp14qn/
+    - HP Elitebooks | ram_capacity | [Reddit value withheld] | experience | "[Reddit quote withheld]"
+    - M5 Air 13" 16GB/512GB | ram_capacity | [Reddit value withheld] | experience | "[Reddit quote withheld]"
+    - M5 Air 13" 16GB/512GB | storage_speed | [Reddit value withheld] | experience | "[Reddit quote withheld]"
+    - laptop (kind of product) | ram_capacity | [Reddit value withheld] | experience | "[Reddit quote withheld]"
+    - lenovo legion 5i | value_for_money | [Reddit value withheld] | experience | "[Reddit quote withheld]"
+    - lenovo (kind of product) | weight | [Reddit value withheld] | experience | "[Reddit quote withheld]"
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xpo4al/
+    No claims.
+  reddit (community)  2026-11-09 12:08:13Z  https://www.reddit.com/r/GamingLaptops/comments/1xpqy4w/
+    - 18" Laptop | port_count | [Reddit value withheld] | experience | "[Reddit quote withheld]"
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xpnpnu/
+    No claims.
+  reddit (community)  2026-11-09 12:08:10Z  https://www.reddit.com/r/SuggestALaptop/comments/1xpaiu2/
+    No claims.
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/SuggestALaptop/comments/1xoto3r/
+    No claims.
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xoyfj9/
+    No claims.
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xprbbc/
+    No claims.
+  reddit (community)  2026-11-09 12:08:10Z  https://www.reddit.com/r/SuggestALaptop/comments/1xp7nf8/
+    No claims.
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xp3rxn/
+    No claims.
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xp640w/
+    No claims.
+  reddit (community)  2026-11-09 12:08:13Z  https://www.reddit.com/r/GamingLaptops/comments/1xpobwa/
+    No claims.
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/SuggestALaptop/comments/1xp3fx0/
+    No claims.
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xph833/
+    No claims.
+  reddit (community)  2026-11-09 12:08:10Z  https://www.reddit.com/r/SuggestALaptop/comments/1xpkykt/
+    No claims.
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xpmn2m/
+    No claims.
+  reddit (community)  2026-11-09 12:08:11Z  https://www.reddit.com/r/laptops/comments/1xp71s0/
+    No claims.
+  reddit (community)  2026-11-09 12:08:10Z  https://www.reddit.com/r/SuggestALaptop/comments/1xpj8x6/
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=YXaoe3na9yU
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+    No claims.
+  web_search (community)  2026-11-10 09:19:44Z  https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+    No claims.
+  web_search (retailer)  2026-11-10 09:19:44Z  https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=r023nwE441U
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.smartprix.com/laptops/best-laptops-under-80000-list
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:36Z  https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:36Z  https://www.91mobiles.com/reviews/best-laptops-under-rs-100000-in-india/
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:36Z  https://www.91mobiles.com/reviews/best-laptops-in-india-across-price-ranges-tested-and-monthly-updated/
+    No claims.
+  web_search (manufacturer)  2026-11-09 14:38:35Z  https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vKSgPFwxSNJaCx4qXjWd6kS9YDbYmNhomcMDetMuwh4e_-2BO16
+    No claims.
+  web_search (retailer)  2026-11-09 14:38:35Z  https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vK66dcS5uc0qS62TWlH6eoeiOcfhVNW8zqOnVuw9F-NSmsNxUVs
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:35Z  https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:35Z  https://www.91mobiles.com/laptopfinder.php
+    No claims.
+  web_search (retailer)  2026-11-09 14:38:35Z  https://www.amazon.in/b?ie=UTF8&node=16092374031
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:35Z  https://edify.club/blog/laptop-buying-checklist-india-2026/
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:35Z  https://www.youtube.com/watch?v=RrM81BTJEnY
+    No claims.
+  web_search (manufacturer)  2026-11-09 14:38:35Z  https://www.hp.com/in-en/tech-takes/laptops/guide/which-laptop-is-right-for-me-buyers-guide.html
+    No claims.
+  web_search (editorial)  2026-11-09 14:38:35Z  https://www.microsoft.com/en-gb/windows/laptop-buying-guide
+    No claims.
+  review_site (editorial)  2026-11-09 14:38:40Z  https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+    No claims.
+  review_site (lab)  2026-11-09 14:38:39Z  https://www.rtings.com/laptop/reviews/best/by-usage/programming
+    No claims.
+  review_site (editorial)  2026-11-09 14:38:40Z  https://www.91mobiles.com/reviews/best-laptops-for-programming-and-coding-in-india-2026/
+    No claims.
+  review_site (editorial)  2026-11-09 14:38:39Z  https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+    No claims.
+  review_site (lab)  2026-11-09 14:38:41Z  https://www.rtings.com/laptop/reviews/best/by-usage/video-editing
+    No claims.
+  review_site (editorial)  2026-11-09 14:38:41Z  https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+    No claims.
+  review_site (lab)  2026-11-09 14:38:43Z  https://www.rtings.com/laptop/reviews/best/travel
+    No claims.
+
+Reddit threads (20 kept, 5 dropped):
+  kept     0.602  r/laptops  https://www.reddit.com/r/laptops/comments/1xpo5c3/
+  kept     0.557  r/laptops  https://www.reddit.com/r/laptops/comments/1xpkzu8/
+  kept     0.556  r/SuggestALaptop  https://www.reddit.com/r/SuggestALaptop/comments/1xp14qn/
+  kept     0.542  r/laptops  https://www.reddit.com/r/laptops/comments/1xpo4al/
+  kept     0.506  r/GamingLaptops  https://www.reddit.com/r/GamingLaptops/comments/1xpqy4w/
+  kept     0.497  r/laptops  https://www.reddit.com/r/laptops/comments/1xpnpnu/
+  kept     0.489  r/SuggestALaptop  https://www.reddit.com/r/SuggestALaptop/comments/1xpaiu2/
+  kept     0.488  r/SuggestALaptop  https://www.reddit.com/r/SuggestALaptop/comments/1xoto3r/
+  kept     0.487  r/laptops  https://www.reddit.com/r/laptops/comments/1xoyfj9/
+  kept     0.474  r/laptops  https://www.reddit.com/r/laptops/comments/1xprbbc/
+  kept     0.463  r/SuggestALaptop  https://www.reddit.com/r/SuggestALaptop/comments/1xp7nf8/
+  kept     0.452  r/laptops  https://www.reddit.com/r/laptops/comments/1xp3rxn/
+  kept     0.440  r/laptops  https://www.reddit.com/r/laptops/comments/1xp640w/
+  kept     0.427  r/GamingLaptops  https://www.reddit.com/r/GamingLaptops/comments/1xpobwa/
+  kept     0.418  r/SuggestALaptop  https://www.reddit.com/r/SuggestALaptop/comments/1xp3fx0/
+  kept     0.408  r/laptops  https://www.reddit.com/r/laptops/comments/1xph833/
+  kept     0.393  r/SuggestALaptop  https://www.reddit.com/r/SuggestALaptop/comments/1xpkykt/
+  kept     0.390  r/laptops  https://www.reddit.com/r/laptops/comments/1xpmn2m/
+  kept     0.389  r/laptops  https://www.reddit.com/r/laptops/comments/1xp71s0/
+  kept     0.386  r/SuggestALaptop  https://www.reddit.com/r/SuggestALaptop/comments/1xpj8x6/
+  dropped  0.230  r/GamingLaptops  https://www.reddit.com/r/GamingLaptops/comments/1xpr6i4/
+  dropped  0.230  r/GamingLaptops  https://www.reddit.com/r/GamingLaptops/comments/1xpq4dl/
+  dropped  0.230  r/GamingLaptops  https://www.reddit.com/r/GamingLaptops/comments/1xpjjds/
+  dropped  0.229  r/GamingLaptops  https://www.reddit.com/r/GamingLaptops/comments/1xozwca/
+  dropped  0.178  r/GamingLaptops  https://www.reddit.com/r/GamingLaptops/comments/1xp9jf1/
+
+Recommenders per product:
+  1TB SSD: 4 people in 3 threads
+  thinkpad: 4 people in 4 threads
+  16gb DDR5: 3 people in 3 threads
+  lenovo legion: 3 people in 3 threads
+  yoga: 3 people in 2 threads
+  Intel core ultra 9 275HX: 2 people in 1 thread
+  Lenovo Legion 5i: 2 people in 2 threads
+  18" Laptop: 1 person in 1 thread
+  32gb DDR5: 1 person in 1 thread
+  5070 TI: 1 person in 1 thread
+  9is: 1 person in 1 thread
+  Apple Macbook M5 Pro: 1 person in 1 thread
+  HP Elitebooks: 1 person in 1 thread
+  ideapad: 1 person in 1 thread
+  Intel core i9 14900HX: 1 person in 1 thread
+  latitudes: 1 person in 1 thread
+  Lenovo Legion pro i5: 1 person in 1 thread
+  M5 Air 13" 16GB/512GB: 1 person in 1 thread
+  tab gen 5: 1 person in 1 thread
+
+LLM calls per provider:
+  provider     calls   median  slowest timeouts  429s
+  groq             6    1.5 s    3.0 s        0     0
+exit 0, 10.7 s
+warnings logged: 12
+  llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=613 out=163 ms=988
+  llm call task=extract_claims class=reddit provider=groq model=openai/gpt-oss-20b outcome=ok fitted=as_is in=2337 out=50 ms=1504
+  llm call task=extract_claims class=reddit provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=1746 out=111 ms=1852
+  llm call task=extract_claims class=reddit provider=groq model=qwen/qwen3.8-27b outcome=ok fitted=as_is in=1293 out=16 ms=353
+  llm call task=extract_claims class=reddit provider=groq model=qwen/qwen3.8-27b outcome=ok fitted=as_is in=1638 out=928 ms=3004
+  llm call task=extract_claims class=reddit provider=groq model=openai/gpt-oss-20b outcome=ok fitted=as_is in=1907 out=839 ms=1569
+  llm openai/gpt-oss-120b skipped: no room before the time limit
+  llm call task=extract_claims class=reddit provider=groq model=openai/gpt-oss-120b outcome=rate_limited fitted=as_is in=0 out=0 ms=0
+  llm openai/gpt-oss-20b skipped: no room before the time limit
+  llm call task=extract_claims class=reddit provider=groq model=openai/gpt-oss-20b outcome=rate_limited fitted=as_is in=0 out=0 ms=0
+  llm qwen/qwen3.8-27b skipped: no room before the time limit
+  llm call task=extract_claims class=reddit provider=groq model=qwen/qwen3.8-27b outcome=rate_limited fitted=as_is in=0 out=0 ms=0

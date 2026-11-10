@@ -1,0 +1,16 @@
+C5 every LLM call the live runs made, from the call log (logger app.llm.client: task, data class, provider, model, outcome, token counts; never prompt or answer text)
+
+data class | task | provider | trains on inputs (models.yaml) | outcome | went out | calls
+private | detect_intent | groq | false | ok | sent | 7
+public | extract_claims | gemini | true | error | sent | 1
+public | extract_claims | gemini | true | ok | sent | 2
+public | extract_claims | gemini | true | rate_limited | not sent (the drill's fake 429 answered) | 2
+public | extract_claims | mistral | true | ok | sent | 3
+public | extract_claims | mistral | true | rate_limited | sent | 1
+public | extract_claims | openrouter | true | error | sent | 1
+reddit | extract_claims | groq | false | ok | sent | 16
+reddit | extract_claims | groq | false | rate_limited | not sent (refused by our own limits) | 5
+reddit | extract_claims | groq | false | rate_limited | sent | 1
+
+private or reddit calls that reached a provider with trains_on_inputs: true: 0
+In R5 the two Gemini calls were answered by the drill's fake 429 at the network edge, so nothing reached Gemini; they carried public text only.
