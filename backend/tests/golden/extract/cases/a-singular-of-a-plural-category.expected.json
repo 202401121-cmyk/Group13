@@ -1,0 +1,17 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "An earbud like this is rare.",
+    "category": "earbuds"
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "earbud",
+        "is_product": false
+      }
+    ],
+    "claims": []
+  }
+}

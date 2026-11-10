@@ -1,0 +1,16 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "Laptops like this are rare."
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "Laptops",
+        "is_product": false
+      }
+    ],
+    "claims": []
+  }
+}

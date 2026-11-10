@@ -1,0 +1,5 @@
+{
+  "kind": "embedded_instructions",
+  "outcome": "fallback",
+  "fallback": "keyword_rules"
+}

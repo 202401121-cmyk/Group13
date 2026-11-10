@@ -1,0 +1,2 @@
+# A case's output is compared byte for byte: a byte-order mark or a CRLF is the point of it.
+*.raw -text

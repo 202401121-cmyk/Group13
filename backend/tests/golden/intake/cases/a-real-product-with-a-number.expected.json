@@ -1,0 +1,13 @@
+{
+  "kind": "specific",
+  "given": {
+    "request": "solar panel 5 kw"
+  },
+  "outcome": "canonical",
+  "object": {
+    "raw_query": "solar panel 5 kw",
+    "detected_by": "llm",
+    "category": "solar_panel_5_kw",
+    "category_label": "Solar panel 5 kw"
+  }
+}

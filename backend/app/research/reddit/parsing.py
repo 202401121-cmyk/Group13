@@ -13,12 +13,14 @@ from pydantic import BaseModel, BeforeValidator, ConfigDict, ValidationError
 
 M = TypeVar("M", bound=BaseModel)
 
+MAX_COUNT = 2**63  # no real count is near this, and a bigger one breaks the sums made on it later
+
 
 def _whole_number(value: Any) -> int | None:
     """A count we can trust, or None. An odd one must not lose the whole post."""
     if isinstance(value, bool) or not isinstance(value, int | float):
         return None
-    return int(value)
+    return int(value) if abs(value) < MAX_COUNT else None  # also refuses NaN and 1e999, which JSON readers accept
 
 
 LenientInt = Annotated[int | None, BeforeValidator(_whole_number)]

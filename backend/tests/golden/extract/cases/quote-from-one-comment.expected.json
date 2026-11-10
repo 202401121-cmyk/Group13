@@ -1,0 +1,29 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "Is the Nova Book 14 any good?",
+    "comments": [
+      "The battery is great",
+      "on long train rides"
+    ]
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "Nova Book 14",
+        "is_product": true
+      }
+    ],
+    "claims": [
+      {
+        "product_mention": "Nova Book 14",
+        "criterion_key": "battery_life",
+        "score": 8.0,
+        "quote": "The battery is great",
+        "claim_type": "experience",
+        "polarity": "positive"
+      }
+    ]
+  }
+}

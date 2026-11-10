@@ -1,0 +1,21 @@
+{
+  "kind": "specific",
+  "given": {
+    "model": "comment"
+  },
+  "outcome": "canonical",
+  "object": {
+    "items": [
+      {
+        "id": "c1",
+        "link_id": "t3_abc123",
+        "parent_id": "t3_abc123",
+        "subreddit": "laptops",
+        "body": "A made-up comment.",
+        "author": "made_up_user",
+        "created_utc": 1700000000.0,
+        "score": 4
+      }
+    ]
+  }
+}

@@ -157,7 +157,9 @@ class GuardedExtractStage:
             return ExtractionResult(source_id=source.id)
         finally:
             self._book_real_use(ctx.search_id, source, held, meter, failed)
-        return to_extraction_result(raw, source, criteria.keys, self._now(), self.settings.domain_tiers)
+        return to_extraction_result(
+            raw, source, criteria.keys, self._now(), self.settings.domain_tiers, inp.category_label
+        )
 
     def fallback(self, inp: ExtractInput, ctx: StageContext, error: Exception) -> ExtractionResult:
         return self.stub.fallback(inp, ctx, error)

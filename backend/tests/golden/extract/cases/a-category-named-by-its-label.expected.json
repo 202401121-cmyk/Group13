@@ -1,0 +1,17 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "A microwave oven like this is rare.",
+    "category": "microwave"
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "Microwave oven",
+        "is_product": false
+      }
+    ],
+    "claims": []
+  }
+}

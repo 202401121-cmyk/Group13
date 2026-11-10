@@ -1,0 +1,53 @@
+{
+  "kind": "wrong_types",
+  "outcome": "canonical",
+  "object": {
+    "category": "laptop",
+    "use_case": "gaming",
+    "criteria": [
+      {
+        "key": "gpu_power",
+        "label": "Gpu power",
+        "definition": "How well the laptop handles gpu power during long gaming sessions at home."
+      },
+      {
+        "key": "cpu_speed",
+        "label": "Cpu speed",
+        "definition": "How well the laptop handles cpu speed during long gaming sessions at home."
+      },
+      {
+        "key": "cooling",
+        "label": "Cooling",
+        "definition": "How well the laptop handles cooling during long gaming sessions at home."
+      },
+      {
+        "key": "refresh_rate",
+        "label": "Refresh rate",
+        "definition": "How well the laptop handles refresh rate during long gaming sessions at home."
+      },
+      {
+        "key": "keyboard_feel",
+        "label": "Keyboard feel",
+        "definition": "How well the laptop handles keyboard feel during long gaming sessions at home."
+      },
+      {
+        "key": "battery_life",
+        "label": "Battery life",
+        "definition": "How well the laptop handles battery life during long gaming sessions at home."
+      },
+      {
+        "key": "fan_noise",
+        "label": "Fan noise",
+        "definition": "How well the laptop handles fan noise during long gaming sessions at home."
+      },
+      {
+        "key": "value_for_money",
+        "label": "Value for money",
+        "definition": "How well the laptop handles value for money during long gaming sessions at home.",
+        "default_weight": 7.0,
+        "is_value_for_money": true
+      }
+    ],
+    "source": "generated"
+  }
+}

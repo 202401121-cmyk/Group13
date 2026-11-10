@@ -1,0 +1,1 @@
+{"category": "laptop", "hard_rules": [{"attribute": "ram_gb", "operator": ">=", "value": {"x": 1}, "unit": "GB", "source_text": "at least 16 GB RAM"}, {"attribute": "ram_gb", "operator": ">=", "value": 16, "unit": "GB", "source_text": "at least 16 GB RAM"}]}

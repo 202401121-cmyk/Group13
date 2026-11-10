@@ -1,0 +1,1 @@
+{"category": "laptop", "hard_rules": [{"attribute": "ram_gb", "operator": ">=", "value": 1e999, "source_text": "16 GB"}]}

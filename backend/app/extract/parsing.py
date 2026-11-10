@@ -22,6 +22,8 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from app.contracts import Claim, ClaimType, ExtractionResult, ProductMention, Source, SourceTier
+from app.intake.lexicon import load_lexicon
+from app.llm.output import looks_like_instruction
 
 from .tiers import claim_type_for
 
@@ -94,10 +96,24 @@ def _names(name: str, lowered: str) -> bool:
     return bool(wanted) and re.search(rf"(?<!\w){re.escape(wanted)}(?!\w)", lowered) is not None
 
 
-def _product_types(raw: RawExtraction) -> set[str]:
+def _category_names(category: str) -> set[str]:
+    """What a known category is called, in either number: "laptop" is not a laptop you can buy, whatever the model says.
+
+    Only a category the lexicon knows, as a shopper can search for "kindle", which is a product. And not its synonyms,
+    which mix kinds with real products such as MacBook and AirPods: those stay the model's call.
+    """
+    lexicon = load_lexicon()
+    if category not in lexicon.categories:
+        return set()
+    names = {_name_key(category.replace("_", " ")), _name_key(lexicon.label(category))}
+    return {form for name in names for form in (name, f"{name}s", f"{name}es", name.removesuffix("s"))}
+
+
+def _product_types(raw: RawExtraction, category: str) -> set[str]:
     """The names the model called a kind of product anywhere: once is enough to keep one off the product list."""
     from_mentions = {_name_key(m.raw_name) for m in raw.mentions if not m.is_product}
-    return from_mentions | {_name_key(c.product_mention) for c in raw.claims if c.is_product_type}
+    from_claims = {_name_key(c.product_mention) for c in raw.claims if c.is_product_type}
+    return from_mentions | from_claims | _category_names(category)
 
 
 def _fact(value: float | bool | str | None) -> float | str | None:
@@ -116,10 +132,11 @@ def to_extraction_result(
     criterion_keys: Sequence[str],
     now: datetime,
     domains: Mapping[str, SourceTier] | None = None,
+    category: str = "",
 ) -> ExtractionResult:
     parts = [source.text, *(comment.text for comment in source.comments)]
     lowered = _name_key(" ".join([source.title, *parts]))
-    types = _product_types(raw)
+    types = _product_types(raw, category)
     claim_type = claim_type_for(source, domains or {})
     claims: dict[str, Claim] = {}
     dropped: Counter[str] = Counter()
@@ -127,9 +144,9 @@ def to_extraction_result(
         quote = found_quote(item.quote, parts)
         if item.criterion_key is None or item.criterion_key not in criterion_keys:
             dropped["criterion"] += 1
-        elif not _names(item.product_mention, lowered):
-            dropped["product"] += 1
-        elif quote is None:
+        elif not _names(item.product_mention, lowered) or looks_like_instruction(item.product_mention):
+            dropped["product"] += 1  # a hostile page can hold the words, so being in the source isn't enough
+        elif quote is None or looks_like_instruction(quote):
             dropped["quote"] += 1
         else:
             kind = _name_key(item.product_mention) in types
@@ -150,7 +167,7 @@ def _mentions(raw: RawExtraction, lowered: str, types: set[str], claims: Iterabl
     kept: dict[str, ProductMention] = {}
     for item in raw.mentions:
         key = _name_key(item.raw_name)
-        if key not in kept and _names(item.raw_name, lowered):
+        if key not in kept and _names(item.raw_name, lowered) and not looks_like_instruction(item.raw_name):
             mention = _mention(item.raw_name, key not in types, item.brand, item.recommends)
             if mention is not None:
                 kept[key] = mention

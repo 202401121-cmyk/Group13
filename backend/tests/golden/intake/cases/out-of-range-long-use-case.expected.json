@@ -1,0 +1,16 @@
+{
+  "kind": "out_of_range",
+  "outcome": "canonical",
+  "object": {
+    "raw_query": "gaming laptop under 80k with at least 16 GB RAM, no HP",
+    "detected_by": "llm",
+    "category": "laptop",
+    "category_label": "Laptop",
+    "budget": {
+      "max": {
+        "amount": 80000.0
+      }
+    },
+    "use_case": "gaming gaming gaming gaming gaming gaming gaming gaming gaming gaming gaming gaming gaming gaming gaming gaming gaming g"
+  }
+}

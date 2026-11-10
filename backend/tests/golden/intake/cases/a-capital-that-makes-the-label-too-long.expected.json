@@ -1,0 +1,13 @@
+{
+  "kind": "specific",
+  "given": {
+    "request": "pressure cooker"
+  },
+  "outcome": "canonical",
+  "object": {
+    "raw_query": "pressure cooker",
+    "detected_by": "llm",
+    "category": "cooker",
+    "category_label": "SScooker ---------------------------------------------------"
+  }
+}

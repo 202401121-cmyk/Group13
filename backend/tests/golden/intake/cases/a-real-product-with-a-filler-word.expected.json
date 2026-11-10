@@ -1,0 +1,18 @@
+{
+  "kind": "specific",
+  "given": {
+    "request": "tank top under 500"
+  },
+  "outcome": "canonical",
+  "object": {
+    "raw_query": "tank top under 500",
+    "detected_by": "llm",
+    "category": "tank_top",
+    "category_label": "Tank top",
+    "budget": {
+      "max": {
+        "amount": 500.0
+      }
+    }
+  }
+}

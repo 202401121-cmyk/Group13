@@ -1,0 +1,3 @@
+```
+{"category": "laptop", "use_case": "gaming", "hard_rules": [{"attribute": "ram_gb", "operator": ">=", "value": 16, "unit": "GB", "source_text": "at least 16 GB RAM"}], "exclusions": [{"kind": "brand", "value": "HP"}], "ambiguous": false, "options": []}
+```

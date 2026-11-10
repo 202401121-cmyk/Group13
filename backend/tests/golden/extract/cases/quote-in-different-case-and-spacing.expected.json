@@ -1,0 +1,22 @@
+{
+  "kind": "specific",
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "Nova Book 14",
+        "is_product": true
+      }
+    ],
+    "claims": [
+      {
+        "product_mention": "Nova Book 14",
+        "criterion_key": "battery_life",
+        "score": 8.0,
+        "quote": "Nova Book 14 scored 8 out of 10",
+        "claim_type": "experience",
+        "polarity": "positive"
+      }
+    ]
+  }
+}

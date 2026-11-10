@@ -1,0 +1,13 @@
+{
+  "kind": "specific",
+  "given": {
+    "request": "laptop under seventy thousand"
+  },
+  "outcome": "canonical",
+  "object": {
+    "raw_query": "laptop under seventy thousand",
+    "detected_by": "llm",
+    "category": "laptop",
+    "category_label": "Laptop"
+  }
+}

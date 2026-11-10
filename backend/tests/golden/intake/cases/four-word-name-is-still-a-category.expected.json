@@ -1,0 +1,13 @@
+{
+  "kind": "specific",
+  "given": {
+    "request": "stainless steel water bottle"
+  },
+  "outcome": "canonical",
+  "object": {
+    "raw_query": "stainless steel water bottle",
+    "detected_by": "llm",
+    "category": "stainless_steel_water_bottle",
+    "category_label": "Stainless steel water bottle"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "Most gaming laptops run hot."
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "gaming laptops",
+        "is_product": false
+      }
+    ],
+    "claims": [
+      {
+        "product_mention": "gaming laptops",
+        "criterion_key": "battery_life",
+        "score": 8.0,
+        "quote": "Most gaming laptops run hot.",
+        "claim_type": "experience",
+        "polarity": "positive",
+        "is_product_type": true
+      }
+    ]
+  }
+}
