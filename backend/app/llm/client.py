@@ -163,6 +163,11 @@ class _Plan:
     reserve: int
     planned: int
 
+    @property
+    def requests(self) -> int:
+        """The HTTP requests this plan sends: one per chunk."""
+        return len(self.fitted.texts)
+
 
 class WrapperLLMClient:
     """Routing by data class, the model pool, fallback, health, budgets, context fitting, one retry, a call log."""
@@ -177,6 +182,7 @@ class WrapperLLMClient:
         budget: DailyTokenBudget[Provider] | None = None,
         limiters: Mapping[Provider, RateLimiter] | None = None,
         pool: ModelPool | None = None,
+        requests: DailyTokenBudget[Provider] | None = None,
     ) -> None:
         self.config = config
         self.adapters = dict(adapters)
@@ -185,6 +191,10 @@ class WrapperLLMClient:
         if budget is None:
             budget = DailyTokenBudget({p.name: p.daily_tokens for p in config.providers})
         self.budget = budget
+        # Requests a day, where a provider sets one (OpenRouter's free limit): each attempt counts one.
+        if requests is None:
+            requests = DailyTokenBudget({p.name: p.requests_per_day for p in config.providers})
+        self.requests = requests
         self.limiters = dict(limiters) if limiters is not None else default_limiters(config)
         self.pool = pool if pool is not None else ModelPool(config.pool)
         self._reported_missing: set[Provider] = set()
@@ -194,6 +204,18 @@ class WrapperLLMClient:
         routed = route_models(self.config, data_class, difficulty)
         allowed = allowed_for_class(self.config, routed, data_class)
         return self._with_keys([m for m in allowed if self.config.provider(m.provider).available])
+
+    def order(self, task: LLMTask, data_class: DataClass, difficulty: Difficulty) -> list[ModelLimits]:
+        """The models to try, in order. Bulk work takes turns across the models whose provider rotates; a provider
+        that doesn't (OpenRouter) follows them all as the fallback. Any other task keeps the route's order."""
+        models = self.candidates(data_class, difficulty)
+        if task not in BULK_TASKS:
+            return self.pool.order(models, data_class, rotate=False)
+        turns = [m for m in models if self._rotates(m)]
+        return [*self.pool.order(turns, data_class, rotate=True), *(m for m in models if not self._rotates(m))]
+
+    def _rotates(self, model: ModelLimits) -> bool:
+        return self.config.provider(model.provider).rotates
 
     def complete(
         self,
@@ -210,7 +232,7 @@ class WrapperLLMClient:
         check_data_class(task, data_class)
         full_system = build_system_prompt(system, schema)
         limit_s = time_limit_s(task)
-        order = self.pool.order(self.candidates(data_class, difficulty), data_class, rotate=task in BULK_TASKS)
+        order = self.order(task, data_class, difficulty)
         first = order[0] if order else None
         ends_at = self.pool.now() + limit_s - time_already_spent()
         call = _Call(
@@ -318,15 +340,20 @@ class WrapperLLMClient:
             log.info("llm %s skipped: today's token budget is spent", model.model)
             self._record(call, plan, "skipped_budget")
             return "no", None
+        if not self.requests.reserve(provider, plan.requests):
+            self._release_tokens(model, planned)
+            log.info("llm %s skipped: today's requests are used up", model.model)
+            self._record(call, plan, "skipped_budget")
+            return "no", None
         if not self.health.allow(provider, member):
-            self._release(model, planned)
+            self._release(plan)
             log.info("llm %s skipped: %s", model.model, self.health.state(provider, member))
             return "no", None
         state, booking = self._take_slot(call, plan)
-        if state == "go" and call.task in BULK_TASKS and model != call.first_choice:
+        if state == "go" and call.task in BULK_TASKS and model != call.first_choice and self._rotates(model):
             self.pool.served(model, call.data_class)  # the claimed member was skipped: the turn moved on
         if state != "go":
-            self._release(model, planned)
+            self._release(plan)
             self.health.release(provider, member)
         return state, booking
 
@@ -339,9 +366,14 @@ class WrapperLLMClient:
         self.budget.settle(model.provider, tokens, 0)
         return False
 
-    def _release(self, model: ModelLimits, tokens: int) -> None:
+    def _release_tokens(self, model: ModelLimits, tokens: int) -> None:
         self.budget.settle(model.provider, tokens, 0)
         self.pool.release(model, tokens)
+
+    def _release(self, plan: _Plan) -> None:
+        """A call that was held for but not sent gives back its tokens and its requests."""
+        self._release_tokens(plan.model, plan.planned)
+        self.requests.settle(plan.model.provider, plan.requests, 0)
 
     def _take_slot(self, call: _Call[T], plan: _Plan) -> tuple[ModelState, Booking | None]:
         model = plan.model
@@ -397,6 +429,7 @@ class WrapperLLMClient:
         tokens_in = tokens_out = 0
         usage_reported = True
         unanswered = 0  # estimated input of a chunk whose call failed: it was still sent
+        sent = 0  # requests that went out: a chunked attempt stops at the first chunk that fails
         result: T | None = None
         outcome: AttemptOutcome = "ok"
         error: Exception | None = None
@@ -405,6 +438,7 @@ class WrapperLLMClient:
             for text in fitted.texts:
                 unanswered = estimate_tokens(system) + estimate_tokens(text)
                 extra = self.config.request_fields(call.task, model.model)
+                sent += 1
                 raw = adapter.call(model.model, system, text, plan.reserve, timeout_s, extra)
                 unanswered = 0
                 tokens_in += raw.input_tokens
@@ -433,6 +467,7 @@ class WrapperLLMClient:
         record_use(plan.planned if real_use is None else real_use)
         self.budget.settle(provider, plan.planned, used)
         self.pool.settle(model, plan.planned, used)
+        self.requests.settle(provider, plan.requests, sent)  # each request that went out counts, whatever came back
         duration_ms = int((monotonic() - started) * 1000)
         self._record(call, plan, outcome, tokens_in + unanswered, tokens_out, duration_ms, started_at)
         return result, outcome

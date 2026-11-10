@@ -207,7 +207,7 @@ python -m scripts.smoke_llm
 It sends one tiny JSON request (fixed public text) to each provider that has a key, Mistral included, through
 the same adapter and settings the app uses, and prints a table: provider, model, whether it trains on inputs,
 works (yes/no/skipped), latency, tokens used, and the provider's rate-limit response headers. Then it prints our
-own limits (Mistral's requests a second, tokens a minute and tokens a day, and Gemini's requests and tokens a minute).
+own limits for each provider that has one: requests and tokens a minute, tokens a day, and OpenRouter's requests a day.
 Each call carries extraction's `task_settings` for its model, so a model that refuses them shows up here and not in a
 search. It never prints a key, calls real
 APIs (so it never runs in CI), and always exits 0.
@@ -260,7 +260,8 @@ actually saw. Quotes are copied from the provider's page.
 
 - **Used for:** LLM calls with public text only. It is first for long public inputs (1M-token window).
 - **Sign up:** [aistudio.google.com](https://aistudio.google.com) → Get API key. **Env:** `GEMINI_API_KEY`.
-- **Model:** `gemini-3.5-flash-lite`, first for long public text, then Mistral, then OpenRouter.
+- **Model:** `gemini-3.5-flash-lite`, first for a long public call a shopper waits on, then Mistral, then OpenRouter.
+  Public bulk work takes turns between Gemini and Mistral, with OpenRouter as the fallback after both.
 - **Free limits** (read 9 Nov 2026): Google's [public page](https://aistudio.google.com/docs/rate-limits) lists no
   numbers for this tier. [AI Studio's page](https://aistudio.google.com/rate-limit), signed in, lists Gemini 3.5 Flash Lite
   at **15 requests a minute, 250,000 input tokens a minute and 500 requests a day**. Other Flash models there have 5, 250,000
@@ -282,7 +283,10 @@ actually saw. Quotes are copied from the provider's page.
 
 ### OpenRouter
 
-- **Used for:** LLM calls with public text only, as the last choice.
+- **Used for:** LLM calls with public text only, always last: the fallback after Gemini and Mistral, for a shopper's
+  call and for public bulk work alike (`rotates: false`). It takes no turn in the rotation, because its free models
+  allow 50 requests a day and answer slowly. Paced at 20 requests a minute, and its 50 requests a day are counted
+  (`requests_per_day`), so a call past them is skipped instead of earning a 429.
 - **Sign up:** [openrouter.ai](https://openrouter.ai) → Keys. **Env:** `OPENROUTER_API_KEY`.
 - **Free limits** ([limits](https://openrouter.ai/docs/api-reference/limits), 3 Nov 2026): 20 requests a minute on
   `:free` models; 50 a day until the account has bought at least 10 credits, then 1,000 a day. Smoke test: ok, in
@@ -292,7 +296,7 @@ actually saw. Quotes are copied from the provider's page.
   exceptions." Hosts that train can be blocked for the account or per request; we have not confirmed which host
   serves our model.
 - **Verdict: OK as planned:** public text only, about 50 requests a day.
-- **If it fails:** it is last in the public routes that use it, so the stage uses its own fallback.
+- **If it fails:** it is last, so the stage uses its own fallback.
 
 ### Cerebras
 
@@ -316,10 +320,14 @@ actually saw. Quotes are copied from the provider's page.
 
 - **Used for:** LLM calls with public text only. It is first for short and medium public jobs.
 - **Sign up:** [console.mistral.ai](https://console.mistral.ai) → API Keys. **Env:** `MISTRAL_API_KEY`, plus
-  `MISTRAL_MODEL`, `MISTRAL_RPS`, `MISTRAL_TPM` and `MISTRAL_DAILY_TOKENS` (see "Mistral" under LLM routing).
+  `MISTRAL_MODEL`, `MISTRAL_RPM`, `MISTRAL_RPS`, `MISTRAL_TPM` and `MISTRAL_DAILY_TOKENS` (see "Mistral" under LLM
+  routing).
 - **Free limits** ([plan tiers](https://docs.mistral.ai/admin/user-management-finops/tier), 3 Nov 2026): shown only in
-  the Admin Panel → API → Limits. Smoke test headers: 188 requests and 625,000 tokens a minute for
-  `ministral-8b-latest`.
+  the Admin Panel → API → Limits. **The rate-limit headers of a live reply on 10 Nov 2026 said 2 requests a minute and
+  40,000 tokens a minute** for `ministral-8b-latest` (`x-ratelimit-limit-req-minute: 2`,
+  `x-ratelimit-limit-tokens-minute: 40000`, read with `python -m scripts.smoke_apis --only mistral`). On 3 Nov 2026 the
+  same headers had said 188 requests and 625,000 tokens a minute, so the limits changed; read them again if Mistral
+  answers 429s.
 - **Terms** ([help article](https://help.mistral.ai/en/articles/347617)): on the free plan "we may use your data
   (input and output)" for training. An opt-out exists in the admin console's Privacy page, and "Vibe and API opt-out
   toggles are separate."
@@ -448,17 +456,26 @@ Each Groq text model is a member of the pool with its own limits. Read from
 | `openai/gpt-oss-20b` | 30 | 8,000 | 200,000 | 1,000 | 131,072 |
 | `qwen/qwen3.8-27b` (preview) | 30 | 8,000 | 200,000 | 1,000 | 131,072 |
 
-- **Rotation:** bulk work (`extract_claims`, `enrich_extract`) goes round the members in turn. Calls a shopper waits on
-  keep the order in models.yaml, with the other members as backups. Public chains keep their order, so models outside
-  the pool are not rotated.
+- **Rotation:** bulk work (`extract_claims`, `enrich_extract`) goes round every model its route allows, in turn (F-3,
+  10 Nov 2026): Groq's three models for private and Reddit text (D-51), and for public text Gemini and Mistral.
+  OpenRouter takes no turn (`rotates: false` in models.yaml): it follows both as the fallback, used only when neither
+  has room, and its 50 requests a day are counted. Each is paced by its own limits: these members by the table above,
+  Gemini at 15 requests a minute, Mistral at 2 a minute and 40,000 tokens a minute (its headers, 10 Nov 2026),
+  OpenRouter at 20 a minute. A model whose window can't hold the prompt and its answer is
+  skipped, and the next one takes the turn; a longer input still fits by being split into chunks, as before (public
+  pages are capped at 3,000 tokens, so this is rare). Calls a shopper waits on keep the route's order, with the rest
+  as backups.
 - **Pacing:** each member counts its requests and tokens over the last minute: the input the wrapper measures plus
   the requested output while a call runs, then what it really used, or nothing if it failed. A member with no room is passed over for one with room. If all are busy, the call waits for
   the soonest slot, so it doesn't earn a 429.
 - **Time limit:** `complete()` has no time-limit argument, so the limit comes from the task's stage and is counted from
   each `complete()`. A stage that calls it twice gets the limit twice, but `run_stage` still stops waiting on time and
   uses the fallback. One attempt gets a timeout of at most 60% of the limit, so another member has time to answer if it
-  hangs. httpx applies a timeout to each phase of a request, so a slow connection can make an attempt run a little over.
-  No call starts in the last second. If no member can take it by then, it raises `LLMUnavailable` and the stage uses
+  hangs. httpx applies a timeout to each phase of a request, and a provider that keeps sending keep-alive bytes resets
+  its read timer: in P18's drill an OpenRouter attempt allowed 9 s ran 27.6 s. So the adapter reads the reply as it
+  arrives and cuts the attempt off at the first chunk past its timeout (F-6). The bound is that timeout plus one gap
+  between chunks, since httpx's read timeout still ends a silence; a connection that sends nothing at all is ended by
+  httpx's own timeout. A 429 cools that member and the call moves on at once. No call starts in the last second. If no member can take it by then, it raises `LLMUnavailable` and the stage uses
   its fallback.
 - **One call's size:** input is fitted to the member's tokens a minute (less the reserve, for bulk work) as well as its
   window, because a bigger call could never get a slot. Text too long for that is trimmed to one call, not chunked, because chunks over a minute's
@@ -510,11 +527,35 @@ must pass `data_class=` and `difficulty=`, and be added to this table and to
   answered our JSON check; `mistral-small-latest` answered HTTP 429 with a limit of 0 requests a minute on our key.
 - JSON mode is on (`response_format: {"type": "json_object"}`). Replies are still checked against the schema,
   and invalid JSON is retried once, then the next provider is tried.
-- Our limits: `MISTRAL_RPS=2` requests a second and `MISTRAL_TPM=500000` tokens a minute, shared by the whole
-  app. The API reported 188 requests a minute and 625,000 tokens a minute for this model on 3 Nov 2026.
+- Limits: 2 requests a minute and 40,000 tokens a minute (`requests_per_minute`, `tokens_per_minute`), shared by the
+  whole app. They are Mistral's own, read from the rate-limit headers of a live reply on 10 Nov 2026; on 3 Nov 2026
+  the headers had said 188 requests and 625,000 tokens a minute. `MISTRAL_RPM`, `MISTRAL_RPS` and `MISTRAL_TPM` in
+  `.env` override them, so leave them empty unless Mistral's headers change.
 - Daily budget: `MISTRAL_DAILY_TOKENS=1000000`. Mistral shows its monthly allowance only in its Admin Panel →
   API → Limits, so this is a cautious guess: set it to that allowance ÷ 31, less 10%. The count is kept in
   memory, per UTC day, and starts again at zero when the app restarts.
+
+### Daily token budgets
+
+Every provider has a daily token counter (F-4, 10 Nov 2026), `daily_tokens` in models.yaml. A call that would pass it
+is not sent (`skipped_budget`), and the next model is tried. Each can be changed in `.env` with
+`<PROVIDER>_DAILY_TOKENS`. The count is in memory, per UTC day. Where a provider publishes no token limit, the number
+is the team's choice, and the row says how it was set. For Gemini and OpenRouter that is their requests a day times
+5,000, the tokens the wrapper plans for one full source.
+
+| Provider | Tokens a day | Where it comes from | Override |
+|---|---|---|---|
+| Groq | 600,000 | 3 models × 200,000, [rate limits](https://console.groq.com/docs/rate-limits), 7 Nov 2026. Each model also keeps its own 200,000 in `pool:` | `GROQ_DAILY_TOKENS` |
+| Gemini | 2,500,000 | The team's choice: no token limit is published; 500 requests a day ([AI Studio](https://aistudio.google.com/rate-limit), 9 Nov 2026) × 5,000 | `GEMINI_DAILY_TOKENS` |
+| OpenRouter | 250,000 | The team's choice: no token limit is published; 50 requests a day ([limits](https://openrouter.ai/docs/api-reference/limits), 3 Nov 2026) × 5,000 | `OPENROUTER_DAILY_TOKENS` |
+| Cerebras | 1,000,000 | 1M tokens a day while a trial credit lasts, [rate limits](https://inference-docs.cerebras.ai/support/rate-limits), 3 Nov 2026. Unavailable today | `CEREBRAS_DAILY_TOKENS` |
+| Mistral | 1,000,000 | The team's choice: a cautious guess, 3 Nov 2026, until someone reads the monthly allowance in Mistral's Admin Panel and sets it to that ÷ 31, less 10% (see "Mistral" above) | `MISTRAL_DAILY_TOKENS` |
+
+OpenRouter also has a requests-a-day counter (`requests_per_day: 50`): its free models allow 50 requests a day until
+the account has bought 10 credits ([limits](https://openrouter.ai/docs/api-reference/limits), 3 Nov 2026, checked
+again 10 Nov 2026: 20 a minute and 50 a day below 10 credits). Every
+request that goes out counts one, whatever comes back: a page split into chunks counts one per chunk sent. A call held
+back first (cooling, or no room in its minute) counts none, and a call past the 50 is not sent (`skipped_budget`).
 
 ### When a provider fails
 
@@ -533,7 +574,7 @@ A pool member has its own record; any other provider has one for the whole provi
   trial call. If it answers, it is back. If it is still not found, it waits another 10 minutes; any other failure waits
   as this list says. A later failure never shortens a cool-down. So a gateway blip or brief outage recovers by itself.
   A wrong `base_url` looks the same, so if every model of a provider goes this way, check the URL.
-- Over its daily budget: not sent, logged with outcome `skipped_budget`.
+- Over its daily token budget, or its requests a day: not sent, logged with outcome `skipped_budget`.
 - No room before the stage's time limit: not sent, logged with outcome `rate_limited`.
 - Every attempt writes one call record: task, data class, provider, model, tokens, time and outcome. Never the
   prompt or the reply.

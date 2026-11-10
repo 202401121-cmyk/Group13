@@ -65,7 +65,15 @@ def test_a_failing_provider_is_reported_without_its_key() -> None:
 
 
 def test_our_limits_lists_mistral() -> None:
-    assert "  mistral: 2 requests/s, 500,000 tokens/min, 1,000,000 tokens/day" in our_limits(load_llm_config())
+    line = "  mistral: no limit requests/s, 2 requests/min, 40,000 tokens/min, 1,000,000 tokens/day"
+    assert line in our_limits(load_llm_config())
+
+
+def test_our_limits_lists_openrouters_requests_a_day() -> None:
+    line = (
+        "  openrouter: no limit requests/s, 20 requests/min, no limit tokens/min, 250,000 tokens/day, 50 requests/day"
+    )
+    assert line in our_limits(load_llm_config())
 
 
 def test_our_limits_lists_geminis_requests_a_minute() -> None:

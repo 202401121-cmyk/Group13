@@ -237,9 +237,10 @@ def test_provider_lookup() -> None:
 def test_mistral_limits_come_from_models_yaml() -> None:
     mistral = load_llm_config().provider(Provider.MISTRAL)
     assert mistral.json_mode
-    assert (mistral.requests_per_second, mistral.tokens_per_minute, mistral.daily_tokens) == (2, 500_000, 1_000_000)
+    limits = (mistral.requests_per_minute, mistral.tokens_per_minute, mistral.daily_tokens)
+    assert limits == (2, 40_000, 1_000_000)  # its replies' headers, 10 Nov 2026
     groq = load_llm_config().provider(Provider.GROQ)
-    assert (groq.json_mode, groq.requests_per_second, groq.daily_tokens) == (False, None, None)
+    assert (groq.json_mode, groq.requests_per_second, groq.daily_tokens) == (False, None, 600_000)
 
 
 def test_env_overrides_change_only_what_is_set() -> None:
@@ -248,15 +249,21 @@ def test_env_overrides_change_only_what_is_set() -> None:
     assert with_env_overrides(config, {"MISTRAL_MODEL": "  ", "MISTRAL_RPS": ""}) == config
     changed = with_env_overrides(config, {"MISTRAL_DAILY_TOKENS": "250000", "MISTRAL_MODEL": "ministral-3b-latest"})
     assert changed.provider(Provider.MISTRAL).daily_tokens == 250_000
-    assert changed.provider(Provider.MISTRAL).requests_per_second == 2  # unchanged
+    assert changed.provider(Provider.MISTRAL).requests_per_minute == 2  # unchanged
     mistral_models = [m for m in changed.models if m.provider is Provider.MISTRAL]
     assert [m.model for m in mistral_models] == ["ministral-3b-latest"]
     assert mistral_models[0].context_window_tokens == 262144  # the limits stay with the row
 
 
+def test_mistral_rpm_sets_its_requests_a_minute() -> None:
+    changed = with_env_overrides(load_llm_config(), {"MISTRAL_RPM": "5"}).provider(Provider.MISTRAL)
+    assert (changed.requests_per_minute, changed.tokens_per_minute) == (5, 40_000)
+
+
 @pytest.mark.parametrize(
     ("env", "message"),
     [
+        ({"MISTRAL_RPM": "0"}, "MISTRAL_RPM"),
         ({"MISTRAL_RPS": "fast"}, "MISTRAL_RPS must be a number"),
         ({"MISTRAL_DAILY_TOKENS": "1.5e6"}, "MISTRAL_DAILY_TOKENS must be a number"),
         ({"MISTRAL_TPM": "0"}, "MISTRAL_TPM"),

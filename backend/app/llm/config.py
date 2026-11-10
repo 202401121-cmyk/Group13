@@ -48,6 +48,12 @@ class ProviderSettings(BaseModel):
     tokens_per_minute: int | None = Field(default=None, gt=0)
     limits_checked: date | None = Field(default=None, description="When the provider's own limits were last read")
     daily_tokens: int | None = Field(default=None, gt=0, description="Tokens per UTC day, counted in memory")
+    requests_per_day: int | None = Field(
+        default=None, gt=0, description="Requests per UTC day, counted in memory: past it, skipped with no call"
+    )
+    # Bulk work takes turns across the providers that rotate (US-46). False keeps a provider in its routes as the
+    # fallback after them, never taking a turn: OpenRouter's free models allow 50 requests a day and answer slowly.
+    rotates: bool = True
     # False = skip it with no call, for example while the account answers HTTP 402. Its row and flags stay.
     available: bool = True
     unavailable_reason: str | None = None
@@ -229,13 +235,16 @@ def load_llm_config(path: Path | str | None = None) -> LLMConfig:
 
 
 # Settings a member may change in .env without editing models.yaml (US-46). Unset or empty keeps the file's value.
+# Every provider's daily token budget can be set this way (F-4), as GROQ_DAILY_TOKENS, GEMINI_DAILY_TOKENS and so on.
 ENV_OVERRIDES: dict[Provider, dict[str, str]] = {
-    Provider.MISTRAL: {
-        "MISTRAL_MODEL": "model",
-        "MISTRAL_RPS": "requests_per_second",
-        "MISTRAL_TPM": "tokens_per_minute",
-        "MISTRAL_DAILY_TOKENS": "daily_tokens",
-    },
+    provider: {f"{provider.value.upper()}_DAILY_TOKENS": "daily_tokens"} for provider in Provider
+}
+ENV_OVERRIDES[Provider.MISTRAL] = {
+    "MISTRAL_MODEL": "model",
+    "MISTRAL_RPS": "requests_per_second",
+    "MISTRAL_RPM": "requests_per_minute",
+    "MISTRAL_TPM": "tokens_per_minute",
+    "MISTRAL_DAILY_TOKENS": "daily_tokens",
 }
 
 

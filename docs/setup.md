@@ -58,7 +58,8 @@ no `DATABASE_URL` nothing is saved. Where each key comes from: [api-setup.md](ap
 | `FRONTEND_ORIGINS` | `backend/app/main.py` (CORS) | optional | `http://localhost:3000` | no |
 | `FRONTEND_ORIGIN` | `backend/app/main.py` (the older one-origin name) | optional | — | no |
 | `GROQ_API_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `CEREBRAS_API_KEY`, `MISTRAL_API_KEY` | the LLM wrapper (`backend/app/llm/`, names in `backend/config/models.yaml`); the smoke test | optional (without any, keyword rules and fixed criteria) | — | **yes** |
-| `MISTRAL_MODEL`, `MISTRAL_RPS`, `MISTRAL_TPM`, `MISTRAL_DAILY_TOKENS` | `backend/app/llm/config.py` | optional | `ministral-8b-latest`, `2`, `500000`, `1000000` | no |
+| `MISTRAL_MODEL`, `MISTRAL_RPM`, `MISTRAL_RPS`, `MISTRAL_TPM`, `MISTRAL_DAILY_TOKENS` | `backend/app/llm/config.py` | optional (empty keeps models.yaml's value) | `ministral-8b-latest`; models.yaml has 2 requests and 40,000 tokens a minute, no limit a second, `1000000` a day | no |
+| `GROQ_DAILY_TOKENS`, `GEMINI_DAILY_TOKENS`, `OPENROUTER_DAILY_TOKENS`, `CEREBRAS_DAILY_TOKENS` | `backend/app/llm/config.py` | optional (empty keeps models.yaml's value) | see "Daily token budgets" in [api-setup.md](api-setup.md) | no |
 | `SERPER_API_KEY`, `YOUTUBE_API_KEY`, `JINA_API_KEY`, `HF_TOKEN` | `backend/scripts/smoke_apis.py` (the stages that use them come in later sprints) | optional | — | **yes** |
 | `REDDIT_SOURCE`, `REDDIT_ARCHIVES`, `ARCTIC_SHIFT_BASE_URL`, `PULLPUSH_BASE_URL` | `backend/app/research/reddit/settings.py` | optional | `archive`, `arctic_shift,pullpush`, the two archive URLs | no |
 | `REDDIT_USER_SALT` | `backend/app/research/reddit/settings.py` | optional (no salt: no author hash is kept) | — | **yes** |

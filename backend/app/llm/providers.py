@@ -6,8 +6,10 @@ used: Groq, Gemini, OpenRouter, Cerebras and Mistral all accept the same request
 
 from __future__ import annotations
 
+import json
 import logging
-from collections.abc import Mapping
+import time
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from functools import cache
 from typing import Any, Protocol
@@ -113,6 +115,12 @@ class OpenAICompatibleAdapter:
     json_mode adds response_format {"type": "json_object"}, for providers that support it (Mistral). The reply is
     still parsed and checked against the schema exactly as for the others. reasoning_effort, when set, goes with every
     call: Gemini's is "minimal", its lowest, because its hidden thinking uses up the output limit.
+
+    A trickling reply can't stretch an attempt (US-46, F-6). httpx's timeouts are per phase, so a provider that keeps
+    sending keep-alive bytes resets the read timer: an OpenRouter attempt allowed 9 s once ran 27.6 s, and its source
+    passed the extract stage's limit. So the reply is read as it arrives, and the attempt is cut off at the first chunk
+    past `timeout_s`. The bound is that deadline plus one gap between chunks, because httpx's own read timeout
+    (`timeout_s`) still ends a silence; a connection that sends nothing at all is ended by that timeout too.
     """
 
     def __init__(
@@ -123,6 +131,7 @@ class OpenAICompatibleAdapter:
         http: httpx.Client,
         json_mode: bool = False,
         reasoning_effort: str | None = None,
+        clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self.provider = provider
         self._url = base_url.rstrip("/") + "/chat/completions"
@@ -130,6 +139,7 @@ class OpenAICompatibleAdapter:
         self._http = http
         self._json_mode = json_mode
         self.reasoning_effort = reasoning_effort
+        self._clock = clock
 
     def __repr__(self) -> str:
         return f"OpenAICompatibleAdapter(provider={self.provider.value!r}, url={self._url!r})"  # never the key
@@ -155,29 +165,33 @@ class OpenAICompatibleAdapter:
         if self.reasoning_effort is not None:
             payload["reasoning_effort"] = self.reasoning_effort
         payload.update(extra or {})
+        deadline = self._clock() + timeout_s
         try:
-            response = self._http.post(
+            with self._http.stream(
+                "POST",
                 self._url,
                 json=payload,
                 headers={"Authorization": f"Bearer {self._api_key}"},
                 timeout=timeout_s,
-            )
+            ) as response:
+                limits = _ratelimit_headers(response.headers)
+                status = response.status_code
+                if status == 429:
+                    raise RateLimited(self.provider, "HTTP 429 (rate limited)", limits)
+                if status == 401:
+                    raise AuthFailed(self.provider, "HTTP 401 (key missing, wrong or not allowed)", limits)
+                if status == 403:
+                    raise ModelForbidden(self.provider, "HTTP 403 (key missing, wrong or not allowed)", limits)
+                if status == 402:
+                    raise NoCredit(self.provider, "HTTP 402 (the account needs a plan or credits)", limits)
+                body = self._read_before(response, deadline, timeout_s)
         except httpx.TimeoutException:
             raise ProviderTimeout(self.provider, f"no reply within {timeout_s:g}s") from None
         except httpx.HTTPError as exc:
             raise ProviderError(self.provider, f"request failed ({type(exc).__name__})") from None
 
-        limits = _ratelimit_headers(response.headers)
-        status = response.status_code
-        if status == 429:
-            raise RateLimited(self.provider, "HTTP 429 (rate limited)", limits)
-        if status == 401:
-            raise AuthFailed(self.provider, "HTTP 401 (key missing, wrong or not allowed)", limits)
-        if status == 403:
-            raise ModelForbidden(self.provider, "HTTP 403 (key missing, wrong or not allowed)", limits)
-        if status == 402:
-            raise NoCredit(self.provider, "HTTP 402 (the account needs a plan or credits)", limits)
-        code = _error_code(response)
+        data = _json(body)
+        code = _error_code(status, data)
         if code == MODEL_RETIRED_CODE:
             raise ModelRetired(self.provider, f"HTTP {status} (this model has been retired)", limits)
         if status == 404 or code in MODEL_NOT_FOUND_CODES:
@@ -187,7 +201,7 @@ class OpenAICompatibleAdapter:
         if not 200 <= status < 300:
             raise ProviderError(self.provider, f"HTTP {status}", limits)
 
-        text, usage = self._read_body(response)
+        text, usage = self._read_body(data)
         return RawCompletion(
             text=text,
             input_tokens=_int(usage.get("prompt_tokens"), estimate_tokens(system) + estimate_tokens(user)),
@@ -196,12 +210,19 @@ class OpenAICompatibleAdapter:
             usage_reported=_reported_use(usage) is not None,
         )
 
-    def _read_body(self, response: httpx.Response) -> tuple[str, dict[str, Any]]:
+    def _read_before(self, response: httpx.Response, deadline: float, timeout_s: float) -> bytes:
+        """The whole body, read as it arrives. Past the deadline the attempt is cut off, however steadily bytes come."""
+        if self._clock() > deadline:
+            raise ProviderTimeout(self.provider, f"no reply within {timeout_s:g}s")
+        chunks: list[bytes] = []
+        for chunk in response.iter_bytes():
+            chunks.append(chunk)
+            if self._clock() > deadline:
+                raise ProviderTimeout(self.provider, f"no full reply within {timeout_s:g}s")
+        return b"".join(chunks)
+
+    def _read_body(self, data: Any) -> tuple[str, dict[str, Any]]:
         """The reply's text and usage. A 2xx was charged for even if it's no use, so a failure says what it cost."""
-        try:
-            data = response.json()
-        except ValueError:
-            data = None
         usage = data.get("usage") if isinstance(data, dict) else None
         usage = usage if isinstance(usage, dict) else {}
         try:
@@ -220,13 +241,17 @@ def _reported_use(usage: Mapping[str, Any]) -> int | None:
     return prompt + completion if prompt >= 0 and completion >= 0 else None
 
 
-def _error_code(response: httpx.Response) -> str | None:
-    """The `error.code` of a 4xx reply, or None. It reads only that one field, so no body text is ever kept."""
-    if not 400 <= response.status_code < 500:
-        return None
+def _json(body: bytes) -> Any:
+    """The reply as JSON, or None if it isn't JSON. Surrounding whitespace, such as keep-alive bytes, is allowed."""
     try:
-        body = response.json()
+        return json.loads(body)
     except ValueError:
+        return None
+
+
+def _error_code(status: int, body: Any) -> str | None:
+    """The `error.code` of a 4xx reply, or None. It reads only that one field, so no body text is ever kept."""
+    if not 400 <= status < 500:
         return None
     error = body.get("error") if isinstance(body, dict) else None
     code = error.get("code") if isinstance(error, dict) else None
