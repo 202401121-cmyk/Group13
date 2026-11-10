@@ -1,0 +1,306 @@
+Re-check backend CI job (Linux job's steps; Python 3.11.15 fresh venv, clean clone of main 0c22d59), 2026-11-10T17:27:14Z
+The db tests run as in CI: a throwaway postgres:17 container with TEST_DATABASE_URL and REQUIRE_DB_TESTS=1 set on the
+command only. Host port 5433, because a local PostgreSQL 18 service holds 5432 on this laptop (as in B-1).
+
+## Python
+$ python --version
+Python 3.11.15
+exit 0, 0.1 s
+
+## The database
+$ docker run -d --rm --name ss-recheck-db -e POSTGRES_PASSWORD=postgres -p 5433:5432 postgres:17
+38ba09d2c5817250f8b214bcb7a3b14c462509174a2ec68d2bd914b780d6340b
+exit 0, 0.8 s
+
+$ docker exec ss-recheck-db psql -U postgres -tAc 'show server_version'
+17.11 (Debian 17.11-1.pgdg13+2)
+exit 0, 0.4 s
+
+## ruff check
+$ ruff check .
+All checks passed!
+exit 0, 0.4 s
+
+## ruff format
+$ ruff format --check .
+304 files already formatted
+exit 0, 0.2 s
+
+## mypy
+$ mypy app
+Success: no issues found in 113 source files
+exit 0, 7.6 s
+
+## the db tests this run must include
+$ python -m pytest --collect-only -q -m db -p no:cacheprovider | tail -1
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+exit 0, 9.5 s
+
+## pytest with coverage (CI's command; --junitxml only writes a report for the counts)
+$ TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5433/postgres REQUIRE_DB_TESTS=1 python -m pytest -q -m 'not live' --cov --cov-report=term-missing -p no:cacheprovider --junitxml=<scratch>/rc/junit-311.xml
+........................................................................ [  1%]
+........................................................................ [  3%]
+........................................................................ [  5%]
+........................................................................ [  7%]
+........................................................................ [  9%]
+........................................................................ [ 11%]
+........................................................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 20%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 29%]
+........................................................................ [ 31%]
+........................................................................ [ 33%]
+........................................................................ [ 35%]
+........................................................................ [ 36%]
+........................................................................ [ 38%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+........................................................................ [ 44%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+........................................................................ [ 61%]
+........................................................................ [ 62%]
+........................................................................ [ 64%]
+........................................................................ [ 66%]
+........................................................................ [ 68%]
+........................................................................ [ 70%]
+........................................................................ [ 72%]
+........................................................................ [ 73%]
+........................................................................ [ 75%]
+........................................................................ [ 77%]
+........................................................................ [ 79%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 86%]
+........................................................................ [ 88%]
+........................................................................ [ 90%]
+........................................................................ [ 92%]
+........................................................................ [ 94%]
+........................................................................ [ 96%]
+........................................................................ [ 97%]
+........................................................................ [ 99%]
+.......                                                                  [100%]
+============================== warnings summary ===============================
+..\..\v311\Lib\site-packages\fastapi\testclient.py:1
+  <scratch>\rc\v311\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.11.15-final-0 _______________
+
+Name                                  Stmts   Miss  Cover   Missing
+-------------------------------------------------------------------
+app\__init__.py                           0      0   100%
+app\api\__init__.py                       6      0   100%
+app\api\presearch.py                    145      4    97%   148, 184-185, 254
+app\api\search_runs.py                  244      0   100%
+app\api\sessions.py                      77      0   100%
+app\cli.py                              268     16    94%   87, 90, 134-135, 207, 225-226, 236, 238, 241, 249, 259, 263-264, 415, 427
+app\commerce\__init__.py                  2      0   100%
+app\commerce\stage.py                     9      0   100%
+app\contracts\__init__.py                17      0   100%
+app\contracts\claims.py                  48      0   100%
+app\contracts\commerce.py                35      1    97%   40
+app\contracts\common.py                  88      0   100%
+app\contracts\criteria.py                41      2    95%   57, 63
+app\contracts\decide.py                  60      3    95%   72-73, 76
+app\contracts\enrich.py                  18      0   100%
+app\contracts\entities.py                43      2    95%   48, 62
+app\contracts\examples.py               171      0   100%
+app\contracts\explain.py                 29      0   100%
+app\contracts\intake.py                  58      1    98%   42
+app\contracts\interview.py              112      2    98%   127, 171
+app\contracts\llm.py                     57      0   100%
+app\contracts\pipeline.py               121      0   100%
+app\contracts\presearch.py               34      0   100%
+app\contracts\research.py               101      1    99%   169
+app\contracts\rubric.py                  48      4    92%   39, 46, 61, 63
+app\contracts\verify.py                  60      2    97%   46, 54
+app\criteria\__init__.py                  4      0   100%
+app\criteria\fallback.py                 67      1    99%   39
+app\criteria\parsing.py                 140      5    96%   76, 116-118, 161
+app\criteria\prompts.py                  14      0   100%
+app\criteria\stage.py                    38      0   100%
+app\criteria\store.py                    67      0   100%
+app\db\__init__.py                       13      0   100%
+app\db\breaker.py                        42      0   100%
+app\db\postgres.py                      104      0   100%
+app\db\settings.py                       46      2    96%   68-69
+app\db\store.py                          82      0   100%
+app\decide\__init__.py                    2      0   100%
+app\decide\stage.py                       9      0   100%
+app\enrich\__init__.py                    2      0   100%
+app\enrich\stage.py                       9      0   100%
+app\entities\__init__.py                  2      0   100%
+app\entities\stage.py                     9      0   100%
+app\explain\__init__.py                   2      0   100%
+app\explain\stage.py                      9      0   100%
+app\extract\__init__.py                   5      0   100%
+app\extract\parsing.py                  122      3    98%   210-212
+app\extract\prompts.py                   35      0   100%
+app\extract\recorder.py                  17      0   100%
+app\extract\settings.py                  62      0   100%
+app\extract\stage.py                    135      0   100%
+app\extract\tiers.py                     22      0   100%
+app\intake\__init__.py                    5      0   100%
+app\intake\budget.py                    126      1    99%   195
+app\intake\lexicon.py                   131      2    98%   75, 89
+app\intake\parsing.py                   156      3    98%   144, 226-227
+app\intake\prompts.py                     5      0   100%
+app\intake\rules.py                      25      0   100%
+app\intake\stage.py                      66      0   100%
+app\interview\__init__.py                 5      0   100%
+app\interview\answers.py                 42      0   100%
+app\interview\plan.py                    85      0   100%
+app\interview\questions.py               10      0   100%
+app\interview\rubric_builder.py          27      0   100%
+app\interview\stage.py                  108      2    98%   103, 115
+app\llm\__init__.py                       4      0   100%
+app\llm\client.py                       325      3    99%   403, 513-514
+app\llm\config.py                       179      1    99%   109
+app\llm\data_block.py                    15      0   100%
+app\llm\errors.py                        24      0   100%
+app\llm\fitting.py                       75      0   100%
+app\llm\health.py                        97      0   100%
+app\llm\limits.py                       131      0   100%
+app\llm\output.py                        75      0   100%
+app\llm\pool.py                          74      0   100%
+app\llm\providers.py                    129      1    99%   216
+app\llm\usage.py                         25      0   100%
+app\main.py                              50      0   100%
+app\pipeline.py                         441      3    99%   317, 407, 743
+app\presearch.py                         38      2    95%   41, 47
+app\research\__init__.py                  4      0   100%
+app\research\cache.py                    85      6    93%   96-97, 109-111, 113
+app\research\capping.py                  47      0   100%
+app\research\cleaning.py                220      1    99%   149
+app\research\client.py                   23      0   100%
+app\research\dedupe.py                   42      0   100%
+app\research\fetching.py                 72      1    99%   100
+app\research\pages.py                   244      9    96%   118, 126, 159, 196, 259-261, 299-300
+app\research\queries.py                 128      0   100%
+app\research\reddit\__init__.py           9      0   100%
+app\research\reddit\archive.py          217      9    96%   105, 108, 111, 114, 186, 207, 243, 373, 395
+app\research\reddit\arctic_shift.py      40      0   100%
+app\research\reddit\base.py             124      2    98%   236-237
+app\research\reddit\cache.py             99      7    93%   101-102, 113, 120, 131-133
+app\research\reddit\factory.py           32      0   100%
+app\research\reddit\http.py              97      3    97%   84, 142-143
+app\research\reddit\official.py         153     16    90%   61, 104, 144, 149, 163-165, 178, 187, 193-195, 238-239, 254-255
+app\research\reddit\parsing.py           43      0   100%
+app\research\reddit\pullpush.py          35      0   100%
+app\research\reddit\quality.py          154      0   100%
+app\research\reddit\recommenders.py     118      0   100%
+app\research\reddit\settings.py          84      2    98%   40-41
+app\research\reddit\subreddits.py        79      2    97%   103-104
+app\research\retention.py                49      0   100%
+app\research\robots.py                   89      0   100%
+app\research\serper.py                  150      2    99%   209-210
+app\research\settings.py                 66      3    95%   108-109, 115
+app\research\stage.py                   350      3    99%   110-111, 443
+app\research\threads.py                  89      0   100%
+app\research\usage.py                   119      0   100%
+app\search_run_limits.py                 29      0   100%
+app\verify\__init__.py                    2      0   100%
+app\verify\stage.py                       9      0   100%
+-------------------------------------------------------------------
+TOTAL                                  8525    133    98%
+Required test coverage of 70.0% reached. Total coverage: 98.44%
+exit 0, 190.6 s
+
+## counts from the JUnit report
+$ python -c '<count tests, failures, errors and skips in junit-311.xml>'
+{'tests': '3895', 'failures': '0', 'errors': '0', 'skipped': '0', 'time': '187.291'}
+exit 0, 0.1 s
+
+## coverage gates
+$ python -m scripts.check_coverage
+app/commerce         100.0%   (11 of 11 statements, gate 70%)
+app/contracts         98.4%   (1123 of 1141 statements, gate 70%)
+app/criteria          98.2%   (324 of 330 statements, gate 70%)
+app/db                99.3%   (285 of 287 statements, gate 70%)
+app/enrich           100.0%   (11 of 11 statements, gate 70%)
+app/entities         100.0%   (11 of 11 statements, gate 70%)
+app/explain          100.0%   (11 of 11 statements, gate 70%)
+app/extract           99.2%   (395 of 398 statements, gate 70%)
+app/intake            98.8%   (508 of 514 statements, gate 70%)
+app/interview         99.3%   (275 of 277 statements, gate 70%)
+app/llm               99.6%   (1148 of 1153 statements, gate 70%)
+app/pipeline.py       99.3%   (438 of 441 statements, gate 70%)
+app/presearch.py      94.7%   (36 of 38 statements, gate 70%)
+app/search_run_limits.py 100.0%   (29 of 29 statements, gate 70%)
+app/research          97.8%   (2995 of 3061 statements, gate 70%)
+app/verify           100.0%   (11 of 11 statements, gate 70%)
+app/decide           100.0%   (11 of 11 statements, gate 80%)
+
+Coverage gates passed: 70% on core modules, 80% on app/decide/.
+exit 0, 1.2 s
+
+## contracts
+$ python -m scripts.export_contracts && git diff --exit-code -- ../shared/contracts
+wrote 64 schemas and 22 examples to <scratch>\rc\repo\shared\contracts
+no diff
+exit 0, 0.7 s
+
+## the database is removed
+$ docker stop ss-recheck-db
+ss-recheck-db
+exit 0, 0.5 s
+
+
+## The 37 db tests, read from the two JUnit reports above (an analysis of this run's reports; nothing was re-run)
+(The collect-only step above printed only pytest's warnings footer as its last line, so it gave no count.)
+$ python <analysis script> <scratch>/rc/junit-311.xml <scratch>/rc/junit-313.xml
+skipped without a database (3.13): 37
+the same tests with the database (3.11): {'passed': 37}
+  passed  tests.integration.test_requests_table::test_a_saved_request_can_be_read_back
+  passed  tests.integration.test_requests_table::test_an_unclear_request_is_saved_without_an_intent
+  passed  tests.integration.test_requests_table::test_each_pooled_connection_has_the_statement_timeout
+  passed  tests.integration.test_requests_table::test_row_level_security_is_on_and_the_data_api_roles_have_no_access
+  passed  tests.integration.test_requests_table::test_the_table_enforces_the_length_limit_and_the_session_id_format
+  passed  tests.integration.test_results_in_postgres::test_a_failed_insert_gives_saved_false_and_no_row
+  passed  tests.integration.test_results_in_postgres::test_a_locked_table_gives_saved_false_in_time_and_no_row_lands_later
+  passed  tests.integration.test_results_in_postgres::test_a_saved_row_read_back_holds_no_reddit_text
+  passed  tests.integration.test_results_in_postgres::test_a_saved_row_read_back_keeps_web_text_and_reddit_links
+  passed  tests.integration.test_results_in_postgres::test_database_on_gives_saved_true_and_one_row_equal_to_the_response_with_no_reddit_text
+  passed  tests.integration.test_results_in_postgres::test_the_api_stores_what_it_answers_with_no_reddit_text
+  passed  tests.integration.test_results_in_postgres::test_the_cli_stores_the_request_and_the_search_under_one_session
+  passed  tests.integration.test_results_in_postgres::test_with_the_breaker_open_the_result_is_unsaved_and_nothing_reaches_the_table
+  passed  tests.integration.test_searches_table::test_a_bad_session_id_is_rejected_by_the_check[not-a-session]
+  passed  tests.integration.test_searches_table::test_a_bad_session_id_is_rejected_by_the_check[sess_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+  passed  tests.integration.test_searches_table::test_a_bad_session_id_is_rejected_by_the_check[sess_abcdef\n]
+  passed  tests.integration.test_searches_table::test_a_bad_session_id_is_rejected_by_the_check[sess_has-dash1]
+  passed  tests.integration.test_searches_table::test_a_bad_session_id_is_rejected_by_the_check[sess_x]
+  passed  tests.integration.test_searches_table::test_a_failed_insert_answers_false_with_one_clean_line
+  passed  tests.integration.test_searches_table::test_a_locked_table_answers_false_in_time_and_no_row_lands_later
+  passed  tests.integration.test_searches_table::test_a_real_pipeline_result_saves_and_reads_back_equal
+  passed  tests.integration.test_searches_table::test_a_save_works_again_once_the_breaker_lets_a_trial_through
+  passed  tests.integration.test_searches_table::test_a_saved_search_reads_back_with_the_same_rubric_and_result
+  passed  tests.integration.test_searches_table::test_a_search_needs_both_its_rubric_and_its_result[result]
+  passed  tests.integration.test_searches_table::test_a_search_needs_both_its_rubric_and_its_result[rubric]
+  passed  tests.integration.test_searches_table::test_a_search_saves_with_no_request_row_for_its_session
+  passed  tests.integration.test_searches_table::test_an_insert_that_finishes_after_the_caller_gave_up_is_rolled_back
+  passed  tests.integration.test_searches_table::test_every_migration_applies_in_order_on_a_blank_database
+  passed  tests.integration.test_searches_table::test_jsonb_refuses_what_the_row_check_refuses_so_it_must_be_checked_first
+  passed  tests.integration.test_searches_table::test_offsets_microseconds_urls_and_awkward_text_survive_exactly
+  passed  tests.integration.test_searches_table::test_one_session_can_save_more_than_one_search
+  passed  tests.integration.test_searches_table::test_row_level_security_is_on_with_no_policies
+  passed  tests.integration.test_searches_table::test_the_data_api_roles_have_no_access
+  passed  tests.integration.test_searches_table::test_the_revoke_beats_the_default_grants_supabase_gives_new_tables
+  passed  tests.integration.test_searches_table::test_the_table_accepts_the_same_session_ids_as_public_requests
+  passed  tests.integration.test_searches_table::test_the_table_has_the_agreed_columns_and_a_plain_index_on_session_id
+  passed  tests.integration.test_searches_table::test_with_the_breaker_open_nothing_reaches_the_database

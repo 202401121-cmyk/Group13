@@ -1,0 +1,170 @@
+Re-check L1, extra live evidence for F-3: the first run's R6 drill (REDDIT_SOURCE=off, EXTRACT_MAX_SOURCES=3).
+From the repository on chore/sprint-2-recheck, which equals main 0c22d59 (Python 3.13, backend/.venv), with --no-db.
+A guard outside the repository, loaded through PYTHONPATH, counted every outgoing call against the caps (LLM 20,
+Serper 6, Reddit archive 0) and logged one line per LLM call: task, data class, provider, outcome, tokens and time,
+never any text (recheck-call-log.txt). MISTRAL_RPS, MISTRAL_TPM and MISTRAL_RPM were set empty for the process, so
+config/models.yaml's Mistral limits applied (2 requests and 40,000 tokens a minute). The checker did not open or print .env;
+the app loaded its keys from it as usual (python-dotenv does not override the empty MISTRAL_* values already set).
+Its call log is the first half of recheck-call-log.txt.
+
+$ python -m app.cli 'Laptop for coding under 80k' --claims --no-db
+(started 2026-11-10T17:40:06Z)
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Laptop · use coding · budget up to ₹80,000 · region IN · detected by llm
+Criteria (cached):
+  - CPU Clock Speed: Measures the processor's single‑core clock frequency in gigahertz, affecting compile times and responsiveness while coding.
+  - RAM Size: Indicates total volatile memory in gigabytes, allowing many IDEs, virtual machines, and browsers to run simultaneously.
+  - SSD Read Speed: Measures sequential read throughput in megabytes per second, speeding up project loading and file operations.
+  - Keyboard Travel: Distance each key moves in millimeters, influencing typing comfort and fatigue during long coding sessions.
+  - Display PPI: Pixels per inch of the screen, determining how sharp text appears and reducing eye strain while reading code.
+  - Battery Life: Total runtime on a full charge measured in hours, important for working away from outlets.
+  - Laptop Weight: Physical mass of the laptop in kilograms, affecting how easy it is to carry between workspaces.
+  - Connectivity Ports: Number of useful ports (USB‑C, HDMI, Ethernet) available, enabling connection of external monitors and devices without adapters.
+  - Max CPU Temp: Highest processor temperature in degrees Celsius under load, indicating cooling efficiency for sustained coding tasks.
+  - Value for Money: Compares the laptop's overall capability to its price, showing how much performance you receive per dollar spent.
+Q: CPU Clock Speed: how much does it matter to you?
+A: Skip
+Q: RAM Size: how much does it matter to you?
+A: Skip
+Q: SSD Read Speed: how much does it matter to you?
+A: Skip
+Q: Keyboard Travel: how much does it matter to you?
+A: Skip
+Q: Display PPI: how much does it matter to you?
+A: Skip
+Q: Battery Life: how much does it matter to you?
+A: Skip
+Q: Laptop Weight: how much does it matter to you?
+A: Skip
+Q: Connectivity Ports: how much does it matter to you?
+A: Skip
+Q: Max CPU Temp: how much does it matter to you?
+A: Skip
+Q: Value for Money: how much does it matter to you?
+A: Skip
+Rubric (what matters to you):
+  - CPU Clock Speed: 9/10, 13% of the score (skipped)
+  - RAM Size: 8.5/10, 12% of the score (skipped)
+  - SSD Read Speed: 8/10, 12% of the score (skipped)
+  - Keyboard Travel: 7.5/10, 11% of the score (skipped)
+  - Display PPI: 7/10, 10% of the score (skipped)
+  - Battery Life: 6.5/10, 10% of the score (skipped)
+  - Laptop Weight: 6/10, 9% of the score (skipped)
+  - Connectivity Ports: 5.5/10, 8% of the score (skipped)
+  - Max CPU Temp: 5/10, 7% of the score (skipped)
+  - Value for Money: 5/10, 7% of the score (skipped)
+
+Results for: Laptop for coding under 80k
+
+Ranked:
+  1. Nova Book 14: score 78.3, coverage 100%, chance of being first 46%
+  2. Kestrel Slim 15: score 75.9, coverage 100%, chance of being first 41%
+  3. Orion Play 15: score 67.0, coverage 90%, chance of being first 13%
+
+Filtered out:
+  - Aurora Air 13: ₹84,990 is above your ₹70,000 budget
+
+Can't tell:
+  - Vela Pro 14: We couldn't confirm it has at least 16 GB RAM
+
+Coverage note: Reddit could not be read. 2 sources were not read, to keep the search from running too long. These are sample results while live research is being built. They are not real recommendations.
+
+This search could not be saved.
+
+Sources (25):
+  web_search   2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+  web_search   2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=YXaoe3na9yU
+  web_search   2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+  web_search   2026-11-10 09:19:44Z  https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+  web_search   2026-11-10 09:19:44Z  https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+  web_search   2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=r023nwE441U
+  web_search   2026-11-10 09:19:44Z  https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+  web_search   2026-11-10 09:19:44Z  https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+  web_search   2026-11-10 09:19:44Z  https://www.smartprix.com/laptops/best-laptops-under-80000-list
+  web_search   2026-11-10 17:40:14Z  https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+  web_search   2026-11-10 17:40:14Z  https://www.91mobiles.com/list-of-laptops/best-laptops-in-india
+  web_search   2026-11-10 17:40:14Z  https://www.rtings.com/laptop/reviews/best/travel
+  web_search   2026-11-10 17:40:14Z  https://www.rtings.com/laptop/reviews/best/by-usage/gaming
+  web_search   2026-11-10 14:54:54Z  https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vLO6zCFGE3GTGeFnSK2f2elh0uFyTaSPfPPYHCye922iybJWEDF
+  web_search   2026-11-10 14:54:54Z  https://www.amazon.in/b?ie=UTF8&node=16092374031
+  web_search   2026-11-10 14:54:54Z  https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vKvfjmb9WC6ovzrh5UiyRY98UtojmSdx9y5MAlKIVtmKIjKBl9l
+  web_search   2026-11-10 14:54:54Z  https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+  web_search   2026-11-10 14:54:54Z  https://www.91mobiles.com/laptopfinder.php
+  web_search   2026-11-10 14:54:54Z  https://www.youtube.com/watch?v=p5Jp18DBNqM
+  web_search   2026-11-10 14:54:54Z  https://edify.club/blog/laptop-buying-checklist-india-2026/
+  review_site  2026-11-10 17:40:15Z  https://www.rtings.com/laptop/reviews/best/by-usage/programming
+  review_site  2026-11-10 17:40:16Z  https://www.rtings.com/laptop/reviews/best/by-usage/business
+  review_site  2026-11-10 17:40:16Z  https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+  review_site  2026-11-10 14:55:01Z  https://www.rtings.com/laptop/reviews/best/by-usage/graphic-design
+  review_site  2026-11-10 17:40:18Z  https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+
+Time per source: reddit 0.0 s, web_search 5.3 s, review_site 7.1 s; total 7.1 s
+Provider use (this search / today / daily cap): serper 3 / 11 / 60, reddit_archive 0 / 6 / 500, pages 8 / 51 / 200
+Comparison query: none (fewer than two candidates)
+
+Claims per source:
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=YXaoe3na9yU
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+    No claims.
+  web_search (community)  2026-11-10 09:19:44Z  https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+    No claims.
+  web_search (retailer)  2026-11-10 09:19:44Z  https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=r023nwE441U
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.smartprix.com/laptops/best-laptops-under-80000-list
+    No claims.
+  web_search (editorial)  2026-11-10 17:40:14Z  https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+    No claims.
+  web_search (editorial)  2026-11-10 17:40:14Z  https://www.91mobiles.com/list-of-laptops/best-laptops-in-india
+    No claims.
+  web_search (lab)  2026-11-10 17:40:14Z  https://www.rtings.com/laptop/reviews/best/travel
+    No claims.
+  web_search (lab)  2026-11-10 17:40:14Z  https://www.rtings.com/laptop/reviews/best/by-usage/gaming
+    No claims.
+  web_search (manufacturer)  2026-11-10 14:54:54Z  https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vLO6zCFGE3GTGeFnSK2f2elh0uFyTaSPfPPYHCye922iybJWEDF
+    No claims.
+  web_search (retailer)  2026-11-10 14:54:54Z  https://www.amazon.in/b?ie=UTF8&node=16092374031
+    No claims.
+  web_search (retailer)  2026-11-10 14:54:54Z  https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vKvfjmb9WC6ovzrh5UiyRY98UtojmSdx9y5MAlKIVtmKIjKBl9l
+    No claims.
+  web_search (editorial)  2026-11-10 14:54:54Z  https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+    No claims.
+  web_search (editorial)  2026-11-10 14:54:54Z  https://www.91mobiles.com/laptopfinder.php
+    No claims.
+  web_search (editorial)  2026-11-10 14:54:54Z  https://www.youtube.com/watch?v=p5Jp18DBNqM
+    No claims.
+  web_search (editorial)  2026-11-10 14:54:54Z  https://edify.club/blog/laptop-buying-checklist-india-2026/
+    No claims.
+  review_site (lab)  2026-11-10 17:40:15Z  https://www.rtings.com/laptop/reviews/best/by-usage/programming
+    No claims.
+  review_site (lab)  2026-11-10 17:40:16Z  https://www.rtings.com/laptop/reviews/best/by-usage/business
+    No claims.
+  review_site (editorial)  2026-11-10 17:40:16Z  https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+    No claims.
+  review_site (lab)  2026-11-10 14:55:01Z  https://www.rtings.com/laptop/reviews/best/by-usage/graphic-design
+    No claims.
+  review_site (editorial)  2026-11-10 17:40:18Z  https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+    No claims.
+
+Reddit threads (0 kept, 0 dropped):
+  No Reddit threads.
+
+Recommenders per product:
+  No products were counted.
+
+LLM calls per provider:
+  provider     calls   median  slowest timeouts  429s
+  gemini           2    3.6 s    3.6 s        0     0
+  groq             1    2.7 s    2.7 s        0     0
+  mistral          1    5.9 s    5.9 s        0     0
+--- stderr ---
+
+exit 0, 18.7 s

@@ -1,0 +1,55 @@
+Re-check frontend CI job's steps, plus the build (Node v22.18.0, clean clone of main 0c22d59), 2026-11-10T17:25:46Z
+
+## npm ci
+$ npm ci --no-audit --no-fund 2>&1 | tail -5
+> node scripts/contract-types.mjs
+
+Generated 64 type files in <scratch>/rc/repo/frontend/src/types/contracts
+
+added 420 packages in 3m
+exit 0, 158.8 s
+
+## lint
+$ npm run lint 2>&1 | tail -8
+
+> lint
+> eslint .
+
+exit 0, 8.9 s
+
+## typecheck (CI runs npx tsc --noEmit)
+$ npx tsc --noEmit 2>&1 | tail -8
+exit 0, 9.9 s
+
+## unit tests
+$ npm test 2>&1 | tail -12
+> test
+> vitest run
+
+
+ RUN  v4.1.12 <scratch>/rc/repo/frontend
+
+
+ Test Files  20 passed (20)
+      Tests  521 passed (521)
+   Start at  22:58:45
+   Duration  12.72s (transform 7.79s, setup 14.83s, import 12.50s, tests 12.37s, environment 81.58s)
+
+exit 0, 14.3 s
+
+## build (not in CI; run as in the first run)
+$ npm run build 2>&1 | tail -12
+.output/server/_libs/sonner.mjs                               53.59 kB │ gzip:  12.11 kB
+.output/server/_ssr/controller-DlH2_Mi2.mjs                   58.41 kB │ gzip:  17.77 kB
+.output/server/_ssr/server-Dduifvnd.mjs                       64.67 kB │ gzip:  16.81 kB
+.output/server/_libs/tailwind-merge.mjs                       88.92 kB │ gzip:  15.71 kB
+.output/server/_libs/@radix-ui/react-alert-dialog+[...].mjs  117.96 kB │ gzip:  26.35 kB
+.output/server/_libs/ajv+[...].mjs                           264.51 kB │ gzip:  54.45 kB
+.output/server/_libs/@tanstack/react-router+[...].mjs        803.17 kB │ gzip: 171.09 kB
+
+✓ built in 1.17s
+ℹ Generated .output/nitro.json
+
+[nitro] ✔ You can preview this build using npx vite preview
+exit 0, 9.3 s
+

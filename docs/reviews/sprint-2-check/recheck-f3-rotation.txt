@@ -1,0 +1,134 @@
+Re-check F-3 (US-46, rotation across providers): clean clone of main 0c22d59, Python 3.11.15 fresh venv, 2026-11-10T17:27:01Z
+
+## The providers' rotation flags and the public routes (config/models.yaml)
+$ grep -n -E '^  - name:|rotates:|requests_per_day: 50' config/models.yaml
+27:  - name: groq
+42:  - name: gemini
+60:  - name: openrouter
+68:    requests_per_day: 50
+71:    rotates: false
+76:  - name: cerebras
+88:  - name: mistral
+exit 0, 0.1 s
+
+$ sed -n '/^routes:/,/^pool:/p' config/models.yaml
+routes:
+  private:
+    short: [groq]
+    medium: [groq]
+    long: [groq]
+  reddit:
+    short: [groq]
+    medium: [groq]
+    long: [groq]
+  public:
+    short: [mistral, groq]
+    medium: [mistral, gemini, groq, openrouter]
+    long: [gemini, mistral, openrouter]
+
+# Each member paces itself to its own limits, so a call waits for a slot instead of earning a 429. The token count is
+# the input the wrapper measures plus the requested output, so one call can never be bigger than tokens_per_minute.
+# Run `python -m scripts.smoke_apis --only groq`: if the API's headers differ from these numbers, the headers win.
+# reddit_tokens_per_search: what a search's Reddit extraction may use. A call's whole request counts while it runs, then
+# its real use if book_real_use is on. The extract stage keeps to it (US-14), and skips the Reddit sources past it. It fits in about one minute of the pool's combined token rate, above the reserve.
+# extract_reserve_tokens_per_minute: what bulk work must leave of each member's minute (US-14), so intake and reply
+# parsing, which plan about 1,700, always find room. Extraction waits inside its stage limit, or skips the source.
+# 7 Nov 2026: a full source used 3,216 tokens and the wrapper planned 5,129, so 18,000 is about 3 full-size sources
+# as the pool counts them. It is 75% of the 24,000 a minute. Re-measure with
+# `python -m scripts.smoke_apis --measure-extraction`.
+pool:
+exit 0, 0.1 s
+
+## The first run's F-3 command
+$ python -m pytest tests/unit/llm/test_pool.py -k 'rotate or chain' -v -p no:cacheprovider
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+rootdir: <scratch>\rc\repo\backend
+configfile: pyproject.toml
+plugins: anyio-4.16.0, cov-7.1.0
+collected 53 items / 49 deselected / 4 selected
+
+tests\unit\llm\test_pool.py ....                                         [100%]
+
+====================== 4 passed, 49 deselected in 0.86s =======================
+exit 0, 3.8 s
+
+## The first run's C1 US-46 list (c1-us-46.txt), as run then, less test_public_bulk_work_keeps_its_chain,
+## which the Fix Pack (#75) replaced in the same file with test_public_bulk_work_rotates_across_its_providers (it runs in the -k command above)
+$ python -m pytest -o addopts= -m 'not live' -v <the C1 US-46 list less the replaced test>
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- <scratch>\rc\v311\Scripts\python.exe
+rootdir: <scratch>\rc\repo\backend
+configfile: pyproject.toml
+plugins: anyio-4.16.0, cov-7.1.0
+collecting ... collected 20 items
+
+tests/unit/llm/test_health.py::test_three_failures_in_a_row_switch_a_provider_off_for_90_seconds[ProviderTimeout] PASSED [  5%]
+tests/unit/llm/test_health.py::test_three_failures_in_a_row_switch_a_provider_off_for_90_seconds[ProviderError] PASSED [ 10%]
+tests/unit/llm/test_health.py::test_failures_only_count_within_the_window PASSED [ 15%]
+tests/unit/llm/test_health.py::test_one_server_error_cools_for_60_to_120_seconds[headers0-90.0] PASSED [ 20%]
+tests/unit/llm/test_health.py::test_one_server_error_cools_for_60_to_120_seconds[headers1-60.0] PASSED [ 25%]
+tests/unit/llm/test_health.py::test_a_bad_key_or_an_account_without_credit_is_dead_for_the_run[AuthFailed] PASSED [ 30%]
+tests/unit/llm/test_health.py::test_a_bad_key_or_an_account_without_credit_is_dead_for_the_run[NoCredit] PASSED [ 35%]
+tests/unit/llm/test_pool.py::test_a_rate_limited_member_cools_60_to_120_seconds_and_is_skipped[5-60.0] PASSED [ 40%]
+tests/unit/llm/test_pool.py::test_a_rate_limited_member_cools_60_to_120_seconds_and_is_skipped[90-90.0] PASSED [ 45%]
+tests/unit/llm/test_pool.py::test_a_rate_limited_member_cools_60_to_120_seconds_and_is_skipped[600-120.0] PASSED [ 50%]
+tests/unit/llm/test_pool.py::test_members_rotate_in_order_across_three_members PASSED [ 55%]
+tests/unit/llm/test_pool.py::test_bulk_tasks_rotate PASSED               [ 60%]
+tests/unit/llm/test_pool.py::test_parallel_extractions_start_on_different_members PASSED [ 65%]
+tests/unit/llm/test_pool.py::test_a_daily_budget_stops_calls_before_it_is_exceeded PASSED [ 70%]
+tests/unit/llm/test_pool.py::test_parallel_calls_cannot_overshoot_the_daily_budget PASSED [ 75%]
+tests/unit/llm/test_limits.py::test_the_budget_stops_calls_once_spent_and_resets_the_next_utc_day PASSED [ 80%]
+tests/unit/llm/test_limits.py::test_a_provider_without_a_budget_is_never_stopped PASSED [ 85%]
+tests/unit/llm/test_pool.py::test_a_failing_member_trips_the_breaker PASSED [ 90%]
+tests/unit/llm/test_pool.py::test_a_slow_member_times_out_and_the_next_answers PASSED [ 95%]
+tests/faults/llm/test_provider_limits.py::test_dead_and_cooling_providers_are_skipped_quickly_and_the_call_gives_up_cleanly PASSED [100%]
+
+============================= 20 passed in 0.83s ==============================
+exit 0, 2.3 s
+
+## The Fix Pack's new rotation and daily-counter tests (#75), in test_provider_rotation.py
+$ python -m pytest -o addopts= -m 'not live' -v -p no:cacheprovider tests/unit/llm/test_provider_rotation.py
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- <scratch>\rc\v311\Scripts\python.exe
+rootdir: <scratch>\rc\repo\backend
+configfile: pyproject.toml
+plugins: anyio-4.16.0, cov-7.1.0
+collecting ... collected 21 items
+
+tests/unit/llm/test_provider_rotation.py::test_public_bulk_work_takes_turns_between_gemini_and_mistral PASSED [  4%]
+tests/unit/llm/test_provider_rotation.py::test_rotation_order_is_the_same_for_the_same_calls PASSED [  9%]
+tests/unit/llm/test_provider_rotation.py::test_a_route_mixing_providers_rotates_every_member_but_openrouter PASSED [ 14%]
+tests/unit/llm/test_provider_rotation.py::test_openrouter_is_used_only_when_gemini_and_mistral_both_have_no_room PASSED [ 19%]
+tests/unit/llm/test_provider_rotation.py::test_openrouter_stops_at_its_50_requests_a_day PASSED [ 23%]
+tests/unit/llm/test_provider_rotation.py::test_an_openrouter_call_held_but_never_sent_costs_none_of_its_50 PASSED [ 28%]
+tests/unit/llm/test_provider_rotation.py::test_a_split_openrouter_call_counts_each_chunk_it_sends PASSED [ 33%]
+tests/unit/llm/test_provider_rotation.py::test_a_shoppers_task_keeps_the_route_order PASSED [ 38%]
+tests/unit/llm/test_provider_rotation.py::test_a_member_that_answers_out_of_turn_moves_the_rotation_on PASSED [ 42%]
+tests/unit/llm/test_provider_rotation.py::test_private_and_reddit_bulk_work_rotate_across_groq_only[reddit] PASSED [ 47%]
+tests/unit/llm/test_provider_rotation.py::test_private_and_reddit_bulk_work_rotate_across_groq_only[private] PASSED [ 52%]
+tests/unit/llm/test_provider_rotation.py::test_no_private_or_reddit_call_reaches_a_training_provider_under_rotation[reddit] PASSED [ 57%]
+tests/unit/llm/test_provider_rotation.py::test_no_private_or_reddit_call_reaches_a_training_provider_under_rotation[private] PASSED [ 61%]
+tests/unit/llm/test_provider_rotation.py::test_a_public_member_whose_window_the_input_does_not_fit_is_skipped PASSED [ 66%]
+tests/unit/llm/test_provider_rotation.py::test_every_provider_has_a_daily_token_counter PASSED [ 71%]
+tests/unit/llm/test_provider_rotation.py::test_each_daily_limit_is_written_down_with_where_it_came_from PASSED [ 76%]
+tests/unit/llm/test_provider_rotation.py::test_a_provider_out_of_its_daily_budget_is_skipped_and_the_next_member_answers PASSED [ 80%]
+tests/unit/llm/test_provider_rotation.py::test_every_member_out_of_budget_gives_the_fallback_with_a_note PASSED [ 85%]
+tests/unit/llm/test_provider_rotation.py::test_every_provider_has_a_daily_token_override PASSED [ 90%]
+tests/unit/llm/test_provider_rotation.py::test_the_env_example_names_every_daily_token_override PASSED [ 95%]
+tests/unit/llm/test_provider_rotation.py::test_openrouter_is_paced_at_its_published_limit PASSED [100%]
+
+============================= 21 passed in 1.02s ==============================
+exit 0, 2.5 s
+
+
+## Which 4 tests the first run's -k selection holds (collection only, nothing run; added after review)
+(pyproject.toml's addopts include -q, which cancels -v, so the run above printed no names.)
+$ python -m pytest --collect-only -q -o addopts= -p no:cacheprovider tests/unit/llm/test_pool.py -k 'rotate or chain'
+tests/unit/llm/test_pool.py::test_members_rotate_in_order_across_three_members
+tests/unit/llm/test_pool.py::test_bulk_tasks_rotate
+tests/unit/llm/test_pool.py::test_public_bulk_work_rotates_across_its_providers
+tests/unit/llm/test_pool.py::test_a_route_mixing_pool_members_and_others_rotates_them_all
+
+4/53 tests collected (49 deselected) in 0.06s
+exit 0

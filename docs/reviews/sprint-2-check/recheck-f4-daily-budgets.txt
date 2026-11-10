@@ -1,0 +1,60 @@
+Re-check F-4 (US-46, a daily token counter for every provider): clean clone of main 0c22d59, Python 3.11.15 fresh venv, 2026-11-10T17:27:10Z
+
+## daily_tokens per provider (config/models.yaml; the pool's per-model counters follow under pool:)
+$ grep -n -E '^  - name:|^    daily_tokens:|requests_per_day: 50' config/models.yaml
+27:  - name: groq
+34:    daily_tokens: 600000
+42:  - name: gemini
+45:    daily_tokens: 2500000
+60:  - name: openrouter
+68:    requests_per_day: 50
+69:    daily_tokens: 250000
+76:  - name: cerebras
+83:    daily_tokens: 1000000  # while a trial credit lasts (inference-docs.cerebras.ai/support/rate-limits, 3 Nov 2026)
+88:  - name: mistral
+105:    daily_tokens: 1000000
+exit 0, 0.1 s
+
+## The same, as the app loads them (no .env in this clone, so no override applies)
+$ python -c '<print each provider's daily_tokens and requests_per_day from load_llm_config()>'
+groq        daily_tokens=600000 requests_per_day=None
+gemini      daily_tokens=2500000 requests_per_day=None
+openrouter  daily_tokens=250000 requests_per_day=50
+cerebras    daily_tokens=1000000 requests_per_day=None
+mistral     daily_tokens=1000000 requests_per_day=None
+exit 0, 0.6 s
+
+## The first run's F-4 command
+$ python -m pytest tests/unit/llm/test_limits.py::test_a_provider_without_a_budget_is_never_stopped -v -p no:cacheprovider
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0
+rootdir: <scratch>\rc\repo\backend
+configfile: pyproject.toml
+plugins: anyio-4.16.0, cov-7.1.0
+collected 1 item
+
+tests\unit\llm\test_limits.py .                                          [100%]
+
+============================== 1 passed in 0.35s ==============================
+exit 0, 1.8 s
+
+## The Fix Pack's F-4 tests (#75)
+$ python -m pytest -o addopts= -m 'not live' -v -p no:cacheprovider <the F-4 tests in test_provider_rotation.py>
+============================= test session starts =============================
+platform win32 -- Python 3.11.15, pytest-9.2.0, pluggy-1.7.0 -- <scratch>\rc\v311\Scripts\python.exe
+rootdir: <scratch>\rc\repo\backend
+configfile: pyproject.toml
+plugins: anyio-4.16.0, cov-7.1.0
+collecting ... collected 7 items
+
+tests/unit/llm/test_provider_rotation.py::test_every_provider_has_a_daily_token_counter PASSED [ 14%]
+tests/unit/llm/test_provider_rotation.py::test_each_daily_limit_is_written_down_with_where_it_came_from PASSED [ 28%]
+tests/unit/llm/test_provider_rotation.py::test_a_provider_out_of_its_daily_budget_is_skipped_and_the_next_member_answers PASSED [ 42%]
+tests/unit/llm/test_provider_rotation.py::test_every_member_out_of_budget_gives_the_fallback_with_a_note PASSED [ 57%]
+tests/unit/llm/test_provider_rotation.py::test_every_provider_has_a_daily_token_override PASSED [ 71%]
+tests/unit/llm/test_provider_rotation.py::test_the_env_example_names_every_daily_token_override PASSED [ 85%]
+tests/unit/llm/test_provider_rotation.py::test_openrouter_stops_at_its_50_requests_a_day PASSED [100%]
+
+============================== 7 passed in 0.63s ==============================
+exit 0, 2.1 s
+

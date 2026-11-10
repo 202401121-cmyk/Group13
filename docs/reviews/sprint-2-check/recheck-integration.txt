@@ -1,0 +1,98 @@
+Re-check, the checks after the fix: main 0c22d59 with the Sprint 2 close-out merged in its order, A (0fc9e73), D (9b68030,
+this report before its last amend, which adds only this file and its table) and C (98dc8d2), on a throwaway branch in a
+fresh clone with no .env, deleted after. Fresh Python 3.11.15 and 3.13.13 venvs; Node v22.18.0.
+
+## The merge
+Integration check, 2026-11-11T04:52:32Z
+main: 0c22d59
+merged fix/US-46-public-last-resort (0fc9e73): ok
+merged chore/sprint-2-recheck (9b68030): ok
+merged docs/sprint-2-close (98dc8d2): ok
+tip: ad763f8
+98dc8d2 docs: add the Sprint 2 review run sheet and the README's Sprint 2 status
+9b68030 S2: record the Sprint 2 re-check after the Fix Pack: verified, with F-6 passing on its fix
+0fc9e73 US-46: send public pages to Groq as the last resort when Gemini and Mistral have no room
+.env files in the clone: 0
+done 2026-11-11T05:18:57Z
+
+## Backend, the Linux job's steps
+Backend, Linux job's steps, Python 3.11.15 fresh venv, 2026-11-11T04:55:54Z
+$ python --version
+Python 3.11.15
+exit 0, 0.2 s
+$ python -m pip show python-dotenv | grep Version
+Version: 1.2.4
+exit 0, 1.9 s
+The database tests skip here: Docker Desktop was not running, and starting it was refused by the permission
+system, so no postgres:17 container could be started. Om runs them (see the hand-over).
+$ ruff check .
+All checks passed!
+exit 0, 0.5 s
+$ ruff format --check .
+305 files already formatted
+exit 0, 0.2 s
+$ mypy app
+Success: no issues found in 113 source files
+exit 0, 13.4 s
+$ pytest -q -m 'not live' --cov --cov-report=term-missing --junitxml=...
+exit 0
+TOTAL                                  8545    142    98%
+Required test coverage of 70.0% reached. Total coverage: 98.34%
+$ check_coverage
+Coverage gates passed: 70% on core modules, 80% on app/decide/.
+exit 0, 2.9 s
+$ contracts
+no diff
+exit 0, 1.8 s
+JUnit counts:
+311 {'tests': '3908', 'failures': '0', 'errors': '0', 'skipped': '37'}
+
+## Backend, the Windows job's steps
+Backend, Windows job's steps, Python 3.13.13 fresh venv, 2026-11-11T05:01:57Z
+pytest exit 0
+$ contracts
+no diff
+exit 0, 1.6 s
+
+JUnit counts:
+313 {'tests': '3908', 'failures': '0', 'errors': '0', 'skipped': '37'}
+
+## Frontend (npm ci, lint, typecheck, test, build, in that order)
+Frontend, Node v22.18.0, 2026-11-11T05:04:49Z
+$ npm ci
+Generated 64 type files in <scratch>/fp/ic/repo/frontend/src/types/contracts
+added 420 packages in 6m
+exit 0, 342.1 s
+$ npm run lint
+> lint
+> eslint .
+exit 0, 18.3 s
+$ npm run typecheck
+> typecheck
+> tsc --noEmit
+exit 0, 16.4 s
+$ npm test
+ RUN  v4.1.12 <scratch>/fp/ic/repo/frontend
+ Test Files  20 passed (20)
+      Tests  521 passed (521)
+   Start at  10:41:09
+   Duration  17.50s (transform 13.55s, setup 24.25s, import 19.78s, tests 14.88s, environment 122.64s)
+exit 0, 20.6 s
+$ npm run build
+✓ built in 2.04s
+ℹ Generated .output/nitro.json
+[nitro] ✔ You can preview this build using npx vite preview
+exit 0, 17.3 s
+
+## Frontend end-to-end, mock, alone on the machine
+Frontend end-to-end (mock), alone on the machine, 2026-11-11T05:11:44Z
+$ npm run test:e2e
+exit 0
+[feedback] 21 slow-ish events; longest input to next paint: 56 ms
+  ok 167 [chromium] › e2e\quality\vitals.spec.ts:229:3 › feedback › every press paints a response within 100 ms (6.5s)
+  ok 168 [chromium] › e2e\quality\vitals.spec.ts:267:3 › feedback › waits over 400 ms show a status message (3.8s)
+
+  2 skipped
+  166 passed (7.1m)
+[motion] typing at 1x CPU: 39 fps, longest frame 50 ms
+[motion] typing at 4x CPU: 65 fps, longest frame 133 ms
