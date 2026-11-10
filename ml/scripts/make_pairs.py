@@ -92,7 +92,7 @@ def make_batch(
     """Make one batch and write its two files. Raises PairingError, before writing anything, if it cannot.
 
     `overlap_from` limits the repeats to those earlier batches, for example the other labeller's solo batch, so
-    the repeats compare two people rather than one person with themselves.
+    the repeats compare two labellers rather than one labeller with itself.
     """
     if not BATCH_NAME.fullmatch(batch):
         raise PairingError(f"batch name {batch!r} must be lowercase words and digits joined by -, such as agree-1")

@@ -22,7 +22,7 @@ pair_id,left_title,right_title,category,product_family,label,labeller,labelled_a
 | `category` | A lowercase slug from `backend/config/categories.yaml` | `laptop`, `smartphone`, `earbuds` |
 | `product_family` | A lowercase slug for the brand and model line. For a pair of two different families, use the left title's family | `nova-book` |
 | `label` | Exactly one of `same`, `variant`, `different`, `unsure` (see below) | `same` |
-| `labeller` | Your first name | `Om` |
+| `labeller` | Your first name, or `Machine A` or `Machine B` for a machine labeller (section 4.1) | `Om` |
 | `labelled_at` | The date you labelled the row, as YYYY-MM-DD | `2026-10-25` |
 | `notes` | Optional free text. Required in practice for `unsure` (say why) | `right title has no storage` |
 
@@ -98,7 +98,8 @@ questions in order:
   more than one option (memory, storage, colour or region).
 - If one pair takes you more than about a minute, label it `unsure` and move on.
 - `unsure` rows are left out of training. Bring the list to the next labelling review, where two people agree a
-  label or keep it `unsure`. When a case keeps coming up, add it to this guide as a new example.
+  label or keep it `unsure`. A review never edits another labeller's row: whoever settles a pair labels it in their
+  own file, under their own name. When a case keeps coming up, add it to this guide as a new example.
 
 ### More cases
 
@@ -116,16 +117,18 @@ configuration.
 | The same generation code with a different configuration | `variant` | HP Victus 15-fa1327TX / HP Victus 15-FA1310TX; HP 15-fd0013TU / HP 15-fd0221TU | One model generation |
 | A different generation code | `different` | HP Victus 15-fa1... / 15-fa2...; IdeaPad Slim 3 15IAH8 / 15IRH10 | A new generation is a new model |
 | A letter or "+" after the model name | `different` | Rockerz 450 / Rockerz 450R; Nord Buds 2 / Nord Buds 2r; Healthifry / HealthiFry+ | It names another model. "+" and "Plus" are the same word |
-| One title may have left such a suffix out | `unsure` | Pigeon Healthifry Plus 1400W / Pigeon Healthifry 1400 W | We can't tell which model it is |
+| One title may have left such a suffix out | `unsure` | Pigeon Healthifry Plus 1400W / Pigeon Healthifry 1400 W; boAt Airdopes 141 Elite ANC / boAt Airdopes 141 ANC | We can't tell which model it is |
 | A title that names two models, against one of them | `unsure` | boAt Rockerz 450/450R / boAt Rockerz 450R | It could be either. Against a third model it is `different` |
 | A mention without "5G" when the maker sells a model of that name with and without it | `unsure` | vivo Y19s / vivo Y19s 5G (4GB RAM, 128GB) | They may be different phones |
+| A bare model name against the same name with a version number | `unsure` | Titan Crest / Titan Crest 2.0 Smartwatch | The bare name may have left the version out, as with a suffix |
+| Each title adds its own different name after the same model number | `different` | boAt Airdopes 141 Elite ANC (Green) / boAt Airdopes 141 Gen 2 | Two named models in one line, like "Pro" against "Max" |
 
 Store words are not part of the product: "Smartchoice", "with No Cost EMI", "(One Size)", "Rs.89000". A value that
 can't be true, such as "0 GB RAM" on an iPhone, is a store error: ignore it.
 
 ## 4. Agreement rule
 
-Before anyone labels alone, the guide must be clear enough that two people give the same labels.
+Before anyone labels alone, the guide must be clear enough that two labellers give the same labels.
 
 1. Two labellers each label the same 50 pairs on their own, without talking about them.
 2. Compare the two files:
@@ -143,9 +146,42 @@ Record every run here, including runs that fail.
 
 | Date | Labellers | Pairs | Kappa (four-class) | Decision |
 |---|---|---|---|---|
-| — | — | — | — | No runs yet |
+| 10 Nov 2026 | Machine A and Machine B (section 4.1) | 50 (`agree-1`) | 0.933 (48 of 50 agree; binary 1.000) | Pass: solo labelling starts. The 2 disagreements (p0006, p0032) became the last two rows of "More cases" |
+
+Two `agree-1` pairs, p0008 and p0034, are also worked examples in "More cases", which both labellers read. Without
+them the run is 46 of 48 and kappa 0.928, still a pass. A few solo pairs are examples too (p0100 in `solo-2`, p0258 in
+`solo-5`). From now on, take new examples from discussed pairs or made-up titles, never from a pair still to label.
+
+Then came `solo-1` to `solo-5`. With `agree-1`, that is 275 distinct pairs in 350 rows. From `solo-2` on, 20 pairs
+were repeated across the two labellers: 19 got the same label, and none was called `same` by one and not `same` by
+the other. The one difference, p0178 (`different` against `unsure`), is now an example in "More cases". `solo-1`
+also repeated 5 `agree-1` pairs, which Machine A labelled the same both times.
 
 The files in `ml/examples/` are synthetic and only test the scripts. They are not an agreement run.
+
+### 4.1 Machine labellers
+
+On 10 Nov 2026 Om changed D-55, so that two machine labellers may label a batch in place of two people. The rules:
+
+- The two labellers are separate runs of two different models. Each row names its labeller, `Machine A` or
+  `Machine B`, so a machine label can always be told from a person's.
+- Each one sees only the label table in section 2, the guide in section 3 and the two texts of each pair, in its own
+  order from `label_pairs.py`. It never sees the other's labels, a proposed label, `pairs.meta.csv`, the product
+  family or the web. It writes a short reason for every pair in `notes`.
+- Their answers are typed into `label_pairs.py` itself, key by key, so their files have the same format as a person's:
+  `ml/labelling/<batch>.machine-a.csv` and `ml/labelling/<batch>.machine-b.csv`.
+- The gate is the same: a four-class kappa of 0.80 or more on a new 50-pair batch. Below that, every disagreement is
+  read, the rule that settles it goes into section 3, and a new batch is made. A batch that has been discussed is never
+  labelled again to raise its kappa.
+- The two take turns on the solo batches: `machine-a` labels `solo-1`, `solo-3` and `solo-5`, and `machine-b` labels
+  `solo-2` and `solo-4`. From `solo-2` on, each solo batch repeats 5 pairs from the other's last batch, so the two
+  keep being checked against each other.
+- For the two files of one batch (`agree-1`), `pairsets.load_own` keeps only the pairs both call `same` or both call
+  not `same`. A pair repeated in another batch's file is not matched up yet: `solo-3.machine-a.csv` alone still holds
+  p0178 as `different`, though Machine B said `unsure`. Combining every file by `pair_id`, and dropping each pair the
+  labellers disagree on, is the evaluation's job (L2).
+- This kappa shows that the two machine labellers apply the guide the same way. It does not show that two people
+  would. Every result that uses these labels says they are machine labels.
 
 ## 5. Datasets
 
@@ -154,8 +190,8 @@ The files in `ml/examples/` are synthetic and only test the scripts. They are no
 | WDC Products (public matching benchmark) | Web Data Commons, University of Mannheim | 11,715 offers describing 2,162 products | Evaluating the matcher (US-15, #13) | Licence recorded; downloaded with checksums (sections 7 and 7.4) |
 | Abt-Buy (public matching benchmark) | Database group of Prof. Erhard Rahm, Leipzig University | 1,081 + 1,092 records; 1,097 matches | Evaluating the matcher (US-15, #13) | Licence recorded; downloaded with checksums (sections 7 and 7.4) |
 | Amazon-Google (public matching benchmark) | Database group of Prof. Erhard Rahm, Leipzig University | 1,363 + 3,226 records; 1,300 matches | Evaluating the matcher (US-15, #13) | Licence recorded; downloaded with checksums (sections 7 and 7.4) |
-| Our own labelled pairs | Labelled by the team with this guide | Target about 250; at least 150 by the Sprint 2 review | Product matcher training and testing (US-15) | Not started; the template and checker are ready |
-| Seeded source conflicts | Real spec disagreements found by the team; each known answer is set by a person | First 15 by the Sprint 2 review, 30 in Sprint 3 | Source trust (US-16) | None entered yet; the format, checker and runner are ready (section 9) |
+| Our own labelled pairs | Labelled by two machine labellers with this guide (section 4.1) | Target about 250; at least 150 by the Sprint 2 review | Product matcher training and testing (US-15) | 275 pairs labelled (`agree-1`, `solo-1` to `solo-5`); machine labels |
+| Seeded source conflicts | Real spec disagreements; each known answer comes from the maker's page or a lab and is approved by a person | First 15 by the Sprint 2 review, 30 in Sprint 3 | Source trust (US-16) | 5 entered (section 9) |
 | Simulated shoppers | Made by the team | 50 | Smart interview (US-04) | Not built yet |
 | Seeded returning-user sessions | Made by the team | 20 | Preference memory (US-06) | Not built yet |
 | Claim and evidence pairs, half deliberately wrong | Made by the team | 100 | Citation check (US-22) | Not built yet |
@@ -444,8 +480,9 @@ request, and say what changed.
 
 ## 8. How to run a labelling session
 
-Our own pairs (D-55) come from listings people copy by hand, never scraped, and from labels each person gives alone.
-No tool or AI suggests a label or writes a title. Run these from the repository root. They work offline, on Windows,
+Our own pairs (D-55) come from listings copied by hand, never scraped, and from labels each labeller gives alone: a
+person, or one of the two machine labellers in section 4.1. Nobody is shown a suggested label before they answer, and
+no title is made up. Run these from the repository root. They work offline, on Windows,
 macOS and Linux, and need nothing beyond Python.
 
 ### 8.1 Collect listings
@@ -496,9 +533,9 @@ name and seed.
 
 Solo batches repeat 5 earlier pairs, so agreement keeps being checked. `solo-1` repeats pairs from the agreement
 batch that passed (never one whose pairs were discussed): `--batch solo-1 --seed 201 --overlap 5 --overlap-from
-agree-1`. From `solo-2` on, repeat the other person's solo pairs, so the repeats compare two people rather than one
-person with themselves: `--batch solo-2 --seed 202 --overlap 5 --overlap-from solo-1`. A pair is repeated at most
-once. `labelling_status.py` prints the command to use; from `solo-2` on, put in the other person's latest solo batch.
+agree-1`. From `solo-2` on, repeat the other labeller's solo pairs, so the repeats compare two labellers rather than one
+labeller with itself: `--batch solo-2 --seed 202 --overlap 5 --overlap-from solo-1`. A pair is repeated at most
+once. `labelling_status.py` prints the command to use; from `solo-2` on, put in the other labeller's latest solo batch.
 
 ### 8.3 Label it, alone
 
@@ -537,15 +574,16 @@ It shows:
 - the label mix of finished batches;
 - for each batch everyone on it has finished: agreement and both kappas between every two labellers, with every
   disagreement (an unfinished batch shows only counts, so nobody sees the other's answers too early);
-- repeated pairs: the same pair labelled again later, by the other person or by the same one;
+- repeated pairs: the same pair labelled again later, by the other labeller or by the same one;
 - the next step:
   - finish `agree-1`;
   - if any two labellers' four-class kappa is below 0.80, discuss the disagreements, add the clarified rule to
     section 3 and make `agree-2`;
   - once every two labellers reach 0.80 or more on a 50-pair agreement batch, start `solo-1`.
 
-Record each agreement run in the table in section 4. Commit solo labels after every session, under your own name.
-Commit agreement labels only when both of you have finished the batch, so neither sees the other's answers first.
+Record each agreement run in the table in section 4. Commit solo labels after every session, under your own name;
+machine labels are committed by the person who ran them. Commit agreement labels only when both labellers have
+finished the batch, so neither sees the other's answers first.
 
 ## 9. Seeded conflicts for source trust
 
@@ -572,7 +610,8 @@ These are not real conflicts:
 
 - Use the maker's spec page, a lab's measurement or the product itself. Write down which in `how_established`, with
   a link if there is one.
-- A person sets every known answer. Never take it from a vote among the claims, and never from an AI tool.
+- Every known answer comes from one of those sources, never from a vote among the claims and never from memory. A
+  machine assistant may find and read the page, but a person approves the answer and puts their name in `added_by`.
 - A Reddit post can't set the known answer.
 - Keep the test fair. If the highest-tier claim comes from the same page as the known answer, tier order will rarely
   lose that conflict. So the runner prints the accuracy table twice: once for all conflicts, and once for only the

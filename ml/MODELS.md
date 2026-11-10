@@ -18,7 +18,7 @@ recorded" before the model is used. Each model replaces a simpler baseline, and 
 | Story | US-15 |
 | Owner | Om Pandya |
 | Type | Fine-tuned small MiniLM-based cross-encoder. Exact checkpoint: to be recorded |
-| Data | Our own labelled pairs (target about 250), split by `product_family` |
+| Data | Our own labelled pairs (target about 250), split by `product_family`. They are machine labels ([DATA.md](DATA.md) section 4.1) |
 | Baseline or fallback | RapidFuzz fuzzy matching |
 | Target | Precision of 0.95 or more, and F1 above the fuzzy baseline (card 8) |
 | Sprint | 3 |
@@ -105,7 +105,7 @@ everything runs on our own machines: no model service is called, so WDC data nev
 | Story | #13 (matching evaluation scaffold), the baseline for US-15 |
 | Owner | Rushiraj Navar |
 | Type | Not trained. Three rapidfuzz scorers on the listing text: `fuzz.ratio`, `fuzz.token_sort_ratio`, `fuzz.token_set_ratio`, each divided by 100. Text is normalised with Unicode NFKC, then `rapidfuzz.utils.default_process`. A pair is called a match when its score is at or above the threshold |
-| Data | WDC Products (9 test sets), Abt-Buy and Amazon-Google (every pair), and our own labelled pairs once they exist ([DATA.md](DATA.md) sections 2 and 7) |
+| Data | WDC Products (9 test sets), Abt-Buy and Amazon-Google (every pair), and our own labelled pairs (machine labels, not scored yet; [DATA.md](DATA.md) sections 2, 4.1 and 7) |
 | Threshold choice | On each dev split, the scorer and threshold (0.00 to 1.00 in steps of 0.01) with the best F1. Ties go to the higher threshold. The test split is scored once, at that choice |
 | Split rules | **WDC:** test = each `_gs` file; dev = the `valid_large` set of the same corner-case level and unseen share. **Abt-Buy, Amazon-Google:** every left record against every right record; left records go to dev when the first byte of sha256(id) is even, else test. **Our pairs:** all test (no dev split yet), scored at the choice made on WDC 80cc20rnd000un |
 | Versions | rapidfuzz 3.14.6, numpy 2.4.6, Python 3.11.15 (`ml/requirements.txt`) |
@@ -145,5 +145,5 @@ Limits:
   record add up.
 - Each WDC level's 050un and 100un validation files are the same pairs (identical after decompressing; only the gzip
   headers differ), so those two test sets share one dev set and one threshold.
-- Our own pairs have not been scored yet: there are no real labelled files in `ml/labelling/`. Run
-  `python ml/scripts/match_baseline.py own <file>.csv [<second file>.csv]` once there are.
+- Our own pairs are labelled (machine labels, [DATA.md](DATA.md) section 4.1) but not scored yet. Run
+  `python ml/scripts/match_baseline.py own <file>.csv [<second file>.csv]`.
