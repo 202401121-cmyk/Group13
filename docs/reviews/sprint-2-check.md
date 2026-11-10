@@ -416,3 +416,26 @@ delete from public.requests where session_id in ('sess_736269c49abf68a3400dc02e'
 | G-5 | In R5, a battery capacity ("53.8 WHrs") was read as battery life | Jhanvi |
 | G-6 | With 6 sources allowed, all 6 went to Reddit threads, so no web or review page was read in R1 | Jhanvi |
 | G-7 | No live run sent a comparison query, because the match stage is still a sample ("fewer than two candidates") | Jenish |
+
+## 8. Blocked items, 10 Nov
+
+Three of the four were run after the check (B-1, B-3 and B-4), by Palak Patel, on `main` at `483d8f2`, as the Sprint 2
+Fix Pack asked; B-2 has nothing to run. Sections 1 to 7 stay as the check found them; this section records how each
+blocked item came out.
+
+| Item | Result | What was run | Evidence |
+|---|---|---|---|
+| B-1, the database tests | PASS | CI's backend command (`pytest -q -m "not live" --cov --cov-report=term-missing`, with `TEST_DATABASE_URL` and `REQUIRE_DB_TESTS=1` set only on the command, plus `--junitxml`, which only writes a report for the counts) against a throwaway `postgres:17` (17.11) in Docker, removed after. 3,862 passed, 0 failed, 0 skipped; all 37 `db` tests passed; coverage 98.45% | [b1-db-tests.txt](sprint-2-check/b1-db-tests.txt) |
+| B-2, filtering and ranking | Moved (D-61) | Nothing to run: US-17 and US-18 are not built yet. It is checked in Sprint 3's review check (#46) | — |
+| B-3, a new parser without cases | PASS | A scratch `backend/app/intake/scratch_parsing.py` with one model call. `test_every_parsing_module_is_registered` and `test_every_llm_call_has_a_registered_parser` both fail, naming the module and the call (2 failed, 30 passed). With the module deleted: 32 passed, and the working tree is clean | [b3-registry.txt](sprint-2-check/b3-registry.txt) |
+| B-4, P4's hostile pages | PASS | Offline, as the Fix Pack asked: `pytest tests/faults/test_hostile_pages.py -v -o addopts=--strict-markers`, 33 passed. Each of the 10 hostile pages gives the same result as its clean twin | [b4-hostile-pages.txt](sprint-2-check/b4-hostile-pages.txt) |
+
+- **B-1's first attempt** pointed at `localhost:5432`. On this laptop that is a local PostgreSQL 18 service, not the
+  container, so all 37 `db` tests ended in "password authentication failed" (the other 3,825 passed). The service was
+  left alone. The container was moved to host port 5433 and checked to answer as Postgres 17.11, and the command was
+  run once more; that run is the result above. Both are in the evidence file. Like the screen walk in section 2, this
+  is a second run after a fault in the set-up, not in the app: the first attempt never reached the container.
+- **B-3's module** never left the working tree. It was deleted before anything was committed. The four parsers that
+  US-48 names will each need 15 cases or more when they arrive.
+- **B-4 stays offline.** A hostile page in a live search still needs the test-only research source in section 4's B-4
+  steps.
