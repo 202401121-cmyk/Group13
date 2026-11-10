@@ -96,6 +96,12 @@ test.describe("motion allowed", () => {
     // screen) whenever someone types. This checks typing itself: every key lands and frames keep coming.
     await page.goto("/");
     await waitForHydration(page, "#research-query");
+    // Measure only once the page has settled: no network left and every font loaded, so loading is not counted
+    // against typing. The count once read 28 fps during a full suite run on a busy machine (P18's F-5).
+    await page.waitForLoadState("networkidle");
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+    });
     const box = page.locator("#research-query");
     const text = "Laptop for coding under 70k, at least 16 GB RAM, not too heavy, no refurbished";
     const measure = async (rate: number) => {
