@@ -87,13 +87,14 @@ def our_limits(config: LLMConfig) -> list[str]:
     """One line per provider that has limits of our own (US-46)."""
     lines = []
     for p in config.providers:
-        limits = (p.requests_per_second, p.requests_per_minute, p.tokens_per_minute, p.daily_tokens)
+        limits = (p.requests_per_second, p.requests_per_minute, p.tokens_per_minute, p.daily_tokens, p.requests_per_day)
         if all(limit is None for limit in limits):
             continue
         lines.append(
             f"  {p.name.value}: {_or_none(p.requests_per_second)} requests/s, "
             + (f"{p.requests_per_minute:,} requests/min, " if p.requests_per_minute else "")
             + f"{_or_none(p.tokens_per_minute)} tokens/min, {_or_none(p.daily_tokens)} tokens/day"
+            + (f", {p.requests_per_day:,} requests/day" if p.requests_per_day else "")
         )
     return lines
 
@@ -132,7 +133,7 @@ def main() -> int:
         print(f"{r.provider:<11} {r.model:<40} {r.trains:<7} {r.works:<8} {r.latency:<9} {r.tokens:<18} {r.note}")
     own_limits = our_limits(config)
     if own_limits:
-        print("\nOur own limits (models.yaml, or MISTRAL_RPS / MISTRAL_TPM / MISTRAL_DAILY_TOKENS in .env):")
+        print("\nOur own limits (models.yaml, or MISTRAL_RPM / _RPS / _TPM and <PROVIDER>_DAILY_TOKENS in .env):")
         print("\n".join(own_limits))
     for r in rows:
         if r.ratelimit_headers:

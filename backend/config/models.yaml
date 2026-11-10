@@ -22,6 +22,8 @@ force_ipv4: true
 providers:
   # "Groq does not retain customer data for inference requests"; its services agreement (section 4.2) does not
   # permit using inputs or outputs for training.
+  # Daily tokens (F-4): 3 models x 200,000 a day each (console.groq.com/docs/rate-limits, 7 Nov 2026). Each model is also
+  # held to its own 200,000 in pool: below.
   - name: groq
     base_url: https://api.groq.com/openai/v1
     api_key_env: GROQ_API_KEY
@@ -29,15 +31,18 @@ providers:
     trains_on_inputs: false
     terms_url: https://console.groq.com/docs/your-data
     terms_checked: 2026-11-03
+    daily_tokens: 600000
   # Unpaid services: prompts may be used to improve Google's products and machine learning, and people may read them.
   # Thinking as low as it goes: it counts against the output limit. On gemini-3.5-flash, on a public page in a live check
   # (9 Nov 2026) with a limit of 1,200, thinking used 1,245 tokens, and the reply was cut off at 43.
   # Free-tier limits of Gemini 3.5 Flash Lite, read from aistudio.google.com/rate-limit on 9 Nov 2026: Google's public
   # rate-limits page lists no numbers for this tier. 15 requests a minute, 250,000 input tokens a minute and 500 requests
-  # a day. The 500 a day isn't paced: see docs/api-setup.md.
+  # a day. The 500 a day isn't paced: see docs/api-setup.md. Google publishes no daily token limit, so the daily budget
+  # is the team's choice (F-4): 500 requests x 5,000 tokens, the wrapper's planned size for a full source.
   - name: gemini
     requests_per_minute: 15
     tokens_per_minute: 250000
+    daily_tokens: 2500000
     limits_checked: 2026-11-09
     reasoning_effort: minimal  # its lowest: Flash Lite has no "none", and answered HTTP 400 to it on 9 Nov 2026
     base_url: https://generativelanguage.googleapis.com/v1beta/openai
@@ -48,6 +53,10 @@ providers:
     terms_checked: 2026-11-03
   # Whether a :free model's host trains on prompts depends on that host, and we cannot confirm it for ours.
   # Treated as training until someone can show otherwise.
+  # Free models: 20 requests a minute, and 50 a day until the account has bought 10 credits
+  # (https://openrouter.ai/docs/api-reference/limits, 3 Nov 2026). No token limit is published, so the daily budget is
+  # the team's choice (F-4): 50 requests x 5,000 tokens. The 50 a day is counted too, so a call past it is skipped
+  # instead of earning a 429. It takes no turn in bulk work's rotation: it is the fallback after Gemini and Mistral.
   - name: openrouter
     base_url: https://openrouter.ai/api/v1
     api_key_env: OPENROUTER_API_KEY
@@ -55,6 +64,11 @@ providers:
     trains_on_inputs: true
     terms_url: https://openrouter.ai/docs/features/privacy-and-logging
     terms_checked: 2026-11-03
+    requests_per_minute: 20
+    requests_per_day: 50
+    daily_tokens: 250000
+    limits_checked: 2026-11-03
+    rotates: false
   # The terms give Cerebras no right to use our content for training, and the privacy policy (section 6) says it
   # does not keep inputs and outputs. Every call answers HTTP 402 (no free tier), so it is skipped with no call,
   # and it left the private and reddit routes on 7 Nov 2026. If the account gets credits: set available: true,
@@ -66,6 +80,7 @@ providers:
     trains_on_inputs: false
     terms_url: https://cerebras.ai/terms-of-service
     terms_checked: 2026-11-03
+    daily_tokens: 1000000  # while a trial credit lasts (inference-docs.cerebras.ai/support/rate-limits, 3 Nov 2026)
     available: false
     unavailable_reason: HTTP 402, no free tier (smoke test, 3 Nov 2026)
   # The free plan ("Free mode") may use inputs and outputs to train. An opt-out exists, but we cannot confirm it is
@@ -78,12 +93,15 @@ providers:
     terms_url: https://help.mistral.ai/en/articles/347617
     terms_checked: 2026-11-03
     json_mode: true
-    # Our own limits, below what the API reported on 3 Nov 2026 (188 requests a minute, 625,000 tokens a minute).
-    # The monthly allowance is shown only in Mistral's Admin Panel > API > Limits: set MISTRAL_DAILY_TOKENS in
-    # .env to that allowance / 31, less 10%. These three can also be set with MISTRAL_RPS, MISTRAL_TPM and
-    # MISTRAL_DAILY_TOKENS, and the model with MISTRAL_MODEL.
-    requests_per_second: 2
-    tokens_per_minute: 500000
+    # Its real limits, from the rate-limit headers of a live reply on 10 Nov 2026 (x-ratelimit-limit-req-minute: 2,
+    # x-ratelimit-limit-tokens-minute: 40000). On 3 Nov 2026 they had said 188 requests and 625,000 tokens a minute,
+    # so read them again if Mistral answers 429s (python -m scripts.smoke_apis --only mistral). The monthly allowance
+    # is shown only in Mistral's Admin Panel > API > Limits: set MISTRAL_DAILY_TOKENS in .env to that allowance / 31,
+    # less 10%. These can also be set with MISTRAL_RPM, MISTRAL_RPS, MISTRAL_TPM and MISTRAL_DAILY_TOKENS, and the
+    # model with MISTRAL_MODEL.
+    requests_per_minute: 2
+    tokens_per_minute: 40000
+    limits_checked: 2026-11-10
     daily_tokens: 1000000
 
 models:

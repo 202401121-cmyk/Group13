@@ -458,10 +458,10 @@ def test_a_full_rate_limiter_moves_on_without_sending() -> None:
 def test_the_real_client_limits_mistral() -> None:
     client = WrapperLLMClient(load_llm_config(), {})
     limiter = client.limiters[Provider.MISTRAL]
-    assert (limiter.requests_per_second, limiter.tokens_per_minute) == (2, 500_000)
-    assert set(client.limiters) == {Provider.MISTRAL, Provider.GEMINI}
+    assert (limiter.requests_per_minute, limiter.tokens_per_minute) == (2, 40_000)
+    assert set(client.limiters) == {Provider.MISTRAL, Provider.GEMINI, Provider.OPENROUTER}
     assert client.budget.remaining(Provider.MISTRAL) == 1_000_000
-    assert client.budget.remaining(Provider.GROQ) is None
+    assert client.budget.remaining(Provider.GROQ) == 600_000  # every provider has a daily counter (F-4)
 
 
 def test_mistral_invalid_json_is_retried_once() -> None:

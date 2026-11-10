@@ -214,7 +214,8 @@ def test_bulk_tasks_rotate() -> None:
     assert groq.calls == [BIG, SMALL, QWEN]
 
 
-def test_public_bulk_work_keeps_its_chain() -> None:
+def test_public_bulk_work_rotates_across_its_providers() -> None:
+    """F-3: public text rotates across the providers its route allows, not only Groq's models."""
     clock = Clock()
     config = _config()
     adapters: dict[Provider, Adapter] = {p: FakeAdapter(p, replies=(OK,)) for p in (Provider.GEMINI, Provider.MISTRAL)}
@@ -225,10 +226,10 @@ def test_public_bulk_work_keeps_its_chain() -> None:
             LLMTask.ENRICH_EXTRACT, SYSTEM, "A page.", Answer, data_class=DataClass.PUBLIC, difficulty=Difficulty.LONG
         )
     assert isinstance(client.call_log, InMemoryCallLog)
-    assert [r.provider for r in client.call_log.records] == [Provider.GEMINI] * 3
+    assert [r.provider for r in client.call_log.records] == [Provider.GEMINI, Provider.MISTRAL, Provider.GEMINI]
 
 
-def test_a_route_mixing_pool_members_and_others_rotates_only_the_members() -> None:
+def test_a_route_mixing_pool_members_and_others_rotates_them_all() -> None:
     clock = Clock()
     config = _config()
     pool = ModelPool(config.pool, clock=clock, sleep=clock.sleep)
@@ -237,7 +238,7 @@ def test_a_route_mixing_pool_members_and_others_rotates_only_the_members() -> No
     order = [mistral, *members]
     pool.order(order, DataClass.PUBLIC, rotate=True)
     turned = pool.order(order, DataClass.PUBLIC, rotate=True)
-    assert [m.model for m in turned] == [mistral.model, SMALL, QWEN, BIG]
+    assert [m.model for m in turned] == [BIG, SMALL, QWEN, mistral.model]
 
 
 def test_a_shoppers_call_does_not_move_the_rotation() -> None:
@@ -250,15 +251,17 @@ def test_a_shoppers_call_does_not_move_the_rotation() -> None:
     assert groq.calls == [BIG, SMALL, SMALL]  # the rotation starts at BIG, which is cooling, so SMALL
 
 
-def test_a_model_outside_the_pool_does_not_reset_the_rotation() -> None:
+def test_any_member_that_answers_out_of_turn_moves_the_rotation_on() -> None:
+    """Mistral's turn is claimed, but a Groq model answers: the next turn follows the one that answered."""
     clock = Clock()
     config = _config()
     pool = ModelPool(config.pool, clock=clock, sleep=clock.sleep)
-    members = [m for m in config.models if m.provider is Provider.GROQ]
     mistral = next(m for m in config.models if m.provider is Provider.MISTRAL)
-    pool.order(members, DataClass.PUBLIC, rotate=True)
-    pool.served(mistral, DataClass.PUBLIC)
-    assert pool.order(members, DataClass.PUBLIC, rotate=True)[0].model == SMALL
+    members = [m for m in config.models if m.provider is Provider.GROQ]
+    order = [mistral, *members]
+    assert pool.order(order, DataClass.PUBLIC, rotate=True)[0] == mistral
+    pool.served(members[0], DataClass.PUBLIC)
+    assert pool.order(order, DataClass.PUBLIC, rotate=True)[0].model == SMALL
 
 
 def test_parallel_extractions_start_on_different_members() -> None:

@@ -3,8 +3,8 @@
 Groq's limits are per model, so three models give about three times the room of one. The pool:
 - paces each member by requests and tokens a minute, so a call waits for a free slot instead of earning a 429;
 - keeps each member under its daily token budget, holding a call's tokens before it runs;
-- rotates bulk work (BULK_TASKS) so it spreads across members. A shopper's calls keep the order in models.yaml, with
-  the other members as their backups, and models outside the pool always keep their place in the route;
+- rotates bulk work (BULK_TASKS) across every model its route allows, so it spreads across members and providers. A
+  shopper's calls keep the route's order, with the other members as their backups;
 - keeps part of each member's minute free of bulk work (US-14), so a shopper's next call always finds room;
 - holds a call's input and whole requested output while it runs, then books what it really used (US-14), because Groq
   doesn't charge the requested output in full. A failed call gives its tokens back, less any its reply says it used.
@@ -105,26 +105,24 @@ class ModelPool:
     def order(self, models: Sequence[ModelLimits], data_class: DataClass, *, rotate: bool) -> list[ModelLimits]:
         """The models to try. Rotating starts after the last one served, so a skipped member gives nobody two turns.
 
-        The next turn is claimed here, under the lock, so calls starting together each begin on a different member.
+        Bulk work rotates across every model its route allows (F-3): Groq's models for private and Reddit text, and
+        every allowed provider's for public text. Each keeps its own pacing. The next turn is claimed here, under the
+        lock, so calls starting together each begin on a different member.
         """
-        members = [m for m in models if self.has(m)]
-        if not rotate or len(members) < 2:
+        if not rotate or len(models) < 2:
             return list(models)
-        keys = [_key(m) for m in members]
+        keys = [_key(m) for m in models]
         with self._lock:
             last = self._last_served.get(data_class)
             start = keys.index(last) + 1 if last in keys else 0
-            turned = iter([*members[start:], *members[:start]])
-            first = next(turned)
-            self._last_served[data_class] = _key(first)
-        rest = iter([first, *turned])
-        return [next(rest) if self.has(m) else m for m in models]
+            self._last_served[data_class] = keys[start % len(keys)]
+        start %= len(keys)
+        return [*models[start:], *models[:start]]
 
     def served(self, model: ModelLimits, data_class: DataClass) -> None:
         """A member other than the one whose turn was claimed took the call, so the next turn follows it."""
-        if self.has(model):
-            with self._lock:
-                self._last_served[data_class] = _key(model)
+        with self._lock:
+            self._last_served[data_class] = _key(model)
 
     def try_take(self, model: ModelLimits, tokens: int, keep_free: int = 0) -> Booking | None:
         """Take a slot now if there is room. Only for a member of the pool."""
