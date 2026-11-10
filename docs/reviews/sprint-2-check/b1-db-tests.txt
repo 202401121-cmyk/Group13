@@ -1,0 +1,36 @@
+B-1: the database tests, as CI's backend job runs them (.github/workflows/ci.yml: pytest -q -m "not live" --cov with
+TEST_DATABASE_URL and REQUIRE_DB_TESTS=1), on main 483d8f2, 10 Nov 2026. Python 3.11.15 in a fresh venv (pip install -e ".[dev]").
+
+## First attempt: the URL reached another Postgres, not the container
+$ docker run -d --rm --name ss-test-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:17
+$ TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres REQUIRE_DB_TESTS=1 pytest -q -m "not live" --cov --cov-report=term-missing
+result: {'passed': 3825, 'error': 37}; every db test: FATAL:  password authentication failed for user "postgres"
+cause: a local PostgreSQL 18 Windows service owns localhost:5432 on this laptop, so the connection never reached the
+container. How it was found (output as read during the check, 10 Nov 2026):
+$ netstat -ano | grep ":5432 "
+  TCP    0.0.0.0:5432           0.0.0.0:0              FIN_WAIT_1      6644
+$ powershell Get-Process -Id 6644
+  Id          : 6644
+  ProcessName : postgres
+$ powershell Get-Service -Name 'postgresql*'
+  postgresql-x64-18 Running
+The service was left alone. The run below, against the container's own port, is what proves the password.
+
+## The run: the container on host port 5433
+$ docker stop ss-test-db
+$ docker run -d --rm --name ss-test-db -e POSTGRES_PASSWORD=postgres -p 5433:5432 postgres:17
+$ python -c "import psycopg; c = psycopg.connect('postgresql://postgres:postgres@localhost:5433/postgres', connect_timeout=5); print('host port 5433 reaches', c.execute('show server_version').fetchone()[0]); c.close()"
+host port 5433 reaches 17.11 (Debian 17.11-1.pgdg13+2)
+(17.11 is the container: the Windows service is PostgreSQL 18.)
+$ cd backend && TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5433/postgres REQUIRE_DB_TESTS=1 pytest -q -m "not live" --cov --cov-report=term-missing --junitxml=<scratch>/b1.xml
+TOTAL                                  8489    132    98%
+Required test coverage of 70.0% reached. Total coverage: 98.45%
+pytest exit 0
+counts from the JUnit file:
+all tests: 3862 {'passed': 3862} pytest time 349.539 s
+db tests: 37 {'passed': 37}
+  tests/integration/test_requests_table.py: 5 {'passed': 5}
+  tests/integration/test_searches_table.py: 24 {'passed': 24}
+  tests/integration/test_results_in_postgres.py: 8 {'passed': 8}
+$ docker stop ss-test-db
+container stopped and removed (--rm)

@@ -1,0 +1,35 @@
+B-3: a new parser without golden cases is caught by the registry test, 2026-11-10T12:02:58Z, main 483d8f2, Python 3.11
+(-o addopts=--strict-markers lifts the repo's double -q, so pytest prints its count line. It also drops the default
+-m "not slow and not live" filter; test_registry.py has no slow or live test, so the same 32 tests run.)
+(The evidence files of B-1 and B-4 were written after this, so the git status below shows the tree as B-3 left it.)
+
+## 1. A scratch module, backend/app/intake/scratch_parsing.py: its name holds 'parsing', and it makes one model call
+$ cat app/intake/scratch_parsing.py
+"""Scratch module for the Sprint 2 blocked-items check (B-3) only: a new parser with no golden cases. Deleted at once."""
+
+from typing import Any
+
+from app.contracts import LLMTask
+
+
+def probe(llm: Any) -> Any:
+    return llm.complete(LLMTask.DETECT_INTENT, "s", "u", dict)
+
+$ pytest tests/golden/test_registry.py -q -rf -o addopts=--strict-markers
+E       AssertionError: add these to PARSERS in tests/golden/registry.py, with their cases: ['app.intake.scratch_parsing']
+E       assert not {'app.intake.scratch_parsing'}
+E       AssertionError: these calls have no parser in tests/golden/registry.py: ['DETECT_INTENT: dict']
+E       assert not {'DETECT_INTENT: dict'}
+FAILED tests/golden/test_registry.py::test_every_parsing_module_is_registered
+FAILED tests/golden/test_registry.py::test_every_llm_call_has_a_registered_parser
+2 failed, 30 passed in 5.31s
+exit 1
+
+## 2. The module is deleted
+$ rm app/intake/scratch_parsing.py
+$ git status --short
+(nothing listed: the working tree is clean)
+
+$ pytest tests/golden/test_registry.py -q -rf -o addopts=--strict-markers
+32 passed in 3.78s
+exit 0
