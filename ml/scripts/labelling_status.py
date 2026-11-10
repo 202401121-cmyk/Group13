@@ -171,7 +171,7 @@ def _within_batch_lines(batches: dict[str, Batch]) -> list[str]:
             labels = [(batch.labels[first][pair_id], batch.labels[second][pair_id]) for pair_id in batch.pair_ids]
             lines += _comparison_lines(f"{batch.name}, {first} and {second}", first, second, batch.pair_ids, labels)
     if not shown:
-        lines.append("  none yet: two people label the same agreement batch, each alone")
+        lines.append("  none yet: two labellers label the same agreement batch, each alone")
     return lines
 
 
@@ -248,7 +248,7 @@ def _next_step(batches: dict[str, Batch], errors: list[str]) -> str:
     if len(latest.labels) < 2:
         if latest.labels:
             return f"Next step: label {latest.name} (the second labeller has not started)"
-        return f"Next step: label {latest.name} (two people, each alone, without talking about the pairs)"
+        return f"Next step: label {latest.name} (two labellers, each alone, without talking about the pairs)"
 
     number = len(agree) + 1
     if latest.size < AGREEMENT_BATCH_SIZE:
