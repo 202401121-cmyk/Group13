@@ -1,0 +1,26 @@
+CI on main b6ec081 (the merge of PR #73), read-only, 2026-11-10T09:58:11Z
+$ gh run view 42783794064 --json headSha,event,conclusion,jobs --jq ...
+head b6ec081, event push, conclusion success
+job backend-windows: success
+job frontend: success
+job ml: success
+job backend: success
+job secrets: success
+  backend step Set up job: success
+  backend step Initialize containers: success
+  backend step Run actions/checkout@v4: success
+  backend step Run actions/setup-python@v5: success
+  backend step Install: success
+  backend step Lint: success
+  backend step Types: success
+  backend step Tests (no live APIs): success
+  backend step Coverage gates (70% on core modules, 80% on app/decide/): success
+  backend step Shared contracts are up to date: success
+  backend step Post Run actions/setup-python@v5: success
+  backend step Post Run actions/checkout@v4: success
+  backend step Stop containers: success
+  backend step Complete job: success
+$ grep REQUIRE_DB_TESTS .github/workflows/ci.yml
+30:        image: postgres:17
+41:      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+42:      REQUIRE_DB_TESTS: "1" # a broken database set-up fails the job instead of skipping the tests

@@ -1,0 +1,60 @@
+C6 GitHub, read-only (gh and git), 2026-11-10
+$ gh pr view <n> --json number,author,headRefName,title,body,state,mergedBy,commits   (n = 50 to 73)
+Name list: the six names in the kit's hook list (the same list kit-check.sh uses), whole word, case-insensitive, underscore as a break. Any match is written here as <name>.
+
+PR | prompt owner | opened by | merged by | branch | commits | commit author | opened by owner | author is owner | AI name in title, body or branch
+#50 | Om Pandya | Om-5640 | Om-5640 | chore/repo-tidy | 1 | Om Pandya | True | True | True
+#51 | Pal Jalodara | Om-5640 | Om-5640 | chore/sprint-2-contracts | 1 | paljalodara | False | True | False
+#52 | Jhanvi Barot | Om-5640 | Om-5640 | feature/US-46-rotation-capacity | 1 | Jhanvi Barot | False | True | False
+#53 | Jhanvi Barot | Om-5640 | Om-5640 | fix/llm-ipv4 | 1 | Jhanvi Barot | False | True | False
+#54 | Harsh Kodavala | Om-5640 | Om-5640 | feature/US-32-offline-tests | 1 | Harsh Kodavala | False | True | False
+#55 | Pal Jalodara | Om-5640 | Om-5640 | feature/US-08-rough-answers | 1 | paljalodara | False | True | False
+#56 | Pal Jalodara | Om-5640 | Om-5640 | feature/US-08-rough-answers | 1 | paljalodara | False | True | False
+#57 | Jenish Kavad | Om-5640 | Om-5640 | feature/US-12-search-runs | 1 | JenishKavad | False | True | False
+#58 | Om Pandya | Om-5640 | Om-5640 | feature/ML-1-labelling-tools | 1 | Om Pandya | True | True | False
+#59 | Rushiraj Navar | Om-5640 | Om-5640 | feature/US-16-trust-eval | 1 | Rushiraj Navar | False | True | False
+#60 | Jenish Kavad | Om-5640 | Om-5640 | feature/US-12-research-sources | 1 | JenishKavad | False | True | False
+#61 | Jenish Kavad | Om-5640 | Om-5640 | feature/US-12-research-sources | 1 | JenishKavad | False | True | False
+#62 | Pal Jalodara | Om-5640 | Om-5640 | feature/US-28-untrusted-content | 1 | paljalodara | False | True | False
+#63 | Jhanvi Barot | Om-5640 | Om-5640 | feature/US-14-claims | 1 | Jhanvi Barot | False | True | False
+#64 | Vaishvi Mehta | Om-5640 | Om-5640 | feature/US-13-reddit-quality | 1 | Vaishvi Mehta | False | True | False
+#65 | Jhanvi Barot | Om-5640 | Om-5640 | feature/US-14-extraction-quota | 1 | Jhanvi Barot | False | True | False
+#66 | Jenish Kavad | Om-5640 | Om-5640 | feature/US-12-reddit-time | 1 | JenishKavad | False | True | False
+#67 | Manu Pardhan | Om-5640 | Om-5640 | feature/US-08-answer-buttons | 1 | Manu Pardhan | False | True | False
+#68 | Vaishvi Mehta | Om-5640 | Om-5640 | feature/US-13-live-polish | 1 | Vaishvi Mehta | False | True | False
+#69 | Yash Patel | Om-5640 | Om-5640 | feature/US-12-progress-screen | 1 | Yash Patel | False | True | False
+#70 | Vaishvi Mehta | Om-5640 | Om-5640 | feature/US-12-reddit-retention | 1 | Vaishvi Mehta | False | True | False
+#71 | Palak Patel | Om-5640 | Om-5640 | feature/US-48-golden-tests | 1 | Palak Patel | False | True | False
+#72 | Om Pandya | Om-5640 | Om-5640 | feature/ML-1-own-data | 1 | Om Pandya | True | True | False
+#73 | Om Pandya | Om-5640 | Om-5640 | feature/ML-1-machine-labels | 1 | Om Pandya | True | True | False
+
+PR #50 description, the matching line: - [ ] None of the ten build rules in `<the root rules file named after the tool>` is broken   (written from the template as it was before #50 renamed the file in it)
+
+## Commit messages of Sprint 2 (every commit and merge commit of PRs #50 to #73 on main)
+commits checked: 48; messages naming a listed tool: 0
+
+## Whole history of main: commit messages naming a listed tool (all before Sprint 2)
+6eab7d7 2026-11-07 Merge pull request #48 from 202401121-cmyk/docs/<name>-md-refused-command
+4d3acc4 2026-11-04 Merge pull request #26 from 202401121-cmyk/docs/<name>-md-v2
+0bf5f6e 2026-11-03 docs: keep the .env and remote deny rules for <name> Code and drop the push block
+e870e59 2026-11-03 docs: update <name>.md files for story-based work, data classes and the new frontend
+39b7c67 2026-11-03 FE-0: add adapter and end-to-end tests, README, <name>.md update and decision record
+7289c69 2026-11-03 FE-0: import the <name> frontend without its <name>-only parts
+e613701 2026-10-12 US-25: add shared <name> Code permission rules
+
+## Branch names on GitHub naming a listed tool
+origin/docs/<name>-md-refused-command
+origin/docs/<name>-md-v2
+remote branches checked: 71
+
+## Tracked files: paths and text
+$ git ls-files | grep -i -E <names>   ->  0 paths
+$ git grep -i -I -l -E '<name>|<name>|<name>|<name>|<name>|<name>' -- .   (plain substring, stricter than whole word)  ->  0 files
+
+## Issues
+$ gh issue list --state all --limit 100  ->  0 issues; repository has_issues: true
+
+## Branch protection and rulesets on main
+$ gh api repos/202401121-cmyk/Group13/branches/main/protection  ->  "message":"Not Found"
+$ gh api repos/202401121-cmyk/Group13/rulesets  ->  []
+

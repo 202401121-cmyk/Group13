@@ -1,0 +1,85 @@
+C2 frontend (Node v22.18.0, clean clone of main b6ec081), 2026-11-10T09:03:03Z
+
+## npm ci
+$ npm ci --no-audit --no-fund 2>&1 | tail -5
+npm notice
+npm notice New minor version of npm available! 11.12.1 -> 11.21.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.21.2
+npm notice To update run: npm install -g npm@11.21.2
+npm notice
+exit 0, 232.2 s
+
+## lint
+$ npm run lint 2>&1 | tail -8
+
+> lint
+> eslint .
+
+exit 0, 21.5 s
+
+## typecheck
+$ npm run typecheck 2>&1 | tail -8
+
+> typecheck
+> tsc --noEmit
+
+exit 0, 20.4 s
+
+## unit tests
+$ npm test 2>&1 | tail -12
+> test
+> vitest run
+
+
+ RUN  v4.1.12 <clone>/frontend
+
+
+ Test Files  20 passed (20)
+      Tests  521 passed (521)
+   Start at  14:37:41
+   Duration  20.02s (transform 14.16s, setup 21.82s, import 23.32s, tests 16.74s, environment 141.13s)
+
+exit 0, 23.3 s
+
+## build
+$ npm run build 2>&1 | tail -10
+.output/server/_ssr/server-BDE8hr6G.mjs                       64.67 kB │ gzip:  16.81 kB
+.output/server/_libs/tailwind-merge.mjs                       88.92 kB │ gzip:  15.71 kB
+.output/server/_libs/@radix-ui/react-alert-dialog+[...].mjs  117.96 kB │ gzip:  26.35 kB
+.output/server/_libs/ajv+[...].mjs                           264.51 kB │ gzip:  54.45 kB
+.output/server/_libs/@tanstack/react-router+[...].mjs        803.17 kB │ gzip: 171.09 kB
+
+✓ built in 2.50s
+ℹ Generated .output/nitro.json
+
+[nitro] ✔ You can preview this build using npx vite preview
+exit 0, 21.1 s
+
+## e2e (mock mode, Playwright and axe)
+$ npm run test:e2e 2>&1 | tail -25
+    Received:    28
+
+      128 |     };
+      129 |     const normal = await measure(1);
+    > 130 |     expect(normal.fps, "frame rate while typing").toBeGreaterThanOrEqual(30);
+          |                                                   ^
+      131 |     // With a 4x slower CPU the number depends on the machine; it is reported, and no key may be lost.
+      132 |     await measure(4);
+      133 |   });
+        at <clone>\frontend\e2e\quality\motion.spec.ts:130:51
+
+    Error Context: test-results\quality-motion-motion-allo-ed13a-er-dropped-and-stays-smooth-chromium\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\quality-motion-motion-allo-ed13a-er-dropped-and-stays-smooth-chromium\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\quality-motion-motion-allo-ed13a-er-dropped-and-stays-smooth-chromium\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › e2e\quality\motion.spec.ts:94:3 › motion allowed › typing is never dropped and stays smooth 
+  2 skipped
+  165 passed (8.4m)
+exit 1, 506.3 s

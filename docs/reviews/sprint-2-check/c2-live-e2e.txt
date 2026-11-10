@@ -1,0 +1,33 @@
+C2 live end-to-end test (frontend/e2e/live/full-flow.spec.ts, unchanged), run against scripts/dev.py
+Stack: python scripts/dev.py (database on) or --no-db, with EXTRACT_MAX_SOURCES=3, REDDIT_SOURCE=archive and the review-check call log and budget guard on PYTHONPATH (outside the repository).
+
+## R2, database on
+$ curl -s http://localhost:8000/api/health
+{"status":"ok","schema_version":"1.6.0","database":"ok"}
+$ cd frontend && LIVE_E2E=1 npx playwright test -c e2e/live/playwright.live.config.ts --reporter=line
+Running 1 test using 1 worker
+[1/1] [chromium] › e2e\live\full-flow.spec.ts:16:1 › @live a shopper goes from a typed request to ranked results with sources
+[chromium] › e2e\live\full-flow.spec.ts:16:1 › @live a shopper goes from a typed request to ranked results with sources
+LIVE_SESSION sess_ae81291919a74bd5cea0b54f
+LIVE_TIMINGS {"understood":7335,"criteria":398,"interview (10 answers)":4979,"brief":351,"research and results":6610}
+  1 passed (22.1s)
+$ python scripts/check_request_saved.py sess_ae81291919a74bd5cea0b54f
+saved
+exit 0
+
+## R3, database off
+$ curl -s http://localhost:8000/api/health
+{"status":"ok","schema_version":"1.6.0","database":"off"}
+$ cd frontend && LIVE_E2E=1 npx playwright test -c e2e/live/playwright.live.config.ts --reporter=line
+Running 1 test using 1 worker
+[1/1] [chromium] › e2e\live\full-flow.spec.ts:16:1 › @live a shopper goes from a typed request to ranked results with sources
+[chromium] › e2e\live\full-flow.spec.ts:16:1 › @live a shopper goes from a typed request to ranked results with sources
+LIVE_SESSION sess_b1782e8d3c845337fde40710
+LIVE_TIMINGS {"understood":6670,"criteria":371,"interview (10 answers)":4958,"brief":406,"research and results":4694}
+  1 passed (19.5s)
+$ python scripts/check_request_saved.py sess_b1782e8d3c845337fde40710
+not found
+exit 1
+$ curl -s http://localhost:8000/api/search/runs/srch_661567940e3a4f62eae05b07   (fields only)
+run status done | result saved False
+

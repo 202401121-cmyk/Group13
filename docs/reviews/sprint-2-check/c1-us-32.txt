@@ -1,0 +1,36 @@
+C1 US-32: the proving tests, run verbosely in the clean clone of main b6ec081 (Python 3.11), 2026-11-10T09:18:13Z
+$ cd backend && python -m pytest -o addopts= -m 'not live' -v tests/unit/test_network_block.py tests/unit/test_recorded_fixtures.py::test_intake_runs_from_the_recording tests/unit/test_recorded_fixtures.py::test_a_recorded_rate_limit_acts_like_a_live_one tests/unit/research/test_serper.py::test_a_recorded_reply_parses
+
+============================= test session starts =============================
+tests/unit/test_network_block.py::test_an_outbound_connection_fails_at_once_with_a_clear_message PASSED [  3%]
+tests/unit/test_network_block.py::test_connect_ex_is_blocked_too PASSED  [  6%]
+tests/unit/test_network_block.py::test_a_dns_lookup_for_an_outside_host_is_blocked PASSED [ 10%]
+tests/unit/test_network_block.py::test_the_older_dns_calls_are_blocked_too[gethostbyname] PASSED [ 13%]
+tests/unit/test_network_block.py::test_the_older_dns_calls_are_blocked_too[gethostbyname_ex] PASSED [ 16%]
+tests/unit/test_network_block.py::test_the_older_dns_calls_are_blocked_too[gethostbyaddr] PASSED [ 20%]
+tests/unit/test_network_block.py::test_a_reverse_lookup_is_blocked PASSED [ 23%]
+tests/unit/test_network_block.py::test_udp_to_an_outside_host_is_blocked PASSED [ 26%]
+tests/unit/test_network_block.py::test_udp_to_this_machine_still_works PASSED [ 30%]
+tests/unit/test_network_block.py::test_this_machines_own_name_is_local PASSED [ 33%]
+tests/unit/test_network_block.py::test_httpx_to_an_outside_host_is_blocked PASSED [ 36%]
+tests/unit/test_network_block.py::test_localhost_still_connects PASSED   [ 40%]
+tests/unit/test_network_block.py::test_these_hosts_are_local[localhost] PASSED [ 43%]
+tests/unit/test_network_block.py::test_these_hosts_are_local[127.0.0.1] PASSED [ 46%]
+tests/unit/test_network_block.py::test_these_hosts_are_local[127.0.0.53] PASSED [ 50%]
+tests/unit/test_network_block.py::test_these_hosts_are_local[::1] PASSED [ 53%]
+tests/unit/test_network_block.py::test_these_hosts_are_local[::ffff:127.0.0.1] PASSED [ 56%]
+tests/unit/test_network_block.py::test_these_hosts_are_local[app.localhost] PASSED [ 60%]
+tests/unit/test_network_block.py::test_these_hosts_are_local[None] PASSED [ 63%]
+tests/unit/test_network_block.py::test_these_hosts_are_local[] PASSED    [ 66%]
+tests/unit/test_network_block.py::test_these_hosts_are_not_local[api.groq.com] PASSED [ 70%]
+tests/unit/test_network_block.py::test_these_hosts_are_not_local[93.184.216.34] PASSED [ 73%]
+tests/unit/test_network_block.py::test_these_hosts_are_not_local[10.0.0.5] PASSED [ 76%]
+tests/unit/test_network_block.py::test_these_hosts_are_not_local[localhost.example.com] PASSED [ 80%]
+tests/unit/test_network_block.py::test_a_swallowed_attempt_still_fails_the_test PASSED [ 83%]
+tests/unit/test_network_block.py::test_the_fixture_itself_fails_a_test_that_swallowed_the_error PASSED [ 86%]
+tests/unit/test_network_block.py::test_a_live_test_may_use_the_network PASSED [ 90%]
+tests/unit/test_recorded_fixtures.py::test_intake_runs_from_the_recording PASSED [ 93%]
+tests/unit/test_recorded_fixtures.py::test_a_recorded_rate_limit_acts_like_a_live_one PASSED [ 96%]
+tests/unit/research/test_serper.py::test_a_recorded_reply_parses PASSED  [100%]
+============================= 30 passed in 2.95s ==============================
+exit 0, 6.3 s

@@ -1,0 +1,12 @@
+C1 T27: the proving tests, run verbosely in the clean clone of main b6ec081 (Python 3.11), 2026-11-10T09:18:48Z
+$ cd backend && python -m pytest -o addopts= -m 'not live' -v tests/unit/test_pipeline_progress.py::test_each_stage_reports_started_then_its_outcome_in_order tests/unit/test_pipeline_progress.py::test_events_arrive_while_the_search_runs tests/unit/api/test_search_runs_api.py::test_the_stream_sends_each_event_with_its_id_then_the_final_run_event_and_ends tests/unit/api/test_search_runs_api.py::test_a_late_client_gets_every_event_so_far_then_the_live_ones tests/contract/test_search_run_stream.py::test_every_streamed_progress_event_is_a_valid_progress_event
+
+============================= test session starts =============================
+tests/unit/test_pipeline_progress.py::test_each_stage_reports_started_then_its_outcome_in_order PASSED [ 20%]
+tests/unit/test_pipeline_progress.py::test_events_arrive_while_the_search_runs PASSED [ 40%]
+tests/unit/api/test_search_runs_api.py::test_the_stream_sends_each_event_with_its_id_then_the_final_run_event_and_ends PASSED [ 60%]
+tests/unit/api/test_search_runs_api.py::test_a_late_client_gets_every_event_so_far_then_the_live_ones PASSED [ 80%]
+tests/contract/test_search_run_stream.py::test_every_streamed_progress_event_is_a_valid_progress_event PASSED [100%]
+============================== warnings summary ===============================
+======================== 5 passed, 1 warning in 1.43s =========================
+exit 0, 4.6 s

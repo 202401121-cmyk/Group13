@@ -1,0 +1,23 @@
+C1 US-08: the proving tests, run verbosely in the clean clone of main b6ec081 (Python 3.11), 2026-11-10T09:17:27Z
+$ cd backend && python -m pytest -o addopts= -m 'not live' -v tests/unit/interview/test_answers.py::test_every_phrase_in_the_table_gives_its_weight tests/contract/test_sprint2_contracts.py::test_the_table_is_the_one_us_08_sets tests/unit/interview/test_rubric_builder.py::test_each_level_reaches_the_rubric_with_its_table_weight tests/unit/interview/test_stage.py::test_switching_rough_to_exact_and_back_on_the_same_question tests/unit/api/test_presearch_api.py::test_switching_through_the_api_shows_in_get_session tests/unit/api/test_presearch_api.py::test_an_answer_can_switch_to_an_exact_value_after_the_interview_finished tests/unit/interview/test_one_table.py::test_no_second_copy_of_the_table_exists tests/unit/interview/test_one_table.py::test_the_search_finds_a_copy_when_there_is_one tests/contract/test_sprint2_contracts.py::test_the_exported_table_matches_the_constant tests/unit/interview/test_one_table.py::test_the_low_answer_rule_matches_the_low_level
+
+============================= test session starts =============================
+tests/unit/interview/test_answers.py::test_every_phrase_in_the_table_gives_its_weight[low-2.0] PASSED [  6%]
+tests/unit/interview/test_answers.py::test_every_phrase_in_the_table_gives_its_weight[medium-5.0] PASSED [ 12%]
+tests/unit/interview/test_answers.py::test_every_phrase_in_the_table_gives_its_weight[high-8.0] PASSED [ 18%]
+tests/unit/interview/test_answers.py::test_every_phrase_in_the_table_gives_its_weight[good_enough-3.0] PASSED [ 25%]
+tests/contract/test_sprint2_contracts.py::test_the_table_is_the_one_us_08_sets PASSED [ 31%]
+tests/unit/interview/test_rubric_builder.py::test_each_level_reaches_the_rubric_with_its_table_weight[low] PASSED [ 37%]
+tests/unit/interview/test_rubric_builder.py::test_each_level_reaches_the_rubric_with_its_table_weight[medium] PASSED [ 43%]
+tests/unit/interview/test_rubric_builder.py::test_each_level_reaches_the_rubric_with_its_table_weight[high] PASSED [ 50%]
+tests/unit/interview/test_rubric_builder.py::test_each_level_reaches_the_rubric_with_its_table_weight[good_enough] PASSED [ 56%]
+tests/unit/interview/test_stage.py::test_switching_rough_to_exact_and_back_on_the_same_question PASSED [ 62%]
+tests/unit/api/test_presearch_api.py::test_switching_through_the_api_shows_in_get_session PASSED [ 68%]
+tests/unit/api/test_presearch_api.py::test_an_answer_can_switch_to_an_exact_value_after_the_interview_finished PASSED [ 75%]
+tests/unit/interview/test_one_table.py::test_no_second_copy_of_the_table_exists PASSED [ 81%]
+tests/unit/interview/test_one_table.py::test_the_search_finds_a_copy_when_there_is_one PASSED [ 87%]
+tests/contract/test_sprint2_contracts.py::test_the_exported_table_matches_the_constant PASSED [ 93%]
+tests/unit/interview/test_one_table.py::test_the_low_answer_rule_matches_the_low_level PASSED [100%]
+============================== warnings summary ===============================
+======================== 16 passed, 1 warning in 2.60s ========================
+exit 0, 5.9 s

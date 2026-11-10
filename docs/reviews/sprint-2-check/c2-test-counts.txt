@@ -1,0 +1,6 @@
+C2 test counts by selection (collect only), clean clone of main b6ec081, 2026-11-10T09:14:27Z
+-m "not live":           ============= 3862/3865 tests collected (3 deselected) in 10.14s ==============
+-m "not slow and not live": ============= 3846/3865 tests collected (19 deselected) in 8.94s ==============
+-m "slow":               ============= 16/3865 tests collected (3849 deselected) in 8.93s ==============
+-m "live":               ============= 3/3865 tests collected (3862 deselected) in 12.51s ==============
+-m "db":                 ============= 37/3865 tests collected (3828 deselected) in 8.88s ==============

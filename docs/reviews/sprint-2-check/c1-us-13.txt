@@ -1,0 +1,33 @@
+C1 US-13: the proving tests, run verbosely in the clean clone of main b6ec081 (Python 3.11), 2026-11-10T09:17:39Z
+$ cd backend && python -m pytest -o addopts= -m 'not live' -v tests/unit/research/test_reddit_quality.py::test_the_thread_score_follows_the_formula tests/unit/research/test_reddit_quality.py::test_a_thread_below_the_threshold_is_dropped tests/unit/research/test_thread_scoring_hook.py::test_low_scorers_are_dropped_and_remembered tests/unit/research/test_thread_scoring_hook.py::test_comments_are_read_three_levels_deep tests/unit/research/test_reddit_quality.py::test_a_comment_at_depth_4_is_ignored tests/unit/research/test_reddit_quality.py::test_the_comment_score_follows_the_formula tests/unit/research/test_reddit_quality.py::test_naming_a_model_scores_higher tests/unit/research/test_recommenders.py::test_one_author_posting_ten_times_counts_once tests/unit/research/test_recommenders.py::test_an_author_using_a_name_and_its_alias_counts_once tests/unit/research/test_recommenders.py::test_the_matcher_agrees_with_a_slow_check_on_many_random_texts tests/unit/research/test_recommenders.py::test_the_module_never_writes_a_file_or_calls_a_model tests/unit/research/test_recommenders.py::test_1000xm5_inside_wf_1000xm5_is_not_a_separate_product tests/unit/research/test_recommenders.py::test_the_longest_name_wins_where_names_overlap tests/unit/research/test_recommenders.py::test_a_name_inside_a_longer_word_does_not_count tests/unit/research/test_reddit_quality.py::test_age_weight_halves_every_180_days tests/unit/research/test_reddit_quality.py::test_a_180_day_old_thread_has_half_the_score_of_a_new_one tests/unit/research/test_recommenders.py::test_the_same_threads_always_give_the_same_counts tests/unit/research/test_reddit_quality.py::test_shuffled_threads_get_the_same_scores tests/unit/research/test_reddit_quality.py::test_when_no_thread_passes_the_best_few_are_kept
+
+============================= test session starts =============================
+tests/unit/research/test_reddit_quality.py::test_the_thread_score_follows_the_formula PASSED [  3%]
+tests/unit/research/test_reddit_quality.py::test_a_thread_below_the_threshold_is_dropped PASSED [  7%]
+tests/unit/research/test_thread_scoring_hook.py::test_low_scorers_are_dropped_and_remembered PASSED [ 11%]
+tests/unit/research/test_thread_scoring_hook.py::test_comments_are_read_three_levels_deep PASSED [ 14%]
+tests/unit/research/test_reddit_quality.py::test_a_comment_at_depth_4_is_ignored PASSED [ 18%]
+tests/unit/research/test_reddit_quality.py::test_the_comment_score_follows_the_formula PASSED [ 22%]
+tests/unit/research/test_reddit_quality.py::test_naming_a_model_scores_higher PASSED [ 25%]
+tests/unit/research/test_recommenders.py::test_one_author_posting_ten_times_counts_once PASSED [ 29%]
+tests/unit/research/test_recommenders.py::test_an_author_using_a_name_and_its_alias_counts_once PASSED [ 33%]
+tests/unit/research/test_recommenders.py::test_the_matcher_agrees_with_a_slow_check_on_many_random_texts PASSED [ 37%]
+tests/unit/research/test_recommenders.py::test_the_module_never_writes_a_file_or_calls_a_model PASSED [ 40%]
+tests/unit/research/test_recommenders.py::test_1000xm5_inside_wf_1000xm5_is_not_a_separate_product PASSED [ 44%]
+tests/unit/research/test_recommenders.py::test_the_longest_name_wins_where_names_overlap PASSED [ 48%]
+tests/unit/research/test_recommenders.py::test_a_name_inside_a_longer_word_does_not_count[XM50 is out] PASSED [ 51%]
+tests/unit/research/test_recommenders.py::test_a_name_inside_a_longer_word_does_not_count[AXM5 is out] PASSED [ 55%]
+tests/unit/research/test_recommenders.py::test_a_name_inside_a_longer_word_does_not_count[the xm5s are out] PASSED [ 59%]
+tests/unit/research/test_recommenders.py::test_a_name_inside_a_longer_word_does_not_count[xm5x] PASSED [ 62%]
+tests/unit/research/test_recommenders.py::test_a_name_inside_a_longer_word_does_not_count[pre-XM5] PASSED [ 66%]
+tests/unit/research/test_recommenders.py::test_a_name_inside_a_longer_word_does_not_count[WF-XM5 is out] PASSED [ 70%]
+tests/unit/research/test_reddit_quality.py::test_age_weight_halves_every_180_days[0-1.0] PASSED [ 74%]
+tests/unit/research/test_reddit_quality.py::test_age_weight_halves_every_180_days[180-0.5] PASSED [ 77%]
+tests/unit/research/test_reddit_quality.py::test_age_weight_halves_every_180_days[360-0.25] PASSED [ 81%]
+tests/unit/research/test_reddit_quality.py::test_age_weight_halves_every_180_days[90-0.7071067811865476] PASSED [ 85%]
+tests/unit/research/test_reddit_quality.py::test_a_180_day_old_thread_has_half_the_score_of_a_new_one PASSED [ 88%]
+tests/unit/research/test_recommenders.py::test_the_same_threads_always_give_the_same_counts PASSED [ 92%]
+tests/unit/research/test_reddit_quality.py::test_shuffled_threads_get_the_same_scores PASSED [ 96%]
+tests/unit/research/test_reddit_quality.py::test_when_no_thread_passes_the_best_few_are_kept PASSED [100%]
+============================= 27 passed in 1.63s ==============================
+exit 0, 5.0 s

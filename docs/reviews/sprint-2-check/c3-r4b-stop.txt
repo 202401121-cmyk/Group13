@@ -1,0 +1,11 @@
+R4b (live screen walk, then Stop, database off): the run's state and event stream after the stop, 2026-11-10T09:31:39Z
+$ curl -s http://localhost:8000/api/search/runs/srch_ef489ccc8e9f457d1240a005   (status only)
+status cancelled | result present False
+$ curl -s -N http://localhost:8000/api/search/runs/srch_ef489ccc8e9f457d1240a005/events   (parsed as for R2)
+ 1  09:31:22.827Z  research  started    Looking for reviews, videos and discussions.
+ 2  09:31:23.966Z  research  done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Found 47 sources.
+ 3  09:31:23.966Z  extract   started  {'reddit': 20, 'web_search': 20, 'review_site': 7}  Reading what each source says.
+ 4  09:31:26.390Z  extract   done     {'reddit': 20, 'web_search': 20, 'review_site': 7}  Finished reading the sources.
+run event: status cancelled, result present False
+$ grep DELETE in the backend access log
+DELETE /api/search/runs/srch_ef489ccc8e9f457d1240a005 HTTP/1.1" 202
