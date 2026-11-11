@@ -1,5 +1,7 @@
-"""Stage verify (US-52 walking skeleton: a stub until its own story replaces it)."""
+"""Stage verify (US-16): TrustVerifyStage weighs claims by learned source trust; VerifyStage is the first stub."""
 
-from .stage import VerifyStage
+from . import combine
+from .stage import TrustVerifyStage, VerifyStage
+from .trust import TrustTable, load_trust_table
 
-__all__ = ["VerifyStage"]
+__all__ = ["TrustTable", "TrustVerifyStage", "VerifyStage", "combine", "load_trust_table"]

@@ -35,7 +35,7 @@ from app.pipeline import (
     default_search_stages,
 )
 from app.research import ResearchStage
-from app.verify import VerifyStage
+from app.verify import TrustVerifyStage, VerifyStage
 
 SEARCH_STAGES = [f.name for f in fields(SearchStages)]
 STUBS = [
@@ -48,7 +48,7 @@ STUBS = [
     ExplainStage,
     CommerceStage,
 ]
-REAL_STAGES = [IntakeStage, CriteriaStage, InterviewStage, FuzzyMatchStage, WeightedDecideStage]
+REAL_STAGES = [IntakeStage, CriteriaStage, InterviewStage, FuzzyMatchStage, WeightedDecideStage, TrustVerifyStage]
 ROOM_FOR_THE_NOTE = MAX_NOTE_CHARS - len(SAMPLE_NOTE) - 1
 
 
