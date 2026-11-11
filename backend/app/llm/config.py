@@ -99,6 +99,11 @@ class PoolSettings(BaseModel):
     extract_reserve_tokens_per_minute: int = Field(
         default=0, ge=0, description="What bulk work must leave of each member's minute, for calls a shopper waits on"
     )
+    public_output_tokens: int | None = Field(
+        default=None,
+        gt=0,
+        description="The answer a public page may ask a member for when it reads one as the last resort (F-6)",
+    )
     members: list[PoolMember] = Field(min_length=1)
 
     @property

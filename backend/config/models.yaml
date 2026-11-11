@@ -56,7 +56,8 @@ providers:
   # Free models: 20 requests a minute, and 50 a day until the account has bought 10 credits
   # (https://openrouter.ai/docs/api-reference/limits, 3 Nov 2026). No token limit is published, so the daily budget is
   # the team's choice (F-4): 50 requests x 5,000 tokens. The 50 a day is counted too, so a call past it is skipped
-  # instead of earning a 429. It takes no turn in bulk work's rotation: it is the fallback after Gemini and Mistral.
+  # instead of earning a 429. It takes no turn in bulk work's rotation: it is the fallback after Gemini, Mistral and
+  # Groq.
   - name: openrouter
     base_url: https://openrouter.ai/api/v1
     api_key_env: OPENROUTER_API_KEY
@@ -182,10 +183,14 @@ routes:
     short: [groq]
     medium: [groq]
     long: [groq]
+  # Public bulk work takes turns between the providers that rotate and are not Groq. Groq's models are the private and
+  # Reddit pool, so a public page goes to them only as the last resort: when none of those has room, and only if a
+  # Groq model has room right now, outside the shopper's reserve (F-6, 10 Nov 2026). OpenRouter comes after them all.
+  # A task that isn't bulk work keeps the route's order as written; only extraction uses public long today.
   public:
     short: [mistral, groq]
     medium: [mistral, gemini, groq, openrouter]
-    long: [gemini, mistral, openrouter]
+    long: [gemini, mistral, groq, openrouter]
 
 # Each member paces itself to its own limits, so a call waits for a slot instead of earning a 429. The token count is
 # the input the wrapper measures plus the requested output, so one call can never be bigger than tokens_per_minute.
@@ -202,6 +207,12 @@ pool:
   limits_checked: 2026-11-07
   reddit_tokens_per_search: 18000
   extract_reserve_tokens_per_minute: 2000
+  # public_output_tokens: the answer a public page asks a member for when Groq reads it as the last resort (F-6). With
+  # extraction's 2,000 for public pages, a page at research's 3,000-token cap could not go whole beside the reserve
+  # (8,000 - 2,000 - 2,000 leaves 4,000 for a prompt of up to about 4,800), and a page is never trimmed: trimming could
+  # cut its data block's closing marker. 1,200 is what a Reddit source asks Groq for; live public answers used 428 to
+  # 669 tokens on 10 Nov 2026. A page that still can't go whole is skipped, and the next provider is tried.
+  public_output_tokens: 1200
   # A call holds its input and whole requested output while it runs, then books what it really used. A failed call books
   # nothing unless its reply reports a use. Groq doesn't charge the requested output in full: on 9 Nov 2026, two calls asking
   # for 1,200 each, with a prompt and reply of 95, moved x-ratelimit-remaining-tokens by 334 and 49 (docs/api-setup.md). Set

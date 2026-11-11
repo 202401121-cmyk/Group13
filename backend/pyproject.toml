@@ -16,7 +16,9 @@ dependencies = [
     # private attributes of both.
     "httpx==0.28.1",
     "httpcore==1.0.9",
-    "python-dotenv>=1.0",
+    # 1.2.4: "KEY=   # note" reads as empty (1.2.3 and older took "# note" as the value, so a .env copied from
+    # .env.example stopped the LLM settings loading), and PYTHON_DOTENV_DISABLED keeps a developer's .env out of tests.
+    "python-dotenv>=1.2.4",
     "pyyaml>=6.0",
     # The Postgres request store (US-01). Pinned exactly: the driver decides how timeouts behave.
     "psycopg[binary]==3.3.6",

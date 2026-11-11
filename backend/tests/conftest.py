@@ -8,12 +8,18 @@ No test may ever reach the internet, a real LLM provider or a developer's saved 
 - the pre-search flow's criteria store is a fresh in-memory store for every test;
 - the request store is the "off" store, even when .env holds a real DATABASE_URL (US-01);
 - default stages keep the research stub, so no test can search the web (US-12), and the extract stub, so none can
-  call a model (US-14).
+  call a model (US-14);
+- python-dotenv reads no .env (PYTHON_DOTENV_DISABLED, set before the app is imported), so a test sees the same
+  settings on a laptop with a .env as in CI, which has none. The live tests turn it back on for themselves.
 Tests that need LLM answers build a stage with their own FakeLLMClient; tests that need a database build their
 own store.
 """
 
 from __future__ import annotations
+
+import os
+
+os.environ["PYTHON_DOTENV_DISABLED"] = "1"  # before any app import below: app modules call load_dotenv() when used
 
 from collections.abc import Iterator
 

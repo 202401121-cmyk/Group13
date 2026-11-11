@@ -40,7 +40,7 @@ EXPECTED_ROUTES = {
     DataClass.PUBLIC: {
         Difficulty.SHORT: [M, G],
         Difficulty.MEDIUM: [M, GE, G, OR],
-        Difficulty.LONG: [GE, M, OR],
+        Difficulty.LONG: [GE, M, G, OR],  # Groq as the last resort for public pages (F-6, 10 Nov 2026)
     },
 }
 OK = '{"product": "Nova Book 14"}'
