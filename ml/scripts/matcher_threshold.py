@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from fractions import Fraction
 
 TARGET_PRECISION = 0.95
 
@@ -49,3 +50,36 @@ def choose_threshold(
     if best is not None:
         return best
     return most_precise or ThresholdChoice(1.0, 0.0, 0.0, False, 0)
+
+
+@dataclass(frozen=True)
+class F1Choice:
+    threshold: float
+    f1: float
+    precision: float
+    recall: float
+    called: int
+
+
+def choose_best_f1_threshold(scores: Sequence[float], labels: Sequence[bool]) -> F1Choice:
+    """The dev threshold with the best F1, for a comparison only: the decided threshold is choose_threshold's.
+
+    Ties go to the higher threshold. Pairs with the same score are called together. F1 is compared as an exact
+    fraction, so two thresholds with the same F1 are a tie whatever the rounding. With no positives nothing is worth
+    calling: the threshold is 1.0, above every score, and F1 is 0.
+    """
+    if len(scores) != len(labels):
+        raise ValueError("scores and labels must have the same length")
+    positives = sum(labels)
+    by_score: dict[float, list[int]] = {}
+    for score, label in zip(scores, labels, strict=True):
+        by_score.setdefault(score, [0, 0])[0 if label else 1] += 1
+    tp = fp = 0
+    best: tuple[Fraction, F1Choice] | None = None
+    for score in sorted(by_score, reverse=True):
+        tp += by_score[score][0]
+        fp += by_score[score][1]
+        f1 = Fraction(2 * tp, 2 * tp + fp + (positives - tp))
+        if tp > 0 and (best is None or f1 > best[0]):  # strictly better only, so a tie keeps the higher threshold
+            best = (f1, F1Choice(score, float(f1), tp / (tp + fp), tp / positives, tp + fp))
+    return best[1] if best else F1Choice(1.0, 0.0, 0.0, 0.0, 0)

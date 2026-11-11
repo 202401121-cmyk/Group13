@@ -28,12 +28,13 @@ from checkpoints import latest_checkpoint
 from common import MODEL_DIR, load, score
 from match_baseline import SCORER_BY_NAME
 from matcher_data import LABELLING_DIR, build_all
-from matcher_threshold import TARGET_PRECISION, choose_threshold
+from matcher_threshold import TARGET_PRECISION, choose_best_f1_threshold, choose_threshold
 from own_eval import LABELS_NOTE, RESAMPLES, SEED, _metrics, bootstrap, current_commit, read_gold
 from pairsets import DEFAULT_RAW_DIR, Pair, load_wdc, split_by_family, wdc_subsets
 
 BASELINE = Path(__file__).resolve().parents[1] / "results" / "matching_baseline.json"
 OUT = Path(__file__).resolve().parents[1] / "results" / "matcher_v1.json"
+COMPARISON_NAME = "matcher at best-F1 dev threshold (comparison only; the decided threshold stays {decided})"
 WDC_SUBSETS = ("80cc20rnd000un", "50cc50rnd000un", "20cc80rnd000un")  # the seen-products test sets, one per level
 
 
@@ -78,6 +79,21 @@ def _fuzzy_called(pairs: list[Pair], scorer: str, threshold: float) -> list[bool
     return [s >= threshold for s in SCORER_BY_NAME[scorer].score_pairs(pairs)]
 
 
+def add_comparison(path: Path, fresh: dict[str, object]) -> dict[str, object]:
+    """The existing results file with the comparison added and nothing else changed.
+
+    Every number already in the file must come out the same again. If the fresh run differs from it anywhere (the
+    date, commit and timing aside), this stops instead of rewriting a result that was already reported.
+    """
+    if not path.is_file():
+        return fresh
+    old = json.loads(path.read_text(encoding="utf-8"))
+    for key in ("model", "threshold", "data", "dev_pairs", "bootstrap", "own_pairs_labels", "results"):
+        if old.get(key) != fresh[key]:
+            raise SystemExit(f"{path.name}: `{key}` would change; a reported number is never rewritten here")
+    return {**old, "comparison": fresh["comparison"]}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Evaluate the matcher against the fuzzy baseline.")
     parser.add_argument("--model", type=Path, default=None)
@@ -101,11 +117,13 @@ def main() -> int:
     )
 
     rows: list[dict[str, object]] = []
+    test_sets: list[tuple[str, list[bool], list[float], str]] = []
     gold = read_gold(LABELLING_DIR)
     own_test = split_by_family(gold.pairs, lambda p: p.families).test
     own_pairs = [p.as_pair("test") for p in own_test]
     probs = score(model, tokenizer, [(p.left_text, p.right_text) for p in own_pairs])
     labels = [p.label for p in own_pairs]
+    test_sets.append(("own_pairs", labels, probs, LABELS_NOTE))
     rows.append(
         _row("own_pairs", "matcher", choice.threshold, labels, [s >= choice.threshold for s in probs], LABELS_NOTE)
     )
@@ -123,6 +141,7 @@ def main() -> int:
         probs = score(model, tokenizer, [(p.left_text, p.right_text) for p in pairs])
         labels = [p.label for p in pairs]
         note = "WDC Products test set, never trained on (D-54)"
+        test_sets.append((f"wdc_products {subset.name}", labels, probs, note))
         rows.append(
             _row(
                 f"wdc_products {subset.name}",
@@ -145,6 +164,17 @@ def main() -> int:
             )
         )
 
+    best = choose_best_f1_threshold(dev_scores, [p.label for p in data.dev])
+    comparison_name = COMPARISON_NAME.format(decided=round(choice.threshold, 4))
+    comparison_rows = [
+        _row(name, comparison_name, best.threshold, lab, [s >= best.threshold for s in pr], f"{note}; comparison only")
+        for name, lab, pr, note in test_sets
+    ]
+    print(
+        f"comparison only: best-F1 dev threshold {best.threshold:.4f} (dev F1 {best.f1:.3f}, "
+        f"precision {best.precision:.3f}, recall {best.recall:.3f})"
+    )
+
     result = {
         "date": datetime.now(UTC).date().isoformat(),
         "commit": current_commit(),
@@ -164,10 +194,22 @@ def main() -> int:
         "bootstrap": {"resamples": RESAMPLES, "seed": SEED, "interval": "95% percentile"},
         "own_pairs_labels": LABELS_NOTE,
         "results": rows,
+        "comparison": {
+            "name": comparison_name,
+            "rule": "the dev threshold with the best F1; ties go to the higher one; equal scores are called together",
+            "threshold": round(best.threshold, 4),
+            "dev_f1": round(best.f1, 4),
+            "dev_precision": round(best.precision, 4),
+            "dev_recall": round(best.recall, 4),
+            "dev_pairs_called": best.called,
+            "note": "comparison only: the decided threshold is under `threshold`, and no target is judged on this",
+            "results": comparison_rows,
+        },
         "seconds": round(time.monotonic() - started, 1),
     }
+    result = add_comparison(args.out, result)
     args.out.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
-    for row in rows:
+    for row in [*rows, *comparison_rows]:
         print(
             f"{row['dataset']:<34} {row['method']:<26} thr {row['threshold']:<6} "
             f"P {row['precision']} R {row['recall']} "
