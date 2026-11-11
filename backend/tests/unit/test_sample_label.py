@@ -19,7 +19,7 @@ from app.contracts import examples as ex
 from app.criteria import CriteriaStage
 from app.decide import DecideStage
 from app.enrich import EnrichStage
-from app.entities import MatchStage
+from app.entities import FuzzyMatchStage, MatchStage
 from app.explain import ExplainStage
 from app.extract import ExtractStage
 from app.intake import IntakeStage
@@ -48,7 +48,7 @@ STUBS = [
     ExplainStage,
     CommerceStage,
 ]
-REAL_STAGES = [IntakeStage, CriteriaStage, InterviewStage]
+REAL_STAGES = [IntakeStage, CriteriaStage, InterviewStage, FuzzyMatchStage]
 ROOM_FOR_THE_NOTE = MAX_NOTE_CHARS - len(SAMPLE_NOTE) - 1
 
 
@@ -76,8 +76,15 @@ class FakeRealStage:
         return self.stub.fallback(inp, ctx, error)
 
 
+def stub_stages() -> SearchStages:
+    """Every search stage as its Sprint 1 stub. Since US-15 the default match is real; MatchStage is its stub."""
+    stages = default_search_stages()
+    stages.match = MatchStage()
+    return stages
+
+
 def all_real() -> SearchStages:
-    stubs = default_search_stages()
+    stubs = stub_stages()
     return SearchStages(**{name: FakeRealStage(getattr(stubs, name)) for name in SEARCH_STAGES})
 
 
@@ -128,7 +135,7 @@ def test_with_one_stub_a_real_failure_comes_before_the_note() -> None:
 @pytest.mark.parametrize("field", SEARCH_STAGES)
 def test_one_stub_among_real_stages_is_enough_for_the_note(field: str) -> None:
     stages = all_real()
-    setattr(stages, field, getattr(default_search_stages(), field))
+    setattr(stages, field, getattr(stub_stages(), field))
     note = run(stages).coverage_note
     assert note is not None and note.endswith(SAMPLE_NOTE)
 

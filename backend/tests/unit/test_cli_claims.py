@@ -102,3 +102,21 @@ def test_the_recorder_keeps_each_sources_result_and_stays_transparent() -> None:
     assert recorder.fallback(inp, ctx, ctx_error).claims == []
     with pytest.raises(AttributeError):
         _ = recorder.no_such_thing  # type: ignore[attr-defined]
+
+
+def test_the_match_block_shows_the_names_before_and_the_products_after() -> None:
+    """US-15: --claims shows what match was given and what it made of it."""
+    from app.cli import match_block
+    from app.contracts import MatchInput, ProductMention, StageContext
+    from app.entities import FuzzyMatchStage
+
+    names = ["Sony WH-1000XM5", "XM5", "XM5", "iPhone 16 128GB", "iPhone 16 256GB"]
+    inp = MatchInput(mentions=[ProductMention(raw_name=n, is_product=True) for n in names])
+    matched = FuzzyMatchStage().run(inp, StageContext(search_id="srch_aaaaaaaaaaaaaaaaaaaaaaaa"))
+    text = match_block(names, matched)
+    assert "Names before matching (5 mentions, 4 different):" in text
+    assert "  XM5  (x2)" in text
+    assert "Products after matching (2, method fuzzy):" in text
+    assert "    also: XM5" in text
+    assert "    variant: 128 GB" in text and "    variant: 256 GB" in text
+    assert "The search stopped before match." in match_block([], None)

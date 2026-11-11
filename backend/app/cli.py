@@ -25,6 +25,7 @@ import io
 import os
 import statistics
 import sys
+from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
 from typing import Any
 
@@ -43,6 +44,7 @@ from app.contracts import (
     MatchInput,
     MatchResult,
     Money,
+    Product,
     RecommenderCount,
     Rubric,
     SearchRequest,
@@ -78,13 +80,18 @@ class _SeesCounts:
         self.inner = inner
         self.is_placeholder = bool(getattr(inner, "is_placeholder", False))
         self.counts: list[RecommenderCount] | None = None  # None until the runner reaches this stage
+        self.names: list[str] = []  # the names before matching (US-15)
+        self.matched: MatchResult | None = None  # the products after it
 
     def run(self, inp: MatchInput, ctx: StageContext) -> MatchResult:
         self.counts = list(inp.recommender_counts)
-        return self.inner.run(inp, ctx)
+        self.names = [m.raw_name for m in inp.mentions]
+        self.matched = self.inner.run(inp, ctx)
+        return self.matched
 
     def fallback(self, inp: MatchInput, ctx: StageContext, error: Exception) -> MatchResult:
-        return self.inner.fallback(inp, ctx, error)
+        self.matched = self.inner.fallback(inp, ctx, error)
+        return self.matched
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self.inner, name)
@@ -151,6 +158,7 @@ def run(query: str, interactive: bool, store: db.RequestStore, show_claims: bool
         dropped: tuple[ThreadScore, ...] = getattr(stages.research, "last_dropped_threads", ())
         estimated: frozenset[str] = getattr(stages.research, "last_estimated_threads", frozenset())
         print(reddit_block(result.sources, dropped, sees_counts.counts, estimated, salt_set=salt_is_set()))
+        print(match_block(sees_counts.names, sees_counts.matched))
         print(llm_summary(getattr(getattr(default_llm(), "call_log", None), "records", ())))
     return 0
 
@@ -321,6 +329,32 @@ def llm_summary(records: Iterable[LLMCallRecord]) -> str:
 
 def salt_is_set() -> bool:
     return bool(os.environ.get("REDDIT_USER_SALT", "").strip())
+
+
+def match_block(names: Sequence[str], matched: MatchResult | None) -> str:
+    """US-15: the names extraction found, then the products match made of them, with their variants."""
+    distinct = Counter(names)
+    lines = [f"\nNames before matching ({len(names)} mentions, {len(distinct)} different):"]
+    lines += [f"  {name}" + (f"  (x{count})" if count > 1 else "") for name, count in sorted(distinct.items())]
+    if not distinct:
+        lines.append("  No names.")
+    if matched is None:
+        lines.append("\nProducts after matching:\n  The search stopped before match.")
+        return "\n".join(lines)
+    lines.append(f"\nProducts after matching ({len(matched.products)}, method {matched.method}):")
+    for product in matched.products:
+        lines += _product_lines(product)
+    if matched.unmatched:
+        lines.append(f"Kept apart, unsure: {', '.join(matched.unmatched)}")
+    return "\n".join(lines)
+
+
+def _product_lines(product: Product) -> list[str]:
+    kind = "  (kind of product)" if product.kind == "product_type" else ""
+    lines = [f"  {product.id}  {product.name}{kind}"]
+    if product.aliases:
+        lines.append(f"    also: {', '.join(product.aliases)}")
+    return lines + [f"    variant: {variant.label}" for variant in product.variants]
 
 
 def reddit_block(

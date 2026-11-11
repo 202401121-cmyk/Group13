@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import functools
 
+from .aliases import AliasStore, InMemoryAliasStore, PostgresAliasStore, alias_store_for, shared_memory_aliases
 from .breaker import CircuitBreaker
 from .postgres import PostgresRequestStore
 from .settings import DatabaseSettings, describe_host, load_settings
@@ -31,20 +32,25 @@ def default_request_store() -> RequestStore:
 
 
 __all__ = [
+    "AliasStore",
     "CircuitBreaker",
     "DatabaseSettings",
     "DbHealth",
+    "InMemoryAliasStore",
     "InMemoryRequestStore",
     "JsonObject",
     "NullRequestStore",
+    "PostgresAliasStore",
     "PostgresRequestStore",
     "RequestRow",
     "RequestStore",
     "SaveOutcome",
     "SearchRow",
+    "alias_store_for",
     "default_request_store",
     "describe_host",
     "load_settings",
     "request_row",
     "search_row",
+    "shared_memory_aliases",
 ]

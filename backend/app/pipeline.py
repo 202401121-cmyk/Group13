@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import secrets
 import threading
 from collections.abc import Callable, Iterable
@@ -44,6 +45,7 @@ from app.contracts import (
     ExtractionResult,
     MatchInput,
     MatchResult,
+    Product,
     ProductMention,
     ProductSummary,
     ProgressEvent,
@@ -62,10 +64,11 @@ from app.contracts import (
     StageStatus,
     VerifyInput,
     VerifyResult,
+    examples,
 )
 from app.decide import DecideStage
 from app.enrich import EnrichStage
-from app.entities import MatchStage
+from app.entities import FuzzyMatchStage, alias_keys
 from app.explain import ExplainStage
 from app.extract import default_extract_stage
 from app.llm.errors import AuthFailed, InvalidOutput, ProviderTimeout, RateLimited, ServerError
@@ -83,6 +86,7 @@ MAX_REASON_CHARS = 300  # StageReport.fallback_reason limit
 MAX_NOTE_CHARS = 400  # SearchResult.coverage_note limit
 MAX_CATEGORY_LABEL = 60  # ExtractInput.category_label limit, under the 64 a rubric's category may hold
 MAX_MENTIONS = 1000  # MatchInput.mentions limit
+_PRODUCT_ID = re.compile(r"^prd_[A-Za-z0-9_-]{3,64}$")  # a stored alias must point at a valid ProductId
 MAX_CLAIMS = 5000  # VerifyInput.claims limit
 MAX_VERIFY_KEYS = 30  # VerifyInput.criterion_keys limit
 MAX_EXPLAINED = 10  # ExplainInput.ranked limit
@@ -277,7 +281,7 @@ def default_search_stages() -> SearchStages:
     return SearchStages(
         research=default_research_stage(),
         extract=default_extract_stage(),
-        match=MatchStage(),
+        match=FuzzyMatchStage(),
         verify=VerifyStage(),
         enrich=EnrichStage(),
         decide=DecideStage(),
@@ -421,9 +425,12 @@ class PipelineRunner:
         time_limits: dict[StageName, float] | None = None,
         search_time_limit_s: float = SEARCH_TIME_LIMIT_S,
         extract_workers: int = EXTRACT_WORKERS,
+        aliases: db.AliasStore | None = None,
     ) -> None:
         self.stages = stages
         self.store = store
+        # Product aliases (DR-06): Postgres with memory underneath when the result store saves to Postgres, else memory.
+        self.aliases = aliases if aliases is not None else db.alias_store_for(getattr(store, "requests", None))
         self.time_limits = {**STAGE_TIME_LIMITS_S, **(time_limits or {})}
         self.search_time_limit_s = search_time_limit_s
         self.extract_workers = extract_workers
@@ -449,7 +456,8 @@ class PipelineRunner:
         stage_time_s = max(0.0, self.search_time_limit_s - self.save_time_s)
         ctx = StageContext(search_id=search_id or new_search_id(), time_limit_s=stage_time_s)
         started_at = datetime.now(UTC)
-        search = _Search(self.stages, self.time_limits, request, ctx, cancel, self.extract_workers)
+        search = _Search(self.stages, self.time_limits, request, ctx, cancel, self.extract_workers, self.aliases)
+        search.prefetch_aliases()  # read in the background while research runs: match never waits for the database
         events = _Progress(ctx.search_id, progress)
 
         partial = False
@@ -576,10 +584,13 @@ class _Search:
         ctx: StageContext,
         cancel: CancelFlag | None = None,
         extract_workers: int = EXTRACT_WORKERS,
+        aliases: db.AliasStore | None = None,
     ) -> None:
         self.stages = stages
         self.cancel = cancel
         self.extract_workers = extract_workers
+        self.aliases = aliases if aliases is not None else db.shared_memory_aliases()
+        self.decide_is_sample = False  # set when the decide stub made the ranking (until US-17)
         self.limits = time_limits
         self.request = request
         self.rubric = request.rubric
@@ -692,9 +703,38 @@ class _Search:
             return []
 
     def match(self) -> StageReport:
-        inp = MatchInput(mentions=self.mentions[:MAX_MENTIONS], recommender_counts=self.recommender_counts)
+        category = self.rubric.category
+        inp = MatchInput(
+            mentions=self.mentions[:MAX_MENTIONS],
+            known_aliases=self._known_aliases(category),
+            recommender_counts=self.recommender_counts,
+        )
         self.match_out, report = self._run(self.stages.match, inp)
+        real = report.status is StageStatus.OK and not made_by_placeholder(self.stages.match, report)
+        if self.match_out is not None and real:  # a fallback merges nothing, and a stub's aliases are examples
+            self._keep_aliases(category, self.match_out)
         return report
+
+    def prefetch_aliases(self) -> None:
+        try:
+            self.aliases.prefetch(self.rubric.category)
+        except Exception as exc:  # the store never raises, but a bug in one must not reach the search
+            log.warning("aliases not read ahead: %s", type(exc).__name__)
+
+    def _known_aliases(self, category: str) -> dict[str, str]:
+        """Aliases kept by earlier searches (DR-06). Never stops the search: a failure means none are known."""
+        try:
+            known = self.aliases.load(category)
+            return {alias: product_id for alias, product_id in known.items() if _PRODUCT_ID.match(product_id)}
+        except Exception as exc:  # the store never raises, but a bug in one must not reach the search
+            log.warning("known aliases not loaded: %s", type(exc).__name__)
+            return {}
+
+    def _keep_aliases(self, category: str, result: MatchResult) -> None:
+        try:
+            self.aliases.save(category, alias_keys(result))
+        except Exception as exc:
+            log.warning("aliases not kept: %s", type(exc).__name__)
 
     def verify(self) -> StageReport:
         research = _require(self.research_out, "research")
@@ -723,6 +763,7 @@ class _Search:
             community=verified.community,
         )
         self.decide_out, report = self._run(self.stages.decide, inp)
+        self.decide_is_sample = self.decide_out is not None and made_by_placeholder(self.stages.decide, report)
         return report
 
     def explain(self) -> StageReport:
@@ -736,7 +777,8 @@ class _Search:
         return report
 
     def commerce(self) -> StageReport:
-        by_id = {p.id: p for p in _require(self.match_out, "match").products}
+        matched = _require(self.match_out, "match").products
+        by_id = {p.id: p for p in [*matched, *self._sample_products()]}
         ranked = _require(self.decide_out, "decide").ranked
         products = [by_id[r.product_id] for r in ranked if r.product_id in by_id][:MAX_PRICED]
         if not products:
@@ -747,12 +789,22 @@ class _Search:
 
     # Assembling the result.
 
+    def _sample_products(self) -> list[Product]:
+        """While decide is a stub (until US-17), it ranks and filters the example products, whatever match found.
+        Those sample products join the result, so it stays valid and shows names, not ids; the stub already puts the
+        sample note on it."""
+        if not self.decide_is_sample or self.decide_out is None:
+            return []
+        have = {p.id for p in self.match_out.products} if self.match_out else set()
+        named = {r.product_id for r in self.decide_out.ranked} | {f.product_id for f in self.decide_out.filtered}
+        return [p for p in examples.match().products if p.id in named - have]  # filtered ones need their names too
+
     def result(self, started_at: datetime, partial: bool) -> SearchResult:
         values = self.verify_out.values if self.verify_out else []
         community = {c.product_id: c for c in self.verify_out.community} if self.verify_out else {}
         products = [
             ProductSummary(product=p, values=[v for v in values if v.product_id == p.id], community=community.get(p.id))
-            for p in (self.match_out.products if self.match_out else [])
+            for p in [*(self.match_out.products if self.match_out else []), *self._sample_products()]
         ]
         failures = self.research_out.failures if self.research_out else []
         found = self.research_out.sources if self.research_out else []
