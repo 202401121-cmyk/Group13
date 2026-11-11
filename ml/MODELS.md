@@ -18,15 +18,15 @@ recorded" before the model is used. Each model replaces a simpler baseline, and 
 | Story | US-15 |
 | Owner | Om Pandya |
 | Type | A cross-encoder, `cross-encoder/ms-marco-MiniLM-L6-v2` (22.7M parameters, Apache-2.0, which allows fine-tuning and this use), fine-tuned to one logit: the same product or not. Loaded with `sentence-transformers` 6.3.0 `CrossEncoder`, trained with a plain PyTorch 2.15.0 loop (`ml/training/train.py`), transformers 5.22.2. Exact versions: `ml/training/requirements.txt`. Fine-tuned weights: `ml/models/matcher_v1/epoch-001` (git-ignored; never committed). ONNX export (D-64): `ml/models/matcher_v1/onnx/` |
-| Data | **Train:** Abt-Buy and Amazon-Google (CC BY 4.0), on the dev side of the Leipzig split only, and our own pairs (machine labels, [DATA.md](DATA.md) section 4.1) from about 55% of the dev-side families. The Leipzig records are split by a hash on both sides (left and right), so train and dev share no record; a match across the two parts is left out. Each match comes with 3 look-alike non-matches and one random one. **4,810 pairs, 745 matches** (our own: 48 pairs, 3 matches). **Dev, which picks the threshold:** 1,052 pairs, with only 53 matches from the public sets and 12 of our own, so the threshold is noisy. **Test:** our own test families (57 pairs, 7 matches, the S3-5 split) and three WDC Products test sets (the 80, 50 and 20 percent corner-case sets with all products seen; the other six were not scored). WDC is never trained on (D-54), and no Reddit text is used (D-53). Counts per source: `ml/results/matcher_v1.json` |
+| Data | **Train:** Abt-Buy and Amazon-Google (CC BY 4.0), on the dev side of the Leipzig split only, and our own pairs (machine labels, [DATA.md](DATA.md) section 4.1) from about 55% of the dev-side families. The Leipzig records are split by a hash on both sides (left and right), so train and dev share no record; a match across the two parts is left out. Each match comes with 3 look-alike non-matches and one random one. **4,810 pairs, 745 matches** (our own: 48 pairs, 3 matches). **Dev, which picks the threshold:** 1,052 pairs, with 53 matches in all: 41 from the public sets (22 Abt-Buy, 19 Amazon-Google) and 12 of our own, so the threshold is noisy. **Test:** our own test families (57 pairs, 7 matches, the S3-5 split) and three WDC Products test sets (the 80, 50 and 20 percent corner-case sets with all products seen; the other six were not scored). WDC is never trained on (D-54), and no Reddit text is used (D-53). Counts per source: `ml/results/matcher_v1.json` |
 | Baseline or fallback | RapidFuzz fuzzy matching (card 8). It stays the default |
 | Target | Precision of 0.95 or more, and F1 above the fuzzy baseline (card 8) |
-| Training | CPU, 16 cores, 11 Nov 2026, seed 20261111, batch 32, learning rate 4e-5, 4 epochs of 2.8 to 2.9 minutes each (`ml/results/matcher_v1_training.json`). **The checkpoint is epoch 1, chosen by dev only:** dev recall at the precision target was 0.075 after epoch 1, then 0.038 after epochs 2, 3 and 4, while the training loss kept falling (0.35, 0.21, 0.16, 0.14), so more epochs fit the training records better and generalise worse. A checkpoint each epoch; `train.py` resumes from the last |
+| Training | CPU, 16 cores, 11 Nov 2026, seed 20261111, batch 32, learning rate 4e-5, 4 epochs of 2.8 to 2.9 minutes each (`ml/results/matcher_v1_training.json`). **The checkpoint is epoch 1, chosen by dev only:** dev recall at the precision target was 4 of 53 matches (0.075) after epoch 1 and 2 of 53 (0.038) after epochs 2 to 4, while the training loss fell (0.35, 0.21, 0.16, 0.14). Two matches is too small a difference to show that more epochs generalise worse, so that is a hint, not a tested cause. A checkpoint each epoch; `train.py` resumes from the last |
 | Threshold | **0.9646**, chosen on dev: the highest threshold with the best recall among those with precision of 0.95 or more. On dev: precision 1.000, recall 0.075 |
 | Hugging Face | Upload pending: `HF_TOKEN` and `HF_MODEL_REPO` are not set. Revision: to be recorded when Om has made the repository and run `export_onnx.py` with both set. `backend/config/matcher.yaml` holds the repository, revision and threshold for S3-15 |
 | Sprint | 3 |
 
-**Test results (S3-4, 11 Nov 2026, repository commit `3cebd05`, before this change's commit).** Precision, recall and F1 with
+**Test results (S3-4, 11 Nov 2026, repository commit `3cebd05`, before this change's commit; the italic comparison-only rows were added in a follow-up commit).** Precision, recall and F1 with
 95% bootstrap intervals (1,000 resamples, seed 20261111, as in card 8). The fuzzy baseline uses its own threshold from
 card 8. Our own pairs are machine labels ([DATA.md](DATA.md) section 4.1). Numbers: `ml/results/matcher_v1.json`.
 
@@ -34,28 +34,50 @@ card 8. Our own pairs are machine labels ([DATA.md](DATA.md) section 4.1). Numbe
 |---|---|---|---|---|---|---|---|---|
 | Our own pairs (machine labels), 57 pairs, 7 matches | **Matcher** | 0.9646 | 1 | 0 | 6 | 1.000 [1.000, 1.000] | 0.143 [0.000, 0.500] | 0.250 [0.000, 0.667] |
 | Our own pairs (machine labels) | Fuzzy `token_set_ratio` | 1.00 | 2 | 1 | 5 | 0.667 [0.000, 1.000] | 0.286 [0.000, 0.667] | 0.400 [0.000, 0.727] |
+| Our own pairs (machine labels) | *Matcher at best-F1 dev threshold (comparison only)* | 0.5062 | 6 | 7 | 1 | 0.462 [0.200, 0.750] | 0.857 [0.500, 1.000] | 0.600 [0.286, 0.833] |
 | WDC 80cc20rnd000un, 4,500 pairs | **Matcher** | 0.9646 | 9 | 8 | 491 | 0.529 [0.286, 0.800] | 0.018 [0.008, 0.030] | 0.035 [0.015, 0.058] |
 | WDC 80cc20rnd000un | Fuzzy | 0.79 | 164 | 460 | 336 | 0.263 [0.228, 0.296] | 0.328 [0.286, 0.370] | 0.292 [0.257, 0.325] |
+| WDC 80cc20rnd000un | *Matcher at best-F1 dev threshold (comparison only)* | 0.5062 | 225 | 399 | 275 | 0.361 [0.324, 0.396] | 0.450 [0.402, 0.493] | 0.400 [0.361, 0.434] |
 | WDC 50cc50rnd000un | **Matcher** | 0.9646 | 18 | 4 | 482 | 0.818 [0.643, 0.958] | 0.036 [0.020, 0.054] | 0.069 [0.039, 0.103] |
 | WDC 50cc50rnd000un | Fuzzy | 0.79 | 200 | 415 | 300 | 0.325 [0.289, 0.365] | 0.400 [0.356, 0.446] | 0.359 [0.322, 0.396] |
+| WDC 50cc50rnd000un | *Matcher at best-F1 dev threshold (comparison only)* | 0.5062 | 260 | 275 | 240 | 0.486 [0.445, 0.532] | 0.520 [0.475, 0.563] | 0.502 [0.465, 0.539] |
 | WDC 20cc80rnd000un | **Matcher** | 0.9646 | 26 | 0 | 474 | 1.000 [1.000, 1.000] | 0.052 [0.034, 0.073] | 0.099 [0.067, 0.136] |
 | WDC 20cc80rnd000un | Fuzzy | 0.78 | 241 | 399 | 259 | 0.377 [0.338, 0.417] | 0.482 [0.436, 0.525] | 0.423 [0.384, 0.459] |
+| WDC 20cc80rnd000un | *Matcher at best-F1 dev threshold (comparison only)* | 0.5062 | 299 | 245 | 201 | 0.550 [0.506, 0.593] | 0.598 [0.555, 0.640] | 0.573 [0.537, 0.609] |
+
+*Comparison only.* The rows in italics score the same model, on the same test sets and the same bootstrap, at the
+threshold with the best F1 on dev (**0.5062**; on dev: F1 0.688, precision 0.597,
+recall 0.811, 72 pairs called). **The decided threshold stays 0.9646.**
+Nothing is judged against the targets on these rows; they only show what the model does at a threshold that suits F1.
 
 **What this says, plainly.**
-- **The precision target is not shown on our own test part.** The matcher called one pair a match there, and it was
-  right (precision 1.0), but one pair cannot show 0.95: the interval is [1.0, 1.0] only because there is nothing to
-  resample. It found 1 of 7 matches. Per DECIDED 9, **S3-15 keeps fuzzy as the default.** The target is not lowered.
-- **The F1 target is not met anywhere.** The matcher's F1 is below fuzzy's on our own pairs and on every WDC set.
-- **Where it is precise, it is precise.** On WDC, precision is higher than fuzzy's on the 50 and 20 percent sets, and
-  the intervals do not overlap. On the 80 percent set the intervals do overlap (0.29 to 0.80 against 0.23 to 0.30,
-  from 17 calls), so no difference can be claimed there.
-- **But it finds almost nothing:** recall is 2 to 5% on WDC. The threshold sits at 0.96 because dev is hard and small,
-  and at that score the model calls very few pairs a match.
-- **Why, and what is not known.** Dev recall fell as training went on while the loss fell, which suggests the model
-  fits its training records and does not carry over to records it has not seen. That is a reading of the numbers, not a
-  tested cause. What to try next: a lower learning rate or fewer steps, more of our own labelled matches (only 3 in the
-  train part), and a larger dev set (53 public matches is too few to set a threshold well). No attempt was made to
-  improve the numbers by changing the target, the dev data or the test data.
+- **The precision target is not shown on our own test part.** At the decided threshold the matcher called one pair a
+  match there, and it was right (precision 1.0), but one pair cannot show 0.95: the interval is [1.0, 1.0] only because
+  there is nothing to resample. It found 1 of 7 matches. At the comparison threshold its precision is
+  0.46 on our own test part and 0.36 to
+  0.55 on WDC, far below 0.95. Per DECIDED 9, **S3-15 keeps fuzzy as the
+  default.** The target is not lowered.
+- **At the decided threshold, F1 is below fuzzy's everywhere** (our own pairs and every WDC set), because recall is
+  2 to 5% on WDC.
+- **At the comparison threshold, F1 is above fuzzy's on all three WDC sets, with intervals that do not overlap:**
+  80cc20 0.400 [0.361, 0.434] against 0.292 [0.257, 0.325];
+  50cc50 0.502 [0.465, 0.539] against 0.359 [0.322, 0.396];
+  20cc80 0.573 [0.537, 0.609] against 0.423 [0.384, 0.459].
+  Precision is above fuzzy's there too, but at about 0.4 to 0.55. **On our own pairs the two cannot be told apart:**
+  F1 0.600 [0.286, 0.833] against 0.400 [0.000, 0.727], from 7 matches.
+- **The two goals were not reached at one threshold.** A precision of 0.95 holds only near 0.96, where recall is 2 to 5%.
+  F1 above fuzzy holds only near 0.5062, where precision is about 0.5. Which trade suits the stage is for S3-15 to
+  decide, with fuzzy still the default; this row does not change the decided threshold or the result.
+- **Where it is precise, it is precise.** At the decided threshold on WDC, precision is higher than fuzzy's on the 50
+  and 20 percent sets, and the intervals do not overlap. On the 80 percent set the intervals do overlap (0.29 to 0.80
+  against 0.23 to 0.30, from 17 calls), so no difference can be claimed there.
+- **Why the decided threshold finds almost nothing:** it sits at 0.96 because dev is hard and small, and at that score
+  the model calls very few pairs a match.
+- **What is not known.** On dev, the matches found at the precision target fell from 4 of 53 after epoch 1 to 2 of 53
+  after epochs 2 to 4 while the training loss fell. Two matches is too small a difference to show that more epochs
+  generalise worse, so it is a hint, not a tested cause. What to try next: a lower learning rate or fewer steps, more
+  of our own labelled matches (only 3 in the train part), and a larger dev set (53 matches in all is too few to set a
+  threshold well). No attempt was made to improve the numbers by changing the target, the dev data or the test data.
 - **An earlier run was thrown away.** A first run let train and dev share right-hand records, which could inflate dev
   scores. It was found in review, fixed, and everything was retrained and re-evaluated; only the second run is reported.
 - **WDC is a test set here.** It has different kinds of titles from ours, so it says little about how the matcher

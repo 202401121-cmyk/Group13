@@ -298,5 +298,145 @@
       "note": "WDC Products test set, never trained on (D-54)"
     }
   ],
-  "seconds": 179.9
+  "seconds": 179.9,
+  "comparison": {
+    "name": "matcher at best-F1 dev threshold (comparison only; the decided threshold stays 0.9646)",
+    "rule": "the dev threshold with the best F1; ties go to the higher threshold; equal scores are called together",
+    "threshold": 0.5062,
+    "dev_f1": 0.688,
+    "dev_precision": 0.5972,
+    "dev_recall": 0.8113,
+    "dev_pairs_called": 72,
+    "note": "comparison only: the decided threshold is the one under `threshold`, and no target is judged on this",
+    "results": [
+      {
+        "dataset": "own_pairs",
+        "method": "matcher at best-F1 dev threshold (comparison only; the decided threshold stays 0.9646)",
+        "threshold": 0.5062,
+        "pairs": 57,
+        "true_matches": 7,
+        "tp": 6,
+        "fp": 7,
+        "fn": 1,
+        "tn": 43,
+        "precision": 0.4615,
+        "recall": 0.8571,
+        "f1": 0.6,
+        "intervals_95": {
+          "precision": [
+            0.1997,
+            0.75,
+            0
+          ],
+          "recall": [
+            0.5,
+            1.0,
+            0
+          ],
+          "f1": [
+            0.2857,
+            0.8333,
+            0
+          ]
+        },
+        "note": "machine labels (ml/DATA.md section 4.1); comparison only"
+      },
+      {
+        "dataset": "wdc_products 80cc20rnd000un",
+        "method": "matcher at best-F1 dev threshold (comparison only; the decided threshold stays 0.9646)",
+        "threshold": 0.5062,
+        "pairs": 4500,
+        "true_matches": 500,
+        "tp": 225,
+        "fp": 399,
+        "fn": 275,
+        "tn": 3601,
+        "precision": 0.3606,
+        "recall": 0.45,
+        "f1": 0.4004,
+        "intervals_95": {
+          "precision": [
+            0.3243,
+            0.396,
+            0
+          ],
+          "recall": [
+            0.402,
+            0.4927,
+            0
+          ],
+          "f1": [
+            0.3615,
+            0.4341,
+            0
+          ]
+        },
+        "note": "WDC Products test set, never trained on (D-54); comparison only"
+      },
+      {
+        "dataset": "wdc_products 50cc50rnd000un",
+        "method": "matcher at best-F1 dev threshold (comparison only; the decided threshold stays 0.9646)",
+        "threshold": 0.5062,
+        "pairs": 4500,
+        "true_matches": 500,
+        "tp": 260,
+        "fp": 275,
+        "fn": 240,
+        "tn": 3725,
+        "precision": 0.486,
+        "recall": 0.52,
+        "f1": 0.5024,
+        "intervals_95": {
+          "precision": [
+            0.4452,
+            0.5325,
+            0
+          ],
+          "recall": [
+            0.4755,
+            0.5626,
+            0
+          ],
+          "f1": [
+            0.4653,
+            0.5391,
+            0
+          ]
+        },
+        "note": "WDC Products test set, never trained on (D-54); comparison only"
+      },
+      {
+        "dataset": "wdc_products 20cc80rnd000un",
+        "method": "matcher at best-F1 dev threshold (comparison only; the decided threshold stays 0.9646)",
+        "threshold": 0.5062,
+        "pairs": 4500,
+        "true_matches": 500,
+        "tp": 299,
+        "fp": 245,
+        "fn": 201,
+        "tn": 3755,
+        "precision": 0.5496,
+        "recall": 0.598,
+        "f1": 0.5728,
+        "intervals_95": {
+          "precision": [
+            0.5065,
+            0.5934,
+            0
+          ],
+          "recall": [
+            0.5547,
+            0.6398,
+            0
+          ],
+          "f1": [
+            0.5369,
+            0.6092,
+            0
+          ]
+        },
+        "note": "WDC Products test set, never trained on (D-54); comparison only"
+      }
+    ]
+  }
 }
