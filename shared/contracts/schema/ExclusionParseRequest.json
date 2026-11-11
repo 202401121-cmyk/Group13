@@ -1,0 +1,18 @@
+{
+  "additionalProperties": false,
+  "description": "The body of the route that reads exclusions from the shopper's own words, such as \"no Zenith\" (US-09).",
+  "properties": {
+    "text": {
+      "description": "What the shopper typed",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "text"
+  ],
+  "title": "ExclusionParseRequest",
+  "type": "object"
+}

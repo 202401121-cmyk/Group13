@@ -106,11 +106,13 @@
           "type": "number"
         },
         "via": {
+          "description": "How the text was read: an API, a plain fetch, Jina Reader, a search snippet or Firecrawl (D-62)",
           "enum": [
             "api",
             "direct",
             "jina",
-            "search_snippet"
+            "search_snippet",
+            "firecrawl"
           ],
           "title": "Via",
           "type": "string"

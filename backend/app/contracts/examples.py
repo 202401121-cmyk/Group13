@@ -21,6 +21,7 @@ from .common import ClaimType, Money, SourceTier, SourceType, StageName, StageRe
 from .criteria import CriteriaSet, Criterion, Direction
 from .decide import Contribution, DecideResult, FilteredProduct, RankedProduct
 from .entities import MatchResult, Product, Variant
+from .evidence import Citation, ClaimEvidence, EvidenceResponse, EvidenceSource
 from .explain import Explanation, ExplanationSentence
 from .intake import Budget, Exclusion, HardRule, Intent
 from .interview import ROUGH_LEVEL_WEIGHTS, RoughLevel, RoughLevelWeights
@@ -33,7 +34,7 @@ from .pipeline import (
     SearchRunStarted,
     SearchRunStatus,
 )
-from .presearch import ReplyRequest
+from .presearch import ExclusionParseResponse, ReplyRequest, RubricEdit, RubricEditRequest
 from .research import RecommenderCount, ResearchResult, Source, SourceComment, SourceFailure
 from .rubric import Rubric, WeightedCriterion, normalize
 from .verify import CommunitySignal, ResolvedValue, ValueState, VerifyResult
@@ -755,6 +756,9 @@ def search_result() -> SearchResult:
     def rep(stage: StageName, ms: int, status: StageStatus = StageStatus.OK, reason: str | None = None) -> StageReport:
         return StageReport(stage=stage, status=status, duration_ms=ms, fallback_reason=reason)
 
+    cited = {i for s in products for v in s.values for i in (*v.supporting_claim_ids, *v.conflicting_claim_ids)}
+    citations = [Citation(claim_id=c.id, source_id=c.source_id, quote=c.quote) for c in claims() if c.id in cited]
+
     return SearchResult(
         search_id=SEARCH_ID,
         request=SearchRequest(session_id=SESSION_ID, raw_query=QUERY, rubric=rubric()),
@@ -765,6 +769,7 @@ def search_result() -> SearchResult:
         explanations=explanations(),
         commerce=commerce(),
         sources=sources(),
+        citations=citations,
         stage_reports=[
             rep(StageName.RESEARCH, 38_000),
             rep(StageName.EXTRACT, 21_000),
@@ -851,6 +856,72 @@ def search_run_done() -> SearchRun:
     )
 
 
+# --- Sprint 3: evidence (US-21) and the rubric editor (US-09) ----------------------------------
+
+
+def _evidence(claim: Claim) -> ClaimEvidence:
+    source = next(s for s in sources() if s.id == claim.source_id)
+    return ClaimEvidence(
+        claim_id=claim.id,
+        quote=claim.quote,
+        value=claim.value,
+        unit=claim.unit,
+        score=claim.score,
+        polarity=claim.polarity,
+        claim_type=claim.claim_type,
+        retrieved_at=claim.retrieved_at,
+        source=EvidenceSource(
+            id=source.id,
+            url=source.url,
+            name=source.site or source.community or "",  # a source has exactly one of the two
+            type=source.type,
+            tier=source.tier,
+            fetched_at=source.fetched_at,
+        ),
+    )
+
+
+def evidence_disputed() -> EvidenceResponse:
+    """Kestrel Slim 15's battery life: the maker says 10 hours, an owner on Reddit about 6. The maker's claim wins."""
+    value = next(v for v in verify().values if v.state is ValueState.DISPUTED)
+    by_id = {c.id: c for c in claims()}
+    return EvidenceResponse(
+        search_id=SEARCH_ID,
+        product_id=value.product_id,
+        criterion_key=value.criterion_key,
+        state=value.state,
+        winning_claim_ids=value.supporting_claim_ids,
+        claims=[_evidence(by_id[i]) for i in (*value.supporting_claim_ids, *value.conflicting_claim_ids)],
+    )
+
+
+def evidence_unknown() -> EvidenceResponse:
+    """Vela Pro 14's RAM: no trustworthy claim, so there is nothing to show but the state."""
+    value = next(v for v in verify().values if v.state is ValueState.UNKNOWN)
+    return EvidenceResponse(
+        search_id=SEARCH_ID, product_id=value.product_id, criterion_key=value.criterion_key, state=value.state
+    )
+
+
+def rubric_edit_request() -> RubricEditRequest:
+    """One edit of each kind: the RAM rule becomes a preference, Orion is left out, Zenith is back, battery matters."""
+    return RubricEditRequest(
+        edits=[
+            RubricEdit(kind="switch_rule", rule_id=intent().hard_rules[0].id, active=False),
+            RubricEdit(kind="add_exclusion", exclusion=Exclusion(kind="brand", value="Orion")),
+            RubricEdit(kind="remove_exclusion", exclusion=Exclusion(kind="brand", value="Zenith")),
+            RubricEdit(kind="set_weight", criterion_key="battery_life", weight=9.0),
+        ]
+    )
+
+
+def exclusion_parse_response() -> ExclusionParseResponse:
+    """What "no Zenith, and nothing too shiny" reads as."""
+    return ExclusionParseResponse(
+        exclusions=[Exclusion(kind="brand", value="Zenith")], not_understood=["nothing too shiny"]
+    )
+
+
 ALL_EXAMPLES = {
     "intent": intent,
     "intent_unclear": unclear_intent,
@@ -874,4 +945,8 @@ ALL_EXAMPLES = {
     "search_run_started": search_run_started,
     "search_run_running": search_run_running,
     "search_run_done": search_run_done,
+    "evidence_disputed": evidence_disputed,
+    "evidence_unknown": evidence_unknown,
+    "rubric_edit_request": rubric_edit_request,
+    "exclusion_parse_response": exclusion_parse_response,
 }

@@ -1,0 +1,68 @@
+{
+  "$defs": {
+    "Exclusion": {
+      "additionalProperties": false,
+      "description": "Something the user never wants to see (FR-10).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "brand",
+            "model",
+            "feature",
+            "seller"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        },
+        "always": {
+          "default": false,
+          "description": "True = save to memory for future searches",
+          "title": "Always",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "value",
+        "always"
+      ],
+      "title": "Exclusion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The exclusions read from the text, and the words that could not be read as one (US-09).",
+  "properties": {
+    "exclusions": {
+      "items": {
+        "$ref": "#/$defs/Exclusion"
+      },
+      "maxItems": 30,
+      "title": "Exclusions",
+      "type": "array"
+    },
+    "not_understood": {
+      "description": "Parts of the text that were not understood, as typed",
+      "items": {
+        "maxLength": 200,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Not Understood",
+      "type": "array"
+    }
+  },
+  "required": [
+    "exclusions",
+    "not_understood"
+  ],
+  "title": "ExclusionParseResponse",
+  "type": "object"
+}

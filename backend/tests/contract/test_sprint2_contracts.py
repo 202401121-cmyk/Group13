@@ -661,9 +661,22 @@ def test_bad_source_counts_are_invalid(bad: dict[str, int]) -> None:
 def test_post_search_keeps_its_contract() -> None:
     assert set(C.SearchRequest.model_fields) == {"session_id", "user_id", "raw_query", "rubric"}
     assert set(C.SearchResult.model_fields) == {
-        "schema_version", "search_id", "request", "started_at", "finished_at", "partial", "products", "decision",
-        "explanations", "commerce", "sources", "stage_reports", "coverage_note", "saved",
-    }  # fmt: skip
+        "schema_version",
+        "search_id",
+        "request",
+        "started_at",
+        "finished_at",
+        "partial",
+        "products",
+        "decision",
+        "explanations",
+        "commerce",
+        "sources",
+        "citations",
+        "stage_reports",
+        "coverage_note",
+        "saved",
+    }  # fmt: skip  (citations: S3-0, 1.7.0)
 
 
 # --- Export ----------------------------------------------------------------------------------------
@@ -701,4 +714,5 @@ def test_the_exported_schema_refuses_an_unknown_source_type_in_the_counts() -> N
 
 
 def test_the_schema_version_was_bumped_for_these_changes() -> None:
-    assert (SHARED / "VERSION").read_text(encoding="utf-8").strip() == C.SCHEMA_VERSION == "1.6.0"
+    assert (SHARED / "VERSION").read_text(encoding="utf-8").strip() == C.SCHEMA_VERSION
+    assert tuple(int(part) for part in C.SCHEMA_VERSION.split(".")) >= (1, 6, 0)  # Sprint 3 pins 1.7.0

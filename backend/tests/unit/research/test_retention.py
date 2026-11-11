@@ -160,8 +160,13 @@ SHOP_OR_SHOPPER = "from a shop, or the shopper's own words"
 WAITS_FOR_MATCH = "a product's name as written: holds no Reddit text until US-15 replaces MatchStage"
 WAITS_FOR_VERIFY = "holds no Reddit text until US-16 or US-42 replaces VerifyStage"
 WAITS_FOR_EXPLAIN = "holds no Reddit text until US-20 replaces ExplainStage"
+DROPPED = "a quote that may be left out: dropped on save unless its source is listed and not Reddit"
 
 TEXT_FIELDS = {
+    "citations[].claim_id": ID_OR_LINK,
+    "citations[].source_id": ID_OR_LINK,
+    "citations[].quote": DROPPED,
+    "request.rubric.hard_rules[].id": SEARCH_FROM_CODE,
     "sources[].title": CLEARED,
     "sources[].text": CLEARED,
     "sources[].comments[].text": CLEARED,
@@ -423,7 +428,9 @@ def test_ids_urls_scores_and_times_stay() -> None:
 def test_a_result_with_no_reddit_sources_is_saved_byte_for_byte() -> None:
     result = ex.search_result()
     pages = [web_source("https://web.example/a", "A title", "Web text."), review_source("https://reviews.example/b")]
-    result = SearchResult.model_validate({**result.model_dump(), "sources": pages})
+    citations = [{**c, "source_id": pages[0].id} for c in result.model_dump()["citations"]]  # web quotes stay too
+    assert citations and all(c["quote"] for c in citations)
+    result = SearchResult.model_validate({**result.model_dump(), "sources": pages, "citations": citations})
     store = InMemoryRequestStore()
     assert DatabaseResultStore(store, time_limit_s=1).save(result)
     assert store.searches[0].result == json.dumps(result.model_dump(mode="json"))
@@ -446,6 +453,53 @@ def test_a_mixed_result_keeps_web_and_review_quotes_and_loses_only_reddit_text()
     assert after["claims"][1:] == before["claims"][1:]
     assert after["claims"][0]["quote"] == REDDIT_TEXT_NOT_KEPT
     assert "Words from Reddit here." not in json.dumps(after)
+
+
+def test_retention_drops_reddit_citation_quotes_and_keeps_web_ones() -> None:
+    """S3-0 (D-53): a saved result's citations keep a web quote, and lose a Reddit one."""
+    result = ex.search_result()
+    reddit = {s.id for s in result.sources if s.type is SourceType.REDDIT}
+    before = result.model_dump(mode="json")
+    from_reddit = [c for c in before["citations"] if c["source_id"] in reddit]
+    from_web = [c for c in before["citations"] if c["source_id"] not in reddit]
+    assert from_reddit and from_web and all(c["quote"] for c in before["citations"])
+    after = without_reddit_text(before)["citations"]
+    assert [c for c in after if c["source_id"] not in reddit] == from_web
+    kept = [c for c in after if c["source_id"] in reddit]
+    assert [c["quote"] for c in kept] == [None] * len(from_reddit)
+    assert [{**c, "quote": None} for c in from_reddit] == kept  # the claim id and source stay
+    saved = SearchResult.model_validate(without_reddit_text(before))  # and the row still reads back
+    assert len(saved.citations) == len(result.citations)
+    for citation in from_reddit:
+        assert citation["quote"] not in json.dumps(after)
+
+
+def test_a_citation_whose_source_is_not_listed_loses_its_quote() -> None:
+    web = web_source("https://web.example/a")
+    result = {
+        "sources": [web.model_dump(mode="json")],
+        "citations": [
+            {"claim_id": "clm_" + "a" * 24, "source_id": "src_" + "f" * 16, "quote": "Words from who knows where."},
+            {"claim_id": "clm_" + "b" * 24, "source_id": web.id, "quote": "Words from a web page."},
+        ],
+    }
+    after = without_reddit_text(result)["citations"]
+    assert [c["quote"] for c in after] == [None, "Words from a web page."]
+    no_sources = without_reddit_text({"citations": result["citations"]})["citations"]
+    assert [c["quote"] for c in no_sources] == [None, None]  # with no sources, none can be known not to be Reddit
+
+
+def test_every_field_the_table_says_is_dropped_really_is() -> None:
+    marked = sorted(path for path, kind in TEXT_FIELDS.items() if kind == DROPPED)
+    assert marked == ["citations[].quote"], "extend this test for a new field that is dropped"
+    reddit = _deep_thread()
+    result = {
+        "sources": [reddit.model_dump(mode="json")],
+        "citations": [{"claim_id": "clm_" + "a" * 24, "source_id": reddit.id, "quote": "Secret words in a quote."}],
+    }
+    saved = without_reddit_text(result)
+    assert saved["citations"][0]["quote"] is None
+    assert "Secret words in a quote." not in json.dumps(saved)
 
 
 def test_a_claim_quoting_reddit_loses_its_quote_but_keeps_its_value_score_and_source_link() -> None:

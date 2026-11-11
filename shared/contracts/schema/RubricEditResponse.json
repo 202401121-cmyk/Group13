@@ -1,0 +1,326 @@
+{
+  "$defs": {
+    "Budget": {
+      "additionalProperties": false,
+      "properties": {
+        "min": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "title": "Budget",
+      "type": "object"
+    },
+    "Exclusion": {
+      "additionalProperties": false,
+      "description": "Something the user never wants to see (FR-10).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "brand",
+            "model",
+            "feature",
+            "seller"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        },
+        "always": {
+          "default": false,
+          "description": "True = save to memory for future searches",
+          "title": "Always",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "value",
+        "always"
+      ],
+      "title": "Exclusion",
+      "type": "object"
+    },
+    "HardRule": {
+      "additionalProperties": false,
+      "description": "A must-have. Hard rules only filter products; they never change the order (DR-08).",
+      "properties": {
+        "attribute": {
+          "description": "Criterion or spec key, e.g. 'weight_kg' or 'has_ois'",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Attribute",
+          "type": "string"
+        },
+        "operator": {
+          "enum": [
+            "<=",
+            ">=",
+            "==",
+            "!=",
+            "in",
+            "not_in",
+            "contains"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "source_text": {
+          "description": "What the user actually said",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Source Text",
+          "type": "string"
+        },
+        "id": {
+          "description": "Stable id made from attribute, operator and value (hard_rule_id), so the same rule keeps its id across a rebuild (US-09). Left out, it is made; given, it must match",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "active": {
+          "default": true,
+          "description": "False when the shopper switched this rule to a preference: it then no longer filters (US-09)",
+          "title": "Active",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "attribute",
+        "operator",
+        "value",
+        "unit",
+        "source_text",
+        "id",
+        "active"
+      ],
+      "title": "HardRule",
+      "type": "object"
+    },
+    "Money": {
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "minimum": 0,
+          "title": "Amount",
+          "type": "number"
+        },
+        "currency": {
+          "default": "INR",
+          "pattern": "^[A-Z]{3}$",
+          "title": "Currency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "title": "Money",
+      "type": "object"
+    },
+    "Rubric": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Category",
+          "type": "string"
+        },
+        "use_case": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Use Case"
+        },
+        "region": {
+          "default": "IN",
+          "pattern": "^(?:[A-Z]{2}|GLOBAL)$",
+          "title": "Region",
+          "type": "string"
+        },
+        "budget": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Budget"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "hard_rules": {
+          "items": {
+            "$ref": "#/$defs/HardRule"
+          },
+          "maxItems": 20,
+          "title": "Hard Rules",
+          "type": "array"
+        },
+        "exclusions": {
+          "items": {
+            "$ref": "#/$defs/Exclusion"
+          },
+          "maxItems": 30,
+          "title": "Exclusions",
+          "type": "array"
+        },
+        "weights": {
+          "items": {
+            "$ref": "#/$defs/WeightedCriterion"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Weights",
+          "type": "array"
+        }
+      },
+      "required": [
+        "category",
+        "use_case",
+        "region",
+        "budget",
+        "hard_rules",
+        "exclusions",
+        "weights"
+      ],
+      "title": "Rubric",
+      "type": "object"
+    },
+    "WeightedCriterion": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Key",
+          "type": "string"
+        },
+        "weight": {
+          "description": "0 to 10, as the user sees it",
+          "maximum": 10.0,
+          "minimum": 0.0,
+          "title": "Weight",
+          "type": "number"
+        },
+        "normalized": {
+          "description": "Share of the total; all normalized values add up to 1",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Normalized",
+          "type": "number"
+        },
+        "origin": {
+          "enum": [
+            "answered",
+            "remembered",
+            "default",
+            "skipped",
+            "manual"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "uncertainty": {
+          "default": 0.5,
+          "description": "How unsure we are of this weight; used by the interview and simulations",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Uncertainty",
+          "type": "number"
+        }
+      },
+      "required": [
+        "key",
+        "weight",
+        "normalized",
+        "origin",
+        "uncertainty"
+      ],
+      "title": "WeightedCriterion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "What the rubric editor's route answers: the rubric rebuilt with the shopper's edits applied last (US-09).",
+  "properties": {
+    "rubric": {
+      "$ref": "#/$defs/Rubric"
+    }
+  },
+  "required": [
+    "rubric"
+  ],
+  "title": "RubricEditResponse",
+  "type": "object"
+}

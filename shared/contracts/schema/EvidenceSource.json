@@ -1,0 +1,73 @@
+{
+  "$defs": {
+    "SourceTier": {
+      "description": "DR-03: lower number = more authoritative for factual specs.",
+      "enum": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "title": "SourceTier",
+      "type": "integer"
+    },
+    "SourceType": {
+      "enum": [
+        "reddit",
+        "youtube",
+        "web_search",
+        "review_site",
+        "manufacturer",
+        "lab",
+        "retailer"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "The source of a claim, as the evidence panel shows it.",
+  "properties": {
+    "id": {
+      "pattern": "^src_[a-f0-9]{8,64}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "url": {
+      "format": "uri",
+      "maxLength": 2083,
+      "minLength": 1,
+      "title": "Url",
+      "type": "string"
+    },
+    "name": {
+      "description": "The site's domain, or the community, e.g. 'r/...'",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "type": {
+      "$ref": "#/$defs/SourceType"
+    },
+    "tier": {
+      "$ref": "#/$defs/SourceTier"
+    },
+    "fetched_at": {
+      "format": "date-time",
+      "title": "Fetched At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "url",
+    "name",
+    "type",
+    "tier",
+    "fetched_at"
+  ],
+  "title": "EvidenceSource",
+  "type": "object"
+}

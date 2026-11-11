@@ -312,6 +312,19 @@
           "minLength": 1,
           "title": "Source Text",
           "type": "string"
+        },
+        "id": {
+          "description": "Stable id made from attribute, operator and value (hard_rule_id), so the same rule keeps its id across a rebuild (US-09). Left out, it is made; given, it must match",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "active": {
+          "default": true,
+          "description": "False when the shopper switched this rule to a preference: it then no longer filters (US-09)",
+          "title": "Active",
+          "type": "boolean"
         }
       },
       "required": [
@@ -319,7 +332,9 @@
         "operator",
         "value",
         "unit",
-        "source_text"
+        "source_text",
+        "id",
+        "active"
       ],
       "title": "HardRule",
       "type": "object"
@@ -506,6 +521,15 @@
           ],
           "default": null,
           "title": "Why Asking"
+        },
+        "terms": {
+          "description": "Words in the question explained, at most 5",
+          "items": {
+            "$ref": "#/$defs/TermExplanation"
+          },
+          "maxItems": 5,
+          "title": "Terms",
+          "type": "array"
         }
       },
       "required": [
@@ -513,7 +537,8 @@
         "criterion_key",
         "text",
         "quick_replies",
-        "why_asking"
+        "why_asking",
+        "terms"
       ],
       "title": "InterviewQuestion",
       "type": "object"
@@ -553,8 +578,40 @@
           "additionalProperties": {
             "type": "number"
           },
+          "description": "Weights the shopper set, by criterion key (US-09)",
           "title": "Manual Weights",
           "type": "object"
+        },
+        "manual_rule_switches": {
+          "description": "Hard rule id -> active. False: the shopper switched the rule to a preference (US-09)",
+          "patternProperties": {
+            "^[a-z0-9]+(?:[_-][a-z0-9]+)*$": {
+              "type": "boolean"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 64
+          },
+          "title": "Manual Rule Switches",
+          "type": "object"
+        },
+        "manual_exclusions_added": {
+          "description": "Exclusions the shopper added (US-09)",
+          "items": {
+            "$ref": "#/$defs/Exclusion"
+          },
+          "maxItems": 30,
+          "title": "Manual Exclusions Added",
+          "type": "array"
+        },
+        "manual_exclusions_removed": {
+          "description": "Exclusions the shopper removed (US-09)",
+          "items": {
+            "$ref": "#/$defs/Exclusion"
+          },
+          "maxItems": 30,
+          "title": "Manual Exclusions Removed",
+          "type": "array"
         }
       },
       "required": [
@@ -563,7 +620,10 @@
         "criteria",
         "history",
         "remembered",
-        "manual_weights"
+        "manual_weights",
+        "manual_rule_switches",
+        "manual_exclusions_added",
+        "manual_exclusions_removed"
       ],
       "title": "InterviewState",
       "type": "object"
@@ -903,6 +963,40 @@
         "weights"
       ],
       "title": "Rubric",
+      "type": "object"
+    },
+    "TermExplanation": {
+      "additionalProperties": false,
+      "description": "A word in a question that a shopper may not know, explained in plain words.",
+      "properties": {
+        "term": {
+          "description": "The word or phrase as the question uses it",
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Term",
+          "type": "string"
+        },
+        "criterion_key": {
+          "description": "The criterion the term belongs to",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Criterion Key",
+          "type": "string"
+        },
+        "explanation": {
+          "description": "Plain words, at most 40 words",
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "term",
+        "criterion_key",
+        "explanation"
+      ],
+      "title": "TermExplanation",
       "type": "object"
     },
     "WeightedCriterion": {

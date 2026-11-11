@@ -1,0 +1,48 @@
+{
+  "search_id": "srch_demo0001",
+  "product_id": "prd_kestrel_slim_15",
+  "criterion_key": "battery_life",
+  "state": "disputed",
+  "winning_claim_ids": [
+    "clm_2c31271c5c981d18"
+  ],
+  "claims": [
+    {
+      "claim_id": "clm_2c31271c5c981d18",
+      "quote": "battery rated up to 10 hours",
+      "value": 10.0,
+      "unit": null,
+      "score": null,
+      "polarity": "neutral",
+      "claim_type": "spec",
+      "retrieved_at": "2026-10-03T10:00:00Z",
+      "source": {
+        "id": "src_2958fd9d1b3643cf",
+        "url": "https://kestrel.example.com/slim-15/specs",
+        "name": "kestrel.example.com",
+        "type": "manufacturer",
+        "tier": 1,
+        "fetched_at": "2026-10-03T10:00:00Z"
+      }
+    },
+    {
+      "claim_id": "clm_46feb890769b8225",
+      "quote": "I get about 6 hours, not 10",
+      "value": 6.0,
+      "unit": null,
+      "score": null,
+      "polarity": "neutral",
+      "claim_type": "experience",
+      "retrieved_at": "2026-10-03T10:00:00Z",
+      "source": {
+        "id": "src_edb2d0c42af72797",
+        "url": "https://www.reddit.com/r/developersIndia/comments/abc123/",
+        "name": "r/developersIndia",
+        "type": "reddit",
+        "tier": 4,
+        "fetched_at": "2026-10-03T10:00:00Z"
+      }
+    }
+  ],
+  "quote_withheld_reason": null
+}

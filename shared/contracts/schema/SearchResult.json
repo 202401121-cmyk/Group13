@@ -33,6 +33,45 @@
       "title": "Budget",
       "type": "object"
     },
+    "Citation": {
+      "additionalProperties": false,
+      "description": "One claim that a value in the result cites, with where it came from.",
+      "properties": {
+        "claim_id": {
+          "pattern": "^clm_[a-f0-9]{8,64}$",
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "source_id": {
+          "description": "One of the result's sources",
+          "pattern": "^src_[a-f0-9]{8,64}$",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "maxLength": 600,
+              "minLength": 3,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The claim's exact words. None when not kept: Reddit's words are not saved (D-53)",
+          "title": "Quote"
+        }
+      },
+      "required": [
+        "claim_id",
+        "source_id",
+        "quote"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
     "CommerceResult": {
       "additionalProperties": false,
       "properties": {
@@ -458,6 +497,19 @@
           "minLength": 1,
           "title": "Source Text",
           "type": "string"
+        },
+        "id": {
+          "description": "Stable id made from attribute, operator and value (hard_rule_id), so the same rule keeps its id across a rebuild (US-09). Left out, it is made; given, it must match",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "active": {
+          "default": true,
+          "description": "False when the shopper switched this rule to a preference: it then no longer filters (US-09)",
+          "title": "Active",
+          "type": "boolean"
         }
       },
       "required": [
@@ -465,7 +517,9 @@
         "operator",
         "value",
         "unit",
-        "source_text"
+        "source_text",
+        "id",
+        "active"
       ],
       "title": "HardRule",
       "type": "object"
@@ -1133,11 +1187,13 @@
           "type": "number"
         },
         "via": {
+          "description": "How the text was read: an API, a plain fetch, Jina Reader, a search snippet or Firecrawl (D-62)",
           "enum": [
             "api",
             "direct",
             "jina",
-            "search_snippet"
+            "search_snippet",
+            "firecrawl"
           ],
           "title": "Via",
           "type": "string"
@@ -1514,7 +1570,7 @@
   "description": "Everything the results page needs, including what went wrong. Saved at the end (build rule 10).",
   "properties": {
     "schema_version": {
-      "default": "1.6.0",
+      "default": "1.7.0",
       "title": "Schema Version",
       "type": "string"
     },
@@ -1585,6 +1641,14 @@
       "title": "Sources",
       "type": "array"
     },
+    "citations": {
+      "description": "For each claim a value cites: its id, its source and its quote. Saved, a Reddit quote is dropped (D-53). All or none: empty in a result from before 1.7.0",
+      "items": {
+        "$ref": "#/$defs/Citation"
+      },
+      "title": "Citations",
+      "type": "array"
+    },
     "stage_reports": {
       "items": {
         "$ref": "#/$defs/StageReport"
@@ -1625,6 +1689,7 @@
     "explanations",
     "commerce",
     "sources",
+    "citations",
     "stage_reports",
     "coverage_note",
     "saved"

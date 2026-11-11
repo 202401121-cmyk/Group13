@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "ShopSense: personalised, sourced product research"
 requires-python = ">=3.11"
 dependencies = [
-    "pydantic>=2.7,<3",
+    "pydantic>=2.10,<3",  # 2.10: a default_factory may read the fields already validated (HardRule.id)
     # Pinned exactly: search runs (US-12) stream progress with fastapi.sse, which came in 0.135.0.
     "fastapi==0.162.2",
     "uvicorn[standard]>=0.30",

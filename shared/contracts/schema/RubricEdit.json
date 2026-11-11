@@ -1,0 +1,128 @@
+{
+  "$defs": {
+    "Exclusion": {
+      "additionalProperties": false,
+      "description": "Something the user never wants to see (FR-10).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "brand",
+            "model",
+            "feature",
+            "seller"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        },
+        "always": {
+          "default": false,
+          "description": "True = save to memory for future searches",
+          "title": "Always",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "value",
+        "always"
+      ],
+      "title": "Exclusion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One change the shopper makes to the rubric (US-09). It carries exactly the fields of its kind.",
+  "properties": {
+    "kind": {
+      "enum": [
+        "switch_rule",
+        "add_exclusion",
+        "remove_exclusion",
+        "set_weight"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "rule_id": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "switch_rule: the HardRule.id to switch",
+      "title": "Rule Id"
+    },
+    "active": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "switch_rule: true keeps it a must-have; false makes it a preference",
+      "title": "Active"
+    },
+    "exclusion": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Exclusion"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "add_exclusion or remove_exclusion: which one"
+    },
+    "criterion_key": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "set_weight: the criterion",
+      "title": "Criterion Key"
+    },
+    "weight": {
+      "anyOf": [
+        {
+          "maximum": 10.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "set_weight: its new 0 to 10 weight",
+      "title": "Weight"
+    }
+  },
+  "required": [
+    "kind"
+  ],
+  "title": "RubricEdit",
+  "type": "object"
+}

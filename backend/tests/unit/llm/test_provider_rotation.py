@@ -456,6 +456,7 @@ DAILY = {
     Provider.OPENROUTER: 250_000,
     Provider.CEREBRAS: 1_000_000,
     Provider.MISTRAL: 1_000_000,
+    Provider.DEEPSEEK: 500_000,  # D-63
 }
 NAMES = {
     Provider.GROQ: "Groq",
@@ -463,6 +464,7 @@ NAMES = {
     Provider.OPENROUTER: "OpenRouter",
     Provider.CEREBRAS: "Cerebras",
     Provider.MISTRAL: "Mistral",
+    Provider.DEEPSEEK: "DeepSeek",
 }
 
 
@@ -530,7 +532,7 @@ def test_openrouter_is_paced_at_its_published_limit() -> None:
     assert (openrouter.requests_per_minute, openrouter.limits_checked) == (20, date(2026, 11, 3))
     assert default_limiters(config)[Provider.OPENROUTER].requests_per_minute == 20
     assert (openrouter.requests_per_day, openrouter.rotates) == (50, False)
-    assert [p.name for p in config.providers if not p.rotates] == [Provider.OPENROUTER]
+    assert [p.name for p in config.providers if not p.rotates] == [Provider.OPENROUTER, Provider.DEEPSEEK]  # D-63
     docs = (ROOT / "docs" / "api-setup.md").read_text(encoding="utf-8")
     assert "`requests_per_day: 50`" in docs
     assert "https://openrouter.ai/docs/api-reference/limits" in docs

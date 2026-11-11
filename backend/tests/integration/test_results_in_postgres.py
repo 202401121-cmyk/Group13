@@ -165,11 +165,20 @@ def _thread_with_words() -> Source:
     )
 
 
+def _on_sources(sources: list[Source]) -> dict[str, Any]:
+    """The example result, moved onto these sources. Its citations (1.7.0) must name the result's own sources, so they
+    move too: a claim the example took from Reddit to the Reddit source, any other to the first web page."""
+    data = ex.search_result().model_dump()
+    was_reddit = {s.id for s in ex.sources() if s.type is SourceType.REDDIT}
+    reddit = next((s.id for s in sources if s.type is SourceType.REDDIT), sources[0].id)
+    web = next((s.id for s in sources if s.type is not SourceType.REDDIT), reddit)
+    data["citations"] = [{**c, "source_id": reddit if c["source_id"] in was_reddit else web} for c in data["citations"]]
+    return {**data, "sources": sources}
+
+
 def _saved_with(store: PostgresRequestStore, url: str, sources: list[Source]) -> dict[str, Any]:
     session = new_session()
-    result = SearchResult.model_validate(
-        {**ex.search_result().model_dump(), "request": request(session), "sources": sources}
-    )
+    result = SearchResult.model_validate({**_on_sources(sources), "request": request(session)})
     assert DatabaseResultStore(store).save(result)
     [row] = stored_results(url, session)
     return row
@@ -182,6 +191,7 @@ def test_a_saved_row_read_back_holds_no_reddit_text(database_url: str, store: Po
         assert words not in text
     for author in ("a" * 64, "b" * 64):
         assert author not in text
+    assert row["citations"] and all(c["quote"] is None for c in row["citations"])  # every quote here was Reddit's
     assert SearchResult.model_validate(row).sources[0].type is SourceType.REDDIT  # and it still reads back
 
 
@@ -199,3 +209,9 @@ def test_a_saved_row_read_back_keeps_web_text_and_reddit_links(database_url: str
     assert [c["text"] for c in reddit["comments"]] == [REDDIT_TEXT_NOT_KEPT] * 3
     assert [c["upvotes"] for c in reddit["comments"]] == [3, 2, 1]
     assert (web["title"], web["text"]) == ("A web title", "Web text.")
+    quotes: dict[str, list[str | None]] = {c["source_id"]: [] for c in row["citations"]}
+    for citation in row["citations"]:
+        quotes[citation["source_id"]].append(citation["quote"])
+    assert quotes[reddit["id"]] and all(q is None for q in quotes[reddit["id"]])  # D-53: Reddit's quotes are dropped
+    assert quotes[web["id"]] and all(q for q in quotes[web["id"]])  # a web page's quotes are kept
+    assert SearchResult.model_validate(row).citations  # and the row still reads back

@@ -5,8 +5,9 @@ time, archive and counts, and each comment's ID, place in the thread and upvotes
 become the marker, and its author hashes go, as a hash can follow a person from thread to thread. The search itself, and
 the result the shopper sees, are untouched. This runs once, at the save (DatabaseResultStore.save), and nowhere else.
 
-A quote stays only if it names a source we know isn't Reddit. No saved result holds a quote today, because SearchResult
-has no claims, so this is ready for the day one does. The claim keeps its value, score and source link.
+A quote stays only if it names a source we know isn't Reddit. A claim keeps its value, score and source link, and its
+quote becomes the marker. SearchResult.citations (1.7.0) holds quotes, and a citation's quote is optional: from Reddit,
+or from a source we can't name, it is dropped (None), so the evidence route can say it was withheld.
 
 No other field holds Reddit's words yet. tests/unit/research/test_retention.py lists every text field in a SearchResult,
 and fails on a new one, or when US-15, US-16, US-20 or US-42 makes real the stages whose fields could hold them.
@@ -30,6 +31,7 @@ def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
     saved = copy.deepcopy(result)
     sources = saved.get("sources")
     if not isinstance(sources, list):
+        _drop_cited_quotes(saved, set())  # with no sources, no source can be known not to be Reddit
         return saved
     others: set[Any] = set()
     for source in sources:
@@ -38,6 +40,7 @@ def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
         elif isinstance(source, dict):
             others.add(source.get("id"))
     _strip_quotes(saved, others)
+    _drop_cited_quotes(saved, others)
     return saved
 
 
@@ -77,6 +80,16 @@ def _strip_source(source: dict[str, Any]) -> None:
 
 def _strip_comment(comment: Any) -> Any:
     return {**comment, "text": REDDIT_TEXT_NOT_KEPT, "author_hash": None} if isinstance(comment, dict) else None
+
+
+def _drop_cited_quotes(saved: dict[str, Any], others: set[Any]) -> None:
+    """A citation's quote is optional, so one that can't be kept is dropped, not replaced by the marker."""
+    citations = saved.get("citations")
+    if not isinstance(citations, list):
+        return
+    for citation in citations:
+        if isinstance(citation, dict) and citation.get("source_id") not in others:
+            citation["quote"] = None
 
 
 def _strip_quotes(node: Any, others: set[Any]) -> None:

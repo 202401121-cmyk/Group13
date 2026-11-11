@@ -24,10 +24,13 @@ from .criteria import CriteriaInput, CriteriaSet, Criterion, Direction
 from .decide import Contribution, DecideInput, DecideResult, FilteredProduct, RankedProduct
 from .enrich import EnrichInput, EnrichResult, EnrichTarget
 from .entities import MatchInput, MatchResult, Product, Variant
+from .evidence import Citation, ClaimEvidence, EvidenceResponse, EvidenceSource
 from .explain import ExplainInput, ExplainResult, Explanation, ExplanationSentence
-from .intake import Budget, Exclusion, HardRule, IntakeInput, Intent
+from .intake import OPERATOR_WORDS, Budget, Exclusion, HardRule, IntakeInput, Intent, hard_rule_id
 from .interview import (
+    MAX_EXPLANATION_WORDS,
     MAX_QUESTIONS,
+    MAX_TERMS,
     MAX_UNCLEAR_PER_QUESTION,
     ROUGH_LEVEL_WEIGHTS,
     AskedQuestion,
@@ -40,6 +43,7 @@ from .interview import (
     ReplyType,
     RoughLevel,
     RoughLevelWeights,
+    TermExplanation,
 )
 from .llm import (
     PERSONAL_TASKS,
@@ -63,7 +67,20 @@ from .pipeline import (
     Stage,
     StageContext,
 )
-from .presearch import MAX_UNCLEAR_ATTEMPTS, IntakeResponse, PresearchSession, ReplyRequest
+from .presearch import (
+    MAX_EXCLUSION_TEXT,
+    MAX_RUBRIC_EDITS,
+    MAX_UNCLEAR_ATTEMPTS,
+    ExclusionParseRequest,
+    ExclusionParseResponse,
+    IntakeResponse,
+    PresearchSession,
+    ReplyRequest,
+    RubricEdit,
+    RubricEditKind,
+    RubricEditRequest,
+    RubricEditResponse,
+)
 from .research import (
     MAX_COMMENT_CHARS,
     MAX_COMMENT_DEPTH,
@@ -83,10 +100,15 @@ from .verify import CommunitySignal, ResolvedValue, ValueState, VerifyInput, Ver
 __all__ = [
     "MAX_COMMENT_CHARS",
     "MAX_COMMENT_DEPTH",
+    "MAX_EXCLUSION_TEXT",
+    "MAX_EXPLANATION_WORDS",
     "MAX_QUESTIONS",
+    "MAX_RUBRIC_EDITS",
     "MAX_SOURCE_COMMENTS",
+    "MAX_TERMS",
     "MAX_UNCLEAR_ATTEMPTS",
     "MAX_UNCLEAR_PER_QUESTION",
+    "OPERATOR_WORDS",
     "PERSONAL_TASKS",
     "PRICE_STALE_AFTER",
     "ROUGH_LEVEL_WEIGHTS",
@@ -95,7 +117,9 @@ __all__ = [
     "STAGE_TIME_LIMITS_S",
     "AskedQuestion",
     "Budget",
+    "Citation",
     "Claim",
+    "ClaimEvidence",
     "ClaimType",
     "CommerceInput",
     "CommerceResult",
@@ -113,7 +137,11 @@ __all__ = [
     "EnrichInput",
     "EnrichResult",
     "EnrichTarget",
+    "EvidenceResponse",
+    "EvidenceSource",
     "Exclusion",
+    "ExclusionParseRequest",
+    "ExclusionParseResponse",
     "ExplainInput",
     "ExplainResult",
     "Explanation",
@@ -157,6 +185,10 @@ __all__ = [
     "RoughLevel",
     "RoughLevelWeights",
     "Rubric",
+    "RubricEdit",
+    "RubricEditKind",
+    "RubricEditRequest",
+    "RubricEditResponse",
     "SearchRequest",
     "SearchResult",
     "SearchRun",
@@ -173,10 +205,12 @@ __all__ = [
     "StageName",
     "StageReport",
     "StageStatus",
+    "TermExplanation",
     "ValueState",
     "Variant",
     "VerifyInput",
     "VerifyResult",
     "WeightedCriterion",
+    "hard_rule_id",
     "normalize",
 ]

@@ -1,0 +1,188 @@
+{
+  "$defs": {
+    "ClaimType": {
+      "description": "DR-05: community claims are experience; manufacturer and lab claims are spec.",
+      "enum": [
+        "spec",
+        "experience"
+      ],
+      "title": "ClaimType",
+      "type": "string"
+    },
+    "EvidenceSource": {
+      "additionalProperties": false,
+      "description": "The source of a claim, as the evidence panel shows it.",
+      "properties": {
+        "id": {
+          "pattern": "^src_[a-f0-9]{8,64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        },
+        "name": {
+          "description": "The site's domain, or the community, e.g. 'r/...'",
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/SourceType"
+        },
+        "tier": {
+          "$ref": "#/$defs/SourceTier"
+        },
+        "fetched_at": {
+          "format": "date-time",
+          "title": "Fetched At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "url",
+        "name",
+        "type",
+        "tier",
+        "fetched_at"
+      ],
+      "title": "EvidenceSource",
+      "type": "object"
+    },
+    "SourceTier": {
+      "description": "DR-03: lower number = more authoritative for factual specs.",
+      "enum": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "title": "SourceTier",
+      "type": "integer"
+    },
+    "SourceType": {
+      "enum": [
+        "reddit",
+        "youtube",
+        "web_search",
+        "review_site",
+        "manufacturer",
+        "lab",
+        "retailer"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One claim behind a value, with its source (build rule 4).",
+  "properties": {
+    "claim_id": {
+      "pattern": "^clm_[a-f0-9]{8,64}$",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "quote": {
+      "anyOf": [
+        {
+          "maxLength": 600,
+          "minLength": 3,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Exact words from the source. None when withheld; the response then says why",
+      "title": "Quote"
+    },
+    "value": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Text or a number, e.g. 1.4 for kg. Or a score",
+      "title": "Value"
+    },
+    "unit": {
+      "anyOf": [
+        {
+          "maxLength": 16,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Unit"
+    },
+    "score": {
+      "anyOf": [
+        {
+          "maximum": 10.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "0 to 10 judgement for this criterion. Or a value",
+      "title": "Score"
+    },
+    "polarity": {
+      "enum": [
+        "positive",
+        "negative",
+        "neutral"
+      ],
+      "title": "Polarity",
+      "type": "string"
+    },
+    "claim_type": {
+      "$ref": "#/$defs/ClaimType"
+    },
+    "retrieved_at": {
+      "description": "When the source was fetched (build rule 4)",
+      "format": "date-time",
+      "title": "Retrieved At",
+      "type": "string"
+    },
+    "source": {
+      "$ref": "#/$defs/EvidenceSource"
+    }
+  },
+  "required": [
+    "claim_id",
+    "quote",
+    "value",
+    "unit",
+    "score",
+    "polarity",
+    "claim_type",
+    "retrieved_at",
+    "source"
+  ],
+  "title": "ClaimEvidence",
+  "type": "object"
+}

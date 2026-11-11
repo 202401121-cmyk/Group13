@@ -87,7 +87,9 @@ class Source(Contract):
         description="What this text may be sent to (US-46). Follows the type: Reddit is reddit, the rest public",
     )
     quality: Fraction = Field(default=0.5, description="US-13 thread or page quality score")
-    via: Literal["api", "direct", "jina", "search_snippet"]
+    via: Literal["api", "direct", "jina", "search_snippet", "firecrawl"] = Field(
+        description="How the text was read: an API, a plain fetch, Jina Reader, a search snippet or Firecrawl (D-62)"
+    )
     source_detail: RedditOrigin | None = Field(
         default=None, description="Reddit only: which archive or API the text came from (US-12)"
     )

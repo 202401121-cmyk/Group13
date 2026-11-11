@@ -18,7 +18,8 @@
         "operator": ">=",
         "value": 16.0,
         "unit": "GB",
-        "source_text": "at least 16 GB RAM"
+        "source_text": "at least 16 GB RAM",
+        "id": "ram_gb_min_1c18a881e7"
       }
     ],
     "exclusions": [

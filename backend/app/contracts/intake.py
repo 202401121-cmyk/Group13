@@ -2,13 +2,60 @@
 
 from __future__ import annotations
 
-from typing import Literal
+import hashlib
+import json
+from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
 from .common import Contract, Money, Region, Slug
 
 Operator = Literal["<=", ">=", "==", "!=", "in", "not_in", "contains"]
+
+# The word each operator gives a hard rule's id, so the id reads like the rule (S3-0).
+OPERATOR_WORDS: dict[str, str] = {
+    "<=": "max",
+    ">=": "min",
+    "==": "is",
+    "!=": "not",
+    "in": "in",
+    "not_in": "not_in",
+    "contains": "has",
+}
+
+
+def _canonical(value: object) -> object:
+    """The value as the id sees it: a number as a float, text trimmed and case-folded, a list sorted."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int | float):
+        return float(value) + 0.0  # + 0.0 turns -0.0 into 0.0, as JSON readers such as the browser do
+    if isinstance(value, str):
+        return value.strip().casefold()
+    if isinstance(value, list | tuple):
+        return sorted(str(item).strip().casefold() for item in value)
+    return repr(value)
+
+
+def hard_rule_id(attribute: str, operator: str, value: object) -> str:
+    """A hard rule's stable id (US-09): the same attribute, operator and value always give the same id.
+
+    It reads as "<attribute>_<operator word>_<10 hex>", such as "ram_gb_min_…". The hex is the start of the sha256 of
+    the three, so 16 and 16.0, "HP" and "hp", or a list in another order give the same id. Unit and source_text are not
+    part of it. Two rules with the same id are the same rule, so a switch applies to both. Saved results and the
+    shopper's rule switches keep these ids, so changing how one is made is a contract change.
+    """
+    canonical = json.dumps([attribute, operator, _canonical(value)], ensure_ascii=False, separators=(",", ":"))
+    digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:10]
+    return f"{attribute[:40].rstrip('_-')}_{OPERATOR_WORDS[operator]}_{digest}"
+
+
+def _id_from(data: dict[str, Any]) -> str:
+    """Make the id from the fields already validated. If one of them failed, the rule is refused anyway."""
+    attribute, operator = data.get("attribute"), data.get("operator")
+    if not isinstance(attribute, str) or operator not in OPERATOR_WORDS or "value" not in data:
+        return "invalid"
+    return hard_rule_id(attribute, str(operator), data["value"])
 
 
 class HardRule(Contract):
@@ -19,6 +66,25 @@ class HardRule(Contract):
     value: float | bool | str | list[str]
     unit: str | None = Field(default=None, max_length=16)
     source_text: str = Field(min_length=1, max_length=200, description="What the user actually said")
+    id: Slug = Field(
+        default_factory=_id_from,
+        description=(
+            "Stable id made from attribute, operator and value (hard_rule_id), so the same rule keeps its id across a "
+            "rebuild (US-09). Left out, it is made; given, it must match"
+        ),
+    )
+    active: bool = Field(
+        default=True,
+        description="False when the shopper switched this rule to a preference: it then no longer filters (US-09)",
+    )
+
+    @model_validator(mode="after")
+    def _check_id(self) -> HardRule:
+        if self.id != hard_rule_id(self.attribute, self.operator, self.value):
+            raise ValueError(
+                "a hard rule's id is made from its attribute, operator and value; leave it out to have it made"
+            )
+        return self
 
 
 class Exclusion(Contract):

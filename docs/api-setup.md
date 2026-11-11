@@ -558,6 +558,7 @@ is the team's choice, and the row says how it was set. For Gemini and OpenRouter
 | OpenRouter | 250,000 | The team's choice: no token limit is published; 50 requests a day ([limits](https://openrouter.ai/docs/api-reference/limits), 3 Nov 2026) × 5,000 | `OPENROUTER_DAILY_TOKENS` |
 | Cerebras | 1,000,000 | 1M tokens a day while a trial credit lasts, [rate limits](https://inference-docs.cerebras.ai/support/rate-limits), 3 Nov 2026. Unavailable today | `CEREBRAS_DAILY_TOKENS` |
 | Mistral | 1,000,000 | The team's choice: a cautious guess, 3 Nov 2026, until someone reads the monthly allowance in Mistral's Admin Panel and sets it to that ÷ 31, less 10% (see "Mistral" above) | `MISTRAL_DAILY_TOKENS` |
+| DeepSeek | 500,000 | The team's choice (D-63, 11 Nov 2026): no free tier is described ([pricing](https://api-docs.deepseek.com/quick_start/pricing)), so it runs only on a granted balance. Unavailable until S3-1 gives it routes | `DEEPSEEK_DAILY_TOKENS` |
 
 OpenRouter also has a requests-a-day counter (`requests_per_day: 50`): its free models allow 50 requests a day until
 the account has bought 10 credits ([limits](https://openrouter.ai/docs/api-reference/limits), 3 Nov 2026, checked

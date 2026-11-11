@@ -26,6 +26,7 @@ from .common import (
 )
 from .decide import DecideResult
 from .entities import Product
+from .evidence import Citation
 from .explain import Explanation
 from .research import Source
 from .rubric import Rubric
@@ -105,6 +106,13 @@ class SearchResult(Contract):
     explanations: list[Explanation] = Field(default_factory=list)
     commerce: CommerceResult | None = None
     sources: list[Source] = Field(default_factory=list)
+    citations: list[Citation] = Field(
+        default_factory=list,
+        description=(
+            "For each claim a value cites: its id, its source and its quote. Saved, a Reddit quote is dropped (D-53). "
+            "All or none: empty in a result from before 1.7.0"
+        ),
+    )
     stage_reports: list[StageReport] = Field(default_factory=list)
     coverage_note: str | None = Field(default=None, max_length=400, description="e.g. 'Reddit was unavailable'")
     saved: bool = Field(
@@ -127,7 +135,35 @@ class SearchResult(Contract):
             missing = {r.product_id for r in self.decision.ranked} - known
             if missing:
                 raise ValueError(f"ranked products missing from products: {sorted(missing)}")
+        self._check_citations()
         return self
+
+    def _check_citations(self) -> None:
+        """Every claim a value cites is cited once, from one of the result's sources (US-21).
+
+        All or nothing: a result from before 1.7.0, or from a pipeline that does not fill them yet, has none.
+        """
+        if not self.citations:
+            return
+        ids = [c.claim_id for c in self.citations]
+        if len(ids) != len(set(ids)):
+            raise ValueError("each claim is cited once")
+        cited = {
+            claim_id
+            for summary in self.products
+            for value in summary.values
+            for claim_id in (*value.supporting_claim_ids, *value.conflicting_claim_ids)
+        }
+        stray = sorted(set(ids) - cited)
+        if stray:
+            raise ValueError(f"citations name claims that no value cites: {stray}")
+        missing = sorted(cited - set(ids))
+        if missing:
+            raise ValueError(f"citations leave out claims a value cites: {missing}")
+        sources = {s.id for s in self.sources}
+        unknown = sorted({c.source_id for c in self.citations} - sources)
+        if unknown:
+            raise ValueError(f"citations name sources not in this result's sources: {unknown}")
 
 
 class ProgressEvent(Contract):

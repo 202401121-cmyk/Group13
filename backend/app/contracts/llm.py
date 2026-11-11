@@ -18,6 +18,7 @@ class Provider(StrEnum):
     OPENROUTER = "openrouter"
     CEREBRAS = "cerebras"
     MISTRAL = "mistral"
+    DEEPSEEK = "deepseek"  # D-63: public text only; not called until S3-1 gives it routes
 
 
 class LLMTask(StrEnum):

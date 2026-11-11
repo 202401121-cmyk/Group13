@@ -1,0 +1,44 @@
+{
+  "edits": [
+    {
+      "kind": "switch_rule",
+      "rule_id": "ram_gb_min_1c18a881e7",
+      "active": false,
+      "exclusion": null,
+      "criterion_key": null,
+      "weight": null
+    },
+    {
+      "kind": "add_exclusion",
+      "rule_id": null,
+      "active": null,
+      "exclusion": {
+        "kind": "brand",
+        "value": "Orion",
+        "always": false
+      },
+      "criterion_key": null,
+      "weight": null
+    },
+    {
+      "kind": "remove_exclusion",
+      "rule_id": null,
+      "active": null,
+      "exclusion": {
+        "kind": "brand",
+        "value": "Zenith",
+        "always": false
+      },
+      "criterion_key": null,
+      "weight": null
+    },
+    {
+      "kind": "set_weight",
+      "rule_id": null,
+      "active": null,
+      "exclusion": null,
+      "criterion_key": "battery_life",
+      "weight": 9.0
+    }
+  ]
+}
