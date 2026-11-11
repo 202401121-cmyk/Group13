@@ -15,10 +15,10 @@ import csv
 import gzip
 import hashlib
 import json
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, Protocol
+from typing import Generic, Literal, Protocol, TypeVar
 
 from check_labels import check_file
 
@@ -286,6 +286,53 @@ class CrossPairSet:
 def leipzig_split(record_id: str) -> Split:
     """Even first byte of sha256(id) is dev, odd is test: the same split on every machine, with no seed to keep."""
     return "dev" if hashlib.sha256(record_id.encode("utf-8")).digest()[0] % 2 == 0 else "test"
+
+
+# --- our own pairs, split by product family (ML-1, L2) --------------------------------------------------------------
+
+T = TypeVar("T")
+
+
+@dataclass(frozen=True)
+class FamilySplit(Generic[T]):
+    """Items split by product family, so no family is on both sides. An item whose families fall on different sides
+    is in neither: it is kept in `straddling`, so it can be counted."""
+
+    dev: list[T]
+    test: list[T]
+    straddling: list[T]
+    dev_families: frozenset[str]
+    test_families: frozenset[str]
+
+
+def family_side(family: str) -> Split:
+    """A product family's side: even first byte of sha256(family) is dev, odd is test, as leipzig_split does.
+
+    It depends on the family alone, so the split is the same on every machine and in every run. The L2 evaluation
+    (own_eval.py) and the matcher's training (S3-4) both use this one function, so they split our pairs the same way.
+    """
+    return "dev" if hashlib.sha256(family.encode("utf-8")).digest()[0] % 2 == 0 else "test"
+
+
+def split_by_family(items: Sequence[T], families_of: Callable[[T], Iterable[str]]) -> FamilySplit[T]:
+    """Each item goes to the side all its families are on. A pair of two families on different sides goes nowhere."""
+    sides: dict[Split, list[T]] = {"dev": [], "test": []}
+    families_on: dict[Split, set[str]] = {"dev": set(), "test": set()}
+    straddling: list[T] = []
+    for item in items:
+        families = set(families_of(item))
+        if not families:
+            raise PairSetError("an item has no product family, so it cannot be split by family")
+        on: set[Split] = {family_side(family) for family in families}
+        if len(on) == 1:
+            side: Split = next(iter(on))
+            sides[side].append(item)
+            families_on[side] |= families
+        else:
+            straddling.append(item)
+    return FamilySplit(
+        sides["dev"], sides["test"], straddling, frozenset(families_on["dev"]), frozenset(families_on["test"])
+    )
 
 
 def load_leipzig(raw_dir: Path, name: str) -> CrossPairSet:

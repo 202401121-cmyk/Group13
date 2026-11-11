@@ -105,12 +105,12 @@ everything runs on our own machines: no model service is called, so WDC data nev
 | Story | #13 (matching evaluation scaffold), the baseline for US-15 |
 | Owner | Rushiraj Navar |
 | Type | Not trained. Three rapidfuzz scorers on the listing text: `fuzz.ratio`, `fuzz.token_sort_ratio`, `fuzz.token_set_ratio`, each divided by 100. Text is normalised with Unicode NFKC, then `rapidfuzz.utils.default_process`. A pair is called a match when its score is at or above the threshold |
-| Data | WDC Products (9 test sets), Abt-Buy and Amazon-Google (every pair), and our own labelled pairs (machine labels, not scored yet; [DATA.md](DATA.md) sections 2, 4.1 and 7) |
+| Data | WDC Products (9 test sets), Abt-Buy and Amazon-Google (every pair), and our own labelled pairs (machine labels, scored by L2 on 11 Nov 2026; [DATA.md](DATA.md) sections 2, 4.1 and 7) |
 | Threshold choice | On each dev split, the scorer and threshold (0.00 to 1.00 in steps of 0.01) with the best F1. Ties go to the higher threshold. The test split is scored once, at that choice |
-| Split rules | **WDC:** test = each `_gs` file; dev = the `valid_large` set of the same corner-case level and unseen share. **Abt-Buy, Amazon-Google:** every left record against every right record; left records go to dev when the first byte of sha256(id) is even, else test. **Our pairs:** all test (no dev split yet), scored at the choice made on WDC 80cc20rnd000un |
+| Split rules | **WDC:** test = each `_gs` file; dev = the `valid_large` set of the same corner-case level and unseen share. **Abt-Buy, Amazon-Google:** every left record against every right record; left records go to dev when the first byte of sha256(id) is even, else test. **Our pairs:** split by product family, so no family is on both sides: a family goes to dev when the first byte of sha256(family) is even, else test (`pairsets.split_by_family`, which S3-4 uses too). A pair whose two families fall on different sides is left out. The dev side picks the scorer and threshold. The test side is scored once, and again at the WDC 80cc20rnd000un choice for comparison (D-56) |
 | Versions | rapidfuzz 3.14.6, numpy 2.4.6, Python 3.11.15 (`ml/requirements.txt`) |
-| Date | 26 Oct 2026; the numbers are in `ml/results/matching_baseline.json` |
-| Run | `python ml/scripts/match_baseline.py all --out ml/results/matching_baseline.json` (about 7 s for everything) |
+| Date | 26 Oct 2026 for WDC, Abt-Buy and Amazon-Google; 11 Nov 2026 for our own pairs, labels read at commit `28c4e9d`. The numbers are in `ml/results/matching_baseline.json` |
+| Run | `python ml/scripts/match_baseline.py all --out ml/results/matching_baseline.json` (about 7 s for everything). Our own pairs: `python ml/scripts/own_eval.py --out ml/results/matching_baseline.json`, which merges its two `own_pairs` entries and keeps the rest; a rerun of `match_baseline.py` keeps them too |
 
 Test-split results. The "brand + title" rows appear only where putting the brand in front of the title gave a better
 dev F1 than the title alone. "Hard negatives called a match" counts WDC's hard non-matches, often variants of the same
@@ -134,6 +134,36 @@ model, that the baseline wrongly calls the same product: our "variant" problem i
 | WDC Products | 20cc80rnd100un | title | token_set_ratio | 0.75 | 0.469 | 4,500 | 500 | 298 | 516 | 202 | 0.366 | 0.596 | 0.454 | 516 of 3,000 (17.2%) |
 | Abt-Buy | all pairs | name / name | token_set_ratio | 0.83 | 0.476 | 585,312 | 545 | 272 | 384 | 273 | 0.415 | 0.499 | 0.453 | n/a |
 | Amazon-Google | all pairs | title / name | token_set_ratio | 0.91 | 0.476 | 2,280,782 | 668 | 419 | 626 | 249 | 0.401 | 0.627 | 0.489 | n/a |
+| Our own pairs (machine labels) | family split, chosen on dev | title | token_set_ratio | 1.00 | 0.545 | 57 | 7 | 2 | 1 | 5 | 0.667 [0.000, 1.000] | 0.286 [0.000, 0.667] | 0.400 [0.000, 0.727] | 0 of 15 variants (0.0%) |
+| Our own pairs (machine labels) | family split, at the WDC 80cc20rnd000un choice | title | token_set_ratio | 0.79 | 0.322 (WDC) | 57 | 7 | 5 | 19 | 2 | 0.208 [0.053, 0.381] | 0.714 [0.333, 1.000] | 0.323 [0.087, 0.514] | 2 of 15 variants (13.3%) |
+
+**Our own pairs (L2, ML-1, 11 Nov 2026).** These are machine labels ([DATA.md](DATA.md) section 4.1), not people's.
+
+- **The gate:** agree-1's four-class kappa is 0.933 (it needs 0.80), and 275 pairs are labelled (it needs 150).
+- **Which pairs count:** every label file is combined by `pair_id`. 226 pairs are usable; the other 49 have an unsure
+  label, and no pair has labels that disagree on same against not same. A variant is never a match.
+- **The split by family:** dev holds 124 pairs in 17 families, and test 57 pairs in 14 families. 45 pairs are left
+  out, because their two families fall on different sides.
+- **The intervals:** the brackets are 95% bootstrap intervals (1,000 resamples of the test pairs, seed 20261111). For
+  precision at the dev choice, 55 resamples held no pair called a match, so they are left out of its interval.
+- **The test side is small:** 57 pairs, of which 7 are true matches, so the intervals are wide. Read them, not the
+  point values.
+- **Called a match on the test side**, at the dev choice and then at the WDC choice:
+  - same: 2 of 7, then 5 of 7;
+  - variant: 0 of 15, then 2 of 15;
+  - different product: 1 of 35, then 17 of 35.
+- **By stratum,** in the JSON: at the WDC choice, 6 of the 7 different products in `mention_vs_title` and 8 of the 15
+  in `same_family_cross_source` are called a match.
+- **What the numbers say:** the dev side chose 1.00. `token_set_ratio` gives 1.00 when one title's words are all among
+  the other's, as for a short mention against a fuller title. That is likely the one different product called a match
+  at the dev choice, which is in `mention_vs_title`. At the WDC 0.79, most of the true matches are found, but so are
+  half of the different products. That is the fuzzy baseline's weakness, as on WDC.
+- **What the intervals leave out:**
+  - **They resample pairs, not families.** Pairs from one family tend to go together, so the real uncertainty is
+    likely larger than the brackets show.
+  - **Few hard cases on test.** Pairs whose two families fall on different sides are left out, and they are mostly
+    `hard_different` and `random`. So the test side holds only one `hard_different` pair, and "different called a
+    match" is barely measured on the hardest stratum.
 
 Limits:
 
@@ -145,5 +175,7 @@ Limits:
   record add up.
 - Each WDC level's 050un and 100un validation files are the same pairs (identical after decompressing; only the gzip
   headers differ), so those two test sets share one dev set and one threshold.
-- Our own pairs are labelled (machine labels, [DATA.md](DATA.md) section 4.1) but not scored yet. Run
-  `python ml/scripts/match_baseline.py own <file>.csv [<second file>.csv]`.
+- **Our own pairs carry machine labels** ([DATA.md](DATA.md) section 4.1), and their test side is small (57 pairs, 7
+  true matches). The record comes from `own_eval.py`.
+- **`match_baseline.py own <file>.csv [<second file>.csv]`** is still there for a quick look at one or two files. It
+  scores every pair as test, at the WDC choice.

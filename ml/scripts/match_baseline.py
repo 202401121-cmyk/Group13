@@ -67,7 +67,9 @@ from pairsets import (
 from rapidfuzz import fuzz, process, utils
 
 SYNTHETIC_WARNING = "SYNTHETIC EXAMPLE: these numbers mean nothing"
-OWN_THRESHOLD_SUBSET = "80cc20rnd000un"  # our pairs have no dev split yet, so they use the choice made here
+OWN_THRESHOLD_SUBSET = "80cc20rnd000un"  # the `own` quick look scores our pairs at the choice made here
+# The L2 record on our own pairs (own_eval.py). A rerun of this script keeps those entries when it rewrites --out.
+OWN_PAIRS_DATASET = "own_pairs"
 WDC_RULE = "test = the subset's _gs file; dev = the validation set of the same corner-case level and unseen share"
 LEIPZIG_RULE = (
     "every left record against every right record; left records split by the parity of the first byte of "
@@ -461,9 +463,30 @@ def main(argv: Sequence[str] | None = None) -> int:
     if out is not None:
         out.parent.mkdir(parents=True, exist_ok=True)
         data = to_json(results, datetime.now(UTC))
+        kept = kept_own_pairs(out)
+        data["results"] = [*_result_list(data), *kept]
         out.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8", newline="\n")
         print(f"\nWrote {out}")
+        if kept:
+            print(f"Kept the {len(kept)} own_pairs entries of own_eval.py: run it again if the WDC numbers changed.")
     return 0
+
+
+def _result_list(data: dict[str, object]) -> list[object]:
+    results = data["results"]
+    return list(results) if isinstance(results, list) else []
+
+
+def kept_own_pairs(path: Path) -> list[object]:
+    """The L2 record on our own pairs (own_eval.py) in an earlier file, so rewriting the file never drops it."""
+    try:
+        earlier = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    results = earlier.get("results") if isinstance(earlier, dict) else None
+    if not isinstance(results, list):
+        return []
+    return [entry for entry in results if isinstance(entry, dict) and entry.get("dataset") == OWN_PAIRS_DATASET]
 
 
 if __name__ == "__main__":

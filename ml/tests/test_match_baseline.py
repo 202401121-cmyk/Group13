@@ -13,10 +13,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 from match_baseline import (
+    OWN_PAIRS_DATASET,
     SCORERS,
     SYNTHETIC_WARNING,
     CrossScoring,
     Result,
+    kept_own_pairs,
     main,
     normalise,
     sweep_matrix,
@@ -170,6 +172,23 @@ def test_all_runs_end_to_end_on_made_up_files_and_writes_json(
     leipzig = next(r for r in results if r["dataset"] == "abt_buy")
     assert leipzig["test"]["hard_negatives"] is None
     assert leipzig["test"]["pairs"] == 1 * 6  # one test left record (1004) against six right records
+
+
+def test_rewriting_the_results_keeps_the_own_pairs_entries(
+    raw_tree: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The L2 record (own_eval.py) lives in the same file: a later rerun of this script must not drop it (ML-1)."""
+    out_file = tmp_path / "matching_baseline.json"
+    record = {"dataset": OWN_PAIRS_DATASET, "subset": "SYNTHETIC record", "labels": "machine labels"}
+    stale = {"dataset": "abt_buy", "subset": "an old run"}
+    out_file.write_text(json.dumps({"results": [stale, record]}), encoding="utf-8")
+    code, out = _run(["abt_buy", "--raw-dir", raw_tree, "--out", out_file], capsys)
+    assert code == 0, out
+    results = json.loads(out_file.read_text(encoding="utf-8"))["results"]
+    assert results[-1] == record
+    assert stale not in results  # every other entry is this run's own
+    assert [r["dataset"] for r in results] == ["abt_buy", OWN_PAIRS_DATASET]
+    assert kept_own_pairs(tmp_path / "missing.json") == []
 
 
 def test_the_script_runs_from_the_command_line(raw_tree: Path) -> None:

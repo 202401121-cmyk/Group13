@@ -177,9 +177,10 @@ On 10 Nov 2026 Om changed D-55, so that two machine labellers may label a batch 
   `solo-2` and `solo-4`. From `solo-2` on, each solo batch repeats 5 pairs from the other's last batch, so the two
   keep being checked against each other.
 - For the two files of one batch (`agree-1`), `pairsets.load_own` keeps only the pairs both call `same` or both call
-  not `same`. A pair repeated in another batch's file is not matched up yet: `solo-3.machine-a.csv` alone still holds
-  p0178 as `different`, though Machine B said `unsure`. Combining every file by `pair_id`, and dropping each pair the
-  labellers disagree on, is the evaluation's job (L2).
+  not `same`. The evaluation (L2, `ml/scripts/own_eval.py`, 11 Nov 2026) combines every file by `pair_id` and keeps a
+  pair only when its labels agree on `same` against not `same`. It drops every pair with an `unsure` label, so p0178
+  (`different` from Machine A, `unsure` from Machine B) is left out. That gives 226 usable pairs of the 275, and the
+  numbers are in [MODELS.md](MODELS.md) card 8.
 - This kappa shows that the two machine labellers apply the guide the same way. It does not show that two people
   would. Every result that uses these labels says they are machine labels.
 

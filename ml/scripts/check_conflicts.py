@@ -14,7 +14,6 @@ from __future__ import annotations
 import argparse
 import codecs
 import csv
-import io
 import re
 import sys
 import unicodedata
@@ -27,6 +26,7 @@ from typing import NoReturn
 from urllib.parse import unquote, urlsplit
 
 from check_labels import ISO_DATE, MAX_TITLE_LENGTH, SLUG, use_utf8_stdout
+from listings import header_problem, physical_lines
 
 HEADER = (
     "conflict_id",
@@ -318,9 +318,7 @@ def _read_rows(path: Path, result: CheckResult, problems: _Problems) -> list[Row
         before = data[: exc.start].replace(b"\r\n", b"\n").replace(b"\r", b"\n")
         problems.add(before.count(b"\n") + 1, 'the file is not UTF-8 text; save it as "CSV UTF-8"')
         return []
-    # Split at \n, \r\n or \r only. str.splitlines would also split at characters such as U+2028, which turn up in text
-    # copied from web pages, and every line number after one would be off.
-    lines = io.StringIO(text, newline="").readlines()
+    lines = physical_lines(text)  # split at \n, \r\n or \r only, as listings.py does
     if not lines:
         problems.add(1, "the file is empty; the first line must be the header")
         return []
@@ -333,9 +331,9 @@ def _read_rows(path: Path, result: CheckResult, problems: _Problems) -> list[Row
                 return []
             continue
         if number == 1:
-            header_problem = _header_problem(record)
-            if header_problem:
-                problems.add(1, f"{header_problem}. The header must be exactly: {','.join(HEADER)}")
+            problem = header_problem(record, HEADER)
+            if problem:
+                problems.add(1, f"{problem}. The header must be exactly: {','.join(HEADER)}")
                 return []
             continue
         if not any(cell.strip() for cell in record):
@@ -359,18 +357,6 @@ def _read_line(line: str, number: int, problems: _Problems) -> list[str] | None:
     except csv.Error as exc:
         problems.add(number, f"this line cannot be read as CSV ({exc}); check the quotes on this line")
         return None
-
-
-def _header_problem(found: Sequence[str]) -> str | None:
-    """Name the first wrong header cell, which is easier to fix than a whole-line comparison."""
-    if tuple(found) == HEADER:
-        return None
-    if len(found) != len(HEADER):
-        return f"the header has {len(found)} columns, expected {len(HEADER)}"
-    for number, (expected, cell) in enumerate(zip(HEADER, found, strict=True), start=1):
-        if expected != cell:
-            return f"header column {number} is {cell!r}, expected {expected!r}"
-    return None  # unreachable: the tuples differ, so some cell differs
 
 
 # --- one row ------------------------------------------------------------------------------------------
