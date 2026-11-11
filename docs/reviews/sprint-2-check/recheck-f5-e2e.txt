@@ -1,0 +1,949 @@
+Re-check F-5 (mock end-to-end, Playwright and axe): clean clone of main 0c22d59, Node v22.18.0, 2026-11-10T17:33:51Z. Nothing else ran on the machine during this run.
+
+$ npm run test:e2e
+
+> test:e2e
+> playwright test
+
+[WebServer] The plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.
+
+Running 168 tests using 8 workers
+
+  -    1 [chromium] › e2e\live\full-flow.spec.ts:16:1 › @live a shopper goes from a typed request to ranked results with sources
+[a11y] research, empty | light | pass
+[a11y] home | light | pass
+[a11y] research, empty | dark | pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] criteria, loading | light | pass
+[a11y] home | dark | pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] criteria, loading | dark | pass
+[a11y] research, empty request error | light | pass
+[a11y] about (coming soon) | light | pass
+[a11y] questions, first question | light | pass
+[a11y] research, empty request error | dark | pass
+[a11y] about (coming soon) | dark | pass
+[a11y] criteria, ready | light | pass
+[a11y] questions, first question | dark | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, reading the request | light | pass
+[a11y] contact (coming soon) | light | pass
+[a11y] criteria, ready | dark | pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] research, reading the request | dark | pass
+[a11y] questions, why this question open | light | pass
+[a11y] contact (coming soon) | dark | pass
+[a11y] questions, why this question open | dark | pass
+[a11y] faq (coming soon) | light | pass
+[a11y] research, understood | light | pass
+[a11y] results, estimated | light | pass
+[a11y] brief, ready | light | pass
+[a11y] results, success | light | pass
+[a11y] faq (coming soon) | dark | pass
+[a11y] criteria, standard list | light | pass
+[a11y] research, understood | dark | pass
+[a11y] brief, ready | dark | pass
+[a11y] features (coming soon) | light | pass
+[a11y] questions, answer then repeat | light | pass
+[a11y] results, estimated | dark | pass
+[a11y] results, success | dark | pass
+[a11y] criteria, standard list | dark | pass
+[a11y] features (coming soon) | dark | pass
+[a11y] research, editing the budget | light | pass
+[a11y] questions, answer then repeat | dark | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] results, researching | light | pass
+[a11y] results, brief summary open | light | pass
+[a11y] privacy | light | pass
+[a11y] research, editing the budget | dark | pass
+[a11y] results, stale | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] results, researching | dark | pass
+[a11y] privacy | dark | pass
+[a11y] questions, asked another way | light | pass
+[a11y] results, brief summary open | dark | pass
+[a11y] research, budget error | light | pass
+[a11y] results, stale | dark | pass
+[a11y] criteria, could not load | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] results, leave page dialog | light | pass
+[a11y] old criteria link, no brief | light | pass
+[a11y] questions, asked another way | dark | pass
+[a11y] research, budget error | dark | pass
+[a11y] criteria, could not load | dark | pass
+[a11y] old criteria link, no brief | dark | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] results, leave page dialog | dark | pass
+[a11y] results, tie | light | pass
+[a11y] results, no-offer | light | pass
+[a11y] page not found | light | pass
+[a11y] research, editing leave-out list | light | pass
+[a11y] criteria, search not found | light | pass
+[a11y] questions, redirect | light | pass
+[a11y] page not found | dark | pass
+[a11y] results, tie | dark | pass
+[a11y] results, search stopped | light | pass
+[a11y] criteria, search not found | dark | pass
+[a11y] research, editing leave-out list | dark | pass
+  ok   7 [chromium] › e2e\quality\a11y-matrix.spec.ts:132:3 › audit matrix: axe in light and dark mode › criteria page states (22.0s)
+[a11y] results, no-offer | dark | pass
+[a11y] questions, redirect | dark | pass
+[a11y] home, empty request error | light | pass
+[a11y] results, search stopped | dark | pass
+  ok   2 [chromium] › e2e\flow.spec.ts:16:1 › a shopper goes from the home page to ranked results (23.5s)
+  ok   8 [chromium] › e2e\quality\a11y-matrix.spec.ts:222:3 › audit matrix: axe in light and dark mode › brief and waiting states (23.6s)
+[a11y] research, discard edits? | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] questions, thinking | light | pass
+[a11y] results, disputed | light | pass
+[a11y] home, empty request error | dark | pass
+  ok  11 [chromium] › e2e\flow.spec.ts:66:1 › the privacy page says what is kept (1.5s)
+[a11y] results, left-out | light | pass
+[a11y] research, discard edits? | dark | pass
+[a11y] home, mobile menu open (390 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] questions, thinking | dark | pass
+[a11y] results, disputed | dark | pass
+[a11y] results, left-out | dark | pass
+[a11y] home, mobile menu open (390 px) | dark | pass
+  ok   4 [chromium] › e2e\quality\a11y-matrix.spec.ts:37:3 › audit matrix: axe in light and dark mode › information pages (27.9s)
+[a11y] research, understood by the backup reader | light | pass
+[a11y] results, disputed, all criteria open | light | pass
+[a11y] results, left-out list open | light | pass
+[a11y] questions, later questions updated | light | pass
+[a11y] research, understood by the backup reader | dark | pass
+[a11y] results, disputed, all criteria open | dark | pass
+[a11y] questions, later questions updated | dark | pass
+[a11y] results, left-out list open | dark | pass
+  ok   9 [chromium] › e2e\quality\a11y-matrix.spec.ts:257:5 › audit matrix: axe in light and dark mode › results: estimated, stale, no-offer, left-out (31.2s)
+[bundle] /: 3 files, 397.8 KB raw, 126.5 KB gzipped; /research: 7 files, 424.7 KB raw, 136.1 KB gzipped; /privacy: 3 files, 393.0 KB raw, 124.8 KB gzipped; /s/sess_000000000000000000000000/criteria: 12 files, 447.8 KB raw, 143.6 KB gzipped; /s/sess_000000000000000000000000/questions: 12 files, 460.2 KB raw, 147.2 KB gzipped; /s/sess_000000000000000000000000/brief: 13 files, 499.4 KB raw, 160.4 KB gzipped; /s/sess_000000000000000000000000/results: 12 files, 496.1 KB raw, 158.9 KB gzipped
+  ok  13 [chromium] › e2e\quality\bundle.spec.ts:22:1 › first-load JavaScript stays within the budget on every route (6.5s)
+[a11y] research, follow-up question | light | pass
+[a11y] results, couldnt-check | light | pass
+[a11y] results, unknown | light | pass
+[a11y] brief, part-way through the questions | light | pass
+[a11y] research, follow-up question | dark | pass
+[a11y] results, network error | light | pass
+[a11y] results, couldnt-check | dark | pass
+[a11y] brief, part-way through the questions | dark | pass
+[a11y] results, network error | dark | pass
+[a11y] results, unknown | dark | pass
+[a11y] research, follow-up, something else | light | pass
+  ok   6 [chromium] › e2e\quality\a11y-matrix.spec.ts:257:5 › audit matrix: axe in light and dark mode › results: success, tie, disputed, unknown (34.6s)
+[a11y] research, follow-up, something else | dark | pass
+[a11y] results, partial | light | pass
+[a11y] results, research timed out | light | pass
+[a11y] results, partial | dark | pass
+[a11y] research, examples | light | pass
+[a11y] results, estimated, sections open (390 px) | light | pass
+[a11y] results, research timed out | dark | pass
+[a11y] research, examples | dark | pass
+[a11y] results, relaxation | light | pass
+[a11y] questions, finished | light | pass
+[a11y] results, estimated, sections open (390 px) | dark | pass
+[a11y] results, no search to show | light | pass
+  ok  16 [chromium] › e2e\quality\coverage-and-links.spec.ts:38:3 › estimates and unchecked products › an estimate shows its product's coverage, or says it isn't known (8.5s)
+[a11y] results, relaxation | dark | pass
+[a11y] research, network error | light | pass
+[a11y] results, no search to show | dark | pass
+[a11y] results, estimated, sections open (1440 px) | light | pass
+[a11y] questions, finished | dark | pass
+[a11y] research, network error | dark | pass
+  ok   5 [chromium] › e2e\quality\a11y-matrix.spec.ts:65:3 › audit matrix: axe in light and dark mode › request page states (42.7s)
+[a11y] results, couldnt-check, sections open (390 px) | light | pass
+[a11y] results, search not found | light | pass
+  ok  17 [chromium] › e2e\quality\coverage-and-links.spec.ts:48:3 › estimates and unchecked products › each product shows its coverage on the card (8.4s)
+[a11y] results, empty | light | pass
+[a11y] questions, answers list open (390 px) | light | pass
+[a11y] results, estimated, sections open (1440 px) | dark | pass
+[a11y] results, search not found | dark | pass
+  ok  12 [chromium] › e2e\quality\a11y-matrix.spec.ts:282:3 › audit matrix: axe in light and dark mode › results: errors, timeout and gone (20.9s)
+[a11y] results, empty | dark | pass
+  ok  10 [chromium] › e2e\quality\a11y-matrix.spec.ts:257:5 › audit matrix: axe in light and dark mode › results: couldnt-check, partial, relaxation, empty (22.9s)
+[a11y] questions, answers list open (390 px) | dark | pass
+[first frame] home (390 px, light) | pass
+[a11y] results, couldnt-check, sections open (390 px) | dark | pass
+  ok  14 [chromium] › e2e\quality\coverage-and-links.spec.ts:28:5 › estimates and unchecked products › axe at 390 px (17.9s)
+[first frame] research, empty (390 px, light) | pass
+[first frame] about (390 px, light) | pass
+[a11y] results, couldnt-check, sections open (1440 px) | light | pass
+[a11y] questions, search not found | light | pass
+[first frame] contact (390 px, light) | pass
+[first frame] research, empty request error (390 px, light) | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] criteria, loading (390 px, light) | light | pass
+[a11y] questions, search not found | dark | pass
+  ok   3 [chromium] › e2e\quality\a11y-matrix.spec.ts:159:3 › audit matrix: axe in light and dark mode › question page states (48.7s)
+  ok  18 [chromium] › e2e\quality\coverage-and-links.spec.ts:60:3 › estimates and unchecked products › a product we couldn't check links to a web search in a new tab (9.1s)
+[first frame] faq (390 px, light) | pass
+[a11y] (axe ran with the clock paused; it needed 11 ms of page time)
+[a11y] research, reading the request (390 px, light) | light | pass
+[a11y] results, couldnt-check, sections open (1440 px) | dark | pass
+  ok  15 [chromium] › e2e\quality\coverage-and-links.spec.ts:28:5 › estimates and unchecked products › axe at 1440 px (18.9s)
+[first frame] features (390 px, light) | pass
+[first frame] criteria, ready (390 px, light) | pass
+[first frame] questions, first question (390 px, light) | pass
+  ok  19 [chromium] › e2e\quality\first-frame.spec.ts:367:3 › reduced motion › nothing moves on the way from the home page to the results (8.8s)
+[first frame] research, understood (390 px, light) | pass
+[first frame] privacy (390 px, light) | pass
+[first frame] questions, why this question open (390 px, light) | pass
+[first frame] old criteria link, no brief (390 px, light) | pass
+[first frame] research, editing the budget (390 px, light) | pass
+[first frame] criteria, standard list (390 px, light) | pass
+[first frame] page not found (390 px, light) | pass
+[first frame] questions, answer then repeat (390 px, light) | pass
+[first frame] research, budget error (390 px, light) | pass
+[first frame] research, editing leave-out list (390 px, light) | pass
+[first frame] home, empty request error (390 px, light) | pass
+[first frame] questions, asked another way (390 px, light) | pass
+[first frame] criteria, could not load (390 px, light) | pass
+[first frame] home, menu open (390 px, light) | pass
+  ok  20 [chromium] › e2e\quality\first-frame.spec.ts:100:7 › first frame, motion on, 390 px, light › information pages (15.4s)
+[first frame] research, discard edits? (390 px, light) | pass
+[first frame] brief, ready (390 px, light) | pass
+[first frame] criteria, search not found (390 px, light) | pass
+  ok  22 [chromium] › e2e\quality\first-frame.spec.ts:196:7 › first frame, motion on, 390 px, light › criteria page states (14.9s)
+[first frame] results, success (390 px, light) | pass
+[first frame] questions, redirect (390 px, light) | pass
+[first frame] results, unknown (390 px, light) | pass
+[a11y] (axe ran with the clock paused; it needed 11 ms of page time)
+[a11y] results, researching (390 px, light) | light | pass
+  ok  27 [chromium] › e2e\quality\first-frame.spec.ts:387:3 › reduced motion › the results, the dialog and the toast appear without moving (10.4s)
+[first frame] research, understood by the backup reader (390 px, light) | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] results, leave page dialog (390 px, light) | light | pass
+[first frame] questions, reply came too late (390 px, light) | pass
+[first frame] home (390 px, dark) | pass
+[first frame] results, tie (390 px, light) | pass
+[first frame] results, estimated (390 px, light) | pass
+[first frame] research, follow-up question (390 px, light) | pass
+[first frame] about (390 px, dark) | pass
+[a11y] (axe ran with the clock paused; it needed 12 ms of page time)
+[a11y] questions, thinking (390 px, light) | light | pass
+[first frame] results, search stopped (390 px, light) | pass
+  ok  24 [chromium] › e2e\quality\first-frame.spec.ts:280:7 › first frame, motion on, 390 px, light › brief and waiting states (18.8s)
+[first frame] contact (390 px, dark) | pass
+[first frame] results, tie-first (390 px, light) | pass
+[first frame] results, stale (390 px, light) | pass
+[first frame] research, follow-up, something else (390 px, light) | pass
+[first frame] faq (390 px, dark) | pass
+[first frame] research, empty (390 px, dark) | pass
+[first frame] questions, answers list (390 px, light) | pass
+[first frame] results, couldnt-check (390 px, light) | pass
+[first frame] features (390 px, dark) | pass
+[first frame] results, disputed (390 px, light) | pass
+[first frame] results, network error (390 px, light) | pass
+[first frame] research, examples (390 px, light) | pass
+[first frame] research, empty request error (390 px, dark) | pass
+[first frame] results, no-offer (390 px, light) | pass
+[first frame] privacy (390 px, dark) | pass
+[a11y] (axe ran with the clock paused; it needed 16 ms of page time)
+[a11y] research, reading the request (390 px, dark) | dark | pass
+[first frame] questions, later questions updated (390 px, light) | pass
+[first frame] results, partial (390 px, light) | pass
+[first frame] old criteria link, no brief (390 px, dark) | pass
+[first frame] research, network error (390 px, light) | pass
+  ok  21 [chromium] › e2e\quality\first-frame.spec.ts:129:7 › first frame, motion on, 390 px, light › request page states (30.2s)
+[first frame] results, disputed-no-sources (390 px, light) | pass
+  ok  25 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 390 px, light › results: success, tie, tie-first, disputed, disputed-no-sources (25.7s)
+[first frame] results, research timed out (390 px, light) | pass
+[first frame] brief, part-way through the questions (390 px, light) | pass
+[first frame] results, left-out (390 px, light) | pass
+  ok  26 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 390 px, light › results: unknown, estimated, stale, no-offer, left-out (25.7s)
+[first frame] page not found (390 px, dark) | pass
+[first frame] research, understood (390 px, dark) | pass
+[first frame] results, relaxation (390 px, light) | pass
+[first frame] results, no search to show (390 px, light) | pass
+[first frame] research, editing the budget (390 px, dark) | pass
+[a11y] (axe ran with the clock paused; it needed 14 ms of page time)
+[a11y] criteria, loading (390 px, dark) | dark | pass
+[first frame] home, empty request error (390 px, dark) | pass
+[first frame] results, search not found (390 px, light) | pass
+  ok  29 [chromium] › e2e\quality\first-frame.spec.ts:325:7 › first frame, motion on, 390 px, light › results: errors, timeout and gone (19.6s)
+[first frame] results, empty (390 px, light) | pass
+  ok  28 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 390 px, light › results: couldnt-check, partial, relaxation, empty (21.5s)
+[first frame] home, menu open (390 px, dark) | pass
+  ok  30 [chromium] › e2e\quality\first-frame.spec.ts:100:7 › first frame, motion on, 390 px, dark › information pages (19.0s)
+[first frame] research, budget error (390 px, dark) | pass
+[first frame] questions, first question (390 px, dark) | pass
+[first frame] criteria, ready (390 px, dark) | pass
+[first frame] questions, finished (390 px, light) | pass
+[first frame] research, editing leave-out list (390 px, dark) | pass
+[first frame] questions, why this question open (390 px, dark) | pass
+[first frame] questions, search not found (390 px, light) | pass
+  ok  23 [chromium] › e2e\quality\first-frame.spec.ts:222:7 › first frame, motion on, 390 px, light › question page states (37.7s)
+[first frame] research, discard edits? (390 px, dark) | pass
+[first frame] criteria, standard list (390 px, dark) | pass
+[first frame] questions, answer then repeat (390 px, dark) | pass
+[first frame] brief, ready (390 px, dark) | pass
+[first frame] research, understood by the backup reader (390 px, dark) | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] results, researching (390 px, dark) | dark | pass
+[first frame] questions, asked another way (390 px, dark) | pass
+[first frame] criteria, could not load (390 px, dark) | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] results, leave page dialog (390 px, dark) | dark | pass
+[first frame] research, follow-up question (390 px, dark) | pass
+[first frame] criteria, search not found (390 px, dark) | pass
+[first frame] results, success (390 px, dark) | pass
+  ok  32 [chromium] › e2e\quality\first-frame.spec.ts:196:7 › first frame, motion on, 390 px, dark › criteria page states (17.2s)
+[first frame] results, unknown (390 px, dark) | pass
+[first frame] questions, redirect (390 px, dark) | pass
+[first frame] results, couldnt-check (390 px, dark) | pass
+[first frame] research, follow-up, something else (390 px, dark) | pass
+[first frame] results, search stopped (390 px, dark) | pass
+  ok  34 [chromium] › e2e\quality\first-frame.spec.ts:280:7 › first frame, motion on, 390 px, dark › brief and waiting states (18.4s)
+[first frame] home (1440 px, light) | pass
+[first frame] results, network error (390 px, dark) | pass
+[first frame] questions, reply came too late (390 px, dark) | pass
+[first frame] results, tie (390 px, dark) | pass
+[first frame] results, estimated (390 px, dark) | pass
+[first frame] results, partial (390 px, dark) | pass
+[first frame] research, empty (1440 px, light) | pass
+[first frame] about (1440 px, light) | pass
+[first frame] research, examples (390 px, dark) | pass
+[a11y] (axe ran with the clock paused; it needed 24 ms of page time)
+[a11y] questions, thinking (390 px, dark) | dark | pass
+[first frame] contact (1440 px, light) | pass
+[first frame] results, research timed out (390 px, dark) | pass
+[first frame] research, empty request error (1440 px, light) | pass
+[first frame] results, tie-first (390 px, dark) | pass
+[first frame] results, relaxation (390 px, dark) | pass
+[first frame] results, stale (390 px, dark) | pass
+[first frame] research, network error (390 px, dark) | pass
+  ok  31 [chromium] › e2e\quality\first-frame.spec.ts:129:7 › first frame, motion on, 390 px, dark › request page states (32.5s)
+[first frame] faq (1440 px, light) | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] research, reading the request (1440 px, light) | light | pass
+[first frame] results, no search to show (390 px, dark) | pass
+[first frame] results, empty (390 px, dark) | pass
+[first frame] questions, answers list (390 px, dark) | pass
+  ok  37 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 390 px, dark › results: couldnt-check, partial, relaxation, empty (21.0s)
+[first frame] features (1440 px, light) | pass
+[first frame] results, disputed (390 px, dark) | pass
+[first frame] results, search not found (390 px, dark) | pass
+  ok  38 [chromium] › e2e\quality\first-frame.spec.ts:325:7 › first frame, motion on, 390 px, dark › results: errors, timeout and gone (18.9s)
+[first frame] results, no-offer (390 px, dark) | pass
+[first frame] privacy (1440 px, light) | pass
+[first frame] research, understood (1440 px, light) | pass
+[a11y] (axe ran with the clock paused; it needed 13 ms of page time)
+[a11y] criteria, loading (1440 px, light) | light | pass
+[first frame] questions, later questions updated (390 px, dark) | pass
+[first frame] old criteria link, no brief (1440 px, light) | pass
+[first frame] research, editing the budget (1440 px, light) | pass
+[first frame] results, disputed-no-sources (390 px, dark) | pass
+  ok  35 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 390 px, dark › results: success, tie, tie-first, disputed, disputed-no-sources (26.5s)
+[first frame] results, left-out (390 px, dark) | pass
+  ok  36 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 390 px, dark › results: unknown, estimated, stale, no-offer, left-out (26.5s)
+[first frame] page not found (1440 px, light) | pass
+[first frame] brief, part-way through the questions (390 px, dark) | pass
+[first frame] criteria, ready (1440 px, light) | pass
+[first frame] research, budget error (1440 px, light) | pass
+[first frame] questions, first question (1440 px, light) | pass
+[first frame] home, empty request error (1440 px, light) | pass
+  ok  39 [chromium] › e2e\quality\first-frame.spec.ts:100:7 › first frame, motion on, 1440 px, light › information pages (17.6s)
+[first frame] research, editing leave-out list (1440 px, light) | pass
+[first frame] questions, why this question open (1440 px, light) | pass
+[first frame] criteria, standard list (1440 px, light) | pass
+[first frame] research, discard edits? (1440 px, light) | pass
+[first frame] questions, answer then repeat (1440 px, light) | pass
+[first frame] questions, finished (390 px, dark) | pass
+[first frame] brief, ready (1440 px, light) | pass
+[first frame] questions, search not found (390 px, dark) | pass
+  ok  33 [chromium] › e2e\quality\first-frame.spec.ts:222:7 › first frame, motion on, 390 px, dark › question page states (39.7s)
+[first frame] research, understood by the backup reader (1440 px, light) | pass
+[first frame] criteria, could not load (1440 px, light) | pass
+[first frame] questions, asked another way (1440 px, light) | pass
+[a11y] (axe ran with the clock paused; it needed 12 ms of page time)
+[a11y] results, researching (1440 px, light) | light | pass
+[first frame] criteria, search not found (1440 px, light) | pass
+  ok  41 [chromium] › e2e\quality\first-frame.spec.ts:196:7 › first frame, motion on, 1440 px, light › criteria page states (17.5s)
+[first frame] research, follow-up question (1440 px, light) | pass
+[first frame] results, success (1440 px, light) | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] results, leave page dialog (1440 px, light) | light | pass
+[first frame] questions, redirect (1440 px, light) | pass
+[first frame] results, unknown (1440 px, light) | pass
+[first frame] home (1440 px, dark) | pass
+[first frame] research, follow-up, something else (1440 px, light) | pass
+[first frame] results, search stopped (1440 px, light) | pass
+  ok  43 [chromium] › e2e\quality\first-frame.spec.ts:280:7 › first frame, motion on, 1440 px, light › brief and waiting states (19.4s)
+[first frame] about (1440 px, dark) | pass
+[first frame] results, couldnt-check (1440 px, light) | pass
+[first frame] questions, reply came too late (1440 px, light) | pass
+[first frame] results, tie (1440 px, light) | pass
+[first frame] research, examples (1440 px, light) | pass
+[first frame] contact (1440 px, dark) | pass
+[first frame] results, estimated (1440 px, light) | pass
+[a11y] (axe ran with the clock paused; it needed 13 ms of page time)
+[a11y] questions, thinking (1440 px, light) | light | pass
+[first frame] research, empty (1440 px, dark) | pass
+[first frame] results, partial (1440 px, light) | pass
+[first frame] faq (1440 px, dark) | pass
+[first frame] results, tie-first (1440 px, light) | pass
+[first frame] research, network error (1440 px, light) | pass
+  ok  40 [chromium] › e2e\quality\first-frame.spec.ts:129:7 › first frame, motion on, 1440 px, light › request page states (32.9s)
+[first frame] research, empty request error (1440 px, dark) | pass
+[first frame] results, network error (1440 px, light) | pass
+[first frame] features (1440 px, dark) | pass
+[first frame] results, stale (1440 px, light) | pass
+[first frame] questions, answers list (1440 px, light) | pass
+[first frame] results, relaxation (1440 px, light) | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] research, reading the request (1440 px, dark) | dark | pass
+[first frame] privacy (1440 px, dark) | pass
+[first frame] results, disputed (1440 px, light) | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] criteria, loading (1440 px, dark) | dark | pass
+[first frame] results, research timed out (1440 px, light) | pass
+[first frame] questions, later questions updated (1440 px, light) | pass
+[first frame] old criteria link, no brief (1440 px, dark) | pass
+[first frame] results, no-offer (1440 px, light) | pass
+[first frame] results, empty (1440 px, light) | pass
+[first frame] research, understood (1440 px, dark) | pass
+  ok  46 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 1440 px, light › results: couldnt-check, partial, relaxation, empty (22.9s)
+[first frame] page not found (1440 px, dark) | pass
+[first frame] brief, part-way through the questions (1440 px, light) | pass
+[first frame] results, no search to show (1440 px, light) | pass
+[first frame] criteria, ready (1440 px, dark) | pass
+[first frame] results, disputed-no-sources (1440 px, light) | pass
+  ok  44 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 1440 px, light › results: success, tie, tie-first, disputed, disputed-no-sources (28.7s)
+[first frame] research, editing the budget (1440 px, dark) | pass
+[first frame] results, search not found (1440 px, light) | pass
+  ok  47 [chromium] › e2e\quality\first-frame.spec.ts:325:7 › first frame, motion on, 1440 px, light › results: errors, timeout and gone (20.7s)
+[first frame] results, left-out (1440 px, light) | pass
+  ok  45 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 1440 px, light › results: unknown, estimated, stale, no-offer, left-out (29.6s)
+[first frame] home, empty request error (1440 px, dark) | pass
+  ok  48 [chromium] › e2e\quality\first-frame.spec.ts:100:7 › first frame, motion on, 1440 px, dark › information pages (19.1s)
+[first frame] research, budget error (1440 px, dark) | pass
+[first frame] questions, first question (1440 px, dark) | pass
+[first frame] criteria, standard list (1440 px, dark) | pass
+[first frame] research, editing leave-out list (1440 px, dark) | pass
+[first frame] questions, finished (1440 px, light) | pass
+[first frame] questions, why this question open (1440 px, dark) | pass
+[first frame] research, discard edits? (1440 px, dark) | pass
+[first frame] questions, search not found (1440 px, light) | pass
+  ok  42 [chromium] › e2e\quality\first-frame.spec.ts:222:7 › first frame, motion on, 1440 px, light › question page states (40.4s)
+[first frame] questions, answer then repeat (1440 px, dark) | pass
+[first frame] criteria, could not load (1440 px, dark) | pass
+[first frame] research, understood by the backup reader (1440 px, dark) | pass
+[first frame] criteria, search not found (1440 px, dark) | pass
+  ok  50 [chromium] › e2e\quality\first-frame.spec.ts:196:7 › first frame, motion on, 1440 px, dark › criteria page states (18.3s)
+[first frame] questions, asked another way (1440 px, dark) | pass
+[first frame] brief, ready (1440 px, dark) | pass
+[first frame] research, follow-up question (1440 px, dark) | pass
+[first frame] results, success (1440 px, dark) | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] results, researching (1440 px, dark) | dark | pass
+[first frame] results, unknown (1440 px, dark) | pass
+[first frame] research, follow-up, something else (1440 px, dark) | pass
+[first frame] questions, redirect (1440 px, dark) | pass
+[first frame] results, couldnt-check (1440 px, dark) | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] results, leave page dialog (1440 px, dark) | dark | pass
+[first frame] results, tie (1440 px, dark) | pass
+[first frame] research, examples (1440 px, dark) | pass
+[first frame] results, estimated (1440 px, dark) | pass
+[first frame] questions, reply came too late (1440 px, dark) | pass
+[first frame] results, partial (1440 px, dark) | pass
+[first frame] results, network error (1440 px, dark) | pass
+[first frame] results, search stopped (1440 px, dark) | pass
+  ok  52 [chromium] › e2e\quality\first-frame.spec.ts:280:7 › first frame, motion on, 1440 px, dark › brief and waiting states (19.3s)
+  ok  57 [chromium] › e2e\quality\fonts.spec.ts:72:1 › no page loads a font, a stylesheet or anything else from another address (9.4s)
+[a11y] (axe ran with the clock paused; it needed 13 ms of page time)
+[a11y] questions, thinking (1440 px, dark) | dark | pass
+[first frame] results, tie-first (1440 px, dark) | pass
+[first frame] research, network error (1440 px, dark) | pass
+  ok  49 [chromium] › e2e\quality\first-frame.spec.ts:129:7 › first frame, motion on, 1440 px, dark › request page states (33.4s)
+[first frame] results, relaxation (1440 px, dark) | pass
+[first frame] results, stale (1440 px, dark) | pass
+[first frame] results, research timed out (1440 px, dark) | pass
+[first frame] results, empty (1440 px, dark) | pass
+  ok  55 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 1440 px, dark › results: couldnt-check, partial, relaxation, empty (21.6s)
+[first frame] questions, answers list (1440 px, dark) | pass
+[first frame] results, disputed (1440 px, dark) | pass
+[first frame] results, no-offer (1440 px, dark) | pass
+[first frame] results, no search to show (1440 px, dark) | pass
+[keyboard] home (1280x720): 9 stops, pass
+[keyboard] privacy (1280x720): 5 stops, pass
+[first frame] results, search not found (1440 px, dark) | pass
+  ok  56 [chromium] › e2e\quality\first-frame.spec.ts:325:7 › first frame, motion on, 1440 px, dark › results: errors, timeout and gone (19.0s)
+[a11y] questions, reply came too late | light | pass
+[first frame] questions, later questions updated (1440 px, dark) | pass
+[first frame] results, disputed-no-sources (1440 px, dark) | pass
+  ok  53 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 1440 px, dark › results: success, tie, tie-first, disputed, disputed-no-sources (26.8s)
+[keyboard] home (390x844): 7 stops, pass
+[first frame] results, left-out (1440 px, dark) | pass
+  ok  54 [chromium] › e2e\quality\first-frame.spec.ts:308:9 › first frame, motion on, 1440 px, dark › results: unknown, estimated, stale, no-offer, left-out (26.9s)
+[a11y] questions, reply came too late | dark | pass
+[keyboard] privacy (390x844): 3 stops, pass
+[first frame] brief, part-way through the questions (1440 px, dark) | pass
+[keyboard] home (844x390): 9 stops, pass
+[keyboard] what we understood (1280x720): 17 stops, pass
+  ok  59 [chromium] › e2e\quality\fonts.spec.ts:87:1 › the whole search, up to the results, stays on the app's own address (9.7s)
+  ok  58 [chromium] › e2e\quality\interview.spec.ts:12:1 › a reply that came too late shows the current question and says why (10.6s)
+[keyboard] privacy (844x390): 5 stops, pass
+  ok  65 [chromium] › e2e\quality\fonts.spec.ts:100:1 › all three fonts load, and each one covers the rupee sign (627ms)
+[keyboard] what we understood (390x844): 17 stops, pass
+[keyboard] request to results: pass
+[keyboard] what we understood (844x390): 17 stops, pass
+[keyboard] questions (1280x720): 16 stops, pass
+  ok  61 [chromium] › e2e\quality\keyboard.spec.ts:115:5 › keyboard only › focus is visible and never hidden on each screen at 1280x720 (10.7s)
+[keyboard] results page (1280 px): 14 stops, pass
+  ok  60 [chromium] › e2e\quality\keyboard.spec.ts:48:3 › keyboard only › a shopper goes from the request to the results without a mouse (14.1s)
+  ok  68 [chromium] › e2e\quality\menu.spec.ts:49:3 › small-screen menu at 390 px › focus moves in, and Tab and Shift+Tab go round the menu (958ms)
+[first frame] questions, finished (1440 px, dark) | pass
+[keyboard] questions (390x844): 14 stops, pass
+  ok  62 [chromium] › e2e\quality\keyboard.spec.ts:115:5 › keyboard only › focus is visible and never hidden on each screen at 390x844 (9.4s)
+  ok  70 [chromium] › e2e\quality\menu.spec.ts:69:3 › small-screen menu at 390 px › every stop in the menu shows focus and is on screen (1.1s)
+  ok  71 [chromium] › e2e\quality\not-found.spec.ts:8:1 › an unknown address says so plainly and leads home (664ms)
+[first frame] questions, search not found (1440 px, dark) | pass
+  ok  51 [chromium] › e2e\quality\first-frame.spec.ts:222:7 › first frame, motion on, 1440 px, dark › question page states (39.2s)
+  ok  74 [chromium] › e2e\quality\privacy.spec.ts:18:3 › the privacy page › no longer makes the old promises (517ms)
+[keyboard] questions (844x390): 16 stops, pass
+  ok  63 [chromium] › e2e\quality\keyboard.spec.ts:115:5 › keyboard only › focus is visible and never hidden on each screen at 844x390 (10.5s)
+  ok  75 [chromium] › e2e\quality\privacy.spec.ts:29:3 › the privacy page › says what is saved, where, who can read it and for how long (648ms)
+[a11y] page not found (390 px) | light | pass
+  ok  66 [chromium] › e2e\quality\interview.spec.ts:35:1 › answers with all four buttons and an exact value (9.1s)
+[a11y] page not found (390 px) | dark | pass
+  ok  73 [chromium] › e2e\quality\not-found.spec.ts:26:3 › axe on the page at 390 px (2.6s)
+  ok  72 [chromium] › e2e\quality\menu.spec.ts:78:3 › small-screen menu at 390 px › nothing behind the open menu can take focus (3.3s)
+[a11y] privacy (390 px) | light | pass
+  ok  80 [chromium] › e2e\quality\menu.spec.ts:107:3 › small-screen menu at 390 px › Escape closes the menu and gives focus back (793ms)
+  ok  67 [chromium] › e2e\quality\fonts.spec.ts:116:1 › a price is drawn in Fraunces and a budget in Geist, ₹ included (10.5s)
+[a11y] page not found (1440 px) | light | pass
+  ok  64 [chromium] › e2e\quality\keyboard.spec.ts:128:3 › keyboard only › escape closes every overlay and gives focus back (12.6s)
+[a11y] privacy (390 px) | dark | pass
+  ok  81 [chromium] › e2e\quality\menu.spec.ts:117:3 › small-screen menu at 390 px › the close button closes the menu and gives focus back (850ms)
+[a11y] page not found (1440 px) | dark | pass
+  ok  82 [chromium] › e2e\quality\fonts.spec.ts:134:1 › the first screen downloads only the small font files (840ms)
+  ok  79 [chromium] › e2e\quality\not-found.spec.ts:26:3 › axe on the page at 1440 px (2.4s)
+  ok  84 [chromium] › e2e\quality\menu.spec.ts:130:3 › small-screen menu at 390 px › with a pointer, the close button closes the menu too (693ms)
+  ok  85 [chromium] › e2e\quality\fonts.spec.ts:152:1 › a letter outside the small files still gets the app's font (545ms)
+[a11y] privacy (1440 px) | light | pass
+  ok  87 [chromium] › e2e\quality\menu.spec.ts:136:3 › small-screen menu at 390 px › a menu link goes to its page and leaves nothing inert (807ms)
+  ok  88 [chromium] › e2e\quality\fonts.spec.ts:168:1 › the page still shows its text if the fonts never arrive (640ms)
+  ok  89 [chromium] › e2e\quality\menu.spec.ts:144:3 › small-screen menu at 390 px › a menu link to the page already open closes the menu and keeps focus (639ms)
+[a11y] privacy (1440 px) | dark | pass
+  ok  77 [chromium] › e2e\quality\privacy.spec.ts:49:3 › the privacy page › passes axe at 390 and 1440 px, light and dark (5.7s)
+  ok  78 [chromium] › e2e\quality\interview.spec.ts:57:1 › the exact box refuses 11, -1 and empty, and sends nothing (5.1s)
+  ok  69 [chromium] › e2e\quality\motion.spec.ts:17:3 › reduced motion › the background is still and everything is shown at once (9.4s)
+  ok  91 [chromium] › e2e\quality\menu.spec.ts:151:3 › small-screen menu at 390 px › if the screen grows past the menu's size, the page is not left inert (695ms)
+  ok  94 [chromium] › e2e\quality\motion.spec.ts:58:3 › motion allowed › the background runs on screen and pauses off screen (726ms)
+  ok  90 [chromium] › e2e\quality\fonts.spec.ts:179:5 › home page with its fonts loaded passes axe at 390 px, light (2.0s)
+  ok  95 [chromium] › e2e\quality\menu.spec.ts:158:3 › small-screen menu at 390 px › a screen too short for the menu scrolls it, so every link can be reached (737ms)
+  -   96 [chromium] › e2e\quality\motion.spec.ts:68:3 › motion allowed › the background stops drawing when the tab is hidden
+[a11y] menu open (390 px) | light | pass
+  ok  97 [chromium] › e2e\quality\fonts.spec.ts:179:5 › home page with its fonts loaded passes axe at 390 px, dark (2.0s)
+  ok  76 [chromium] › e2e\quality\research-progress.spec.ts:186:3 › the research screen › a mock run shows every stage state and its counts (9.3s)
+[a11y] menu open (390 px) | dark | pass
+  ok  98 [chromium] › e2e\quality\menu.spec.ts:170:3 › small-screen menu at 390 px › axe with the menu open, light and dark (3.0s)
+  ok 102 [chromium] › e2e\quality\menu.spec.ts:177:3 › scroll padding clears the sticky header at 390 px (342ms)
+  ok 103 [chromium] › e2e\quality\menu.spec.ts:177:3 › scroll padding clears the sticky header at 1440 px (286ms)
+  ok  93 [chromium] › e2e\quality\interview.spec.ts:73:1 › switching to the exact box and back takes one click each way (4.6s)
+  ok 100 [chromium] › e2e\quality\fonts.spec.ts:179:5 › home page with its fonts loaded passes axe at 1440 px, light (1.9s)
+  ok  83 [chromium] › e2e\quality\research-progress.spec.ts:225:3 › the research screen › a screen reader hears stage changes, not the clock (8.6s)
+[motion] typing at 1x CPU: 47 fps, longest frame 50 ms
+  ok 106 [chromium] › e2e\quality\fonts.spec.ts:179:5 › home page with its fonts loaded passes axe at 1440 px, dark (2.0s)
+  ok  92 [chromium] › e2e\quality\privacy.spec.ts:65:3 › what the results page says about keeping results › a result that isn't saved says so (8.6s)
+  ok 105 [chromium] › e2e\quality\interview.spec.ts:85:1 › keyboard alone: Tab, Enter, Space and the slider's arrow keys (4.7s)
+[motion] typing at 4x CPU: 96 fps, longest frame 67 ms
+  ok  99 [chromium] › e2e\quality\motion.spec.ts:94:3 › motion allowed › typing is never dropped and stays smooth (8.8s)
+  ok  86 [chromium] › e2e\quality\research-progress.spec.ts:238:3 › the research screen › a reload mid-run re-attaches (12.7s)
+  ok 101 [chromium] › e2e\quality\research-progress.spec.ts:259:3 › the research screen › a reload after the end shows the same result (9.3s)
+  ok 110 [chromium] › e2e\quality\interview.spec.ts:111:1 › number keys pick a reply on the buttons, and do nothing while the exact box is open (4.5s)
+  ok 107 [chromium] › e2e\quality\research-progress.spec.ts:301:3 › the research screen › leaving the page asks first, then stops the search (9.3s)
+  ok 104 [chromium] › e2e\quality\research-progress.spec.ts:274:3 › the research screen › Stop research asks first, then shows Search stopped (11.1s)
+  ok 108 [chromium] › e2e\quality\research-progress.spec.ts:321:3 › the research screen › going back to the brief lets the run go, and a new search starts clean (8.8s)
+  ok 109 [chromium] › e2e\quality\privacy.spec.ts:72:3 › what the results page says about keeping results › after a reload the result is still there (9.2s)
+  ok 118 [chromium] › e2e\quality\privacy.spec.ts:81:3 › what the results page says about keeping results › the privacy page says how long a search is kept (347ms)
+[contrast] light first frame, heading: 10.65:1; light first frame, heading accent: 4.65:1; light first frame, intro text: 5.90:1; light first frame, link: 10.83:1; light last frame, heading: 10.70:1; light last frame, heading accent: 4.65:1; light last frame, intro text: 5.90:1; light last frame, link: 10.83:1; dark first frame, heading: 13.58:1; dark first frame, heading accent: 6.91:1; dark first frame, intro text: 6.98:1; dark first frame, link: 13.61:1; dark last frame, heading: 13.58:1; dark last frame, heading accent: 6.91:1; dark last frame, intro text: 6.98:1; dark last frame, link: 13.61:1
+  ok 111 [chromium] › e2e\quality\motion.spec.ts:141:3 › motion allowed › text on the moving background keeps its contrast at the first and last frame (8.7s)
+  ok 112 [chromium] › e2e\quality\research-progress.spec.ts:340:3 › the research screen › a stop that comes too late shows the results, and says why (8.6s)
+  ok 114 [chromium] › e2e\quality\interview.spec.ts:128:1 › changing an earlier answer offers rough or exact (5.4s)
+[forced colours] buttons without an edge: none
+  ok 122 [chromium] › e2e\quality\interview.spec.ts:152:3 › targets are at least 44 px at 390 px (3.6s)
+  ok 115 [chromium] › e2e\quality\research-progress.spec.ts:363:3 › the research screen › 60 quiet seconds say so, and checking shows what was missed (8.5s)
+  ok 113 [chromium] › e2e\quality\research-progress.spec.ts:353:3 › the research screen › an unknown search ID shows a way back (12.0s)
+  ok 116 [chromium] › e2e\quality\research-progress.spec.ts:376:3 › the research screen › a retry after a timeout keeps the brief (9.1s)
+  ok 117 [chromium] › e2e\quality\research-progress.spec.ts:398:3 › the research screen › Back while a search starts, then Keep researching, keeps the address right (10.2s)
+  ok 119 [chromium] › e2e\quality\privacy.spec.ts:88:3 › what the results page says about keeping results › with no search to show it says so, and the brief is still there (8.3s)
+[a11y] questions, four buttons (390 px) | light | pass
+  ok 121 [chromium] › e2e\quality\research-progress.spec.ts:422:3 › the research screen › Back while a search starts, then Stop research, lands on the brief (8.2s)
+[a11y] questions, four buttons (390 px) | dark | pass
+[a11y] questions, exact box (390 px) | light | pass
+[a11y] questions, exact box (390 px) | dark | pass
+[forced colours] focus without an outline: none
+  ok 120 [chromium] › e2e\quality\motion.spec.ts:235:3 › forced colours › focus outlines, button edges and badges stay visible (11.3s)
+[a11y] questions, exact box refusing a value (390 px) | light | pass
+  ok 124 [chromium] › e2e\quality\research-progress.spec.ts:434:3 › the research screen › a stop on a quiet connection can be checked, and shows it stopped (8.5s)
+[a11y] questions, exact box refusing a value (390 px) | dark | pass
+  ok 123 [chromium] › e2e\quality\interview.spec.ts:182:3 › the exact box passes axe in light and dark at 390 px (9.2s)
+  ok 125 [chromium] › e2e\quality\research-progress.spec.ts:449:3 › the research screen › a screen reader hears a stop go in, and what became of it (8.3s)
+  ok 126 [chromium] › e2e\quality\research-progress.spec.ts:464:3 › the research screen › a question left open when time runs out doesn't come back after a retry (9.0s)
+  ok 127 [chromium] › e2e\quality\research-progress.spec.ts:481:3 › the research screen › a search that ends behind the leave question shows its results (8.1s)
+  ok 128 [chromium] › e2e\quality\research-progress.spec.ts:497:3 › the research screen › a new search can start while the old one is still stopping (8.4s)
+  ok 132 [chromium] › e2e\quality\interview.spec.ts:152:3 › targets are at least 44 px at 1440 px (3.5s)
+  ok 129 [chromium] › e2e\quality\research-progress.spec.ts:516:3 › the research screen › if the question can't be loaded, Stop and leaving still work (10.1s)
+  ok 130 [chromium] › e2e\quality\research-progress.spec.ts:535:3 › the research screen › a lost connection's Try again picks the same search up (8.1s)
+[a11y] questions, four buttons (1440 px) | light | pass
+  ok 131 [chromium] › e2e\quality\research-progress.spec.ts:550:3 › the research screen › a busy backend's own message shows, with a way to try again (8.0s)
+[a11y] questions, four buttons (1440 px) | dark | pass
+  ok 133 [chromium] › e2e\quality\research-progress.spec.ts:558:3 › the research screen › a failed run shows the clear error (8.0s)
+[a11y] questions, exact box (1440 px) | light | pass
+  ok 134 [chromium] › e2e\quality\research-progress.spec.ts:566:3 › the research screen › the URL never holds the shopper's words (8.1s)
+[a11y] questions, exact box (1440 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] research, starting (390 px) | light | pass
+[a11y] questions, exact box refusing a value (1440 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, starting (390 px) | dark | pass
+[a11y] questions, exact box refusing a value (1440 px) | dark | pass
+  ok 137 [chromium] › e2e\quality\interview.spec.ts:182:3 › the exact box passes axe in light and dark at 1440 px (9.7s)
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, running, with source counts (390 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, starting (1440 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] research, running, with source counts (390 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] research, starting (1440 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, a skipped stage with its reason (390 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] research, running, with source counts (1440 px) | light | pass
+[a11y] results, tie (390 px) | light | pass
+  ok 142 [chromium] › e2e\quality\results-states.spec.ts:44:3 › result states › a tie for second has one card and the rest of the page is unchanged (8.4s)
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, a skipped stage with its reason (390 px) | dark | pass
+[a11y] results, tie (1440 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, running, with source counts (1440 px) | dark | pass
+[a11y] results, tie (390 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 7 ms of page time)
+[a11y] research, Stop research? dialog (390 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] research, a skipped stage with its reason (1440 px) | light | pass
+[a11y] results, tie (1440 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] research, Stop research? dialog (390 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] research, a skipped stage with its reason (1440 px) | dark | pass
+  ok 143 [chromium] › e2e\quality\results-states.spec.ts:61:3 › result states › old prices say so, from their as-of time (9.3s)
+[a11y] results, tie-first (390 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] research, stopping (390 px) | light | pass
+[a11y] results, tie-first (1440 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, Stop research? dialog (1440 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, stopping (390 px) | dark | pass
+[a11y] results, tie-first (390 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] research, Stop research? dialog (1440 px) | dark | pass
+[a11y] results, tie-first (1440 px) | dark | pass
+[a11y] research, search stopped (390 px) | light | pass
+  ok 144 [chromium] › e2e\quality\results-states.spec.ts:74:3 › result states › no offer says so and links to a store search (8.5s)
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, stopping (1440 px) | light | pass
+[a11y] research, search stopped (390 px) | dark | pass
+[a11y] results, stale (390 px) | light | pass
+[a11y] results, stale (1440 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] research, stopping (1440 px) | dark | pass
+[a11y] results, stale (390 px) | dark | pass
+[a11y] research, search stopped (1440 px) | light | pass
+[a11y] research, can't find that search (390 px) | light | pass
+[a11y] results, stale (1440 px) | dark | pass
+[a11y] research, search stopped (1440 px) | dark | pass
+[a11y] research, can't find that search (390 px) | dark | pass
+  ok 145 [chromium] › e2e\quality\results-states.spec.ts:85:3 › result states › a disputed value shows its sources, or says they aren't available yet (9.2s)
+  ok 136 [chromium] › e2e\quality\research-progress.spec.ts:596:5 › the research screen › targets are at least 44 px at 390 px (29.9s)
+[a11y] results, no-offer (390 px) | light | pass
+[a11y] results, no-offer (1440 px) | light | pass
+[a11y] research, can't find that search (1440 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, a failed stage with its reason (390 px) | light | pass
+[a11y] research, can't find that search (1440 px) | dark | pass
+[a11y] results, no-offer (390 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] research, a failed stage with its reason (390 px) | dark | pass
+[a11y] results, no-offer (1440 px) | dark | pass
+  ok 139 [chromium] › e2e\quality\research-progress.spec.ts:596:5 › the research screen › targets are at least 44 px at 1440 px (30.6s)
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, a failed stage with its reason (1440 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, quiet for 60 seconds (390 px) | light | pass
+[a11y] results, disputed (390 px) | light | pass
+  ok 146 [chromium] › e2e\quality\results-states.spec.ts:100:3 › result states › at 390 px, focus is never hidden under the sticky header (12.5s)
+[a11y] results, disputed (1440 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 11 ms of page time)
+[a11y] research, a failed stage with its reason (1440 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, quiet for 60 seconds (390 px) | dark | pass
+  ok 147 [chromium] › e2e\quality\results-states.spec.ts:115:3 › result states › a tie for first names no single best match (8.7s)
+[a11y] results, disputed (390 px) | dark | pass
+  ok 148 [chromium] › e2e\quality\stop-dialog.spec.ts:69:5 › focus after Stop research? › at 390 px, Escape gives focus back to the menu button (8.8s)
+[a11y] results, disputed (1440 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] research, quiet for 60 seconds (1440 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, checking for results (390 px) | light | pass
+[a11y] results, disputed-no-sources (390 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] research, quiet for 60 seconds (1440 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 10 ms of page time)
+[a11y] research, checking for results (390 px) | dark | pass
+[a11y] results, disputed-no-sources (1440 px) | light | pass
+  ok 149 [chromium] › e2e\quality\stop-dialog.spec.ts:80:5 › focus after Stop research? › at 1440 px, Escape gives focus back to the link that opened it (8.6s)
+[a11y] results, disputed-no-sources (390 px) | dark | pass
+  ok 140 [chromium] › e2e\quality\results-states.spec.ts:34:5 › result states › axe on every changed state at 390 px (38.6s)
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, checking for results (1440 px) | light | pass
+[a11y] results, disputed-no-sources (1440 px) | dark | pass
+  ok 141 [chromium] › e2e\quality\results-states.spec.ts:34:5 › result states › axe on every changed state at 1440 px (38.6s)
+[viewport] home @ 320: pass
+[viewport] home @ 360: pass
+[viewport] home @ 390: pass
+  ok 150 [chromium] › e2e\quality\stop-dialog.spec.ts:90:5 › focus after Stop research? › if the opener is gone, Escape moves focus to the main heading (8.7s)
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, checking for results (1440 px) | dark | pass
+[viewport] home @ 768: pass
+[viewport] home @ 1024: pass
+[viewport] home @ 1440: pass
+[viewport] research, empty @ 320: pass
+[viewport] research, empty @ 360: pass
+[viewport] home @ 1920: pass
+[viewport] research, empty @ 390: pass
+[viewport] home @ 390 landscape: pass
+[viewport] research, empty @ 768: pass
+[viewport] home @ 768 landscape: pass
+[viewport] research, empty @ 1024: pass
+[viewport] research, empty @ 1440: pass
+  ok 151 [chromium] › e2e\quality\stop-dialog.spec.ts:69:5 › focus after Stop research? › at 390 px, Keep researching gives focus back to the menu button (8.6s)
+[viewport] privacy @ 320: pass
+[viewport] research, empty @ 1920: pass
+[viewport] privacy @ 360: pass
+[viewport] research, empty @ 390 landscape: pass
+[viewport] privacy @ 390: pass
+[viewport] research, empty @ 768 landscape: pass
+[viewport] privacy @ 768: pass
+[viewport] privacy @ 1024: pass
+  ok 152 [chromium] › e2e\quality\stop-dialog.spec.ts:80:5 › focus after Stop research? › at 1440 px, Keep researching gives focus back to the link that opened it (8.6s)
+[viewport] privacy @ 1440: pass
+[viewport] privacy @ 1920: pass
+[viewport] privacy @ 390 landscape: pass
+[viewport] privacy @ 768 landscape: pass
+[viewport] about @ 320: pass
+[viewport] about @ 360: pass
+[viewport] about @ 390: pass
+[viewport] about @ 768: pass
+[viewport] about @ 1024: pass
+[viewport] what we understood @ 320: pass
+[viewport] about @ 1440: pass
+[viewport] what we understood @ 360: pass
+[viewport] about @ 1920: pass
+[viewport] what we understood @ 390: pass
+[viewport] about @ 390 landscape: pass
+[viewport] what we understood @ 768: pass
+[viewport] about @ 768 landscape: pass
+[viewport] what we understood @ 1024: pass
+[viewport] page not found @ 320: pass
+[viewport] what we understood @ 1440: pass
+[viewport] page not found @ 360: pass
+[viewport] what we understood @ 1920: pass
+[viewport] page not found @ 390: pass
+[viewport] what we understood @ 390 landscape: pass
+[viewport] page not found @ 768: pass
+[viewport] what we understood @ 768 landscape: pass
+[viewport] page not found @ 1024: pass
+[viewport] page not found @ 1440: pass
+[viewport] what we understood, editing budget @ 320: pass
+[viewport] page not found @ 1920: pass
+[viewport] what we understood, editing budget @ 360: pass
+[viewport] page not found @ 390 landscape: pass
+[viewport] what we understood, editing budget @ 390: pass
+[viewport] page not found @ 768 landscape: pass
+[viewport] what we understood, editing budget @ 768: pass
+[viewport] what we understood, editing budget @ 1024: pass
+[viewport] menu open @ 320: pass
+[viewport] menu open @ 360: pass
+[viewport] menu open @ 390: pass
+[viewport] what we understood, editing budget @ 1440: pass
+  ok 155 [chromium] › e2e\quality\viewport.spec.ts:47:3 › screen sizes › information pages (5.6s)
+[viewport] what we understood, editing budget @ 1920: pass
+[viewport] what we understood, editing budget @ 390 landscape: pass
+[viewport] what we understood, editing budget @ 768 landscape: pass
+[zoom] home, 200% zoom: pass
+[zoom] privacy, 200% zoom: pass
+[vitals] home: LCP 456 ms, CLS 0.000
+  ok 158 [chromium] › e2e\quality\vitals.spec.ts:104:3 › web vitals › home page: LCP and CLS under 4x CPU slowdown (3.7s)
+  ok 153 [chromium] › e2e\quality\stop-dialog.spec.ts:90:5 › focus after Stop research? › if the opener is gone, Keep researching moves focus to the main heading (8.5s)
+[zoom] home, 400% zoom: pass
+[zoom] privacy, 400% zoom: pass
+[viewport] criteria @ 320: pass
+[viewport] criteria @ 360: pass
+[zoom] what we understood, 200% zoom: pass
+[viewport] criteria @ 390: pass
+[viewport] criteria @ 768: pass
+  ok 154 [chromium] › e2e\quality\stop-dialog.spec.ts:106:3 › focus after Stop research? › focus stays in the dialog while it is open at 390 px (8.5s)
+[viewport] criteria @ 1024: pass
+[viewport] criteria @ 1440: pass
+[viewport] criteria @ 1920: pass
+[zoom] home, text spacing 1280 px: pass
+[viewport] criteria @ 390 landscape: pass
+[zoom] privacy, text spacing 1280 px: pass
+[viewport] criteria @ 768 landscape: pass
+[zoom] what we understood, 400% zoom: pass
+[zoom] what we understood, text spacing 1280 px: pass
+[viewport] brief @ 320: pass
+[viewport] brief @ 360: pass
+[viewport] brief @ 390: pass
+[viewport] brief @ 768: pass
+[zoom] questions, 200% zoom: pass
+[viewport] brief @ 1024: pass
+[viewport] brief @ 1440: pass
+[viewport] brief @ 1920: pass
+[viewport] brief @ 390 landscape: pass
+[viewport] brief @ 768 landscape: pass
+[zoom] questions, 400% zoom: pass
+[viewport] results, researching @ 320: pass
+[viewport] questions @ 320: pass
+[viewport] results, researching @ 360: pass
+[viewport] questions @ 360: pass
+[viewport] results, researching @ 390: pass
+[viewport] questions @ 390: pass
+[viewport] results, researching @ 768: pass
+[viewport] questions @ 768: pass
+[viewport] results, researching @ 1024: pass
+[viewport] questions @ 1024: pass
+[viewport] results, researching @ 1440: pass
+[viewport] questions @ 1440: pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, re-attaching (390 px) | light | pass
+[viewport] results, researching @ 1920: pass
+[viewport] questions @ 1920: pass
+[viewport] results, researching @ 390 landscape: pass
+[zoom] questions, text spacing 1280 px: pass
+[viewport] questions @ 390 landscape: pass
+[viewport] questions @ 768 landscape: pass
+[viewport] results, researching @ 768 landscape: pass
+  ok 156 [chromium] › e2e\quality\viewport.spec.ts:68:3 › screen sizes › request and interview screens (11.9s)
+[zoom] home, text spacing 390 px: pass
+[viewport] results, every section open @ 320: pass
+[zoom] privacy, text spacing 390 px: pass
+[viewport] results, every section open @ 360: pass
+[viewport] results, every section open @ 390: pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] research, re-attaching (390 px) | dark | pass
+[viewport] results, every section open @ 768: pass
+[viewport] results, every section open @ 1024: pass
+[viewport] results, every section open @ 1440: pass
+[viewport] results, every section open @ 1920: pass
+[viewport] results, every section open @ 390 landscape: pass
+[zoom] what we understood, text spacing 390 px: pass
+[viewport] results, every section open @ 768 landscape: pass
+[a11y] research, timed out (390 px) | light | pass
+[viewport] results, disputed @ 320: pass
+[viewport] results, disputed @ 360: pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, re-attaching (1440 px) | light | pass
+[viewport] results, disputed @ 390: pass
+[viewport] results, disputed @ 768: pass
+[viewport] results, disputed @ 1024: pass
+[vitals] questions: INP 72 ms, CLS 0.041; shifts: 0.023 section answers-title + text; 0.009 section answers-title
+  ok 160 [chromium] › e2e\quality\vitals.spec.ts:120:3 › web vitals › questions: INP while typing and pressing quick replies under 4x CPU slowdown (10.2s)
+[viewport] results, disputed @ 1440: pass
+[viewport] results, disputed @ 1920: pass
+[a11y] research, timed out (390 px) | dark | pass
+[viewport] results, disputed @ 390 landscape: pass
+[viewport] results, disputed @ 768 landscape: pass
+[a11y] (axe ran with the clock paused; it needed 9 ms of page time)
+[a11y] research, re-attaching (1440 px) | dark | pass
+[zoom] questions, text spacing 390 px: pass
+[zoom] brief, 200% zoom: pass
+[viewport] results, stale @ 320: pass
+[viewport] results, stale @ 360: pass
+[viewport] results, stale @ 390: pass
+[zoom] results, 200% zoom: pass
+[a11y] research, lost connection (390 px) | light | pass
+  ok 159 [chromium] › e2e\quality\zoom.spec.ts:55:5 › zoom and text spacing › 200% zoom › every screen reflows at 200% (13.2s)
+[viewport] results, stale @ 768: pass
+[viewport] results, stale @ 1024: pass
+[a11y] research, timed out (1440 px) | light | pass
+[zoom] brief, 400% zoom: pass
+[viewport] results, stale @ 1440: pass
+[viewport] results, stale @ 1920: pass
+[viewport] results, stale @ 390 landscape: pass
+[zoom] results, 400% zoom: pass
+  ok 161 [chromium] › e2e\quality\zoom.spec.ts:62:5 › zoom and text spacing › 400% zoom › every screen reflows at 400% without sideways scrolling (13.2s)
+[viewport] results, stale @ 768 landscape: pass
+[a11y] research, lost connection (390 px) | dark | pass
+[zoom] brief, text spacing 1280 px: pass
+[a11y] research, timed out (1440 px) | dark | pass
+[zoom] results, text spacing 1280 px: pass
+  ok 162 [chromium] › e2e\quality\zoom.spec.ts:72:7 › zoom and text spacing › text spacing › nothing is cut off with wider text spacing at 1280 px (13.2s)
+[viewport] results, no-offer @ 320: pass
+[viewport] results, no-offer @ 360: pass
+[viewport] results, no-offer @ 390: pass
+[viewport] results, no-offer @ 768: pass
+[viewport] results, no-offer @ 1024: pass
+[viewport] results, no-offer @ 1440: pass
+[viewport] results, no-offer @ 1920: pass
+[a11y] research, clear error, unreadable progress (390 px) | light | pass
+[viewport] results, no-offer @ 390 landscape: pass
+[viewport] results, no-offer @ 768 landscape: pass
+[a11y] research, lost connection (1440 px) | light | pass
+[a11y] research, clear error, unreadable progress (390 px) | dark | pass
+[viewport] results, relaxation @ 320: pass
+[viewport] results, relaxation @ 360: pass
+[a11y] research, lost connection (1440 px) | dark | pass
+[viewport] results, relaxation @ 390: pass
+[viewport] results, relaxation @ 768: pass
+[viewport] results, relaxation @ 1024: pass
+[viewport] results, relaxation @ 1440: pass
+[viewport] results, relaxation @ 1920: pass
+[viewport] results, relaxation @ 390 landscape: pass
+[viewport] results, relaxation @ 768 landscape: pass
+  ok 157 [chromium] › e2e\quality\viewport.spec.ts:84:3 › screen sizes › brief and results screens (22.8s)
+[zoom] brief, text spacing 390 px: pass
+[a11y] research, busy (390 px) | light | pass
+[a11y] research, clear error, unreadable progress (1440 px) | light | pass
+[zoom] results, text spacing 390 px: pass
+  ok 163 [chromium] › e2e\quality\zoom.spec.ts:72:7 › zoom and text spacing › text spacing › nothing is cut off with wider text spacing at 390 px (13.1s)
+[a11y] research, busy (390 px) | dark | pass
+[a11y] research, clear error, unreadable progress (1440 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 7 ms of page time)
+[a11y] research, a stop that came too late (390 px) | light | pass
+[a11y] research, busy (1440 px) | light | pass
+[a11y] research, busy (1440 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 7 ms of page time)
+[a11y] research, a stop that came too late (390 px) | dark | pass
+[webgl off] errors: none
+  ok 165 [chromium] › e2e\quality\webgl-off.spec.ts:20:1 › the background still shows and nothing errors (8.5s)
+[a11y] research, results after a stop that came too late (390 px) | light | pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] research, a stop that came too late (1440 px) | light | pass
+[vitals] results arriving: CLS 0.025; shifts: 0.009 li flex min-h-13 items-start gap-3 + li flex min-h-13 items-start gap-3 + li flex min-h-13 items-start gap-3 + li flex min-h-13 items-start gap-3 + li flex min-h-13 items-start gap-3; 0.006 li flex min-h-13 items-start gap-3 + li flex min-h-13 items-start gap-3 + li flex min-h-13 items-start gap-3 + li flex min-h-13 items-start gap-3 + li flex min-h-13 items-start gap-3
+  ok 164 [chromium] › e2e\quality\vitals.spec.ts:161:3 › results arriving › the page does not jump when the results replace the progress list (CLS) (15.7s)
+[a11y] research, results after a stop that came too late (390 px) | dark | pass
+[a11y] (axe ran with the clock paused; it needed 8 ms of page time)
+[a11y] research, a stop that came too late (1440 px) | dark | pass
+[a11y] research, results after a stop that came too late (1440 px) | light | pass
+[a11y] research, no search to show (390 px) | light | pass
+[a11y] research, no search to show (390 px) | dark | pass
+  ok 135 [chromium] › e2e\quality\research-progress.spec.ts:587:5 › the research screen › axe on every state, light and dark, at 390 px (1.3m)
+[a11y] research, results after a stop that came too late (1440 px) | dark | pass
+[a11y] research, no search to show (1440 px) | light | pass
+[a11y] research, no search to show (1440 px) | dark | pass
+  ok 138 [chromium] › e2e\quality\research-progress.spec.ts:587:5 › the research screen › axe on every state, light and dark, at 1440 px (1.3m)
+[vitals] slow phone, CLS per page load: criteria 0.000; questions 0.000; brief 0.000; results 0.000; start research to results 0.020
+  ok 166 [chromium] › e2e\quality\vitals.spec.ts:186:3 › slow phone › session pages and the start of research do not jump on a slow connection (CLS) (26.1s)
+[feedback] 21 slow-ish events; longest input to next paint: 24 ms
+  ok 167 [chromium] › e2e\quality\vitals.spec.ts:229:3 › feedback › every press paints a response within 100 ms (5.8s)
+  ok 168 [chromium] › e2e\quality\vitals.spec.ts:267:3 › feedback › waits over 400 ms show a status message (3.1s)
+
+  2 skipped
+  166 passed (5.6m)
+exit 0, 341.1 s
+finished 2026-11-10T17:39:33Z

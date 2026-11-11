@@ -439,3 +439,265 @@ blocked item came out.
   US-48 names will each need 15 cases or more when they arrive.
 - **B-4 stays offline.** A hostile page in a live search still needs the test-only research source in section 4's B-4
   steps.
+
+## 9. Re-check, 10 Nov 2026
+
+- **Checked by:** Palak Patel (QA), task #31, on 10 November 2026, 17:25 to 17:44 UTC, then F-6 and N-1 once more
+  from 19:25 to 19:28 UTC.
+- **Commit:** `main` at **`0c22d59`** (Merge pull request #77). The Sprint 2 Fix Pack is merged: #75 (US-46: F-3, F-4
+  and F-6), #76 (F-5) and #77 (B-1 to B-4). CI run 42863028324 passed all 5 jobs on it
+  ([recheck-ci-on-main.txt](sprint-2-check/recheck-ci-on-main.txt)).
+- **F-6's last run** was on `main` at `0c22d59` with the fix for it on top: **`0fc9e73`** (US-46, Groq as the last
+  resort for public pages, by Jhanvi Barot, branch `fix/US-46-public-last-resort`, not yet merged). Its result holds
+  for `main` once that pull request merges.
+- **Nothing changed:** no application code, test, configuration or workflow was touched. This section and the
+  `recheck-` files in [sprint-2-check/](sprint-2-check/) are the only new content. Sections 1 to 8 stay as they were.
+- **Machine:** Windows 11, Python 3.11.15 and 3.13.13 in fresh virtual environments, Node 22.18.
+
+### How it was run
+
+- **The suites** ran in a clean clone of `main` at `0c22d59`, which has no `.env`:
+  - F-3, F-4 and the backend jobs ran in fresh venvs.
+  - The frontend ran after `npm ci`.
+  - F-5 ran alone, with nothing else on the machine.
+- **The database tests** ran as in CI's backend job: a throwaway `postgres:17` (17.11) with `TEST_DATABASE_URL` and
+  `REQUIRE_DB_TESTS=1`. It used host port 5433, because a local PostgreSQL 18 holds 5432 (as in B-1). The container
+  was removed after.
+- **The two live runs** used the first run's made-up request, "Laptop for coding under 80k", from the repository on
+  `chore/sprint-2-recheck`, which equals `main`. Both used `--no-db`, `REDDIT_SOURCE=off` and `EXTRACT_MAX_SOURCES=3`,
+  as in R5 and R6.
+  - **L1** is the first run's R6 drill. It shows the F-3 rotation live.
+  - **L2** is the first run's R5 drill (F-6): Gemini is answered with a fake 429 at the network edge. It started at
+    17:42:01Z, 102 s after L1's last Mistral call (17:40:18Z). Mistral's free plan allows 2 requests a minute, so its
+    minute was clear.
+- **The guard** was the same kind of helper as in the first run, loaded through `PYTHONPATH` and outside the
+  repository.
+  - It counted every outgoing call against the caps and logged one line per LLM call, never any text.
+  - `MISTRAL_RPS`, `MISTRAL_TPM` and `MISTRAL_RPM` were set empty for each run, so `config/models.yaml`'s Mistral limits
+    applied. python-dotenv does not override a variable that is already set.
+  - The checker did not open or print `.env`. The app loaded its keys from it as usual, so any other override set
+    there, such as a `*_DAILY_TOKENS` value, would have applied. Whether any is set was not checked.
+- **Two later runs**, the same evening, used the same request, guard and settings, under the session's caps of LLM
+  25, Serper 3 and Reddit 0. This time the `*_DAILY_TOKENS` overrides for Groq, Gemini, OpenRouter and Cerebras were
+  set empty for the process too (Mistral's was left as set). The app's own loader then gave Mistral 2 requests and
+  40,000 tokens a minute and 1,000,000 tokens a day, as in `config/models.yaml`.
+  - **L3** settles N-1. It is L1's request on `main` at `0c22d59`, with `EXTRACT_MAX_SOURCES=5` so all five review
+    pages are read. For the analysis only, the guard kept each review page and each raw public reply in the
+    scratchpad, then they were deleted. No page or reply text is in the evidence.
+  - **L4** is F-6 after the fix: the same drill as L2 (`EXTRACT_MAX_SOURCES=3`, Gemini's fake 429, the same venv), on a
+    throwaway branch holding `0c22d59` and `0fc9e73`, deleted after. It started at 19:27:24Z, 130 s after L3's last
+    Mistral call (19:25:13Z). Two things differed from L2: the overrides above, and the pages. The cap takes the first
+    three pages to reach it, so L4 read src23 where L2 read src25.
+- **No check was re-run** to get a pass. L4 runs the drill that failed in L2, but on the commit that fixes it.
+
+### Verdict
+
+**Sprint 2 verified (accepted by the Product Owner, 10 Nov: F-1, F-2, F-7 to F-10).**
+
+F-6 passes on `main` with its fix, `0fc9e73` (branch `fix/US-46-public-last-resort`), on top. F-3 to F-5 and the CI
+results above it are from `0c22d59` alone; "The checks after the fix", below, ran them all again with the fix
+merged, and they passed, with the 37 database tests skipped there. The first verdict of this section, before the
+fix, was "Not yet: 1 failure (F-6)".
+
+| Item | Result |
+|---|---|
+| F-3 Rotation across providers | PASS |
+| F-4 A daily token counter for every provider | PASS |
+| F-5 Mock end-to-end | PASS |
+| F-6 Rate-limit drill | PASS with its fix (`0fc9e73`); FAIL before it |
+| Backend CI | PASS |
+| Frontend CI | PASS |
+| B-1 Database tests | PASS (section 8) |
+| B-2 Filtering and ranking | Moved (D-61) |
+| B-3 A new parser without cases | PASS (section 8) |
+| B-4 P4's hostile pages | PASS (section 8) |
+
+### F-3. Rotation across providers (US-46): PASS
+
+| What | Command | Result | File |
+|---|---|---|---|
+| The routes | `grep` and `sed` on `config/models.yaml` | Public long work (extraction) has Gemini, Mistral, then OpenRouter, and OpenRouter has `rotates: false`. Private and Reddit text may only reach Groq (D-51), so that work rotates across Groq's three models | [recheck-f3-rotation.txt](sprint-2-check/recheck-f3-rotation.txt) |
+| The first run's F-3 command | `pytest tests/unit/llm/test_pool.py -k "rotate or chain" -v` | 4 passed. They include `test_public_bulk_work_rotates_across_its_providers`, which #75 put in place of `test_public_bulk_work_keeps_its_chain`, the test that proved F-3 in the first run. The project's `-q` hides the names, so a collection-only listing (nothing run) names the 4 | [recheck-f3-rotation.txt](sprint-2-check/recheck-f3-rotation.txt) |
+| The first run's US-46 list (`c1-us-46.txt`) | The same list, less the replaced test | 20 passed | [recheck-f3-rotation.txt](sprint-2-check/recheck-f3-rotation.txt) |
+| #75's new tests | `pytest tests/unit/llm/test_provider_rotation.py -v` | 21 passed. These include `test_public_bulk_work_takes_turns_between_gemini_and_mistral`, `test_openrouter_is_used_only_when_gemini_and_mistral_both_have_no_room` and `test_private_and_reddit_bulk_work_rotate_across_groq_only` | [recheck-f3-rotation.txt](sprint-2-check/recheck-f3-rotation.txt) |
+| Live, L1 | The R6 drill | The 3 review pages started together and took turns: Gemini, Mistral, Gemini. All 3 answered | [recheck-l1-reddit-off.txt](sprint-2-check/recheck-l1-reddit-off.txt), [recheck-call-log.txt](sprint-2-check/recheck-call-log.txt) |
+
+F-6's fix, `0fc9e73`, later adds Groq to the public long route as the last resort, after Gemini and Mistral; those two
+still take the turns.
+
+### F-4. A daily token counter for every provider (US-46): PASS
+
+| What | Command | Result | File |
+|---|---|---|---|
+| The counters | `grep` on `config/models.yaml`, and the values as the app loads them | Groq 600,000, Gemini 2,500,000, OpenRouter 250,000 (and 50 requests a day), Cerebras 1,000,000, Mistral 1,000,000 | [recheck-f4-daily-budgets.txt](sprint-2-check/recheck-f4-daily-budgets.txt) |
+| The first run's F-4 command | `pytest tests/unit/llm/test_limits.py::test_a_provider_without_a_budget_is_never_stopped -v` | 1 passed. It tests a key with no limit, and no provider is now without one | [recheck-f4-daily-budgets.txt](sprint-2-check/recheck-f4-daily-budgets.txt) |
+| #75's F-4 tests | 7 tests in `test_provider_rotation.py`, among them `test_every_provider_has_a_daily_token_counter` and `test_a_provider_out_of_its_daily_budget_is_skipped_and_the_next_member_answers` | 7 passed | [recheck-f4-daily-budgets.txt](sprint-2-check/recheck-f4-daily-budgets.txt) |
+
+### F-5. Mock end-to-end: PASS
+
+| What | Command | Result | File |
+|---|---|---|---|
+| The whole mock suite, once, alone on the machine | `npm run test:e2e` | 166 passed and 2 skipped (the live test and the hidden-tab test). The first run had 165 passed, 2 skipped and 1 failed; its saved output doesn't name its skips | [recheck-f5-e2e.txt](sprint-2-check/recheck-f5-e2e.txt) |
+| "typing is never dropped and stays smooth" | (in the run above) | 47 frames a second at normal CPU speed, against at least 30 (the first run measured 28). #76 changed when the test starts measuring: once the page has settled (network idle and fonts loaded). The threshold is unchanged. This run also had the machine to itself | [recheck-f5-e2e.txt](sprint-2-check/recheck-f5-e2e.txt) |
+
+### F-6. The rate-limit drill: PASS with its fix
+
+**After the fix (L4, 19:27 UTC): PASS.**
+
+| What | Command | Result | File |
+|---|---|---|---|
+| L4, the first run's R5, as L2 ran it | `python -m app.cli "Laptop for coding under 80k" --claims --no-db`, with `REDDIT_SOURCE=off`, `EXTRACT_MAX_SOURCES=3` and a fake 429 for Gemini, on `0c22d59` + `0fc9e73` | **PASS.** The result arrived in 17.3 s. All 3 pages were read, each inside its 15 s limit. The coverage note has no "took too long" and no message about an unread page; its "Reddit could not be read." is the drill's own `REDDIT_SOURCE=off` | [recheck-f6-after-fix.txt](sprint-2-check/recheck-f6-after-fix.txt), [recheck-call-log.txt](sprint-2-check/recheck-call-log.txt) |
+
+| Page | Gemini | Mistral | Groq (the last resort) | Read? | Ended after |
+|---|---|---|---|---|---|
+| src22, rtings.com, business | 429 (fake) | answered, 5.7 s | not needed | yes | 6.2 s |
+| src21, rtings.com, programming | not its turn | answered, 7.0 s | not needed | yes | 7.5 s |
+| src23, digit.in, programming list | skipped: cooling | "no room in its rate limit in time", not sent | `gpt-oss-120b` answered, 1.2 s | yes | 1.8 s |
+
+- OpenRouter was never called. The note's "2 sources were not read, to keep the search from running too long" is the
+  drill's own `EXTRACT_MAX_SOURCES=3`, as in L2 and the first run.
+- L2's unread page, src25, was not among L4's three, and Groq read src23 instead. That a page at research's
+  3,000-token cap goes to Groq whole is shown by a test in `0fc9e73`
+  (`test_a_long_public_page_goes_to_groq_whole_with_the_pools_public_answer_size`), not by this run.
+- **The fix (`0fc9e73`):** Groq does not train on inputs, so public text may go to it (D-51). Public pages now go to
+  Groq's models when neither Gemini nor Mistral has room, and only if a Groq model has room right now, outside the
+  shopper's reserve; OpenRouter comes after them all. Private and Reddit work is unchanged.
+
+**Before the fix (L2, 17:42 UTC): FAIL.**
+
+| What | Command | Result | File |
+|---|---|---|---|
+| L2, the first run's R5 | `python -m app.cli "Laptop for coding under 80k" --claims --no-db`, with `REDDIT_SOURCE=off`, `EXTRACT_MAX_SOURCES=3` and a fake 429 for Gemini | **FAIL.** The result arrived in 18.1 s, and the coverage note no longer says "took too long". But it says "1 source could not be read, because the AI services were busy or their answers could not be used." | [recheck-f6-rate-limit.txt](sprint-2-check/recheck-f6-rate-limit.txt), [recheck-call-log.txt](sprint-2-check/recheck-call-log.txt) |
+
+What happened to each page, from the call log:
+
+| Page | Gemini | Mistral | OpenRouter | Read? |
+|---|---|---|---|---|
+| src21, rtings.com, programming | 429 (fake) | answered, 5.8 s | not needed | yes |
+| src22, rtings.com, business | not its turn | answered, 7.5 s | not needed | yes |
+| src25, digit.in, a coding laptop guide | 429 (fake) | "no room in its rate limit in time", so it was not sent. src21 and src22 held its 2 requests for that minute (inferred: a slot is booked before the request goes out) | no answer inside its 9 s attempt limit, so it was cut off; the call ran 10.3 s | no |
+
+- Two more pages were not started, because `EXTRACT_MAX_SOURCES=3` holds the drill to 3 pages, as in the first run.
+  That accounts for the note's "2 sources were not read, to keep the search from running too long". It is part of
+  the drill's set-up, not the failure.
+- **Expected:** a rate-limited provider is passed over without the shopper noticing.
+- **Steps:** run L2 as above, at least 60 s after any other Mistral call.
+- **Cause, confirmed by the call log:**
+  - With Gemini limited, Mistral takes the public pages, and its free plan allows 2 requests a minute. The drill reads
+    3 pages, so the third goes to OpenRouter, the last fallback.
+  - OpenRouter's free model took longer than its 9 s attempt limit and was cut off.
+  - The cut-off kept that page inside its 15 s limit (10.4 s), so the first run's "took too long" is gone. But the page
+    was not read.
+  - No allowed provider could read it in time: Gemini was limited, Mistral's minute was full, and OpenRouter did not
+    answer inside its limit. So the note is honest. (At `0c22d59` the public route held no Groq; `0fc9e73` adds it.)
+- **Suggested owner:** Jhanvi (US-46), with Om, since the routes table is a team decision. A public fallback that can
+  answer inside the attempt limit would close it, for example a faster free model on OpenRouter or another provider in
+  the public route. `0fc9e73` does the second: Groq, above, and L4 shows it.
+
+### Backend CI: PASS
+
+| Job | Commands | Result | File |
+|---|---|---|---|
+| Linux job's steps (3.11) | `ruff check .`, `ruff format --check .`, `mypy app` | Clean; 304 files formatted; no issues in 113 files | [recheck-backend-py311.txt](sprint-2-check/recheck-backend-py311.txt) |
+| | `pytest -q -m "not live" --cov --cov-report=term-missing`, with the database | 3,895 tests: 0 failed, 0 errors, 0 skipped. The 37 `db` tests all passed. Coverage 98.44% | [recheck-backend-py311.txt](sprint-2-check/recheck-backend-py311.txt) |
+| | `python -m scripts.check_coverage` | Gates passed: every core module 94.7% or more; `app/decide` 100% | [recheck-backend-py311.txt](sprint-2-check/recheck-backend-py311.txt) |
+| | Contract export and `git diff --exit-code -- ../shared/contracts` | No diff | [recheck-backend-py311.txt](sprint-2-check/recheck-backend-py311.txt) |
+| Windows job's steps (3.13) | `pytest -q -m "not live"` and the contract export | 3,895 tests: 0 failed, 0 errors, 37 skipped (the `db` tests, with no database, as in CI). No diff | [recheck-backend-py313.txt](sprint-2-check/recheck-backend-py313.txt) |
+
+### Frontend CI: PASS
+
+| Step | Command | Result | File |
+|---|---|---|---|
+| Install | `npm ci` | exit 0 | [recheck-frontend.txt](sprint-2-check/recheck-frontend.txt) |
+| Lint | `npm run lint` | exit 0 | [recheck-frontend.txt](sprint-2-check/recheck-frontend.txt) |
+| Types | `npx tsc --noEmit` | exit 0 | [recheck-frontend.txt](sprint-2-check/recheck-frontend.txt) |
+| Unit tests | `npm test` | 20 files, 521 tests passed | [recheck-frontend.txt](sprint-2-check/recheck-frontend.txt) |
+| Build (not in CI; run as in the first run) | `npm run build` | exit 0 | [recheck-frontend.txt](sprint-2-check/recheck-frontend.txt) |
+
+### The checks after the fix, 11 Nov 2026
+
+`main` at `0c22d59`, with the Sprint 2 close-out merged in its order: `0fc9e73` (the fix), this report and
+`98dc8d2` (the review run sheet and the README's Sprint 2 status). They ran on a throwaway branch in a fresh clone
+with no `.env`, deleted after, from 04:52 to 05:19 UTC. The three merged with no conflict.
+
+| Job | Commands | Result | File |
+|---|---|---|---|
+| Linux job's steps (3.11) | `ruff check .`, `ruff format --check .`, `mypy app`, `pytest -q -m "not live" --cov`, `python -m scripts.check_coverage`, the contract export | Clean; 305 files formatted; no issues in 113 files. 3,908 tests: 0 failed, 0 errors, 37 skipped. Coverage 98.34%; gates passed; no contract diff | [recheck-integration.txt](sprint-2-check/recheck-integration.txt) |
+| Windows job's steps (3.13) | `pytest -q -m "not live"` and the contract export | 3,908 tests: 0 failed, 0 errors, 37 skipped. No diff | [recheck-integration.txt](sprint-2-check/recheck-integration.txt) |
+| Frontend | `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` | Every step exit 0; 20 files, 521 tests passed | [recheck-integration.txt](sprint-2-check/recheck-integration.txt) |
+| Frontend end-to-end, mock, alone on the machine | `npm run test:e2e` | 166 passed, 2 skipped; typing at 39 frames a second at normal CPU speed, against at least 30 | [recheck-integration.txt](sprint-2-check/recheck-integration.txt) |
+
+- **The 37 skipped tests are the `db` tests.** Docker Desktop was not running, and starting it was refused by the
+  permission system, so no `postgres:17` could be started here. They passed in the backend CI above (on `0c22d59`) and
+  in B-1. The fix changes no database code. Om runs them once on `main` after the merge: start Docker, then from
+  `backend/`, `docker run -d --rm --name ss-test-db -e POSTGRES_PASSWORD=postgres -p 5433:5432 postgres:17` and
+  `TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5433/postgres REQUIRE_DB_TESTS=1 pytest -q -m db`
+  (37 passed is the pass), then `docker stop ss-test-db`.
+- 3,908 is 13 more tests than on `0c22d59`: the fix's own.
+
+### B-1 to B-4: kept from section 8
+
+These were not re-run. Each keeps its result from "Blocked items, 10 Nov".
+
+| Item | Result | File |
+|---|---|---|
+| B-1, the database tests | PASS: 3,862 passed, all 37 `db` tests among them (on `483d8f2`). The backend CI above ran them again on `0c22d59`, and they passed | [b1-db-tests.txt](sprint-2-check/b1-db-tests.txt) |
+| B-2, filtering and ranking | Moved (D-61): checked in Sprint 3's review check (#46) | — |
+| B-3, a new parser without cases | PASS: both registry tests fail on a module and call without cases, and pass once it is gone | [b3-registry.txt](sprint-2-check/b3-registry.txt) |
+| B-4, P4's hostile pages | PASS: 33 passed offline; each of the 10 hostile pages gives the same result as its clean twin | [b4-hostile-pages.txt](sprint-2-check/b4-hostile-pages.txt) |
+
+### Accepted by the Product Owner, 10 Nov
+
+These keep their first-run result and evidence (sections 1 and 4). They don't count in the verdict.
+
+| Item | First-run result | Reason | Evidence |
+|---|---|---|---|
+| F-1 The fast suite takes 64.1 s on Python 3.11; the limit is 60 s (US-32) | FAIL | Accepted as it stands | [c2-fast-suite.txt](sprint-2-check/c2-fast-suite.txt), [c2-backend-py311.txt](sprint-2-check/c2-backend-py311.txt) |
+| F-2 CI does not block a merge: `main` has no protection (US-32, US-48) | FAIL | Accepted as it stands | [c6-github.txt](sprint-2-check/c6-github.txt), [c1-us-48.txt](sprint-2-check/c1-us-48.txt) |
+| F-7 Pull requests were opened by Om's account, not by their owners | FAIL | Settled by D-05, as amended 10 Nov | [c6-github.txt](sprint-2-check/c6-github.txt) |
+| F-8 PR #50's description names an AI tool | FAIL | Accepted as it stands | [c6-github.txt](sprint-2-check/c6-github.txt) |
+| F-9 Two Sprint 1 branch names name an AI tool | FAIL | Accepted as it stands | [c6-github.txt](sprint-2-check/c6-github.txt) |
+| F-10 Seven commit messages on `main`, all from before Sprint 2, name an AI tool | FAIL | Kept by D-10: `main`'s history is not rewritten | [c6-github.txt](sprint-2-check/c6-github.txt) |
+
+### Live calls
+
+The caps were LLM 20, Serper 6 and Reddit archive 0 (Reddit from the cache only; it was off in both runs).
+
+**Totals: LLM 8, Serper 3, Reddit archive 0. Also 12 review-page fetches; 2 Gemini calls answered by the drill's fake
+429, never sent; 0 calls refused by a cap.**
+
+| Run | LLM calls sent | Serper | Reddit archive | Review pages |
+|---|---|---|---|---|
+| L1: the R6 drill | 4 (Groq 1, Gemini 2, Mistral 1) | 3 | 0 | 8 |
+| L2: the F-6 drill | 4 (Groq 1, Mistral 2, OpenRouter 1) | 0 | 0 | 4 |
+
+- L1 sent 3 Serper searches that were not in the 24-hour cache.
+- L2's search results came from the cache that L1 filled.
+- Per-run files: [recheck-live-call-ledger.txt](sprint-2-check/recheck-live-call-ledger.txt) and
+  [recheck-call-log.txt](sprint-2-check/recheck-call-log.txt).
+
+The later runs had the session's caps of LLM 25, Serper 3 and Reddit 0.
+
+| Run | LLM calls sent | Serper | Reddit archive | Review pages |
+|---|---|---|---|---|
+| L3: N-1's run, 5 sources | 7 (Groq 1, Gemini 4, Mistral 2) | 0 | 0 | 4 |
+| L4: the F-6 drill after the fix | 4 (Groq 2, Mistral 2); 1 Gemini call answered by the fake 429, never sent | 0 | 0 | 4 |
+
+- Both took their search results from the 24-hour cache. No call was refused by a cap.
+- The session's one other live run, Part A's own drill on its branch (LLM 4: Groq 2, Mistral 2), is in that part's
+  hand-over. The session total was LLM 15 of 25, Serper 0 of 3 and Reddit 0.
+- N-1's diagnosis also fetched the first rtings.com review page once, with the app's own headers: a page fetch, with
+  no LLM or Serper call.
+
+### Supabase
+
+- **Rows created:** none, and no session ID was created in Supabase. All four live runs used `--no-db`, and the
+  database tests used the throwaway container.
+- **Delete statement:** there is nothing for Om to delete.
+
+### Notes (not counted)
+
+| # | What | Owner |
+|---|---|---|
+| N-1 | In L1, all 3 review pages were answered (Gemini 2, Mistral 1), but none gave a claim. The first run's R6 got 4 claims from its review pages. **Settled by L3** ([recheck-n1-review-pages.txt](sprint-2-check/recheck-n1-review-pages.txt)). Our parser, the exact-quote check and the unit rule dropped nothing on any of the 5 pages. Three rtings.com pages reached the model as lists of product names of 189 or 190 words, with no figure in them. One fetch of the first page showed why: the site sends its review text as data for the browser to draw, and research reads only a page's visible text. The model named the products and rightly made no claim. The digit.in buying guide names no product. The other digit.in page gave 1 claim, which was kept. Every public prompt carried 3 of the rubric's 10 criteria, because generated criteria may hold the shopper's words and so never reach a provider that trains on inputs. No code change in extraction. Two Sprint 3 gaps: research should read such pages' data (Jenish, with Pal for cleaning), and generated criteria should map to the category's fixed keys, so public pages can be asked about them (Jhanvi) | Jhanvi |
+| N-2 | Mistral's free replies took 5.8 to 7.5 s, against its 9 s attempt limit (60% of the 15 s per source). A slower reply is cut off | Jhanvi |

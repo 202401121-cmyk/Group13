@@ -1,0 +1,372 @@
+Re-check call log: one line per event, UTC. Lines from the guard (calls sent, faked or refused; which page each
+source label is) and from the app's own log (llm call records, skips, and research and save summaries). Never any
+prompt, reply or page text.
+
+## L1, the R6 drill
+17:40:08.520Z stage-intake_0 guard: llm call 1 of 20 sent to api.groq.com
+17:40:11.190Z stage-intake_0 app.llm.client: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=613 out=157 ms=2670
+17:40:11.598Z research-fetch_1 guard: serper call 1 of 6 sent to google.serper.dev
+17:40:11.796Z research-fetch_3 guard: serper call 2 of 6 sent to google.serper.dev
+17:40:15.344Z research-fetch_3 guard: serper call 3 of 6 sent to google.serper.dev
+17:40:18.691Z stage-research_0 app.research.stage: research: reddit 0.0s (0), web_search 5.3s (20), review_site 7.1s (5); total 7.1s; used serper 3, reddit_archive 0, pages 8
+17:40:18.694Z stage-extract_0 guard: src1-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+17:40:18.694Z src1-web_search-www.91mobiles.com guard: extract starts
+17:40:18.694Z stage-extract_0 guard: src2-web_search-www.amazon.in is https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+17:40:18.694Z src1-web_search-www.91mobiles.com guard: extract ends
+17:40:18.695Z src2-web_search-www.amazon.in guard: extract starts
+17:40:18.695Z stage-extract_0 guard: src3-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+17:40:18.695Z src2-web_search-www.amazon.in guard: extract ends
+17:40:18.695Z src3-web_search-www.91mobiles.com guard: extract starts
+17:40:18.695Z stage-extract_0 guard: src4-web_search-www.youtube.com is https://www.youtube.com/watch?v=r023nwE441U
+17:40:18.695Z src3-web_search-www.91mobiles.com guard: extract ends
+17:40:18.696Z src4-web_search-www.youtube.com guard: extract starts
+17:40:18.696Z stage-extract_0 guard: src5-web_search-www.mysmartprice.com is https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+17:40:18.696Z src4-web_search-www.youtube.com guard: extract ends
+17:40:18.696Z src5-web_search-www.mysmartprice.com guard: extract starts
+17:40:18.696Z stage-extract_0 guard: src6-web_search-www.youtube.com is https://www.youtube.com/watch?v=YXaoe3na9yU
+17:40:18.697Z src5-web_search-www.mysmartprice.com guard: extract ends
+17:40:18.697Z src6-web_search-www.youtube.com guard: extract starts
+17:40:18.697Z stage-extract_0 guard: src7-web_search-www.quora.com is https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+17:40:18.697Z src6-web_search-www.youtube.com guard: extract ends
+17:40:18.698Z src7-web_search-www.quora.com guard: extract starts
+17:40:18.698Z stage-extract_0 guard: src8-web_search-gadgetsnow.indiatimes.com is https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+17:40:18.698Z src7-web_search-www.quora.com guard: extract ends
+17:40:18.698Z src8-web_search-gadgetsnow.indiatimes.com guard: extract starts
+17:40:18.699Z stage-extract_0 guard: src9-web_search-www.smartprix.com is https://www.smartprix.com/laptops/best-laptops-under-80000-list
+17:40:18.699Z src8-web_search-gadgetsnow.indiatimes.com guard: extract ends
+17:40:18.699Z src9-web_search-www.smartprix.com guard: extract starts
+17:40:18.699Z stage-extract_0 guard: src10-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+17:40:18.700Z src9-web_search-www.smartprix.com guard: extract ends
+17:40:18.700Z src10-web_search-www.91mobiles.com guard: extract starts
+17:40:18.700Z stage-extract_0 guard: src11-web_search-www.rtings.com is https://www.rtings.com/laptop/reviews/best/travel
+17:40:18.700Z src10-web_search-www.91mobiles.com guard: extract ends
+17:40:18.700Z src11-web_search-www.rtings.com guard: extract starts
+17:40:18.700Z stage-extract_0 guard: src12-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptops-in-india
+17:40:18.701Z src11-web_search-www.rtings.com guard: extract ends
+17:40:18.701Z src12-web_search-www.91mobiles.com guard: extract starts
+17:40:18.701Z stage-extract_0 guard: src13-web_search-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/gaming
+17:40:18.701Z src12-web_search-www.91mobiles.com guard: extract ends
+17:40:18.701Z src13-web_search-www.rtings.com guard: extract starts
+17:40:18.701Z stage-extract_0 guard: src14-web_search-www.lenovo.com is https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vLO6zCFGE3GTGeFnSK2f2elh0uFyTaSPfPPYHCye922iybJWEDF
+17:40:18.701Z src13-web_search-www.rtings.com guard: extract ends
+17:40:18.702Z src14-web_search-www.lenovo.com guard: extract starts
+17:40:18.702Z stage-extract_0 guard: src15-web_search-www.amazon.in is https://www.amazon.in/b?ie=UTF8&node=16092374031
+17:40:18.702Z src14-web_search-www.lenovo.com guard: extract ends
+17:40:18.702Z src15-web_search-www.amazon.in guard: extract starts
+17:40:18.702Z stage-extract_0 guard: src16-web_search-www.croma.com is https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vKvfjmb9WC6ovzrh5UiyRY98UtojmSdx9y5MAlKIVtmKIjKBl9l
+17:40:18.702Z src15-web_search-www.amazon.in guard: extract ends
+17:40:18.702Z src16-web_search-www.croma.com guard: extract starts
+17:40:18.702Z stage-extract_0 guard: src17-web_search-www.wired.com is https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+17:40:18.703Z src16-web_search-www.croma.com guard: extract ends
+17:40:18.703Z src17-web_search-www.wired.com guard: extract starts
+17:40:18.703Z stage-extract_0 guard: src18-web_search-www.91mobiles.com is https://www.91mobiles.com/laptopfinder.php
+17:40:18.703Z src17-web_search-www.wired.com guard: extract ends
+17:40:18.703Z src18-web_search-www.91mobiles.com guard: extract starts
+17:40:18.703Z stage-extract_0 guard: src19-web_search-www.youtube.com is https://www.youtube.com/watch?v=p5Jp18DBNqM
+17:40:18.704Z src18-web_search-www.91mobiles.com guard: extract ends
+17:40:18.704Z src19-web_search-www.youtube.com guard: extract starts
+17:40:18.704Z stage-extract_0 guard: src20-web_search-edify.club is https://edify.club/blog/laptop-buying-checklist-india-2026/
+17:40:18.704Z src19-web_search-www.youtube.com guard: extract ends
+17:40:18.704Z src20-web_search-edify.club guard: extract starts
+17:40:18.704Z stage-extract_0 guard: src21-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/programming
+17:40:18.704Z src20-web_search-edify.club guard: extract ends
+17:40:18.704Z src21-review_site-www.rtings.com guard: extract starts
+17:40:18.704Z stage-extract_0 guard: src22-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/business
+17:40:18.705Z src22-review_site-www.rtings.com guard: extract starts
+17:40:18.705Z stage-extract_0 guard: src23-review_site-www.digit.in is https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+17:40:18.705Z src23-review_site-www.digit.in guard: extract starts
+17:40:18.705Z stage-extract_0 guard: src24-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/graphic-design
+17:40:18.705Z src24-review_site-www.rtings.com guard: extract starts
+17:40:18.705Z stage-extract_0 guard: src25-review_site-www.digit.in is https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+17:40:18.705Z src25-review_site-www.digit.in guard: extract starts
+17:40:18.950Z src23-review_site-www.digit.in guard: extract ends
+17:40:18.983Z src25-review_site-www.digit.in guard: extract ends
+17:40:18.984Z src22-review_site-www.rtings.com guard: llm call 2 of 20 sent to generativelanguage.googleapis.com
+17:40:18.992Z src21-review_site-www.rtings.com guard: llm call 3 of 20 sent to api.mistral.ai
+17:40:18.998Z src24-review_site-www.rtings.com guard: llm call 4 of 20 sent to generativelanguage.googleapis.com
+17:40:22.468Z src24-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok fitted=as_is in=1582 out=428 ms=3529
+17:40:22.468Z src22-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok fitted=as_is in=1575 out=428 ms=3619
+17:40:22.470Z src24-review_site-www.rtings.com guard: extract ends
+17:40:22.470Z src22-review_site-www.rtings.com guard: extract ends
+17:40:24.727Z src21-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=ok fitted=as_is in=1583 out=635 ms=5852
+17:40:24.729Z src21-review_site-www.rtings.com guard: extract ends
+17:40:24.746Z result-save_0 app.db.store: search not saved: the database is off
+
+## L2, the F-6 drill (R5)
+17:42:03.269Z stage-intake_0 guard: llm call 5 of 20 sent to api.groq.com
+17:42:04.490Z stage-intake_0 app.llm.client: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=613 out=157 ms=1220
+17:42:09.369Z stage-research_0 app.research.stage: research: reddit 0.0s (0), web_search 0.1s (20), review_site 4.5s (5); total 4.5s; used serper 0, reddit_archive 0, pages 4
+17:42:09.372Z stage-extract_0 guard: src1-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+17:42:09.372Z src1-web_search-www.91mobiles.com guard: extract starts
+17:42:09.372Z src1-web_search-www.91mobiles.com guard: extract ends
+17:42:09.372Z stage-extract_0 guard: src2-web_search-www.amazon.in is https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+17:42:09.377Z src2-web_search-www.amazon.in guard: extract starts
+17:42:09.377Z stage-extract_0 guard: src3-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+17:42:09.377Z src2-web_search-www.amazon.in guard: extract ends
+17:42:09.377Z src3-web_search-www.91mobiles.com guard: extract starts
+17:42:09.377Z stage-extract_0 guard: src4-web_search-www.youtube.com is https://www.youtube.com/watch?v=r023nwE441U
+17:42:09.377Z src3-web_search-www.91mobiles.com guard: extract ends
+17:42:09.378Z src4-web_search-www.youtube.com guard: extract starts
+17:42:09.378Z stage-extract_0 guard: src5-web_search-www.youtube.com is https://www.youtube.com/watch?v=YXaoe3na9yU
+17:42:09.378Z src4-web_search-www.youtube.com guard: extract ends
+17:42:09.378Z src5-web_search-www.youtube.com guard: extract starts
+17:42:09.378Z stage-extract_0 guard: src6-web_search-www.mysmartprice.com is https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+17:42:09.379Z src5-web_search-www.youtube.com guard: extract ends
+17:42:09.379Z src6-web_search-www.mysmartprice.com guard: extract starts
+17:42:09.379Z stage-extract_0 guard: src7-web_search-www.quora.com is https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+17:42:09.379Z src6-web_search-www.mysmartprice.com guard: extract ends
+17:42:09.379Z src7-web_search-www.quora.com guard: extract starts
+17:42:09.379Z stage-extract_0 guard: src8-web_search-gadgetsnow.indiatimes.com is https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+17:42:09.380Z src7-web_search-www.quora.com guard: extract ends
+17:42:09.380Z src8-web_search-gadgetsnow.indiatimes.com guard: extract starts
+17:42:09.380Z stage-extract_0 guard: src9-web_search-www.smartprix.com is https://www.smartprix.com/laptops/best-laptops-under-80000-list
+17:42:09.380Z src8-web_search-gadgetsnow.indiatimes.com guard: extract ends
+17:42:09.380Z src9-web_search-www.smartprix.com guard: extract starts
+17:42:09.380Z stage-extract_0 guard: src10-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+17:42:09.380Z src9-web_search-www.smartprix.com guard: extract ends
+17:42:09.381Z src10-web_search-www.91mobiles.com guard: extract starts
+17:42:09.381Z stage-extract_0 guard: src11-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptops-in-india
+17:42:09.381Z src10-web_search-www.91mobiles.com guard: extract ends
+17:42:09.381Z src11-web_search-www.91mobiles.com guard: extract starts
+17:42:09.381Z stage-extract_0 guard: src12-web_search-www.rtings.com is https://www.rtings.com/laptop/reviews/best/travel
+17:42:09.381Z src11-web_search-www.91mobiles.com guard: extract ends
+17:42:09.381Z src12-web_search-www.rtings.com guard: extract starts
+17:42:09.382Z stage-extract_0 guard: src13-web_search-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/gaming
+17:42:09.382Z src12-web_search-www.rtings.com guard: extract ends
+17:42:09.382Z src13-web_search-www.rtings.com guard: extract starts
+17:42:09.382Z stage-extract_0 guard: src14-web_search-www.lenovo.com is https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vLO6zCFGE3GTGeFnSK2f2elh0uFyTaSPfPPYHCye922iybJWEDF
+17:42:09.382Z src13-web_search-www.rtings.com guard: extract ends
+17:42:09.382Z src14-web_search-www.lenovo.com guard: extract starts
+17:42:09.383Z stage-extract_0 guard: src15-web_search-www.amazon.in is https://www.amazon.in/b?ie=UTF8&node=16092374031
+17:42:09.383Z src14-web_search-www.lenovo.com guard: extract ends
+17:42:09.383Z src15-web_search-www.amazon.in guard: extract starts
+17:42:09.383Z stage-extract_0 guard: src16-web_search-www.croma.com is https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vKvfjmb9WC6ovzrh5UiyRY98UtojmSdx9y5MAlKIVtmKIjKBl9l
+17:42:09.383Z src15-web_search-www.amazon.in guard: extract ends
+17:42:09.383Z src16-web_search-www.croma.com guard: extract starts
+17:42:09.384Z stage-extract_0 guard: src17-web_search-www.wired.com is https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+17:42:09.384Z src16-web_search-www.croma.com guard: extract ends
+17:42:09.384Z src17-web_search-www.wired.com guard: extract starts
+17:42:09.384Z stage-extract_0 guard: src18-web_search-www.91mobiles.com is https://www.91mobiles.com/laptopfinder.php
+17:42:09.384Z src17-web_search-www.wired.com guard: extract ends
+17:42:09.384Z src18-web_search-www.91mobiles.com guard: extract starts
+17:42:09.384Z stage-extract_0 guard: src19-web_search-www.youtube.com is https://www.youtube.com/watch?v=p5Jp18DBNqM
+17:42:09.385Z src18-web_search-www.91mobiles.com guard: extract ends
+17:42:09.385Z src19-web_search-www.youtube.com guard: extract starts
+17:42:09.385Z stage-extract_0 guard: src20-web_search-edify.club is https://edify.club/blog/laptop-buying-checklist-india-2026/
+17:42:09.385Z src19-web_search-www.youtube.com guard: extract ends
+17:42:09.385Z src20-web_search-edify.club guard: extract starts
+17:42:09.385Z stage-extract_0 guard: src21-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/programming
+17:42:09.385Z src20-web_search-edify.club guard: extract ends
+17:42:09.385Z src21-review_site-www.rtings.com guard: extract starts
+17:42:09.385Z stage-extract_0 guard: src22-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/business
+17:42:09.386Z src22-review_site-www.rtings.com guard: extract starts
+17:42:09.386Z stage-extract_0 guard: src23-review_site-www.digit.in is https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+17:42:09.386Z src23-review_site-www.digit.in guard: extract starts
+17:42:09.386Z stage-extract_0 guard: src24-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/graphic-design
+17:42:09.386Z src24-review_site-www.rtings.com guard: extract starts
+17:42:09.386Z stage-extract_0 guard: src25-review_site-www.digit.in is https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+17:42:09.462Z src25-review_site-www.digit.in guard: extract starts
+17:42:09.441Z src21-review_site-www.rtings.com guard: fake 429 from generativelanguage.googleapis.com (no network call)
+17:42:09.509Z src25-review_site-www.digit.in guard: fake 429 from generativelanguage.googleapis.com (no network call)
+17:42:09.555Z src21-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=rate_limited fitted=as_is in=1697 out=0 ms=114
+17:42:09.587Z src23-review_site-www.digit.in guard: extract ends
+17:42:09.587Z src25-review_site-www.digit.in app.llm.client: llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=rate_limited fitted=as_is in=4227 out=0 ms=78
+17:42:09.590Z src24-review_site-www.rtings.com guard: extract ends
+17:42:09.590Z src25-review_site-www.digit.in app.llm.client: llm mistral skipped: no room in its rate limit in time
+17:42:09.590Z src22-review_site-www.rtings.com guard: llm call 6 of 20 sent to api.mistral.ai
+17:42:09.590Z src25-review_site-www.digit.in app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=rate_limited fitted=as_is in=0 out=0 ms=0
+17:42:09.597Z src21-review_site-www.rtings.com guard: llm call 7 of 20 sent to api.mistral.ai
+17:42:09.604Z src25-review_site-www.digit.in guard: llm call 8 of 20 sent to openrouter.ai
+17:42:15.346Z src21-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=ok fitted=as_is in=1583 out=635 ms=5759
+17:42:15.348Z src21-review_site-www.rtings.com guard: extract ends
+17:42:16.964Z src22-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=ok fitted=as_is in=1577 out=635 ms=7457
+17:42:16.965Z src22-review_site-www.rtings.com guard: extract ends
+17:42:19.855Z src25-review_site-www.digit.in app.llm.client: llm call task=extract_claims class=public provider=openrouter model=nvidia/nemotron-3.5-lightning:free outcome=timeout fitted=as_is in=4227 out=0 ms=10264
+17:42:19.855Z src25-review_site-www.digit.in app.extract.stage: extract: a review_site source was dropped: no valid answer
+17:42:19.856Z src25-review_site-www.digit.in guard: extract ends
+17:42:19.871Z result-save_0 app.db.store: search not saved: the database is off
+
+## L3, N-1's run (Part B's investigation, main 0c22d59)
+19:25:07.469Z stage-intake_0 guard: llm call 5 of 25 sent to api.groq.com
+19:25:08.259Z stage-intake_0 app.llm.client: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=613 out=157 ms=792
+19:25:13.404Z stage-research_0 app.research.stage: research: reddit 0.0s (0), web_search 0.0s (20), review_site 4.3s (5); total 4.3s; used serper 0, reddit_archive 0, pages 4
+19:25:13.407Z stage-extract_0 guard: src1-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+19:25:13.407Z src1-web_search-www.91mobiles.com guard: extract starts
+19:25:13.408Z stage-extract_0 guard: src2-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+19:25:13.408Z src1-web_search-www.91mobiles.com guard: extract ends
+19:25:13.409Z src2-web_search-www.91mobiles.com guard: extract starts
+19:25:13.409Z stage-extract_0 guard: src3-web_search-www.youtube.com is https://www.youtube.com/watch?v=YXaoe3na9yU
+19:25:13.410Z src2-web_search-www.91mobiles.com guard: extract ends
+19:25:13.410Z src3-web_search-www.youtube.com guard: extract starts
+19:25:13.411Z stage-extract_0 guard: src4-web_search-www.quora.com is https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+19:25:13.412Z src3-web_search-www.youtube.com guard: extract ends
+19:25:13.412Z src4-web_search-www.quora.com guard: extract starts
+19:25:13.413Z stage-extract_0 guard: src5-web_search-www.amazon.in is https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+19:25:13.414Z src4-web_search-www.quora.com guard: extract ends
+19:25:13.414Z src5-web_search-www.amazon.in guard: extract starts
+19:25:13.415Z stage-extract_0 guard: src6-web_search-gadgetsnow.indiatimes.com is https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+19:25:13.416Z src5-web_search-www.amazon.in guard: extract ends
+19:25:13.416Z src6-web_search-gadgetsnow.indiatimes.com guard: extract starts
+19:25:13.416Z stage-extract_0 guard: src7-web_search-www.youtube.com is https://www.youtube.com/watch?v=r023nwE441U
+19:25:13.417Z src6-web_search-gadgetsnow.indiatimes.com guard: extract ends
+19:25:13.418Z src7-web_search-www.youtube.com guard: extract starts
+19:25:13.418Z stage-extract_0 guard: src8-web_search-www.mysmartprice.com is https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+19:25:13.419Z src7-web_search-www.youtube.com guard: extract ends
+19:25:13.419Z src8-web_search-www.mysmartprice.com guard: extract starts
+19:25:13.420Z src8-web_search-www.mysmartprice.com guard: extract ends
+19:25:13.420Z stage-extract_0 guard: src9-web_search-www.smartprix.com is https://www.smartprix.com/laptops/best-laptops-under-80000-list
+19:25:13.421Z src9-web_search-www.smartprix.com guard: extract starts
+19:25:13.421Z src9-web_search-www.smartprix.com guard: extract ends
+19:25:13.421Z stage-extract_0 guard: src10-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+19:25:13.422Z src10-web_search-www.91mobiles.com guard: extract starts
+19:25:13.423Z stage-extract_0 guard: src11-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptops-in-india
+19:25:13.423Z src10-web_search-www.91mobiles.com guard: extract ends
+19:25:13.423Z src11-web_search-www.91mobiles.com guard: extract starts
+19:25:13.424Z stage-extract_0 guard: src12-web_search-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/gaming
+19:25:13.424Z src11-web_search-www.91mobiles.com guard: extract ends
+19:25:13.425Z src12-web_search-www.rtings.com guard: extract starts
+19:25:13.425Z stage-extract_0 guard: src13-web_search-www.lenovo.com is https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vLO6zCFGE3GTGeFnSK2f2elh0uFyTaSPfPPYHCye922iybJWEDF
+19:25:13.425Z src12-web_search-www.rtings.com guard: extract ends
+19:25:13.426Z src13-web_search-www.lenovo.com guard: extract starts
+19:25:13.427Z stage-extract_0 guard: src14-web_search-www.rtings.com is https://www.rtings.com/laptop/reviews/best/travel
+19:25:13.427Z src13-web_search-www.lenovo.com guard: extract ends
+19:25:13.428Z src14-web_search-www.rtings.com guard: extract starts
+19:25:13.428Z stage-extract_0 guard: src15-web_search-www.amazon.in is https://www.amazon.in/b?ie=UTF8&node=16092374031
+19:25:13.429Z src14-web_search-www.rtings.com guard: extract ends
+19:25:13.430Z src15-web_search-www.amazon.in guard: extract starts
+19:25:13.430Z stage-extract_0 guard: src16-web_search-www.croma.com is https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vKvfjmb9WC6ovzrh5UiyRY98UtojmSdx9y5MAlKIVtmKIjKBl9l
+19:25:13.431Z src15-web_search-www.amazon.in guard: extract ends
+19:25:13.431Z src16-web_search-www.croma.com guard: extract starts
+19:25:13.431Z stage-extract_0 guard: src17-web_search-www.91mobiles.com is https://www.91mobiles.com/laptopfinder.php
+19:25:13.432Z src16-web_search-www.croma.com guard: extract ends
+19:25:13.433Z src17-web_search-www.91mobiles.com guard: extract starts
+19:25:13.433Z stage-extract_0 guard: src18-web_search-www.wired.com is https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+19:25:13.433Z src17-web_search-www.91mobiles.com guard: extract ends
+19:25:13.434Z src18-web_search-www.wired.com guard: extract starts
+19:25:13.434Z stage-extract_0 guard: src19-web_search-www.youtube.com is https://www.youtube.com/watch?v=p5Jp18DBNqM
+19:25:13.435Z src18-web_search-www.wired.com guard: extract ends
+19:25:13.435Z src19-web_search-www.youtube.com guard: extract starts
+19:25:13.436Z stage-extract_0 guard: src20-web_search-edify.club is https://edify.club/blog/laptop-buying-checklist-india-2026/
+19:25:13.436Z src19-web_search-www.youtube.com guard: extract ends
+19:25:13.436Z src20-web_search-edify.club guard: extract starts
+19:25:13.437Z src20-web_search-edify.club guard: extract ends
+19:25:13.437Z stage-extract_0 guard: src21-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/programming
+19:25:13.438Z src21-review_site-www.rtings.com guard: extract starts
+19:25:13.438Z stage-extract_0 guard: src22-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/business
+19:25:13.438Z src22-review_site-www.rtings.com guard: extract starts
+19:25:13.438Z stage-extract_0 guard: src23-review_site-www.digit.in is https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+19:25:13.439Z src23-review_site-www.digit.in guard: extract starts
+19:25:13.439Z stage-extract_0 guard: src24-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/graphic-design
+19:25:13.439Z src24-review_site-www.rtings.com guard: extract starts
+19:25:13.439Z stage-extract_0 guard: src25-review_site-www.digit.in is https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+19:25:13.440Z src25-review_site-www.digit.in guard: extract starts
+19:25:13.746Z src21-review_site-www.rtings.com guard: llm call 6 of 25 sent to generativelanguage.googleapis.com
+19:25:13.761Z src23-review_site-www.digit.in guard: llm call 7 of 25 sent to api.mistral.ai
+19:25:13.774Z src24-review_site-www.rtings.com guard: llm call 8 of 25 sent to generativelanguage.googleapis.com
+19:25:13.789Z src22-review_site-www.rtings.com guard: llm call 9 of 25 sent to api.mistral.ai
+19:25:13.804Z src25-review_site-www.digit.in guard: llm call 10 of 25 sent to generativelanguage.googleapis.com
+19:25:15.841Z src21-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok fitted=as_is in=1578 out=428 ms=2269
+19:25:15.846Z src21-review_site-www.rtings.com guard: extract ends
+19:25:15.917Z src24-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok fitted=as_is in=1582 out=428 ms=2230
+19:25:15.919Z src24-review_site-www.rtings.com guard: extract ends
+19:25:16.017Z src25-review_site-www.digit.in app.llm.client: llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok fitted=as_is in=2847 out=15 ms=2291
+19:25:16.018Z src25-review_site-www.digit.in guard: extract ends
+19:25:19.740Z src22-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=ok fitted=as_is in=1577 out=635 ms=6021
+19:25:19.742Z src22-review_site-www.rtings.com guard: extract ends
+19:25:22.929Z src23-review_site-www.digit.in app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=timeout fitted=as_is in=2976 out=0 ms=9334
+19:25:22.946Z src23-review_site-www.digit.in guard: llm call 11 of 25 sent to generativelanguage.googleapis.com
+19:25:25.008Z src23-review_site-www.digit.in app.llm.client: llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok fitted=as_is in=2318 out=152 ms=2078
+19:25:25.010Z src23-review_site-www.digit.in guard: extract ends
+19:25:25.046Z result-save_0 app.db.store: search not saved: the database is off
+
+## L4, the F-6 drill after the fix (main 0c22d59 + 0fc9e73)
+19:27:28.148Z stage-intake_0 guard: llm call 12 of 25 sent to api.groq.com
+19:27:29.048Z stage-intake_0 app.llm.client: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=613 out=166 ms=902
+19:27:34.146Z stage-research_0 app.research.stage: research: reddit 0.0s (0), web_search 0.0s (20), review_site 4.2s (5); total 4.2s; used serper 0, reddit_archive 0, pages 4
+19:27:34.149Z stage-extract_0 guard: src1-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+19:27:34.150Z src1-web_search-www.91mobiles.com guard: extract starts
+19:27:34.150Z stage-extract_0 guard: src2-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+19:27:34.150Z src1-web_search-www.91mobiles.com guard: extract ends
+19:27:34.151Z src2-web_search-www.91mobiles.com guard: extract starts
+19:27:34.151Z stage-extract_0 guard: src3-web_search-www.quora.com is https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+19:27:34.152Z src2-web_search-www.91mobiles.com guard: extract ends
+19:27:34.153Z src3-web_search-www.quora.com guard: extract starts
+19:27:34.154Z stage-extract_0 guard: src4-web_search-www.youtube.com is https://www.youtube.com/watch?v=YXaoe3na9yU
+19:27:34.154Z src3-web_search-www.quora.com guard: extract ends
+19:27:34.154Z src4-web_search-www.youtube.com guard: extract starts
+19:27:34.155Z stage-extract_0 guard: src5-web_search-www.youtube.com is https://www.youtube.com/watch?v=r023nwE441U
+19:27:34.156Z src5-web_search-www.youtube.com guard: extract starts
+19:27:34.156Z src4-web_search-www.youtube.com guard: extract ends
+19:27:34.156Z stage-extract_0 guard: src6-web_search-www.mysmartprice.com is https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+19:27:34.157Z src5-web_search-www.youtube.com guard: extract ends
+19:27:34.158Z src6-web_search-www.mysmartprice.com guard: extract starts
+19:27:34.158Z stage-extract_0 guard: src7-web_search-www.amazon.in is https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+19:27:34.159Z src6-web_search-www.mysmartprice.com guard: extract ends
+19:27:34.160Z src7-web_search-www.amazon.in guard: extract starts
+19:27:34.161Z stage-extract_0 guard: src8-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+19:27:34.161Z src7-web_search-www.amazon.in guard: extract ends
+19:27:34.162Z src8-web_search-www.91mobiles.com guard: extract starts
+19:27:34.162Z stage-extract_0 guard: src9-web_search-www.91mobiles.com is https://www.91mobiles.com/list-of-laptops/best-laptops-in-india
+19:27:34.163Z src8-web_search-www.91mobiles.com guard: extract ends
+19:27:34.163Z src9-web_search-www.91mobiles.com guard: extract starts
+19:27:34.164Z stage-extract_0 guard: src10-web_search-www.rtings.com is https://www.rtings.com/laptop/reviews/best/travel
+19:27:34.164Z src9-web_search-www.91mobiles.com guard: extract ends
+19:27:34.165Z src10-web_search-www.rtings.com guard: extract starts
+19:27:34.165Z stage-extract_0 guard: src11-web_search-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/gaming
+19:27:34.166Z src10-web_search-www.rtings.com guard: extract ends
+19:27:34.166Z src11-web_search-www.rtings.com guard: extract starts
+19:27:34.166Z stage-extract_0 guard: src12-web_search-www.smartprix.com is https://www.smartprix.com/laptops/best-laptops-under-80000-list
+19:27:34.168Z src11-web_search-www.rtings.com guard: extract ends
+19:27:34.168Z src12-web_search-www.smartprix.com guard: extract starts
+19:27:34.169Z stage-extract_0 guard: src13-web_search-gadgetsnow.indiatimes.com is https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+19:27:34.169Z src12-web_search-www.smartprix.com guard: extract ends
+19:27:34.170Z src13-web_search-gadgetsnow.indiatimes.com guard: extract starts
+19:27:34.170Z stage-extract_0 guard: src14-web_search-www.lenovo.com is https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vLO6zCFGE3GTGeFnSK2f2elh0uFyTaSPfPPYHCye922iybJWEDF
+19:27:34.171Z src13-web_search-gadgetsnow.indiatimes.com guard: extract ends
+19:27:34.171Z src14-web_search-www.lenovo.com guard: extract starts
+19:27:34.173Z src14-web_search-www.lenovo.com guard: extract ends
+19:27:34.172Z stage-extract_0 guard: src15-web_search-www.amazon.in is https://www.amazon.in/b?ie=UTF8&node=16092374031
+19:27:34.174Z src15-web_search-www.amazon.in guard: extract starts
+19:27:34.175Z stage-extract_0 guard: src16-web_search-www.croma.com is https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vKvfjmb9WC6ovzrh5UiyRY98UtojmSdx9y5MAlKIVtmKIjKBl9l
+19:27:34.175Z src15-web_search-www.amazon.in guard: extract ends
+19:27:34.176Z src16-web_search-www.croma.com guard: extract starts
+19:27:34.176Z stage-extract_0 guard: src17-web_search-www.wired.com is https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+19:27:34.177Z src16-web_search-www.croma.com guard: extract ends
+19:27:34.177Z src17-web_search-www.wired.com guard: extract starts
+19:27:34.178Z stage-extract_0 guard: src18-web_search-www.91mobiles.com is https://www.91mobiles.com/laptopfinder.php
+19:27:34.179Z src17-web_search-www.wired.com guard: extract ends
+19:27:34.179Z src18-web_search-www.91mobiles.com guard: extract starts
+19:27:34.179Z stage-extract_0 guard: src19-web_search-www.youtube.com is https://www.youtube.com/watch?v=p5Jp18DBNqM
+19:27:34.180Z src18-web_search-www.91mobiles.com guard: extract ends
+19:27:34.181Z src19-web_search-www.youtube.com guard: extract starts
+19:27:34.181Z stage-extract_0 guard: src20-web_search-edify.club is https://edify.club/blog/laptop-buying-checklist-india-2026/
+19:27:34.182Z src19-web_search-www.youtube.com guard: extract ends
+19:27:34.182Z src20-web_search-edify.club guard: extract starts
+19:27:34.183Z stage-extract_0 guard: src21-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/programming
+19:27:34.183Z src20-web_search-edify.club guard: extract ends
+19:27:34.184Z src21-review_site-www.rtings.com guard: extract starts
+19:27:34.184Z stage-extract_0 guard: src22-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/business
+19:27:34.184Z src22-review_site-www.rtings.com guard: extract starts
+19:27:34.185Z stage-extract_0 guard: src23-review_site-www.digit.in is https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+19:27:34.185Z src23-review_site-www.digit.in guard: extract starts
+19:27:34.185Z stage-extract_0 guard: src24-review_site-www.rtings.com is https://www.rtings.com/laptop/reviews/best/by-usage/graphic-design
+19:27:34.250Z src24-review_site-www.rtings.com guard: extract starts
+19:27:34.312Z stage-extract_0 guard: src25-review_site-www.digit.in is https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+19:27:34.342Z src25-review_site-www.digit.in guard: extract starts
+19:27:34.605Z src22-review_site-www.rtings.com guard: fake 429 from generativelanguage.googleapis.com (no network call)
+19:27:34.641Z src22-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=rate_limited fitted=as_is in=1694 out=0 ms=36
+19:27:34.787Z src23-review_site-www.digit.in app.llm.client: llm gemini-3.5-flash-lite skipped: cooling
+19:27:34.811Z src23-review_site-www.digit.in app.llm.client: llm mistral skipped: no room in its rate limit in time
+19:27:34.811Z src23-review_site-www.digit.in app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=rate_limited fitted=as_is in=0 out=0 ms=0
+19:27:34.970Z src24-review_site-www.rtings.com guard: extract ends
+19:27:35.028Z src25-review_site-www.digit.in guard: extract ends
+19:27:35.029Z src21-review_site-www.rtings.com guard: llm call 13 of 25 sent to api.mistral.ai
+19:27:35.046Z src22-review_site-www.rtings.com guard: llm call 14 of 25 sent to api.mistral.ai
+19:27:35.065Z src23-review_site-www.digit.in guard: llm call 15 of 25 sent to api.groq.com
+19:27:36.023Z src23-review_site-www.digit.in app.llm.client: llm call task=extract_claims class=public provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=2250 out=82 ms=1181
+19:27:36.024Z src23-review_site-www.digit.in guard: extract ends
+19:27:40.382Z src22-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=ok fitted=as_is in=1577 out=635 ms=5679
+19:27:40.388Z src22-review_site-www.rtings.com guard: extract ends
+19:27:41.699Z src21-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=ok fitted=as_is in=1583 out=635 ms=7017
+19:27:41.701Z src21-review_site-www.rtings.com guard: extract ends
+19:27:41.742Z result-save_0 app.db.store: search not saved: the database is off

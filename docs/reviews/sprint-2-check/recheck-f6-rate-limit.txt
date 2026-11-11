@@ -1,0 +1,201 @@
+Re-check F-6, the rate-limit drill (the first run's R5): REDDIT_SOURCE=off, EXTRACT_MAX_SOURCES=3, and the guard
+answering every Gemini request with an HTTP 429 at the network edge, as Gemini does at its limit (no network call).
+From the repository on chore/sprint-2-recheck, which equals main 0c22d59 (Python 3.13, backend/.venv), with --no-db.
+A guard outside the repository, loaded through PYTHONPATH, counted every outgoing call against the caps (LLM 20,
+Serper 6, Reddit archive 0) and logged one line per LLM call: task, data class, provider, outcome, tokens and time,
+never any text (recheck-call-log.txt). MISTRAL_RPS, MISTRAL_TPM and MISTRAL_RPM were set empty for the process, so
+config/models.yaml's Mistral limits applied (2 requests and 40,000 tokens a minute). The checker did not open or print .env;
+the app loaded its keys from it as usual (python-dotenv does not override the empty MISTRAL_* values already set).
+Started 17:42:01Z, 102 s after L1's last Mistral call (sent 17:40:18.992Z), so Mistral's minute was clear.
+
+$ python -m app.cli 'Laptop for coding under 80k' --claims --no-db
+(started 2026-11-10T17:42:01Z)
+Saved: no, the database is off (no DATABASE_URL)
+Understood: Laptop · use coding · budget up to ₹80,000 · region IN · detected by llm
+Criteria (cached):
+  - CPU Clock Speed: Measures the processor's single‑core clock frequency in gigahertz, affecting compile times and responsiveness while coding.
+  - RAM Size: Indicates total volatile memory in gigabytes, allowing many IDEs, virtual machines, and browsers to run simultaneously.
+  - SSD Read Speed: Measures sequential read throughput in megabytes per second, speeding up project loading and file operations.
+  - Keyboard Travel: Distance each key moves in millimeters, influencing typing comfort and fatigue during long coding sessions.
+  - Display PPI: Pixels per inch of the screen, determining how sharp text appears and reducing eye strain while reading code.
+  - Battery Life: Total runtime on a full charge measured in hours, important for working away from outlets.
+  - Laptop Weight: Physical mass of the laptop in kilograms, affecting how easy it is to carry between workspaces.
+  - Connectivity Ports: Number of useful ports (USB‑C, HDMI, Ethernet) available, enabling connection of external monitors and devices without adapters.
+  - Max CPU Temp: Highest processor temperature in degrees Celsius under load, indicating cooling efficiency for sustained coding tasks.
+  - Value for Money: Compares the laptop's overall capability to its price, showing how much performance you receive per dollar spent.
+Q: CPU Clock Speed: how much does it matter to you?
+A: Skip
+Q: RAM Size: how much does it matter to you?
+A: Skip
+Q: SSD Read Speed: how much does it matter to you?
+A: Skip
+Q: Keyboard Travel: how much does it matter to you?
+A: Skip
+Q: Display PPI: how much does it matter to you?
+A: Skip
+Q: Battery Life: how much does it matter to you?
+A: Skip
+Q: Laptop Weight: how much does it matter to you?
+A: Skip
+Q: Connectivity Ports: how much does it matter to you?
+A: Skip
+Q: Max CPU Temp: how much does it matter to you?
+A: Skip
+Q: Value for Money: how much does it matter to you?
+A: Skip
+Rubric (what matters to you):
+  - CPU Clock Speed: 9/10, 13% of the score (skipped)
+  - RAM Size: 8.5/10, 12% of the score (skipped)
+  - SSD Read Speed: 8/10, 12% of the score (skipped)
+  - Keyboard Travel: 7.5/10, 11% of the score (skipped)
+  - Display PPI: 7/10, 10% of the score (skipped)
+  - Battery Life: 6.5/10, 10% of the score (skipped)
+  - Laptop Weight: 6/10, 9% of the score (skipped)
+  - Connectivity Ports: 5.5/10, 8% of the score (skipped)
+  - Max CPU Temp: 5/10, 7% of the score (skipped)
+  - Value for Money: 5/10, 7% of the score (skipped)
+
+Results for: Laptop for coding under 80k
+
+Ranked:
+  1. Nova Book 14: score 78.3, coverage 100%, chance of being first 46%
+  2. Kestrel Slim 15: score 75.9, coverage 100%, chance of being first 41%
+  3. Orion Play 15: score 67.0, coverage 90%, chance of being first 13%
+
+Filtered out:
+  - Aurora Air 13: ₹84,990 is above your ₹70,000 budget
+
+Can't tell:
+  - Vela Pro 14: We couldn't confirm it has at least 16 GB RAM
+
+Coverage note: Reddit could not be read. 2 sources were not read, to keep the search from running too long. 1 source could not be read, because the AI services were busy or their answers could not be used. These are sample results while live research is being built. They are not real recommendations.
+
+This search could not be saved.
+
+Sources (25):
+  web_search   2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+  web_search   2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=YXaoe3na9yU
+  web_search   2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+  web_search   2026-11-10 09:19:44Z  https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+  web_search   2026-11-10 09:19:44Z  https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+  web_search   2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=r023nwE441U
+  web_search   2026-11-10 09:19:44Z  https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+  web_search   2026-11-10 09:19:44Z  https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+  web_search   2026-11-10 09:19:44Z  https://www.smartprix.com/laptops/best-laptops-under-80000-list
+  web_search   2026-11-10 17:40:14Z  https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+  web_search   2026-11-10 17:40:14Z  https://www.91mobiles.com/list-of-laptops/best-laptops-in-india
+  web_search   2026-11-10 17:40:14Z  https://www.rtings.com/laptop/reviews/best/travel
+  web_search   2026-11-10 17:40:14Z  https://www.rtings.com/laptop/reviews/best/by-usage/gaming
+  web_search   2026-11-10 14:54:54Z  https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vLO6zCFGE3GTGeFnSK2f2elh0uFyTaSPfPPYHCye922iybJWEDF
+  web_search   2026-11-10 14:54:54Z  https://www.amazon.in/b?ie=UTF8&node=16092374031
+  web_search   2026-11-10 14:54:54Z  https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vKvfjmb9WC6ovzrh5UiyRY98UtojmSdx9y5MAlKIVtmKIjKBl9l
+  web_search   2026-11-10 14:54:54Z  https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+  web_search   2026-11-10 14:54:54Z  https://www.91mobiles.com/laptopfinder.php
+  web_search   2026-11-10 14:54:54Z  https://www.youtube.com/watch?v=p5Jp18DBNqM
+  web_search   2026-11-10 14:54:54Z  https://edify.club/blog/laptop-buying-checklist-india-2026/
+  review_site  2026-11-10 17:40:15Z  https://www.rtings.com/laptop/reviews/best/by-usage/programming
+  review_site  2026-11-10 17:40:16Z  https://www.rtings.com/laptop/reviews/best/by-usage/business
+  review_site  2026-11-10 17:40:16Z  https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+  review_site  2026-11-10 14:55:01Z  https://www.rtings.com/laptop/reviews/best/by-usage/graphic-design
+  review_site  2026-11-10 17:40:18Z  https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+
+Time per source: reddit 0.0 s, web_search 0.1 s, review_site 4.5 s; total 4.5 s
+Provider use (this search / today / daily cap): serper 0 / 11 / 60, reddit_archive 0 / 6 / 500, pages 4 / 55 / 200
+Comparison query: none (fewer than two candidates)
+
+Claims per source:
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=YXaoe3na9yU
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+    No claims.
+  web_search (community)  2026-11-10 09:19:44Z  https://www.quora.com/Which-are-the-best-Windows-laptops-under-80000-INR-for-high-coding-graphic-design-medium-video-editing-and-a-little-gaming-Also-weight-and-battery-life-are-important-for-me-as-I-am-a-college-student-and-bring-it
+    No claims.
+  web_search (retailer)  2026-11-10 09:19:44Z  https://www.amazon.in/Laptops-%E2%82%B970-000-%E2%82%B980-Computers-Accessories/s?rh=n%3A1375424031%2Cp_36%3A7000000-8000000
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.youtube.com/watch?v=r023nwE441U
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.mysmartprice.com/computer/pricelist/laptops-under-80000-price-list-in-india.html
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://gadgetsnow.indiatimes.com/laptops/filters/price/70001-to-80000-laptops-in-india
+    No claims.
+  web_search (editorial)  2026-11-10 09:19:44Z  https://www.smartprix.com/laptops/best-laptops-under-80000-list
+    No claims.
+  web_search (editorial)  2026-11-10 17:40:14Z  https://www.91mobiles.com/list-of-laptops/best-laptop-for-programming
+    No claims.
+  web_search (editorial)  2026-11-10 17:40:14Z  https://www.91mobiles.com/list-of-laptops/best-laptops-in-india
+    No claims.
+  web_search (lab)  2026-11-10 17:40:14Z  https://www.rtings.com/laptop/reviews/best/travel
+    No claims.
+  web_search (lab)  2026-11-10 17:40:14Z  https://www.rtings.com/laptop/reviews/best/by-usage/gaming
+    No claims.
+  web_search (manufacturer)  2026-11-10 14:54:54Z  https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vLO6zCFGE3GTGeFnSK2f2elh0uFyTaSPfPPYHCye922iybJWEDF
+    No claims.
+  web_search (retailer)  2026-11-10 14:54:54Z  https://www.amazon.in/b?ie=UTF8&node=16092374031
+    No claims.
+  web_search (retailer)  2026-11-10 14:54:54Z  https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vKvfjmb9WC6ovzrh5UiyRY98UtojmSdx9y5MAlKIVtmKIjKBl9l
+    No claims.
+  web_search (editorial)  2026-11-10 14:54:54Z  https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/
+    No claims.
+  web_search (editorial)  2026-11-10 14:54:54Z  https://www.91mobiles.com/laptopfinder.php
+    No claims.
+  web_search (editorial)  2026-11-10 14:54:54Z  https://www.youtube.com/watch?v=p5Jp18DBNqM
+    No claims.
+  web_search (editorial)  2026-11-10 14:54:54Z  https://edify.club/blog/laptop-buying-checklist-india-2026/
+    No claims.
+  review_site (lab)  2026-11-10 17:40:15Z  https://www.rtings.com/laptop/reviews/best/by-usage/programming
+    No claims.
+  review_site (lab)  2026-11-10 17:40:16Z  https://www.rtings.com/laptop/reviews/best/by-usage/business
+    No claims.
+  review_site (editorial)  2026-11-10 17:40:16Z  https://www.digit.in/news/laptops/best-laptops-for-programming-and-coding-61227.html
+    No claims.
+  review_site (lab)  2026-11-10 14:55:01Z  https://www.rtings.com/laptop/reviews/best/by-usage/graphic-design
+    No claims.
+  review_site (editorial)  2026-11-10 17:40:18Z  https://www.digit.in/features/laptops/your-complete-guide-to-buying-the-perfect-laptop-for-coding.html
+    No claims.
+
+Reddit threads (0 kept, 0 dropped):
+  No Reddit threads.
+
+Recommenders per product:
+  No products were counted.
+
+LLM calls per provider:
+  provider     calls   median  slowest timeouts  429s
+  gemini           2    0.1 s    0.1 s        0     2
+  groq             1    1.2 s    1.2 s        0     0
+  mistral          2    6.6 s    7.5 s        0     0
+  openrouter       1   10.3 s   10.3 s        1     0
+--- stderr ---
+
+exit 0, 18.1 s
+
+## The drill's call log (UTC; every LLM line of this run, from recheck-call-log.txt)
+17:42:03.269Z stage-intake_0 guard: llm call 5 of 20 sent to api.groq.com
+17:42:04.490Z stage-intake_0 app.llm.client: llm call task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok fitted=as_is in=613 out=157 ms=1220
+17:42:09.441Z src21-review_site-www.rtings.com guard: fake 429 from generativelanguage.googleapis.com (no network call)
+17:42:09.509Z src25-review_site-www.digit.in guard: fake 429 from generativelanguage.googleapis.com (no network call)
+17:42:09.555Z src21-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=rate_limited fitted=as_is in=1697 out=0 ms=114
+17:42:09.587Z src25-review_site-www.digit.in app.llm.client: llm call task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=rate_limited fitted=as_is in=4227 out=0 ms=78
+17:42:09.590Z src25-review_site-www.digit.in app.llm.client: llm mistral skipped: no room in its rate limit in time
+17:42:09.590Z src22-review_site-www.rtings.com guard: llm call 6 of 20 sent to api.mistral.ai
+17:42:09.590Z src25-review_site-www.digit.in app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=rate_limited fitted=as_is in=0 out=0 ms=0
+17:42:09.597Z src21-review_site-www.rtings.com guard: llm call 7 of 20 sent to api.mistral.ai
+17:42:09.604Z src25-review_site-www.digit.in guard: llm call 8 of 20 sent to openrouter.ai
+17:42:15.346Z src21-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=ok fitted=as_is in=1583 out=635 ms=5759
+17:42:16.964Z src22-review_site-www.rtings.com app.llm.client: llm call task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=ok fitted=as_is in=1577 out=635 ms=7457
+17:42:19.855Z src25-review_site-www.digit.in app.llm.client: llm call task=extract_claims class=public provider=openrouter model=nvidia/nemotron-3.5-lightning:free outcome=timeout fitted=as_is in=4227 out=0 ms=10264
+17:42:19.855Z src25-review_site-www.digit.in app.extract.stage: extract: a review_site source was dropped: no valid answer
+
+## Per source (from the lines above)
+source                               | Gemini           | Mistral                                        | OpenRouter (fallback)                 | read?
+src21 rtings.com, programming        | 429 (fake)       | answered, 5.8 s                                 | not needed                            | yes
+src22 rtings.com, business           | not its turn     | answered, 7.5 s                                 | not needed                            | yes
+src25 digit.in, buying guide (coding)| 429 (fake)       | "no room in its rate limit in time", not sent (1) | no answer inside its 9 s attempt limit: cut off, the call ended at 10.3 s (2) | no
+src23 digit.in, src24 rtings.com     | not started: EXTRACT_MAX_SOURCES=3 holds the search to 3 pages                                          | no
+src25's chain ran 09.462Z to 19.856Z, 10.4 s, inside the 15 s limit per source.
+(1) The log line is quoted. That src21 and src22 held Mistral's 2 requests for that minute is inferred: a slot is booked
+    before the request is sent, and src21's send (09.597Z) follows src25's skip (09.590Z) by 7 ms.
+(2) The attempt limit is 60% of the 15 s per source. A reply that trickles is cut at the first chunk past the limit,
+    so the call itself ran 10.3 s.
