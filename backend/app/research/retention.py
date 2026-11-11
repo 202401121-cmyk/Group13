@@ -9,8 +9,9 @@ A quote stays only if it names a source we know isn't Reddit. A claim keeps its 
 quote becomes the marker. SearchResult.citations (1.7.0) holds quotes, and a citation's quote is optional: from Reddit,
 or from a source we can't name, it is dropped (None), so the evidence route can say it was withheld.
 
-No other field holds Reddit's words yet. tests/unit/research/test_retention.py lists every text field in a SearchResult,
-and fails on a new one, or when US-15, US-16, US-20 or US-42 makes real the stages whose fields could hold them.
+No other field holds Reddit's words yet. Product names are names, not a poster's words, so they stay from any source
+(US-15; Om, 11 Nov 2026). tests/unit/research/test_retention.py lists every text field in a SearchResult, and fails on
+a new one, or when US-16, US-20 or US-42 makes real the stages whose fields could hold them.
 """
 
 from __future__ import annotations
