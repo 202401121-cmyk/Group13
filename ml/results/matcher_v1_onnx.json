@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-11",
+  "model": "epoch-001",
+  "pairs_checked": 200,
+  "checked_on": "sigmoid probabilities of dev pairs from every source",
+  "largest_score_difference": 7.451e-07,
+  "tolerance": 0.0001,
+  "check_passed": true,
+  "pairs_timed": 1000,
+  "timed_on": "2 made-up short titles repeated 500 times, batches of 32 (ml/training/measure_onnx.py)",
+  "seconds_for_1000_pairs": 2.08,
+  "peak_memory_mb": 186,
+  "onnxruntime": "1.31.1",
+  "cpu_threads": 16,
+  "huggingface_revision": null,
+  "upload": "pending"
+}

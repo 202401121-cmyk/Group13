@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-11",
+  "base_model": "cross-encoder/ms-marco-MiniLM-L6-v2",
+  "seed": 20261111,
+  "epochs": 4,
+  "batch": 32,
+  "learning_rate": 4e-05,
+  "train_pairs": 4810,
+  "dev_pairs": 1052,
+  "counts": {
+    "abt_buy": {
+      "train": 2089,
+      "train_matches": 344,
+      "dev": 466,
+      "dev_matches": 22
+    },
+    "amazon_google": {
+      "train": 2673,
+      "train_matches": 398,
+      "dev": 518,
+      "dev_matches": 19
+    },
+    "own_pairs (machine labels)": {
+      "train": 48,
+      "train_matches": 3,
+      "dev": 68,
+      "dev_matches": 12,
+      "left_out_straddling": 45,
+      "left_out_across_train_and_dev": 8,
+      "test_side_not_used": 57
+    }
+  },
+  "resumed_after_epoch": 0,
+  "history": [
+    {
+      "epoch": 1,
+      "minutes": 2.78,
+      "mean_loss": 0.3493,
+      "dev_threshold": 0.9646,
+      "dev_precision": 1.0,
+      "dev_recall": 0.0755
+    },
+    {
+      "epoch": 2,
+      "minutes": 2.88,
+      "mean_loss": 0.2116,
+      "dev_threshold": 0.9962,
+      "dev_precision": 1.0,
+      "dev_recall": 0.0377
+    },
+    {
+      "epoch": 3,
+      "minutes": 2.91,
+      "mean_loss": 0.1644,
+      "dev_threshold": 0.9989,
+      "dev_precision": 1.0,
+      "dev_recall": 0.0377
+    },
+    {
+      "epoch": 4,
+      "minutes": 2.93,
+      "mean_loss": 0.1428,
+      "dev_threshold": 0.9992,
+      "dev_precision": 1.0,
+      "dev_recall": 0.0377
+    }
+  ]
+}
