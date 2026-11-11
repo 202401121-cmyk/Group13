@@ -11,7 +11,7 @@ import app.contracts as C
 from app.commerce import CommerceStage
 from app.contracts import examples as ex
 from app.criteria import CriteriaStage
-from app.decide import DecideStage
+from app.decide import DecideStage, WeightedDecideStage
 from app.enrich import EnrichStage
 from app.entities import MatchStage
 from app.explain import ExplainStage
@@ -48,6 +48,11 @@ CASES: list[tuple[Any, BaseModel, type[BaseModel]]] = [
     (EnrichStage(), C.EnrichInput(targets=[]), C.EnrichResult),
     (
         DecideStage(),
+        C.DecideInput(rubric=ex.rubric(), products=ex.match().products, values=ex.verify().values),
+        C.DecideResult,
+    ),
+    (
+        WeightedDecideStage(),
         C.DecideInput(rubric=ex.rubric(), products=ex.match().products, values=ex.verify().values),
         C.DecideResult,
     ),

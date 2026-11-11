@@ -66,7 +66,7 @@ from app.contracts import (
     VerifyResult,
     examples,
 )
-from app.decide import DecideStage
+from app.decide import PRICE_KEY, DecideStage
 from app.enrich import EnrichStage
 from app.entities import FuzzyMatchStage, alias_keys
 from app.explain import ExplainStage
@@ -739,7 +739,8 @@ class _Search:
     def verify(self) -> StageReport:
         research = _require(self.research_out, "research")
         rule_keys = [r.attribute for r in self.rubric.hard_rules]
-        keys = list(dict.fromkeys(self.weight_keys + rule_keys))[:MAX_VERIFY_KEYS]
+        price = [PRICE_KEY] if self.rubric.budget else []  # decide checks the budget on it (US-17), before the rules
+        keys = list(dict.fromkeys(self.weight_keys + price + rule_keys))[:MAX_VERIFY_KEYS]
         inp = VerifyInput(
             match=_require(self.match_out, "match"),
             claims=self.claims[:MAX_CLAIMS],

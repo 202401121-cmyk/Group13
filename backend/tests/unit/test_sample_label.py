@@ -17,7 +17,7 @@ from app.cli import main as cli_main
 from app.commerce import CommerceStage
 from app.contracts import examples as ex
 from app.criteria import CriteriaStage
-from app.decide import DecideStage
+from app.decide import DecideStage, WeightedDecideStage
 from app.enrich import EnrichStage
 from app.entities import FuzzyMatchStage, MatchStage
 from app.explain import ExplainStage
@@ -48,7 +48,7 @@ STUBS = [
     ExplainStage,
     CommerceStage,
 ]
-REAL_STAGES = [IntakeStage, CriteriaStage, InterviewStage, FuzzyMatchStage]
+REAL_STAGES = [IntakeStage, CriteriaStage, InterviewStage, FuzzyMatchStage, WeightedDecideStage]
 ROOM_FOR_THE_NOTE = MAX_NOTE_CHARS - len(SAMPLE_NOTE) - 1
 
 

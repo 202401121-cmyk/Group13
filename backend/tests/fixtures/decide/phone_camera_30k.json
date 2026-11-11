@@ -1,0 +1,717 @@
+{
+  "about": "Made-up products and a made-up request (synthetic), for testing the decide stage only. Not real facts.",
+  "request": "phone with a great camera under 30000, must have OIS, not the Lumo X2, no curved display",
+  "input": {
+    "rubric": {
+      "category": "phone",
+      "use_case": "photography",
+      "region": "IN",
+      "budget": {
+        "min": null,
+        "max": {
+          "amount": 30000.0,
+          "currency": "INR"
+        }
+      },
+      "hard_rules": [
+        {
+          "attribute": "has_ois",
+          "operator": "==",
+          "value": true,
+          "unit": null,
+          "source_text": "must have OIS",
+          "id": "has_ois_is_e8248c09b7",
+          "active": true
+        }
+      ],
+      "exclusions": [
+        {
+          "kind": "model",
+          "value": "Lumo X2",
+          "always": false
+        },
+        {
+          "kind": "feature",
+          "value": "curved display",
+          "always": false
+        }
+      ],
+      "weights": [
+        {
+          "key": "camera_quality",
+          "weight": 9.0,
+          "normalized": 0.32142857142857145,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "low_light",
+          "weight": 8.0,
+          "normalized": 0.2857142857142857,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "battery_life",
+          "weight": 6.0,
+          "normalized": 0.21428571428571427,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "display_quality",
+          "weight": 5.0,
+          "normalized": 0.17857142857142858,
+          "origin": "default",
+          "uncertainty": 0.5
+        }
+      ]
+    },
+    "products": [
+      {
+        "id": "prd_sora_s5",
+        "name": "Sora S5",
+        "brand": "Sora",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_lumo_x2",
+        "name": "Lumo X2",
+        "brand": "Lumo",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_lumo_x2_pro",
+        "name": "Lumo X2 Pro",
+        "brand": "Lumo",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_kite_c3",
+        "name": "Kite C3",
+        "brand": "Kite",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_vista_p8",
+        "name": "Vista P8",
+        "brand": "Vista",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_quill_m4",
+        "name": "Quill M4",
+        "brand": "Quill",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_ember_n2",
+        "name": "Ember N2",
+        "brand": "Ember",
+        "kind": "product",
+        "aliases": [
+          "Ember Note 2"
+        ],
+        "variants": [
+          {
+            "id": "var_ember_n2_flat",
+            "label": "Flat screen",
+            "attributes": {
+              "display": "flat"
+            }
+          },
+          {
+            "id": "var_ember_n2_curve",
+            "label": "Curved screen",
+            "attributes": {
+              "display": "curved display"
+            }
+          }
+        ],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      }
+    ],
+    "values": [
+      {
+        "product_id": "prd_sora_s5",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 8.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5046ab257539"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_sora_s5",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 8.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_52a8ae8c526e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_sora_s5",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 8.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_d56886ac8974"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_sora_s5",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 8.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e62165a2af9e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_38f0fdd46ceb"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_24df850c1257"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_9f45faae56fc"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_7fa65b672db3"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2_pro",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_72fb81141ffd"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2_pro",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_3e96553b6f13"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2_pro",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_cc17d6d379ad"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2_pro",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_75a7d09f94f4"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kite_c3",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_9d39510c4b07"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kite_c3",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_345950fca6d6"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kite_c3",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_4ed49cab5f34"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kite_c3",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_671707b041f5"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vista_p8",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a0f194ba734c"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vista_p8",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_99b3fbd41c30"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vista_p8",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_d26b27630bb6"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vista_p8",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5f3f2c0d2490"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quill_m4",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_dd000a056836"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quill_m4",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_91055a86004e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quill_m4",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_736572248ed2"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quill_m4",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e3c570cedbc7"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_ember_n2",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_4b879c52e75e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_ember_n2",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_9d9d4acdea87"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_ember_n2",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_316dcd0a3d22"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_ember_n2",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_7ff69d1c7118"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_sora_s5",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 27999.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_6dc2b8efad8d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 24999.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5ccc817a77ff"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2_pro",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 29999.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_7d5ed88663ca"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kite_c3",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 18999.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_dbd8002bcd9a"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vista_p8",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 29999.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_7b0d1c8f7bb3"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quill_m4",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 21999.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_8404d7fd98fe"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_ember_n2",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 25999.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2177d06518d3"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_sora_s5",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_238bd4e0054a"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2e67fc60f225"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumo_x2_pro",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_fb8210ef80ab"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kite_c3",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": false,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_11c8aebbf80a"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vista_p8",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_6e426051703d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_ember_n2",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a3e9c5bd72b9"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quill_m4",
+        "criterion_key": "has_ois",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vista_p8",
+        "criterion_key": "has_curved_display",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2ff289f837bb"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_sora_s5",
+        "criterion_key": "has_curved_display",
+        "state": "known",
+        "score": null,
+        "value": false,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a8c1223f9d63"
+        ],
+        "conflicting_claim_ids": []
+      }
+    ],
+    "community": [],
+    "seed": 42
+  },
+  "expect": {
+    "shown": [
+      "prd_sora_s5",
+      "prd_ember_n2"
+    ],
+    "filtered_out": {
+      "prd_lumo_x2": [
+        "You ruled out Lumo X2"
+      ],
+      "prd_lumo_x2_pro": [
+        "You ruled out Lumo X2"
+      ],
+      "prd_kite_c3": [
+        "It fails \"must have OIS\": it doesn't"
+      ],
+      "prd_vista_p8": [
+        "You ruled out curved display"
+      ]
+    },
+    "cant_tell": {
+      "prd_quill_m4": [
+        "We couldn't find its OIS, so we can't check \"must have OIS\""
+      ]
+    },
+    "left_out": [],
+    "relaxation_hint": null
+  }
+}
