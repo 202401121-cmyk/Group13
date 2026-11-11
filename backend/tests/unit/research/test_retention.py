@@ -157,7 +157,10 @@ HASH = "made from Reddit's words, or a person's name: replaced or cleared on a R
 ID_OR_LINK = "an ID, a link or a subreddit's name: code builds it, and it stays"
 SEARCH_FROM_CODE = "written by code from fixed words, the rubric or numbers"
 SHOP_OR_SHOPPER = "from a shop, or the shopper's own words"
-WAITS_FOR_MATCH = "a product's name as written: holds no Reddit text until US-15 replaces MatchStage"
+PRODUCT_NAME = (
+    "a product's name, or part of one (id, brand, alias, variant): a name, not a sentence, so it stays from any "
+    "source, Reddit included (US-15; Om, 11 Nov 2026)"
+)
 WAITS_FOR_VERIFY = "holds no Reddit text until US-16 or US-42 replaces VerifyStage"
 WAITS_FOR_EXPLAIN = "holds no Reddit text until US-20 replaces ExplainStage"
 DROPPED = "a quote that may be left out: dropped on save unless its source is listed and not Reddit"
@@ -212,14 +215,14 @@ TEXT_FIELDS = {
     "request.rubric.region": SHOP_OR_SHOPPER,
     "request.rubric.use_case": SHOP_OR_SHOPPER,
     "request.rubric.weights[].key": SHOP_OR_SHOPPER,
-    "products[].product.id": WAITS_FOR_MATCH,
-    "products[].product.name": WAITS_FOR_MATCH,
-    "products[].product.brand": WAITS_FOR_MATCH,
-    "products[].product.aliases[]": WAITS_FOR_MATCH,
-    "products[].product.variants[].id": WAITS_FOR_MATCH,
-    "products[].product.variants[].label": WAITS_FOR_MATCH,
-    "products[].product.variants[].attributes{key}": WAITS_FOR_MATCH,
-    "products[].product.variants[].attributes{}": WAITS_FOR_MATCH,
+    "products[].product.id": PRODUCT_NAME,
+    "products[].product.name": PRODUCT_NAME,
+    "products[].product.brand": PRODUCT_NAME,
+    "products[].product.aliases[]": PRODUCT_NAME,
+    "products[].product.variants[].id": PRODUCT_NAME,
+    "products[].product.variants[].label": PRODUCT_NAME,
+    "products[].product.variants[].attributes{key}": PRODUCT_NAME,
+    "products[].product.variants[].attributes{}": PRODUCT_NAME,
     "products[].values[].value": WAITS_FOR_VERIFY,
     "products[].values[].product_id": WAITS_FOR_VERIFY,
     "products[].values[].criterion_key": WAITS_FOR_VERIFY,
@@ -352,7 +355,7 @@ def test_every_field_the_table_says_is_cleared_really_is() -> None:
 def test_the_stages_that_could_carry_reddit_words_are_still_placeholders() -> None:
     """When one of these becomes real, its fields can hold Reddit's words. Handle them in retention.py first."""
     stages = default_search_stages()
-    assert stages.match.is_placeholder, f"US-15: {[k for k, v in TEXT_FIELDS.items() if v == WAITS_FOR_MATCH]}"
+    assert not stages.match.is_placeholder  # US-15 made match real; its fields are names (PRODUCT_NAME), decided
     assert stages.verify.is_placeholder, f"US-16, US-42: {[k for k, v in TEXT_FIELDS.items() if v == WAITS_FOR_VERIFY]}"
     assert stages.explain.is_placeholder, f"US-20: {[k for k, v in TEXT_FIELDS.items() if v == WAITS_FOR_EXPLAIN]}"
 

@@ -24,7 +24,7 @@ from app.pipeline import (
     default_search_stages,
 )
 from app.research import ResearchStage
-from tests.unit.test_sample_label import FakeRealStage, all_real
+from tests.unit.test_sample_label import FakeRealStage, all_real, stub_stages
 
 SEARCH_STAGES = [f.name for f in fields(SearchStages)]
 
@@ -54,7 +54,7 @@ class _FailsToItsStub(FakeRealStage):
 @pytest.mark.parametrize("field", SEARCH_STAGES)
 def test_a_real_stage_that_falls_back_to_its_stub_gives_the_note(field: str) -> None:
     stages = all_real()
-    setattr(stages, field, _FailsToItsStub(getattr(default_search_stages(), field)))
+    setattr(stages, field, _FailsToItsStub(getattr(stub_stages(), field)))
     result = run(stages)
     report = next(r for r in result.stage_reports if r.stage is C.StageName(field))
     assert report.status is C.StageStatus.FALLBACK

@@ -26,7 +26,7 @@ from collections.abc import Iterator
 import pytest
 
 from app.criteria import InMemoryCriteriaStore
-from app.db import NullRequestStore
+from app.db import NullRequestStore, shared_memory_aliases
 from app.extract import ExtractStage
 from app.research import ResearchStage
 from app.research.reddit.factory import shared_breakers
@@ -77,3 +77,11 @@ def _no_saved_criteria(monkeypatch: pytest.MonkeyPatch) -> None:
 def _no_real_database(monkeypatch: pytest.MonkeyPatch) -> None:
     store = NullRequestStore()
     monkeypatch.setattr("app.db.default_request_store", lambda: store)
+
+
+@pytest.fixture(autouse=True)
+def _fresh_aliases() -> Iterator[None]:
+    """The in-memory alias store lives as long as the process (US-15): one test's aliases never reach another."""
+    shared_memory_aliases().clear()
+    yield
+    shared_memory_aliases().clear()
