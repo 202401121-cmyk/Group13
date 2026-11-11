@@ -1,5 +1,7 @@
-"""Stage decide (US-52 walking skeleton: a stub until its own story replaces it)."""
+"""Stage decide (US-17, US-18): WeightedDecideStage filters and ranks in plain code. DecideStage is the first stub."""
 
-from .stage import DecideStage
+from .decision import decide
+from .rules import PRICE_KEY
+from .stage import DecideStage, WeightedDecideStage
 
-__all__ = ["DecideStage"]
+__all__ = ["PRICE_KEY", "DecideStage", "WeightedDecideStage", "decide"]

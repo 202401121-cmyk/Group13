@@ -1,0 +1,1511 @@
+{
+  "about": "Made-up products and a made-up request (synthetic), for testing the decide stage only. Not real facts.",
+  "request": "best laptop for coding under 70k, at least 16 GB RAM, no Zenith",
+  "input": {
+    "rubric": {
+      "category": "laptop",
+      "use_case": "coding",
+      "region": "IN",
+      "budget": {
+        "min": null,
+        "max": {
+          "amount": 70000.0,
+          "currency": "INR"
+        }
+      },
+      "hard_rules": [
+        {
+          "attribute": "ram_gb",
+          "operator": ">=",
+          "value": 16.0,
+          "unit": "GB",
+          "source_text": "at least 16 GB RAM",
+          "id": "ram_gb_min_1c18a881e7",
+          "active": true
+        }
+      ],
+      "exclusions": [
+        {
+          "kind": "brand",
+          "value": "Zenith",
+          "always": false
+        }
+      ],
+      "weights": [
+        {
+          "key": "cpu_performance",
+          "weight": 9.0,
+          "normalized": 0.1323529411764706,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "ram_capacity",
+          "weight": 8.5,
+          "normalized": 0.125,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "storage_speed",
+          "weight": 8.0,
+          "normalized": 0.11764705882352941,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "keyboard_travel",
+          "weight": 7.5,
+          "normalized": 0.11029411764705882,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "screen_resolution",
+          "weight": 7.0,
+          "normalized": 0.10294117647058823,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "battery_life",
+          "weight": 6.5,
+          "normalized": 0.09558823529411764,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "weight",
+          "weight": 6.0,
+          "normalized": 0.08823529411764706,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "port_count",
+          "weight": 5.5,
+          "normalized": 0.08088235294117647,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "max_temperature",
+          "weight": 5.0,
+          "normalized": 0.07352941176470588,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "value_for_money",
+          "weight": 5.0,
+          "normalized": 0.07352941176470588,
+          "origin": "default",
+          "uncertainty": 0.5
+        }
+      ]
+    },
+    "products": [
+      {
+        "id": "prd_nova_book_14",
+        "name": "Nova Book 14",
+        "brand": "Nova",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 6,
+        "weighted_mentions": 4.2
+      },
+      {
+        "id": "prd_kestrel_slim_15",
+        "name": "Kestrel Slim 15",
+        "brand": "Kestrel",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 4,
+        "weighted_mentions": 3.1
+      },
+      {
+        "id": "prd_orion_play_15",
+        "name": "Orion Play 15",
+        "brand": "Orion",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 40,
+        "weighted_mentions": 35.0
+      },
+      {
+        "id": "prd_aurora_air_13",
+        "name": "Aurora Air 13",
+        "brand": "Aurora",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_vela_pro_14",
+        "name": "Vela Pro 14",
+        "brand": "Vela",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_lumen_x_15",
+        "name": "Lumen X 15",
+        "brand": "Lumen",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_tern_book_16",
+        "name": "Tern Book 16",
+        "brand": "Tern",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_zenith_flex_14",
+        "name": "Zenith Flex 14",
+        "brand": null,
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_pico_lite_14",
+        "name": "Pico Lite 14",
+        "brand": "Pico",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      }
+    ],
+    "values": [
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "cpu_performance",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_4f041636f8d2"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "ram_capacity",
+        "state": "known",
+        "score": 8.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_8393131b66ed"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "storage_speed",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_bbd19cc292f4"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "keyboard_travel",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_12f5f6ef878c"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "screen_resolution",
+        "state": "known",
+        "score": 8.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_791a4864e4ba"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_6fb99571dee9"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b1ec88c584f0"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "port_count",
+        "state": "known",
+        "score": 8.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_3454cef2a2ca"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "max_temperature",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "value_for_money",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2ea27ed0e748"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "cpu_performance",
+        "state": "known",
+        "score": 6.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_feaed3f9a7be"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "ram_capacity",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_d87ff39aaae8"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "storage_speed",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_afacd748e9f0"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "keyboard_travel",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "screen_resolution",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_45f6eb31439b"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_bd5ca8f94333"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 6.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_bc6a6eaf31a6"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "port_count",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2c5ac7bc8a24"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "max_temperature",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "value_for_money",
+        "state": "known",
+        "score": 6.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_d9e1ea2fba27"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "cpu_performance",
+        "state": "known",
+        "score": 4.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_fec8f0baa508"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "ram_capacity",
+        "state": "known",
+        "score": 4.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_6d92122f3d50"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "storage_speed",
+        "state": "known",
+        "score": 5.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b5ddf59ee794"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "keyboard_travel",
+        "state": "known",
+        "score": 4.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f7097a3a0c89"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "screen_resolution",
+        "state": "known",
+        "score": 4.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_cc4d2b0f5697"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 5.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_97b434b0949c"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 4.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_febb6c3c4779"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "port_count",
+        "state": "known",
+        "score": 4.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5131b9a05ce4"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "max_temperature",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "value_for_money",
+        "state": "known",
+        "score": 4.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_08f505a19b89"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "cpu_performance",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_04b32b42bd66"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "ram_capacity",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_39a89eb07730"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "storage_speed",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1d03d61c208f"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "keyboard_travel",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e0abd9e69acf"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "screen_resolution",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_150fdb3b2b13"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_cd085aa192e2"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e02405dbaf6d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "port_count",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_fe5c5048f604"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "max_temperature",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "value_for_money",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0892b5d354e4"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "cpu_performance",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_d7b46e76c2ac"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "ram_capacity",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_09790c433b68"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "storage_speed",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_bec5619529d1"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "keyboard_travel",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a8024d097b42"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "screen_resolution",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f44154cf931e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0de140b90955"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_75826bdcf729"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "port_count",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_db3a24ab0b74"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "max_temperature",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "value_for_money",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_83c994cbcbb8"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "cpu_performance",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2e0ef5ceba25"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "ram_capacity",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e6c8cd68520e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "storage_speed",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_52966207ce96"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "keyboard_travel",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_435b76fb86dd"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "screen_resolution",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_affdddf9cf9e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b8db073a24d4"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a8abbbf75e07"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "port_count",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a00dc99b18a2"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "max_temperature",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "value_for_money",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_7430dfc66392"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "cpu_performance",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_104296f1f505"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "ram_capacity",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_fa9923e541d6"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "storage_speed",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a79b8feeb8f3"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "keyboard_travel",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_64ae10cb7fdb"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "screen_resolution",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_72b4d807021a"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_8096a56f0b65"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b36b8d687e1f"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "port_count",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_c90f4247f9af"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "max_temperature",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "value_for_money",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_87eab14cfa6f"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "cpu_performance",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_28c268348e39"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "ram_capacity",
+        "state": "known",
+        "score": 9.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_4170197a88fb"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "storage_speed",
+        "state": "known",
+        "score": 10.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_69fd44f24533"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "keyboard_travel",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b18be9be06f2"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "screen_resolution",
+        "state": "known",
+        "score": 9.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_91cad649bf2c"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 10.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_c8328a92878f"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e3ae63427aad"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "port_count",
+        "state": "known",
+        "score": 9.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2635d87cd6fe"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "max_temperature",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "value_for_money",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_49470834ac67"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "cpu_performance",
+        "state": "known",
+        "score": 9.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_ad7f8b653ea1"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "ram_capacity",
+        "state": "known",
+        "score": 10.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_fdc03f894647"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "storage_speed",
+        "state": "known",
+        "score": 10.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_32c6fbe2c5cf"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "keyboard_travel",
+        "state": "known",
+        "score": 9.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b5daadfe2382"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "screen_resolution",
+        "state": "known",
+        "score": 10.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f79b5e4e22bb"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 10.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_43c0f1e1b321"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 9.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_8bfdba29ba63"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "port_count",
+        "state": "known",
+        "score": 10.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_26e77113893e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "max_temperature",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "value_for_money",
+        "state": "known",
+        "score": 9.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_3d58f4a09da9"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 64990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f4f0054ce92b"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 69990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5791cae0720b"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 70000.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1d14e9a6ea66"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 84990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5b05fb675cf7"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 59990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_9044780c33b8"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 55000.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_7efc653999ef"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 45990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a40d82298bf4"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "price_inr",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "price_inr",
+        "state": "disputed",
+        "score": null,
+        "value": 68990.0,
+        "confidence": 0.5,
+        "supporting_claim_ids": [
+          "clm_1913c93b44eb"
+        ],
+        "conflicting_claim_ids": [
+          "clm_8246dd437f1e"
+        ]
+      },
+      {
+        "product_id": "prd_nova_book_14",
+        "criterion_key": "ram_gb",
+        "state": "known",
+        "score": null,
+        "value": 16.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b317e82333c7"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "criterion_key": "ram_gb",
+        "state": "known",
+        "score": null,
+        "value": "16 GB",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a0842ed8f0bc"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "criterion_key": "ram_gb",
+        "state": "known",
+        "score": null,
+        "value": 32.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_951810d011bc"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_aurora_air_13",
+        "criterion_key": "ram_gb",
+        "state": "known",
+        "score": null,
+        "value": 16.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_668cb7bac202"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_lumen_x_15",
+        "criterion_key": "ram_gb",
+        "state": "known",
+        "score": null,
+        "value": 16.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_4cd7bc8692f1"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tern_book_16",
+        "criterion_key": "ram_gb",
+        "state": "known",
+        "score": null,
+        "value": 16.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_c960be7481c3"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_zenith_flex_14",
+        "criterion_key": "ram_gb",
+        "state": "known",
+        "score": null,
+        "value": 16.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_aa7c86669648"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pico_lite_14",
+        "criterion_key": "ram_gb",
+        "state": "known",
+        "score": null,
+        "value": 8.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_8b28d13cfa7b"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "criterion_key": "ram_gb",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      }
+    ],
+    "community": [],
+    "seed": 42
+  },
+  "expect": {
+    "shown": [
+      "prd_nova_book_14",
+      "prd_kestrel_slim_15",
+      "prd_orion_play_15"
+    ],
+    "filtered_out": {
+      "prd_aurora_air_13": [
+        "₹84,990 is above your ₹70,000 budget"
+      ],
+      "prd_zenith_flex_14": [
+        "You ruled out Zenith"
+      ],
+      "prd_pico_lite_14": [
+        "It fails \"at least 16 GB RAM\": it has 8 GB"
+      ]
+    },
+    "cant_tell": {
+      "prd_vela_pro_14": [
+        "We couldn't find its RAM, so we can't check \"at least 16 GB RAM\""
+      ],
+      "prd_lumen_x_15": [
+        "We couldn't find its price"
+      ],
+      "prd_tern_book_16": [
+        "Sources disagree on its price: one says ₹68,990"
+      ]
+    },
+    "left_out": [
+      "max_temperature"
+    ],
+    "relaxation_hint": null
+  }
+}

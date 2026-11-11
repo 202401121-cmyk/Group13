@@ -1,0 +1,763 @@
+{
+  "about": "Made-up products and a made-up request (synthetic), for testing the decide stage only. Not real facts.",
+  "request": "noise cancelling headphones between 5k and 15k, no heavier than 300 g, nothing from Brio",
+  "input": {
+    "rubric": {
+      "category": "headphones",
+      "use_case": "commuting",
+      "region": "IN",
+      "budget": {
+        "min": {
+          "amount": 5000.0,
+          "currency": "INR"
+        },
+        "max": {
+          "amount": 15000.0,
+          "currency": "INR"
+        }
+      },
+      "hard_rules": [
+        {
+          "attribute": "weight_g",
+          "operator": "<=",
+          "value": 300.0,
+          "unit": "g",
+          "source_text": "no heavier than 300 g",
+          "id": "weight_g_max_513b366cf9",
+          "active": true
+        },
+        {
+          "attribute": "anc",
+          "operator": "==",
+          "value": true,
+          "unit": null,
+          "source_text": "with noise cancelling",
+          "id": "anc_is_880cdd672b",
+          "active": true
+        }
+      ],
+      "exclusions": [
+        {
+          "kind": "brand",
+          "value": "Brio",
+          "always": false
+        }
+      ],
+      "weights": [
+        {
+          "key": "noise_cancelling",
+          "weight": 9.0,
+          "normalized": 0.3,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "sound_quality",
+          "weight": 8.0,
+          "normalized": 0.26666666666666666,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "comfort",
+          "weight": 7.0,
+          "normalized": 0.23333333333333334,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "battery_life",
+          "weight": 6.0,
+          "normalized": 0.2,
+          "origin": "default",
+          "uncertainty": 0.5
+        }
+      ]
+    },
+    "products": [
+      {
+        "id": "prd_hush_one",
+        "name": "Hush One",
+        "brand": "Hush",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_calm_two",
+        "name": "Calm Two",
+        "brand": "Calm",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_glow_q",
+        "name": "Glow Q",
+        "brand": "Glow",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_tide_air",
+        "name": "Tide Air",
+        "brand": "Tide",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_brio_max",
+        "name": "Brio Max",
+        "brand": null,
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_dune_pro",
+        "name": "Dune Pro",
+        "brand": "Dune",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_reef_lite",
+        "name": "Reef Lite",
+        "brand": "Reef",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      }
+    ],
+    "values": [
+      {
+        "product_id": "prd_hush_one",
+        "criterion_key": "noise_cancelling",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_9b6e26f72814"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_hush_one",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_cf53d57261ca"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_hush_one",
+        "criterion_key": "comfort",
+        "state": "known",
+        "score": 7.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f0d55fdb15a4"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_hush_one",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_73101f174e49"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_calm_two",
+        "criterion_key": "noise_cancelling",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b1ddd534ca74"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_calm_two",
+        "criterion_key": "sound_quality",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_calm_two",
+        "criterion_key": "comfort",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a0f72ced8876"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_calm_two",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_35d961d8c11d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glow_q",
+        "criterion_key": "noise_cancelling",
+        "state": "known",
+        "score": 6.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0fdb49d732c9"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glow_q",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b23c8ce8b411"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glow_q",
+        "criterion_key": "comfort",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e4c93d20ca7d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glow_q",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0963efc5887b"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tide_air",
+        "criterion_key": "noise_cancelling",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_42343627e575"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tide_air",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_ac875a3f8d92"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tide_air",
+        "criterion_key": "comfort",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_dfa7f9f2d3a1"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tide_air",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_7ceaf6fad39c"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_brio_max",
+        "criterion_key": "noise_cancelling",
+        "state": "known",
+        "score": 9.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_41320e93ceb0"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_brio_max",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 9.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_18b1dbe5ac7d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_brio_max",
+        "criterion_key": "comfort",
+        "state": "known",
+        "score": 9.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_d43a376cb794"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_brio_max",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 9.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_ba699114d0f1"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_dune_pro",
+        "criterion_key": "noise_cancelling",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2e633fd6e5c6"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_dune_pro",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_63eb51518585"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_dune_pro",
+        "criterion_key": "comfort",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b98dfc18ac71"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_dune_pro",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_555bfa6dd858"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_reef_lite",
+        "criterion_key": "noise_cancelling",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_c83fcff8507b"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_reef_lite",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_9682831f812e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_reef_lite",
+        "criterion_key": "comfort",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0858cc603722"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_reef_lite",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_96712b7a44c6"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_hush_one",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 12990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1e6b36b4acb8"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_calm_two",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 14990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2fa05cc9a2f7"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glow_q",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 9990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_09e4085747d2"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tide_air",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 4499.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_9326c23fdeda"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_brio_max",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 11990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_960a55f50ff5"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_dune_pro",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 13990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b870a344c517"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_reef_lite",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 7990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0b1eb081f56d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_hush_one",
+        "criterion_key": "weight_g",
+        "state": "known",
+        "score": null,
+        "value": "0.28 kg",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0c392fda9481"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_calm_two",
+        "criterion_key": "weight_g",
+        "state": "known",
+        "score": null,
+        "value": 250.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f8c24ecb6057"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glow_q",
+        "criterion_key": "weight_g",
+        "state": "known",
+        "score": null,
+        "value": "10 oz",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_9af5f78cf30d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tide_air",
+        "criterion_key": "weight_g",
+        "state": "known",
+        "score": null,
+        "value": 200.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_24327dc44e32"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_brio_max",
+        "criterion_key": "weight_g",
+        "state": "known",
+        "score": null,
+        "value": 240.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e90b79c0785e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_dune_pro",
+        "criterion_key": "weight_g",
+        "state": "known",
+        "score": null,
+        "value": "0.32 kg",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_672a051c37dd"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_reef_lite",
+        "criterion_key": "weight_g",
+        "state": "known",
+        "score": null,
+        "value": 210.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e6bc221a3b6f"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_hush_one",
+        "criterion_key": "anc",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_853a7089bdb2"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_calm_two",
+        "criterion_key": "anc",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_6422d6dc265a"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glow_q",
+        "criterion_key": "anc",
+        "state": "known",
+        "score": null,
+        "value": "yes",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1d9ea2c05650"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_tide_air",
+        "criterion_key": "anc",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_43c3a773d8d5"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_brio_max",
+        "criterion_key": "anc",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a300030eeb4e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_dune_pro",
+        "criterion_key": "anc",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2cecfc95ffa4"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_reef_lite",
+        "criterion_key": "anc",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      }
+    ],
+    "community": [],
+    "seed": 42
+  },
+  "expect": {
+    "shown": [
+      "prd_hush_one",
+      "prd_calm_two",
+      "prd_glow_q"
+    ],
+    "filtered_out": {
+      "prd_tide_air": [
+        "₹4,499 is below your ₹5,000 minimum"
+      ],
+      "prd_brio_max": [
+        "You ruled out Brio"
+      ],
+      "prd_dune_pro": [
+        "It fails \"no heavier than 300 g\": it has 0.32 kg"
+      ]
+    },
+    "cant_tell": {
+      "prd_reef_lite": [
+        "We couldn't find its ANC, so we can't check \"with noise cancelling\""
+      ]
+    },
+    "left_out": [],
+    "relaxation_hint": null
+  }
+}

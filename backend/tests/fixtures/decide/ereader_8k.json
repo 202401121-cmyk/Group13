@@ -1,0 +1,437 @@
+{
+  "about": "Made-up products and a made-up request (synthetic), for testing the decide stage only. Not real facts.",
+  "request": "e-reader with warm light under 8000, not Pagewise",
+  "input": {
+    "rubric": {
+      "category": "ereader",
+      "use_case": "reading at night",
+      "region": "IN",
+      "budget": {
+        "min": null,
+        "max": {
+          "amount": 8000.0,
+          "currency": "INR"
+        }
+      },
+      "hard_rules": [
+        {
+          "attribute": "has_warm_light",
+          "operator": "==",
+          "value": true,
+          "unit": null,
+          "source_text": "with warm light",
+          "id": "has_warm_light_is_71ded49d1c",
+          "active": true
+        }
+      ],
+      "exclusions": [
+        {
+          "kind": "brand",
+          "value": "Pagewise",
+          "always": false
+        }
+      ],
+      "weights": [
+        {
+          "key": "screen_sharpness",
+          "weight": 7.0,
+          "normalized": 0.3888888888888889,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "battery_life",
+          "weight": 6.0,
+          "normalized": 0.3333333333333333,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "weight",
+          "weight": 5.0,
+          "normalized": 0.2777777777777778,
+          "origin": "default",
+          "uncertainty": 0.5
+        }
+      ]
+    },
+    "products": [
+      {
+        "id": "prd_folio_6",
+        "name": "Folio 6",
+        "brand": "Folio",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_leaf_7",
+        "name": "Leaf 7",
+        "brand": "Leaf",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_pagewise_go",
+        "name": "Pagewise Go",
+        "brand": "Pagewise",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_quire_basic",
+        "name": "Quire Basic",
+        "brand": "Quire",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_scroll_x",
+        "name": "Scroll X",
+        "brand": "Scroll",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      }
+    ],
+    "values": [
+      {
+        "product_id": "prd_folio_6",
+        "criterion_key": "screen_sharpness",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_927b0e5a6940"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_folio_6",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1ef2c77a3e54"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_folio_6",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2f35e60d7114"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_leaf_7",
+        "criterion_key": "screen_sharpness",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_46c828270069"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_leaf_7",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_d7ea547912ac"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_leaf_7",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f64740cf96ea"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pagewise_go",
+        "criterion_key": "screen_sharpness",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0f65590444c6"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pagewise_go",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_4b074f035302"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pagewise_go",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_916c21f9c800"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quire_basic",
+        "criterion_key": "screen_sharpness",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_c477dffef6a6"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quire_basic",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_cbab7cbf8484"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quire_basic",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_02777e0e5bb2"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_scroll_x",
+        "criterion_key": "screen_sharpness",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_66d811091553"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_scroll_x",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_366303589b3e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_scroll_x",
+        "criterion_key": "weight",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5bfd7e1efe84"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_folio_6",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 9999.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f939e84d5887"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_leaf_7",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 10499.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1362914b62f6"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pagewise_go",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 7499.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5bc734e64d04"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quire_basic",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 6999.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_110b0acb9bbf"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_scroll_x",
+        "criterion_key": "price_inr",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_folio_6",
+        "criterion_key": "has_warm_light",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_881ad7674ddc"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_leaf_7",
+        "criterion_key": "has_warm_light",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_30be4b638488"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pagewise_go",
+        "criterion_key": "has_warm_light",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f13b1270b2b3"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quire_basic",
+        "criterion_key": "has_warm_light",
+        "state": "known",
+        "score": null,
+        "value": false,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_687914c036bf"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_scroll_x",
+        "criterion_key": "has_warm_light",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_99deb1adbbf4"
+        ],
+        "conflicting_claim_ids": []
+      }
+    ],
+    "community": [],
+    "seed": 42
+  },
+  "expect": {
+    "shown": [],
+    "filtered_out": {
+      "prd_folio_6": [
+        "₹9,999 is above your ₹8,000 budget"
+      ],
+      "prd_leaf_7": [
+        "₹10,499 is above your ₹8,000 budget"
+      ],
+      "prd_pagewise_go": [
+        "You ruled out Pagewise"
+      ],
+      "prd_quire_basic": [
+        "It fails \"with warm light\": it doesn't"
+      ]
+    },
+    "cant_tell": {
+      "prd_scroll_x": [
+        "We couldn't find its price"
+      ]
+    },
+    "left_out": [],
+    "relaxation_hint": "Removing your ₹8,000 budget would let 3 products through."
+  }
+}

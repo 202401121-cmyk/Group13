@@ -1,0 +1,831 @@
+{
+  "about": "Made-up products and a made-up request (synthetic), for testing the decide stage only. Not real facts.",
+  "request": "27 inch gaming monitor under 30k, 144 Hz or more, an IPS panel (now only a preference), no curved screens",
+  "input": {
+    "rubric": {
+      "category": "monitor",
+      "use_case": "gaming",
+      "region": "IN",
+      "budget": {
+        "min": null,
+        "max": {
+          "amount": 30000.0,
+          "currency": "INR"
+        }
+      },
+      "hard_rules": [
+        {
+          "attribute": "screen_size_inch",
+          "operator": ">=",
+          "value": 27.0,
+          "unit": "inch",
+          "source_text": "at least 27 inches",
+          "id": "screen_size_inch_min_7a4bf6f58d",
+          "active": true
+        },
+        {
+          "attribute": "refresh_rate_hz",
+          "operator": ">=",
+          "value": 144.0,
+          "unit": "Hz",
+          "source_text": "144 Hz or more",
+          "id": "refresh_rate_hz_min_a522e3617d",
+          "active": true
+        },
+        {
+          "attribute": "panel_type",
+          "operator": "==",
+          "value": "ips",
+          "unit": null,
+          "source_text": "an IPS panel",
+          "id": "panel_type_is_3dbb433edc",
+          "active": false
+        }
+      ],
+      "exclusions": [
+        {
+          "kind": "feature",
+          "value": "curved",
+          "always": false
+        }
+      ],
+      "weights": [
+        {
+          "key": "response_time",
+          "weight": 8.0,
+          "normalized": 0.34782608695652173,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "colour_accuracy",
+          "weight": 6.0,
+          "normalized": 0.2608695652173913,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "brightness",
+          "weight": 5.0,
+          "normalized": 0.21739130434782608,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "stand_adjustability",
+          "weight": 4.0,
+          "normalized": 0.17391304347826086,
+          "origin": "default",
+          "uncertainty": 0.5
+        }
+      ]
+    },
+    "products": [
+      {
+        "id": "prd_arc_27g",
+        "name": "Arc 27G",
+        "brand": "Arc",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_blaze_27",
+        "name": "Blaze 27",
+        "brand": "Blaze",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_flux_32",
+        "name": "Flux 32",
+        "brand": "Flux",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_crest_24",
+        "name": "Crest 24",
+        "brand": "Crest",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_drift_27c",
+        "name": "Drift 27C",
+        "brand": "Drift",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_echo_27",
+        "name": "Echo 27",
+        "brand": "Echo",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_glint_27",
+        "name": "Glint 27",
+        "brand": "Glint",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      }
+    ],
+    "values": [
+      {
+        "product_id": "prd_arc_27g",
+        "criterion_key": "response_time",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_507615c85c33"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_arc_27g",
+        "criterion_key": "colour_accuracy",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_99740e59cf86"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_arc_27g",
+        "criterion_key": "brightness",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_bfe8d130f219"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_arc_27g",
+        "criterion_key": "stand_adjustability",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_89b719cbfe7a"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_blaze_27",
+        "criterion_key": "response_time",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_c44892d4f450"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_blaze_27",
+        "criterion_key": "colour_accuracy",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_54f55dcd5933"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_blaze_27",
+        "criterion_key": "brightness",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e289320541fa"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_blaze_27",
+        "criterion_key": "stand_adjustability",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_6243332144ab"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_flux_32",
+        "criterion_key": "response_time",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_408eb2051f2d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_flux_32",
+        "criterion_key": "colour_accuracy",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_13c4bd91f876"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_flux_32",
+        "criterion_key": "brightness",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_050ef78473b8"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_flux_32",
+        "criterion_key": "stand_adjustability",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5ed45ec6fa73"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_crest_24",
+        "criterion_key": "response_time",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_932da3e8faa1"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_crest_24",
+        "criterion_key": "colour_accuracy",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_bbf61fb5875c"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_crest_24",
+        "criterion_key": "brightness",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_3c5a7708750f"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_crest_24",
+        "criterion_key": "stand_adjustability",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_058bfc2393e1"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_27c",
+        "criterion_key": "response_time",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b098b8345dcc"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_27c",
+        "criterion_key": "colour_accuracy",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0b9678a11b0e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_27c",
+        "criterion_key": "brightness",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5dbe8c578d20"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_27c",
+        "criterion_key": "stand_adjustability",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_4f6e25555418"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_echo_27",
+        "criterion_key": "response_time",
+        "state": "known",
+        "score": 8.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_3b5bf80623c3"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_echo_27",
+        "criterion_key": "colour_accuracy",
+        "state": "known",
+        "score": 8.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_763c3584b0a6"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_echo_27",
+        "criterion_key": "brightness",
+        "state": "known",
+        "score": 8.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_623b2f7e165a"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_echo_27",
+        "criterion_key": "stand_adjustability",
+        "state": "known",
+        "score": 8.5,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_16d4b2a7a645"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glint_27",
+        "criterion_key": "response_time",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f170f0ebc47d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glint_27",
+        "criterion_key": "colour_accuracy",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_c6043d2c498a"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glint_27",
+        "criterion_key": "brightness",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2dd8f4b3a643"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glint_27",
+        "criterion_key": "stand_adjustability",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_611b6e5d7880"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_arc_27g",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 24990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e7cc2432bb00"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_blaze_27",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 19990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_83a4d010c482"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_flux_32",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 29990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0e1bbce55f2c"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_crest_24",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 14990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_c7268964e5ce"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_27c",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 26990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_60e7239634e7"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_echo_27",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 22990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_cc0b37ad39dc"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glint_27",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 17990.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0ecd48c2b30b"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_arc_27g",
+        "criterion_key": "screen_size_inch",
+        "state": "known",
+        "score": null,
+        "value": "68.6 cm",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b72c7b4d4cff"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_blaze_27",
+        "criterion_key": "screen_size_inch",
+        "state": "known",
+        "score": null,
+        "value": 27.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_7a1dc844eda4"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_flux_32",
+        "criterion_key": "screen_size_inch",
+        "state": "known",
+        "score": null,
+        "value": "32 inch",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_161a4ed71ec1"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_crest_24",
+        "criterion_key": "screen_size_inch",
+        "state": "known",
+        "score": null,
+        "value": 23.8,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_cc43f5abdfa3"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_27c",
+        "criterion_key": "screen_size_inch",
+        "state": "known",
+        "score": null,
+        "value": 27.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_6183f8692eb8"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_echo_27",
+        "criterion_key": "screen_size_inch",
+        "state": "known",
+        "score": null,
+        "value": 27.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_7d913f7e9e54"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glint_27",
+        "criterion_key": "screen_size_inch",
+        "state": "known",
+        "score": null,
+        "value": "27 in",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f73bb4e681c1"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_arc_27g",
+        "criterion_key": "refresh_rate_hz",
+        "state": "known",
+        "score": null,
+        "value": 165.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f23c6afae90f"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_blaze_27",
+        "criterion_key": "refresh_rate_hz",
+        "state": "known",
+        "score": null,
+        "value": "144 Hz",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f02c79bb723c"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_flux_32",
+        "criterion_key": "refresh_rate_hz",
+        "state": "known",
+        "score": null,
+        "value": "0.165 kHz",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_60e9197630da"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_crest_24",
+        "criterion_key": "refresh_rate_hz",
+        "state": "known",
+        "score": null,
+        "value": 144.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_20a96d4a81b8"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_27c",
+        "criterion_key": "refresh_rate_hz",
+        "state": "known",
+        "score": null,
+        "value": 165.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_837c56eade60"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_glint_27",
+        "criterion_key": "refresh_rate_hz",
+        "state": "known",
+        "score": null,
+        "value": 75.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_701fb252ba77"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_echo_27",
+        "criterion_key": "refresh_rate_hz",
+        "state": "unknown",
+        "score": null,
+        "value": null,
+        "confidence": 0.0,
+        "supporting_claim_ids": [],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_arc_27g",
+        "criterion_key": "panel_type",
+        "state": "known",
+        "score": null,
+        "value": "va",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a034c3f03a9a"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_blaze_27",
+        "criterion_key": "panel_type",
+        "state": "known",
+        "score": null,
+        "value": "ips",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_d21ca8838a13"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_flux_32",
+        "criterion_key": "panel_type",
+        "state": "known",
+        "score": null,
+        "value": "va",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_00e86d170da3"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_27c",
+        "criterion_key": "curved",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_794428393470"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_arc_27g",
+        "criterion_key": "curved",
+        "state": "known",
+        "score": null,
+        "value": false,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_dc8cc5a19ac3"
+        ],
+        "conflicting_claim_ids": []
+      }
+    ],
+    "community": [],
+    "seed": 42
+  },
+  "expect": {
+    "shown": [
+      "prd_arc_27g",
+      "prd_blaze_27",
+      "prd_flux_32"
+    ],
+    "filtered_out": {
+      "prd_crest_24": [
+        "It fails \"at least 27 inches\": it has 23.8 inch"
+      ],
+      "prd_drift_27c": [
+        "You ruled out curved"
+      ],
+      "prd_glint_27": [
+        "It fails \"144 Hz or more\": it has 75 Hz"
+      ]
+    },
+    "cant_tell": {
+      "prd_echo_27": [
+        "We couldn't find its refresh rate, so we can't check \"144 Hz or more\""
+      ]
+    },
+    "left_out": [],
+    "relaxation_hint": null
+  }
+}
