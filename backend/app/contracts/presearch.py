@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import ConfigDict, Field, model_validator
 
-from .common import Contract, SessionId, StrictScore10
+from .common import Contract, SessionId, Slug, StrictScore10
 from .criteria import CriteriaSet
-from .intake import Intent
+from .intake import Exclusion, Intent
 from .interview import InterviewState, InterviewStep, RoughLevel, check_one_answer_form
+from .rubric import Rubric
 
 MAX_UNCLEAR_ATTEMPTS = 2  # IntakeInput.unclear_attempts limit
+MAX_RUBRIC_EDITS = 20  # edits in one RubricEditRequest
+MAX_EXCLUSION_TEXT = 200  # characters in one ExclusionParseRequest
 
 RequestSaved = Literal["saved", "off", "failed"]  # app.db's SaveOutcome; contracts never import app.db
 
@@ -38,6 +41,72 @@ class ReplyRequest(Contract):
     def _check(self) -> ReplyRequest:
         check_one_answer_form(self.level, self.exact_weight)
         return self
+
+
+RubricEditKind = Literal["switch_rule", "add_exclusion", "remove_exclusion", "set_weight"]
+
+# The fields each kind of edit carries; every other edit field stays empty.
+_EDIT_FIELDS: dict[str, frozenset[str]] = {
+    "switch_rule": frozenset({"rule_id", "active"}),
+    "add_exclusion": frozenset({"exclusion"}),
+    "remove_exclusion": frozenset({"exclusion"}),
+    "set_weight": frozenset({"criterion_key", "weight"}),
+}
+_ALL_EDIT_FIELDS: frozenset[str] = frozenset().union(*_EDIT_FIELDS.values())
+
+
+class RubricEdit(Contract):
+    """One change the shopper makes to the rubric (US-09). It carries exactly the fields of its kind."""
+
+    model_config = ConfigDict(json_schema_serialization_defaults_required=False)  # part of a request body
+
+    kind: RubricEditKind
+    rule_id: Slug | None = Field(default=None, description="switch_rule: the HardRule.id to switch")
+    active: bool | None = Field(
+        default=None, description="switch_rule: true keeps it a must-have; false makes it a preference"
+    )
+    exclusion: Exclusion | None = Field(default=None, description="add_exclusion or remove_exclusion: which one")
+    criterion_key: Slug | None = Field(default=None, description="set_weight: the criterion")
+    weight: StrictScore10 | None = Field(default=None, description="set_weight: its new 0 to 10 weight")
+
+    @model_validator(mode="after")
+    def _check(self) -> RubricEdit:
+        present = {name for name in _ALL_EDIT_FIELDS if getattr(self, name) is not None}
+        if present != _EDIT_FIELDS[self.kind]:
+            needed = ", ".join(sorted(_EDIT_FIELDS[self.kind]))
+            raise ValueError(f"a {self.kind} edit carries {needed} and nothing else")
+        return self
+
+
+class RubricEditRequest(Contract):
+    """The body of the rubric editor's route (US-09). One edit is a list of one; edits apply in order."""
+
+    model_config = ConfigDict(json_schema_serialization_defaults_required=False)
+
+    edits: list[RubricEdit] = Field(min_length=1, max_length=MAX_RUBRIC_EDITS)
+
+
+class RubricEditResponse(Contract):
+    """What the rubric editor's route answers: the rubric rebuilt with the shopper's edits applied last (US-09)."""
+
+    rubric: Rubric
+
+
+class ExclusionParseRequest(Contract):
+    """The body of the route that reads exclusions from the shopper's own words, such as "no Zenith" (US-09)."""
+
+    model_config = ConfigDict(json_schema_serialization_defaults_required=False)
+
+    text: str = Field(min_length=1, max_length=MAX_EXCLUSION_TEXT, description="What the shopper typed")
+
+
+class ExclusionParseResponse(Contract):
+    """The exclusions read from the text, and the words that could not be read as one (US-09)."""
+
+    exclusions: list[Exclusion] = Field(default_factory=list, max_length=30)
+    not_understood: list[Annotated[str, Field(min_length=1, max_length=MAX_EXCLUSION_TEXT)]] = Field(
+        default_factory=list, max_length=20, description="Parts of the text that were not understood, as typed"
+    )
 
 
 class IntakeResponse(Contract):

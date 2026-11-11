@@ -5,15 +5,18 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 
 from .common import Contract, Fraction, Score10, SessionId, Slug, StrictScore10
 from .criteria import CriteriaSet
-from .intake import Intent
+from .intake import Exclusion, Intent
 from .rubric import Rubric
 
 MAX_QUESTIONS = 10
 MAX_UNCLEAR_PER_QUESTION = 2  # US-39: after two unclear or off-topic replies, skip and mark it
+MAX_TERMS = 5  # term explanations per question
+MAX_EXPLANATION_WORDS = 40
+MAX_EXCLUSIONS = 30  # Rubric.exclusions limit: the shopper's added exclusions must fit beside the request's
 
 
 class RoughLevel(StrEnum):
@@ -63,12 +66,33 @@ class ReplyType(StrEnum):
     UNCLEAR = "unclear"
 
 
+class TermExplanation(Contract):
+    """A word in a question that a shopper may not know, explained in plain words."""
+
+    term: str = Field(min_length=1, max_length=40, description="The word or phrase as the question uses it")
+    criterion_key: Slug = Field(description="The criterion the term belongs to")
+    # The 1,000 characters are only a guard on size: 40 words of 25 letters each still fit. The word count is the rule.
+    explanation: str = Field(
+        min_length=1, max_length=1000, description=f"Plain words, at most {MAX_EXPLANATION_WORDS} words"
+    )
+
+    @field_validator("explanation")
+    @classmethod
+    def _short(cls, value: str) -> str:
+        if len(value.split()) > MAX_EXPLANATION_WORDS:
+            raise ValueError(f"an explanation is at most {MAX_EXPLANATION_WORDS} words")
+        return value
+
+
 class InterviewQuestion(Contract):
     id: str = Field(pattern=r"^q_[a-z0-9_]{1,40}$")
     criterion_key: Slug
     text: str = Field(min_length=5, max_length=300)
     quick_replies: list[str] = Field(default_factory=list, max_length=6)
     why_asking: str | None = Field(default=None, max_length=200)
+    terms: list[TermExplanation] = Field(
+        default_factory=list, max_length=MAX_TERMS, description="Words in the question explained, at most 5"
+    )
 
 
 class ReplyClassification(Contract):
@@ -117,7 +141,20 @@ class InterviewState(Contract):
     criteria: CriteriaSet
     history: list[AskedQuestion] = Field(default_factory=list, max_length=40)
     remembered: list[RememberedPreference] = Field(default_factory=list, max_length=5)
-    manual_weights: dict[str, float] = Field(default_factory=dict)
+    # The shopper's own rubric edits (US-09). A rebuild of the rubric applies them last, so they win over the interview.
+    manual_weights: dict[str, float] = Field(
+        default_factory=dict, description="Weights the shopper set, by criterion key (US-09)"
+    )
+    manual_rule_switches: dict[Slug, bool] = Field(
+        default_factory=dict,
+        description="Hard rule id -> active. False: the shopper switched the rule to a preference (US-09)",
+    )
+    manual_exclusions_added: list[Exclusion] = Field(
+        default_factory=list, max_length=MAX_EXCLUSIONS, description="Exclusions the shopper added (US-09)"
+    )
+    manual_exclusions_removed: list[Exclusion] = Field(
+        default_factory=list, max_length=MAX_EXCLUSIONS, description="Exclusions the shopper removed (US-09)"
+    )
 
     @model_validator(mode="after")
     def _check(self) -> InterviewState:
@@ -125,7 +162,19 @@ class InterviewState(Contract):
             raise ValueError("the interview starts only after the category is known (US-01)")
         if self.intent.category != self.criteria.category:
             raise ValueError("intent and criteria are for different categories")
+        unknown = sorted(set(self.manual_rule_switches) - {r.id for r in self.intent.hard_rules})
+        if unknown:
+            raise ValueError(f"a rule switch names no hard rule of the request: {unknown}")
+        added = {_exclusion_key(e) for e in self.manual_exclusions_added}
+        if added & {_exclusion_key(e) for e in self.manual_exclusions_removed}:
+            raise ValueError("an exclusion cannot be both added and removed")
+        if len(self.intent.exclusions) + len(self.manual_exclusions_added) > MAX_EXCLUSIONS:
+            raise ValueError(f"the request's exclusions and the added ones must fit the rubric's {MAX_EXCLUSIONS}")
         return self
+
+
+def _exclusion_key(exclusion: Exclusion) -> tuple[str, str]:
+    return exclusion.kind, exclusion.value.casefold()
 
 
 class InterviewTurn(Contract):

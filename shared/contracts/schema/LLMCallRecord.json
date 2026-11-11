@@ -32,7 +32,8 @@
         "gemini",
         "openrouter",
         "cerebras",
-        "mistral"
+        "mistral",
+        "deepseek"
       ],
       "title": "Provider",
       "type": "string"

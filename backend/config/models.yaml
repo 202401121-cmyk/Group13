@@ -104,6 +104,22 @@ providers:
     tokens_per_minute: 40000
     limits_checked: 2026-11-10
     daily_tokens: 1000000
+  # DeepSeek (D-63): a public-text fallback. Its privacy policy (last updated 10 Feb 2026, read 11 Nov 2026) says it uses
+  # personal data to train its models and stores data in the PRC, so it gets public text only. The pricing page
+  # (api-docs.deepseek.com/quick_start/pricing, 11 Nov 2026) describes no free tier: it runs only on a granted balance,
+  # and no payment method is ever added (D-11). The daily budget is the team's choice (D-63). It takes no turn in bulk
+  # work's rotation. Unavailable until S3-1 gives it routes and handles HTTP 402 (no balance).
+  - name: deepseek
+    base_url: https://api.deepseek.com
+    api_key_env: DEEPSEEK_API_KEY
+    request_timeout_s: 30
+    trains_on_inputs: true
+    terms_url: https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html
+    terms_checked: 2026-11-11
+    daily_tokens: 500000
+    rotates: false
+    available: false
+    unavailable_reason: Not wired in yet; S3-1 gives it routes (D-63)
 
 models:
   # The llama-3.3-70b models and gemini-2.5-flash stopped working for us by 3 Nov 2026 (HTTP 404: retired, or not
@@ -155,6 +171,13 @@ models:
     model: ministral-8b-latest
     context_window_tokens: 262144
     max_output_tokens: 4096
+    trains_on_free_tier: true
+  # UNVERIFIED: no call has been made. DeepSeek's pricing page (11 Nov 2026) lists deepseek-flash with a 1M window; 8192
+  # is our own output cap, as above. S3-1's smoke test confirms it.
+  - provider: deepseek
+    model: deepseek-flash
+    context_window_tokens: 1000000
+    max_output_tokens: 8192
     trains_on_free_tier: true
 
 # Every call says what its prompt carries (data class) and how big the job is (difficulty); this table gives the

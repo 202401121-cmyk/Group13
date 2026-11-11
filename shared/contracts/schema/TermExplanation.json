@@ -1,0 +1,34 @@
+{
+  "additionalProperties": false,
+  "description": "A word in a question that a shopper may not know, explained in plain words.",
+  "properties": {
+    "term": {
+      "description": "The word or phrase as the question uses it",
+      "maxLength": 40,
+      "minLength": 1,
+      "title": "Term",
+      "type": "string"
+    },
+    "criterion_key": {
+      "description": "The criterion the term belongs to",
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+      "title": "Criterion Key",
+      "type": "string"
+    },
+    "explanation": {
+      "description": "Plain words, at most 40 words",
+      "maxLength": 1000,
+      "minLength": 1,
+      "title": "Explanation",
+      "type": "string"
+    }
+  },
+  "required": [
+    "term",
+    "criterion_key",
+    "explanation"
+  ],
+  "title": "TermExplanation",
+  "type": "object"
+}

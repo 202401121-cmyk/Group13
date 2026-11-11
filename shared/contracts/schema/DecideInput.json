@@ -180,6 +180,19 @@
           "minLength": 1,
           "title": "Source Text",
           "type": "string"
+        },
+        "id": {
+          "description": "Stable id made from attribute, operator and value (hard_rule_id), so the same rule keeps its id across a rebuild (US-09). Left out, it is made; given, it must match",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "active": {
+          "default": true,
+          "description": "False when the shopper switched this rule to a preference: it then no longer filters (US-09)",
+          "title": "Active",
+          "type": "boolean"
         }
       },
       "required": [
@@ -187,7 +200,9 @@
         "operator",
         "value",
         "unit",
-        "source_text"
+        "source_text",
+        "id",
+        "active"
       ],
       "title": "HardRule",
       "type": "object"

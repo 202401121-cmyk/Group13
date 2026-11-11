@@ -1,0 +1,39 @@
+{
+  "additionalProperties": false,
+  "description": "One claim that a value in the result cites, with where it came from.",
+  "properties": {
+    "claim_id": {
+      "pattern": "^clm_[a-f0-9]{8,64}$",
+      "title": "Claim Id",
+      "type": "string"
+    },
+    "source_id": {
+      "description": "One of the result's sources",
+      "pattern": "^src_[a-f0-9]{8,64}$",
+      "title": "Source Id",
+      "type": "string"
+    },
+    "quote": {
+      "anyOf": [
+        {
+          "maxLength": 600,
+          "minLength": 3,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The claim's exact words. None when not kept: Reddit's words are not saved (D-53)",
+      "title": "Quote"
+    }
+  },
+  "required": [
+    "claim_id",
+    "source_id",
+    "quote"
+  ],
+  "title": "Citation",
+  "type": "object"
+}

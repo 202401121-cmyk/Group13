@@ -1,0 +1,12 @@
+{
+  "exclusions": [
+    {
+      "kind": "brand",
+      "value": "Zenith",
+      "always": false
+    }
+  ],
+  "not_understood": [
+    "nothing too shiny"
+  ]
+}

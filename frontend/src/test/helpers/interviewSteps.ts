@@ -29,6 +29,7 @@ export function question(key: string): InterviewQuestion {
     text: `${labels.get(key) ?? key}: how much does it matter to you?`,
     quick_replies: ["Low", "Medium", "High", "Good enough", "Skip"],
     why_asking: criteria.criteria.find((c) => c.key === key)?.definition ?? null,
+    terms: [],
   };
 }
 
@@ -60,6 +61,9 @@ export function stepOf(
       history,
       remembered: opts.remembered ?? [],
       manual_weights: {},
+      manual_rule_switches: {},
+      manual_exclusions_added: [],
+      manual_exclusions_removed: [],
     },
     questions_asked: history.length,
     ordering: "fixed_order",

@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.6.0",
+  "schema_version": "1.7.0",
   "search_id": "srch_demo0001",
   "request": {
     "session_id": "sess_demo0001",
@@ -22,7 +22,9 @@
           "operator": ">=",
           "value": 16.0,
           "unit": "GB",
-          "source_text": "at least 16 GB RAM"
+          "source_text": "at least 16 GB RAM",
+          "id": "ram_gb_min_1c18a881e7",
+          "active": true
         }
       ],
       "exclusions": [
@@ -889,6 +891,128 @@
       "upvotes": null,
       "comment_count": null,
       "comments": []
+    }
+  ],
+  "citations": [
+    {
+      "claim_id": "clm_053f4bf83174cf53",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14: cpu performance rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_bf7c2488fe2eda5f",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14: battery life rated 8.0/10."
+    },
+    {
+      "claim_id": "clm_5807c6297c20c05e",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Nova Book 14: keyboard comfort rated 9.0/10."
+    },
+    {
+      "claim_id": "clm_568a82e200569f1d",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14: display quality rated 7.0/10."
+    },
+    {
+      "claim_id": "clm_ae3839c409ab71bf",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14: weight rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_3ac2323f12a5c8d6",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14: build durability rated 7.0/10."
+    },
+    {
+      "claim_id": "clm_d37a81d013da4914",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Nova Book 14: value for money rated 8.0/10."
+    },
+    {
+      "claim_id": "clm_dc147cd38e1e6839",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Kestrel Slim 15: cpu performance rated 8.0/10."
+    },
+    {
+      "claim_id": "clm_c6d748e9c7945937",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Kestrel Slim 15: keyboard comfort rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_e32836d2e2257930",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Kestrel Slim 15: display quality rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_8fe73a640ab049ef",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Kestrel Slim 15: weight rated 8.0/10."
+    },
+    {
+      "claim_id": "clm_9e9b1d688e0274e6",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Kestrel Slim 15: build durability rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_92a4c00d3f53f206",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Kestrel Slim 15: value for money rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_e13d8f66bd7c5e47",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Orion Play 15: cpu performance rated 9.0/10."
+    },
+    {
+      "claim_id": "clm_8f6737d75a7a0501",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Orion Play 15: battery life rated 5.0/10."
+    },
+    {
+      "claim_id": "clm_1cf7047e908108a3",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Orion Play 15: keyboard comfort rated 6.5/10."
+    },
+    {
+      "claim_id": "clm_21fa900998d83915",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Orion Play 15: display quality rated 8.0/10."
+    },
+    {
+      "claim_id": "clm_e1c5552273f9da7e",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Orion Play 15: weight rated 4.0/10."
+    },
+    {
+      "claim_id": "clm_5139615e2d353cc9",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Orion Play 15: value for money rated 7.0/10."
+    },
+    {
+      "claim_id": "clm_2c31271c5c981d18",
+      "source_id": "src_2958fd9d1b3643cf",
+      "quote": "battery rated up to 10 hours"
+    },
+    {
+      "claim_id": "clm_46feb890769b8225",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "I get about 6 hours, not 10"
+    },
+    {
+      "claim_id": "clm_3bed19288173fb0e",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14 ships with 16 GB RAM."
+    },
+    {
+      "claim_id": "clm_762fc11b7a21cdde",
+      "source_id": "src_2958fd9d1b3643cf",
+      "quote": "Kestrel Slim 15 ships with 16 GB RAM."
+    },
+    {
+      "claim_id": "clm_2f93718e8d47a941",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Orion Play 15 ships with 16 GB RAM."
     }
   ],
   "stage_reports": [

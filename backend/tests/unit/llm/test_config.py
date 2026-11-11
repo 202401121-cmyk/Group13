@@ -36,6 +36,20 @@ def test_the_pool_holds_the_three_groq_models_with_their_own_limits() -> None:
     assert pool.reddit_tokens_per_search == 18_000  # 75% of a minute: see docs/api-setup.md
 
 
+def test_deepseek_takes_public_text_only_and_is_unused_until_its_routes_exist() -> None:
+    """D-63: DeepSeek may train on inputs, so public text only. S3-0 adds it switched off; S3-1 gives it routes."""
+    config = load_llm_config()
+    deepseek = config.provider(Provider.DEEPSEEK)
+    assert deepseek.trains_on_inputs is True
+    assert deepseek.rotates is False
+    assert deepseek.daily_tokens == 500_000
+    assert deepseek.api_key_env == "DEEPSEEK_API_KEY"
+    assert deepseek.available is False and deepseek.unavailable_reason
+    assert [m.trains_on_free_tier for m in config.models if m.provider is Provider.DEEPSEEK] == [True]
+    routes = [chain for by_difficulty in config.routes.values() for chain in by_difficulty.values()]
+    assert all(Provider.DEEPSEEK not in chain for chain in routes)
+
+
 def test_cerebras_is_unavailable_but_keeps_its_flag() -> None:
     cerebras = load_llm_config().provider(Provider.CEREBRAS)
     assert not cerebras.available and "402" in (cerebras.unavailable_reason or "")
@@ -136,6 +150,7 @@ def test_the_real_config_loads() -> None:
         Provider.OPENROUTER,
         Provider.CEREBRAS,
         Provider.MISTRAL,
+        Provider.DEEPSEEK,
     ]
     assert all(isinstance(m, ModelLimits) for m in config.models)
     assert all(p.base_url.startswith("https://") for p in config.providers)
@@ -160,6 +175,7 @@ def test_the_trains_on_inputs_flags_match_the_terms_we_read() -> None:
         Provider.GEMINI: True,
         Provider.OPENROUTER: True,
         Provider.MISTRAL: True,
+        Provider.DEEPSEEK: True,  # its privacy policy, read 11 Nov 2026 (D-63)
     }
     assert all(m.trains_on_free_tier == trains[m.provider] for m in config.models)
     assert all(p.terms_url.startswith("https://") and p.terms_checked.year >= 2026 for p in config.providers)
