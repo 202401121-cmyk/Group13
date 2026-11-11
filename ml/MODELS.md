@@ -17,11 +17,61 @@ recorded" before the model is used. Each model replaces a simpler baseline, and 
 |---|---|
 | Story | US-15 |
 | Owner | Om Pandya |
-| Type | Fine-tuned small MiniLM-based cross-encoder. Exact checkpoint: to be recorded |
-| Data | Our own labelled pairs (target about 250), split by `product_family`. They are machine labels ([DATA.md](DATA.md) section 4.1) |
-| Baseline or fallback | RapidFuzz fuzzy matching |
+| Type | A cross-encoder, `cross-encoder/ms-marco-MiniLM-L6-v2` (22.7M parameters, Apache-2.0, which allows fine-tuning and this use), fine-tuned to one logit: the same product or not. Loaded with `sentence-transformers` 6.3.0 `CrossEncoder`, trained with a plain PyTorch 2.15.0 loop (`ml/training/train.py`), transformers 5.22.2. Exact versions: `ml/training/requirements.txt`. Fine-tuned weights: `ml/models/matcher_v1/epoch-001` (git-ignored; never committed). ONNX export (D-64): `ml/models/matcher_v1/onnx/` |
+| Data | **Train:** Abt-Buy and Amazon-Google (CC BY 4.0), on the dev side of the Leipzig split only, and our own pairs (machine labels, [DATA.md](DATA.md) section 4.1) from about 55% of the dev-side families. The Leipzig records are split by a hash on both sides (left and right), so train and dev share no record; a match across the two parts is left out. Each match comes with 3 look-alike non-matches and one random one. **4,810 pairs, 745 matches** (our own: 48 pairs, 3 matches). **Dev, which picks the threshold:** 1,052 pairs, with only 53 matches from the public sets and 12 of our own, so the threshold is noisy. **Test:** our own test families (57 pairs, 7 matches, the S3-5 split) and three WDC Products test sets (the 80, 50 and 20 percent corner-case sets with all products seen; the other six were not scored). WDC is never trained on (D-54), and no Reddit text is used (D-53). Counts per source: `ml/results/matcher_v1.json` |
+| Baseline or fallback | RapidFuzz fuzzy matching (card 8). It stays the default |
 | Target | Precision of 0.95 or more, and F1 above the fuzzy baseline (card 8) |
+| Training | CPU, 16 cores, 11 Nov 2026, seed 20261111, batch 32, learning rate 4e-5, 4 epochs of 2.8 to 2.9 minutes each (`ml/results/matcher_v1_training.json`). **The checkpoint is epoch 1, chosen by dev only:** dev recall at the precision target was 0.075 after epoch 1, then 0.038 after epochs 2, 3 and 4, while the training loss kept falling (0.35, 0.21, 0.16, 0.14), so more epochs fit the training records better and generalise worse. A checkpoint each epoch; `train.py` resumes from the last |
+| Threshold | **0.9646**, chosen on dev: the highest threshold with the best recall among those with precision of 0.95 or more. On dev: precision 1.000, recall 0.075 |
+| Hugging Face | Upload pending: `HF_TOKEN` and `HF_MODEL_REPO` are not set. Revision: to be recorded when Om has made the repository and run `export_onnx.py` with both set. `backend/config/matcher.yaml` holds the repository, revision and threshold for S3-15 |
 | Sprint | 3 |
+
+**Test results (S3-4, 11 Nov 2026, repository commit `3cebd05`, before this change's commit).** Precision, recall and F1 with
+95% bootstrap intervals (1,000 resamples, seed 20261111, as in card 8). The fuzzy baseline uses its own threshold from
+card 8. Our own pairs are machine labels ([DATA.md](DATA.md) section 4.1). Numbers: `ml/results/matcher_v1.json`.
+
+| Test set | Method | Threshold | TP | FP | FN | Precision | Recall | F1 |
+|---|---|---|---|---|---|---|---|---|
+| Our own pairs (machine labels), 57 pairs, 7 matches | **Matcher** | 0.9646 | 1 | 0 | 6 | 1.000 [1.000, 1.000] | 0.143 [0.000, 0.500] | 0.250 [0.000, 0.667] |
+| Our own pairs (machine labels) | Fuzzy `token_set_ratio` | 1.00 | 2 | 1 | 5 | 0.667 [0.000, 1.000] | 0.286 [0.000, 0.667] | 0.400 [0.000, 0.727] |
+| WDC 80cc20rnd000un, 4,500 pairs | **Matcher** | 0.9646 | 9 | 8 | 491 | 0.529 [0.286, 0.800] | 0.018 [0.008, 0.030] | 0.035 [0.015, 0.058] |
+| WDC 80cc20rnd000un | Fuzzy | 0.79 | 164 | 460 | 336 | 0.263 [0.228, 0.296] | 0.328 [0.286, 0.370] | 0.292 [0.257, 0.325] |
+| WDC 50cc50rnd000un | **Matcher** | 0.9646 | 18 | 4 | 482 | 0.818 [0.643, 0.958] | 0.036 [0.020, 0.054] | 0.069 [0.039, 0.103] |
+| WDC 50cc50rnd000un | Fuzzy | 0.79 | 200 | 415 | 300 | 0.325 [0.289, 0.365] | 0.400 [0.356, 0.446] | 0.359 [0.322, 0.396] |
+| WDC 20cc80rnd000un | **Matcher** | 0.9646 | 26 | 0 | 474 | 1.000 [1.000, 1.000] | 0.052 [0.034, 0.073] | 0.099 [0.067, 0.136] |
+| WDC 20cc80rnd000un | Fuzzy | 0.78 | 241 | 399 | 259 | 0.377 [0.338, 0.417] | 0.482 [0.436, 0.525] | 0.423 [0.384, 0.459] |
+
+**What this says, plainly.**
+- **The precision target is not shown on our own test part.** The matcher called one pair a match there, and it was
+  right (precision 1.0), but one pair cannot show 0.95: the interval is [1.0, 1.0] only because there is nothing to
+  resample. It found 1 of 7 matches. Per DECIDED 9, **S3-15 keeps fuzzy as the default.** The target is not lowered.
+- **The F1 target is not met anywhere.** The matcher's F1 is below fuzzy's on our own pairs and on every WDC set.
+- **Where it is precise, it is precise.** On WDC, precision is higher than fuzzy's on the 50 and 20 percent sets, and
+  the intervals do not overlap. On the 80 percent set the intervals do overlap (0.29 to 0.80 against 0.23 to 0.30,
+  from 17 calls), so no difference can be claimed there.
+- **But it finds almost nothing:** recall is 2 to 5% on WDC. The threshold sits at 0.96 because dev is hard and small,
+  and at that score the model calls very few pairs a match.
+- **Why, and what is not known.** Dev recall fell as training went on while the loss fell, which suggests the model
+  fits its training records and does not carry over to records it has not seen. That is a reading of the numbers, not a
+  tested cause. What to try next: a lower learning rate or fewer steps, more of our own labelled matches (only 3 in the
+  train part), and a larger dev set (53 public matches is too few to set a threshold well). No attempt was made to
+  improve the numbers by changing the target, the dev data or the test data.
+- **An earlier run was thrown away.** A first run let train and dev share right-hand records, which could inflate dev
+  scores. It was found in review, fixed, and everything was retrained and re-evaluated; only the second run is reported.
+- **WDC is a test set here.** It has different kinds of titles from ours, so it says little about how the matcher
+  works on our shoppers' products.
+
+**ONNX check (DECIDED 7).** 200 dev pairs from every source: the largest difference between PyTorch and ONNX
+probabilities is 7.5e-07 (limit 1e-4), so it passes. It compares probabilities, not logits, so it is less strict near
+1.0. Timing: onnxruntime 1.31.1 alone (`ml/training/measure_onnx.py`, its own process) on **2 made-up short titles
+repeated 500 times**, batches of 32: **2.1 seconds and 186 MB peak memory** for 1,000 pairs; real, longer titles would
+take longer. The model file is 91 MB. Numbers: `ml/results/matcher_v1_onnx.json`.
+
+**Run.** `pip install -r ml/requirements.txt -r ml/training/requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu`,
+then `python ml/training/train.py --epochs 4`, `python ml/training/evaluate.py --model ml/models/matcher_v1/epoch-001`
+and `python ml/training/export_onnx.py --model ml/models/matcher_v1/epoch-001`. Candidate pairs for later labelling, and
+the hard-negative miner: `python ml/scripts/candidates.py` (it never labels; the recorded searches hold page titles,
+so its output is poor and is not committed).
 
 ## 2. Source trust
 

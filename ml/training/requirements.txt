@@ -1,0 +1,10 @@
+# The matcher's training, evaluation and ONNX export (US-15, S3-4). NOT installed by CI's ml job: torch is large.
+# Install on a CPU machine:  pip install -r ml/requirements.txt -r ml/training/requirements.txt \
+#     --extra-index-url https://download.pytorch.org/whl/cpu
+# Pinned exactly after checking PyPI on 11 Nov 2026 (latest releases that day).
+sentence-transformers==6.3.0
+torch==2.15.0
+transformers==5.22.2
+onnx==1.23.2
+onnxruntime==1.31.1
+psutil==7.2.2

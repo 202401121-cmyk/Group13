@@ -1,0 +1,302 @@
+{
+  "date": "2026-11-11",
+  "commit": "3cebd05",
+  "model": "epoch-001",
+  "threshold": {
+    "value": 0.9646,
+    "dev_precision": 1.0,
+    "dev_recall": 0.0755,
+    "target_precision": 0.95,
+    "target_met_on_dev": true,
+    "rule": "precision >= 0.95 on the dev part, with the highest recall at that precision"
+  },
+  "data": {
+    "abt_buy": {
+      "train": 2089,
+      "train_matches": 344,
+      "dev": 466,
+      "dev_matches": 22
+    },
+    "amazon_google": {
+      "train": 2673,
+      "train_matches": 398,
+      "dev": 518,
+      "dev_matches": 19
+    },
+    "own_pairs (machine labels)": {
+      "train": 48,
+      "train_matches": 3,
+      "dev": 68,
+      "dev_matches": 12,
+      "left_out_straddling": 45,
+      "left_out_across_train_and_dev": 8,
+      "test_side_not_used": 57
+    }
+  },
+  "dev_pairs": 1052,
+  "bootstrap": {
+    "resamples": 1000,
+    "seed": 20261111,
+    "interval": "95% percentile"
+  },
+  "own_pairs_labels": "machine labels (ml/DATA.md section 4.1)",
+  "results": [
+    {
+      "dataset": "own_pairs",
+      "method": "matcher",
+      "threshold": 0.9646,
+      "pairs": 57,
+      "true_matches": 7,
+      "tp": 1,
+      "fp": 0,
+      "fn": 6,
+      "tn": 50,
+      "precision": 1.0,
+      "recall": 0.1429,
+      "f1": 0.25,
+      "intervals_95": {
+        "precision": [
+          1.0,
+          1.0,
+          355
+        ],
+        "recall": [
+          0.0,
+          0.5,
+          0
+        ],
+        "f1": [
+          0.0,
+          0.6667,
+          0
+        ]
+      },
+      "note": "machine labels (ml/DATA.md section 4.1)"
+    },
+    {
+      "dataset": "own_pairs",
+      "method": "fuzzy token_set_ratio",
+      "threshold": 1.0,
+      "pairs": 57,
+      "true_matches": 7,
+      "tp": 2,
+      "fp": 1,
+      "fn": 5,
+      "tn": 49,
+      "precision": 0.6667,
+      "recall": 0.2857,
+      "f1": 0.4,
+      "intervals_95": {
+        "precision": [
+          0.0,
+          1.0,
+          55
+        ],
+        "recall": [
+          0.0,
+          0.6667,
+          0
+        ],
+        "f1": [
+          0.0,
+          0.7273,
+          0
+        ]
+      },
+      "note": "machine labels (ml/DATA.md section 4.1)"
+    },
+    {
+      "dataset": "wdc_products 80cc20rnd000un",
+      "method": "matcher",
+      "threshold": 0.9646,
+      "pairs": 4500,
+      "true_matches": 500,
+      "tp": 9,
+      "fp": 8,
+      "fn": 491,
+      "tn": 3992,
+      "precision": 0.5294,
+      "recall": 0.018,
+      "f1": 0.0348,
+      "intervals_95": {
+        "precision": [
+          0.2857,
+          0.8,
+          0
+        ],
+        "recall": [
+          0.0076,
+          0.0304,
+          0
+        ],
+        "f1": [
+          0.0149,
+          0.058,
+          0
+        ]
+      },
+      "note": "WDC Products test set, never trained on (D-54)"
+    },
+    {
+      "dataset": "wdc_products 80cc20rnd000un",
+      "method": "fuzzy token_set_ratio",
+      "threshold": 0.79,
+      "pairs": 4500,
+      "true_matches": 500,
+      "tp": 164,
+      "fp": 460,
+      "fn": 336,
+      "tn": 3540,
+      "precision": 0.2628,
+      "recall": 0.328,
+      "f1": 0.2918,
+      "intervals_95": {
+        "precision": [
+          0.2276,
+          0.2964,
+          0
+        ],
+        "recall": [
+          0.286,
+          0.37,
+          0
+        ],
+        "f1": [
+          0.2566,
+          0.3245,
+          0
+        ]
+      },
+      "note": "WDC Products test set, never trained on (D-54)"
+    },
+    {
+      "dataset": "wdc_products 50cc50rnd000un",
+      "method": "matcher",
+      "threshold": 0.9646,
+      "pairs": 4500,
+      "true_matches": 500,
+      "tp": 18,
+      "fp": 4,
+      "fn": 482,
+      "tn": 3996,
+      "precision": 0.8182,
+      "recall": 0.036,
+      "f1": 0.069,
+      "intervals_95": {
+        "precision": [
+          0.6429,
+          0.9583,
+          0
+        ],
+        "recall": [
+          0.0203,
+          0.0544,
+          0
+        ],
+        "f1": [
+          0.0394,
+          0.1026,
+          0
+        ]
+      },
+      "note": "WDC Products test set, never trained on (D-54)"
+    },
+    {
+      "dataset": "wdc_products 50cc50rnd000un",
+      "method": "fuzzy token_set_ratio",
+      "threshold": 0.79,
+      "pairs": 4500,
+      "true_matches": 500,
+      "tp": 200,
+      "fp": 415,
+      "fn": 300,
+      "tn": 3585,
+      "precision": 0.3252,
+      "recall": 0.4,
+      "f1": 0.3587,
+      "intervals_95": {
+        "precision": [
+          0.2889,
+          0.3645,
+          0
+        ],
+        "recall": [
+          0.3562,
+          0.4462,
+          0
+        ],
+        "f1": [
+          0.3219,
+          0.3963,
+          0
+        ]
+      },
+      "note": "WDC Products test set, never trained on (D-54)"
+    },
+    {
+      "dataset": "wdc_products 20cc80rnd000un",
+      "method": "matcher",
+      "threshold": 0.9646,
+      "pairs": 4500,
+      "true_matches": 500,
+      "tp": 26,
+      "fp": 0,
+      "fn": 474,
+      "tn": 4000,
+      "precision": 1.0,
+      "recall": 0.052,
+      "f1": 0.0989,
+      "intervals_95": {
+        "precision": [
+          1.0,
+          1.0,
+          0
+        ],
+        "recall": [
+          0.0344,
+          0.0726,
+          0
+        ],
+        "f1": [
+          0.0665,
+          0.1355,
+          0
+        ]
+      },
+      "note": "WDC Products test set, never trained on (D-54)"
+    },
+    {
+      "dataset": "wdc_products 20cc80rnd000un",
+      "method": "fuzzy token_set_ratio",
+      "threshold": 0.78,
+      "pairs": 4500,
+      "true_matches": 500,
+      "tp": 241,
+      "fp": 399,
+      "fn": 259,
+      "tn": 3601,
+      "precision": 0.3766,
+      "recall": 0.482,
+      "f1": 0.4228,
+      "intervals_95": {
+        "precision": [
+          0.338,
+          0.4166,
+          0
+        ],
+        "recall": [
+          0.4364,
+          0.5251,
+          0
+        ],
+        "f1": [
+          0.3837,
+          0.4589,
+          0
+        ]
+      },
+      "note": "WDC Products test set, never trained on (D-54)"
+    }
+  ],
+  "seconds": 179.9
+}
