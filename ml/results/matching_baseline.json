@@ -460,6 +460,288 @@
         "dev: 656 left records x 3226 right = 2,116,256 pairs",
         "test: 707 left records x 3226 right = 2,280,782 pairs"
       ]
+    },
+    {
+      "dataset": "own_pairs",
+      "subset": "family split, threshold chosen on dev",
+      "text": "title",
+      "split_rule": "by product family: a family's side is the first byte of sha256(family), even = dev, odd = test (pairsets.family_side); a pair whose two families fall on different sides is left out; the dev side picks the scorer and threshold, and the test side is scored once",
+      "dev_source": "the dev side of our own pairs",
+      "synthetic": false,
+      "scorer": "token_set_ratio",
+      "threshold": 1.0,
+      "dev_f1": 0.545455,
+      "test": {
+        "pairs": 57,
+        "true_matches": 7,
+        "tp": 2,
+        "fp": 1,
+        "fn": 5,
+        "tn": 49,
+        "precision": 0.666667,
+        "recall": 0.285714,
+        "f1": 0.4,
+        "hard_negatives": 15,
+        "hard_negatives_called_match": 0,
+        "hard_negative_match_share": 0.0
+      },
+      "seconds": 0.15,
+      "notes": [
+        "machine labels (ml/DATA.md section 4.1)",
+        "the test side is small, so the intervals are wide: read them, not only the point values"
+      ],
+      "labels": "machine labels (ml/DATA.md section 4.1)",
+      "date": "2026-11-11",
+      "commit": "28c4e9d",
+      "gate": {
+        "agree1_four_class_kappa": 0.933,
+        "kappa_needed": 0.8,
+        "labelled_needed": 150
+      },
+      "pairs": {
+        "labelled": 275,
+        "usable": 226,
+        "dropped": {
+          "unsure": 49,
+          "labellers disagree": 0,
+          "texts differ": 0
+        },
+        "dev": 124,
+        "test": 57,
+        "left_out_across_the_split": 45,
+        "dev_families": 17,
+        "test_families": 14
+      },
+      "bootstrap": {
+        "resamples": 1000,
+        "seed": 20261111,
+        "interval": "95% percentile"
+      },
+      "intervals_note": "the test side is small, so the intervals are wide: read them, not only the point values",
+      "intervals": {
+        "precision": {
+          "low": 0.0,
+          "high": 1.0,
+          "undefined_resamples": 55
+        },
+        "recall": {
+          "low": 0.0,
+          "high": 0.666667,
+          "undefined_resamples": 0
+        },
+        "f1": {
+          "low": 0.0,
+          "high": 0.727273,
+          "undefined_resamples": 0
+        }
+      },
+      "called_match_rates": {
+        "by_kind": {
+          "same": {
+            "pairs": 7,
+            "called_match": 2,
+            "share": 0.285714
+          },
+          "variant": {
+            "pairs": 15,
+            "called_match": 0,
+            "share": 0.0
+          },
+          "different": {
+            "pairs": 35,
+            "called_match": 1,
+            "share": 0.028571
+          }
+        },
+        "by_stratum": {
+          "hard_different": {
+            "pairs": 1,
+            "different": 1,
+            "different_called_match": 0,
+            "different_called_match_share": 0.0
+          },
+          "mention_vs_title": {
+            "pairs": 10,
+            "different": 7,
+            "different_called_match": 1,
+            "variant": 1,
+            "variant_called_match": 0,
+            "same": 2,
+            "same_called_match": 0,
+            "same_called_match_share": 0.0,
+            "variant_called_match_share": 0.0,
+            "different_called_match_share": 0.142857
+          },
+          "random": {
+            "pairs": 5,
+            "different": 5,
+            "different_called_match": 0,
+            "different_called_match_share": 0.0
+          },
+          "same_family_cross_source": {
+            "pairs": 32,
+            "same": 5,
+            "same_called_match": 2,
+            "variant": 12,
+            "variant_called_match": 0,
+            "different": 15,
+            "different_called_match": 0,
+            "same_called_match_share": 0.4,
+            "variant_called_match_share": 0.0,
+            "different_called_match_share": 0.0
+          },
+          "same_family_same_source": {
+            "pairs": 9,
+            "variant": 2,
+            "variant_called_match": 0,
+            "different": 7,
+            "different_called_match": 0,
+            "variant_called_match_share": 0.0,
+            "different_called_match_share": 0.0
+          }
+        }
+      }
+    },
+    {
+      "dataset": "own_pairs",
+      "subset": "family split, at the WDC 80cc20rnd000un threshold",
+      "text": "title",
+      "split_rule": "by product family: a family's side is the first byte of sha256(family), even = dev, odd = test (pairsets.family_side); a pair whose two families fall on different sides is left out; the dev side picks the scorer and threshold, and the test side is scored once",
+      "dev_source": "WDC Products 80cc20rnd000un validation set (D-56)",
+      "synthetic": false,
+      "scorer": "token_set_ratio",
+      "threshold": 0.79,
+      "dev_f1": 0.321951,
+      "test": {
+        "pairs": 57,
+        "true_matches": 7,
+        "tp": 5,
+        "fp": 19,
+        "fn": 2,
+        "tn": 31,
+        "precision": 0.208333,
+        "recall": 0.714286,
+        "f1": 0.322581,
+        "hard_negatives": 15,
+        "hard_negatives_called_match": 2,
+        "hard_negative_match_share": 0.133333
+      },
+      "seconds": 0.15,
+      "notes": [
+        "machine labels (ml/DATA.md section 4.1)",
+        "the test side is small, so the intervals are wide: read them, not only the point values"
+      ],
+      "labels": "machine labels (ml/DATA.md section 4.1)",
+      "date": "2026-11-11",
+      "commit": "28c4e9d",
+      "gate": {
+        "agree1_four_class_kappa": 0.933,
+        "kappa_needed": 0.8,
+        "labelled_needed": 150
+      },
+      "pairs": {
+        "labelled": 275,
+        "usable": 226,
+        "dropped": {
+          "unsure": 49,
+          "labellers disagree": 0,
+          "texts differ": 0
+        },
+        "dev": 124,
+        "test": 57,
+        "left_out_across_the_split": 45,
+        "dev_families": 17,
+        "test_families": 14
+      },
+      "bootstrap": {
+        "resamples": 1000,
+        "seed": 20261111,
+        "interval": "95% percentile"
+      },
+      "intervals_note": "the test side is small, so the intervals are wide: read them, not only the point values",
+      "intervals": {
+        "precision": {
+          "low": 0.052632,
+          "high": 0.381151,
+          "undefined_resamples": 0
+        },
+        "recall": {
+          "low": 0.333333,
+          "high": 1.0,
+          "undefined_resamples": 0
+        },
+        "f1": {
+          "low": 0.086957,
+          "high": 0.514286,
+          "undefined_resamples": 0
+        }
+      },
+      "called_match_rates": {
+        "by_kind": {
+          "same": {
+            "pairs": 7,
+            "called_match": 5,
+            "share": 0.714286
+          },
+          "variant": {
+            "pairs": 15,
+            "called_match": 2,
+            "share": 0.133333
+          },
+          "different": {
+            "pairs": 35,
+            "called_match": 17,
+            "share": 0.485714
+          }
+        },
+        "by_stratum": {
+          "hard_different": {
+            "pairs": 1,
+            "different": 1,
+            "different_called_match": 1,
+            "different_called_match_share": 1.0
+          },
+          "mention_vs_title": {
+            "pairs": 10,
+            "different": 7,
+            "different_called_match": 6,
+            "variant": 1,
+            "variant_called_match": 0,
+            "same": 2,
+            "same_called_match": 1,
+            "same_called_match_share": 0.5,
+            "variant_called_match_share": 0.0,
+            "different_called_match_share": 0.857143
+          },
+          "random": {
+            "pairs": 5,
+            "different": 5,
+            "different_called_match": 0,
+            "different_called_match_share": 0.0
+          },
+          "same_family_cross_source": {
+            "pairs": 32,
+            "same": 5,
+            "same_called_match": 4,
+            "variant": 12,
+            "variant_called_match": 0,
+            "different": 15,
+            "different_called_match": 8,
+            "same_called_match_share": 0.8,
+            "variant_called_match_share": 0.0,
+            "different_called_match_share": 0.533333
+          },
+          "same_family_same_source": {
+            "pairs": 9,
+            "variant": 2,
+            "variant_called_match": 2,
+            "different": 7,
+            "different_called_match": 2,
+            "variant_called_match_share": 1.0,
+            "different_called_match_share": 0.285714
+          }
+        }
+      }
     }
   ]
 }

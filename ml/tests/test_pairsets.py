@@ -234,3 +234,52 @@ def test_ensure_present_lists_every_missing_file(raw_tree: Path) -> None:
     with pytest.raises(MissingData) as error:
         ensure_present(required_files(raw_tree, "abt_buy"))
     assert [p.name for p in error.value.paths] == ["Abt.csv", "Buy.csv"]
+
+
+# --- the split by product family (ML-1, L2): S3-4 trains and tests on the same one --------------------------------
+
+
+def test_family_side_is_pinned() -> None:
+    """The same family always lands on the same side, on every machine: sha256, as leipzig_split."""
+    from pairsets import family_side
+
+    sides = {family: family_side(family) for family in ("apple-iphone", "vivo-y", "xiaomi-redmi", "syn-family")}
+    assert sides == {family: family_side(family) for family in sides}
+    assert set(sides.values()) <= {"dev", "test"}
+    pinned = ("agaro-regal", "amazfit-gtr", "amazfit-gts", "apple-iphone", "apple-macbook-air")
+    assert [family_side(f) for f in pinned] == ["dev", "dev", "test", "test", "test"]
+
+
+def _families(side: str, count: int) -> list[str]:
+    """SYNTHETIC family names that land on one side."""
+    from pairsets import family_side
+
+    names = (f"syn-family-{i}" for i in range(1000))
+    return [name for name in names if family_side(name) == side][:count]
+
+
+def test_a_family_never_crosses_the_split() -> None:
+    from pairsets import split_by_family
+
+    dev, test = _families("dev", 3), _families("test", 3)
+    items = [(f"syn{i}", {family}) for i, family in enumerate(dev + test)] * 2
+    split = split_by_family(items, lambda item: item[1])
+    assert split.dev_families == frozenset(dev)
+    assert split.test_families == frozenset(test)
+    assert not split.dev_families & split.test_families
+    assert len(split.dev) == len(split.test) == 6
+    assert split.straddling == []
+
+
+def test_a_pair_spanning_both_sides_is_left_out_and_counted() -> None:
+    from pairsets import split_by_family
+
+    (dev,), (test,) = _families("dev", 1), _families("test", 1)
+    items = [("syn-dev", {dev}), ("syn-test", {test}), ("syn-both", {dev, test}), ("syn-dev-twice", {dev, dev})]
+    split = split_by_family(items, lambda item: item[1])
+    assert [name for name, _ in split.dev] == ["syn-dev", "syn-dev-twice"]
+    assert [name for name, _ in split.test] == ["syn-test"]
+    assert [name for name, _ in split.straddling] == ["syn-both"]
+    assert test not in split.dev_families and dev not in split.test_families
+    with pytest.raises(PairSetError, match="no product family"):
+        split_by_family([("syn-none", set())], lambda item: item[1])
