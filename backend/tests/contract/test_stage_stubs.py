@@ -19,7 +19,7 @@ from app.extract import ExtractStage
 from app.intake import IntakeStage
 from app.interview import InterviewStage
 from app.research import ResearchStage
-from app.verify import VerifyStage
+from app.verify import TrustVerifyStage, VerifyStage
 
 WEIGHT_KEYS = [w.key for w in ex.rubric().weights]
 
@@ -43,6 +43,13 @@ CASES: list[tuple[Any, BaseModel, type[BaseModel]]] = [
     (
         VerifyStage(),
         C.VerifyInput(match=ex.match(), claims=ex.claims(), sources=ex.sources(), criterion_keys=WEIGHT_KEYS),
+        C.VerifyResult,
+    ),
+    (
+        TrustVerifyStage(),
+        C.VerifyInput(
+            match=ex.match(), claims=ex.claims(), sources=ex.sources(), criterion_keys=[*WEIGHT_KEYS, "ram_gb"]
+        ),
         C.VerifyResult,
     ),
     (EnrichStage(), C.EnrichInput(targets=[]), C.EnrichResult),

@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-11",
+  "tool": "backend/scripts/eval_trust.py",
+  "commit": "ddb1095 (with changes not committed to the labels or the trust code)",
+  "conflicts_file": "ml/labelling/conflicts.csv",
+  "conflicts": 5,
+  "claims": 15,
+  "methods": {
+    "learned": {
+      "correct": 3,
+      "wrong": 2,
+      "no_answer": 0,
+      "accuracy": 0.6
+    },
+    "tier_order": {
+      "correct": 3,
+      "wrong": 2,
+      "no_answer": 0,
+      "accuracy": 0.6
+    },
+    "majority_vote": {
+      "correct": 0,
+      "wrong": 2,
+      "no_answer": 3,
+      "accuracy": 0.0
+    }
+  },
+  "source_not_a_claim": {
+    "conflicts": 3,
+    "methods": {
+      "learned": {
+        "correct": 1,
+        "wrong": 2,
+        "no_answer": 0,
+        "accuracy": 0.333333
+      },
+      "tier_order": {
+        "correct": 1,
+        "wrong": 2,
+        "no_answer": 0,
+        "accuracy": 0.333333
+      },
+      "majority_vote": {
+        "correct": 0,
+        "wrong": 2,
+        "no_answer": 1,
+        "accuracy": 0.0
+      }
+    },
+    "rule": "only conflicts whose known answer's page is not a claim (ml/DATA.md 9.2): the fairer test"
+  },
+  "scoring_rule": "a number is correct within the conflict's tolerance, text after ignoring case and spacing; no answer is never correct; accuracy = correct / conflicts",
+  "majority_rule": "the value most claims state; an even top vote is no answer (as ml/scripts/trust_baseline.py)",
+  "learned_rounds": 2,
+  "learned_weights": {
+    "amazon.in": 0.5,
+    "amd.com": 0.95,
+    "croma.com": 0.409091,
+    "digit.in": 0.72,
+    "fireboltt.com": 0.95,
+    "flipkart.com": 0.5,
+    "smartprix.com": 0.65
+  },
+  "thresholds": {
+    "unknown_below": 40.0,
+    "dispute_share": 0.3,
+    "prior_strength": 10.0,
+    "max_rounds": 10,
+    "min_weight_change": 0.01,
+    "min_sites_to_learn": 3
+  },
+  "per_conflict": [
+    {
+      "conflict_id": "c001",
+      "category": "earbuds",
+      "criterion": "fast_charge_playback",
+      "known_answer": "150 min",
+      "claims": 4,
+      "answer_source_is_a_claim": false,
+      "learned_answer": "200 min",
+      "tier_order_answer": "200 min",
+      "majority_vote_answer": "200 min",
+      "learned_correct": false,
+      "tier_order_correct": false,
+      "majority_vote_correct": false
+    },
+    {
+      "conflict_id": "c002",
+      "category": "earbuds",
+      "criterion": "total_playtime",
+      "known_answer": "30 h",
+      "claims": 4,
+      "answer_source_is_a_claim": false,
+      "learned_answer": "30 h",
+      "tier_order_answer": "30 h",
+      "majority_vote_answer": null,
+      "learned_correct": true,
+      "tier_order_correct": true,
+      "majority_vote_correct": null
+    },
+    {
+      "conflict_id": "c006",
+      "category": "smartwatch",
+      "criterion": "battery_life_typical",
+      "known_answer": "7 days",
+      "claims": 2,
+      "answer_source_is_a_claim": true,
+      "learned_answer": "7 days",
+      "tier_order_answer": "7 days",
+      "majority_vote_answer": null,
+      "learned_correct": true,
+      "tier_order_correct": true,
+      "majority_vote_correct": null
+    },
+    {
+      "conflict_id": "c007",
+      "category": "air_fryer",
+      "criterion": "capacity",
+      "known_answer": "5.7 L",
+      "claims": 3,
+      "answer_source_is_a_claim": false,
+      "learned_answer": "6 L",
+      "tier_order_answer": "6 L",
+      "majority_vote_answer": "6 L",
+      "learned_correct": false,
+      "tier_order_correct": false,
+      "majority_vote_correct": false
+    },
+    {
+      "conflict_id": "c008",
+      "category": "laptop",
+      "criterion": "cpu_cores",
+      "known_answer": "8 cores",
+      "claims": 2,
+      "answer_source_is_a_claim": true,
+      "learned_answer": "8 cores",
+      "tier_order_answer": "8 cores",
+      "majority_vote_answer": null,
+      "learned_correct": true,
+      "tier_order_correct": true,
+      "majority_vote_correct": null
+    }
+  ]
+}

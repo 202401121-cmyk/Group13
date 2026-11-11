@@ -1,0 +1,98 @@
+# Source trust (US-16, DR-03): the one table of how far each known site is trusted, read by app/verify/trust.py.
+#
+# A site's score is where its trust starts, from 0 to 100, before the learned method adjusts it by how often the site
+# agrees with the other sources. `categories` moves the score for one product category (a phone site is better on
+# phones than on laptops). `tier` is the kind of source, highest first: manufacturer, lab, editorial, community,
+# retailer (the backend's SourceTier). A domain covers its subdomains, and the longest match wins. Reddit and any
+# folder or subdomain named as a forum are always community (app/extract/tiers.py), whatever is written here. YouTube
+# keeps the tier research gives it (editorial) and the youtube default below.
+#
+# Every number marked "team's choice" is a setting, not a fact: change it here and say why in the pull request.
+# This table also holds every domain in config/extract.yaml's tiers, with the same tier (a test checks it).
+
+# Sites we know. Makers' own pages score highest, then labs, then editorial reviews, then community (DR-03), and in
+# every category after its adjustments too (a test checks it). Shops' listings are unchecked, so they score low.
+sites:
+  # Makers (team's choice: 95)
+  acer.com: {score: 95, tier: manufacturer}
+  apple.com: {score: 95, tier: manufacturer}
+  asus.com: {score: 95, tier: manufacturer}
+  bose.com: {score: 95, tier: manufacturer}
+  dell.com: {score: 95, tier: manufacturer}
+  hp.com: {score: 95, tier: manufacturer}
+  lenovo.com: {score: 95, tier: manufacturer}
+  lg.com: {score: 95, tier: manufacturer}
+  mi.com: {score: 95, tier: manufacturer}
+  msi.com: {score: 95, tier: manufacturer}
+  oneplus.in: {score: 95, tier: manufacturer}
+  samsung.com: {score: 95, tier: manufacturer}
+  sony.co.in: {score: 95, tier: manufacturer}
+
+  # Labs that measure (team's choice)
+  notebookcheck.net: {score: 85, tier: lab, categories: {laptop: 5}}
+  rtings.com: {score: 88, tier: lab, categories: {tv: 5, monitor: 5, headphones: 5, laptop: -10}}
+
+  # Editorial review sites, including the Indian ones research reads (config/research.yaml)
+  91mobiles.com: {score: 70, tier: editorial, categories: {phone: 5, laptop: -5}}
+  smartprix.com: {score: 65, tier: editorial, categories: {phone: 5}}
+  digit.in: {score: 72, tier: editorial}
+  gadgets360.com: {score: 72, tier: editorial, categories: {phone: 3}}
+  gsmarena.com: {score: 75, tier: editorial, categories: {phone: 8, tablet: 5, laptop: -20}}
+
+  # Community forums (team's choice: 35 to 50)
+  c.mi.com: {score: 40, tier: community}
+  h30434.www3.hp.com: {score: 40, tier: community}
+  head-fi.org: {score: 50, tier: community}
+  quora.com: {score: 35, tier: community}
+  stackexchange.com: {score: 45, tier: community}
+  zentalk.asus.com: {score: 40, tier: community}
+
+  # Shops: their listings are unchecked (team's choice: 45)
+  amazon.in: {score: 45, tier: retailer}
+  croma.com: {score: 45, tier: retailer}
+  flipkart.com: {score: 45, tier: retailer}
+  reliancedigital.in: {score: 45, tier: retailer}
+  vijaysales.com: {score: 45, tier: retailer}
+
+# Where trust starts for a site not listed above, by the type research gave its source (team's choice). The order
+# follows DR-03: makers, then labs, then editorial, then community, then shops.
+defaults:
+  manufacturer: 95
+  lab: 85
+  review_site: 70
+  web_search: 55
+  youtube: 50
+  reddit: 45
+  retailer: 40
+
+# Affiliate pages (a folder such as /advisor/ or /deals/) sell as much as they review: they start this many points
+# below the site's own score (team's choice).
+affiliate_folders: [advisor, deals, deal, offers, coupons, affiliate]
+affiliate_penalty: 15
+
+# A product's criterion is Unknown when no claim about it comes from a source starting at this score or more (team's
+# choice). It is never scored as zero (DR-09).
+unknown_below: 40
+
+# Disputed: independent sources disagree beyond the tolerance, and the losing side carries at least this share of the
+# weight (team's choice).
+dispute_share: 0.30
+
+# Claims this close to the consensus agree. Scores: points on the 0 to 10 scale. Values: a share of the consensus
+# value, with keys that must match exactly at 0 (team's choice).
+score_tolerance: 2.0
+value_tolerance: 0.05
+value_tolerance_by_key:
+  price_inr: 0.03
+  ram_gb: 0
+  storage_gb: 0
+  cpu_cores: 0
+
+# The learned method (DECIDED 4): each site's starting score is a Beta prior worth this many claims, and it learns for
+# at most max_rounds rounds, or until no weight moves by min_weight_change (team's choice).
+prior_strength: 10
+max_rounds: 10
+min_weight_change: 0.01
+# A product's criterion teaches the method who is reliable only when at least this many independent sources speak to
+# it: with two, the heavier one is the consensus by definition, so their disagreement says nothing (team's choice).
+min_sites_to_learn: 3
