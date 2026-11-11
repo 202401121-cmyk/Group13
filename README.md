@@ -39,8 +39,8 @@ time limit and a fallback, so one failure never stops the search.
 | 1 | intake | Reads the product type, use, budget, region, must-haves and exclusions | Keyword rules for product type, budget and region | 5 s | Built (US-02) |
 | 2 | criteria | Picks 7 to 10 criteria for that product and use, each with a one-line definition | A fixed set for the category or its product family | 10 s | Built (US-03) |
 | 3 | interview | Asks one question at a time and turns the answers into weighted priorities | Finishes with each criterion's default weight | 5 s per turn | Built (US-05) |
-| 4 | research | Searches Reddit, YouTube, review sites and the web in parallel | One query and no sources | 40 s | Placeholder; the Reddit source is built (US-12) |
-| 5 | extract | Pulls product mentions and claims, each with its exact quote | Nothing taken from that source | 15 s per source | Placeholder (US-14) |
+| 4 | research | Searches Reddit, YouTube, review sites and the web in parallel | One query and no sources | 40 s | Built for Reddit, web search and review sites (US-12, US-27, US-13, US-28); YouTube is planned |
+| 5 | extract | Pulls product mentions and claims, each with its exact quote | Nothing taken from that source | 15 s per source | Built (US-14) |
 | 6 | match | Groups different names and variants of the same product | Example products | 5 s | Placeholder (US-15) |
 | 7 | verify | Settles one value per product and criterion; marks disputed and unknown values | Example values, sources ranked by tier | 2 s | Placeholder (US-16) |
 | 8 | enrich | Looks up missing important facts for the top products | Nothing looked up | 20 s | Placeholder (US-41) |
@@ -53,8 +53,8 @@ its state in memory and never needs the database to finish.
 
 ## Sprint 1 status
 
-Checked against `main` on 7 November 2026. "Merged" means the code and its tests are on `main`. The Sprint 1
-verification found 18 failures; the fix pack and its re-check are the last step of the sprint.
+Checked against `main` on 7 November 2026, and the last two rows again on 11 November 2026. "Merged" means the code
+and its tests are on `main`. The Sprint 1 verification (#38) found 18 failures; its fix pack merged as #39 to #46.
 
 | Story or task | Owner | Status | Pull requests | Docs |
 |---|---|---|---|---|
@@ -69,11 +69,51 @@ verification found 18 failures; the fix pack and its re-check are the last step 
 | ML workspace, public datasets and the matching baseline | Om Pandya, Rushiraj Navar, Palak Patel | Merged | #10, #13, #14, #15 | [ml/README.md](ml/README.md), [ml/MODELS.md](ml/MODELS.md) |
 | API sign-ups, smoke test and terms check | Jenish Kavad | Merged | #28 | [docs/api-setup.md](docs/api-setup.md) |
 | Full-stack set-up: one-command run, doctor, live test | Pal Jalodara | Merged | #28 | [docs/setup.md](docs/setup.md) |
-| Elicitation: survey, interviews, observation, expert interview, write-up | Jhanvi, Om, Rushiraj, Jenish, Harshkumar, Pal | In progress | | [docs/elicitation-kit.md](docs/elicitation-kit.md) |
-| Sprint 1 review check and close-out | Palak Patel, Om Pandya | Review check merged; fix pack and re-check in progress | #33 to #37 | |
+| Elicitation: survey, interviews, observation, expert interview, write-up | Jhanvi, Om, Rushiraj, Jenish, Harshkumar, Pal | Findings merged | #47 | [docs/elicitation-kit.md](docs/elicitation-kit.md), [findings](docs/elicitation/sprint-1-findings.md) |
+| Sprint 1 review check and close-out | Palak Patel, Om Pandya; each fix by its story's owner | Merged | #33 to #46 | [docs/reviews/sprint-1-verification.md](docs/reviews/sprint-1-verification.md) |
 
 Merged ahead of plan (Sprint 2 stories): US-46 LLM routing by data class (#19), and the Reddit source of US-12
 (#20; the rest of US-12 is Sprint 2).
+
+## Sprint 2 status
+
+Checked against `main` on 11 November 2026, at `0c22d59`. "Merged" means the code and its tests are on `main`.
+"Close-out" marks the three branches that end the sprint, merged in this order: Groq as the last resort for public
+pages (`fix/US-46-public-last-resort`), the re-check (`chore/sprint-2-recheck`), then this section
+(`docs/sprint-2-close`). The review check and its re-check (section 9) are in
+[docs/reviews/sprint-2-check.md](docs/reviews/sprint-2-check.md), and the review demo's run sheet is
+[docs/reviews/sprint-2-demo.md](docs/reviews/sprint-2-demo.md).
+
+| Story or task | Owner | Status | Pull requests | Docs |
+|---|---|---|---|---|
+| Repository tidy: local developer settings kept out of the repository | Om Pandya | Merged | #50 | |
+| Sprint 2 contracts: research, rough answers and search runs | Pal Jalodara | Merged | #51 | [shared/contracts/](shared/contracts/) |
+| US-46 Circuit breaker and provider rotation | Jhanvi Barot | Merged; Groq as the last resort for public pages: close-out | #52, #75; `fix/US-46-public-last-resort` | [docs/api-setup.md](docs/api-setup.md) |
+| Connect to LLM providers over IPv4 by default | Jhanvi Barot | Merged | #53 | [docs/api-setup.md](docs/api-setup.md) |
+| US-32 Core logic testable offline | Harshkumar Kodavala | Merged | #54 | |
+| US-08 Understand rough answers like "medium" | Pal Jalodara, Manu Pardhan | Merged | #55, #56, #67 | |
+| US-12 Research several sources in parallel, and US-27 fetch them in parallel | Jenish Kavad | Merged | #57, #60, #61, #66 | |
+| US-12 The research progress screen | Yashkumar Patel | Merged | #69 | [docs/frontend-api.md](docs/frontend-api.md#search-runs-with-live-progress-us-12) |
+| US-12 Reddit text kept out of saved results | Vaishvi Mehta | Merged | #70 | |
+| US-28 Treat retrieved content as untrusted | Pal Jalodara | Merged | #62 | |
+| US-14 Extract claims with exact quotes | Jhanvi Barot | Merged | #63, #65 | |
+| US-13 Score Reddit quality and count recommenders exactly | Vaishvi Mehta | Merged | #64, #68 | |
+| US-48 Golden tests for broken LLM output | Palak Patel | Merged | #71 | |
+| ML-1 Labelling tools, our own listings, and machine labels | Om Pandya | Merged | #58, #72, #73 | [ml/DATA.md](ml/DATA.md) |
+| US-16 Source trust: the evaluation runner and seeded conflicts (task #30) | Rushiraj Navar | Merged, with 5 conflicts entered (15 were planned for Sprint 2); the rest move to Sprint 3 | #59 | [ml/DATA.md](ml/DATA.md) |
+| Sprint 2 review check, Fix Pack and re-check | Palak Patel, with Jhanvi Barot and Manu Pardhan for the fixes | Check and Fix Pack merged; re-check: close-out | #74, #75, #76, #77; `chore/sprint-2-recheck` | [docs/reviews/sprint-2-check.md](docs/reviews/sprint-2-check.md) |
+| Sprint 2 review run sheet and this status | Yashkumar Patel | Close-out | `docs/sprint-2-close` | [docs/reviews/sprint-2-demo.md](docs/reviews/sprint-2-demo.md) |
+
+Moved to Sprint 3 by D-61: the matcher's training data and notebook v0 (task #29), the evaluation on our own pairs
+(L2), our own pairs' labelling (L1's runbook), task #30's conflicts past the 5 entered, and testing filtering and
+ranking offline (US-32), which waits for US-17 and US-18.
+
+The review check's verdict, from its re-check: "Sprint 2 verified (accepted by the Product Owner, 10 Nov: F-1, F-2, F-7
+to F-10)". It rests on Groq as the last resort for public pages, the first branch of the close-out. The accepted
+findings: the fast suite takes 64 s on Python 3.11 against its 60 s limit (F-1); CI does not block a merge, as `main` is
+not protected (F-2); the pull requests were opened from Om's account (F-7, settled by D-05 as amended on 10 Nov); and
+pull request #50's description, two Sprint 1 branch names and seven commit messages from before Sprint 2 name an AI tool
+(F-8 to F-10; `main`'s history is not rewritten).
 
 ## Quick start
 
@@ -150,6 +190,7 @@ Tests never call a live API.
 ruff check . && ruff format --check .
 mypy app
 pytest -q -m "not live" --cov          # coverage must stay at 70% or more
+python -m scripts.check_coverage       # then 70% on each core module and 80% on app/decide/ (US-32)
 python -m scripts.export_contracts && git diff --exit-code -- ../shared/contracts
 
 # frontend (from frontend/)
@@ -163,7 +204,7 @@ pip install -e "backend[dev]" -r ml/requirements.txt && python -m pytest ml/test
 
 | CI job | Runs on | Checks |
 |---|---|---|
-| `backend` | Ubuntu, Python 3.11, with a throwaway Postgres 17 | ruff lint and format, strict mypy, tests (including the database tests) with coverage, contracts up to date |
+| `backend` | Ubuntu, Python 3.11, with a throwaway Postgres 17 | ruff lint and format, strict mypy, tests (including the database tests) with coverage, the coverage gates per module, contracts up to date |
 | `backend-windows` | Windows, Python 3.13 | tests, contracts up to date |
 | `ml` | Ubuntu, Python 3.11 | lint, strict mypy, tests, the labelling and kappa scripts, no raw data or model files tracked |
 | `secrets` | Ubuntu | TruffleHog scan of the whole history for leaked keys |
@@ -181,14 +222,14 @@ The badge at the top shows whether `main` is green. Calls to real services are s
 | `backend/tests/contract/` | Every contract rule, and each stage's input and output |
 | `backend/tests/golden/` | Malformed LLM replies end in valid output or a clean fallback, never a crash |
 | `backend/tests/faults/` | Forcing a stage to fail triggers its fallback |
-| `backend/tests/integration/` | The requests table on a real Postgres (marker `db`) |
+| `backend/tests/integration/` | The requests and searches tables on a real Postgres (marker `db`) |
 | `backend/tests/live/` | Real services, only with `RUN_LIVE_TESTS=1` |
 | `frontend/src/test/` | The API client, adapters, routing, screens and the colour contrast of the design tokens |
 | `frontend/e2e/` | The whole flow in a browser, with an accessibility check (and, on purpose only, the live flow) |
 | `ml/tests/` | The labelling checks, kappa, the matching metrics and baseline, and the pair-set loaders |
 
-Any new LLM parser needs golden tests, and any new fallback needs a fault test. The team rule asks for 80% coverage
-on `backend/app/decide/` once it is built.
+Any new LLM parser needs golden tests, and any new fallback needs a fault test. CI's coverage gates ask for 70% on
+each core module and 80% on `backend/app/decide/` (`python -m scripts.check_coverage`, US-32).
 
 ## Layout
 
