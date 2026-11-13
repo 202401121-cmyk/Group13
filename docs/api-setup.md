@@ -30,6 +30,7 @@ its terms, then update this page.
 | [Reddit](#reddits-own-api) | Community evidence | archives: none; own API: `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT` | Own API: **not OK** (closed to us); archives in use | skipped (no keys) |
 | [YouTube](#youtube) | Video titles, descriptions, comments | `YOUTUBE_API_KEY` | OK with limits (no transcripts) | ok |
 | [Jina Reader](#jina-reader) | Reads public web pages as text | `JINA_API_KEY` (optional) | OK with limits | ok |
+| [Firecrawl](#firecrawl) | Reads the pages Jina can't, and backs up Serper (US-38) | `FIRECRAWL_API_KEY` (optional) | OK with limits (D-62) | `smoke_sources --readers` |
 | [Hugging Face](#hugging-face) | Downloads public models (ML track) | `HF_TOKEN` (optional) | OK as planned | skipped (no token) |
 | Supabase | The database (optional) | `DATABASE_URL`, `DB_TIMEOUT_SECONDS` | see [database.md](database.md) | checked by `GET /api/health` |
 | Google Colab | GPU notebooks (ML track) | none | not checked | not part of the smoke test |
@@ -392,7 +393,10 @@ actually saw. Quotes are copied from the provider's page.
 
 ### Jina Reader
 
-- **Used for:** reading public web pages, such as review sites, as clean text.
+- **Used for:** the second step of the page reader chain (US-38): a review, maker or store page whose plain fetch
+  fails (an error, a refusal, not HTML) or leaves under 500 characters after cleaning, which most likely means it
+  needs JavaScript. Then Firecrawl, if Jina fails or is thin too. robots.txt is asked first, exactly as for a plain
+  fetch. At most 10 pages a search (`caps.jina` in research.yaml). The source says `via: jina`.
 - **Sign up:** [jina.ai/reader](https://jina.ai/reader); a key is optional. **Env:** `JINA_API_KEY`.
 - **Free limits** ([Reader page](https://jina.ai/reader), 3 Nov 2026): 20 requests a minute without a key and 500
   with a free key (the same page's FAQ says 100, so plan for 100); "Every new API key comes with 10M free tokens!"
@@ -402,7 +406,33 @@ actually saw. Quotes are copied from the provider's page.
   for training (section 10.4). The same URL is cached for 5 minutes.
 - **Verdict: OK with these limits:** public pages only. Never send reddit.com or youtube.com pages through it: that
   would be scraping under their rules.
-- **If it fails:** the page is skipped and `coverage_note` says so; search snippets still give titles and links.
+- **If it fails:** Firecrawl is tried. If that fails too, the page is skipped and the coverage note names the readers;
+  search snippets still give titles and links.
+
+### Firecrawl
+
+- **Used for** (US-38, D-62): the last step of the page reader chain, for a page Jina can't read either; a Reddit
+  thread that search found but the archive didn't return (only with `REDDIT_SOURCE` on); and Serper's backup, when
+  Serper errors, is capped for the day or has no credits. Its search answers become `web_search` snippets. Pages
+  say `via: firecrawl`.
+- **Requests** (API v2, [docs](https://docs.firecrawl.dev/api-reference/endpoint/scrape), read 13 Nov 2026), with a
+  Bearer key: `POST /v2/scrape` with formats markdown, onlyMainContent true, maxAge 86,400,000 ms (a copy up to a day
+  old), location country IN and a 10,000 ms timeout; `POST /v2/search` with country IN and 10 results.
+- **Free plan** (D-62, read 11 Nov 2026): 1,000 credits a month, 2 requests at once, 10 a minute on /scrape and
+  /search. A scrape is 1 credit; a search 2 credits per 10 results.
+- **Our caps** (team's choice, `caps:` in research.yaml): 4 pages a search (`firecrawl_pages`), and 30 credits a day
+  (`firecrawl`), which also covers the search backup. Paced at 2 at a time and 10 a minute for the whole app; a full
+  minute is not waited for, the page is skipped. Every page and search is kept 24 hours, so a repeat costs nothing.
+- **Never sent:** YouTube, social sites, a logged-in page (login, account, cart, checkout, or HTTP 401), or a page
+  robots.txt disallows.
+- **Reddit (D-53):** a thread read through Firecrawl is Reddit data: extracted only by Groq, with every username and
+  profile link removed from its text, kept at most 24 hours, and sent with `storeInCache: false` so Firecrawl keeps no
+  copy. The archive's copy is always preferred.
+- **If it fails:** HTTP 401 or 402 switches it off for the rest of the run, and 429 cools it for a minute. The page is
+  skipped and the coverage note names Firecrawl. Without `FIRECRAWL_API_KEY` it is simply not used.
+- **Smoke test:** `python -m scripts.smoke_sources --readers` reads example.com through Jina and through Firecrawl
+  (1 credit), printing statuses and lengths only.
+- **Verdict: OK with these limits:** public pages, plus Reddit threads as above.
 
 ### Hugging Face
 
@@ -665,8 +695,10 @@ RTINGS. Each page is read with our User-Agent, and only if its `robots.txt` allo
 parser (`app/research/robots.py`), because Python's misses wildcards and takes the first matching rule, not the longest. A
 missing file allows. An unreachable one (5xx, 429, no reply, or a redirect off these sites) says no until the next search
 asks again, and 401 or 403 says no. HTML only, at most 1.5 MB, 10 s for each read, a body cut off once it has taken 15 s
-(checked as data arrives, so a stall can add one more read's 10 s), and redirects only within these sites. A page with under 500 characters of text probably needs JavaScript, and is skipped until US-38; if
-Serper found it, its snippet stays as a `web_search` source. One page linked two ways (a trailing slash, or a redirect) is
+(checked as data arrives, so a stall can add one more read's 10 s), and redirects only within these sites. A page with under 500 characters of text probably needs JavaScript, so it goes to the page readers
+([Jina Reader](#jina-reader), then [Firecrawl](#firecrawl), US-38); if both fail and Serper found it, its snippet
+stays as a `web_search` source. Makers' own pages (tier 1) and store pages (tier 5) found by search are read the
+same way, at most 3 of each a search (`maker_domains`, `retailer_domains` in research.yaml). One page linked two ways (a trailing slash, or a redirect) is
 one source.
 
 **What their `robots.txt` said** (8 Nov 2026, the first live run): 91mobiles, Smartprix, Digit and RTINGS allow us, and

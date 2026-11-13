@@ -44,13 +44,14 @@ from .cache import ResearchCache, sweep_expired_files
 from .capping import cap_source
 from .client import ClientUnavailable, build_research_client
 from .fetching import FetchRun, shared_pool
-from .pages import PageResult, ReviewPages
+from .pages import PageReaders, PageResult, ReviewPages, page_kind, thread_id
 from .queries import SearchQuery, build_queries, comparison_query, first_round, held_query, reddit_query
+from .readers import FirecrawlClient, JinaReader, SearchWithBackup
 from .reddit.base import FailureReason, RedditSource
 from .reddit.factory import build_reddit_source
 from .reddit.quality import ThreadScore
 from .reddit.settings import load_reddit_settings
-from .serper import SerperResult, SerperSource, host_is_under, host_of, shared_limiter, url_key
+from .serper import SerperResult, SerperSource, shared_limiter, url_key
 from .settings import ResearchSettings, load_research_settings
 from .threads import CountingBudget, ThreadProgress, find_threads, read_comments
 from .usage import SearchUsage, UsageBook
@@ -94,6 +95,10 @@ class SerperLike(Protocol):
 
 class PagesLike(Protocol):
     def fetch(self, url: str, usage: SearchUsage) -> PageResult: ...
+
+
+class RedditPagesLike(Protocol):
+    def read_reddit(self, url: str, usage: SearchUsage) -> PageResult: ...
 
 
 class _Unset:
@@ -182,14 +187,18 @@ class LiveResearchStage:
         wiring.client = client
         if client is not None:
             cache = ResearchCache(enabled=settings.cache_on)
+            load_dotenv()
+            # The page readers (US-38). Jina works without a key; Firecrawl needs one, and without it is simply absent.
+            jina_key = os.environ.get("JINA_API_KEY", "").strip() or None
+            firecrawl_key = os.environ.get("FIRECRAWL_API_KEY", "").strip() or None
+            firecrawl = FirecrawlClient(client, firecrawl_key, cache=cache) if firecrawl_key else None
             if self.serper is None:
-                load_dotenv()
                 key = os.environ.get("SERPER_API_KEY", "").strip() or None
-                wiring.serper = SerperSource(
-                    client, key, cache=cache, limiter=shared_limiter(settings.serper_interval_s)
-                )
+                serper = SerperSource(client, key, cache=cache, limiter=shared_limiter(settings.serper_interval_s))
+                wiring.serper = SearchWithBackup(serper, firecrawl) if firecrawl is not None else serper
             if self.pages is None:
-                wiring.pages = ReviewPages(client, settings, cache=cache)
+                readers = PageReaders(jina=JinaReader(client, jina_key), firecrawl=firecrawl)
+                wiring.pages = ReviewPages(client, settings, cache=cache, readers=readers)
         if isinstance(self.reddit, _Unset):
             try:
                 wiring.reddit = build_reddit_source(load_reddit_settings(), http=client)
@@ -255,6 +264,11 @@ class _Job:
         self.landed_on: dict[str, str] = {}  # url_key of a link read -> url_key of where it redirected
         self.reddit_titles: list[str] = []
         self.pages_queued: dict[str, int] = {}  # domain -> pages queued
+        self.kinds_queued: dict[str, int] = {}  # "maker" or "store" -> pages queued (US-38)
+        self.reddit_links: list[str] = []  # thread links from search, for one the archive lacks (US-38)
+        self.reddit_pages: dict[str, tuple[int, int, Source]] = {}  # threads read through Firecrawl
+        self.reader_failures: list[SourceFailure] = []  # readers that failed or were capped, named in the note
+        self.reddit_tried: set[str] = set()  # kept apart from links_tried: they never use the review pages' share
         self.first_round_left = 0
         self.reddit_listing_done = False
         self.slot_wait_over = False
@@ -393,6 +407,8 @@ class _Job:
         if found.failure is not None:
             self._problem(WEB, found.failure.reason)
         self.reddit_titles += found.reddit_titles
+        self.reader_failures += found.also_failed
+        self.reddit_links += [link for link in found.reddit_links if link not in self.reddit_links]
         for rank, source in enumerate(found.sources):
             url = str(source.url)
             key = url_key(url)
@@ -413,18 +429,25 @@ class _Job:
         ranked = sorted(self.web.items(), key=lambda pair: (pair[1][0], pair[1][1], pair[0]))
         for _, (_, _, source) in ranked:
             self._queue_page(str(source.url))
+        self._queue_reddit_pages()
 
     def _queue_page(self, url: str) -> None:
         pages = self.wiring.pages
-        domain = self._review_domain(url)
+        found = page_kind(url, self.settings)
         key = url_key(url)
-        if pages is None or domain is None or key in self.links_tried or not self.settings.pages_on:
+        if pages is None or found is None or key in self.links_tried or not self.settings.pages_on:
             return
+        domain, kind = found
         if len(self.links_tried) >= self.settings.max_review_pages:
             return
         if self.pages_queued.get(domain, 0) >= self.settings.max_pages_per_domain:
             return
+        kind_cap = {"maker": self.settings.max_maker_pages, "store": self.settings.max_store_pages}.get(kind)
+        if kind_cap is not None and self.kinds_queued.get(kind, 0) >= kind_cap:
+            return
         self.pages_queued[domain] = self.pages_queued.get(domain, 0) + 1
+        if kind_cap is not None:
+            self.kinds_queued[kind] = self.kinds_queued.get(kind, 0) + 1
         self.links_tried.add(key)
 
         def done(found: PageResult) -> None:
@@ -437,13 +460,39 @@ class _Job:
 
         self.fetches.submit(REVIEW.value, lambda: pages.fetch(url, self.usage), done, failed)
 
-    def _review_domain(self, url: str) -> str | None:
-        host = host_of(url)
-        if host is None:
-            return None
-        return next((d for d in self.settings.review_domains if host_is_under(host, d)), None)
+    def _queue_reddit_pages(self) -> None:
+        """A thread search found but the archive didn't return, read through Firecrawl (US-38). Only with a Reddit
+        source on, and only once its listing is in: REDDIT_SOURCE=off keeps Reddit off, and the archive's copy wins."""
+        pages = self.wiring.pages
+        reader = getattr(pages, "read_reddit", None)
+        if self.wiring.reddit is None or reader is None or not self.reddit_listing_done or not self.settings.pages_on:
+            return
+        archived = {thread_id(str(source.url)) for source in self.threads.snapshot()}
+        room = self.usage.per_search("firecrawl_pages")  # no more jobs than Firecrawl could ever read in a search
+        for rank, link in enumerate(self.reddit_links):
+            key = url_key(link)
+            tid = thread_id(link)
+            if len(self.reddit_tried) >= room:
+                return
+            if tid is None or tid in archived or key in self.reddit_tried:
+                continue
+            self.reddit_tried.add(key)
+            self._read_reddit_page(reader, link, rank)
+
+    def _read_reddit_page(self, reader: Callable[[str, SearchUsage], PageResult], link: str, rank: int) -> None:
+        def done(found: PageResult) -> None:
+            self.timing.mark(REDDIT)
+            if found.source is not None:
+                self.reddit_pages[url_key(link)] = (len(self.queries), rank, found.source)
+            self.reader_failures += found.lost_to
+
+        def failed(_: Exception) -> None:
+            self.timing.mark(REDDIT)
+
+        self.fetches.submit(REDDIT.value, lambda: reader(link, self.usage), done, failed)
 
     def _read_page(self, url: str, found: PageResult) -> None:
+        self.reader_failures += found.lost_to
         if found.source is None:
             self.page_failures.append(found.reason or "error")
             return
@@ -480,10 +529,14 @@ class _Job:
             WEB: self.problems.get(WEB, []),
             REVIEW: self._review_problems(),
         }
+        named = {(f.detail.split(":")[0], f.reason): f for f in self.reader_failures}  # one line per reader and reason
         return [
-            SourceFailure(source_type=kind, reason=reason)
-            for kind in LIVE_TYPES
-            for reason in dict.fromkeys(found[kind])
+            *(
+                SourceFailure(source_type=kind, reason=reason)
+                for kind in LIVE_TYPES
+                for reason in dict.fromkeys(found[kind])
+            ),
+            *named.values(),
         ]
 
     def _ordered(self, found: dict[str, tuple[int, int, Source]], limit: int) -> list[Source]:
@@ -492,7 +545,8 @@ class _Job:
         return [source for _, (_, _, source) in ranked[:limit]]
 
     def _result(self) -> ResearchResult:
-        threads = self.threads.snapshot()[: self.settings.max_reddit_threads]
+        read_through = self._ordered(self.reddit_pages, self.settings.max_reddit_threads)
+        threads = [*self.threads.snapshot(), *read_through][: self.settings.max_reddit_threads]
         sources = (
             threads
             + self._ordered(self.web, self.settings.max_web_results)

@@ -73,6 +73,7 @@ from app.explain import ExplainStage
 from app.extract import default_extract_stage
 from app.llm.errors import AuthFailed, InvalidOutput, ProviderTimeout, RateLimited, ServerError
 from app.research import default_research_stage
+from app.research.readers import FIRECRAWL, JINA
 from app.research.reddit.recommenders import count_recommenders
 from app.research.retention import without_reddit_text
 from app.verify import VerifyStage
@@ -194,6 +195,8 @@ _SEVERITY = {
 }
 
 OLDER_ARCHIVE_NOTE = "Reddit results came from an older archive (to May 2025)."
+# A page reader that failed or was capped is named in the note (US-38): its name starts the failure's detail.
+READER_NAMES = (JINA, FIRECRAWL)
 SOURCE_LABELS = {
     SourceType.REDDIT: "Reddit",
     SourceType.YOUTUBE: "YouTube",
@@ -871,7 +874,11 @@ def build_coverage_note(
         elif r.status is StageStatus.SKIPPED:
             skipped.setdefault(reason, []).append(r.stage.value)
     for f in failures:
-        parts.append(f"{SOURCE_LABELS[f.source_type]} {FAILURE_WORDS[f.reason]}.")
+        reader = next((name for name in READER_NAMES if f.detail.startswith(f"{name}:")), None)
+        if reader is not None:
+            parts.append(f"{reader} {FAILURE_WORDS[f.reason]}, so some hard-to-read pages may be missing.")
+        else:
+            parts.append(f"{SOURCE_LABELS[f.source_type]} {FAILURE_WORDS[f.reason]}.")
     if older_archive:
         parts.append(OLDER_ARCHIVE_NOTE)
     for reason, stages in skipped.items():

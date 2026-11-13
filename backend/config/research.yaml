@@ -12,7 +12,8 @@ max_pages_per_domain: 3
 reddit_comment_threads: 8 # comments are read for this many threads, best score first: what extraction reads in a minute
 max_source_tokens: 3000 # the most one source may hold, counted the way the LLM wrapper counts tokens
 
-# A page with less readable text than this probably needs JavaScript, so it is skipped until US-38 adds the page reader.
+# A page with less readable text than this probably needs JavaScript, so it goes to the page readers (US-38): Jina
+# Reader, then Firecrawl. A reader's text is held to the same threshold.
 min_page_chars: 500
 max_page_bytes: 1500000
 
@@ -34,6 +35,44 @@ caps:
   pages: # robots.txt requests and redirects count too: 12 pages, 7 robots files and a few hops
     per_search: 24
     per_day: 200
+  # The page readers (US-38, team's choice, 13 Nov 2026). Jina Reader: pages a plain fetch can't read.
+  jina:
+    per_search: 10
+    per_day: 200
+  # Firecrawl (D-62): the pages Jina can't read either, and Reddit threads the archive lacks.
+  firecrawl_pages:
+    per_search: 4
+    per_day: 30
+  # Firecrawl credits, for pages (1 each) and Serper's backup (2 a query). Its free plan has 1,000 a month.
+  firecrawl:
+    per_search: 30
+    per_day: 30
+
+# Maker pages (tier 1) and store pages (tier 5), found by search and read like review pages, at most 3 of each a
+# search (US-38). They obey robots.txt, and a logged-in page (login, account, cart, checkout) is never read.
+max_maker_pages: 3
+max_store_pages: 3
+maker_domains:
+  acer: [acer.com]
+  apple: [apple.com]
+  asus: [asus.com]
+  dell: [dell.com]
+  hp: [hp.com]
+  lenovo: [lenovo.com]
+  lg: [lg.com]
+  msi: [msi.com]
+  oneplus: [oneplus.in]
+  realme: [realme.com]
+  samsung: [samsung.com]
+  sony: [sony.co.in]
+  xiaomi: [mi.com]
+  bose: [bose.com]
+retailer_domains:
+  - amazon.in
+  - flipkart.com
+  - croma.com
+  - reliancedigital.in
+  - vijaysales.com
 
 # Review sites read directly: found through Serper, with our User-Agent, obeying robots.txt. Their terms still need a
 # person's check (docs/api-setup.md). Never list reddit.com or youtube.com: the fetcher refuses them anyway.
