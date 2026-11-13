@@ -10,6 +10,8 @@ from __future__ import annotations
 import json
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -18,7 +20,7 @@ import pytest
 from app.contracts import DataClass, ResearchInput, Source, SourceFailure, SourceTier, SourceType, StageContext
 from app.contracts.research import ResearchResult
 from app.pipeline import build_coverage_note
-from app.research.cache import ResearchCache
+from app.research.cache import ResearchCache, sweep_expired_files
 from app.research.pages import PageReaders, PageResult, ReviewPages
 from app.research.readers import (
     FIRECRAWL_SCRAPE_URL,
@@ -29,6 +31,7 @@ from app.research.readers import (
     JinaReader,
     SearchWithBackup,
 )
+from app.research.reddit.cache import serve_limit
 from app.research.serper import SerperResult
 from app.research.settings import ProviderCap, ResearchSettings
 from app.research.stage import LiveResearchStage
@@ -632,3 +635,64 @@ def test_reader_text_goes_through_the_same_extraction_and_quote_rules() -> None:
         StageContext(search_id="srch_jina"),
     )
     assert [c.quote for c in out.claims] == [quote]  # the made-up quote is dropped, as for every source
+
+
+# --- how long Reddit text is kept (D-53) -----------------------------------------------------------------------------
+
+
+class _Now:
+    """A clock the cache reads, moved by the test."""
+
+    def __init__(self) -> None:
+        self.at = NOW
+
+    def __call__(self) -> datetime:
+        return self.at
+
+
+def _reddit_markdown() -> httpx.Response:
+    return _scrape(markdown=f"Nova Book 14 for video editing?\n\n{WORDS}", title="Nova Book 14 for video editing?")
+
+
+def test_a_cached_firecrawl_reddit_page_is_served_until_just_before_serve_limit(tmp_path: Path) -> None:
+    clock = _Now()
+    cache = ResearchCache(folder=tmp_path, now=clock)
+    web = Web().on(FIRECRAWL_SCRAPE_URL, _reddit_markdown())
+    pages = _pages(web, cache=cache)
+    assert pages.read_reddit(THREAD, _usage()).source is not None
+    limit = serve_limit()
+    assert limit < timedelta(hours=24)
+    clock.at = NOW + limit - timedelta(seconds=1)
+    assert pages.read_reddit(THREAD, _usage()).from_cache
+    assert len(_scrapes(web)) == 1
+    for late in (limit, limit + timedelta(minutes=5)):
+        clock.at = NOW + late
+        assert not pages.read_reddit(THREAD, _usage()).from_cache  # read again, never served from the cache
+    assert len(_scrapes(web)) == 3
+
+
+def test_the_sweep_deletes_a_firecrawl_reddit_page_at_serve_limit(tmp_path: Path) -> None:
+    web = Web().on(FIRECRAWL_SCRAPE_URL, _reddit_markdown())
+    _pages(web, cache=ResearchCache(folder=tmp_path, now=lambda: NOW)).read_reddit(THREAD, _usage())
+    saved = list((tmp_path / "reddit_pages").glob("*.json"))
+    assert len(saved) == 1 and not list((tmp_path / "sources").glob("*.json"))
+    reddit_dir = tmp_path / "reddit"
+    sweep_expired_files(
+        folder=tmp_path, reddit_folder=reddit_dir, now=lambda: NOW + serve_limit() - timedelta(seconds=1)
+    )
+    assert saved[0].exists()
+    sweep_expired_files(folder=tmp_path, reddit_folder=reddit_dir, now=lambda: NOW + serve_limit())
+    assert not saved[0].exists()
+
+
+def test_a_review_page_is_still_served_until_24_hours(tmp_path: Path) -> None:
+    clock = _Now()
+    cache = ResearchCache(folder=tmp_path, now=clock)
+    web = Web().on(PAGE, html_page())
+    assert _pages(web, cache=cache).fetch(PAGE, _usage()).source is not None
+    clock.at = NOW + max(serve_limit(), timedelta(hours=24) - timedelta(seconds=1))
+    assert _pages(web, cache=cache).fetch(PAGE, _usage()).from_cache  # past Reddit's limit, still a review page's
+    clock.at = NOW + timedelta(hours=24)
+    assert not _pages(web, cache=cache).fetch(PAGE, _usage()).from_cache
+    sweep_expired_files(folder=tmp_path, reddit_folder=tmp_path / "reddit", now=lambda: NOW + serve_limit())
+    assert list((tmp_path / "sources").glob("*.json"))  # the sweep keeps it past Reddit's limit

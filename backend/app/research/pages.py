@@ -214,15 +214,15 @@ class ReviewPages:
     def read_reddit(self, url: str, usage: SearchUsage) -> PageResult:
         """A Reddit thread the archive lacks, through Firecrawl only (US-38): robots.txt first, Reddit data after.
 
-        Firecrawl keeps no copy (storeInCache false); we keep it 24 hours, as every Reddit read. Usernames are removed
-        from the text, so nothing names a person (D-53). The archive's copy is always preferred: the stage asks this
-        only for a thread the archive didn't return.
+        Firecrawl keeps no copy (storeInCache false); we keep it until serve_limit(), as every Reddit read. Usernames
+        are removed from the text, so nothing names a person (D-53). The archive's copy is always preferred: the stage
+        asks this only for a thread the archive didn't return.
         """
         thread = _THREAD.match(url)
         firecrawl = self.readers.firecrawl
         if thread is None or firecrawl is None:
             return PageResult(reason="not_found")
-        cached = self.cache.get_sources(("reddit_page", url))
+        cached = self.cache.get_reddit_pages(("reddit_page", url))
         if cached:
             return PageResult(source=cached[0], from_cache=True)
         problem = self._may_fetch(url, "reddit.com", usage, _reddit_site)
@@ -250,7 +250,7 @@ class ReviewPages:
             )
         except (ValidationError, ValueError):
             return PageResult(reason="error")
-        self.cache.put_sources(("reddit_page", url), [source])
+        self.cache.put_reddit_pages(("reddit_page", url), [source])
         return PageResult(source=source)
 
     def _read_through(self, url: str, domain: str, kind: Kind, usage: SearchUsage, *, plain: PageResult) -> PageResult:

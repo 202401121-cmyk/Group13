@@ -1,9 +1,11 @@
 """24-hour cache of search results, pages and robots files (US-12, P-12), in memory and in backend/.cache/research/.
 
-Sources go through RedditCache's code, which does the same job. A little text (robots files, and titles of results that
-point at Reddit) is kept the same way. Only complete answers are cached, never a failure, and a failed write never stops
-a search (build rule 10). What is cached is what we chose to keep: a search result pointing at Reddit keeps its title
-only, and its snippet never gets this far (D-53).
+Sources go through RedditCache's code, which does the same job. A Reddit thread read through Firecrawl (US-38) is kept
+apart, in reddit_pages, and like every Reddit read it is served and kept only until serve_limit(): 24 hours less the
+time a result is kept, so a run holding a result never holds Reddit text past 24 hours (D-53). A little text (robots
+files, and titles of results that point at Reddit) is kept the same way. Only complete answers are cached, never a
+failure, and a failed write never stops a search (build rule 10). What is cached is what we chose to keep: a search
+result pointing at Reddit keeps its title only, and its snippet never gets this far (D-53).
 """
 
 from __future__ import annotations
@@ -25,17 +27,28 @@ log = logging.getLogger(__name__)
 
 DEFAULT_CACHE_DIR = Path(__file__).resolve().parents[2] / ".cache" / "research"
 DEFAULT_TTL = timedelta(hours=24)
+REDDIT_PAGES = "reddit_pages"  # Reddit threads read through Firecrawl: Reddit's own limit, serve_limit()
 
 
 def _utc_now() -> datetime:
     return datetime.now(UTC)
 
 
-def sweep_expired_files() -> None:
-    """Everything past its limit. It needs no client or source, so D-53 holds whatever else is broken."""
-    delete_expired(REDDIT_CACHE_DIR, serve_limit())
-    delete_expired(DEFAULT_CACHE_DIR / "text", DEFAULT_TTL)
-    delete_expired(DEFAULT_CACHE_DIR / "sources", DEFAULT_TTL)
+def sweep_expired_files(
+    folder: Path | None = None,
+    reddit_folder: Path | None = None,
+    now: Callable[[], datetime] = _utc_now,
+) -> None:
+    """Everything past its limit. It needs no client or source, so D-53 holds whatever else is broken.
+
+    The folders are read when it runs (not when this module loads), so the defaults are always the current ones.
+    """
+    folder = folder if folder is not None else DEFAULT_CACHE_DIR
+    reddit_folder = reddit_folder if reddit_folder is not None else REDDIT_CACHE_DIR
+    delete_expired(reddit_folder, serve_limit(), now)
+    delete_expired(folder / REDDIT_PAGES, serve_limit(), now)
+    delete_expired(folder / "text", DEFAULT_TTL, now)
+    delete_expired(folder / "sources", DEFAULT_TTL, now)
 
 
 class ResearchCache:
@@ -45,17 +58,22 @@ class ResearchCache:
         ttl: timedelta = DEFAULT_TTL,
         now: Callable[[], datetime] = _utc_now,
         enabled: bool = True,
+        reddit_ttl: timedelta | None = None,
     ) -> None:
         self.folder = folder
         self.ttl = ttl
+        self.reddit_ttl = reddit_ttl if reddit_ttl is not None else serve_limit()
         self.enabled = enabled
         self._now = now
         self._sources = RedditCache(folder=folder / "sources" if folder else None, ttl=ttl, now=now)
+        reddit_pages = folder / REDDIT_PAGES if folder else None
+        self._reddit_pages = RedditCache(folder=reddit_pages, ttl=self.reddit_ttl, now=now)
         self._lock = threading.Lock()
         self._text: dict[str, tuple[datetime, str]] = {}
         if folder is not None:  # switched off or not: Reddit titles live here, at most 24 hours (D-53)
             delete_expired(folder / "text", ttl, now)
             delete_expired(folder / "sources", ttl, now)
+            delete_expired(folder / REDDIT_PAGES, self.reddit_ttl, now)
 
     def get_sources(self, key: CacheKey) -> tuple[Source, ...] | None:
         return self._sources.get(key) if self.enabled else None
@@ -63,6 +81,14 @@ class ResearchCache:
     def put_sources(self, key: CacheKey, sources: Sequence[Source]) -> None:
         if self.enabled:
             self._sources.put(key, sources)
+
+    def get_reddit_pages(self, key: CacheKey) -> tuple[Source, ...] | None:
+        """A Reddit thread read through Firecrawl: served only before serve_limit(), as every Reddit read (D-53)."""
+        return self._reddit_pages.get(key) if self.enabled else None
+
+    def put_reddit_pages(self, key: CacheKey, sources: Sequence[Source]) -> None:
+        if self.enabled:
+            self._reddit_pages.put(key, sources)
 
     def get_text(self, key: CacheKey) -> str | None:
         if not self.enabled:
