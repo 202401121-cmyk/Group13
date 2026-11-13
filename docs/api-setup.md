@@ -26,6 +26,7 @@ its terms, then update this page.
 | [OpenRouter](#openrouter) | LLM for public text only, last choice | `OPENROUTER_API_KEY` | OK as planned | ok |
 | [Cerebras](#cerebras) | Nothing while it answers 402: skipped with no call | `CEREBRAS_API_KEY` | **Not OK**: no free tier | failed (HTTP 402) |
 | [Mistral](#mistral) | LLM for public text only | `MISTRAL_API_KEY` (+ 4 settings) | OK as planned | ok |
+| [DeepSeek](#deepseek) | LLM for public text only, the fallback after Gemini and Mistral | `DEEPSEEK_API_KEY` | OK with limits: public text only, granted balance only (D-63, D-11) | see [DeepSeek](#deepseek) |
 | [Serper](#serper) | Web search results with links | `SERPER_API_KEY` | OK with limits | ok |
 | [Reddit](#reddits-own-api) | Community evidence | archives: none; own API: `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT` | Own API: **not OK** (closed to us); archives in use | skipped (no keys) |
 | [YouTube](#youtube) | Video titles, descriptions, comments | `YOUTUBE_API_KEY` | OK with limits (no transcripts) | ok |
@@ -337,6 +338,32 @@ actually saw. Quotes are copied from the provider's page.
 - **Verdict: OK as planned:** public text only, because we cannot prove the opt-out is set for our key.
 - **If it fails:** the next provider in the public route.
 
+### DeepSeek
+
+- **Used for:** LLM calls with public text only (US-46, D-63): the public fallback after Gemini and Mistral, before
+  Groq. It takes no turn in bulk work's rotation (`rotates: false`), to protect its balance.
+- **Base URL and model** (from [DeepSeek's API docs](https://api-docs.deepseek.com), 11 Nov 2026):
+  `https://api.deepseek.com` and `deepseek-flash`. **Env:** `DEEPSEEK_API_KEY`, and `DEEPSEEK_DAILY_TOKENS` to
+  change the daily budget.
+- **JSON mode:** on. DeepSeek's [JSON output guide](https://api-docs.deepseek.com/guides/json_mode) (read 13 Nov 2026)
+  lists `response_format: {"type": "json_object"}`, and asks for the word "json" in the prompt; the wrapper's fixed
+  instruction always has it. Replies are still checked against the schema.
+- **Limits** ([rate limit page](https://api-docs.deepseek.com/quick_start/rate_limit), read 13 Nov 2026): no requests or
+  tokens a minute are published, only how many requests may run at once (2,500 for `deepseek-flash`); past that it
+  answers HTTP 429, which cools it for 60 to 120 seconds like any provider. So models.yaml sets no per-minute limits
+  for it. The daily budget is 500,000 tokens, the team's choice (D-63).
+- **Money (D-11):** DeepSeek describes no free tier ([pricing](https://api-docs.deepseek.com/quick_start/pricing),
+  11 Nov 2026), and a granted balance is used first. No payment method is ever added. HTTP 402 (insufficient balance)
+  switches it off for the rest of the run with one warning in the log, and it is never retried, so it never spends
+  money that isn't a granted balance.
+- **Terms** ([privacy policy](https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html), last updated
+  10 Feb 2026, read 11 Nov 2026): data may be used to train its models, and it is stored in the PRC. So
+  `trains_on_inputs: true`: public text only, and the loader refuses it in a private or Reddit route.
+- **Smoke test:** `python -m scripts.smoke_apis --only deepseek` makes one call and reports ok, "HTTP 402, no balance",
+  or the error.
+- **Verdict: OK with limits:** public text only, on a granted balance only.
+- **If it fails:** the next provider in the public route.
+
 ### Serper
 
 - **Used for:** web search results that link to review sites, Reddit threads and videos (US-12).
@@ -441,11 +468,12 @@ fine-tune any model of ours either.
 |---|---|---|---|
 | private | groq | groq | groq |
 | reddit | groq | groq | groq |
-| public | mistral, groq | mistral, gemini, groq, openrouter | gemini, mistral, groq, openrouter |
+| public | mistral, deepseek, groq | mistral, gemini, deepseek, groq, openrouter | gemini, mistral, deepseek, groq, openrouter |
 
-Groq's free tier has a small daily token allowance, so public work goes to Mistral and Gemini first and Groq is
-kept for private and Reddit text. Public bulk work reaches Groq only as the last resort (F-6, 10 Nov 2026): when
-neither Gemini nor Mistral has room, and only if a Groq model has room right now, outside the shopper's reserve. Such
+Groq's free tier has a small daily token allowance, so public work goes to Mistral and Gemini first, then DeepSeek
+(US-46, 13 Nov 2026), and Groq is kept for private and Reddit text. Public bulk work reaches Groq only as the last
+resort (F-6, 10 Nov 2026): when neither Gemini, Mistral nor DeepSeek answers, only if a Groq model has room right now,
+outside the shopper's reserve, and only within its public share (below). Such
 a page asks for a 1,200-token answer (`public_output_tokens` in `pool:`) so that a page at the 3,000-token cap goes
 whole, and a page that still can't go whole is skipped, never trimmed. Long public inputs start on Gemini for its 1M-token window. Groq in a route means all of its
 models, in models.yaml order. Cerebras is skipped while it is unavailable, and no private or Reddit route may name an
@@ -464,9 +492,10 @@ Each Groq text model is a member of the pool with its own limits. Read from
 
 - **Rotation:** bulk work (`extract_claims`, `enrich_extract`) goes round every model its route allows, in turn (F-3,
   10 Nov 2026): Groq's three models for private and Reddit text (D-51), and for public text Gemini and Mistral.
-  For public text Groq's models take no turn: they follow Gemini and Mistral as the last resort, in their fixed order,
-  never waited for, and they move no rotation. OpenRouter takes no turn (`rotates: false` in models.yaml): it follows
-  them all as the fallback, used only when none has room, and its 50 requests a day are counted. Each is paced by its own limits: these members by the table above,
+  For public text the rest follow in the route's order, taking no turn and moving no rotation: DeepSeek
+  (`rotates: false`, to protect its balance), then Groq's models as the last resort, in their fixed order, never
+  waited for, then OpenRouter (`rotates: false`) as the fallback, used only when none has room, and its 50 requests a
+  day are counted. Each is paced by its own limits: these members by the table above,
   Gemini at 15 requests a minute, Mistral at 2 a minute and 40,000 tokens a minute (its headers, 10 Nov 2026),
   OpenRouter at 20 a minute. A model whose window can't hold the prompt and its answer is
   skipped, and the next one takes the turn; a longer input still fits by being split into chunks, as before (public
@@ -494,6 +523,9 @@ Each Groq text model is a member of the pool with its own limits. Read from
 - **Reddit budget:** the extract stage keeps a search's Reddit tokens within `reddit_tokens_per_search`: a call's whole
   request while it runs, then its real use. A thread past it is skipped with no call, and the coverage note says how many. See
   [Last measured](#last-measured-7-november-2026).
+- **Public share (US-46, team's choice, 13 Nov 2026):** public pages may use at most `public_daily_share` (25%) of each
+  Groq model's day, 50,000 of its 200,000 tokens. Past it, a public page skips Groq, and private and Reddit work keep
+  the rest. A public call counts against both the share and the day; a private or Reddit call only against the day.
 - **Room for shoppers:** bulk work never takes a member below `extract_reserve_tokens_per_minute` (2,000) of its current
   minute, so intake and reply parsing, which plan about 1,700, always find room. Extraction waits inside its 15-second
   limit, or skips the source with a coverage note. A call a shopper waits on may use the reserve.
@@ -511,6 +543,7 @@ A member's limits sit in `pool:`, not on its `models:` row, because that row is 
 | Gemini (free) | **yes** | aistudio.google.com/docs/terms, unpaid services: prompts may be used to improve Google's products and machine learning, and people may read them |
 | Mistral (free plan) | **yes** | help.mistral.ai/en/articles/347617: on the free plan inputs and outputs may be used for training. An opt-out exists, but we cannot confirm it for our key |
 | OpenRouter (`:free`) | **yes** | openrouter.ai/docs/features/privacy-and-logging: it depends on the model's host, and we cannot confirm it for ours |
+| DeepSeek | **yes** | cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html (read 11 Nov 2026): data may train its models, and is stored in the PRC (D-63) |
 
 When a provider's terms change, update its flag, `terms_url` and `terms_checked` together. A model's
 `trains_on_free_tier` must match its provider's flag, or the app will not start.
@@ -522,7 +555,7 @@ When a provider's terms change, update its flag, `terms_url` and `terms_checked`
 | `app/intake/stage.py` | `detect_intent` | the shopper's request and their reply to our question | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | category label and the shopper's use case | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | only a category label from our lexicon (no use case) | public | short |
-| `app/extract/stage.py` | `extract_claims` | one fetched source's retrieved text, never a search snippet alone. Criterion keys and the category label from our config in every call; any others, which may hold the shopper's words, in Reddit calls only | reddit for Reddit, otherwise public | long |
+| `app/extract/stage.py` | `extract_claims` | one fetched source's retrieved text, never a search snippet alone. Criterion keys and the category label from our config in every call; any others, which may hold the shopper's words, in Reddit calls only. A public call may also carry a generated criterion's fixed stand-in, known spec keys from the hard rules and `price_inr` with a budget, always as fixed keys with our own definitions (`config/extract.yaml`, US-14) | reddit for Reddit, otherwise public | long |
 
 `detect_intent`, `classify_reply`, `answer_user_question`, `write_question` and `write_explanation` always carry
 the shopper's words, so the wrapper refuses any class but private for them (`PERSONAL_TASKS`). A new call site
@@ -558,7 +591,7 @@ is the team's choice, and the row says how it was set. For Gemini and OpenRouter
 | OpenRouter | 250,000 | The team's choice: no token limit is published; 50 requests a day ([limits](https://openrouter.ai/docs/api-reference/limits), 3 Nov 2026) × 5,000 | `OPENROUTER_DAILY_TOKENS` |
 | Cerebras | 1,000,000 | 1M tokens a day while a trial credit lasts, [rate limits](https://inference-docs.cerebras.ai/support/rate-limits), 3 Nov 2026. Unavailable today | `CEREBRAS_DAILY_TOKENS` |
 | Mistral | 1,000,000 | The team's choice: a cautious guess, 3 Nov 2026, until someone reads the monthly allowance in Mistral's Admin Panel and sets it to that ÷ 31, less 10% (see "Mistral" above) | `MISTRAL_DAILY_TOKENS` |
-| DeepSeek | 500,000 | The team's choice (D-63, 11 Nov 2026): no free tier is described ([pricing](https://api-docs.deepseek.com/quick_start/pricing)), so it runs only on a granted balance. Unavailable until S3-1 gives it routes | `DEEPSEEK_DAILY_TOKENS` |
+| DeepSeek | 500,000 | The team's choice (D-63, 11 Nov 2026): no free tier is described ([pricing](https://api-docs.deepseek.com/quick_start/pricing)), so it runs only on a granted balance. HTTP 402 switches it off for the run (US-46) | `DEEPSEEK_DAILY_TOKENS` |
 
 OpenRouter also has a requests-a-day counter (`requests_per_day: 50`): its free models allow 50 requests a day until
 the account has bought 10 credits ([limits](https://openrouter.ai/docs/api-reference/limits), 3 Nov 2026, checked
@@ -574,8 +607,8 @@ A pool member has its own record; any other provider has one for the whole provi
   With no usable header, 90 seconds.
 - Three timeouts or other failures within 60 seconds: skipped for 90 seconds, then one trial call. A timeout we cut
   short because the stage was nearly out of time doesn't count: that says nothing about the model.
-- HTTP 401 or 402 (bad key, or the account needs a plan): the whole provider is skipped for the rest of the run,
-  because its models share the key.
+- HTTP 401 or 402 (bad key, or the account needs a plan or has no balance): the whole provider is skipped for the
+  rest of the run, because its models share the key. It is never retried, and the log says so once, with a warning.
 - HTTP 403 (this key may not use this model): that model is skipped for the rest of the run.
 - The error code `model_decommissioned` (a retired model, which Groq answers with HTTP 400): that model is skipped for
   the rest of the run. Groq's errors page lists no codes, so this one comes from public reports of its replies.

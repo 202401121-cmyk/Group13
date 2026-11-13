@@ -6,16 +6,27 @@ A public call may reach a provider that trains on inputs (build rule 8), so what
 category label from our config holds nothing the shopper typed, so it may go in any call. Anything else may have come
 from their words: a generated key can be a slug made from their use case, and an unknown category can be what they
 typed. Those go only into Reddit calls, whose route has no provider that trains.
+
+A public call may still carry more than the fixed criteria (US-14, with US-46), always as fixed keys with our own
+definitions, chosen by code from config/extract.yaml:
+- a generated criterion, as the category's fixed criterion it stands for (public_synonyms). Its claims come back under
+  the search's own key;
+- a hard rule's key, if it is a known spec key (public_spec_keys), so verify and decide get values to filter on;
+- price_inr, when the search has a budget.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
 
 from app.contracts import DataClass, ExtractInput, Source, SourceType
 from app.criteria.fallback import fallback_criteria
+from app.decide.rules import PRICE_KEY
 from app.intake.lexicon import load_lexicon
 from app.llm.data_block import DATA_RULE, wrap_as_data
+
+from .settings import ExtractSettings
 
 SYSTEM_PROMPT = f"""You read one source about products and report what it says. You never judge, rank or recommend.
 
@@ -42,7 +53,18 @@ If the source says nothing useful, return empty lists.
 _LABELS = {SourceType.REDDIT: "Reddit text", SourceType.YOUTUBE: "video text"}
 # A title isn't counted in the source's cap, so a long one could push the data block's end past what fits a call.
 MAX_TITLE_CHARS = 100
+# The most key lines one prompt carries: a rubric's 10 criteria. A capped page beside them just fits Groq whole as the
+# public last resort (tests/unit/llm/test_data_block.py), so spec keys only fill the room the criteria leave.
+MAX_PROMPT_KEYS = 10
 NO_CRITERIA = "No criteria for this source: list the products it names, and leave claims empty."
+
+
+@dataclass(frozen=True)
+class SpecAsk:
+    """What a search asks every public call for besides criteria: its hard rules' keys, and whether it has a budget."""
+
+    attributes: tuple[str, ...] = ()
+    has_budget: bool = False
 
 
 @dataclass(frozen=True)
@@ -52,23 +74,91 @@ class PromptCriteria:
     keys: tuple[str, ...]
     lines: tuple[str, ...]
     category: str | None
+    renames: Mapping[str, str] = field(default_factory=dict)  # a key sent in place of the search's own key -> that key
+
+    def claim_key(self, key: str) -> str:
+        """The search's own key for a claim made under `key`."""
+        return self.renames.get(key, key)
+
+
+@dataclass(frozen=True)
+class PublicKeys:
+    """The keys a search's public prompts carry: criteria (fixed keys) and spec keys. Same for every public source."""
+
+    criteria: tuple[str, ...]
+    specs: tuple[str, ...]
+    renames: Mapping[str, str]
+
+    def line(self, criteria_in_search: int) -> str:
+        """For the CLI's --claims: how much of the search reached public prompts."""
+        n = len(self.specs)
+        specs = f"{n} spec {'key' if n == 1 else 'keys'} ({', '.join(self.specs)})" if n else "no spec keys"
+        return f"Public prompts carried {len(self.criteria)} of {criteria_in_search} criteria and {specs}."
 
 
 def _words(slug: str) -> str:
     return slug.replace("_", " ")
 
 
-def allowed_criteria(inp: ExtractInput, data_class: DataClass) -> PromptCriteria:
-    """Lexicon keys and labels go in any call. Anything else goes only in a call no provider that trains can see."""
+def public_prompt_keys(
+    category: str,
+    criterion_keys: Sequence[str],
+    attributes: Sequence[str],
+    has_budget: bool,
+    settings: ExtractSettings,
+) -> PublicKeys:
+    """Fixed keys only, chosen by code (no LLM): the search's fixed criteria, each generated one's fixed stand-in, known
+    spec keys and the price. A generated key with no stand-in in this category stays out, as does an unknown rule key.
+    Spec keys only fill the room the criteria leave, up to MAX_PROMPT_KEYS lines in all, the price first.
+    """
+    fixed = {c.key for c in fallback_criteria(category).criteria}
+    own = {key for key in criterion_keys if key in fixed}
+    criteria: list[str] = []
+    renames: dict[str, str] = {}
+    for key in criterion_keys:
+        if key in fixed:
+            criteria.append(key)
+            continue
+        stand_in = next((t for t in settings.public_synonyms.get(key, ()) if t in fixed), None)
+        if stand_in is not None and stand_in not in own and stand_in not in renames:
+            criteria.append(stand_in)
+            renames[stand_in] = key
+    known = {*settings.public_spec_keys, PRICE_KEY}
+    # The price first, as decide checks the budget before the rules (US-17); then the rules, in their order.
+    wanted = [*([PRICE_KEY] if has_budget else []), *attributes]
+    specs = [k for k in dict.fromkeys(wanted) if k in known and k not in criteria]
+    room = max(0, MAX_PROMPT_KEYS - len(criteria))  # never more lines than a full rubric: the page must fit whole
+    return PublicKeys(tuple(criteria), tuple(specs[:room]), renames)
+
+
+def allowed_criteria(
+    inp: ExtractInput,
+    data_class: DataClass,
+    specs: SpecAsk | None = None,
+    settings: ExtractSettings | None = None,
+) -> PromptCriteria:
+    """Lexicon keys and labels go in any call. Anything else goes only in a call no provider that trains can see.
+
+    A public call carries fixed keys and our own definitions only (public_prompt_keys). Reddit calls are unchanged.
+    """
     slug = inp.category_label
     lexicon = load_lexicon()
     fixed = {c.key: c.definition for c in fallback_criteria(slug).criteria}
     may_hold_their_words = data_class is not DataClass.PUBLIC
-    keys = tuple(key for key in inp.criterion_keys if key in fixed or may_hold_their_words)
-    lines = tuple(f"- {key}: {fixed.get(key, _words(key))}" for key in keys)
+    renames: Mapping[str, str] = {}
+    if may_hold_their_words:
+        keys = tuple(inp.criterion_keys)
+        lines = tuple(f"- {key}: {fixed.get(key, _words(key))}" for key in keys)
+    else:
+        settings = settings if settings is not None else ExtractSettings()
+        ask = specs if specs is not None else SpecAsk()
+        public = public_prompt_keys(slug, inp.criterion_keys, ask.attributes, ask.has_budget, settings)
+        keys, renames = public.criteria + public.specs, public.renames
+        ours = {**fixed, **settings.public_spec_keys, PRICE_KEY: settings.price_definition}
+        lines = tuple(f"- {key}: {ours[key]}" for key in keys)
     if slug in lexicon.categories:
-        return PromptCriteria(keys, lines, lexicon.label(slug))
-    return PromptCriteria(keys, lines, _words(slug) if may_hold_their_words and slug else None)
+        return PromptCriteria(keys, lines, lexicon.label(slug), renames)
+    return PromptCriteria(keys, lines, _words(slug) if may_hold_their_words and slug else None, renames)
 
 
 def source_text(source: Source) -> str:

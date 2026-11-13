@@ -90,7 +90,7 @@ def test_a_capped_source_fits_every_model_on_the_extraction_routes(data_class: D
     """Fitting must never have to trim a capped source, because trimming could cut the block's closing marker."""
     from app.criteria.fallback import load_category_sets, load_fallback_sets
     from app.extract.parsing import RawExtraction
-    from app.extract.prompts import SYSTEM_PROMPT, PromptCriteria, user_message
+    from app.extract.prompts import MAX_PROMPT_KEYS, SYSTEM_PROMPT, PromptCriteria, user_message
     from app.extract.settings import load_extract_settings
     from app.llm.output import build_system_prompt
     from app.llm.pool import ModelPool
@@ -105,8 +105,13 @@ def test_a_capped_source_fits_every_model_on_the_extraction_routes(data_class: D
     # Read from the real config, so raising the source cap in research.yaml past what fits fails here.
     cap_bytes = load_research_settings(env={}).max_source_tokens * 3
     sets = [*load_fallback_sets().values(), *load_category_sets().values()]
-    longest = max(len(f"- {c.key}: {c.definition}") for family in sets for c in family.criteria)
-    criteria = PromptCriteria(keys=(), lines=tuple("c" * longest for _ in range(10)), category="d" * 60)  # the most
+    lines = [f"- {c.key}: {c.definition}" for family in sets for c in family.criteria]
+    extract = load_extract_settings(env={})  # a public prompt may also ask for spec keys and the price (US-14)
+    lines += [f"- {key}: {text}" for key, text in extract.public_spec_keys.items()]
+    lines.append(f"- price_inr: {extract.price_definition}")
+    longest = max(len(line) for line in lines)
+    most = tuple("c" * longest for _ in range(MAX_PROMPT_KEYS))  # criteria and spec keys together never pass this
+    criteria = PromptCriteria(keys=(), lines=most, category="d" * 60)
     # A long Hindi title: three bytes a letter. The real prompt builder, so a line added to it is counted here too.
     source = review_source("https://www.reviews.example/a", title=chr(0x939) * 300, text="a" * cap_bytes)
     user = user_message(source, criteria)

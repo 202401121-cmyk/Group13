@@ -33,14 +33,16 @@ from app.llm.providers import Adapter
 from tests.fakes.llm import FakeAdapter
 
 G, GE, OR, M = Provider.GROQ, Provider.GEMINI, Provider.OPENROUTER, Provider.MISTRAL
-TRAINING = {GE, OR, M}
+DS = Provider.DEEPSEEK
+TRAINING = {GE, OR, M, DS}
 EXPECTED_ROUTES = {
     DataClass.PRIVATE: {Difficulty.SHORT: [G], Difficulty.MEDIUM: [G], Difficulty.LONG: [G]},
     DataClass.REDDIT: {Difficulty.SHORT: [G], Difficulty.MEDIUM: [G], Difficulty.LONG: [G]},
     DataClass.PUBLIC: {
-        Difficulty.SHORT: [M, G],
-        Difficulty.MEDIUM: [M, GE, G, OR],
-        Difficulty.LONG: [GE, M, G, OR],  # Groq as the last resort for public pages (F-6, 10 Nov 2026)
+        Difficulty.SHORT: [M, DS, G],
+        Difficulty.MEDIUM: [M, GE, DS, G, OR],
+        # DeepSeek is the public fallback (US-46); Groq the last resort for public pages after it (F-6, 10 Nov 2026)
+        Difficulty.LONG: [GE, M, DS, G, OR],
     },
 }
 OK = '{"product": "Nova Book 14"}'
@@ -121,7 +123,7 @@ def test_mistral_bad_json_is_retried_once_then_the_next_provider_answers() -> No
 @pytest.mark.parametrize("data_class", [DataClass.PRIVATE, DataClass.REDDIT], ids=lambda c: c.value)
 def test_even_a_bad_route_cannot_send_private_text_to_a_training_provider(data_class: DataClass) -> None:
     good = load_llm_config()
-    bad_routes = {**good.routes, data_class: {d: [GE, M, OR, G] for d in Difficulty}}
+    bad_routes = {**good.routes, data_class: {d: [GE, M, DS, OR, G] for d in Difficulty}}
     config = LLMConfig.model_construct(
         providers=good.providers, models=good.models, routes=bad_routes, pool=good.pool
     )  # unchecked

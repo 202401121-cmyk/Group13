@@ -1,8 +1,9 @@
 """Bulk work takes turns across the providers that rotate, and every provider has a daily token counter (US-46).
 
-Public text takes turns between Gemini and Mistral; Groq's models are the last resort after both, and OpenRouter the
-fallback after them all (its free models allow 50 requests a day). Private and Reddit text rotate across Groq's models
-only (D-51).
+Public text takes turns between Gemini and Mistral; DeepSeek follows them (US-46), Groq's models are the last resort
+after it, and OpenRouter the fallback after them all (its free models allow 50 requests a day). DeepSeek has no key in
+most tests here, so they show the others' order; test_deepseek.py covers its own place. Private and Reddit text
+rotate across Groq's models only (D-51).
 Fake adapters and a fake clock: no real API is called and nothing waits for real time.
 """
 
@@ -42,6 +43,7 @@ OK = '{"product": "Nova Book 14"}'
 GEMINI, MISTRAL, OPENROUTER = "gemini-3.5-flash-lite", "ministral-8b-latest", "nvidia/nemotron-3.5-lightning:free"
 BIG, SMALL, QWEN = "openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"
 ROOT = Path(__file__).resolve().parents[4]
+NO_KEY_HERE = (Provider.OPENROUTER, Provider.DEEPSEEK)
 
 
 class Answer(BaseModel):
@@ -70,7 +72,8 @@ def _client(
 ) -> WrapperLLMClient:
     config = config or load_llm_config()
     if adapters is None:
-        adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider}
+        # DeepSeek has no key here: these tests are about the others' turns, and its own place is in test_deepseek.py.
+        adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider if p is not Provider.DEEPSEEK}
     pool = ModelPool(config.pool, clock=clock, sleep=clock.sleep, today=lambda: date(2026, 11, 10))
     return WrapperLLMClient(
         config,
@@ -249,7 +252,7 @@ def test_a_shoppers_task_keeps_the_route_order() -> None:
         for m in config.models
         if m.provider is provider
     ]
-    route = [GEMINI, MISTRAL, BIG, SMALL, QWEN, OPENROUTER]
+    route = [GEMINI, MISTRAL, "deepseek-flash", BIG, SMALL, QWEN, OPENROUTER]
     for _ in range(3):
         assert [m.model for m in pool.order(models, DataClass.PUBLIC, rotate=False)] == route
 
@@ -321,7 +324,7 @@ def _limited_to_one_a_minute(clock: Clock) -> dict[Provider, RateLimiter]:
 
 def test_public_pages_go_to_groq_only_when_gemini_and_mistral_have_no_room() -> None:
     clock = Clock()
-    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider}
+    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider if p is not Provider.DEEPSEEK}
     client = _client(clock, adapters, limiters=_limited_to_one_a_minute(clock))
     _bulk(client)  # Gemini's one request this minute
     _bulk(client)  # Mistral's one
@@ -335,7 +338,7 @@ def test_public_pages_go_to_groq_only_when_gemini_and_mistral_have_no_room() -> 
 
 def test_with_gemini_healthy_no_public_page_reaches_groq() -> None:
     clock = Clock()
-    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider}
+    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider if p is not Provider.DEEPSEEK}
     mistral_once = {Provider.MISTRAL: RateLimiter(requests_per_minute=1, clock=clock, sleep=clock.sleep)}
     client = _client(clock, adapters, limiters=mistral_once)
     for _ in range(6):
@@ -347,7 +350,7 @@ def test_with_gemini_healthy_no_public_page_reaches_groq() -> None:
 
 def test_a_groq_model_with_no_room_is_skipped_at_once_and_openrouter_is_tried() -> None:
     clock = Clock()
-    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider}
+    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider if p is not Provider.DEEPSEEK}
     client = _client(clock, adapters, limiters=_limited_to_one_a_minute(clock))
     _fill_groq(client, leave=0)
     _bulk(client)
@@ -367,7 +370,7 @@ def test_a_groq_model_with_no_room_is_skipped_at_once_and_openrouter_is_tried() 
 
 def test_a_public_page_never_uses_the_shoppers_reserve() -> None:
     clock = Clock()
-    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider if p is not Provider.OPENROUTER}
+    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider if p not in NO_KEY_HERE}
     client = _client(clock, adapters, limiters=_limited_to_one_a_minute(clock))
     reserve = client.config.pool.extract_reserve_tokens_per_minute
     _fill_groq(client, leave=reserve)  # only the shopper's reserve is left in each Groq model's minute
@@ -392,7 +395,7 @@ def test_a_public_page_never_uses_the_shoppers_reserve() -> None:
 def test_a_long_public_page_goes_to_groq_whole_with_the_pools_public_answer_size() -> None:
     """About 4,400 tokens: whole beside the reserve with a 1,200-token answer, but not with extraction's 2,000."""
     clock = Clock()
-    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider}
+    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider if p is not Provider.DEEPSEEK}
     client = _client(clock, adapters, limiters=_limited_to_one_a_minute(clock))
     page = "Nova Book 14 lasts nine hours. " * 425
     _bulk(client)
@@ -406,7 +409,7 @@ def test_a_long_public_page_goes_to_groq_whole_with_the_pools_public_answer_size
 
 def test_a_public_page_too_long_for_groq_whole_is_skipped_never_trimmed() -> None:
     clock = Clock()
-    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider}
+    adapters = {p: FakeAdapter(p, replies=(OK,)) for p in Provider if p is not Provider.DEEPSEEK}
     client = _client(clock, adapters, limiters=_limited_to_one_a_minute(clock))
     page = "Nova Book 14 lasts nine hours. " * 650  # about 6,700 tokens: no Groq model can take it whole
     _bulk(client)

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 import yaml  # type: ignore[import-untyped]
 
-from app.contracts import ModelLimits, Provider
+from app.contracts import DataClass, ModelLimits, Provider
 from app.llm import build_llm_client
 from app.llm.config import DEFAULT_CONFIG_PATH, LLMConfigError, load_llm_config, with_env_overrides
 from app.llm.providers import OpenAICompatibleAdapter
@@ -36,18 +36,19 @@ def test_the_pool_holds_the_three_groq_models_with_their_own_limits() -> None:
     assert pool.reddit_tokens_per_search == 18_000  # 75% of a minute: see docs/api-setup.md
 
 
-def test_deepseek_takes_public_text_only_and_is_unused_until_its_routes_exist() -> None:
-    """D-63: DeepSeek may train on inputs, so public text only. S3-0 adds it switched off; S3-1 gives it routes."""
+def test_deepseek_takes_public_text_only_and_is_in_public_routes_only() -> None:
+    """D-63: DeepSeek may train on inputs, so public text only. S3-0 added it switched off; S3-1 switches it on."""
     config = load_llm_config()
     deepseek = config.provider(Provider.DEEPSEEK)
     assert deepseek.trains_on_inputs is True
     assert deepseek.rotates is False
     assert deepseek.daily_tokens == 500_000
     assert deepseek.api_key_env == "DEEPSEEK_API_KEY"
-    assert deepseek.available is False and deepseek.unavailable_reason
+    assert deepseek.available is True and deepseek.unavailable_reason is None
     assert [m.trains_on_free_tier for m in config.models if m.provider is Provider.DEEPSEEK] == [True]
-    routes = [chain for by_difficulty in config.routes.values() for chain in by_difficulty.values()]
-    assert all(Provider.DEEPSEEK not in chain for chain in routes)
+    for data_class, by_difficulty in config.routes.items():
+        for chain in by_difficulty.values():
+            assert (Provider.DEEPSEEK in chain) is (data_class is DataClass.PUBLIC)
 
 
 def test_cerebras_is_unavailable_but_keeps_its_flag() -> None:

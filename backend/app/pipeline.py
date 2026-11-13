@@ -642,6 +642,10 @@ class _Search:
     def weight_keys(self) -> list[str]:
         return [w.key for w in self.rubric.weights]
 
+    @property
+    def rule_keys(self) -> list[str]:
+        return [r.attribute for r in self.rubric.hard_rules]
+
     def sources_found(self) -> dict[SourceType, int]:
         """Sources found so far, per type, for the progress bar. All zero until a real research stage has run."""
         counts = dict.fromkeys(SourceType, 0)
@@ -663,6 +667,11 @@ class _Search:
             return _skipped(StageName.EXTRACT, "there were no sources to read")
         started = monotonic()
         failed = threading.Event()
+        # Public calls ask for the known spec keys among the hard rules, and the price with a budget (US-14). A stub
+        # stage has no such method, so nothing changes for it. Keys only: the rules' own words are never passed.
+        ask_for_specs = getattr(self.stages.extract, "ask_for_specs", None)
+        if ask_for_specs is not None:
+            ask_for_specs(self.ctx.search_id, self.rule_keys, self.rubric.budget is not None)
 
         def read(source: Source) -> tuple[ExtractionResult | None, StageReport] | None:
             """One source, each under its own time limit. None if it was never started."""
@@ -738,7 +747,7 @@ class _Search:
 
     def verify(self) -> StageReport:
         research = _require(self.research_out, "research")
-        rule_keys = [r.attribute for r in self.rubric.hard_rules]
+        rule_keys = self.rule_keys
         price = [PRICE_KEY] if self.rubric.budget else []  # decide checks the budget on it (US-17), before the rules
         keys = list(dict.fromkeys(self.weight_keys + price + rule_keys))[:MAX_VERIFY_KEYS]
         inp = VerifyInput(

@@ -273,7 +273,7 @@ def test_a_shopper_made_key_never_reaches_a_provider_that_trains() -> None:
                 if config.provider(provider).trains_on_inputs:
                     trained.add(provider)
                     assert "dialysis" not in text and "zarvis" not in text, provider
-    assert trained == {Provider.GEMINI, Provider.MISTRAL, Provider.OPENROUTER}  # each one really was asked
+    assert trained == {Provider.GEMINI, Provider.MISTRAL, Provider.DEEPSEEK, Provider.OPENROUTER}  # each was asked
 
 
 def test_a_lexicon_key_still_reaches_a_provider_that_trains() -> None:

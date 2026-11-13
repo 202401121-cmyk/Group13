@@ -92,7 +92,8 @@ class ProviderHealth:
             if p.cool_until is not None and self._clock() >= p.cool_until:
                 p.cool_until = None
 
-    def record_failure(self, provider: Provider, error: Exception, model: str | None = None) -> None:
+    def record_failure(self, provider: Provider, error: Exception, model: str | None = None) -> bool:
+        """True when this failure has just switched the whole provider off for the run (HTTP 401 or 402)."""
         with self._lock:
             p = self._record(provider, model)
             p.trial_running = False
@@ -102,7 +103,9 @@ class ProviderHealth:
             elif isinstance(error, ModelNotFound):
                 _cool(p, now + MODEL_NOT_FOUND_COOLDOWN_S)
             elif isinstance(error, (AuthFailed, NoCredit)):
+                newly = provider not in self._dead_providers
                 self._dead_providers.add(provider)
+                return newly
             elif isinstance(error, (RateLimited, ServerError)):
                 _cool(p, now + cooldown_from_headers(error.ratelimit_headers))
             else:
@@ -111,6 +114,7 @@ class ProviderHealth:
                     p.failures.popleft()
                 if p.cool_until is not None or len(p.failures) >= FAILURES_BEFORE_COOLDOWN:
                     _cool(p, now + DEFAULT_COOLDOWN_S)
+            return False
 
     def _record(self, provider: Provider, model: str | None) -> _Record:
         return self._records.setdefault((provider, model), _Record())

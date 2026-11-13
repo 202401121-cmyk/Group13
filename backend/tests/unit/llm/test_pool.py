@@ -712,7 +712,7 @@ def test_parallel_calls_cannot_overshoot_the_daily_budget() -> None:
     pool = ModelPool(_config(tokens_per_day=1000).pool, clock=clock, sleep=clock.sleep)
     member = next(m for m in load_llm_config().models if m.model == BIG)
     with ThreadPoolExecutor(max_workers=10) as threads:
-        taken = list(threads.map(lambda _: pool.reserve(member, 300), range(10)))
+        taken = list(threads.map(lambda _: pool.reserve(member, 300, DataClass.PRIVATE), range(10)))
     assert taken.count(True) == 3
     assert pool.tokens_left_today(member) == 100
 
@@ -721,9 +721,9 @@ def test_a_reservation_is_settled_to_what_the_call_used() -> None:
     clock = Clock()
     pool = ModelPool(_config(tokens_per_day=1000).pool, clock=clock, sleep=clock.sleep)
     member = next(m for m in load_llm_config().models if m.model == BIG)
-    assert pool.reserve(member, 600)
-    assert not pool.reserve(member, 600)
-    pool.settle(member, 600, 100)
+    assert pool.reserve(member, 600, DataClass.PRIVATE)
+    assert not pool.reserve(member, 600, DataClass.PRIVATE)
+    pool.settle(member, 600, 100, DataClass.PRIVATE)
     assert pool.tokens_left_today(member) == 900
 
 
@@ -732,7 +732,7 @@ def test_a_new_utc_day_refills_the_budget() -> None:
     clock = Clock()
     pool = ModelPool(_config(tokens_per_day=1000).pool, clock=clock, sleep=clock.sleep, today=lambda: today["now"])
     member = next(m for m in load_llm_config().models if m.model == BIG)
-    assert pool.reserve(member, 1000)
+    assert pool.reserve(member, 1000, DataClass.PRIVATE)
     assert pool.tokens_left_today(member) == 0
     today["now"] = date(2026, 11, 8)
     assert pool.tokens_left_today(member) == 1000

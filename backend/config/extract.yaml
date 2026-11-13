@@ -15,6 +15,81 @@ public_output_tokens: 2000
 # fit their budget, so this is only a safety limit. EXTRACT_MAX_SOURCES in the environment overrides it.
 max_sources_per_search: 40
 
+# What a public prompt may carry besides the category's fixed criteria (US-14, with US-46). A public call may reach a
+# provider that trains on inputs (build rule 8), so it carries only fixed keys and our own definitions, never a generated
+# key or the shopper's words. Claims come back under the search's own key. Code reads these tables; no LLM is asked.
+#
+# public_synonyms: a generated criterion key, then the fixed criteria it may stand for, in order. The first one the
+# category's fixed set has is sent in its place, with that criterion's own definition. A key not listed here, or whose
+# targets the category lacks, stays out of public prompts, as before. Every target is a key in criteria_fallback.yaml.
+public_synonyms:
+  performance: [processor_speed, processing_speed, speed]
+  cpu_performance: [processor_speed, processing_speed]
+  processor_performance: [processor_speed, processing_speed]
+  coding_performance: [processor_speed, processing_speed]
+  compile_speed: [processor_speed, processing_speed]
+  gaming_performance: [processor_speed, processing_speed]
+  multitasking: [memory_and_storage, processor_speed, processing_speed]
+  ram: [memory_and_storage]
+  ram_capacity: [memory_and_storage]
+  memory: [memory_and_storage]
+  storage: [memory_and_storage, storage_space]
+  storage_capacity: [memory_and_storage, storage_space]
+  battery: [battery_life]
+  battery_backup: [battery_life]
+  battery_performance: [battery_life]
+  display: [display_quality, picture_quality]
+  screen_quality: [display_quality, picture_quality]
+  keyboard: [keyboard_comfort]
+  keyboard_quality: [keyboard_comfort]
+  typing_experience: [keyboard_comfort]
+  portability: [weight, size_and_weight, comfort_and_portability]
+  weight_and_portability: [weight, size_and_weight, comfort_and_portability]
+  build_quality: [build_durability]
+  durability: [build_durability]
+  thermals: [cooling]
+  thermal_performance: [cooling]
+  camera: [camera_quality]
+  sound: [sound_quality]
+  audio_quality: [sound_quality]
+  speaker_quality: [sound_quality]
+  anc: [noise_cancellation]
+  comfort: [fit_and_comfort, comfort_and_fit, comfort]
+  fit: [fit_and_comfort, comfort_and_fit]
+  software_support: [software_updates]
+  update_policy: [software_updates]
+  ports: [connectivity]
+  connectivity_options: [connectivity]
+  charging: [charging_speed]
+  fast_charging: [charging_speed]
+  warranty: [warranty_length, after_sales_service, after_sales_support]
+  after_sales: [after_sales_service, after_sales_support]
+  customer_support: [after_sales_service, after_sales_support]
+  value: [value_for_money]
+  price_to_performance: [value_for_money]
+  price_performance: [value_for_money]
+
+# public_spec_keys: the spec keys a hard rule may name that a public prompt may ask for, each with our own definition,
+# so verify (US-16) and decide (US-17) get values to filter on. A hard rule's key not listed here stays out of public
+# prompts: it may be made from the shopper's words.
+public_spec_keys:
+  weight_kg: How much it weighs, in kilograms.
+  weight_g: How much it weighs, in grams.
+  ram_gb: How much memory (RAM) it has, in gigabytes.
+  storage_gb: How much storage it has, in gigabytes.
+  battery_mah: How big its battery is, in milliamp-hours (mAh).
+  battery_life_h: How many hours it runs on one charge.
+  refresh_rate_hz: How many times a second its screen redraws, in hertz (Hz).
+  screen_size_in: Its screen size, measured corner to corner, in inches.
+  charging_w: How fast it charges, in watts.
+  has_ois: Whether its main camera has optical image stabilisation (yes or no).
+  has_anc: Whether it has active noise cancellation (yes or no).
+  has_5g: Whether it works on 5G networks (yes or no).
+  has_backlit_keyboard: Whether its keyboard lights up (yes or no).
+
+# price_definition: what a public prompt asks for under price_inr, only when the search has a budget (US-17).
+price_definition: The price in Indian rupees that a store in India asks for it, as a number.
+
 # What kind of site each domain is. A domain covers its subdomains, and the longest match wins. A domain not listed
 # here counts as whatever research said, which is editorial for web and review pages. Reddit is always community, and so
 # is a subdomain or folder named as a forum, even on a maker's domain (app/extract/tiers.py), so most forums need no line.
