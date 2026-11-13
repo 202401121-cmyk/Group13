@@ -1,0 +1,503 @@
+{
+  "about": "A recorded-style run, made up (synthetic): three sources, the claims read from them, and the products the match found, three of them planted. Zentrix Pro 9, Novalux Air 7 and Quorra Book X3 appear in no source, and no claim about them quotes its source. Read by tests/unit/test_pipeline_unsourced.py (US-40).",
+  "request": "a made-up request: best laptop for coding under 70k",
+  "planted": [
+    "Novalux Air 7",
+    "Quorra Book X3",
+    "Zentrix Pro 9"
+  ],
+  "named_by": {
+    "Nova Book 14": "the review page's text",
+    "Kestrel Slim 15": "the store page's title only",
+    "Orion Play 15": "a Reddit comment only",
+    "Aurora Air 13": "its alias AA13 only",
+    "Vela Pro 14": "a claim's quote only, found in its source"
+  },
+  "sources": [
+    {
+      "id": "src_6cd568f741625bcf",
+      "url": "https://made-up-reviews.example/coding-laptops-tested",
+      "type": "review_site",
+      "tier": 3,
+      "title": "Coding laptops we tested",
+      "text": "We tested five laptops for coding. Nova Book 14 has the best keyboard we tried and sells for 64990 rupees. The AA13 is light and quick, and costs 66990 rupees. The last one we tried runs for eleven hours on a charge and costs 61990 rupees.",
+      "text_hash": "b128724906e5f3dcfc641e4ba8808e12cf4cba781082ffabaf6a5efea08ee1ed",
+      "fetched_at": "2026-11-12T09:00:00Z",
+      "published_at": null,
+      "community": null,
+      "site": "made-up-reviews.example",
+      "data_class": "public",
+      "quality": 0.5,
+      "via": "direct",
+      "source_detail": null,
+      "author_hash": null,
+      "upvotes": null,
+      "comment_count": null,
+      "comments": []
+    },
+    {
+      "id": "src_f78e31565f559da0",
+      "url": "https://made-up-store.example/p/kestrel-slim-15",
+      "type": "retailer",
+      "tier": 5,
+      "title": "Kestrel Slim 15 (16 GB, 512 GB) - Buy online",
+      "text": "16 GB RAM, 512 GB SSD. Price: 67490 rupees. Free delivery in 3 days.",
+      "text_hash": "e9432d317c4d886d42957ef0944962ae742ada2424878f00f9b484bbd95a31c3",
+      "fetched_at": "2026-11-12T09:00:00Z",
+      "published_at": null,
+      "community": null,
+      "site": "made-up-store.example",
+      "data_class": "public",
+      "quality": 0.5,
+      "via": "direct",
+      "source_detail": null,
+      "author_hash": null,
+      "upvotes": null,
+      "comment_count": null,
+      "comments": []
+    },
+    {
+      "id": "src_b2815e72d92a7b2f",
+      "url": "https://www.reddit.com/r/SuggestALaptop/comments/plnt01/",
+      "type": "reddit",
+      "tier": 4,
+      "title": "Laptop for coding under 70k?",
+      "text": "Need a laptop for Android Studio under 70k. Suggestions?",
+      "text_hash": "7c240bf58f8f6ae4085c7a22189d7493ca52fcf1dbe71b2d8ff73040dc2cd4c1",
+      "fetched_at": "2026-11-12T09:00:00Z",
+      "published_at": null,
+      "community": "r/SuggestALaptop",
+      "site": null,
+      "data_class": "reddit",
+      "quality": 0.5,
+      "via": "api",
+      "source_detail": null,
+      "author_hash": null,
+      "upvotes": 12,
+      "comment_count": 2,
+      "comments": [
+        {
+          "id": "cm0",
+          "parent_id": null,
+          "depth": 1,
+          "upvotes": 3,
+          "text": "Orion Play 15 has been solid for my builds.",
+          "quality": 0.5,
+          "author_hash": "3f99925e2f38e2fbf968115ac443cdd50474058b5a7fa7c3def845089340ec0f"
+        },
+        {
+          "id": "cm1",
+          "parent_id": null,
+          "depth": 1,
+          "upvotes": 3,
+          "text": "Whatever you buy, get 16 GB RAM.",
+          "quality": 0.5,
+          "author_hash": "fcb32ab834b50c5673fffdcc8126172ac68685bd88bbbdae05fe2ee94c0e264d"
+        }
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "id": "clm_877877c349f99302",
+      "source_id": "src_6cd568f741625bcf",
+      "source_url": "https://made-up-reviews.example/coding-laptops-tested",
+      "product_mention": "Nova Book 14",
+      "is_product_type": false,
+      "criterion_key": "keyboard_comfort",
+      "value": null,
+      "unit": null,
+      "score": 9.0,
+      "quote": "Nova Book 14 has the best keyboard we tried",
+      "claim_type": "experience",
+      "polarity": "positive",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_eb07a724c4d24be1",
+      "source_id": "src_6cd568f741625bcf",
+      "source_url": "https://made-up-reviews.example/coding-laptops-tested",
+      "product_mention": "Nova Book 14",
+      "is_product_type": false,
+      "criterion_key": "price_inr",
+      "value": 64990.0,
+      "unit": "INR",
+      "score": null,
+      "quote": "sells for 64990 rupees",
+      "claim_type": "experience",
+      "polarity": "neutral",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_63fdf9759e9fbe95",
+      "source_id": "src_6cd568f741625bcf",
+      "source_url": "https://made-up-reviews.example/coding-laptops-tested",
+      "product_mention": "AA13",
+      "is_product_type": false,
+      "criterion_key": "cpu_performance",
+      "value": null,
+      "unit": null,
+      "score": 8.0,
+      "quote": "The AA13 is light and quick",
+      "claim_type": "experience",
+      "polarity": "positive",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_936f92596cb93fce",
+      "source_id": "src_6cd568f741625bcf",
+      "source_url": "https://made-up-reviews.example/coding-laptops-tested",
+      "product_mention": "AA13",
+      "is_product_type": false,
+      "criterion_key": "price_inr",
+      "value": 66990.0,
+      "unit": "INR",
+      "score": null,
+      "quote": "The AA13 is light and quick, and costs 66990 rupees",
+      "claim_type": "experience",
+      "polarity": "neutral",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_c84de3e82aed3af9",
+      "source_id": "src_6cd568f741625bcf",
+      "source_url": "https://made-up-reviews.example/coding-laptops-tested",
+      "product_mention": "Vela Pro 14",
+      "is_product_type": false,
+      "criterion_key": "battery_life",
+      "value": 11.0,
+      "unit": "h",
+      "score": null,
+      "quote": "runs for eleven hours on a charge",
+      "claim_type": "experience",
+      "polarity": "neutral",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_f31079e09f60bbe3",
+      "source_id": "src_6cd568f741625bcf",
+      "source_url": "https://made-up-reviews.example/coding-laptops-tested",
+      "product_mention": "Vela Pro 14",
+      "is_product_type": false,
+      "criterion_key": "price_inr",
+      "value": 61990.0,
+      "unit": "INR",
+      "score": null,
+      "quote": "and costs 61990 rupees",
+      "claim_type": "experience",
+      "polarity": "neutral",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_5ab49e1d73fa79a4",
+      "source_id": "src_f78e31565f559da0",
+      "source_url": "https://made-up-store.example/p/kestrel-slim-15",
+      "product_mention": "Kestrel Slim 15",
+      "is_product_type": false,
+      "criterion_key": "price_inr",
+      "value": 67490.0,
+      "unit": "INR",
+      "score": null,
+      "quote": "Price: 67490 rupees",
+      "claim_type": "experience",
+      "polarity": "neutral",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_8e29ee92081535f3",
+      "source_id": "src_f78e31565f559da0",
+      "source_url": "https://made-up-store.example/p/kestrel-slim-15",
+      "product_mention": "Kestrel Slim 15",
+      "is_product_type": false,
+      "criterion_key": "ram_gb",
+      "value": 16.0,
+      "unit": "GB",
+      "score": null,
+      "quote": "16 GB RAM, 512 GB SSD",
+      "claim_type": "experience",
+      "polarity": "neutral",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_db0451d49e223894",
+      "source_id": "src_b2815e72d92a7b2f",
+      "source_url": "https://www.reddit.com/r/SuggestALaptop/comments/plnt01/",
+      "product_mention": "Orion Play 15",
+      "is_product_type": false,
+      "criterion_key": "cpu_performance",
+      "value": null,
+      "unit": null,
+      "score": 7.5,
+      "quote": "Orion Play 15 has been solid for my builds",
+      "claim_type": "experience",
+      "polarity": "positive",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_b48b695c88b3fc6d",
+      "source_id": "src_6cd568f741625bcf",
+      "source_url": "https://made-up-reviews.example/coding-laptops-tested",
+      "product_mention": "Zentrix Pro 9",
+      "is_product_type": false,
+      "criterion_key": "battery_life",
+      "value": null,
+      "unit": null,
+      "score": 9.5,
+      "quote": "Zentrix Pro 9 lasts a full two days",
+      "claim_type": "experience",
+      "polarity": "positive",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_b7747c68a45634ae",
+      "source_id": "src_6cd568f741625bcf",
+      "source_url": "https://made-up-reviews.example/coding-laptops-tested",
+      "product_mention": "Zentrix Pro 9",
+      "is_product_type": false,
+      "criterion_key": "price_inr",
+      "value": 49990.0,
+      "unit": "INR",
+      "score": null,
+      "quote": "Zentrix Pro 9 sells for 49990 rupees",
+      "claim_type": "experience",
+      "polarity": "neutral",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_ed6ba1643e05a52b",
+      "source_id": "src_f78e31565f559da0",
+      "source_url": "https://made-up-store.example/p/kestrel-slim-15",
+      "product_mention": "Novalux Air 7",
+      "is_product_type": false,
+      "criterion_key": "price_inr",
+      "value": 59990.0,
+      "unit": "INR",
+      "score": null,
+      "quote": "Novalux Air 7 is just 59990 rupees",
+      "claim_type": "experience",
+      "polarity": "neutral",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_f32dd76795a6d5c2",
+      "source_id": "src_f78e31565f559da0",
+      "source_url": "https://made-up-store.example/p/kestrel-slim-15",
+      "product_mention": "Novalux Air 7",
+      "is_product_type": false,
+      "criterion_key": "ram_gb",
+      "value": 32.0,
+      "unit": "GB",
+      "score": null,
+      "quote": "Novalux Air 7 has 32 GB RAM",
+      "claim_type": "experience",
+      "polarity": "neutral",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    },
+    {
+      "id": "clm_7d6e7b02f9340d87",
+      "source_id": "src_b2815e72d92a7b2f",
+      "source_url": "https://www.reddit.com/r/SuggestALaptop/comments/plnt01/",
+      "product_mention": "Quorra Book X3",
+      "is_product_type": false,
+      "criterion_key": "keyboard_comfort",
+      "value": null,
+      "unit": null,
+      "score": 9.5,
+      "quote": "Quorra Book X3 has a dream keyboard",
+      "claim_type": "experience",
+      "polarity": "positive",
+      "weight": 1.0,
+      "retrieved_at": "2026-11-12T09:00:00Z",
+      "extracted_at": "2026-11-12T09:00:00Z"
+    }
+  ],
+  "mentions": {
+    "src_6cd568f741625bcf": [
+      {
+        "raw_name": "Nova Book 14",
+        "is_product": true,
+        "brand": "Nova",
+        "author_hash": null,
+        "recommends": null
+      },
+      {
+        "raw_name": "AA13",
+        "is_product": true,
+        "brand": "Aurora",
+        "author_hash": null,
+        "recommends": null
+      },
+      {
+        "raw_name": "Vela Pro 14",
+        "is_product": true,
+        "brand": "Vela",
+        "author_hash": null,
+        "recommends": null
+      },
+      {
+        "raw_name": "Zentrix Pro 9",
+        "is_product": true,
+        "brand": "Zentrix",
+        "author_hash": null,
+        "recommends": null
+      }
+    ],
+    "src_f78e31565f559da0": [
+      {
+        "raw_name": "Kestrel Slim 15",
+        "is_product": true,
+        "brand": "Kestrel",
+        "author_hash": null,
+        "recommends": null
+      },
+      {
+        "raw_name": "Novalux Air 7",
+        "is_product": true,
+        "brand": "Novalux",
+        "author_hash": null,
+        "recommends": null
+      }
+    ],
+    "src_b2815e72d92a7b2f": [
+      {
+        "raw_name": "Orion Play 15",
+        "is_product": true,
+        "brand": "Orion",
+        "author_hash": null,
+        "recommends": null
+      },
+      {
+        "raw_name": "Quorra Book X3",
+        "is_product": true,
+        "brand": "Quorra",
+        "author_hash": null,
+        "recommends": null
+      }
+    ]
+  },
+  "match": {
+    "products": [
+      {
+        "id": "prd_nova_book_14",
+        "name": "Nova Book 14",
+        "brand": "Nova",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_kestrel_slim_15",
+        "name": "Kestrel Slim 15",
+        "brand": "Kestrel",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_orion_play_15",
+        "name": "Orion Play 15",
+        "brand": "Orion",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_aurora_air_13",
+        "name": "Aurora Air 13",
+        "brand": "Aurora",
+        "kind": "product",
+        "aliases": [
+          "AA13"
+        ],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_vela_pro_14",
+        "name": "Vela Pro 14",
+        "brand": "Vela",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_zentrix_pro_9",
+        "name": "Zentrix Pro 9",
+        "brand": "Zentrix",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_novalux_air_7",
+        "name": "Novalux Air 7",
+        "brand": "Novalux",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_quorra_book_x3",
+        "name": "Quorra Book X3",
+        "brand": "Quorra",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      }
+    ],
+    "alias_map": {
+      "Nova Book 14": "prd_nova_book_14",
+      "Kestrel Slim 15": "prd_kestrel_slim_15",
+      "Orion Play 15": "prd_orion_play_15",
+      "Aurora Air 13": "prd_aurora_air_13",
+      "Vela Pro 14": "prd_vela_pro_14",
+      "Zentrix Pro 9": "prd_zentrix_pro_9",
+      "Novalux Air 7": "prd_novalux_air_7",
+      "Quorra Book X3": "prd_quorra_book_x3",
+      "AA13": "prd_aurora_air_13"
+    },
+    "unmatched": [],
+    "method": "fuzzy"
+  }
+}

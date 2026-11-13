@@ -9,35 +9,43 @@ criterion and a rule keeps its community score while its value comes only from o
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Collection, Sequence
 
 from app.contracts import AlternativeValue, ResolvedValue, SourceTier, ValueState, VerifyInput, VerifyResult
 from app.decide.rules import PRICE_KEY
 
-from . import combine
+from . import combine, sourced
 from .combine import Evidence, Method, Resolution
 from .trust import TrustTable, describe_sources
+
+log = logging.getLogger(__name__)
 
 FILTER_KEYS: frozenset[str] = frozenset({PRICE_KEY})  # always a filter key; the pipeline adds the hard rules' keys
 
 
 def unsourced(inp: VerifyInput) -> list[str]:
-    """Products with no source, dropped before scoring (US-40, FR-25). S3-7 fills this; until then nothing is dropped.
+    """Products with no source, dropped before scoring (US-40, FR-25): the ids app/verify/sourced.py finds, in order.
 
     This is the one place that decision plugs in: verify() leaves these products out of its values and lists them in
-    VerifyResult.dropped_unsourced.
+    VerifyResult.dropped_unsourced, and leaves their claims out before anything is combined. The verify stage logs
+    each drop once per search.
     """
-    return []
+    return [product_id for product_id, _ in sourced.unsourced(inp)]
 
 
 def _keys(inp: VerifyInput) -> list[str]:
     return list(dict.fromkeys(inp.criterion_keys))
 
 
-def evidence_from(inp: VerifyInput, table: TrustTable, category: str | None = None) -> list[Evidence]:
+def evidence_from(
+    inp: VerifyInput, table: TrustTable, category: str | None = None, skip: Collection[str] = frozenset()
+) -> list[Evidence]:
     """Every claim about a matched product and a requested key, with its source's site, tier and starting trust.
-    A claim whose product was not matched, whose criterion was not asked for, or whose source is missing is left out.
-    `category` adjusts a site's trust (trust.yaml); verify() passes VerifyInput.category."""
+    A claim whose product was not matched, whose criterion was not asked for, or whose source is missing is left out,
+    and so is one about a product in `skip`: verify() passes the products it dropped as unsourced, so their claims
+    never feed trust learning or either side of a dispute (US-40). `category` adjusts a site's trust (trust.yaml);
+    verify() passes VerifyInput.category."""
     sources = describe_sources(inp.sources, table, category)
     names = dict(inp.match.alias_map)
     folded = {raw.casefold(): pid for raw, pid in sorted(names.items())}
@@ -46,7 +54,7 @@ def evidence_from(inp: VerifyInput, table: TrustTable, category: str | None = No
     for claim in inp.claims:
         source = sources.get(claim.source_id)
         product = names.get(claim.product_mention) or folded.get(claim.product_mention.casefold())
-        if source is None or product is None or claim.criterion_key not in keys:
+        if source is None or product is None or product in skip or claim.criterion_key not in keys:
             continue
         site, tier, trust = source
         out.append(
@@ -104,7 +112,7 @@ def verify(
     value, only scores (DR-01). The price always is one.
     """
     dropped = set(unsourced(inp))
-    evidence = without_community_values(evidence_from(inp, table, inp.category), {*filter_keys, PRICE_KEY})
+    evidence = without_community_values(evidence_from(inp, table, inp.category, dropped), {*filter_keys, PRICE_KEY})
     outcome = combine.resolve_all(evidence, table, method)
     values = [
         _resolved(product.id, key, outcome.resolutions.get((product.id, key)))
@@ -116,10 +124,20 @@ def verify(
 
 
 def all_unknown(inp: VerifyInput) -> VerifyResult:
-    """The last resort when even tier order fails: every value Unknown, so the search goes on (build rule 9)."""
+    """The last resort when even tier order fails: every value Unknown, so the search goes on (build rule 9).
+
+    It still leaves out the products no source names (build rule 5). If that check is what failed, it keeps them all,
+    each with only Unknown values: a broken check must not cost the search every product.
+    """
+    try:
+        dropped = set(unsourced(inp))
+    except Exception as exc:  # the type only, never its text
+        log.error("verify's source check failed (%s); no product is dropped", type(exc).__name__)
+        dropped = set()
     values = [
         ResolvedValue(product_id=product.id, criterion_key=key, state=ValueState.UNKNOWN, confidence=0.0)
         for product in inp.match.products
+        if product.id not in dropped
         for key in _keys(inp)
     ]
-    return VerifyResult(values=values, trust_method="tier_order")
+    return VerifyResult(values=values, dropped_unsourced=sorted(dropped), trust_method="tier_order")

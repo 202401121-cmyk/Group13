@@ -33,6 +33,7 @@ from app.contracts import (
     StageName,
     examples,
 )
+from app.decide.features import known_feature
 from app.llm.fitting import estimate_tokens
 from app.llm.output import build_system_prompt
 from app.llm.pool import ATTEMPT_SHARE, CALL_MARGIN_S, time_limit_s
@@ -167,11 +168,19 @@ class GuardedExtractStage:
     def fallback(self, inp: ExtractInput, ctx: StageContext, error: Exception) -> ExtractionResult:
         return self.stub.fallback(inp, ctx, error)
 
-    def ask_for_specs(self, search_id: str, attributes: Sequence[str], has_budget: bool) -> None:
-        """Before a search's sources are read: its hard rules' keys and whether it has a budget (US-14). Public calls
-        ask for the known spec keys among them, and for price_inr with a budget, so verify and decide get values."""
+    def ask_for_specs(
+        self, search_id: str, attributes: Sequence[str], has_budget: bool, features: Sequence[str] = ()
+    ) -> None:
+        """Before a search's sources are read: its hard rules' keys, whether it has a budget (US-14) and the features
+        it rules out (S3-9). Public calls ask for the known spec keys among them, for price_inr with a budget, and for
+        each known feature as "has_<feature>", so verify and decide get values.
+
+        Only features config/exclusions.yaml lists are kept, by their own names there: whatever a caller passes, this
+        stage's memory never holds the shopper's words."""
+        known = (known_feature(feature) for feature in features)
+        kept = tuple(dict.fromkeys(name for name in known if name is not None))
         with self._lock:
-            self._asks[search_id] = SpecAsk(tuple(attributes), has_budget)
+            self._asks[search_id] = SpecAsk(tuple(attributes), has_budget, kept)
             self._asks.move_to_end(search_id)
             while len(self._asks) > MAX_TRACKED_SEARCHES:
                 self._asks.popitem(last=False)

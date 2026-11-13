@@ -54,7 +54,8 @@ def test_claims_reach_their_product_through_the_alias_map() -> None:
 
 
 def test_every_product_and_key_gets_a_value() -> None:
-    review = source("https://reviews.example/nova-book-14")
+    """Every product a source names (US-40 drops the rest) gets a value for every key, Unknown where no claim speaks."""
+    review = source("https://reviews.example/nova-book-14", text="Nova Book 14 and Orion Play 15, side by side.")
     matched = match("Nova Book 14", "Orion Play 15")
     result = _run(verify_input(matched, [claim(review, "Nova Book 14", "battery_life", score=8.0)], [review]))
     assert len(result.values) == 2 * 3
@@ -107,11 +108,14 @@ def test_same_inputs_same_output() -> None:
     assert _run(shuffled) == first
 
 
-def test_dropped_unsourced_stays_empty_for_now() -> None:
-    """US-40 (S3-7) fills this through unsourced(); until then nothing is dropped."""
+def test_dropped_unsourced_is_what_unsourced_finds() -> None:
+    """US-40 (S3-7) fills this through unsourced(): no example source names Aurora Air 13 or Vela Pro 14, and no
+    example claim is about them, so both are dropped and have no values. The three the sources name stay."""
     inp = verify_input(examples.match(), examples.claims(), examples.sources(), ["battery_life"])
-    assert unsourced(inp) == []
-    assert _run(inp).dropped_unsourced == []
+    assert unsourced(inp) == ["prd_aurora_air_13", "prd_vela_pro_14"]
+    result = _run(inp)
+    assert result.dropped_unsourced == unsourced(inp)
+    assert {v.product_id for v in result.values} == {"prd_nova_book_14", "prd_kestrel_slim_15", "prd_orion_play_15"}
 
 
 PRODUCTS_N = 40

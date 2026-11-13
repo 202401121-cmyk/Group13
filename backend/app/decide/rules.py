@@ -20,6 +20,7 @@ from typing import Literal
 
 from app.contracts import Budget, Exclusion, FilteredProduct, HardRule, Product, ResolvedValue, ValueState
 
+from .features import feature_key
 from .units import (
     Quantity,
     attribute_unit,
@@ -360,8 +361,13 @@ def _runs_in(words: list[str], within: list[str]) -> bool:
 
 
 def _feature_keys(feature: list[str]) -> set[str]:
+    """The keys a feature's value may come under: its own words ("touch_screen", "has_touch_screen", ...), and the key
+    the search asked extract and verify for, made from the feature's own name in config/exclusions.yaml (S3-9):
+    "has_touchscreen" for "touch screen", "has_rgb_lighting" for "rgb"."""
     key = "_".join(feature)
-    return {key, f"has_{key}", f"is_{key}"}
+    keys = {key, f"has_{key}", f"is_{key}"}
+    asked = feature_key(" ".join(feature))
+    return keys | {asked} if asked is not None else keys
 
 
 def _variant_has(attributes: Mapping[str, str], feature: list[str]) -> bool:

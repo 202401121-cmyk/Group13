@@ -1,16 +1,18 @@
-"""Code sets a claim's type from its source, never the model (US-14, DR-05)."""
+"""Code sets a claim's type from its source, never the model (US-14, DR-05). Sites' tiers come from trust.yaml."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
+import yaml  # type: ignore[import-untyped]
 
 from app.contracts import ClaimType, Source, SourceTier, SourceType, examples
 from app.extract.parsing import RawClaim, RawExtraction, to_extraction_result
 from app.extract.settings import DEFAULT_CONFIG_PATH, ExtractSettings, load_extract_settings
 from app.extract.tiers import claim_type_for, tier_of
 from app.llm import load_llm_config
+from app.verify.trust import TrustTable, load_trust_table
 from tests.fakes.reddit import NOW
 from tests.fakes.research import review_source, thread, web_source
 
@@ -155,19 +157,80 @@ def test_reddit_stays_community_whatever_the_map_says() -> None:
         pytest.param("reddit_output_tokens: 0\n", id="a-bad-number"),
         pytest.param("surprise: 1\n", id="an-unknown-key"),
         pytest.param('tiers:\n  lab: ["https://a.example/"]\n', id="a-url-for-a-domain"),
+        pytest.param("tiers:\n  lab: [rtings.com]\n", id="a-tier-list-extract-no-longer-reads"),
     ],
 )
-def test_a_broken_file_counts_every_domain_as_editorial(tmp_path: Path, content: str) -> None:
+def test_a_broken_file_gives_the_defaults_and_the_trust_tables_tiers(tmp_path: Path, content: str) -> None:
+    """Tiers live in trust.yaml now, so a broken extract.yaml costs only its own settings, never a site's tier."""
     path = tmp_path / "extract.yaml"
     path.write_text(content, encoding="utf-8")
     settings = load_extract_settings(path, env={})
-    assert settings.domain_tiers == {}
-    assert tier_of(_web("https://www.rtings.com/a"), settings.domain_tiers) is SourceTier.EDITORIAL
+    assert settings.domain_tiers == load_trust_table().domain_tiers()
+    assert tier_of(_web("https://www.rtings.com/a"), settings.domain_tiers) is SourceTier.LAB
     assert settings.reddit_output_tokens == ExtractSettings().reddit_output_tokens
 
 
+def test_a_broken_trust_table_counts_every_domain_as_editorial(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    path = tmp_path / "trust.yaml"
+    path.write_text("sites: [not, a, mapping", encoding="utf-8")
+    broken = load_trust_table(path)
+    assert broken == TrustTable()  # the built-in defaults, which list no site
+    monkeypatch.setattr("app.verify.trust.default_trust_table", lambda: broken)
+    settings = load_extract_settings(env={})
+    assert settings.domain_tiers == {}
+    assert tier_of(_web("https://www.rtings.com/a"), settings.domain_tiers) is SourceTier.EDITORIAL
+
+
 def test_a_missing_file_gives_the_defaults(tmp_path: Path) -> None:
-    assert load_extract_settings(tmp_path / "nothing.yaml", env={}).domain_tiers == {}
+    settings = load_extract_settings(tmp_path / "nothing.yaml", env={})
+    assert settings == ExtractSettings.model_validate({**ExtractSettings().model_dump(), **_budget()})
+    assert settings.domain_tiers == load_trust_table().domain_tiers()
+
+
+def _budget() -> dict[str, object]:
+    pool = load_llm_config().pool
+    return {"reddit_tokens_per_search": pool.reddit_tokens_per_search, "book_real_use": pool.book_real_use}
+
+
+# The tier list config/extract.yaml held until S3-7, when extract started reading trust.yaml's.
+OLD_TIERS: dict[SourceTier, list[str]] = {
+    SourceTier.MANUFACTURER: [
+        "acer.com",
+        "apple.com",
+        "asus.com",
+        "bose.com",
+        "dell.com",
+        "hp.com",
+        "lenovo.com",
+        "lg.com",
+        "mi.com",
+        "msi.com",
+        "oneplus.in",
+        "samsung.com",
+        "sony.co.in",
+    ],
+    SourceTier.LAB: ["notebookcheck.net", "rtings.com"],
+    SourceTier.COMMUNITY: [
+        "c.mi.com",
+        "h30434.www3.hp.com",
+        "head-fi.org",
+        "quora.com",
+        "stackexchange.com",
+        "zentalk.asus.com",
+    ],
+    SourceTier.RETAILER: ["amazon.in", "croma.com", "flipkart.com", "reliancedigital.in", "vijaysales.com"],
+}
+
+
+def test_the_tiers_come_from_the_trust_table() -> None:
+    assert load_trust_table().domain_tiers() == DOMAINS
+    assert "tiers" not in yaml.safe_load(DEFAULT_CONFIG_PATH.read_text(encoding="utf-8"))
+    assert "tiers" not in ExtractSettings.model_fields
+
+
+@pytest.mark.parametrize(("tier", "domain"), [(t, d) for t, domains in OLD_TIERS.items() for d in domains])
+def test_every_site_of_the_old_list_keeps_its_tier(tier: SourceTier, domain: str) -> None:
+    assert DOMAINS[domain] is tier
 
 
 def test_the_settings_come_from_the_config_file() -> None:

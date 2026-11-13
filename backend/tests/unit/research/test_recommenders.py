@@ -451,3 +451,12 @@ def test_a_name_on_a_config_list_is_only_skipped_because_of_the_list() -> None:
     source = _thread("aaa", (ANN, "I like the dell."))
     rows = count_recommenders([source], ["dell"], words=plain)
     assert [r.product_mention for r in rows] == ["dell"]
+
+
+def test_find_all_gives_every_whole_word_name_even_where_names_overlap() -> None:
+    """For sourcing (US-40): find() keeps one name per stretch of text, for counting people; find_all() keeps all."""
+    matcher = ProductMatcher({"Samsung Galaxy S24": "s24", "Galaxy S24 Ultra": "ultra", "S24": "bare"})
+    text = "The Samsung Galaxy S24 Ultra is great, and so is the S245."
+    assert matcher.find(text) == ["s24"]
+    assert matcher.find_all(text) == {"s24", "ultra", "bare"}
+    assert matcher.find_all("The S245 and the GalaxyS24 Ultra") == set()

@@ -15,13 +15,14 @@ result cites every claim its values rest on (SearchResult.citations).
 
 from __future__ import annotations
 
+import inspect
 import json
 import logging
 import os
 import re
 import secrets
 import threading
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Collection, Iterable, Sequence
 from concurrent.futures import ThreadPoolExecutor, wait
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -72,6 +73,8 @@ from app.contracts import (
     examples,
 )
 from app.decide import PRICE_KEY, WeightedDecideStage
+from app.decide.features import feature_key, known_feature
+from app.decide.rules import NO_SINGLE_CHANGE
 from app.enrich import EnrichStage
 from app.entities import FuzzyMatchStage, alias_keys
 from app.explain import ExplainStage
@@ -95,6 +98,7 @@ MAX_MENTIONS = 1000  # MatchInput.mentions limit
 _PRODUCT_ID = re.compile(r"^prd_[A-Za-z0-9_-]{3,64}$")  # a stored alias must point at a valid ProductId
 MAX_CLAIMS = 5000  # VerifyInput.claims limit
 MAX_VERIFY_KEYS = 30  # VerifyInput.criterion_keys limit
+MAX_REPORT_NOTES = 20  # StageReport.notes limit
 MAX_EXPLAINED = 10  # ExplainInput.ranked limit
 MAX_PRICED = 10  # CommerceInput.products limit
 TOP_PRIORITIES = 3
@@ -655,6 +659,19 @@ class _Search:
     def rule_keys(self) -> list[str]:
         return [r.attribute for r in self.rubric.hard_rules]
 
+    @property
+    def features(self) -> list[str]:
+        """The features the shopper ruled out (S3-9), each by its own name in config/exclusions.yaml. A feature that
+        file doesn't list is left out, so the shopper's own words never go to extract or verify."""
+        named = (known_feature(e.value) for e in self.rubric.exclusions if e.kind == "feature")
+        return list(dict.fromkeys(name for name in named if name is not None))
+
+    @property
+    def feature_keys(self) -> list[str]:
+        """The keys decide reads a ruled-out feature under ("has_touchscreen"), so verify resolves a value for each."""
+        keys = (feature_key(name) for name in self.features)
+        return list(dict.fromkeys(key for key in keys if key is not None))
+
     def sources_found(self) -> dict[SourceType, int]:
         """Sources found so far, per type, for the progress bar. All zero until a real research stage has run."""
         counts = dict.fromkeys(SourceType, 0)
@@ -676,11 +693,17 @@ class _Search:
             return _skipped(StageName.EXTRACT, "there were no sources to read")
         started = monotonic()
         failed = threading.Event()
-        # Public calls ask for the known spec keys among the hard rules, and the price with a budget (US-14). A stub
-        # stage has no such method, so nothing changes for it. Keys only: the rules' own words are never passed.
+        # Public calls ask for the known spec keys among the hard rules, and the price with a budget (US-14), and each
+        # ruled-out feature config/exclusions.yaml knows, by its own name. A stub stage has no such method, so nothing
+        # changes for it, and one written before features were asked for gets the rest. Keys and names from our config
+        # only: the rules' and the exclusions' own words are never passed.
         ask_for_specs = getattr(self.stages.extract, "ask_for_specs", None)
         if ask_for_specs is not None:
-            ask_for_specs(self.ctx.search_id, self.rule_keys, self.rubric.budget is not None)
+            has_budget = self.rubric.budget is not None
+            if _takes(ask_for_specs, "features"):
+                ask_for_specs(self.ctx.search_id, self.rule_keys, has_budget, features=self.features)
+            else:
+                ask_for_specs(self.ctx.search_id, self.rule_keys, has_budget)
 
         def read(source: Source) -> tuple[ExtractionResult | None, StageReport] | None:
             """One source, each under its own time limit. None if it was never started."""
@@ -756,12 +779,13 @@ class _Search:
 
     def verify(self) -> StageReport:
         research = _require(self.research_out, "research")
-        rule_keys = self.rule_keys
+        rule_keys = self.rule_keys + self.feature_keys  # a ruled-out feature is checked as a rule is (S3-9)
         price = [PRICE_KEY] if self.rubric.budget else []  # decide checks the budget on it (US-17), before the rules
         keys = list(dict.fromkeys(self.weight_keys + price + rule_keys))[:MAX_VERIFY_KEYS]
-        # The keys decide filters on: the price and every hard rule's attribute, a criterion too or not. Community
-        # claims give them no value (S3-10b, DR-01). Keys only, like extract's specs. A stage without the method (the
-        # stub) has no use for them; one that keeps them is told to forget them once verify is done, run or fallback.
+        # The keys decide filters on: the price, every hard rule's attribute and every ruled-out feature's key, a
+        # criterion too or not. Community claims give them no value (S3-10b, DR-01). Keys only, like extract's specs.
+        # A stage without the method (the stub) has no use for them; one that keeps them is told to forget them once
+        # verify is done, run or fallback.
         use_filter_keys = getattr(self.stages.verify, "use_filter_keys", None)
         if use_filter_keys is not None:
             use_filter_keys(self.ctx.search_id, list(dict.fromkeys(price + rule_keys)))
@@ -774,9 +798,26 @@ class _Search:
         )
         try:
             self.verify_out, report = self._run(self.stages.verify, inp)
+            report = self._with_report_notes(self.stages.verify, report)  # before forget, which clears them
         finally:
             self._forget_filter_keys()
         return report
+
+    def _with_report_notes(self, stage: object, report: StageReport) -> StageReport:
+        """The report, with the stage's own notes for this search (`report_notes(search_id)`), such as how many
+        products verify dropped as unsourced (US-40). Never stops the search."""
+        collect = getattr(stage, "report_notes", None)
+        if collect is None:
+            return report
+        try:
+            notes = [note for note in collect(self.ctx.search_id) if isinstance(note, str) and note]
+        except Exception as exc:  # the type only, never its text (build rule 9)
+            log.warning("a stage's report notes were not read: %s", type(exc).__name__)
+            return report
+        if not notes:
+            return report
+        merged = [*report.notes, *notes][:MAX_REPORT_NOTES]
+        return StageReport.model_validate({**report.model_dump(), "notes": merged})
 
     def _forget_filter_keys(self) -> None:
         forget = getattr(self.stages.verify, "forget", None)
@@ -811,6 +852,10 @@ class _Search:
             community=verified.community,
         )
         self.decide_out, report = self._run(self.stages.decide, inp)
+        if self.decide_out is not None:
+            # Whatever made it (the stub's sample decision lists the example products), a dropped product is never
+            # shown or held: it would appear with no product behind it (US-40).
+            self.decide_out = without_products(self.decide_out, self.dropped)
         self.decide_is_sample = self.decide_out is not None and made_by_placeholder(self.stages.decide, report)
         self.decide_note = self._stage_note(self.stages.decide)
         return report
@@ -855,9 +900,10 @@ class _Search:
         sample products join the result, so it stays valid and shows names, not ids, under the sample note."""
         if not self.decide_is_sample or self.decide_out is None:
             return []
-        have = {p.id for p in self.match_out.products} if self.match_out else set()
+        have = {p.id for p in self._kept_products()}
         named = {r.product_id for r in self.decide_out.ranked} | {f.product_id for f in self.decide_out.filtered}
-        return [p for p in examples.match().products if p.id in named - have]  # filtered ones need their names too
+        wanted = named - have - self.dropped  # filtered ones need their names too; a dropped one never comes back
+        return [p for p in examples.match().products if p.id in wanted]
 
     def result(self, started_at: datetime, partial: bool) -> SearchResult:
         values = self.verify_out.values if self.verify_out else []
@@ -918,6 +964,55 @@ class _Search:
                 log.warning("search %s: citations left out, as a cited claim is not the run's", self.ctx.search_id)
             return []
         return [Citation(claim_id=c.id, source_id=c.source_id, quote=c.quote) for c in found if c is not None]
+
+
+def _label_at(position: int) -> Literal["best_match", "runner_up"] | None:
+    return "best_match" if position == 0 else "runner_up" if position == 1 else None
+
+
+def without_products(decision: DecideResult, dropped: Collection[str]) -> DecideResult:
+    """The decision with these products in neither its ranked nor its filtered list (US-40): verify dropped them as
+    unsourced, so they have no product to show. Ranks run 1, 2, 3 again, each tie list loses them, and the labels and
+    gaps follow the new order. With nothing left shown but something held, the contract asks for a hint: it then says
+    no single change is known. Unchanged, the same object, when it names none of them."""
+    gone = set(dropped)
+    ranked = [r for r in decision.ranked if r.product_id not in gone]
+    filtered = [f for f in decision.filtered if f.product_id not in gone]
+    if len(ranked) == len(decision.ranked) and len(filtered) == len(decision.filtered):
+        return decision
+    labelled = any(r.label is not None for r in decision.ranked)
+    leader = ranked[0].score if ranked else None
+    renumbered = [
+        {
+            **r.model_dump(),
+            "rank": n + 1,
+            "tied_with": [t for t in r.tied_with if t not in gone],
+            "label": _label_at(n) if labelled else None,
+            "gap_to_leader": round(max(0.0, leader - r.score), 2)
+            if leader is not None and r.score is not None
+            else 0.0,
+        }
+        for n, r in enumerate(ranked)
+    ]
+    hint = decision.relaxation_hint
+    if not ranked and filtered and hint is None:
+        hint = NO_SINGLE_CHANGE
+    return DecideResult.model_validate(
+        {
+            **decision.model_dump(),
+            "ranked": renumbered,
+            "filtered": [f.model_dump() for f in filtered],
+            "relaxation_hint": hint,
+        }
+    )
+
+
+def _takes(method: Callable[..., object], parameter: str) -> bool:
+    """Does this method take a parameter of this name? A stage written before it was added doesn't."""
+    try:
+        return parameter in inspect.signature(method).parameters
+    except (TypeError, ValueError):  # a builtin or a mock with no signature to read
+        return False
 
 
 def _merge(stage: StageName, reports: list[StageReport], elapsed_ms: int) -> StageReport:

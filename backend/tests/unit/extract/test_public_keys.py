@@ -13,6 +13,7 @@ from datetime import UTC, datetime
 import yaml  # type: ignore[import-untyped]
 
 import app.contracts as C
+from app.cli import public_keys_line
 from app.contracts import DataClass, ExtractInput, LLMTask, Source, StageContext
 from app.contracts import examples as ex
 from app.criteria.fallback import DEFAULT_FALLBACK_PATH as FIXED_SETS
@@ -226,3 +227,89 @@ def test_spec_keys_only_fill_the_room_the_criteria_leave_price_first() -> None:
 def test_with_room_every_known_rule_key_is_asked_for() -> None:
     counted = public_prompt_keys("laptop", ["battery_life"], ["ram_gb", "weight_kg"], True, SETTINGS)
     assert counted.specs == (PRICE_KEY, "ram_gb", "weight_kg")
+
+
+# --- ruled-out features (S3-9, with US-40) ---------------------------------------------------------------------------
+
+
+def test_a_ruled_out_known_feature_is_asked_for_as_a_fixed_key_with_our_definition() -> None:
+    ask = SpecAsk((), has_budget=False, features=("touchscreen",))
+    criteria = allowed_criteria(_input(["battery_life"]), DataClass.PUBLIC, ask, SETTINGS)
+    assert criteria.keys == ("battery_life", "has_touchscreen")
+    assert "- has_touchscreen: Whether it has touchscreen (yes or no)." in criteria.lines
+
+
+def test_a_feature_is_asked_for_by_its_own_name_however_it_was_written() -> None:
+    counted = public_prompt_keys("laptop", ["battery_life"], [], False, SETTINGS, features=["Touch Screen", "RGB"])
+    assert counted.specs == ("has_touchscreen", "has_rgb_lighting")
+    assert counted.definitions["has_rgb_lighting"] == "Whether it has rgb lighting (yes or no)."
+
+
+def test_an_unknown_feature_is_not_sent() -> None:
+    ask = SpecAsk((), has_budget=False, features=("my daughters glitter case", "touchscreen"))
+    criteria = allowed_criteria(_input(["battery_life"]), DataClass.PUBLIC, ask, SETTINGS)
+    assert criteria.keys == ("battery_life", "has_touchscreen")
+    message = user_message(PAGE, criteria)
+    assert "glitter" not in message and "daughter" not in message
+
+
+def test_features_come_after_the_price_and_the_rules_within_the_limit() -> None:
+    features = ("touchscreen", "notch")
+    counted = public_prompt_keys("laptop", ["battery_life"], ["ram_gb"], True, SETTINGS, features=features)
+    assert counted.specs == (PRICE_KEY, "ram_gb", "has_touchscreen", "has_notch")
+    laptop = [c.key for c in fallback_criteria("laptop").criteria]  # 8 fixed criteria: room for two more lines
+    full = public_prompt_keys("laptop", laptop, ["ram_gb"], True, SETTINGS, features=features)
+    assert full.specs == (PRICE_KEY, "ram_gb")  # the features wait for room
+    some = public_prompt_keys("laptop", laptop[:7], ["ram_gb"], True, SETTINGS, features=features)
+    assert some.specs == (PRICE_KEY, "ram_gb", "has_touchscreen")
+    assert len(some.criteria) + len(some.specs) == MAX_PROMPT_KEYS
+
+
+def test_a_feature_key_the_spec_list_defines_keeps_that_definition() -> None:
+    settings = ExtractSettings(
+        public_spec_keys={"has_notch": "Whether its screen has a notch cut into it (yes or no)."}
+    )
+    ask = SpecAsk((), has_budget=False, features=("notch",))
+    criteria = allowed_criteria(_input(["battery_life"]), DataClass.PUBLIC, ask, settings)
+    assert "- has_notch: Whether its screen has a notch cut into it (yes or no)." in criteria.lines
+
+
+def test_reddit_prompts_are_unchanged_by_features() -> None:
+    reddit = thread("t3_feats", "A made-up thread", text=QUOTE)
+    keys = [SHOPPER_KEY, "battery_life"]
+    ask = SpecAsk(("ram_gb",), True, features=("touchscreen",))
+    with_features = allowed_criteria(_input(keys, reddit), DataClass.REDDIT, ask, SETTINGS)
+    plain = allowed_criteria(_input(keys, reddit), DataClass.REDDIT)
+    assert with_features.keys == plain.keys == tuple(keys)
+    assert with_features.lines == plain.lines
+
+
+def test_the_stage_keeps_the_features_it_is_asked_for() -> None:
+    raw = RawExtraction(
+        mentions=[],
+        claims=[
+            RawClaim(
+                product_mention="Nova Book 14",
+                criterion_key="has_touchscreen",
+                value="no",
+                quote=QUOTE,
+                polarity="neutral",
+            )
+        ],
+    )
+    stage = GuardedExtractStage(FakeLLMClient({LLMTask.EXTRACT_CLAIMS: raw}), SETTINGS, lambda: datetime.now(UTC))
+    stage.ask_for_specs(CTX.search_id, [], has_budget=False, features=["touchscreen"])
+    out = stage.run(_input(["battery_life"]), CTX)
+    assert [(c.criterion_key, c.value) for c in out.claims] == [("has_touchscreen", "no")]
+    stage.ask_for_specs("srch_nofeatures", [], has_budget=False)  # still works without features
+    assert stage.run(_input(["battery_life"]), StageContext(search_id="srch_nofeatures")).claims == []
+
+
+def test_the_cli_count_includes_the_features() -> None:
+    rubric = C.Rubric.model_validate(
+        {
+            **ex.rubric().model_dump(),
+            "exclusions": [{"kind": "feature", "value": "touchscreen"}, {"kind": "feature", "value": "glitter"}],
+        }
+    )
+    assert public_keys_line(rubric, SETTINGS).endswith("3 spec keys (price_inr, ram_gb, has_touchscreen).")
