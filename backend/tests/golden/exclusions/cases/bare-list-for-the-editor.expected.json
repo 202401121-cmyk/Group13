@@ -1,0 +1,20 @@
+{
+  "kind": "specific",
+  "outcome": "canonical",
+  "object": {
+    "exclusions": [
+      {
+        "kind": "brand",
+        "value": "Xiaomi"
+      },
+      {
+        "kind": "brand",
+        "value": "Realme"
+      },
+      {
+        "kind": "feature",
+        "value": "notch"
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "kind": "specific",
+  "outcome": "canonical",
+  "object": {
+    "exclusions": [
+      {
+        "kind": "model",
+        "value": "Pixel 8"
+      }
+    ]
+  }
+}

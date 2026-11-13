@@ -1,0 +1,34 @@
+# Features a shopper can rule out in words (US-10), such as "not touchscreen" or "no notch". Loaded by
+# app/intake/exclusions.py, which never asks an LLM: a word not listed here (or among the brands in reddit_quality.yaml,
+# or a model name with a digit) comes back as not understood, never guessed. Team's choice, 13 Nov 2026.
+#
+# name: what the exclusion says, in lowercase. also: other ways a shopper writes it. A plural "s" is understood anyway.
+features:
+  - name: touchscreen
+    also: [touch screen, touch display, touch-screen]
+  - name: curved display
+    also: [curved screen, curved edges, curved edge display]
+  - name: notch
+    also: [display notch, screen notch]
+  - name: glossy screen
+    also: [glossy display, glossy finish, reflective screen]
+  - name: punch-hole camera
+    also: [punch hole, punch-hole, punch hole camera]
+  - name: pop-up camera
+    also: [pop up camera, popup camera]
+  - name: bloatware
+    also: [preinstalled apps, pre-installed apps, ads, ads in the software]
+  - name: plastic body
+    also: [plastic build, plastic back, plastic frame]
+  - name: glass back
+    also: [glass body]
+  - name: rgb lighting
+    also: [rgb, rgb lights, gamer lights]
+  - name: fan noise
+    also: [loud fans, noisy fans]
+  - name: non-removable battery
+    also: [sealed battery]
+  - name: in-ear fit
+    also: [in ear, in-ear]
+  - name: refurbished
+    also: [renewed, used, second hand, second-hand]
