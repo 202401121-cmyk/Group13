@@ -1,0 +1,40 @@
+# Technical words (US-07). A question about a criterion whose label or key holds one of these, as a whole word and in any
+# case, gets a "What does this mean?" explanation, taken from the criterion's own saved definition (no LLM is asked).
+# Loaded by app/interview/questions.py. Team's choice, 13 Nov 2026. Lowercase; a phrase is matched word for word.
+#
+# word: the word or phrase. also: other ways it is written.
+words:
+  - word: anc
+    also: [active noise cancellation]
+  - word: noise cancellation
+    also: [noise cancelling, noise canceling]
+  - word: ois
+    also: [optical image stabilisation, optical image stabilization]
+  - word: refresh rate
+  - word: hz
+    also: [hertz]
+  - word: nits
+    also: [brightness nits]
+  - word: mah
+  - word: ip rating
+    also: [ip68, ip67, ip54]
+  - word: water resistance
+  - word: codec
+    also: [codecs, aptx, ldac]
+  - word: latency
+  - word: gpu
+    also: [graphics card]
+  - word: cpu
+  - word: processor
+  - word: ram
+  - word: ssd
+  - word: hdr
+  - word: oled
+    also: [amoled]
+  - word: ppi
+    also: [pixel density]
+  - word: bitrate
+  - word: dpi
+  - word: tdp
+  - word: wattage
+    also: [watts]

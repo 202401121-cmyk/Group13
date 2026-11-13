@@ -55,6 +55,8 @@ export function viewStep(step: InterviewStep): Step {
     replies: (q?.quick_replies ?? []).filter(
       (r) => r.trim().toLowerCase() !== SKIP_REPLY.toLowerCase(),
     ),
+    // A backend that sends no terms explains nothing: an empty list, never an invented one.
+    terms: (q?.terms ?? []).map((t) => ({ term: t.term, explanation: t.explanation })),
   };
 }
 

@@ -3,6 +3,7 @@ import {
   MAX_ANSWER_LENGTH,
   type Answers,
   type Criterion,
+  type QuestionTerm,
   type Step,
   type Turn,
   type TurnResult,
@@ -33,6 +34,8 @@ export interface InterviewState {
   notice: string | null;
   /** The backend's weights once the interview is finished (live mode); null otherwise. */
   rubric: RubricItem[] | null;
+  /** The words each criterion's question explained when it was asked, so a question reopened by "Go back" keeps them. */
+  terms: Record<string, QuestionTerm[]>;
   requestId: number;
 }
 
@@ -60,6 +63,7 @@ export const initialInterview: InterviewState = {
   laterChanged: false,
   notice: null,
   rubric: null,
+  terms: {},
   requestId: 0,
 };
 
@@ -75,6 +79,7 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
         fallback: a.fallback,
         rubric: null,
         error: null,
+        terms: {}, // a new set of criteria: no explanation from the last one may be shown again
       };
     case "CRITERIA_FAILED":
       return { ...s, phase: "criteria-error", error: a.message };
@@ -123,6 +128,10 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
         laterChanged,
         notice: a.result.notice ?? null,
         rubric: a.result.rubric ?? null,
+        terms:
+          step.criterionId && step.terms.length
+            ? { ...s.terms, [step.criterionId]: step.terms }
+            : s.terms,
       };
     }
     case "TURN_FAILED":
@@ -143,7 +152,7 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
       return {
         ...s,
         phase: "asking",
-        step: questionFor(c),
+        step: questionFor(c, s.terms[c.id] ?? []),
         revising: c.id,
         pending: null,
         error: null,
@@ -189,5 +198,6 @@ export function toInterviewSnapshot(s: InterviewState): Partial<InterviewState> 
     step: s.step,
     revising: s.revising,
     rubric: s.rubric,
+    terms: s.terms,
   };
 }
