@@ -17,6 +17,7 @@ import type {
   Answers,
   Criterion,
   CriteriaResult,
+  QuestionTerm,
   InterviewService,
   Step,
   TurnInput,
@@ -65,7 +66,7 @@ export const CRITERIA_FIXTURES: Record<string, Criterion[]> = {
       definition: "How good photos and videos look, day and night.",
     },
     { id: "battery", title: "Battery life", definition: "How long it lasts on a full charge." },
-    { id: "performance", title: "Performance", definition: "How smoothly apps and games run." },
+    { id: "performance", title: "Processor speed", definition: "How smoothly apps and games run." },
     { id: "display", title: "Display quality", definition: "How sharp and bright the screen is." },
     {
       id: "updates",
@@ -131,6 +132,38 @@ const FALLBACK: Criterion[] = [
   VFM,
 ];
 
+/**
+ * Words the mock explains under a question (US-07), by criterion ID. As in a live search, the term is the
+ * question's own title, and only a technical criterion has one. The first laptop question has one, so the
+ * screen tests reach it at once; most questions, such as value for money, have none.
+ */
+export const TERM_FIXTURES: Record<string, QuestionTerm[]> = {
+  cpu: [
+    {
+      term: "CPU performance",
+      explanation:
+        "The main chip that does the computer's work. A faster one builds code, runs tools like Docker and opens big projects with less waiting.",
+    },
+  ],
+  performance: [
+    {
+      term: "Processor speed",
+      explanation:
+        "How smoothly the phone runs apps, games and many open tabs without lag, stutter or heating up.",
+    },
+  ],
+  latency: [
+    {
+      term: "Audio delay",
+      explanation:
+        "The short gap between a video and its sound. A small delay keeps voices in step with lips in videos and games.",
+    },
+  ],
+};
+
+/** The mock's question for a criterion, with the words it explains. */
+const askFor = (c: Criterion) => questionFor(c, TERM_FIXTURES[c.id] ?? []);
+
 /** Stand-in for the future memory service. */
 export const MEMORY_FIXTURE: Record<string, string> = { weight: "under 1.5 kg" };
 
@@ -150,7 +183,7 @@ function nextStep(criteria: Criterion[], answers: Answers): { step: Step; answer
       next[c.id] = { status: "remembered", value: memo };
       continue;
     }
-    return { step: questionFor(c), answers: next };
+    return { step: askFor(c), answers: next };
   }
   return {
     step: {
@@ -160,6 +193,7 @@ function nextStep(criteria: Criterion[], answers: Answers): { step: Step; answer
       note: null,
       why: null,
       replies: [],
+      terms: [],
     },
     answers: next,
   };
@@ -172,7 +206,7 @@ export function runTurn({ criteria, answers, turn }: TurnInput): TurnResult {
   if (turn) {
     const c = criteria.find((x) => x.id === turn.criterionId);
     if (!c) throw new Error("That question is no longer part of this interview.");
-    const base = questionFor(c);
+    const base = askFor(c);
     const t = turn.text?.trim() ?? null;
     // A button or the exact box is always an answer. Only typed words can be a question or a detour.
     const typed = t !== null && levelOf(t) === null && exactFromAnswer(t) === null;

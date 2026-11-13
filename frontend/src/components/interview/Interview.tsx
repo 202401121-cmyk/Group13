@@ -5,6 +5,7 @@ import { PillButton } from "@/components/shopsense/ui";
 import { pillButton } from "@/components/shopsense/pill-button";
 import { ExactValue } from "./ExactValue";
 import { InlineError, StatusChip } from "./shared";
+import { TermHelp } from "./TermHelp";
 import { noteContainsQuestion } from "@/lib/interview/view";
 import { statusOf, type InterviewState } from "@/lib/interview/reducer";
 import { exactFromAnswer, levelOf } from "@/lib/interview/roughLevels";
@@ -69,6 +70,8 @@ export const FocusCard = forwardRef<
       >
         {step.question}
       </h2>
+
+      <TermHelp key={step.questionId ?? step.criterionId} terms={step.terms} />
 
       {step.why && (
         <div className="mt-3">

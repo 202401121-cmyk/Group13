@@ -25,6 +25,12 @@ export interface AnswerRecord {
 }
 export type Answers = Record<string, AnswerRecord>;
 
+/** A word in a question that a shopper may not know, explained in plain words (US-07). */
+export interface QuestionTerm {
+  term: string;
+  explanation: string;
+}
+
 export type StepKind = "question" | "answer_then_repeat" | "rephrase" | "redirect" | "finished";
 
 export interface Step {
@@ -36,6 +42,8 @@ export interface Step {
   note: string | null;
   why: string | null;
   replies: string[];
+  /** Words in the question explained, behind "What does this mean?". Empty means none. */
+  terms: QuestionTerm[];
 }
 
 export interface Turn {

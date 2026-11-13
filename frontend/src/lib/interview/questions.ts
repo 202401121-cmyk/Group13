@@ -1,4 +1,4 @@
-import type { Criterion, Step } from "./types";
+import type { Criterion, QuestionTerm, Step } from "./types";
 
 /**
  * The buttons under every question. The backend understands exactly these (backend/app/interview/answers.py),
@@ -12,9 +12,9 @@ export const ALREADY_ANSWERED = "This question was already answered. Here is whe
 /**
  * A question worded the way the backend words it (backend/app/interview/questions.py), so a question asked
  * again after "Go back" looks the same in mock and live mode. The title opens the sentence, so it stands
- * exactly as given (D-44).
+ * exactly as given (D-44). `terms` are the words the question explains, when it has any (US-07).
  */
-export function questionFor(c: Criterion): Step {
+export function questionFor(c: Criterion, terms: QuestionTerm[] = []): Step {
   return {
     kind: "question",
     criterionId: c.id,
@@ -22,6 +22,7 @@ export function questionFor(c: Criterion): Step {
     note: null,
     why: `${c.definition}${c.lowerIsBetter ? " Lower is better here." : ""}`,
     replies: IMPORTANCE_REPLIES,
+    terms,
   };
 }
 
