@@ -1,0 +1,8 @@
+{
+  "kind": "specific",
+  "given": {
+    "require_trigger": true
+  },
+  "outcome": "fallback",
+  "fallback": "nothing_understood"
+}

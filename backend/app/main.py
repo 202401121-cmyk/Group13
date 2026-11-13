@@ -21,6 +21,7 @@ from fastapi.responses import JSONResponse
 
 from app import db
 from app.api import SearchRuns, default_runner, load_run_settings, presearch_router, search_runs_router
+from app.api.exclusions import router as exclusions_router
 from app.api.presearch import plain_validation_message
 from app.contracts import SCHEMA_VERSION, SearchRequest, SearchResult
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
@@ -89,6 +90,7 @@ def create_app(env: Mapping[str, str] | None = None) -> FastAPI:
     app.get("/api/health")(health)
     app.post("/api/search", response_model=SearchResult)(search)
     app.include_router(presearch_router)
+    app.include_router(exclusions_router)  # US-10: stateless, reads exclusions from words
     app.include_router(search_runs_router)
     return app
 

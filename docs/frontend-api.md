@@ -21,7 +21,7 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
 
 ## Every route the backend serves
 
-These fourteen routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). The frontend
+These fifteen routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). The frontend
 calls all of them except `GET /api/health`, which `scripts/dev.py` uses to see that the backend is up.
 
 | Route | What it does | Request body | Response 200 | Errors | Details |
@@ -34,6 +34,7 @@ calls all of them except `GET /api/health`, which `scripts/dev.py` uses to see t
 | `POST /api/presearch/{session_id}/interview/reply` | Answers the current question | `reply_text` (1 to 500 characters); `question_id` (optional: makes a repeated reply safe); `level` or `exact_weight` (optional, never both: [rough answers](#rough-answers-us-08)) | `InterviewStep` (next question, rephrase, or finished with the rubric) | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewreply) |
 | `POST /api/presearch/{session_id}/interview/back` | Asks an earlier question again | `question_id` (1 to 64 characters) | `InterviewStep` | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewback) |
 | `POST /api/presearch/{session_id}/rubric` | The shopper's rubric edits: switch a must-have, add or remove a leave-out, set a weight | `RubricEditRequest` | `RubricEditResponse` (the rebuilt `Rubric`) | 404, 409, 422 | [editing the rubric](#editing-the-rubric-us-09) |
+| `POST /api/presearch/exclusions/parse` | Reads leave-outs from the shopper's words ("no Xiaomi"); needs no session | `text` (1 to 200 characters) | `ExclusionParseResponse` | 422 | [reading leave-outs](#reading-leave-outs-from-words-us-10) |
 | `GET /api/presearch/{session_id}` | Everything about the session, for a page reload | none | the session | 404 | [presearch.md](api/presearch.md#get-apipresearchsession_id) |
 | `POST /api/search` | Runs the search with the finished rubric | `SearchRequest` | `SearchResult` | 422 | below |
 | `POST /api/search/runs` | Starts the same search in the background | `SearchRequest` | 202 `SearchRunStarted` | 422, 503 | [search runs](#search-runs-with-live-progress-us-12) |
@@ -313,6 +314,49 @@ Response 200 (`RubricEditResponse`; two of the seven weights left out here):
   so a page reload shows them. After `PUT /intent`, `GET /api/presearch/{session_id}` may show an `interview` whose
   `history` is empty and an `interview_step` of `null`: the edits are waiting for the interview to start again.
 - **Not here yet:** the editor itself is S3-14, and filtering by active rules is S3-10.
+
+## Reading leave-outs from words (US-10)
+
+`POST /api/presearch/exclusions/parse` reads what the shopper typed into the leave-out box and answers the exclusions
+it found, plus anything it could not read as one. It needs no session and changes nothing: the rubric editor (S3-14)
+then adds the exclusions to the session through the rubric route. Code reads the words; no AI model is asked.
+
+- **Phrases:** "no", "not", "without", "except", "avoid", "anything but" and "don't want" start a leave-out, in any
+  case, and lists split on "or", "and", "nor", commas and "/". A bare list such as `Xiaomi, Realme` is read too.
+- **Kinds:**
+  - `brand`: one of the brands ShopSense knows (`config/reddit_quality.yaml`).
+  - `model`: a name with a digit, such as `Galaxy A35` or `Pixel 8`.
+  - `feature`: a feature in `config/exclusions.yaml` (`touchscreen`, `curved display`, `notch`, `glossy screen` and
+    others), in any of the ways it is written there.
+- **Not understood:** anything else comes back in `not_understood`, as typed, and is never guessed. So does a measure
+  (`no more than 1.5 kg` is a must-have, not a leave-out). The screen should show those words, so the shopper can
+  rephrase them.
+- **`always`** is always `false` here. The shopper sets it in the editor, and it is stored with the session's leave-outs.
+  A guest's `always` is never used in another search: saving it to memory needs login (US-30, Sprint 4; D-36).
+- **Errors:** 422 when `text` is blank or over 200 characters, naming the field.
+
+Example request:
+
+```json
+{"text": "No Xiaomi or Realme, not touchscreen, and avoid the Galaxy A35 or Zorblax"}
+```
+
+Response 200 (`ExclusionParseResponse`):
+
+```json
+{
+  "exclusions": [
+    {"kind": "brand", "value": "Xiaomi", "always": false},
+    {"kind": "brand", "value": "Realme", "always": false},
+    {"kind": "feature", "value": "touchscreen", "always": false},
+    {"kind": "model", "value": "Galaxy A35", "always": false}
+  ],
+  "not_understood": ["Zorblax"]
+}
+```
+
+The same reader runs in intake's keyword rules, so "best phone under 30k, no Xiaomi" leaves Xiaomi out even when no AI
+model answers. There it reads only phrases that start with one of the words above.
 
 ## Sprint 2 contracts
 

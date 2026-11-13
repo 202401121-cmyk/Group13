@@ -35,6 +35,7 @@ A case is two files in `<parser>/cases/`, with the same name:
 | `criteria` | `family_set` | The category family's fixed criteria |
 | `extract` | `source_dropped` | No claims or mentions, and the coverage note says a source couldn't be read |
 | `research_reddit` | `items_skipped` | Nothing kept, and no error |
+| `exclusions` | `nothing_understood` | No exclusion read from the shopper's words (US-10); anything not placed is listed as not understood |
 
 **Write the expectation from what should happen, before you run it.** If a case fails because the parser is wrong, fix
 the parser. Never change a case to match wrong output.

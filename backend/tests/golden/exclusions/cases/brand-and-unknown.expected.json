@@ -1,0 +1,15 @@
+{
+  "kind": "specific",
+  "outcome": "canonical",
+  "object": {
+    "exclusions": [
+      {
+        "kind": "brand",
+        "value": "Vivo"
+      }
+    ],
+    "not_understood": [
+      "Zorblax"
+    ]
+  }
+}

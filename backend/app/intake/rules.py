@@ -1,8 +1,9 @@
 """The keyword rules layer (US-02): category and budget with no LLM at all.
 
-Used whenever every LLM provider fails, and as the stage's fallback. It only promises the category, the budget
-and the region; use case, hard rules and exclusions need the LLM. It never guesses a category: an ambiguous word
-or a request with no product gets one clear question instead (US-01).
+Used whenever every LLM provider fails, and as the stage's fallback. It promises the category, the budget, the
+region, and the exclusions typed in words ("no Xiaomi", US-10) through the same parser the rubric editor uses; use case
+and hard rules need the LLM. It never guesses a category: an ambiguous word or a request with no product gets one clear
+question instead (US-01).
 """
 
 from __future__ import annotations
@@ -12,6 +13,7 @@ from typing import Literal
 from app.contracts import Budget, Intent
 
 from .budget import parse_budget, region_for
+from .exclusions import parse_exclusions
 from .lexicon import Lexicon, load_lexicon
 
 NO_CATEGORY_QUESTION = "What kind of product are you looking for?"
@@ -33,6 +35,7 @@ def detect_by_rules(text: str, raw_query: str | None = None, lexicon: Lexicon | 
             category_label=lexicon.label(scan.category),
             budget=budget,
             region=region,
+            exclusions=parse_exclusions(text, require_trigger=True).exclusions,
             detected_by="rules",
         )
     if scan.ambiguous:

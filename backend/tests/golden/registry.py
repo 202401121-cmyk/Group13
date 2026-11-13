@@ -33,6 +33,7 @@ from app.criteria import CriteriaStage
 from app.criteria.fallback import fallback_set
 from app.extract import GuardedExtractStage
 from app.intake import IntakeStage
+from app.intake.exclusions import parse_exclusions
 from app.intake.rules import detect_by_rules
 from app.llm import InMemoryCallLog, WrapperLLMClient, load_llm_config
 from app.research.reddit.parsing import RawComment, RawPost, parse_items
@@ -219,6 +220,18 @@ def _extract_cases_from_p10() -> list[Case]:
     return [*_param_cases(REPLIES_THE_SCHEMA_REFUSES, dropped), *_param_cases(CLAIMS_CODE_REFUSES, nothing_kept)]
 
 
+# --- exclusions typed in words (US-10) -------------------------------------------------------------------------------
+
+
+def _run_exclusions(raw: str, given: Given) -> Ran:
+    result = parse_exclusions(raw, require_trigger=bool(given.get("require_trigger", False)))
+    return Ran(result, result.model_dump(mode="json", exclude_defaults=True))
+
+
+def _is_nothing_understood(ran: Ran, given: Given) -> bool:
+    return bool(ran.result.exclusions == [])
+
+
 # --- Reddit archives -------------------------------------------------------------------------------------------------
 
 
@@ -258,6 +271,13 @@ PARSERS: dict[str, Parser] = {
             {"source_dropped": _is_source_dropped},
             frozenset({"EXTRACT_CLAIMS: RawExtraction"}),
             reused=_extract_cases_from_p10,
+        ),
+        Parser(
+            "exclusions",
+            "app.intake.exclusions",
+            _run_exclusions,
+            {"nothing_understood": _is_nothing_understood},
+            model_output=False,  # the shopper's own words, not a model's answer
         ),
         Parser(
             "research_reddit",
