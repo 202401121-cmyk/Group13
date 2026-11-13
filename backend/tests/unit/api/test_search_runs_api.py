@@ -43,6 +43,7 @@ from app.pipeline import (
     default_search_stages,
 )
 from app.research import ResearchStage
+from tests.fakes.live_run import use_live_shaped_run
 
 RUN_ID = re.compile(r"^srch_[a-f0-9]{24}$")
 WAIT_S = 5.0
@@ -676,7 +677,8 @@ def test_a_running_run_is_never_dropped(harness: Harness) -> None:
 # --- POST /api/search is unchanged ----------------------------------------------------------------
 
 
-def test_post_api_search_is_unchanged(plain_client: TestClient) -> None:
+def test_post_api_search_is_unchanged(plain_client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    use_live_shaped_run(monkeypatch)  # a run whose real decide ranks something, so every stage runs (S3-10b)
     response = plain_client.post("/api/search", json=body())
     assert response.status_code == 200
     result = C.SearchResult.model_validate_json(response.text)

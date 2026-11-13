@@ -1,10 +1,11 @@
-"""The whole stub pipeline, end to end (US-52)."""
+"""The whole stub pipeline, end to end (US-52). test_pipeline_live_decide.py runs the real verify and decide."""
 
 from __future__ import annotations
 
 import app.contracts as C
 from app.contracts import examples as ex
 from app.pipeline import SAMPLE_NOTE, InMemoryResultStore, PipelineRunner, build_coverage_note, default_search_stages
+from tests.unit.test_sample_label import stub_stages
 
 ORDER = [
     C.StageName.RESEARCH,
@@ -24,7 +25,7 @@ def _request() -> C.SearchRequest:
 
 def test_stub_pipeline_runs_end_to_end() -> None:
     store = InMemoryResultStore()
-    result = PipelineRunner(default_search_stages(), store).run(_request())
+    result = PipelineRunner(stub_stages(), store).run(_request())
 
     assert [r.stage for r in result.stage_reports] == ORDER
     assert all(r.status is C.StageStatus.OK for r in result.stage_reports)
@@ -46,7 +47,7 @@ def test_stub_pipeline_runs_end_to_end() -> None:
 
 
 def test_products_carry_their_values_and_community_signal() -> None:
-    result = PipelineRunner(default_search_stages(), InMemoryResultStore()).run(_request())
+    result = PipelineRunner(stub_stages(), InMemoryResultStore()).run(_request())  # only the stub sets community yet
     nova = next(p for p in result.products if p.product.id == "prd_nova_book_14")
     assert nova.values
     assert all(v.product_id == "prd_nova_book_14" for v in nova.values)
@@ -72,3 +73,20 @@ def test_coverage_note_is_capped_at_400_characters() -> None:
     assert note is not None
     assert len(note) <= 400
     assert note.endswith("...")
+
+
+def test_the_default_pipeline_runs_end_to_end_with_the_real_verify_and_decide() -> None:
+    store = InMemoryResultStore()
+    result = PipelineRunner(default_search_stages(), store).run(_request())
+    assert [r.stage for r in result.stage_reports] == ORDER
+    assert C.SearchResult.model_validate_json(result.model_dump_json()) == result
+    assert result.decision is not None and result.decision.method == "weighted"
+    held = {f.product_id for f in result.decision.filtered} | {r.product_id for r in result.decision.ranked}
+    assert held == {p.product.id for p in result.products}  # every product decided, and none a sample
+    assert store.results == [result]
+
+
+def test_coverage_note_puts_the_decide_note_before_the_extract_note() -> None:
+    ok = C.StageReport(stage=C.StageName.MATCH, status=C.StageStatus.OK, duration_ms=1)
+    note = build_coverage_note([ok], [], partial=False, decide_note="Decide said.", extract_note="Extract said.")
+    assert note == "Decide said. Extract said."

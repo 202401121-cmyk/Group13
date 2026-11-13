@@ -106,6 +106,43 @@ describe("SearchResult -> results page", () => {
     });
   });
 
+  it("a product decide could not score shows no score, never 0", () => {
+    // S3-10b: with no evidence on any criterion, decide gives every ranked product a null score and no label.
+    const decision = example.decision!;
+    const unscored = {
+      ...example,
+      decision: {
+        ...decision,
+        method: "weighted",
+        ranked: decision.ranked.map((p) => ({
+          ...p,
+          score: null,
+          label: null,
+          chance_first: null,
+          tied_with: [],
+          separating_criterion: null,
+          gap_to_leader: 0,
+          contributions: p.contributions.map((c) => ({
+            ...c,
+            score: null,
+            normalized_weight: 0,
+            contribution: 0,
+            state: "unknown",
+          })),
+        })),
+      },
+    } as unknown as SearchResult;
+    const products = resultFromSearch(unscored, viewRubric, T0).products;
+    expect(products.length).toBeGreaterThan(0);
+    for (const p of products) {
+      expect(p.score).toBeNull();
+      expect(p.gapToLeader).toBeNull();
+      expect(p.label).toBeNull();
+      expect(p.contributions).toEqual([]); // no 0-point bars for criteria nothing was known about
+      expect((p.reasons ?? []).every((reason) => reason.points === null)).toBe(true);
+    }
+  });
+
   it("keeps every value state and never invents a missing one", () => {
     const kestrel = r.products[1]!;
     const orion = r.products[2]!;

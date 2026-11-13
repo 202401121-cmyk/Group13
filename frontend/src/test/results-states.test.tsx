@@ -545,3 +545,14 @@ describe("the saved banner", () => {
     expect(buildMockResult(mockInput, "success").saved).toBe(false);
   });
 });
+
+describe("a product with no score", () => {
+  it("says it has no score, never 0", () => {
+    // S3-10b: with no evidence on any criterion, decide ranks nothing by score, and the adapter keeps it null.
+    const p = resultFromSearch(example, rubric, T0).products[2]!;
+    const text = card({ ...p, score: null, gapToLeader: null, label: null }).textContent ?? "";
+    expect(text).toContain("No score");
+    expect(text).not.toMatch(/Score 0\b/);
+    expect(text).not.toContain("points behind");
+  });
+});

@@ -77,10 +77,18 @@ class FakeRealStage:
 
 
 def stub_stages() -> SearchStages:
-    """Every search stage as its Sprint 1 stub. Since US-15 the default match is real; MatchStage is its stub."""
-    stages = default_search_stages()
-    stages.match = MatchStage()
-    return stages
+    """Every search stage as its Sprint 1 stub, built one by one: the defaults are real now for match (US-15), verify
+    and decide (S3-10b), and the stubs live on as their fallbacks."""
+    return SearchStages(
+        research=ResearchStage(),
+        extract=ExtractStage(),
+        match=MatchStage(),
+        verify=VerifyStage(),
+        enrich=EnrichStage(),
+        decide=DecideStage(),
+        explain=ExplainStage(),
+        commerce=CommerceStage(),
+    )
 
 
 def all_real() -> SearchStages:
@@ -105,7 +113,18 @@ def test_the_real_stages_say_they_are_not(stage: type) -> None:
 
 
 def test_stub_stages_give_only_the_note() -> None:
-    assert run(default_search_stages()).coverage_note == SAMPLE_NOTE
+    assert run(stub_stages()).coverage_note == SAMPLE_NOTE
+
+
+def test_stub_stages_are_every_stub() -> None:
+    assert [type(getattr(stub_stages(), name)) for name in SEARCH_STAGES] == STUBS
+
+
+def test_the_default_stages_with_stub_research_still_give_the_note() -> None:
+    """Research and extract are stubs in every test (tests/conftest.py), so their data is a sample however real the
+    later stages are: the note says so whatever else it says."""
+    note = run(default_search_stages()).coverage_note
+    assert note is not None and note.endswith(SAMPLE_NOTE)
 
 
 def test_a_stub_never_reports_a_failure_that_did_not_happen() -> None:
@@ -166,7 +185,8 @@ def test_the_api_and_the_cli_show_the_note(capsys: pytest.CaptureFixture[str]) -
     response = TestClient(create_app({})).post("/api/search", json=request().model_dump(mode="json"))
     assert SAMPLE_NOTE in response.json()["coverage_note"]
     assert cli_main(["best laptop for coding under 70k"]) == 0
-    assert f"Coverage note: {SAMPLE_NOTE}" in capsys.readouterr().out
+    notes = [line for line in capsys.readouterr().out.splitlines() if line.startswith("Coverage note: ")]
+    assert len(notes) == 1 and notes[0].endswith(SAMPLE_NOTE)  # after any note of the real stages (S3-10b)
 
 
 # --- fitting the 400-character limit -------------------------------------------------------------

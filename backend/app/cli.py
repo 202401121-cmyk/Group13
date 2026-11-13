@@ -14,8 +14,8 @@ The request and the finished search are each saved once, under a new session ID,
 US-52). A database that is off, down or slow never stops the search; --no-db skips it altogether.
 
 --claims also prints what was read from each source (US-14), each Reddit thread's score, the threads dropped and how
-many people name each product (US-13). Ranking stays on sample data until Sprint 3, so this is where real claims can be
-seen. They are printed and never saved.
+many people name each product (US-13). Verify and decide are real (S3-10b), so the shortlist is ranked from these
+claims; this is where the claims themselves can be seen. They are printed and never saved.
 """
 
 from __future__ import annotations
@@ -431,16 +431,7 @@ def render(result: SearchResult) -> str:
     names = {p.product.id: p.product.name for p in result.products}
     lines = [f"\nResults for: {result.request.raw_query}"]
 
-    ranked = result.decision.ranked if result.decision else []
-    lines.append("\nRanked:" if ranked else "\nNo product passed your rules.")
-    for r in ranked:
-        name = names.get(r.product_id, r.product_id)
-        chance = f"{r.chance_first:.0%}" if r.chance_first is not None else "n/a"
-        lines.append(
-            f"  {r.rank}. {name}: score {r.score:.1f}, coverage {r.coverage:.0%}, chance of being first {chance}"
-        )
-        for url in top_sources(result, r.product_id):
-            lines.append(f"       source: {url}")
+    lines += _ranked_lines(result, names)
 
     filtered = result.decision.filtered if result.decision else []
     for group, title in (("filtered_out", "Filtered out"), ("cant_tell", "Can't tell")):
@@ -448,12 +439,28 @@ def render(result: SearchResult) -> str:
         if rows:
             lines.append(f"\n{title}:")
             lines += [f"  - {names.get(f.product_id, f.product_id)}: {'; '.join(f.reasons)}" for f in rows]
+    hint = result.decision.relaxation_hint if result.decision else None
+    if hint:
+        lines.append(f"\nHint: {hint}")
 
     if result.coverage_note:
         lines.append(f"\nCoverage note: {result.coverage_note}")
     if not result.saved:
         lines.append("\nThis search could not be saved.")
     return "\n".join(lines)
+
+
+def _ranked_lines(result: SearchResult, names: Mapping[str, str]) -> list[str]:
+    """Each ranked product with its score, or "not ranked" when decide had nothing to score (never a 0, DR-09)."""
+    ranked = result.decision.ranked if result.decision else []
+    lines = ["\nRanked:" if ranked else "\nNo product passed your rules."]
+    for r in ranked:
+        name = names.get(r.product_id, r.product_id)
+        chance = f"{r.chance_first:.0%}" if r.chance_first is not None else "n/a"
+        score = "not ranked" if r.score is None else f"score {r.score:.1f}"
+        lines.append(f"  {r.rank}. {name}: {score}, coverage {r.coverage:.0%}, chance of being first {chance}")
+        lines += [f"       source: {url}" for url in top_sources(result, r.product_id)]
+    return lines
 
 
 def top_sources(result: SearchResult, product_id: str) -> list[str]:

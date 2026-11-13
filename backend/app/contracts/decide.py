@@ -38,7 +38,9 @@ class Contribution(Contract):
 class RankedProduct(Contract):
     product_id: ProductId
     rank: int = Field(ge=1)
-    score: float = Field(ge=0, le=100)
+    score: float | None = Field(
+        ge=0, le=100, description="0 to 100. None for every product when none had evidence on any criterion (1.8.0)"
+    )
     contributions: list[Contribution] = Field(min_length=1)
     coverage: Fraction = Field(description="Share of the score backed by real evidence, not estimates")
     chance_first: Fraction | None = Field(default=None, description="From simulations; None with the plain score")
@@ -67,9 +69,14 @@ class DecideResult(Contract):
             raise ValueError("a product cannot be both ranked and filtered")
         if not self.ranked and self.relaxation_hint is None and self.filtered:
             raise ValueError("when nothing passes the rules, give a relaxation hint (US-17)")
+        unscored = [r.score is None for r in self.ranked]
+        if any(unscored) and not all(unscored):
+            raise ValueError("every ranked product has no score, or none does")
+        if any(unscored) and any(r.label is not None for r in self.ranked):
+            raise ValueError("with no score, no product is labelled best match or runner-up")
         pairs = list(zip(self.ranked, self.ranked[1:], strict=False))
         if self.method == "weighted":
-            if any(a.score < b.score - 1e-9 for a, b in pairs):
+            if any(a.score is not None and b.score is not None and a.score < b.score - 1e-9 for a, b in pairs):
                 raise ValueError("with the plain weighted score, ranks follow the score")
         else:
             if any(r.chance_first is None for r in self.ranked):

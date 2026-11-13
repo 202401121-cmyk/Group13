@@ -1,0 +1,1078 @@
+{
+  "schema_version": "1.7.0",
+  "search_id": "srch_demo0001",
+  "request": {
+    "session_id": "sess_demo0001",
+    "user_id": null,
+    "raw_query": "best laptop for coding under 70k, at least 16 GB RAM, not too heavy, no Zenith",
+    "rubric": {
+      "category": "laptop",
+      "use_case": "coding",
+      "region": "IN",
+      "budget": {
+        "min": null,
+        "max": {
+          "amount": 70000.0,
+          "currency": "INR"
+        }
+      },
+      "hard_rules": [
+        {
+          "attribute": "ram_gb",
+          "operator": ">=",
+          "value": 16.0,
+          "unit": "GB",
+          "source_text": "at least 16 GB RAM",
+          "id": "ram_gb_min_1c18a881e7",
+          "active": true
+        }
+      ],
+      "exclusions": [
+        {
+          "kind": "brand",
+          "value": "Zenith",
+          "always": false
+        }
+      ],
+      "weights": [
+        {
+          "key": "cpu_performance",
+          "weight": 9.0,
+          "normalized": 0.20454545454545456,
+          "origin": "answered",
+          "uncertainty": 0.2
+        },
+        {
+          "key": "battery_life",
+          "weight": 7.0,
+          "normalized": 0.1590909090909091,
+          "origin": "answered",
+          "uncertainty": 0.2
+        },
+        {
+          "key": "keyboard_comfort",
+          "weight": 8.0,
+          "normalized": 0.18181818181818182,
+          "origin": "answered",
+          "uncertainty": 0.2
+        },
+        {
+          "key": "display_quality",
+          "weight": 4.0,
+          "normalized": 0.09090909090909091,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "weight",
+          "weight": 6.0,
+          "normalized": 0.13636363636363635,
+          "origin": "remembered",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "build_durability",
+          "weight": 4.0,
+          "normalized": 0.09090909090909091,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "value_for_money",
+          "weight": 6.0,
+          "normalized": 0.13636363636363635,
+          "origin": "default",
+          "uncertainty": 0.5
+        }
+      ]
+    }
+  },
+  "started_at": "2026-10-03T10:00:00Z",
+  "finished_at": "2026-10-03T10:01:34Z",
+  "partial": false,
+  "products": [
+    {
+      "product": {
+        "id": "prd_nova_book_14",
+        "name": "Nova Book 14",
+        "brand": "Nova",
+        "kind": "product",
+        "aliases": [
+          "Nova 14"
+        ],
+        "variants": [
+          {
+            "id": "var_nova_book_14_16_512_in",
+            "label": "16 GB / 512 GB / India",
+            "attributes": {
+              "ram": "16GB",
+              "storage": "512GB",
+              "region": "IN"
+            }
+          }
+        ],
+        "recommender_count": 9,
+        "weighted_mentions": 7.4
+      },
+      "values": [
+        {
+          "product_id": "prd_nova_book_14",
+          "criterion_key": "cpu_performance",
+          "state": "known",
+          "score": 7.5,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_053f4bf83174cf53"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_nova_book_14",
+          "criterion_key": "battery_life",
+          "state": "known",
+          "score": 8.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_bf7c2488fe2eda5f"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_nova_book_14",
+          "criterion_key": "keyboard_comfort",
+          "state": "known",
+          "score": 9.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_5807c6297c20c05e"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_nova_book_14",
+          "criterion_key": "display_quality",
+          "state": "known",
+          "score": 7.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_568a82e200569f1d"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_nova_book_14",
+          "criterion_key": "weight",
+          "state": "known",
+          "score": 7.5,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_ae3839c409ab71bf"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_nova_book_14",
+          "criterion_key": "build_durability",
+          "state": "known",
+          "score": 7.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_3ac2323f12a5c8d6"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_nova_book_14",
+          "criterion_key": "value_for_money",
+          "state": "known",
+          "score": 8.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_d37a81d013da4914"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_nova_book_14",
+          "criterion_key": "ram_gb",
+          "state": "known",
+          "score": null,
+          "value": 16.0,
+          "confidence": 0.9,
+          "supporting_claim_ids": [
+            "clm_3bed19288173fb0e"
+          ],
+          "conflicting_claim_ids": []
+        }
+      ],
+      "community": {
+        "product_id": "prd_nova_book_14",
+        "label": "consistent",
+        "communities": [
+          "r/developersIndia"
+        ],
+        "note": null
+      }
+    },
+    {
+      "product": {
+        "id": "prd_kestrel_slim_15",
+        "name": "Kestrel Slim 15",
+        "brand": "Kestrel",
+        "kind": "product",
+        "aliases": [],
+        "variants": [
+          {
+            "id": "var_kestrel_slim_15_16_512_in",
+            "label": "16 GB / 512 GB / India",
+            "attributes": {
+              "ram": "16GB",
+              "storage": "512GB",
+              "region": "IN"
+            }
+          }
+        ],
+        "recommender_count": 6,
+        "weighted_mentions": 5.1
+      },
+      "values": [
+        {
+          "product_id": "prd_kestrel_slim_15",
+          "criterion_key": "cpu_performance",
+          "state": "known",
+          "score": 8.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_dc147cd38e1e6839"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_kestrel_slim_15",
+          "criterion_key": "battery_life",
+          "state": "disputed",
+          "score": 7.0,
+          "value": null,
+          "confidence": 0.5,
+          "supporting_claim_ids": [
+            "clm_2c31271c5c981d18"
+          ],
+          "conflicting_claim_ids": [
+            "clm_46feb890769b8225"
+          ]
+        },
+        {
+          "product_id": "prd_kestrel_slim_15",
+          "criterion_key": "keyboard_comfort",
+          "state": "known",
+          "score": 7.5,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_c6d748e9c7945937"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_kestrel_slim_15",
+          "criterion_key": "display_quality",
+          "state": "known",
+          "score": 7.5,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_e32836d2e2257930"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_kestrel_slim_15",
+          "criterion_key": "weight",
+          "state": "known",
+          "score": 8.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_8fe73a640ab049ef"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_kestrel_slim_15",
+          "criterion_key": "build_durability",
+          "state": "known",
+          "score": 7.5,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_9e9b1d688e0274e6"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_kestrel_slim_15",
+          "criterion_key": "value_for_money",
+          "state": "known",
+          "score": 7.5,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_92a4c00d3f53f206"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_kestrel_slim_15",
+          "criterion_key": "ram_gb",
+          "state": "known",
+          "score": null,
+          "value": 16.0,
+          "confidence": 0.9,
+          "supporting_claim_ids": [
+            "clm_762fc11b7a21cdde"
+          ],
+          "conflicting_claim_ids": []
+        }
+      ],
+      "community": null
+    },
+    {
+      "product": {
+        "id": "prd_orion_play_15",
+        "name": "Orion Play 15",
+        "brand": "Orion",
+        "kind": "product",
+        "aliases": [],
+        "variants": [
+          {
+            "id": "var_orion_play_15_16_512_in",
+            "label": "16 GB / 512 GB / India",
+            "attributes": {
+              "ram": "16GB",
+              "storage": "512GB",
+              "region": "IN"
+            }
+          }
+        ],
+        "recommender_count": 2,
+        "weighted_mentions": 1.6
+      },
+      "values": [
+        {
+          "product_id": "prd_orion_play_15",
+          "criterion_key": "cpu_performance",
+          "state": "known",
+          "score": 9.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_e13d8f66bd7c5e47"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_orion_play_15",
+          "criterion_key": "battery_life",
+          "state": "known",
+          "score": 5.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_8f6737d75a7a0501"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_orion_play_15",
+          "criterion_key": "keyboard_comfort",
+          "state": "known",
+          "score": 6.5,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_1cf7047e908108a3"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_orion_play_15",
+          "criterion_key": "display_quality",
+          "state": "known",
+          "score": 8.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_21fa900998d83915"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_orion_play_15",
+          "criterion_key": "weight",
+          "state": "known",
+          "score": 4.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_e1c5552273f9da7e"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_orion_play_15",
+          "criterion_key": "build_durability",
+          "state": "estimated",
+          "score": 7.25,
+          "value": null,
+          "confidence": 0.3,
+          "supporting_claim_ids": [],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_orion_play_15",
+          "criterion_key": "value_for_money",
+          "state": "known",
+          "score": 7.0,
+          "value": null,
+          "confidence": 0.8,
+          "supporting_claim_ids": [
+            "clm_5139615e2d353cc9"
+          ],
+          "conflicting_claim_ids": []
+        },
+        {
+          "product_id": "prd_orion_play_15",
+          "criterion_key": "ram_gb",
+          "state": "known",
+          "score": null,
+          "value": 16.0,
+          "confidence": 0.9,
+          "supporting_claim_ids": [
+            "clm_2f93718e8d47a941"
+          ],
+          "conflicting_claim_ids": []
+        }
+      ],
+      "community": {
+        "product_id": "prd_orion_play_15",
+        "label": "single_source",
+        "communities": [
+          "r/developersIndia"
+        ],
+        "note": "Only one community discussed it, so confidence is one step lower."
+      }
+    },
+    {
+      "product": {
+        "id": "prd_aurora_air_13",
+        "name": "Aurora Air 13",
+        "brand": "Aurora",
+        "kind": "product",
+        "aliases": [],
+        "variants": [
+          {
+            "id": "var_aurora_air_13_16_512_in",
+            "label": "16 GB / 512 GB / India",
+            "attributes": {
+              "ram": "16GB",
+              "storage": "512GB",
+              "region": "IN"
+            }
+          }
+        ],
+        "recommender_count": 2,
+        "weighted_mentions": 1.6
+      },
+      "values": [],
+      "community": null
+    },
+    {
+      "product": {
+        "id": "prd_vela_pro_14",
+        "name": "Vela Pro 14",
+        "brand": "Vela",
+        "kind": "product",
+        "aliases": [],
+        "variants": [
+          {
+            "id": "var_vela_pro_14_16_512_in",
+            "label": "16 GB / 512 GB / India",
+            "attributes": {
+              "ram": "16GB",
+              "storage": "512GB",
+              "region": "IN"
+            }
+          }
+        ],
+        "recommender_count": 2,
+        "weighted_mentions": 1.6
+      },
+      "values": [
+        {
+          "product_id": "prd_vela_pro_14",
+          "criterion_key": "ram_gb",
+          "state": "unknown",
+          "score": null,
+          "value": null,
+          "confidence": 0.0,
+          "supporting_claim_ids": [],
+          "conflicting_claim_ids": []
+        }
+      ],
+      "community": null
+    }
+  ],
+  "decision": {
+    "ranked": [
+      {
+        "product_id": "prd_nova_book_14",
+        "rank": 1,
+        "score": 78.3,
+        "contributions": [
+          {
+            "criterion_key": "cpu_performance",
+            "score": 7.5,
+            "normalized_weight": 0.20454545454545456,
+            "contribution": 1.5341,
+            "state": "known"
+          },
+          {
+            "criterion_key": "battery_life",
+            "score": 8.0,
+            "normalized_weight": 0.1590909090909091,
+            "contribution": 1.2727,
+            "state": "known"
+          },
+          {
+            "criterion_key": "keyboard_comfort",
+            "score": 9.0,
+            "normalized_weight": 0.18181818181818182,
+            "contribution": 1.6364,
+            "state": "known"
+          },
+          {
+            "criterion_key": "display_quality",
+            "score": 7.0,
+            "normalized_weight": 0.09090909090909091,
+            "contribution": 0.6364,
+            "state": "known"
+          },
+          {
+            "criterion_key": "weight",
+            "score": 7.5,
+            "normalized_weight": 0.13636363636363635,
+            "contribution": 1.0227,
+            "state": "known"
+          },
+          {
+            "criterion_key": "build_durability",
+            "score": 7.0,
+            "normalized_weight": 0.09090909090909091,
+            "contribution": 0.6364,
+            "state": "known"
+          },
+          {
+            "criterion_key": "value_for_money",
+            "score": 8.0,
+            "normalized_weight": 0.13636363636363635,
+            "contribution": 1.0909,
+            "state": "known"
+          }
+        ],
+        "coverage": 1.0,
+        "chance_first": 0.46,
+        "confidence": "medium",
+        "label": "best_match",
+        "gap_to_leader": 0.0,
+        "tied_with": [
+          "prd_kestrel_slim_15"
+        ],
+        "separating_criterion": "battery_life"
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "rank": 2,
+        "score": 75.91,
+        "contributions": [
+          {
+            "criterion_key": "cpu_performance",
+            "score": 8.0,
+            "normalized_weight": 0.20454545454545456,
+            "contribution": 1.6364,
+            "state": "known"
+          },
+          {
+            "criterion_key": "battery_life",
+            "score": 7.0,
+            "normalized_weight": 0.1590909090909091,
+            "contribution": 1.1136,
+            "state": "disputed"
+          },
+          {
+            "criterion_key": "keyboard_comfort",
+            "score": 7.5,
+            "normalized_weight": 0.18181818181818182,
+            "contribution": 1.3636,
+            "state": "known"
+          },
+          {
+            "criterion_key": "display_quality",
+            "score": 7.5,
+            "normalized_weight": 0.09090909090909091,
+            "contribution": 0.6818,
+            "state": "known"
+          },
+          {
+            "criterion_key": "weight",
+            "score": 8.0,
+            "normalized_weight": 0.13636363636363635,
+            "contribution": 1.0909,
+            "state": "known"
+          },
+          {
+            "criterion_key": "build_durability",
+            "score": 7.5,
+            "normalized_weight": 0.09090909090909091,
+            "contribution": 0.6818,
+            "state": "known"
+          },
+          {
+            "criterion_key": "value_for_money",
+            "score": 7.5,
+            "normalized_weight": 0.13636363636363635,
+            "contribution": 1.0227,
+            "state": "known"
+          }
+        ],
+        "coverage": 1.0,
+        "chance_first": 0.41,
+        "confidence": "medium",
+        "label": "runner_up",
+        "gap_to_leader": 2.39,
+        "tied_with": [
+          "prd_nova_book_14"
+        ],
+        "separating_criterion": "battery_life"
+      },
+      {
+        "product_id": "prd_orion_play_15",
+        "rank": 3,
+        "score": 67.05,
+        "contributions": [
+          {
+            "criterion_key": "cpu_performance",
+            "score": 9.0,
+            "normalized_weight": 0.20454545454545456,
+            "contribution": 1.8409,
+            "state": "known"
+          },
+          {
+            "criterion_key": "battery_life",
+            "score": 5.0,
+            "normalized_weight": 0.1590909090909091,
+            "contribution": 0.7955,
+            "state": "known"
+          },
+          {
+            "criterion_key": "keyboard_comfort",
+            "score": 6.5,
+            "normalized_weight": 0.18181818181818182,
+            "contribution": 1.1818,
+            "state": "known"
+          },
+          {
+            "criterion_key": "display_quality",
+            "score": 8.0,
+            "normalized_weight": 0.09090909090909091,
+            "contribution": 0.7273,
+            "state": "known"
+          },
+          {
+            "criterion_key": "weight",
+            "score": 4.0,
+            "normalized_weight": 0.13636363636363635,
+            "contribution": 0.5455,
+            "state": "known"
+          },
+          {
+            "criterion_key": "build_durability",
+            "score": 7.25,
+            "normalized_weight": 0.09090909090909091,
+            "contribution": 0.6591,
+            "state": "estimated"
+          },
+          {
+            "criterion_key": "value_for_money",
+            "score": 7.0,
+            "normalized_weight": 0.13636363636363635,
+            "contribution": 0.9545,
+            "state": "known"
+          }
+        ],
+        "coverage": 0.902,
+        "chance_first": 0.13,
+        "confidence": "low",
+        "label": null,
+        "gap_to_leader": 11.25,
+        "tied_with": [],
+        "separating_criterion": null
+      }
+    ],
+    "filtered": [
+      {
+        "product_id": "prd_aurora_air_13",
+        "group": "filtered_out",
+        "reasons": [
+          "₹84,990 is above your ₹70,000 budget"
+        ],
+        "rule_attribute": "price"
+      },
+      {
+        "product_id": "prd_vela_pro_14",
+        "group": "cant_tell",
+        "reasons": [
+          "We couldn't confirm it has at least 16 GB RAM"
+        ],
+        "rule_attribute": "ram_gb"
+      }
+    ],
+    "relaxation_hint": null,
+    "method": "monte_carlo"
+  },
+  "explanations": [
+    {
+      "product_id": "prd_nova_book_14",
+      "sentences": [
+        {
+          "text": "Its keyboard is the most comfortable of the three, which matters most for long coding.",
+          "claim_ids": [
+            "clm_5807c6297c20c05e"
+          ],
+          "supported": true
+        },
+        {
+          "text": "Battery life is strong, so you can work a full day away from a plug.",
+          "claim_ids": [
+            "clm_bf7c2488fe2eda5f"
+          ],
+          "supported": true
+        }
+      ],
+      "trade_off": "The Orion Play 15 compiles faster, but it is much heavier.",
+      "unverified": [],
+      "method": "llm_checked"
+    },
+    {
+      "product_id": "prd_kestrel_slim_15",
+      "sentences": [
+        {
+          "text": "It is the lightest of the three and slightly faster than the Nova Book 14.",
+          "claim_ids": [
+            "clm_8fe73a640ab049ef",
+            "clm_dc147cd38e1e6839"
+          ],
+          "supported": true
+        }
+      ],
+      "trade_off": "Its battery life is disputed: the maker says 10 hours, an owner reports about 6.",
+      "unverified": [
+        "battery_life"
+      ],
+      "method": "llm_checked"
+    }
+  ],
+  "commerce": {
+    "offers": [
+      {
+        "product_id": "prd_nova_book_14",
+        "variant_id": "var_nova_book_14_16_512_in",
+        "store": "Example Store",
+        "url": "https://store.example.com/nova-book-14-16gb-512gb",
+        "listing_title": "Nova Book 14 (16GB RAM, 512GB SSD) Laptop",
+        "price": {
+          "amount": 64990.0,
+          "currency": "INR"
+        },
+        "availability": "in_stock",
+        "as_of": "2026-10-03T08:00:00Z",
+        "title_matched": true,
+        "variant_matched": true,
+        "over_budget": false
+      },
+      {
+        "product_id": "prd_kestrel_slim_15",
+        "variant_id": null,
+        "store": "Another Store",
+        "url": "https://shop.example.org/kestrel-slim-15",
+        "listing_title": "Kestrel Slim 15 Laptop",
+        "price": {
+          "amount": 67490.0,
+          "currency": "INR"
+        },
+        "availability": "in_stock",
+        "as_of": "2026-10-02T04:00:00Z",
+        "title_matched": true,
+        "variant_matched": false,
+        "over_budget": false
+      }
+    ],
+    "no_offer": {
+      "prd_orion_play_15": "https://www.google.com/search?tbm=shop&q=Orion+Play+15"
+    }
+  },
+  "sources": [
+    {
+      "id": "src_edb2d0c42af72797",
+      "url": "https://www.reddit.com/r/developersIndia/comments/abc123/",
+      "type": "reddit",
+      "tier": 4,
+      "title": "Best coding laptop under 70k?",
+      "text": "Thread: best coding laptop under 70k? Nova Book 14 has been great for Android Studio. Kestrel Slim 15 battery is fine but I get about 6 hours, not 10. Nova Book 14: keyboard comfort rated 9.0/10. Nova Book 14: value for money rated 8.0/10. Kestrel Slim 15: keyboard comfort rated 7.5/10. Kestrel Slim 15: value for money rated 7.5/10. Orion Play 15: keyboard comfort rated 6.5/10. Orion Play 15: value for money rated 7.0/10.",
+      "text_hash": "8faaa9fb3ceee6c25eeab0f593865a0fc711d63f033d5e11660525068e5f531d",
+      "fetched_at": "2026-10-03T10:00:00Z",
+      "published_at": null,
+      "community": "r/developersIndia",
+      "site": null,
+      "data_class": "reddit",
+      "quality": 0.8,
+      "via": "api",
+      "source_detail": null,
+      "author_hash": null,
+      "upvotes": null,
+      "comment_count": null,
+      "comments": []
+    },
+    {
+      "id": "src_37c43827cfe41e89",
+      "url": "https://example-reviews.in/kestrel-slim-15-review",
+      "type": "review_site",
+      "tier": 3,
+      "title": "Kestrel Slim 15 review",
+      "text": "Kestrel Slim 15 review: rated for 10 hours of battery. The Nova Book 14 keyboard is excellent. Orion Play 15 is fast but heavy at 2.3 kg. Nova Book 14: cpu performance rated 7.5/10. Nova Book 14: battery life rated 8.0/10. Nova Book 14: display quality rated 7.0/10. Nova Book 14: weight rated 7.5/10. Nova Book 14: build durability rated 7.0/10. Kestrel Slim 15: cpu performance rated 8.0/10. Kestrel Slim 15: display quality rated 7.5/10. Kestrel Slim 15: weight rated 8.0/10. Kestrel Slim 15: build durability rated 7.5/10. Orion Play 15: cpu performance rated 9.0/10. Orion Play 15: battery life rated 5.0/10. Orion Play 15: display quality rated 8.0/10. Orion Play 15: weight rated 4.0/10. Nova Book 14 ships with 16 GB RAM. Orion Play 15 ships with 16 GB RAM.",
+      "text_hash": "93a8498ed444719ad546a25e4bb3be735a04125b584dae3aef94732461d9f0b9",
+      "fetched_at": "2026-10-03T10:00:00Z",
+      "published_at": null,
+      "community": null,
+      "site": "example-reviews.in",
+      "data_class": "public",
+      "quality": 0.8,
+      "via": "direct",
+      "source_detail": null,
+      "author_hash": null,
+      "upvotes": null,
+      "comment_count": null,
+      "comments": []
+    },
+    {
+      "id": "src_2958fd9d1b3643cf",
+      "url": "https://kestrel.example.com/slim-15/specs",
+      "type": "manufacturer",
+      "tier": 1,
+      "title": "Kestrel Slim 15 specifications",
+      "text": "Kestrel Slim 15 specifications: battery rated up to 10 hours, 16 GB RAM, 1.6 kg. Kestrel Slim 15 ships with 16 GB RAM.",
+      "text_hash": "aa6e3fad6b7a6b7dc8745274ebccffb843ea62c247be76f946def34b1696852f",
+      "fetched_at": "2026-10-03T10:00:00Z",
+      "published_at": null,
+      "community": null,
+      "site": "kestrel.example.com",
+      "data_class": "public",
+      "quality": 0.8,
+      "via": "direct",
+      "source_detail": null,
+      "author_hash": null,
+      "upvotes": null,
+      "comment_count": null,
+      "comments": []
+    }
+  ],
+  "citations": [
+    {
+      "claim_id": "clm_053f4bf83174cf53",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14: cpu performance rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_bf7c2488fe2eda5f",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14: battery life rated 8.0/10."
+    },
+    {
+      "claim_id": "clm_5807c6297c20c05e",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Nova Book 14: keyboard comfort rated 9.0/10."
+    },
+    {
+      "claim_id": "clm_568a82e200569f1d",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14: display quality rated 7.0/10."
+    },
+    {
+      "claim_id": "clm_ae3839c409ab71bf",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14: weight rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_3ac2323f12a5c8d6",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14: build durability rated 7.0/10."
+    },
+    {
+      "claim_id": "clm_d37a81d013da4914",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Nova Book 14: value for money rated 8.0/10."
+    },
+    {
+      "claim_id": "clm_dc147cd38e1e6839",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Kestrel Slim 15: cpu performance rated 8.0/10."
+    },
+    {
+      "claim_id": "clm_c6d748e9c7945937",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Kestrel Slim 15: keyboard comfort rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_e32836d2e2257930",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Kestrel Slim 15: display quality rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_8fe73a640ab049ef",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Kestrel Slim 15: weight rated 8.0/10."
+    },
+    {
+      "claim_id": "clm_9e9b1d688e0274e6",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Kestrel Slim 15: build durability rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_92a4c00d3f53f206",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Kestrel Slim 15: value for money rated 7.5/10."
+    },
+    {
+      "claim_id": "clm_e13d8f66bd7c5e47",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Orion Play 15: cpu performance rated 9.0/10."
+    },
+    {
+      "claim_id": "clm_8f6737d75a7a0501",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Orion Play 15: battery life rated 5.0/10."
+    },
+    {
+      "claim_id": "clm_1cf7047e908108a3",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Orion Play 15: keyboard comfort rated 6.5/10."
+    },
+    {
+      "claim_id": "clm_21fa900998d83915",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Orion Play 15: display quality rated 8.0/10."
+    },
+    {
+      "claim_id": "clm_e1c5552273f9da7e",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Orion Play 15: weight rated 4.0/10."
+    },
+    {
+      "claim_id": "clm_5139615e2d353cc9",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "Orion Play 15: value for money rated 7.0/10."
+    },
+    {
+      "claim_id": "clm_2c31271c5c981d18",
+      "source_id": "src_2958fd9d1b3643cf",
+      "quote": "battery rated up to 10 hours"
+    },
+    {
+      "claim_id": "clm_46feb890769b8225",
+      "source_id": "src_edb2d0c42af72797",
+      "quote": "I get about 6 hours, not 10"
+    },
+    {
+      "claim_id": "clm_3bed19288173fb0e",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Nova Book 14 ships with 16 GB RAM."
+    },
+    {
+      "claim_id": "clm_762fc11b7a21cdde",
+      "source_id": "src_2958fd9d1b3643cf",
+      "quote": "Kestrel Slim 15 ships with 16 GB RAM."
+    },
+    {
+      "claim_id": "clm_2f93718e8d47a941",
+      "source_id": "src_37c43827cfe41e89",
+      "quote": "Orion Play 15 ships with 16 GB RAM."
+    }
+  ],
+  "stage_reports": [
+    {
+      "stage": "research",
+      "status": "ok",
+      "duration_ms": 38000,
+      "fallback_reason": null,
+      "notes": []
+    },
+    {
+      "stage": "extract",
+      "status": "ok",
+      "duration_ms": 21000,
+      "fallback_reason": null,
+      "notes": []
+    },
+    {
+      "stage": "match",
+      "status": "ok",
+      "duration_ms": 900,
+      "fallback_reason": null,
+      "notes": []
+    },
+    {
+      "stage": "verify",
+      "status": "ok",
+      "duration_ms": 300,
+      "fallback_reason": null,
+      "notes": []
+    },
+    {
+      "stage": "enrich",
+      "status": "fallback",
+      "duration_ms": 14000,
+      "fallback_reason": "No page confirmed Orion Play 15's build durability; estimated from similar laptops.",
+      "notes": []
+    },
+    {
+      "stage": "decide",
+      "status": "ok",
+      "duration_ms": 450,
+      "fallback_reason": null,
+      "notes": []
+    },
+    {
+      "stage": "explain",
+      "status": "ok",
+      "duration_ms": 9000,
+      "fallback_reason": null,
+      "notes": []
+    },
+    {
+      "stage": "commerce",
+      "status": "ok",
+      "duration_ms": 8000,
+      "fallback_reason": null,
+      "notes": []
+    }
+  ],
+  "coverage_note": "YouTube didn't respond in time, and one value is estimated. Results use Reddit, a review site and the maker's page.",
+  "saved": true
+}

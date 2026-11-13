@@ -20,6 +20,7 @@ from app.main import create_app
 from app.pipeline import DatabaseResultStore, InMemoryResultStore, PipelineRunner, default_search_stages
 from app.research import ResearchStage
 from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
+from tests.fakes.live_run import use_live_shaped_run
 
 QUERY = "best laptop for coding under 70k"
 NOT_SAVED_LINE = "This search could not be saved."
@@ -56,7 +57,8 @@ def test_a_committed_row_gives_saved_true_and_holds_the_response_with_no_reddit_
     assert any(s.type is C.SourceType.REDDIT for s in result.sources)  # so this really does check the difference
 
 
-def test_with_the_database_off_saved_is_false_and_the_search_still_finishes() -> None:
+def test_with_the_database_off_saved_is_false_and_the_search_still_finishes(monkeypatch: pytest.MonkeyPatch) -> None:
+    use_live_shaped_run(monkeypatch)  # a run whose real decide ranks something (S3-10b)
     result = run_search(NullRequestStore())
     assert result.saved is False
     assert result.decision is not None and result.decision.ranked
@@ -129,6 +131,7 @@ def test_the_api_answer_keeps_its_reddit_text(monkeypatch: pytest.MonkeyPatch) -
 
 
 def test_the_api_says_not_saved_with_the_database_off(monkeypatch: pytest.MonkeyPatch) -> None:
+    use_live_shaped_run(monkeypatch)  # a run whose real decide ranks something (S3-10b)
     body = api_search(monkeypatch, NullRequestStore())
     assert body["saved"] is False
     assert body["decision"]["ranked"]
@@ -151,7 +154,10 @@ def test_the_cli_saves_the_search_under_the_session_of_its_request(
     assert NOT_SAVED_LINE not in out
 
 
-def test_the_cli_says_so_when_the_database_is_off(capsys: pytest.CaptureFixture[str]) -> None:
+def test_the_cli_says_so_when_the_database_is_off(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    use_live_shaped_run(monkeypatch)  # a run whose real decide ranks something (S3-10b)
     assert cli_main([QUERY]) == 0  # tests/conftest.py keeps the database off
     out = capsys.readouterr().out
     assert "1. Nova Book 14" in out

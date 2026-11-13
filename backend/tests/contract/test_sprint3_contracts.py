@@ -517,10 +517,11 @@ def test_citations_are_all_or_nothing() -> None:
 # --- the version, old results and the exported files ------------------------------------------------------------
 
 
-def test_the_schema_version_is_1_7_0() -> None:
-    assert C.SCHEMA_VERSION == "1.7.0"
-    assert ex.search_result().schema_version == "1.7.0"
-    assert (SHARED / "VERSION").read_text(encoding="utf-8").strip() == "1.7.0"
+def test_the_schema_version_is_1_7_0_or_later() -> None:
+    """S3-0 brought 1.7.0; S3-10b moved on to 1.8.0 (tests/contract/test_sprint3b_contracts.py pins it)."""
+    assert tuple(int(part) for part in C.SCHEMA_VERSION.split(".")) >= (1, 7, 0)
+    assert ex.search_result().schema_version == C.SCHEMA_VERSION
+    assert (SHARED / "VERSION").read_text(encoding="utf-8").strip() == C.SCHEMA_VERSION
 
 
 def test_a_1_6_0_result_still_validates() -> None:

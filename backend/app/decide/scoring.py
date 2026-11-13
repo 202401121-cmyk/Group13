@@ -8,6 +8,8 @@
 - Mention counts (recommender_count, weighted_mentions) show how strong the evidence is; they are never read here
   (DR-10).
 - Coverage is the share of the score that comes from Known and Disputed values.
+- With no evidence on any criterion for any shown product, nothing is ranked by score (S3-10b): every score is None,
+  nobody is the best match, and the products are listed by name. notes.NOT_RANKED_NOTE says so. Never a 0.
 """
 
 from __future__ import annotations
@@ -124,11 +126,37 @@ def _confidence(coverage: float, lead: float | None) -> Confidence:
     return "medium"
 
 
+def _unranked(products: Sequence[Product], keys: Sequence[str]) -> list[RankedProduct]:
+    """Nothing to rank on: every product listed by name (then id), with no score and no label. Unknown is never 0."""
+    left_out = [
+        Contribution(criterion_key=key, score=None, normalized_weight=0.0, contribution=0.0, state=ValueState.UNKNOWN)
+        for key in keys
+    ]
+    ordered = sorted(products, key=lambda p: (p.name.casefold(), p.id))
+    return [
+        RankedProduct(
+            product_id=product.id,
+            rank=n + 1,
+            score=None,
+            contributions=left_out,
+            coverage=0.0,
+            confidence="low",
+            label=None,
+            gap_to_leader=0.0,
+        )
+        for n, product in enumerate(ordered[:MAX_RANKED])
+    ]
+
+
 def rank(products: Sequence[Product], rubric: Rubric, values: Values) -> list[RankedProduct]:
-    """The shown products, best first: by score, then coverage, then id. The same input always gives the same order."""
+    """The shown products, best first: by score, then coverage, then id. The same input always gives the same order.
+
+    With no evidence on any criterion, none is ranked by score: they are listed by name with no score (S3-10b)."""
     keys = [w.key for w in rubric.weights]
     scores = _own_scores(products, keys, values)
     present = [key for key in keys if any(key in s for s in scores.values())]
+    if not present:
+        return _unranked(products, keys)
     weights = _weights(rubric, present)
     scored = sorted(
         (_score_one(p, keys, weights, scores) for p in products),
@@ -148,7 +176,7 @@ def rank(products: Sequence[Product], rubric: Rubric, values: Values) -> list[Ra
                 contributions=item.contributions,
                 coverage=item.coverage,
                 confidence=_confidence(item.coverage, lead),
-                label=_label(n) if present else None,  # with nothing to rank on, nobody is the best match
+                label=_label(n),
                 gap_to_leader=round(max(0.0, leader - item.score), 2),
             )
         )

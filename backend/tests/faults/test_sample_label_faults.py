@@ -21,7 +21,6 @@ from app.pipeline import (
     InMemoryResultStore,
     PipelineRunner,
     SearchStages,
-    default_search_stages,
 )
 from app.research import ResearchStage
 from tests.unit.test_sample_label import FakeRealStage, all_real, stub_stages
@@ -74,7 +73,7 @@ class _TimesOutToItsStub(_FailsToItsStub):
 
 def test_a_real_stage_that_times_out_and_uses_its_stub_gives_the_note() -> None:
     stages = all_real()
-    stages.verify = _TimesOutToItsStub(default_search_stages().verify)
+    stages.verify = _TimesOutToItsStub(stub_stages().verify)
     result = run(stages, time_limits={C.StageName.VERIFY: 0.05})
     report = next(r for r in result.stage_reports if r.stage is C.StageName.VERIFY)
     assert report.status is C.StageStatus.TIMEOUT
@@ -111,7 +110,7 @@ class _FailsToItsOwnFallback(FakeRealStage):
 
 def test_a_real_stage_with_its_own_fallback_gives_no_label() -> None:
     stages = all_real()
-    stages.explain = _FailsToItsOwnFallback(default_search_stages().explain)
+    stages.explain = _FailsToItsOwnFallback(stub_stages().explain)
     result = run(stages)
     assert result.coverage_note is not None
     assert SAMPLE_NOTE not in result.coverage_note
@@ -163,7 +162,7 @@ class _FailsWithALongReason:
 
 
 def test_the_longest_note_there_can_be_still_fits_with_the_label() -> None:
-    stages = default_search_stages()
+    stages = stub_stages()
     for field in SEARCH_STAGES:
         setattr(stages, field, _FailsWithALongReason(getattr(stages, field)))
     result = run(stages)

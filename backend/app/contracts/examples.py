@@ -632,13 +632,14 @@ def decision() -> DecideResult:
             )
         )
     # model_copy(update=...) skips validation, so rebuild through model_validate instead.
-    leader = max(r.score for r in ranked)
+    shown = {pid: round(total, 2) for pid, total in totals.items()}  # each product's score, as in its RankedProduct
+    leader = max(shown.values())
     ties = {"prd_nova_book_14": ["prd_kestrel_slim_15"], "prd_kestrel_slim_15": ["prd_nova_book_14"]}
     ranked = [
         RankedProduct.model_validate(
             {
                 **r.model_dump(),
-                "gap_to_leader": round(max(0.0, leader - r.score), 2),
+                "gap_to_leader": round(max(0.0, leader - shown[r.product_id]), 2),
                 "tied_with": ties.get(r.product_id, []),
                 "separating_criterion": "battery_life" if r.product_id in ties else None,
             }

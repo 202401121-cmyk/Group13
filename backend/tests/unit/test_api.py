@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
 import app.contracts as C
 from app.contracts import examples as ex
 from app.main import app
+from tests.fakes.live_run import use_live_shaped_run
 
 client = TestClient(app)
 
@@ -18,7 +20,8 @@ def test_health() -> None:
     assert response.json() == {"status": "ok", "schema_version": C.SCHEMA_VERSION, "database": "off"}
 
 
-def test_search_returns_a_valid_search_result() -> None:
+def test_search_returns_a_valid_search_result(monkeypatch: pytest.MonkeyPatch) -> None:
+    use_live_shaped_run(monkeypatch)  # a run whose real decide ranks something, so every stage runs (S3-10b)
     request = C.SearchRequest(session_id=ex.SESSION_ID, raw_query=ex.QUERY, rubric=ex.rubric())
     response = client.post("/api/search", json=request.model_dump(mode="json"))
     assert response.status_code == 200

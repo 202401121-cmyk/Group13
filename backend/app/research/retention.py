@@ -9,9 +9,14 @@ A quote stays only if it names a source we know isn't Reddit. A claim keeps its 
 quote becomes the marker. SearchResult.citations (1.7.0) holds quotes, and a citation's quote is optional: from Reddit,
 or from a source we can't name, it is dropped (None), so the evidence route can say it was withheld.
 
-No other field holds Reddit's words yet. Product names are names, not a poster's words, so they stay from any source
-(US-15; Om, 11 Nov 2026). tests/unit/research/test_retention.py lists every text field in a SearchResult, and fails on
-a new one, or when US-16, US-20 or US-42 makes real the stages whose fields could hold them.
+Since S3-10b verify is real, so a resolved value can be a claim's own words ("about 6 hours on a full charge"). A string
+value, or an alternative's, is replaced by the marker unless every claim it rests on is cited from a source we know
+isn't Reddit; the claims behind it are read from SearchResult.citations. Numbers and true/false are not words, so they
+stay, and so do the claim ids. An alternative's unit is too short for the marker, so it is dropped instead (None).
+
+Product names are names, not a poster's words, so they stay from any source (US-15; Om, 11 Nov 2026). Community notes
+hold no Reddit text yet: nothing fills them until US-42. tests/unit/research/test_retention.py lists every text field in
+a SearchResult, and fails on a new one, or when US-20 or US-42 makes real the stages whose fields could hold them.
 """
 
 from __future__ import annotations
@@ -32,7 +37,8 @@ def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
     saved = copy.deepcopy(result)
     sources = saved.get("sources")
     if not isinstance(sources, list):
-        _drop_cited_quotes(saved, set())  # with no sources, no source can be known not to be Reddit
+        _strip_values(saved, set())  # with no sources, no source can be known not to be Reddit
+        _drop_cited_quotes(saved, set())
         return saved
     others: set[Any] = set()
     for source in sources:
@@ -40,6 +46,7 @@ def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
             _strip_source(source)
         elif isinstance(source, dict):
             others.add(source.get("id"))
+    _strip_values(saved, others)
     _strip_quotes(saved, others)
     _drop_cited_quotes(saved, others)
     return saved
@@ -81,6 +88,42 @@ def _strip_source(source: dict[str, Any]) -> None:
 
 def _strip_comment(comment: Any) -> Any:
     return {**comment, "text": REDDIT_TEXT_NOT_KEPT, "author_hash": None} if isinstance(comment, dict) else None
+
+
+def _claims_kept(saved: dict[str, Any], others: set[Any]) -> set[Any]:
+    """The claims cited from a source we know isn't Reddit: only words resting on these alone may be kept."""
+    citations = saved.get("citations")
+    if not isinstance(citations, list):
+        return set()
+    return {c.get("claim_id") for c in citations if isinstance(c, dict) and c.get("source_id") in others}
+
+
+def _may_keep(claim_ids: Any, kept: set[Any]) -> bool:
+    return isinstance(claim_ids, list) and bool(claim_ids) and all(i in kept for i in claim_ids)
+
+
+def _strip_values(saved: dict[str, Any], others: set[Any]) -> None:
+    """A resolved value's words, and its alternatives', unless every claim behind them is cited from a source we know
+    isn't Reddit. A number or true/false is not words, so it stays."""
+    products = saved.get("products")
+    if not isinstance(products, list):
+        return
+    kept = _claims_kept(saved, others)
+    for summary in products:
+        values = summary.get("values") if isinstance(summary, dict) else None
+        for value in values if isinstance(values, list) else []:
+            if not isinstance(value, dict):
+                continue
+            if isinstance(value.get("value"), str) and not _may_keep(value.get("supporting_claim_ids"), kept):
+                value["value"] = REDDIT_TEXT_NOT_KEPT
+            alternatives = value.get("alternatives")
+            for alternative in alternatives if isinstance(alternatives, list) else []:
+                if not isinstance(alternative, dict) or _may_keep(alternative.get("claim_ids"), kept):
+                    continue
+                if isinstance(alternative.get("value"), str):
+                    alternative["value"] = REDDIT_TEXT_NOT_KEPT
+                if alternative.get("unit") is not None:
+                    alternative["unit"] = None  # too short for the marker (16 characters at most)
 
 
 def _drop_cited_quotes(saved: dict[str, Any], others: set[Any]) -> None:
