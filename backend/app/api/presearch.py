@@ -1,4 +1,4 @@
-"""The pre-search HTTP API (US-05): request -> intent -> criteria -> interview -> rubric.
+"""The pre-search HTTP API (US-05, US-09): request -> intent -> criteria -> interview -> rubric, and its editor.
 
 The frontend (US-01's request box, Manu's chat window) calls these routes; docs/api/presearch.md documents them.
 Each route runs the same stages as the CLI, through app/presearch.py, so time limits and fallbacks apply.
@@ -13,7 +13,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, ValidationError
 
 from app import db
@@ -29,10 +29,14 @@ from app.contracts import (
     LLMClient,
     PresearchSession,
     ReplyRequest,
+    RubricEditRequest,
+    RubricEditResponse,
 )
 from app.criteria import CriteriaStore
 from app.intake import EDIT_REFUSED, revise_intent
 from app.interview import place_reply
+from app.interview.plan import load_interview_rules, plan_questions
+from app.interview.rubric_builder import UnknownEdit, apply_edits, build_rubric, carry_edits, rubric_note, with_edits_of
 
 from .sessions import InMemorySessionStore, SessionStore, new_session_id
 
@@ -44,6 +48,7 @@ FINISHED = "The interview is already finished. Go back to a question if you want
 NOT_ANSWERED = "That question hasn't been answered yet, so there is nothing to change."
 NOT_CURRENT = "That isn't the question we're on. To change an earlier answer, go back to that question first."
 MAX_REPLY_CHARS = 500  # IntakeInput.previous_clarification_reply and InterviewTurn.reply_text limit
+RUBRIC_NOTE_HEADER = "X-Rubric-Note"  # a plain sentence, when the edits left every weight at 0 (US-09)
 
 router = APIRouter(prefix="/api/presearch", tags=["pre-search"])
 _sessions = InMemorySessionStore()
@@ -142,23 +147,29 @@ def intake(body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests
 
 @router.put("/{session_id}/intent", response_model=Intent)
 def edit_intent(session_id: str, body: IntentEdit, sessions: Sessions) -> Intent:
-    """The user's edits to what we understood (US-02 'shown back to the user, who can edit it')."""
-    session = _load(sessions, session_id)
-    if session.intent is None:
-        raise HTTPException(409, NOT_READY)
-    try:
-        intent = revise_intent(session.intent, body.changes)
-    except ValidationError as exc:
-        errors = exc.errors(include_input=False, include_url=False)
-        if errors[0]["type"] == EDIT_REFUSED:
-            raise HTTPException(422, errors[0]["msg"]) from None
-        raise HTTPException(422, plain_validation_message(errors, "That change doesn't work")) from None
-    # The interview copies the intent, so any edit restarts it; a new use also needs new criteria.
-    reset: dict[str, object] = {"interview": None, "interview_step": None}
-    if intent.use_case != session.intent.use_case:
-        reset["criteria"] = None
-    sessions.put(session.changed(intent=intent, **reset))
-    return intent
+    """The user's edits to what we understood (US-02 'shown back to the user, who can edit it').
+
+    Under the session's lock, as it reads and writes the shopper's rubric edits (US-09).
+    """
+    with sessions.lock(session_id):
+        session = _load(sessions, session_id)
+        if session.intent is None:
+            raise HTTPException(409, NOT_READY)
+        try:
+            intent = revise_intent(session.intent, body.changes)
+        except ValidationError as exc:
+            errors = exc.errors(include_input=False, include_url=False)
+            if errors[0]["type"] == EDIT_REFUSED:
+                raise HTTPException(422, errors[0]["msg"]) from None
+            raise HTTPException(422, plain_validation_message(errors, "That change doesn't work")) from None
+        # The interview copies the intent, so any edit restarts it; a new use also needs new criteria. The shopper's
+        # rubric edits are kept on a fresh, unstarted state, so the restarted interview keeps them (US-09). With no
+        # criteria yet (a new use, waiting for POST /criteria), the edits ride on the state that already holds them.
+        criteria = session.criteria if intent.use_case == session.intent.use_case else None
+        held = session.criteria or (session.interview.criteria if session.interview is not None else None)
+        kept = carry_edits(session.interview, intent, held) if held is not None else None
+        sessions.put(session.changed(intent=intent, criteria=criteria, interview=kept, interview_step=None))
+        return intent
 
 
 @router.post("/{session_id}/criteria", response_model=CriteriaSet)
@@ -167,8 +178,12 @@ def criteria(session_id: str, sessions: Sessions, llm: LLM, store: Store) -> Cri
     session = _load(sessions, session_id)
     if session.intent is None or not session.intent.ready_for_research:
         raise HTTPException(409, NOT_READY)
-    result = flow.make_criteria(session.intent, llm=llm, store=store)
-    sessions.put(session.changed(criteria=result, interview=None, interview_step=None))
+    result = flow.make_criteria(session.intent, llm=llm, store=store)  # outside the lock: it may wait on the LLM
+    with sessions.lock(session_id):
+        latest = _load(sessions, session_id)  # an edit made while the criteria were worked out is kept (US-09)
+        intent = latest.intent if latest.intent is not None else session.intent
+        kept = carry_edits(latest.interview, intent, result)
+        sessions.put(latest.changed(criteria=result, interview=kept, interview_step=None))
     return result
 
 
@@ -183,6 +198,7 @@ def start_interview(session_id: str, sessions: Sessions) -> InterviewStep:
             state = InterviewState(session_id=session.session_id, intent=session.intent, criteria=session.criteria)
         except ValidationError:
             raise HTTPException(409, NO_CRITERIA) from None  # a safety net: intent and criteria must share a category
+        state = with_edits_of(session.interview, state)  # the shopper's rubric edits survive a restart (US-09)
         return _save_step(sessions, session, flow.interview_turn(InterviewTurn(state=state)))
 
 
@@ -225,6 +241,40 @@ def go_back(session_id: str, body: BackRequest, sessions: Sessions) -> Interview
         except ValueError:
             raise HTTPException(409, NOT_ANSWERED) from None
         return _save_step(sessions, session, step)
+
+
+@router.post("/{session_id}/rubric", response_model=RubricEditResponse)
+def edit_rubric(session_id: str, body: RubricEditRequest, sessions: Sessions, response: Response) -> RubricEditResponse:
+    """The shopper's rubric edits (US-09): switch a must-have to a preference or back, add or remove an exclusion, or
+    set a weight from 0 to 10. They are stored on the session and applied last, so any later rebuild keeps them.
+
+    Answers the rebuilt rubric. An unknown rule id or criterion key answers 422 and names it, and nothing is stored.
+    When the edits leave every weight at 0, the defaults are used and the X-Rubric-Note header says so.
+    """
+    with sessions.lock(session_id):
+        session = _load(sessions, session_id)
+        if session.interview is None:
+            raise HTTPException(409, NO_INTERVIEW)
+        try:
+            state = apply_edits(session.interview, body.edits)
+        except UnknownEdit as exc:
+            raise HTTPException(422, str(exc)) from None
+        except ValidationError as exc:
+            errors = exc.errors(include_input=False, include_url=False)
+            raise HTTPException(422, plain_validation_message(errors, "That change doesn't work")) from None
+        plan = plan_questions(state.criteria, state.intent, state.history, load_interview_rules())
+        rubric = build_rubric(state, plan)
+        step = session.interview_step
+        if step is not None:
+            changed = {"state": state.model_dump()}
+            if step.rubric is not None:
+                changed["rubric"] = rubric.model_dump()
+            step = step.model_validate({**step.model_dump(), **changed})
+        sessions.put(session.changed(interview=state, interview_step=step))
+        note = rubric_note(state, plan)
+        if note is not None:
+            response.headers[RUBRIC_NOTE_HEADER] = note
+        return RubricEditResponse(rubric=rubric)
 
 
 @router.get("/{session_id}", response_model=PresearchSession)
