@@ -15,11 +15,12 @@ import logging
 import threading
 import time
 from collections import OrderedDict
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from app.contracts import (
+    Claim,
     DataClass,
     Difficulty,
     ExtractInput,
@@ -38,7 +39,7 @@ from app.llm.pool import ATTEMPT_SHARE, CALL_MARGIN_S, time_limit_s
 from app.llm.usage import TokenMeter
 
 from .parsing import RawExtraction, to_extraction_result
-from .prompts import SYSTEM_PROMPT, allowed_criteria, user_message
+from .prompts import SYSTEM_PROMPT, PromptCriteria, SpecAsk, allowed_criteria, user_message
 from .settings import ExtractSettings, load_extract_settings
 
 log = logging.getLogger(__name__)
@@ -124,13 +125,14 @@ class GuardedExtractStage:
         self._lock = threading.Lock()
         self._settled = threading.Condition(self._lock)  # wakes a thread waiting for the Reddit budget
         self._counts: OrderedDict[str, _Counts] = OrderedDict()
+        self._asks: OrderedDict[str, SpecAsk] = OrderedDict()  # keys only: no words of the shopper's
 
     def run(self, inp: ExtractInput, ctx: StageContext) -> ExtractionResult:
         started = time.monotonic()
         source = inp.source
         if source.via == SEARCH_SNIPPET:  # it stays a source and a link, but a few words are too little to quote from
             return ExtractionResult(source_id=source.id)
-        criteria = allowed_criteria(inp, source.data_class)
+        criteria = allowed_criteria(inp, source.data_class, self._ask_for(ctx.search_id), self.settings)
         user = user_message(source, criteria)
         held = self._booking(user, source.data_class)
         if not self._may_send(ctx.search_id, source, held):
@@ -157,23 +159,39 @@ class GuardedExtractStage:
             return ExtractionResult(source_id=source.id)
         finally:
             self._book_real_use(ctx.search_id, source, held, meter, failed)
-        return to_extraction_result(
+        result = to_extraction_result(
             raw, source, criteria.keys, self._now(), self.settings.domain_tiers, inp.category_label
         )
+        return _under_own_keys(result, criteria)
 
     def fallback(self, inp: ExtractInput, ctx: StageContext, error: Exception) -> ExtractionResult:
         return self.stub.fallback(inp, ctx, error)
 
+    def ask_for_specs(self, search_id: str, attributes: Sequence[str], has_budget: bool) -> None:
+        """Before a search's sources are read: its hard rules' keys and whether it has a budget (US-14). Public calls
+        ask for the known spec keys among them, and for price_inr with a budget, so verify and decide get values."""
+        with self._lock:
+            self._asks[search_id] = SpecAsk(tuple(attributes), has_budget)
+            self._asks.move_to_end(search_id)
+            while len(self._asks) > MAX_TRACKED_SEARCHES:
+                self._asks.popitem(last=False)
+
     def coverage_note(self, search_id: str) -> str | None:
         """What this search skipped or could not read, in plain words. Asked once, at the end: its counts then go."""
         with self._lock:
+            self._asks.pop(search_id, None)
             counts = self._counts.pop(search_id, None)
         return _note(counts) if counts is not None else None
 
     def booked_tokens(self, inp: ExtractInput) -> int:
         """What the pool will book for this source: the same sum as the wrapper's own, for a source that fits."""
         data_class = inp.source.data_class
-        return self._booking(user_message(inp.source, allowed_criteria(inp, data_class)), data_class)
+        criteria = allowed_criteria(inp, data_class, settings=self.settings)
+        return self._booking(user_message(inp.source, criteria), data_class)
+
+    def _ask_for(self, search_id: str) -> SpecAsk | None:
+        with self._lock:
+            return self._asks.get(search_id)
 
     def _booking(self, user: str, data_class: DataClass) -> int:
         return _FULL_SYSTEM_TOKENS + estimate_tokens(user) + self.settings.output_tokens(data_class)
@@ -227,3 +245,16 @@ class GuardedExtractStage:
         while len(self._counts) > MAX_TRACKED_SEARCHES:
             self._counts.popitem(last=False)
         return counts
+
+
+def _under_own_keys(result: ExtractionResult, criteria: PromptCriteria) -> ExtractionResult:
+    """A claim made under a fixed key sent in place of a generated one goes back under the search's own key (US-14)."""
+    if not criteria.renames:
+        return result
+    claims = [
+        Claim.model_validate({**c.model_dump(), "criterion_key": criteria.claim_key(c.criterion_key)})
+        if c.criterion_key is not None and c.criterion_key in criteria.renames
+        else c
+        for c in result.claims
+    ]
+    return ExtractionResult.model_validate({**result.model_dump(), "claims": [c.model_dump() for c in claims]})

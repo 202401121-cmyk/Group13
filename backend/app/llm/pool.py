@@ -2,7 +2,8 @@
 
 Groq's limits are per model, so three models give about three times the room of one. The pool:
 - paces each member by requests and tokens a minute, so a call waits for a free slot instead of earning a 429;
-- keeps each member under its daily token budget, holding a call's tokens before it runs;
+- keeps each member under its daily token budget, holding a call's tokens before it runs, and public pages within
+  their share of that day (public_daily_share), so private and Reddit work keep the rest;
 - rotates bulk work (BULK_TASKS) across every model its route allows, so it spreads across members and providers. A
   shopper's calls keep the route's order, with the other members as their backups;
 - keeps part of each member's minute free of bulk work (US-14), so a shopper's next call always finds room;
@@ -86,6 +87,11 @@ class ModelPool:
             for m in settings.members
         }
         self._budget = DailyTokenBudget({(m.provider, m.model): m.tokens_per_day for m in settings.members}, today)
+        # Public pages may use only this share of a member's day (US-46), so private and Reddit work keep the rest.
+        share = settings.public_daily_share
+        self._public = DailyTokenBudget(
+            {(m.provider, m.model): int(m.tokens_per_day * share) for m in settings.members}, today
+        )
 
     def now(self) -> float:
         return self._clock()
@@ -147,14 +153,28 @@ class ModelPool:
     def tokens_left_today(self, model: ModelLimits) -> int | None:
         return self._budget.remaining(_key(model))
 
-    def reserve(self, model: ModelLimits, tokens: int) -> bool:
-        """Hold today's tokens for a call. Always True for a model outside the pool."""
-        return self._budget.reserve(_key(model), tokens) if self.has(model) else True
+    def public_tokens_left_today(self, model: ModelLimits) -> int | None:
+        return self._public.remaining(_key(model))
 
-    def release(self, model: ModelLimits, tokens: int) -> None:
+    def reserve(self, model: ModelLimits, tokens: int, data_class: DataClass) -> bool:
+        """Hold today's tokens for a call. A public call must also fit the public share. True outside the pool."""
+        if not self.has(model):
+            return True
+        key = _key(model)
+        if data_class is DataClass.PUBLIC and not self._public.reserve(key, tokens):
+            return False
+        if self._budget.reserve(key, tokens):
+            return True
+        if data_class is DataClass.PUBLIC:
+            self._public.settle(key, tokens, 0)
+        return False
+
+    def release(self, model: ModelLimits, tokens: int, data_class: DataClass) -> None:
         """Give a reservation back: the call was not sent."""
-        self.settle(model, tokens, 0)
+        self.settle(model, tokens, 0, data_class)
 
-    def settle(self, model: ModelLimits, reserved: int, actual: int) -> None:
+    def settle(self, model: ModelLimits, reserved: int, actual: int, data_class: DataClass) -> None:
         if self.has(model):
             self._budget.settle(_key(model), reserved, actual)
+            if data_class is DataClass.PUBLIC:
+                self._public.settle(_key(model), reserved, actual)

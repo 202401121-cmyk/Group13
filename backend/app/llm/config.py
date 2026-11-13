@@ -104,6 +104,12 @@ class PoolSettings(BaseModel):
         gt=0,
         description="The answer a public page may ask a member for when it reads one as the last resort (F-6)",
     )
+    public_daily_share: float = Field(
+        default=1.0,
+        gt=0,
+        le=1,
+        description="The share of each member's day public pages may use; private and Reddit work keep the rest",
+    )
     members: list[PoolMember] = Field(min_length=1)
 
     @property

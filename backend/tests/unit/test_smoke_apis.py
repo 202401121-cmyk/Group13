@@ -29,6 +29,7 @@ ALL_KEYS = {
     "OPENROUTER_API_KEY": FAKE + "-openrouter",
     "CEREBRAS_API_KEY": FAKE + "-cerebras",
     "MISTRAL_API_KEY": FAKE + "-mistral",
+    "DEEPSEEK_API_KEY": FAKE + "-deepseek",
     "SERPER_API_KEY": FAKE + "-serper",
     "REDDIT_CLIENT_ID": FAKE + "-reddit-id",
     "REDDIT_CLIENT_SECRET": FAKE + "-reddit-secret",
@@ -425,3 +426,23 @@ def test_an_unknown_service_name_is_refused(capsys: pytest.CaptureFixture[str]) 
     with pytest.raises(SystemExit):
         main(["--only", "groq,bing"], env={})
     assert "unknown service(s): bing" in capsys.readouterr().err
+
+
+def test_deepseek_is_checked_with_one_call(capsys: pytest.CaptureFixture[str]) -> None:
+    code, out, seen = run(capsys, ["--only", "deepseek"], {"DEEPSEEK_API_KEY": FAKE + "-deepseek"})
+    assert code == 0
+    assert status_of(out, "deepseek") == "ok"
+    assert [r.url.host for r in seen] == ["api.deepseek.com"]
+    assert FAKE not in out
+
+
+def test_deepseek_without_balance_says_402_no_balance_after_one_call(capsys: pytest.CaptureFixture[str]) -> None:
+    def no_balance(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(402, json={"error": {"message": "Insufficient Balance"}})
+
+    code, out, seen = run(capsys, ["--only", "deepseek"], {"DEEPSEEK_API_KEY": FAKE + "-deepseek"}, no_balance)
+    assert code == 1
+    assert status_of(out, "deepseek") == "failed"
+    assert "HTTP 402, no balance" in out
+    assert len(seen) == 1  # never retried: it must not spend money that isn't a granted balance (D-11)
+    assert FAKE not in out

@@ -7,12 +7,13 @@ Run from backend/:
     python -m scripts.smoke_apis --measure-extraction  one Groq call the size of a full Reddit source (US-46)
 
 Each check is the cheapest call that proves the key works:
-- LLMs (Groq, Gemini, OpenRouter, Cerebras, Mistral): one call through the wrapper's own provider client and
+- LLMs (Groq, Gemini, OpenRouter, Cerebras, Mistral, DeepSeek): one call through the wrapper's own provider client and
   models.yaml settings, with the fixed public prompt "Reply with the single word OK." and 5 output tokens; it passes
   if the reply contains OK. A reasoning model can spend those 5 tokens thinking and reply with no text; only then is
   the call repeated once with a 200-token cap, and the note says so. A provider with models in the pool (Groq)
   gets one call per model, with a row each, straight at the 200-token cap, so it stays at one call per model.
   Its rate-limit headers are compared with models.yaml, and any difference is printed: the headers win.
+  DeepSeek runs only on a granted balance (D-11): HTTP 402 is reported as "no balance", and never retried.
 - Serper: one search, only with --include serper. YouTube: videos.list for one public video (1 quota unit; never
   search.list). Reddit: only when its client ID and secret are set, an app-only OAuth token and one listing with
   limit=1. Jina Reader: read https://example.com (with JINA_API_KEY if set; it also works without a key).
@@ -50,7 +51,7 @@ from app.extract.prompts import SYSTEM_PROMPT, allowed_criteria, user_message
 from app.extract.settings import load_extract_settings
 from app.llm import load_llm_config
 from app.llm.config import LLMConfig, LLMConfigError, PoolMember, with_env_overrides
-from app.llm.errors import ProviderError, ProviderFailure
+from app.llm.errors import NoCredit, ProviderError, ProviderFailure
 from app.llm.fitting import estimate_tokens
 from app.llm.output import build_system_prompt
 from app.llm.pool import ATTEMPT_SHARE, time_limit_s
@@ -70,7 +71,7 @@ PUBLIC_VIDEO_ID = "jNQXAC9IVRw"  # "Me at the zoo", the first video on YouTube: 
 JINA_TEST_PAGE = "https://example.com"
 REDDIT_LISTING = "https://oauth.reddit.com/r/laptops/new"
 
-LLM_SERVICES = ("groq", "gemini", "openrouter", "cerebras", "mistral")
+LLM_SERVICES = ("groq", "gemini", "openrouter", "cerebras", "mistral", "deepseek")
 SERVICES = (*LLM_SERVICES, "serper", "reddit", "youtube", "jina", "huggingface")
 OPT_IN = {"serper": "pass --include serper to run it (each run uses one of 2,500 free queries)"}
 KEY_NAMES = (
@@ -79,6 +80,7 @@ KEY_NAMES = (
     "OPENROUTER_API_KEY",
     "CEREBRAS_API_KEY",
     "MISTRAL_API_KEY",
+    "DEEPSEEK_API_KEY",
     "SERPER_API_KEY",
     "REDDIT_CLIENT_ID",
     "REDDIT_CLIENT_SECRET",
@@ -200,6 +202,8 @@ def llm_check(provider: Provider) -> Check:
             replied = bool(reply.text.strip())
         except ProviderError:  # a thinking model can answer 5 tokens with no message text at all
             replied = False
+        except NoCredit:  # no balance on the account: said plainly, and never tried again (D-11)
+            return Outcome("failed", f"{model}: HTTP 402, no balance")
         if not replied:  # a real error (bad request, no connection) simply fails again here and is reported
             reply = adapter.call(model, SYSTEM, PROMPT, REASONING_OUTPUT_TOKENS, TIMEOUT_S)
             note += f" (replied only with {REASONING_OUTPUT_TOKENS} output tokens: it reasons first)"

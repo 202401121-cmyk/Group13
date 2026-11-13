@@ -104,11 +104,13 @@ providers:
     tokens_per_minute: 40000
     limits_checked: 2026-11-10
     daily_tokens: 1000000
-  # DeepSeek (D-63): a public-text fallback. Its privacy policy (last updated 10 Feb 2026, read 11 Nov 2026) says it uses
-  # personal data to train its models and stores data in the PRC, so it gets public text only. The pricing page
+  # DeepSeek (D-63): a public-text fallback (US-46). Its privacy policy (last updated 10 Feb 2026, read 11 Nov 2026) says
+  # it uses personal data to train its models and stores data in the PRC, so it gets public text only. The pricing page
   # (api-docs.deepseek.com/quick_start/pricing, 11 Nov 2026) describes no free tier: it runs only on a granted balance,
-  # and no payment method is ever added (D-11). The daily budget is the team's choice (D-63). It takes no turn in bulk
-  # work's rotation. Unavailable until S3-1 gives it routes and handles HTTP 402 (no balance).
+  # and no payment method is ever added (D-11). HTTP 402 (no balance) switches it off for the run, with no retry. The
+  # daily budget is the team's choice (D-63). It takes no turn in bulk work's rotation, to protect its balance.
+  # JSON mode is in its API docs (api-docs.deepseek.com/guides/json_mode, read 13 Nov 2026). It publishes no per-minute
+  # limits, only how many requests may run at once (2,500 for deepseek-flash; HTTP 429 past it), so none are set here.
   - name: deepseek
     base_url: https://api.deepseek.com
     api_key_env: DEEPSEEK_API_KEY
@@ -116,10 +118,10 @@ providers:
     trains_on_inputs: true
     terms_url: https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html
     terms_checked: 2026-11-11
+    json_mode: true
+    limits_checked: 2026-11-13
     daily_tokens: 500000
     rotates: false
-    available: false
-    unavailable_reason: Not wired in yet; S3-1 gives it routes (D-63)
 
 models:
   # The llama-3.3-70b models and gemini-2.5-flash stopped working for us by 3 Nov 2026 (HTTP 404: retired, or not
@@ -172,8 +174,8 @@ models:
     context_window_tokens: 262144
     max_output_tokens: 4096
     trains_on_free_tier: true
-  # UNVERIFIED: no call has been made. DeepSeek's pricing page (11 Nov 2026) lists deepseek-flash with a 1M window; 8192
-  # is our own output cap, as above. S3-1's smoke test confirms it.
+  # UNVERIFIED until `python -m scripts.smoke_apis --only deepseek` answers. DeepSeek's pricing page (11 Nov 2026) lists
+  # deepseek-flash with a 1M window; 8192 is our own output cap, as above.
   - provider: deepseek
     model: deepseek-flash
     context_window_tokens: 1000000
@@ -206,14 +208,15 @@ routes:
     short: [groq]
     medium: [groq]
     long: [groq]
-  # Public bulk work takes turns between the providers that rotate and are not Groq. Groq's models are the private and
-  # Reddit pool, so a public page goes to them only as the last resort: when none of those has room, and only if a
-  # Groq model has room right now, outside the shopper's reserve (F-6, 10 Nov 2026). OpenRouter comes after them all.
+  # Public bulk work takes turns between the providers that rotate and are not Groq (Gemini and Mistral); everything
+  # else follows in the order written. DeepSeek is the public fallback after them (US-46, D-63). Groq's models are the
+  # private and Reddit pool, so a public page goes to them only after DeepSeek, only if a Groq model has room right now,
+  # outside the shopper's reserve (F-6, 10 Nov 2026), and only within pool.public_daily_share. OpenRouter comes last.
   # A task that isn't bulk work keeps the route's order as written; only extraction uses public long today.
   public:
-    short: [mistral, groq]
-    medium: [mistral, gemini, groq, openrouter]
-    long: [gemini, mistral, groq, openrouter]
+    short: [mistral, deepseek, groq]
+    medium: [mistral, gemini, deepseek, groq, openrouter]
+    long: [gemini, mistral, deepseek, groq, openrouter]
 
 # Each member paces itself to its own limits, so a call waits for a slot instead of earning a 429. The token count is
 # the input the wrapper measures plus the requested output, so one call can never be bigger than tokens_per_minute.
@@ -236,6 +239,9 @@ pool:
   # cut its data block's closing marker. 1,200 is what a Reddit source asks Groq for; live public answers used 428 to
   # 669 tokens on 10 Nov 2026. A page that still can't go whole is skipped, and the next provider is tried.
   public_output_tokens: 1200
+  # public_daily_share: the share of each member's daily tokens public pages may use (US-46, team's choice, 13 Nov 2026):
+  # 25% of 200,000 is 50,000 a model. Past it, a public page skips Groq; private and Reddit work keep the rest.
+  public_daily_share: 0.25
   # A call holds its input and whole requested output while it runs, then books what it really used. A failed call books
   # nothing unless its reply reports a use. Groq doesn't charge the requested output in full: on 9 Nov 2026, two calls asking
   # for 1,200 each, with a prompt and reply of 95, moved x-ratelimit-remaining-tokens by 334 and 49 (docs/api-setup.md). Set

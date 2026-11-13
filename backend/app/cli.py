@@ -56,8 +56,9 @@ from app.contracts import (
     StageContext,
     StageName,
 )
+from app.extract.prompts import public_prompt_keys
 from app.extract.recorder import RecordingStage
-from app.extract.settings import load_extract_settings
+from app.extract.settings import ExtractSettings, load_extract_settings
 from app.extract.tiers import tier_of
 from app.intake import EXAMPLE_REQUESTS
 from app.interview import QUICK_REPLIES
@@ -154,7 +155,9 @@ def run(query: str, interactive: bool, store: db.RequestStore, show_claims: bool
     if report is not None:  # the live research stage ran: show what it read
         print(research_block(result, report))
     if recorder is not None and sees_counts is not None:
-        print(claims_block(result.sources, recorder.results, load_extract_settings().domain_tiers))
+        settings = load_extract_settings()
+        print(claims_block(result.sources, recorder.results, settings.domain_tiers))
+        print(public_keys_line(step.rubric, settings))
         dropped: tuple[ThreadScore, ...] = getattr(stages.research, "last_dropped_threads", ())
         estimated: frozenset[str] = getattr(stages.research, "last_estimated_threads", frozenset())
         print(reddit_block(result.sources, dropped, sees_counts.counts, estimated, salt_set=salt_is_set()))
@@ -301,6 +304,14 @@ def claims_block(
 
 
 NO_SALT = "REDDIT_USER_SALT is not set"
+
+
+def public_keys_line(rubric: Rubric, settings: ExtractSettings) -> str:
+    """How many criteria and spec keys reached public prompts (US-14): fixed keys and our own definitions only."""
+    keys = [w.key for w in rubric.weights]
+    rules = [r.attribute for r in rubric.hard_rules]
+    public = public_prompt_keys(rubric.category, keys, rules, rubric.budget is not None, settings)
+    return public.line(len(keys))
 
 
 def llm_summary(records: Iterable[LLMCallRecord]) -> str:

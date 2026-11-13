@@ -20,6 +20,8 @@ log = logging.getLogger(__name__)
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "extract.yaml"
 MAX_SOURCES_SWITCH = "EXTRACT_MAX_SOURCES"
 _DOMAIN = re.compile(r"[a-z0-9-]+(\.[a-z0-9-]+)+")
+_KEY = re.compile(r"[a-z][a-z0-9_]{1,59}")
+PRICE_DEFINITION = "The price in Indian rupees that a store in India asks for it, as a number."
 
 
 class ExtractSettings(BaseModel):
@@ -31,6 +33,34 @@ class ExtractSettings(BaseModel):
     reddit_tokens_per_search: int = Field(default=18_000, gt=0)
     book_real_use: bool = Field(default=False, description="Count real use in the Reddit budget, as the pool does")
     tiers: dict[str, list[str]] = Field(default_factory=dict)
+    # What a public prompt may carry besides fixed criteria (US-14, US-46). Only these keys and our own definitions go:
+    # never a generated key or the shopper's words. Empty tables keep public prompts to the fixed criteria alone.
+    public_synonyms: dict[str, list[str]] = Field(
+        default_factory=dict,
+        description="A generated criterion key, then the fixed criteria it may stand for, in order",
+    )
+    public_spec_keys: dict[str, str] = Field(
+        default_factory=dict, description="Spec keys a hard rule may name, each with our own definition"
+    )
+    price_definition: str = Field(default=PRICE_DEFINITION, min_length=10, max_length=200)
+
+    @field_validator("public_synonyms")
+    @classmethod
+    def _synonyms_are_keys(cls, table: dict[str, list[str]]) -> dict[str, list[str]]:
+        for key, targets in table.items():
+            if not targets or not all(_KEY.fullmatch(k) for k in [key, *targets]):
+                raise ValueError(f"public_synonyms: {key} needs one or more lowercase keys")
+        return table
+
+    @field_validator("public_spec_keys")
+    @classmethod
+    def _spec_keys_are_defined(cls, table: dict[str, str]) -> dict[str, str]:
+        for key, definition in table.items():
+            if not _KEY.fullmatch(key) or not 10 <= len(definition) <= 200:
+                raise ValueError(
+                    f"public_spec_keys: {key} needs a lowercase key and a definition of 10 to 200 characters"
+                )
+        return table
 
     @field_validator("tiers")
     @classmethod

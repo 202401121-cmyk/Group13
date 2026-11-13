@@ -199,6 +199,7 @@ class WrapperLLMClient:
         self.limiters = dict(limiters) if limiters is not None else default_limiters(config)
         self.pool = pool if pool is not None else ModelPool(config.pool)
         self._reported_missing: set[Provider] = set()
+        self._reported_dead: set[tuple[Provider, str | None]] = set()
 
     def candidates(self, data_class: DataClass, difficulty: Difficulty) -> list[ModelLimits]:
         """The models to try, in order. The class filter runs again here, whatever the routes table says."""
@@ -209,17 +210,17 @@ class WrapperLLMClient:
     def order(self, task: LLMTask, data_class: DataClass, difficulty: Difficulty) -> list[ModelLimits]:
         """The models to try, in order. Any task but bulk work keeps the route's order.
 
-        Bulk work takes turns across the models that take turns. For public pages, Groq's models (the private and
-        Reddit pool) come next, as the last resort, in their fixed order: taking no turn, they move no rotation. A
-        provider that doesn't rotate (OpenRouter) follows them all as the fallback.
+        Bulk work takes turns across the models that take turns. Every other model follows in the route's order:
+        for public pages, a provider that doesn't rotate (DeepSeek, OpenRouter) and Groq's models (the private and
+        Reddit pool, the last resort for public pages) sit where the route puts them. Taking no turn, they move no
+        rotation.
         """
         models = self.candidates(data_class, difficulty)
         if task not in BULK_TASKS:
             return self.pool.order(models, data_class, rotate=False)
         turns = [m for m in models if self._takes_turns(m, task, data_class)]
-        last_resort = [m for m in models if self._last_resort(m, task, data_class)]
-        fallback = [m for m in models if not self._rotates(m)]
-        return [*self.pool.order(turns, data_class, rotate=True), *last_resort, *fallback]
+        rest = [m for m in models if not self._takes_turns(m, task, data_class)]
+        return [*self.pool.order(turns, data_class, rotate=True), *rest]
 
     def _rotates(self, model: ModelLimits) -> bool:
         return self.config.provider(model.provider).rotates
@@ -359,44 +360,63 @@ class WrapperLLMClient:
         if self.pool.now() > call.latest_start:
             log.info("llm %s skipped: too close to the stage's time limit", model.model)
             return "no", None
-        if not self._reserve(model, planned):
-            log.info("llm %s skipped: today's token budget is spent", model.model)
+        if not self._reserve(model, planned, call.data_class):
+            log.info("llm %s skipped: %s", model.model, self._why_no_budget(model, planned, call.data_class))
             self._record(call, plan, "skipped_budget")
             return "no", None
         if not self.requests.reserve(provider, plan.requests):
-            self._release_tokens(model, planned)
+            self._release_tokens(model, planned, call.data_class)
             log.info("llm %s skipped: today's requests are used up", model.model)
             self._record(call, plan, "skipped_budget")
             return "no", None
         if not self.health.allow(provider, member):
-            self._release(plan)
-            log.info("llm %s skipped: %s", model.model, self.health.state(provider, member))
+            self._release(call, plan)
+            self._note_unhealthy(model, member)
             return "no", None
         state, booking = self._take_slot(call, plan)
         takes_turns = self._takes_turns(model, call.task, call.data_class)
         if state == "go" and call.task in BULK_TASKS and model != call.first_choice and takes_turns:
             self.pool.served(model, call.data_class)  # the claimed member was skipped: the turn moved on
         if state != "go":
-            self._release(plan)
+            self._release(call, plan)
             self.health.release(provider, member)
         return state, booking
 
-    def _reserve(self, model: ModelLimits, tokens: int) -> bool:
-        """Hold today's tokens before the call runs, so calls running together can't pass a budget."""
+    def _reserve(self, model: ModelLimits, tokens: int, data_class: DataClass) -> bool:
+        """Hold today's tokens before the call runs, so calls running together can't pass a budget.
+
+        A public call on a pool member must also fit the public share of that member's day (US-46).
+        """
         if not self.budget.reserve(model.provider, tokens):
             return False
-        if self.pool.reserve(model, tokens):
+        if self.pool.reserve(model, tokens, data_class):
             return True
         self.budget.settle(model.provider, tokens, 0)
         return False
 
-    def _release_tokens(self, model: ModelLimits, tokens: int) -> None:
-        self.budget.settle(model.provider, tokens, 0)
-        self.pool.release(model, tokens)
+    def _why_no_budget(self, model: ModelLimits, tokens: int, data_class: DataClass) -> str:
+        public_left = self.pool.public_tokens_left_today(model) if self.pool.has(model) else None
+        if data_class is DataClass.PUBLIC and public_left is not None and public_left < tokens:
+            return f"{model.provider.value}'s share of today's tokens for public pages is spent"
+        return "today's token budget is spent"
 
-    def _release(self, plan: _Plan) -> None:
+    def _note_unhealthy(self, model: ModelLimits, member: str | None) -> None:
+        """Say why a model was skipped. A provider dead for the run says so once, not on every call after."""
+        state = self.health.state(model.provider, member)
+        if state == "dead":
+            key = (model.provider, member)
+            if key in self._reported_dead:
+                return
+            self._reported_dead.add(key)
+        log.info("llm %s skipped: %s", model.model, state)
+
+    def _release_tokens(self, model: ModelLimits, tokens: int, data_class: DataClass) -> None:
+        self.budget.settle(model.provider, tokens, 0)
+        self.pool.release(model, tokens, data_class)
+
+    def _release(self, call: _Call[T], plan: _Plan) -> None:
         """A call that was held for but not sent gives back its tokens and its requests."""
-        self._release_tokens(plan.model, plan.planned)
+        self._release_tokens(plan.model, plan.planned, call.data_class)
         self.requests.settle(plan.model.provider, plan.requests, 0)
 
     def _take_slot(self, call: _Call[T], plan: _Plan) -> tuple[ModelState, Booking | None]:
@@ -488,15 +508,18 @@ class WrapperLLMClient:
             self.health.record_success(provider, member)
         elif isinstance(error, ProviderTimeout) and cut_short:
             self.health.release(provider, member)  # we gave it less than a fair time: that says nothing about it
-        else:
-            self.health.record_failure(provider, error, member)
+        elif self.health.record_failure(provider, error, member):
+            # Newly switched off for the run (401 or 402). Said once: a 402 means no balance, so it is never retried
+            # and never spends money that isn't a granted balance (D-11).
+            log.warning("llm %s switched off for this run: %s", provider.value, error)
+            self._reported_dead.add((provider, member))
         used = tokens_in + unanswered + tokens_out
         real_use = _real_use(error, tokens_in + tokens_out, usage_reported)
         if booking is not None and self.config.pool.book_real_use:
             self.pool.book_real_use(model, booking, real_use)
         record_use(plan.planned if real_use is None else real_use)
         self.budget.settle(provider, plan.planned, used)
-        self.pool.settle(model, plan.planned, used)
+        self.pool.settle(model, plan.planned, used, call.data_class)
         self.requests.settle(provider, plan.requests, sent)  # each request that went out counts, whatever came back
         duration_ms = int((monotonic() - started) * 1000)
         self._record(call, plan, outcome, tokens_in + unanswered, tokens_out, duration_ms, started_at)
