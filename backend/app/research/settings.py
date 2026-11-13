@@ -51,6 +51,7 @@ DEFAULT_KNOWN_USES = (
     "calls",
 )
 _KNOWN_USE = re.compile(r"[a-z]+(?: [a-z]+)*")
+_DOMAIN = re.compile(r"[a-z0-9-]+(\.[a-z0-9-]+)+")
 
 
 class ProviderCap(BaseModel):
@@ -66,6 +67,11 @@ def _default_caps() -> dict[str, ProviderCap]:
         "serper": ProviderCap(per_search=6, per_day=60, total=2400),
         "reddit_archive": ProviderCap(per_search=14, per_day=500),
         "pages": ProviderCap(per_search=24, per_day=200),
+        # The page readers (US-38, team's choice): Jina pages, Firecrawl pages, and Firecrawl credits (a page is 1, a
+        # search 2), all well inside Firecrawl's free 1,000 a month (D-62).
+        "jina": ProviderCap(per_search=10, per_day=200),
+        "firecrawl_pages": ProviderCap(per_search=4, per_day=30),
+        "firecrawl": ProviderCap(per_search=30, per_day=30),
     }
 
 
@@ -88,6 +94,11 @@ class ResearchSettings(BaseModel):
     max_crawl_delay_s: float = Field(default=10.0, ge=0)
     caps: dict[str, ProviderCap] = Field(default_factory=_default_caps)
     review_domains: tuple[str, ...] = DEFAULT_REVIEW_DOMAINS
+    # Maker pages are tier 1 and store pages tier 5 (DR-03). Found by search and read like review pages (US-38).
+    maker_domains: dict[str, tuple[str, ...]] = Field(default_factory=dict, description="Brand -> its own domains")
+    retailer_domains: tuple[str, ...] = ()
+    max_maker_pages: int = Field(default=3, ge=0)
+    max_store_pages: int = Field(default=3, ge=0)
     known_uses: tuple[str, ...] = DEFAULT_KNOWN_USES
     cache_on: bool = True
     pages_on: bool = True
@@ -97,6 +108,9 @@ class ResearchSettings(BaseModel):
         total = self.max_reddit_threads + self.max_web_results + self.max_review_pages
         if total > MAX_SOURCES:
             raise ValueError(f"the source caps add up to {total}, over the contract's limit of {MAX_SOURCES}")
+        domains = [*self.review_domains, *self.retailer_domains, *(d for ds in self.maker_domains.values() for d in ds)]
+        if not all(_DOMAIN.fullmatch(domain) for domain in domains):
+            raise ValueError("a site is a plain lowercase domain, such as rtings.com")
         if not all(_KNOWN_USE.fullmatch(use) for use in self.known_uses):
             raise ValueError("a known use is lowercase words only, so it can hold no search operator")
         return self
@@ -121,3 +135,8 @@ def load_research_settings(path: Path | str | None = None, env: Mapping[str, str
 
 def _on(raw: str | None) -> bool:
     return (raw or "").strip().lower() != "off"
+
+
+def maker_domains_of(settings: ResearchSettings) -> tuple[str, ...]:
+    """Every maker's domains, in the order research.yaml lists them."""
+    return tuple(domain for domains in settings.maker_domains.values() for domain in domains)

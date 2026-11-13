@@ -60,6 +60,8 @@ class SerperResult:
     sources: tuple[Source, ...] = ()
     reddit_titles: tuple[str, ...] = ()
     failure: SourceFailure | None = None
+    reddit_links: tuple[str, ...] = ()  # thread links, for one the archive lacks (US-38): never fetched as a page
+    also_failed: tuple[SourceFailure, ...] = ()  # Firecrawl's search, when it was tried as the backup and failed too
     from_cache: bool = False
 
 
@@ -121,7 +123,8 @@ class SerperSource:
         cached = self.cache.get_sources(key)
         if cached is not None:
             titles = self.cache.get_text((*key, "reddit_titles")) or ""
-            return SerperResult(cached, _split_titles(titles), from_cache=True)
+            links = self.cache.get_text((*key, "reddit_links")) or ""
+            return SerperResult(cached, _split_titles(titles), reddit_links=_split_titles(links), from_cache=True)
         if not self._api_key:
             return _failure("blocked", "web search: SERPER_API_KEY is not set")
         if not usage.take("serper"):
@@ -130,6 +133,7 @@ class SerperSource:
         if result.failure is None:
             self.cache.put_sources(key, result.sources)
             self.cache.put_text((*key, "reddit_titles"), _REDDIT_TITLES_SEPARATOR.join(result.reddit_titles))
+            self.cache.put_text((*key, "reddit_links"), _REDDIT_TITLES_SEPARATOR.join(result.reddit_links))
         return result
 
     def _send(self, text: str, country: str) -> SerperResult:
@@ -161,53 +165,61 @@ class SerperSource:
         organic = reply.get("organic") if isinstance(reply, dict) else None
         if not isinstance(organic, list):
             return _failure("error", "web search: the reply had no results list")
-        return self._read(organic)
+        return read_results(organic, self._now)
 
-    def _read(self, organic: list[Any]) -> SerperResult:
-        sources: list[Source] = []
-        titles: list[str] = []
-        seen: set[str] = set()
-        for item in organic:
-            if not isinstance(item, dict):
-                continue
-            # A link is an address, so it is never decoded as text: "&region=" must not become a registered sign.
-            raw_link = item.get("link")
-            link = raw_link.strip() if isinstance(raw_link, str) else ""
-            title, snippet = _text(item, "title"), _text(item, "snippet")
-            host = host_of(link)
-            if host is None or link in seen:
-                continue
-            seen.add(link)
-            if any(host_is_under(host, domain) for domain in _REDDIT_HOSTS):
-                if bare_title := _REDDIT_SUFFIX.sub("", title):  # one thread reads the same in every reply
-                    titles.append(bare_title)
-                continue
-            if any(host_is_under(host, domain) for domain in _VIDEO_HOSTS):
-                snippet = title
-            source = self._source(link, host, title, snippet or title)
-            if source is not None:
-                sources.append(source)
-        return SerperResult(tuple(sources), tuple(titles))
 
-    def _source(self, link: str, host: str, title: str, text: str) -> Source | None:
-        body = text[:MAX_SOURCE_CHARS].strip()
-        if not body:
-            return None
-        try:
-            return Source(
-                id=f"src_{hashlib.sha256(link.encode()).hexdigest()[:16]}",
-                url=link,
-                type=SourceType.WEB_SEARCH,
-                tier=DEFAULT_TIER[SourceType.WEB_SEARCH],
-                title=title[:300],
-                text=body,
-                text_hash=hashlib.sha256(body.encode()).hexdigest(),
-                fetched_at=self._now(),
-                site=host.removeprefix("www.")[:120],
-                via="search_snippet",
-            )
-        except (ValidationError, ValueError):  # skip the result, never crash the search
-            return None
+def read_results(organic: list[Any], now: Callable[[], datetime]) -> SerperResult:
+    """Search results as snippets (via search_snippet). Reddit results keep their title and link only: never a page.
+
+    Each item has a link, a title and a snippet. Firecrawl search's results are mapped to these names first (US-38).
+    """
+    sources: list[Source] = []
+    titles: list[str] = []
+    links: list[str] = []
+    seen: set[str] = set()
+    for item in organic:
+        if not isinstance(item, dict):
+            continue
+        # A link is an address, so it is never decoded as text: "&region=" must not become a registered sign.
+        raw_link = item.get("link")
+        link = raw_link.strip() if isinstance(raw_link, str) else ""
+        title, snippet = _text(item, "title"), _text(item, "snippet")
+        host = host_of(link)
+        if host is None or link in seen:
+            continue
+        seen.add(link)
+        if any(host_is_under(host, domain) for domain in _REDDIT_HOSTS):
+            if bare_title := _REDDIT_SUFFIX.sub("", title):  # one thread reads the same in every reply
+                titles.append(bare_title)
+            links.append(link)
+            continue
+        if any(host_is_under(host, domain) for domain in _VIDEO_HOSTS):
+            snippet = title
+        source = _snippet_source(link, host, title, snippet or title, now())
+        if source is not None:
+            sources.append(source)
+    return SerperResult(tuple(sources), tuple(titles), reddit_links=tuple(links))
+
+
+def _snippet_source(link: str, host: str, title: str, text: str, fetched_at: datetime) -> Source | None:
+    body = text[:MAX_SOURCE_CHARS].strip()
+    if not body:
+        return None
+    try:
+        return Source(
+            id=f"src_{hashlib.sha256(link.encode()).hexdigest()[:16]}",
+            url=link,
+            type=SourceType.WEB_SEARCH,
+            tier=DEFAULT_TIER[SourceType.WEB_SEARCH],
+            title=title[:300],
+            text=body,
+            text_hash=hashlib.sha256(body.encode()).hexdigest(),
+            fetched_at=fetched_at,
+            site=host.removeprefix("www.")[:120],
+            via="search_snippet",
+        )
+    except (ValidationError, ValueError):  # skip the result, never crash the search
+        return None
 
 
 def _text(item: dict[str, Any], name: str) -> str:

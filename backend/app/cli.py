@@ -293,11 +293,14 @@ def research_block(result: SearchResult, report: ResearchReport) -> str:
 def claims_block(
     sources: Sequence[Source], results: Mapping[str, ExtractionResult], domains: Mapping[str, SourceTier]
 ) -> str:
-    """Per source: its type, tier, fetch time and URL, then each claim: criterion, value or score, type, quote."""
+    """Per source: its type, tier, how it was read (US-38), fetch time and URL, then each claim: criterion, value or
+    score, type, quote."""
     lines = ["\nClaims per source:"]
     for source in sources:
         tier = tier_of(source, domains).name.lower()
-        lines.append(f"  {source.type.value} ({tier})  {source.fetched_at:%Y-%m-%d %H:%M:%S}Z  {source.url}")
+        lines.append(
+            f"  {source.type.value} ({tier}) via {source.via}  {source.fetched_at:%Y-%m-%d %H:%M:%S}Z  {source.url}"
+        )
         found = results.get(source.id)
         lines += [claim_line(claim) for claim in found.claims] if found and found.claims else ["    No claims."]
     return "\n".join(lines)

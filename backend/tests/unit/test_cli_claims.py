@@ -17,7 +17,7 @@ def test_the_claims_option_prints_url_type_time_and_claims(capsys: pytest.Captur
     out = capsys.readouterr().out
     assert "Claims per source:" in out
     maker = next(s for s in examples.sources() if s.type.value == "manufacturer")
-    assert f"manufacturer (manufacturer)  {maker.fetched_at:%Y-%m-%d %H:%M:%S}Z  {maker.url}" in out
+    assert f"manufacturer (manufacturer) via {maker.via}  {maker.fetched_at:%Y-%m-%d %H:%M:%S}Z  {maker.url}" in out
     assert '| battery_life | 10 | spec | "battery rated up to 10 hours"' in out
     assert '| experience | "' in out
 
@@ -120,3 +120,10 @@ def test_the_match_block_shows_the_names_before_and_the_products_after() -> None
     assert "    also: XM5" in text
     assert "    variant: 128 GB" in text and "    variant: 256 GB" in text
     assert "The search stopped before match." in match_block([], None)
+
+
+def test_each_source_says_how_it_was_read() -> None:
+    """direct, jina, firecrawl, api or search_snippet (US-38), so a live run shows which pages needed a reader."""
+    (_, review, _) = examples.sources()
+    block = claims_block([review], {}, {})
+    assert f"via {review.via}" in block
