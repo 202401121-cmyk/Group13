@@ -8,10 +8,10 @@
   "check_passed": true,
   "pairs_timed": 1000,
   "timed_on": "2 made-up short titles repeated 500 times, batches of 32 (ml/training/measure_onnx.py)",
-  "seconds_for_1000_pairs": 2.08,
+  "seconds_for_1000_pairs": 1.71,
   "peak_memory_mb": 186,
   "onnxruntime": "1.31.1",
   "cpu_threads": 16,
-  "huggingface_revision": null,
-  "upload": "pending"
+  "huggingface_revision": "6a2ce26b0c4caf6fd1655ef88d27e6ee3954b296",
+  "upload": "done"
 }

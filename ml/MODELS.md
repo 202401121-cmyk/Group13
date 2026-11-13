@@ -23,7 +23,8 @@ recorded" before the model is used. Each model replaces a simpler baseline, and 
 | Target | Precision of 0.95 or more, and F1 above the fuzzy baseline (card 8) |
 | Training | CPU, 16 cores, 11 Nov 2026, seed 20261111, batch 32, learning rate 4e-5, 4 epochs of 2.8 to 2.9 minutes each (`ml/results/matcher_v1_training.json`). **The checkpoint is epoch 1, chosen by dev only:** dev recall at the precision target was 4 of 53 matches (0.075) after epoch 1 and 2 of 53 (0.038) after epochs 2 to 4, while the training loss fell (0.35, 0.21, 0.16, 0.14). Two matches is too small a difference to show that more epochs generalise worse, so that is a hint, not a tested cause. A checkpoint each epoch; `train.py` resumes from the last |
 | Threshold | **0.9646**, chosen on dev: the highest threshold with the best recall among those with precision of 0.95 or more. On dev: precision 1.000, recall 0.075 |
-| Hugging Face | Upload pending: `HF_TOKEN` and `HF_MODEL_REPO` are not set. Revision: to be recorded when Om has made the repository and run `export_onnx.py` with both set. `backend/config/matcher.yaml` holds the repository, revision and threshold for S3-15 |
+| Hugging Face | Uploaded on 11 Nov 2026 to [`Om-Pandya/shopsense-matcher`](https://huggingface.co/Om-Pandya/shopsense-matcher), revision `6a2ce26b0c4caf6fd1655ef88d27e6ee3954b296`. Files at that revision: `model.onnx` (91 MB), `tokenizer.json`, `tokenizer_config.json` and `README.md` (plus the `.gitattributes` Hugging Face adds). `model.onnx` sha256 `7fa622c2ec76d0f15d5559eec9368ed4adbf0dc89258865f966b17fa441737d4`, the same as the local export (checked by downloading it at that revision). Licence: Apache-2.0. `backend/config/matcher.yaml` holds the repository, revision and threshold for S3-15. Being available does not make it the default: fuzzy stays the default until S3-15 shows otherwise |
+| Credits | The training and dev data include Abt-Buy and Amazon-Google from the University of Leipzig's entity resolution benchmarks, used under CC BY 4.0 |
 | Sprint | 3 |
 
 **Test results (S3-4, 11 Nov 2026, repository commit `3cebd05`, before this change's commit; the italic comparison-only rows were added in a follow-up commit).** Precision, recall and F1 with
@@ -86,7 +87,7 @@ Nothing is judged against the targets on these rows; they only show what the mod
 **ONNX check (DECIDED 7).** 200 dev pairs from every source: the largest difference between PyTorch and ONNX
 probabilities is 7.5e-07 (limit 1e-4), so it passes. It compares probabilities, not logits, so it is less strict near
 1.0. Timing: onnxruntime 1.31.1 alone (`ml/training/measure_onnx.py`, its own process) on **2 made-up short titles
-repeated 500 times**, batches of 32: **2.1 seconds and 186 MB peak memory** for 1,000 pairs; real, longer titles would
+repeated 500 times**, batches of 32: **1.7 seconds and 186 MB peak memory** for 1,000 pairs; real, longer titles would
 take longer. The model file is 91 MB. Numbers: `ml/results/matcher_v1_onnx.json`.
 
 **Run.** `pip install -r ml/requirements.txt -r ml/training/requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu`,

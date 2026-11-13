@@ -1,9 +1,10 @@
-# The trained product matcher (US-15, S3-4), read by the match stage in S3-15. Nothing reads this file yet.
+# The trained product matcher (US-15, S3-4), for the match stage in S3-15. Nothing reads this file yet.
 #
-# The model is the ONNX export in ml/training/export_onnx.py, kept on Hugging Face and pinned by an exact revision (a
-# commit hash, never "main"; ml/MODELS.md card 1). Weights are never in git. While `revision` is empty the matcher is not
-# available and the fuzzy baseline stays the default (build rule 9: fall back, never stop).
-repo: ""
-revision: ""
+# The model is the ONNX export in ml/training/export_onnx.py, on Hugging Face and pinned by an exact revision (a
+# commit hash, never "main"; ml/MODELS.md card 1). Weights are never in git. The revision is now set, so the model is
+# available to S3-15. The fuzzy baseline stays the default until S3-15 shows the matcher does better (build rule 9:
+# fall back, never stop).
+repo: "Om-Pandya/shopsense-matcher"
+revision: "6a2ce26b0c4caf6fd1655ef88d27e6ee3954b296"
 # The score at or above which a pair is called the same product, chosen on dev data (ml/results/matcher_v1.json).
 threshold: 0.9646  # ml/results/matcher_v1.json; the precision target is not shown on our test part, so fuzzy stays the default
