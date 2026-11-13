@@ -376,6 +376,7 @@ export function ResultCard({
             {p.score != null && (
               <span className="text-sm text-muted-foreground">Score {p.score}</span>
             )}
+            {p.score === null && <span className="text-sm text-muted-foreground">No score</span>}
             {gap != null && (
               <span className="text-sm text-muted-foreground">
                 {gap} points behind the top score

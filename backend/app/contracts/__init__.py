@@ -95,7 +95,7 @@ from .research import (
     SourceFailure,
 )
 from .rubric import Rubric, WeightedCriterion, normalize
-from .verify import CommunitySignal, ResolvedValue, ValueState, VerifyInput, VerifyResult
+from .verify import AlternativeValue, CommunitySignal, ResolvedValue, ValueState, VerifyInput, VerifyResult
 
 __all__ = [
     "MAX_COMMENT_CHARS",
@@ -115,6 +115,7 @@ __all__ = [
     "SCHEMA_VERSION",
     "SEARCH_TIME_LIMIT_S",
     "STAGE_TIME_LIMITS_S",
+    "AlternativeValue",
     "AskedQuestion",
     "Budget",
     "Citation",

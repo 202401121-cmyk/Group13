@@ -242,7 +242,8 @@ def test_with_nothing_to_score_products_are_listed_unlabelled() -> None:
     result = decide(decide_input(rubric(weights=TWO), [product(A), product(B)], []))
     assert shown(result) == [A, B]
     for ranked in result.ranked:
-        assert (ranked.score, ranked.coverage, ranked.confidence, ranked.label) == (0.0, 0.0, "low", None)
+        # S3-10b: with nothing to rank on there is no score at all, never a 0 (DR-09)
+        assert (ranked.score, ranked.coverage, ranked.confidence, ranked.label) == (None, 0.0, "low", None)
         assert {c.state for c in ranked.contributions} == {ValueState.UNKNOWN}
     assert left_out(result) == ["battery_life", "cpu_performance"]
 

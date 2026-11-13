@@ -7,6 +7,7 @@ from collections.abc import Iterable, Sequence
 from typing import Any
 
 from app.contracts import (
+    AlternativeValue,
     Budget,
     DecideInput,
     DecideResult,
@@ -40,7 +41,16 @@ def known(pid: str, key: str, *, score: float | None = None, value: Any = None) 
     )
 
 
-def disputed(pid: str, key: str, *, score: float | None = None, value: Any = None) -> ResolvedValue:
+def disputed(
+    pid: str,
+    key: str,
+    *,
+    score: float | None = None,
+    value: Any = None,
+    others: Sequence[tuple[Any, str | None]] = (),
+) -> ResolvedValue:
+    """A disputed value. `others` are the other sides verify kept (S3-10b): (value, unit) each, with its own claim."""
+    sides = [claim_id(pid, key, "b", str(n)) for n in range(len(others))] or [claim_id(pid, key, "b")]
     return ResolvedValue(
         product_id=pid,
         criterion_key=key,
@@ -49,7 +59,11 @@ def disputed(pid: str, key: str, *, score: float | None = None, value: Any = Non
         value=value,
         confidence=0.5,
         supporting_claim_ids=[claim_id(pid, key, "a")],
-        conflicting_claim_ids=[claim_id(pid, key, "b")],
+        conflicting_claim_ids=sides,
+        alternatives=[
+            AlternativeValue(value=other, unit=unit, claim_ids=[side])
+            for (other, unit), side in zip(others, sides, strict=False)
+        ],
     )
 
 

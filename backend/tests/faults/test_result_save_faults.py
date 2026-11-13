@@ -22,6 +22,7 @@ from app.db import DatabaseSettings, InMemoryRequestStore, JsonObject, NullReque
 from app.main import create_app
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
 from app.research import ResearchStage
+from tests.fakes.live_run import use_live_shaped_run
 from tests.faults.test_database_drills import SilentServer
 from tests.faults.test_pipeline_fallback import SEARCH_STAGES, _AlwaysFails, _BrokenMatch
 
@@ -57,7 +58,10 @@ def down_database() -> Iterator[PostgresRequestStore]:
 
 
 @pytest.mark.slow
-def test_a_closed_port_gives_saved_false_within_the_database_time_limit(down_database: PostgresRequestStore) -> None:
+def test_a_closed_port_gives_saved_false_within_the_database_time_limit(
+    down_database: PostgresRequestStore, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    use_live_shaped_run(monkeypatch)  # a run whose real decide ranks something (S3-10b)
     start = time.monotonic()
     result = PipelineRunner(default_search_stages(), DatabaseResultStore(down_database)).run(request())
     assert time.monotonic() - start < DB_TIMEOUT_S + SLACK_S  # the stubs take milliseconds

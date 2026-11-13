@@ -19,7 +19,17 @@ import pytest
 from pydantic import BaseModel, HttpUrl, computed_field
 
 import app
-from app.contracts import Claim, ClaimType, SearchRequest, SearchResult, Source, SourceComment, SourceType
+from app.contracts import (
+    Claim,
+    ClaimType,
+    SearchRequest,
+    SearchResult,
+    Source,
+    SourceComment,
+    SourceType,
+    StageContext,
+    VerifyInput,
+)
 from app.contracts import examples as ex
 from app.db import InMemoryRequestStore
 from app.pipeline import DatabaseResultStore, InMemoryResultStore, PipelineRunner, default_search_stages
@@ -28,6 +38,8 @@ from app.research.dedupe import merge_near_duplicates
 from app.research.reddit.archive import add_comments
 from app.research.reddit.cache import RedditCache, serve_limit
 from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
+from app.verify import TrustVerifyStage
+from tests.fakes.live_run import use_live_shaped_run
 from tests.fakes.reddit import NOW
 from tests.fakes.research import review_source, rubric, thread, web_source
 
@@ -53,7 +65,8 @@ def _saved_row(sources: list[object]) -> str:
     stages = default_search_stages()
     request = SearchRequest(session_id="sess_aaaaaaaaaaaaaaaaaaaaaaaa", raw_query="a made-up request", rubric=rubric())
     result = PipelineRunner(stages, InMemoryResultStore()).run(request)
-    result = type(result).model_validate({**result.model_dump(), "sources": sources})
+    # Citations name the run's own sources, which these replace: a result's citations are all or none (US-21).
+    result = type(result).model_validate({**result.model_dump(), "sources": sources, "citations": []})
     store = InMemoryRequestStore()
     assert DatabaseResultStore(store, time_limit_s=1).save(result)
     return store.searches[0].result
@@ -156,14 +169,29 @@ CLEARED = "holds Reddit's words on a Reddit source: replaced by the marker"
 HASH = "made from Reddit's words, or a person's name: replaced or cleared on a Reddit source"
 ID_OR_LINK = "an ID, a link or a subreddit's name: code builds it, and it stays"
 SEARCH_FROM_CODE = "written by code from fixed words, the rubric or numbers"
+FILTER_REASON = (
+    "written by code from fixed words, the shopper's rules and values from non-community claims only: verify gives the "
+    "price and hard-rule attributes no value from Reddit or forums (S3-10b, DR-01), so no Reddit words"
+)
 SHOP_OR_SHOPPER = "from a shop, or the shopper's own words"
 PRODUCT_NAME = (
     "a product's name, or part of one (id, brand, alias, variant): a name, not a sentence, so it stays from any "
     "source, Reddit included (US-15; Om, 11 Nov 2026)"
 )
-WAITS_FOR_VERIFY = "holds no Reddit text until US-16 or US-42 replaces VerifyStage"
+REDDIT_VALUE = (
+    "a resolved value, which can be a claim's own words: a string one is replaced by the marker on save unless every "
+    "claim it rests on is cited from a source we know isn't Reddit (S3-10b). Numbers and true/false stay"
+)
+WAITS_FOR_COMMUNITY = (
+    "holds no Reddit text until US-42 fills CommunitySignal: the real verify leaves community empty, and only the "
+    "example's note exists, in fixed words"
+)
 WAITS_FOR_EXPLAIN = "holds no Reddit text until US-20 replaces ExplainStage"
 DROPPED = "a quote that may be left out: dropped on save unless its source is listed and not Reddit"
+UNIT_DROPPED = (
+    "the unit a claim gave an alternative value: dropped (None) on save unless every claim behind the alternative is "
+    "cited from a source we know isn't Reddit. It is too short for the marker"
+)
 
 TEXT_FIELDS = {
     "citations[].claim_id": ID_OR_LINK,
@@ -187,7 +215,7 @@ TEXT_FIELDS = {
     "stage_reports[].fallback_reason": SEARCH_FROM_CODE,
     "stage_reports[].notes[]": SEARCH_FROM_CODE,
     "decision.filtered[].product_id": SEARCH_FROM_CODE,
-    "decision.filtered[].reasons[]": SEARCH_FROM_CODE,
+    "decision.filtered[].reasons[]": FILTER_REASON,
     "decision.filtered[].rule_attribute": SEARCH_FROM_CODE,
     "decision.ranked[].contributions[].criterion_key": SEARCH_FROM_CODE,
     "decision.ranked[].product_id": SEARCH_FROM_CODE,
@@ -223,14 +251,17 @@ TEXT_FIELDS = {
     "products[].product.variants[].label": PRODUCT_NAME,
     "products[].product.variants[].attributes{key}": PRODUCT_NAME,
     "products[].product.variants[].attributes{}": PRODUCT_NAME,
-    "products[].values[].value": WAITS_FOR_VERIFY,
-    "products[].values[].product_id": WAITS_FOR_VERIFY,
-    "products[].values[].criterion_key": WAITS_FOR_VERIFY,
-    "products[].values[].supporting_claim_ids[]": WAITS_FOR_VERIFY,
-    "products[].values[].conflicting_claim_ids[]": WAITS_FOR_VERIFY,
-    "products[].community.note": WAITS_FOR_VERIFY,
-    "products[].community.communities[]": WAITS_FOR_VERIFY,
-    "products[].community.product_id": WAITS_FOR_VERIFY,
+    "products[].values[].value": REDDIT_VALUE,
+    "products[].values[].alternatives[].value": REDDIT_VALUE,
+    "products[].values[].alternatives[].unit": UNIT_DROPPED,
+    "products[].values[].alternatives[].claim_ids[]": ID_OR_LINK,
+    "products[].values[].product_id": SEARCH_FROM_CODE,
+    "products[].values[].criterion_key": SEARCH_FROM_CODE,
+    "products[].values[].supporting_claim_ids[]": ID_OR_LINK,
+    "products[].values[].conflicting_claim_ids[]": ID_OR_LINK,
+    "products[].community.note": WAITS_FOR_COMMUNITY,
+    "products[].community.communities[]": ID_OR_LINK,
+    "products[].community.product_id": SEARCH_FROM_CODE,
     "explanations[].product_id": WAITS_FOR_EXPLAIN,
     "explanations[].sentences[].text": WAITS_FOR_EXPLAIN,
     "explanations[].sentences[].claim_ids[]": WAITS_FOR_EXPLAIN,
@@ -338,26 +369,70 @@ def _fill(node: Any, parts: list[str], value: str) -> int:
     return _fill(node[name], rest, value)
 
 
+REDDIT_CLAIM = "clm_" + "a" * 24
+OTHER_REDDIT_CLAIM = "clm_" + "b" * 24
+
+
+def _cites_reddit(thread_source: Source) -> dict[str, Any]:
+    """A saved result whose one value, and its other side, rest on Reddit claims (S3-10b)."""
+    return {
+        "sources": [thread_source.model_dump(mode="json")],
+        "citations": [
+            {"claim_id": REDDIT_CLAIM, "source_id": thread_source.id, "quote": "A made-up quote."},
+            {"claim_id": OTHER_REDDIT_CLAIM, "source_id": thread_source.id, "quote": "Another made-up quote."},
+        ],
+        "products": [
+            {
+                "values": [
+                    {
+                        "state": "disputed",
+                        "value": None,
+                        "supporting_claim_ids": [REDDIT_CLAIM],
+                        "conflicting_claim_ids": [OTHER_REDDIT_CLAIM],
+                        "alternatives": [{"value": None, "unit": None, "claim_ids": [OTHER_REDDIT_CLAIM]}],
+                    }
+                ]
+            }
+        ],
+    }
+
+
 def test_every_field_the_table_says_is_cleared_really_is() -> None:
     """Listing a new field as cleared isn't enough: it is filled here, and must not reach the row."""
-    marked = {path: kind for path, kind in TEXT_FIELDS.items() if kind in (CLEARED, HASH)}
-    assert all(path.startswith("sources[].") for path in marked), "extend this test for a field outside the sources"
-    result = {"sources": [_deep_thread().model_dump(mode="json")]}
+    marked = {path: kind for path, kind in TEXT_FIELDS.items() if kind in (CLEARED, HASH, REDDIT_VALUE)}
+    in_sources = all(path.startswith("sources[].") for path, kind in marked.items() if kind != REDDIT_VALUE)
+    assert in_sources, "extend this test for a field outside the sources"
+    assert all(path.startswith("products[].values[].") for path, kind in marked.items() if kind == REDDIT_VALUE)
+    result = _cites_reddit(_deep_thread())
     secrets: list[str] = []
     for i, path in enumerate(sorted(marked)):
         secret = f"{i:02d}" + "e" * 62 if marked[path] == HASH else f"Secret words number {i}."
-        assert _fill(result, path.split("."), secret), f"{path} isn't in a Reddit source, so it can't be checked here"
+        assert _fill(result, path.split("."), secret), f"{path} isn't in the Reddit result, so it can't be checked here"
         secrets.append(secret)
     saved = json.dumps(without_reddit_text(result))
     assert [secret for secret in secrets if secret in saved] == []
 
 
-def test_the_stages_that_could_carry_reddit_words_are_still_placeholders() -> None:
+def test_the_stages_that_could_carry_reddit_words_are_placeholders_or_handled() -> None:
     """When one of these becomes real, its fields can hold Reddit's words. Handle them in retention.py first."""
     stages = default_search_stages()
     assert not stages.match.is_placeholder  # US-15 made match real; its fields are names (PRODUCT_NAME), decided
-    assert stages.verify.is_placeholder, f"US-16, US-42: {[k for k, v in TEXT_FIELDS.items() if v == WAITS_FOR_VERIFY]}"
+    # S3-10b made verify real: its values can hold a claim's words, and retention.py now replaces them (REDDIT_VALUE).
+    assert not stages.verify.is_placeholder
+    assert isinstance(stages.verify, TrustVerifyStage)
+    verify_fields = {k: v for k, v in TEXT_FIELDS.items() if k.startswith("products[].values[].")}
+    assert verify_fields["products[].values[].value"] == REDDIT_VALUE
+    assert verify_fields["products[].values[].alternatives[].value"] == REDDIT_VALUE
+    assert verify_fields["products[].values[].alternatives[].unit"] == UNIT_DROPPED
     assert stages.explain.is_placeholder, f"US-20: {[k for k, v in TEXT_FIELDS.items() if v == WAITS_FOR_EXPLAIN]}"
+
+
+def test_the_real_verify_leaves_community_empty_until_us_42() -> None:
+    """community.note holds no Reddit text only while nothing fills it: when US-42 does, handle it in retention.py."""
+    inp = VerifyInput(match=ex.match(), claims=ex.claims(), sources=ex.sources(), criterion_keys=["battery_life"])
+    assert TrustVerifyStage().run(inp, StageContext(search_id="srch_retention01")).community == []
+    waits = sorted(k for k, v in TEXT_FIELDS.items() if v == WAITS_FOR_COMMUNITY)
+    assert waits == ["products[].community.note"]
 
 
 def _deep_thread() -> Source:
@@ -493,16 +568,73 @@ def test_a_citation_whose_source_is_not_listed_loses_its_quote() -> None:
 
 
 def test_every_field_the_table_says_is_dropped_really_is() -> None:
-    marked = sorted(path for path, kind in TEXT_FIELDS.items() if kind == DROPPED)
-    assert marked == ["citations[].quote"], "extend this test for a new field that is dropped"
-    reddit = _deep_thread()
-    result = {
-        "sources": [reddit.model_dump(mode="json")],
-        "citations": [{"claim_id": "clm_" + "a" * 24, "source_id": reddit.id, "quote": "Secret words in a quote."}],
-    }
+    marked = sorted(path for path, kind in TEXT_FIELDS.items() if kind in (DROPPED, UNIT_DROPPED))
+    assert marked == [
+        "citations[].quote",
+        "products[].values[].alternatives[].unit",
+    ], "extend this test for a new field that is dropped"
+    result = _cites_reddit(_deep_thread())
+    result["citations"][0]["quote"] = "Secret words in a quote."
+    result["products"][0]["values"][0]["alternatives"][0] |= {"value": 6.0, "unit": "hourz"}
     saved = without_reddit_text(result)
     assert saved["citations"][0]["quote"] is None
+    assert saved["products"][0]["values"][0]["alternatives"][0]["unit"] is None
     assert "Secret words in a quote." not in json.dumps(saved)
+    assert "hourz" not in json.dumps(saved)
+
+
+# --- values verify resolved (S3-10b) ------------------------------------------------------------------------------
+
+
+def _valued(source: Source, value: object, *, other: object = None, unit: str | None = None) -> dict[str, Any]:
+    result = _cites_reddit(source)
+    resolved = result["products"][0]["values"][0]
+    resolved["value"] = value
+    resolved["alternatives"][0] |= {"value": other, "unit": unit}
+    return result
+
+
+def test_a_reddit_backed_string_value_is_replaced_on_save() -> None:
+    saved = without_reddit_text(_valued(_deep_thread(), "about 6 hours of coding", other="nearer 4 hours"))
+    value = saved["products"][0]["values"][0]
+    assert value["value"] == REDDIT_TEXT_NOT_KEPT
+    assert value["alternatives"][0]["value"] == REDDIT_TEXT_NOT_KEPT
+    assert value["supporting_claim_ids"] == [REDDIT_CLAIM]  # the claim ids stay
+    assert value["alternatives"][0]["claim_ids"] == [OTHER_REDDIT_CLAIM]
+    assert "6 hours of coding" not in json.dumps(saved)
+
+
+def test_a_review_site_backed_string_value_is_kept() -> None:
+    review = review_source("https://reviews.example/nova")
+    result = _valued(review, "16 GB DDR5", other="Wi-Fi 6E", unit="GB")
+    saved = without_reddit_text(result)
+    assert saved["products"] == result["products"]
+
+
+def test_a_number_or_true_false_value_is_kept_even_from_reddit() -> None:
+    for value, other in ((6.0, 4.0), (True, False)):
+        saved = without_reddit_text(_valued(_deep_thread(), value, other=other))
+        resolved = saved["products"][0]["values"][0]
+        assert (resolved["value"], resolved["alternatives"][0]["value"]) == (value, other)
+
+
+def test_a_value_whose_claims_are_not_cited_is_not_kept() -> None:
+    """If we can't tell where a claim came from, its words can't be kept: as with a quote."""
+    review = review_source("https://reviews.example/nova")
+    result = _valued(review, "16 GB DDR5")
+    result["citations"] = []
+    assert without_reddit_text(result)["products"][0]["values"][0]["value"] == REDDIT_TEXT_NOT_KEPT
+
+
+def test_a_live_runs_saved_row_still_reads_back(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The real verify on a made-up live-shaped run, Reddit claims included: what is saved still fits the contract."""
+    use_live_shaped_run(monkeypatch)
+    store = InMemoryRequestStore()
+    request = SearchRequest(session_id="sess_aaaaaaaaaaaaaaaaaaaaaaaa", raw_query="a made-up request", rubric=rubric())
+    result = PipelineRunner(default_search_stages(), DatabaseResultStore(store, time_limit_s=1)).run(request)
+    assert result.citations
+    saved = SearchResult.model_validate(json.loads(store.searches[0].result))
+    assert saved.citations and len(saved.citations) == len(result.citations)
 
 
 def test_a_claim_quoting_reddit_loses_its_quote_but_keeps_its_value_score_and_source_link() -> None:
@@ -804,3 +936,60 @@ def test_the_sweep_deletes_a_reddit_file_at_its_shorter_limit(tmp_path: Path, mo
     sweep_expired_files()
     assert list(reddit_folder.glob("*.json")) == []
     assert len(list(research_folder.rglob("*.json"))) == 1
+
+
+# --- filter reasons hold no Reddit words (S3-10b review, D-53) ------------------------------------------------------
+
+REDDIT_WORDS = "wifi 5 on mine sadly"
+
+
+def _wifi_reasons(price_too: bool) -> list[str]:
+    """Decide on verify's output, where two subreddits contradict the maker in their own words."""
+    from app.contracts import HardRule, Rubric
+    from app.decide import decide
+    from tests.unit.decide.build import decide_input
+    from tests.unit.verify.build import claim, match, reddit, source, verify_input
+
+    maker = source("https://nova.example/book-14/specs", SourceType.MANUFACTURER)
+    one, two = reddit("r/SuggestALaptop", "aaa111"), reddit("r/IndianGaming", "bbb222")
+    claims = [
+        claim(maker, "Nova Book 14", "wifi", value="Wi-Fi 6E"),
+        claim(one, "Nova Book 14", "wifi", value=REDDIT_WORDS),
+        claim(two, "Nova Book 14", "wifi", value=REDDIT_WORDS),
+    ]
+    if price_too:
+        claims += [
+            claim(maker, "Nova Book 14", "price_inr", value=64990, unit="INR"),
+            claim(one, "Nova Book 14", "price_inr", value="₹99,999 at my uncle's shop"),
+            claim(two, "Nova Book 14", "price_inr", value=99999, unit="INR"),
+        ]
+    stage = TrustVerifyStage()
+    stage.use_filter_keys("srch_d53guard01", ["price_inr", "wifi"])
+    verified = stage.run(
+        verify_input(match("Nova Book 14"), claims, [maker, one, two], ["price_inr", "wifi"]),
+        StageContext(search_id="srch_d53guard01"),
+    )
+    rule = HardRule(attribute="wifi", operator="==", value="Wi-Fi 7", source_text="Wi-Fi 7")
+    rb = Rubric.model_validate({**rubric().model_dump(), "hard_rules": [rule.model_dump()]})
+    result = decide(decide_input(rb, match("Nova Book 14").products, verified.values))
+    return [reason for held in result.filtered for reason in held.reasons]
+
+
+@pytest.mark.parametrize("price_too", [False, True])
+def test_no_filter_reason_holds_a_reddit_claims_words(price_too: bool) -> None:
+    reasons = _wifi_reasons(price_too)
+    assert reasons  # the maker's Wi-Fi 6E fails "Wi-Fi 7": there is a reason to read
+    text = " ".join(reasons)
+    assert REDDIT_WORDS not in text.casefold()
+    assert "uncle" not in text and "99,999" not in text
+
+
+def test_no_filter_reason_of_a_live_shaped_run_holds_a_reddit_claims_words(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Vela Pro 14's only price is a Reddit post's: its can't-tell reason says so in fixed words."""
+    use_live_shaped_run(monkeypatch)
+    request = SearchRequest(session_id="sess_aaaaaaaaaaaaaaaaaaaaaaaa", raw_query="a made-up request", rubric=rubric())
+    result = PipelineRunner(default_search_stages(), InMemoryResultStore()).run(request)
+    assert result.decision is not None
+    reasons = " ".join(reason for held in result.decision.filtered for reason in held.reasons)
+    assert "We couldn't find its price" in reasons
+    assert "62,990" not in reasons and "62990" not in reasons  # the Reddit post's price

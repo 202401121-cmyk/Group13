@@ -13,6 +13,9 @@
   rounds, or until no weight moves by min_weight_change.
 - Disputed: independent sites disagree beyond tolerance and the losing side carries at least dispute_share of the
   weight. Unknown: no claim from a source starting at unknown_below or more. Never a score of zero.
+- A dispute keeps its losing side as alternatives (S3-10b): the outvoted site claims, grouped by what they say (within
+  tolerance of the heaviest), each with its value and the unit its claims gave, or its weighted mean score, and the
+  claims that say it. Decide checks every side, so a price disputed across the budget is "can't tell".
 Everything is sorted before it is summed, so the same claims in any order give the same result.
 """
 
@@ -25,11 +28,20 @@ from dataclasses import dataclass, field, replace
 from typing import Literal
 
 from app.contracts import SourceTier, ValueState
-from app.decide.units import Quantity, attribute_unit, in_base, known_unit, number_text, quantity, unit_key
+from app.decide.units import (
+    Quantity,
+    attribute_unit,
+    in_base,
+    known_unit,
+    number_text,
+    quantity,
+    unit_key,
+    unit_label,
+)
 
 from .trust import Tolerance, TrustTable
 
-__all__ = ["Evidence", "Outcome", "Resolution", "Tolerance", "learn_weights", "measure", "resolve_all"]
+__all__ = ["Alternative", "Evidence", "Outcome", "Resolution", "Tolerance", "learn_weights", "measure", "resolve_all"]
 
 Method = Literal["learned", "tier_order"]
 Kind = Literal["value", "score"]
@@ -86,6 +98,7 @@ class Evidence:
     shown: float | str | None = None
     raw: float | None = None
     unit: str | None = None
+    given_unit: str | None = None  # the claim's own unit, for a number: an alternative shows it as the claim gave it
 
     @classmethod
     def of(
@@ -105,8 +118,10 @@ class Evidence:
         if score is not None:
             return cls(claim_id, product_id, key, site, tier, trust, weight, score=float(score))
         read = measure(value, unit, key)
+        given_unit: str | None = None
         if isinstance(value, int | float) and not isinstance(value, bool):
             shown: float | str | None = f"{number_text(float(value))} {unit.strip()}" if unit else float(value)
+            given_unit = (unit or "").strip() or None
         else:
             shown = value.strip() if isinstance(value, str) else None
         return cls(
@@ -124,6 +139,7 @@ class Evidence:
             shown,
             read.raw,
             read.unit,
+            given_unit=given_unit,
         )
 
     @property
@@ -159,6 +175,8 @@ class _SiteClaim:
     text: str | None = None
     score: float | None = None
     shown: float | str | None = None
+    raw: float | None = None
+    given_unit: str | None = None
 
     @property
     def trustworthy_at(self) -> float:
@@ -174,6 +192,16 @@ class _Group:
 
 
 @dataclass(frozen=True)
+class Alternative:
+    """One losing side of a dispute: a value (with the unit its claims gave) or a score, and the claims behind it."""
+
+    claim_ids: tuple[str, ...]
+    value: float | str | None = None
+    unit: str | None = None
+    score: float | None = None
+
+
+@dataclass(frozen=True)
 class Resolution:
     product_id: str
     key: str
@@ -183,6 +211,7 @@ class Resolution:
     confidence: float = 0.0
     supporting: list[str] = field(default_factory=list)
     conflicting: list[str] = field(default_factory=list)
+    alternatives: list[Alternative] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -222,6 +251,8 @@ def _site_value(site: str, items: Sequence[Evidence]) -> _SiteClaim:
         number=pick.number,
         text=pick.text,
         shown=pick.shown,
+        raw=pick.raw,
+        given_unit=pick.given_unit,
     )
 
 
@@ -239,7 +270,8 @@ def _site_score(site: str, items: Sequence[Evidence]) -> _SiteClaim:
 
 def _units_for_bare(items: Sequence[Evidence]) -> list[Evidence]:
     """A number with no unit at all ("10" for battery_life) takes the unit the group's other numbers use most, so it is
-    compared with them instead of being left out. With no other unit, it stays a plain number."""
+    compared with them instead of being left out. With no other unit, it stays a plain number. The unit it took is
+    kept as its given unit too, so an alternative made from it is read by decide as verify compared it."""
     units = Counter(e.unit for e in items if e.unit is not None and e.number is not None)
     if not units or not any(e.form == _BARE for e in items):
         return list(items)
@@ -248,7 +280,7 @@ def _units_for_bare(items: Sequence[Evidence]) -> list[Evidence]:
     for e in items:
         if e.form == _BARE and e.raw is not None:
             dimension, base = in_base(Quantity(e.raw, unit), None)
-            e = replace(e, number=base, dimension=dimension, unit=unit)
+            e = replace(e, number=base, dimension=dimension, unit=unit, given_unit=e.given_unit or unit_label(unit))
         out.append(e)
     return out
 
@@ -429,6 +461,53 @@ def _member_ids(group: _Group, verdict: _Verdict, tolerance: Tolerance) -> tuple
     return agree, disagree
 
 
+MAX_ALTERNATIVES = 20  # ResolvedValue.alternatives holds at most 20
+
+
+def _same_side(kind: Kind, head: _SiteClaim, other: _SiteClaim, tolerance: Tolerance, score_tol: float) -> bool:
+    """Does `other` say what `head` says? Scores within the score tolerance; values in the same form, within tolerance
+    (numbers) or word for word (text)."""
+    if kind == "score":
+        return abs((other.score or 0.0) - (head.score or 0.0)) <= score_tol + 1e-9
+    if other.form != head.form:
+        return False
+    if head.form == _TEXT:
+        return other.text == head.text
+    return tolerance.allows(other.number or 0.0, head.number or 0.0)
+
+
+def _alternatives(
+    group: _Group, verdict: _Verdict, said_no: Sequence[str], weigh: Weigh, tolerance: Tolerance, score_tol: float
+) -> list[Alternative]:
+    """The losing side of one disputed group, heaviest first. Each outvoted site claim joins the heaviest one before it
+    that says the same; each side cites only its own claims that disagree with the consensus."""
+    sides: list[list[_SiteClaim]] = []
+    for claim in sorted(verdict.disagree, key=lambda c: (-weigh(c), c.site)):
+        side = next((s for s in sides if _same_side(group.kind, s[0], claim, tolerance, score_tol)), None)
+        if side is None:
+            sides.append([claim])
+        else:
+            side.append(claim)
+    disagreeing = set(said_no)
+    out: list[Alternative] = []
+    for side in sides:
+        ids = tuple(sorted({m.claim_id for c in side for m in c.members} & disagreeing))
+        head = side[0]
+        if not ids:
+            continue
+        if group.kind == "score":
+            weights = [weigh(c) for c in side]
+            if sum(weights) <= 0:
+                weights = [1.0] * len(side)
+            mean = sum((c.score or 0.0) * w for c, w in zip(side, weights, strict=True)) / sum(weights)
+            out.append(Alternative(ids, score=round(min(10.0, max(0.0, mean)), 2)))
+        elif head.given_unit is not None and head.raw is not None:
+            out.append(Alternative(ids, value=head.raw, unit=head.given_unit))
+        elif head.shown is not None:
+            out.append(Alternative(ids, value=head.shown))
+    return out
+
+
 def _candidates(group: _Group, method: Method, table: TrustTable) -> tuple[_SiteClaim, ...]:
     """Who decides. Learned: everyone, by weight. Tier order: the top tier among the trustworthy claims."""
     if method == "learned":
@@ -454,6 +533,7 @@ def _resolve(
     agreed_weight = total_weight = 0.0
     supporting: list[str] = []
     conflicting: list[str] = []
+    alternatives: list[Alternative] = []
     for group in groups:
         verdict = _judge(group, weigh, _candidates(group, method, table), tolerance, table.score_tolerance)
         if group.kind == "score":
@@ -474,6 +554,7 @@ def _resolve(
             and lost / (won + lost) >= table.dispute_share - 1e-9
         ):
             state = ValueState.DISPUTED
+            alternatives += _alternatives(group, verdict, said_no, weigh, tolerance, table.score_tolerance)
     return Resolution(
         product_id,
         key,
@@ -483,6 +564,7 @@ def _resolve(
         confidence=round(agreed_weight / total_weight, 3) if total_weight > 0 else 0.0,
         supporting=sorted(supporting),
         conflicting=sorted(conflicting),
+        alternatives=alternatives[:MAX_ALTERNATIVES],
     )
 
 

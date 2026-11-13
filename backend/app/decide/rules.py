@@ -3,6 +3,11 @@
 Each product gets one check per rule: pass, fail or unknown, with a plain reason. Any fail puts it in "filtered out";
 otherwise any unknown puts it in "can't tell"; otherwise it is shown. A rule switched to a preference (active false)
 never filters. Missing evidence is never a fail: it is "can't tell", so the shopper can look it up.
+
+A disputed value is checked on every side verify kept (S3-10b): the value and each alternative. Every side passes: pass.
+Every side fails: fail, naming the values. Otherwise: unknown, "Sources disagree: ₹68,990 or ₹74,990". A disputed value
+with no other side kept is unknown, naming the one value we have. A dispute in scores only (every alternative a score)
+leaves the value agreed, so it is checked like a known one.
 """
 
 from __future__ import annotations
@@ -100,7 +105,74 @@ def _value_text(raw: object, attribute: str) -> str:
     return str(raw).strip()[:80]
 
 
+def value_disputed(value: ResolvedValue) -> bool:
+    """Is the value itself in dispute? Not when verify kept only scores on the other side: the sources agree on the
+    value and split on how good it is, so the value is checked as a known one."""
+    if value.state is not ValueState.DISPUTED:
+        return False
+    return not value.alternatives or any(a.value is not None for a in value.alternatives)
+
+
+def sides(value: ResolvedValue) -> list[object]:
+    """A disputed value's every side: its value, then each alternative's value as its claims gave it ("8 GB")."""
+    out: list[object] = [value.value]
+    for alternative in value.alternatives:
+        other = alternative.value
+        if other is None:
+            continue  # a score: the rules check values only
+        if alternative.unit and isinstance(other, int | float) and not isinstance(other, bool):
+            out.append(f"{number_text(float(other))} {alternative.unit}")
+        else:
+            out.append(other)
+    return out
+
+
+def either(texts: Sequence[str]) -> str:
+    """ "a", "a or b", "a, b or c": each once, in the order given."""
+    unique = list(dict.fromkeys(texts))
+    return unique[0] if len(unique) == 1 else f"{', '.join(unique[:-1])} or {unique[-1]}"
+
+
+def _all_of(count: int) -> str:
+    return "both are" if count == 2 else "all are"
+
+
 # --- the budget ------------------------------------------------------------------------------------------------------
+
+
+def _against(budget: Budget, price: float) -> Literal["pass", "above", "below"]:
+    if budget.max is not None and price > budget.max.amount:
+        return "above"
+    if budget.min is not None and price < budget.min.amount:
+        return "below"
+    return "pass"
+
+
+def _budget_sides(budget: Budget, raws: Sequence[object]) -> Check:
+    """Every side of a disputed price against the budget."""
+    found: list[Literal["pass", "above", "below"] | None] = []
+    shown: list[str] = []
+    for raw in raws:
+        price = quantity(raw)
+        if price is None or price.unit not in (None, "inr"):
+            found.append(None)
+            shown.append(_value_text(raw, PRICE_KEY))
+        else:
+            found.append(_against(budget, price.number))
+            shown.append(rupees(price.number))
+    named = either(shown)
+    if all(f == "pass" for f in found):
+        return Check(BUDGET, "pass", attribute=PRICE_KEY)
+    if None in found or "pass" in found:
+        return Check(BUDGET, "unknown", f"Sources disagree: {named}", PRICE_KEY)
+    count = len(set(shown))
+    if all(f == "above" for f in found) and budget.max is not None:
+        why = f"{_all_of(count)} above your {rupees(budget.max.amount)} budget"
+    elif all(f == "below" for f in found) and budget.min is not None:
+        why = f"{_all_of(count)} below your {rupees(budget.min.amount)} minimum"
+    else:
+        why = f"none fits {_budget_words(budget)}"
+    return Check(BUDGET, "fail", f"Sources give {named}, and {why}", PRICE_KEY)
 
 
 def check_budget(budget: Budget, value: ResolvedValue | None) -> Check:
@@ -115,7 +187,10 @@ def check_budget(budget: Budget, value: ResolvedValue | None) -> Check:
     price = quantity(value.value)
     if price is None or price.unit not in (None, "inr"):
         return unknown("We couldn't find its price")
-    if value.state is ValueState.DISPUTED:
+    if value_disputed(value):
+        raws = sides(value)
+        if len(raws) > 1:
+            return _budget_sides(budget, raws)
         return unknown(f"Sources disagree on its price: one says {rupees(price.number)}")
     if budget.max is not None and price.number > budget.max.amount:
         return Check(
@@ -246,7 +321,10 @@ def check_rule(rule: HardRule, value: ResolvedValue | None) -> Check:
     if value is None or value.state not in _EVIDENCE or value.value is None:
         return Check(rule.id, "unknown", f"We couldn't find its {words}, so we can't check \"{said}\"", rule.attribute)
     shown = _value_text(value.value, rule.attribute)
-    if value.state is ValueState.DISPUTED:
+    if value_disputed(value):
+        raws = sides(value)
+        if len(raws) > 1:
+            return _rule_sides(rule, raws)
         return Check(rule.id, "unknown", f"Sources disagree on its {words}: one says {shown}", rule.attribute)
     kept = compare(rule, value.value)
     if kept is None:
@@ -259,6 +337,17 @@ def check_rule(rule: HardRule, value: ResolvedValue | None) -> Check:
     else:
         has = f"it has {shown}"
     return Check(rule.id, "fail", f'It fails "{said}": {has}', rule.attribute)
+
+
+def _rule_sides(rule: HardRule, raws: Sequence[object]) -> Check:
+    """Every side of a disputed value against one rule."""
+    kept = [compare(rule, raw) for raw in raws]
+    named = either([_value_text(raw, rule.attribute) for raw in raws])
+    if all(k is True for k in kept):
+        return Check(rule.id, "pass", attribute=rule.attribute)
+    if all(k is False for k in kept):
+        return Check(rule.id, "fail", f'It fails "{rule.source_text}": sources give {named}', rule.attribute)
+    return Check(rule.id, "unknown", f"Sources disagree: {named}", rule.attribute)
 
 
 # --- exclusions ------------------------------------------------------------------------------------------------------

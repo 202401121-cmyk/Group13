@@ -142,3 +142,16 @@ def test_interview_fallback_builds_a_default_rubric() -> None:
 def test_research_can_be_told_to_fail() -> None:
     with pytest.raises(RuntimeError, match="simulated research failure"):
         ResearchStage(fail=True).run(C.ResearchInput(rubric=ex.rubric()), C.StageContext(search_id="srch_test00001"))
+
+
+def test_explain_fallback_never_shows_a_missing_score_as_a_number() -> None:
+    """S3-10b: with nothing to rank on, decide gives no score; the template must not print "None" or 0 (DR-09)."""
+    from app.decide import decide
+
+    rubric = C.Rubric.model_validate({**ex.rubric().model_dump(), "budget": None, "hard_rules": []})
+    unscored = decide(C.DecideInput(rubric=rubric, products=ex.match().products[:2], values=[])).ranked
+    assert unscored and all(r.score is None for r in unscored)
+    inp = C.ExplainInput(ranked=unscored, claims=[], user_priorities=WEIGHT_KEYS[:3])
+    out = ExplainStage().fallback(inp, C.StageContext(search_id="srch_test00001"), RuntimeError("boom"))
+    texts = [s.text for e in out.explanations for s in e.sentences]
+    assert texts == ["Listed #1. We found no scores to rank it on.", "Listed #2. We found no scores to rank it on."]

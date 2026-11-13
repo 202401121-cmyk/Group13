@@ -24,6 +24,7 @@ from app.contracts import examples as ex
 from app.db import DatabaseSettings, PostgresRequestStore
 from app.db import default_request_store as real_default_request_store  # tests/conftest.py swaps the attribute
 from app.main import create_app
+from tests.fakes.live_run import use_live_shaped_run
 
 TIMEOUT_S = 1.0
 FAKE_PASSWORD = "drill-password"  # made up
@@ -79,7 +80,10 @@ def database_at_closed_port(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
 
 @pytest.mark.usefixtures("database_at_closed_port")
 @pytest.mark.slow
-def test_drill_1_the_cli_finishes_when_the_database_is_down(capsys: pytest.CaptureFixture[str]) -> None:
+def test_drill_1_the_cli_finishes_when_the_database_is_down(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    use_live_shaped_run(monkeypatch)  # a run whose real decide ranks something, so every stage runs (S3-10b)
     start = time.monotonic()
     assert cli_main(["best laptop for coding under 70k"]) == 0
     out = capsys.readouterr().out

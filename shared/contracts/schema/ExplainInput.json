@@ -227,10 +227,18 @@
           "type": "integer"
         },
         "score": {
-          "maximum": 100,
-          "minimum": 0,
-          "title": "Score",
-          "type": "number"
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "0 to 100. None for every product when none had evidence on any criterion (1.8.0)",
+          "title": "Score"
         },
         "contributions": {
           "items": {

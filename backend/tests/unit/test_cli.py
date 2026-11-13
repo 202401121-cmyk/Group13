@@ -4,21 +4,71 @@ from __future__ import annotations
 
 import pytest
 
-from app.cli import main
+import app.contracts as C
+from app.cli import main, render
+from app.contracts import examples as ex
 from app.db import InMemoryRequestStore
+from app.pipeline import InMemoryResultStore, PipelineRunner
+from tests.fakes.live_run import use_live_shaped_run
+from tests.unit.test_pipeline_live_decide import _OnlyRam, live_stages
 
 
-def test_cli_prints_a_ranked_list_with_sources(capsys: pytest.CaptureFixture[str]) -> None:
+def test_cli_prints_a_ranked_list_with_sources(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The real verify and decide (S3-10b) on a made-up live-shaped run: ranked, filtered out and can't tell."""
+    use_live_shaped_run(monkeypatch)
     assert main(["best laptop for coding under 70k"]) == 0
     out = capsys.readouterr().out
     assert "Nova Book 14" in out
-    assert "Vela Pro 14" in out  # the can't-tell product and its reason
-    assert "1. Nova Book 14" in out
+    assert "Vela Pro 14: We couldn't find its price" in out  # the can't-tell product and its reason
+    assert "1. Nova Book 14: score " in out
     assert "source: https://" in out
-    assert "Filtered out:" in out and "Aurora Air 13" in out
+    assert "Filtered out:" in out and "Aurora Air 13: ₹84,990 is above your ₹70,000 budget" in out
     assert "₹70,000" in out  # the rupee sign survives, not "?"
-    assert "Coverage note: These are sample results" in out
+    assert "Coverage note: These are sample results" in out  # enrich, explain and commerce are stubs still
     assert "timed out" not in out  # no search ran, so nothing can have failed
+
+
+def test_cli_with_the_stub_research_finds_no_price_so_cant_tell(capsys: pytest.CaptureFixture[str]) -> None:
+    """The stubs' example claims carry no price, so with a budget the real decide can't tell for any product."""
+    assert main(["best laptop for coding under 70k"]) == 0
+    out = capsys.readouterr().out
+    assert "No product passed your rules." in out
+    assert "Can't tell:" in out and "Nova Book 14: We couldn't find its price" in out
+    assert "Hint: Removing your ₹70,000 budget would let " in out
+
+
+def test_cli_says_not_ranked_instead_of_a_missing_score() -> None:
+    """Unknown is never shown as 0 (DR-09): with nothing scored, each product is listed as not ranked."""
+    stages = live_stages()
+    stages.extract = _OnlyRam()
+    rubric = C.Rubric.model_validate({**ex.rubric().model_dump(), "budget": None, "hard_rules": []})
+    request = C.SearchRequest(session_id=ex.SESSION_ID, raw_query="a made-up request", rubric=rubric)
+    out = render(PipelineRunner(stages, InMemoryResultStore()).run(request))
+    assert "  1. Aurora Air 13: not ranked, coverage 0%" in out
+    assert "score None" not in out and "score 0" not in out
+    assert "Not ranked: we found no scores for your criteria." in out
+
+
+def test_cli_prints_the_relaxation_hint() -> None:
+    result = ex.search_result()
+    decision = C.DecideResult(
+        ranked=[],
+        filtered=[
+            C.FilteredProduct(
+                product_id="prd_aurora_air_13",
+                group="filtered_out",
+                reasons=["₹84,990 is above your ₹70,000 budget"],
+                rule_attribute="price_inr",
+            )
+        ],
+        relaxation_hint="Removing your ₹70,000 budget would let 1 product through.",
+        method="weighted",
+    )
+    out = render(C.SearchResult.model_validate({**result.model_dump(), "decision": decision.model_dump()}))
+    assert "No product passed your rules." in out
+    assert "\nHint: Removing your ₹70,000 budget would let 1 product through." in out
 
 
 def test_cli_shows_what_it_understood(capsys: pytest.CaptureFixture[str]) -> None:
@@ -100,6 +150,7 @@ def test_cli_no_db_does_not_save(monkeypatch: pytest.MonkeyPatch, capsys: pytest
 def test_cli_still_searches_when_the_database_is_down(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
+    use_live_shaped_run(monkeypatch)
     _store(monkeypatch, fail=True)
     assert main(["best laptop for coding under 70k"]) == 0
     out = capsys.readouterr().out

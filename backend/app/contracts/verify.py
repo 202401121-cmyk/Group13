@@ -27,6 +27,24 @@ class VerifyInput(Contract):
     criterion_keys: list[Slug] = Field(
         min_length=1, max_length=30, description="Criteria plus any hard-rule attributes to resolve"
     )
+    category: Slug | None = Field(
+        default=None, description="The rubric's product category, which moves a site's trust (trust.yaml). 1.8.0"
+    )
+
+
+class AlternativeValue(Contract):
+    """The other side of a disputed value (DR-03): what the outvoted sources say, and the claims that say it. 1.8.0"""
+
+    value: float | bool | str | None = None
+    unit: str | None = Field(default=None, max_length=16)
+    score: Score10 | None = None
+    claim_ids: list[ClaimId] = Field(min_length=1, description="Among the value's conflicting claims")
+
+    @model_validator(mode="after")
+    def _check(self) -> AlternativeValue:
+        if self.value is None and self.score is None:
+            raise ValueError("an alternative needs a value or a score")
+        return self
 
 
 class ResolvedValue(Contract):
@@ -38,6 +56,9 @@ class ResolvedValue(Contract):
     confidence: Fraction
     supporting_claim_ids: list[ClaimId] = Field(default_factory=list)
     conflicting_claim_ids: list[ClaimId] = Field(default_factory=list)
+    alternatives: list[AlternativeValue] = Field(
+        default_factory=list, max_length=20, description="A disputed value's other side, each with its claims. 1.8.0"
+    )
 
     @model_validator(mode="after")
     def _check(self) -> ResolvedValue:
@@ -52,6 +73,11 @@ class ResolvedValue(Contract):
             raise ValueError("an estimated value has a peer-average score and no claims of its own")
         if s in (ValueState.KNOWN, ValueState.DISPUTED) and self.score is None and self.value is None:
             raise ValueError(f"a {s} value needs a score or a value")
+        if self.alternatives and s != ValueState.DISPUTED:
+            raise ValueError("only a disputed value has alternatives")
+        conflicting = set(self.conflicting_claim_ids)
+        if any(set(a.claim_ids) - conflicting for a in self.alternatives):
+            raise ValueError("an alternative's claims must be among the conflicting claims")
         return self
 
 

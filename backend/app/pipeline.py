@@ -7,6 +7,10 @@ happen only sets `saved=False` (build rule 10).
 
 A search run (US-12, P-07) also passes a progress callback, which hears each stage start and finish, and a cancel
 flag, which stops the search before its next stage. The CLI and POST /api/search pass neither.
+
+Verify and decide are real (S3-10b, US-16 to US-18): TrustVerifyStage and WeightedDecideStage, with the Sprint 1 stubs
+kept only as their fallbacks. A product verify drops as unsourced is left out of decide and of the result, and the
+result cites every claim its values rest on (SearchResult.citations).
 """
 
 from __future__ import annotations
@@ -17,7 +21,7 @@ import os
 import re
 import secrets
 import threading
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from concurrent.futures import ThreadPoolExecutor, wait
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -32,6 +36,7 @@ from app.commerce import CommerceStage
 from app.contracts import (
     SEARCH_TIME_LIMIT_S,
     STAGE_TIME_LIMITS_S,
+    Citation,
     Claim,
     CommerceInput,
     CommerceResult,
@@ -66,7 +71,7 @@ from app.contracts import (
     VerifyResult,
     examples,
 )
-from app.decide import PRICE_KEY, DecideStage
+from app.decide import PRICE_KEY, WeightedDecideStage
 from app.enrich import EnrichStage
 from app.entities import FuzzyMatchStage, alias_keys
 from app.explain import ExplainStage
@@ -76,7 +81,7 @@ from app.research import default_research_stage
 from app.research.readers import FIRECRAWL, JINA
 from app.research.reddit.recommenders import count_recommenders
 from app.research.retention import without_reddit_text
-from app.verify import VerifyStage
+from app.verify import TrustVerifyStage
 
 log = logging.getLogger(__name__)
 
@@ -285,9 +290,9 @@ def default_search_stages() -> SearchStages:
         research=default_research_stage(),
         extract=default_extract_stage(),
         match=FuzzyMatchStage(),
-        verify=VerifyStage(),
+        verify=TrustVerifyStage(),
         enrich=EnrichStage(),
-        decide=DecideStage(),
+        decide=WeightedDecideStage(),
         explain=ExplainStage(),
         commerce=CommerceStage(),
     )
@@ -593,7 +598,7 @@ class _Search:
         self.cancel = cancel
         self.extract_workers = extract_workers
         self.aliases = aliases if aliases is not None else db.shared_memory_aliases()
-        self.decide_is_sample = False  # set when the decide stub made the ranking (until US-17)
+        self.decide_is_sample = False  # set when the decide stub made the ranking: decide fell back to it
         self.limits = time_limits
         self.request = request
         self.rubric = request.rubric
@@ -606,6 +611,7 @@ class _Search:
         self.claims: list[Claim] = []
         self.mentions: list[ProductMention] = []
         self.extract_note: str | None = None
+        self.decide_note: str | None = None
         self.recommender_counts: list[
             RecommenderCount
         ] = []  # counted after extract, from the products it found (US-13)
@@ -753,14 +759,42 @@ class _Search:
         rule_keys = self.rule_keys
         price = [PRICE_KEY] if self.rubric.budget else []  # decide checks the budget on it (US-17), before the rules
         keys = list(dict.fromkeys(self.weight_keys + price + rule_keys))[:MAX_VERIFY_KEYS]
+        # The keys decide filters on: the price and every hard rule's attribute, a criterion too or not. Community
+        # claims give them no value (S3-10b, DR-01). Keys only, like extract's specs. A stage without the method (the
+        # stub) has no use for them; one that keeps them is told to forget them once verify is done, run or fallback.
+        use_filter_keys = getattr(self.stages.verify, "use_filter_keys", None)
+        if use_filter_keys is not None:
+            use_filter_keys(self.ctx.search_id, list(dict.fromkeys(price + rule_keys)))
         inp = VerifyInput(
             match=_require(self.match_out, "match"),
             claims=self.claims[:MAX_CLAIMS],
             sources=research.sources,
             criterion_keys=keys,
+            category=self.rubric.category,
         )
-        self.verify_out, report = self._run(self.stages.verify, inp)
+        try:
+            self.verify_out, report = self._run(self.stages.verify, inp)
+        finally:
+            self._forget_filter_keys()
         return report
+
+    def _forget_filter_keys(self) -> None:
+        forget = getattr(self.stages.verify, "forget", None)
+        if forget is None:
+            return
+        try:
+            forget(self.ctx.search_id)
+        except Exception as exc:  # the type only, never its text (build rule 9)
+            log.warning("verify's filter keys were not forgotten: %s", type(exc).__name__)
+
+    @property
+    def dropped(self) -> set[str]:
+        """Products verify found no source for (FR-25): left out of decide and of the result."""
+        return set(self.verify_out.dropped_unsourced) if self.verify_out else set()
+
+    def _kept_products(self) -> list[Product]:
+        dropped = self.dropped
+        return [p for p in (self.match_out.products if self.match_out else []) if p.id not in dropped]
 
     def enrich(self) -> StageReport:
         # Choosing enrichment targets is US-41; until then nothing is looked up.
@@ -769,15 +803,29 @@ class _Search:
 
     def decide(self) -> StageReport:
         verified = _require(self.verify_out, "verify")
+        _require(self.match_out, "match")
         inp = DecideInput(
             rubric=self.rubric,
-            products=_require(self.match_out, "match").products,
+            products=self._kept_products(),
             values=verified.values,
             community=verified.community,
         )
         self.decide_out, report = self._run(self.stages.decide, inp)
         self.decide_is_sample = self.decide_out is not None and made_by_placeholder(self.stages.decide, report)
+        self.decide_note = self._stage_note(self.stages.decide)
         return report
+
+    def _stage_note(self, stage: object) -> str | None:
+        """A stage's own note for this search, if it keeps one (`coverage_note(search_id)`). Never stops the search."""
+        collect = getattr(stage, "coverage_note", None)
+        if collect is None:
+            return None
+        try:
+            note = collect(self.ctx.search_id)
+        except Exception as exc:  # the type only, never its text (build rule 9)
+            log.warning("a stage's note was not read: %s", type(exc).__name__)
+            return None
+        return note if isinstance(note, str) and note else None
 
     def explain(self) -> StageReport:
         top = sorted(self.rubric.weights, key=lambda w: w.normalized, reverse=True)[:TOP_PRIORITIES]
@@ -803,9 +851,8 @@ class _Search:
     # Assembling the result.
 
     def _sample_products(self) -> list[Product]:
-        """While decide is a stub (until US-17), it ranks and filters the example products, whatever match found.
-        Those sample products join the result, so it stays valid and shows names, not ids; the stub already puts the
-        sample note on it."""
+        """When decide fell back to its stub, it ranks and filters the example products, whatever match found. Those
+        sample products join the result, so it stays valid and shows names, not ids, under the sample note."""
         if not self.decide_is_sample or self.decide_out is None:
             return []
         have = {p.id for p in self.match_out.products} if self.match_out else set()
@@ -817,13 +864,18 @@ class _Search:
         community = {c.product_id: c for c in self.verify_out.community} if self.verify_out else {}
         products = [
             ProductSummary(product=p, values=[v for v in values if v.product_id == p.id], community=community.get(p.id))
-            for p in [*(self.match_out.products if self.match_out else []), *self._sample_products()]
+            for p in [*self._kept_products(), *self._sample_products()]
         ]
         failures = self.research_out.failures if self.research_out else []
         found = self.research_out.sources if self.research_out else []
         older_archive = any(s.source_detail == "pullpush" for s in found)
         note = build_coverage_note(
-            self.reports, failures, partial, older_archive=older_archive, extract_note=self.extract_note
+            self.reports,
+            failures,
+            partial,
+            older_archive=older_archive,
+            extract_note=self.extract_note,
+            decide_note=self.decide_note,
         )
         return SearchResult(
             search_id=self.ctx.search_id,
@@ -835,11 +887,37 @@ class _Search:
             decision=self.decide_out,
             explanations=self.explain_out.explanations if self.explain_out else [],
             commerce=self.commerce_out,
-            sources=self.research_out.sources if self.research_out else [],
+            sources=found,
+            citations=self._citations(products, found),
             stage_reports=self.reports,
             coverage_note=add_sample_label(note) if self.used_placeholder else note,
             saved=True,  # what the stored row must say; the runner returns a saved=False copy if it is not committed
         )
+
+    def _citations(self, products: Sequence[ProductSummary], sources: Sequence[Source]) -> list[Citation]:
+        """Each claim a value cites, once, with its source and quote (US-21): its supporting and conflicting claims,
+        which hold every alternative's too.
+
+        All or none, as the contract asks: if one cited claim is not among the run's claims, or its source is not among
+        the result's, there are none (as from a stub that cites example claims). Explanation sentences cite claims too,
+        but a citation must belong to a value, so only those a value also cites are listed.
+        """
+        cited = list(
+            dict.fromkeys(
+                claim_id
+                for summary in products
+                for value in summary.values
+                for claim_id in (*value.supporting_claim_ids, *value.conflicting_claim_ids)
+            )
+        )
+        by_id = {claim.id: claim for claim in self.claims}
+        known_sources = {source.id for source in sources}
+        found = [by_id.get(claim_id) for claim_id in cited]
+        if not all(claim is not None and claim.source_id in known_sources for claim in found):
+            if cited:
+                log.warning("search %s: citations left out, as a cited claim is not the run's", self.ctx.search_id)
+            return []
+        return [Citation(claim_id=c.id, source_id=c.source_id, quote=c.quote) for c in found if c is not None]
 
 
 def _merge(stage: StageName, reports: list[StageReport], elapsed_ms: int) -> StageReport:
@@ -867,8 +945,12 @@ def build_coverage_note(
     *,
     older_archive: bool = False,
     extract_note: str | None = None,
+    decide_note: str | None = None,
 ) -> str | None:
-    """Plain-English summary of everything that did not go to plan. None when everything did."""
+    """Plain-English summary of everything that did not go to plan. None when everything did.
+
+    The stages' own notes come last: decide's (criteria left out, or nothing ranked), then extract's (sources not
+    read), so a note too long to fit never costs the sentences above."""
     parts: list[str] = []
     skipped: dict[str, list[str]] = {}
     for r in reports:
@@ -894,6 +976,8 @@ def build_coverage_note(
         parts.append(f"Skipped {', '.join(stages)} because {reason}.")
     if partial:
         parts.append("These results are partial.")
+    if decide_note:
+        parts.append(decide_note)
     if extract_note:  # last, so a note too long to fit never costs the sentences above
         parts.append(extract_note)
 

@@ -672,13 +672,29 @@
       "minItems": 1,
       "title": "Criterion Keys",
       "type": "array"
+    },
+    "category": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The rubric's product category, which moves a site's trust (trust.yaml). 1.8.0",
+      "title": "Category"
     }
   },
   "required": [
     "match",
     "claims",
     "sources",
-    "criterion_keys"
+    "criterion_keys",
+    "category"
   ],
   "title": "VerifyInput",
   "type": "object"

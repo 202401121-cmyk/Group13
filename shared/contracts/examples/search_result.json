@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.7.0",
+  "schema_version": "1.8.0",
   "search_id": "srch_demo0001",
   "request": {
     "session_id": "sess_demo0001",
@@ -125,7 +125,8 @@
           "supporting_claim_ids": [
             "clm_053f4bf83174cf53"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_nova_book_14",
@@ -137,7 +138,8 @@
           "supporting_claim_ids": [
             "clm_bf7c2488fe2eda5f"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_nova_book_14",
@@ -149,7 +151,8 @@
           "supporting_claim_ids": [
             "clm_5807c6297c20c05e"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_nova_book_14",
@@ -161,7 +164,8 @@
           "supporting_claim_ids": [
             "clm_568a82e200569f1d"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_nova_book_14",
@@ -173,7 +177,8 @@
           "supporting_claim_ids": [
             "clm_ae3839c409ab71bf"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_nova_book_14",
@@ -185,7 +190,8 @@
           "supporting_claim_ids": [
             "clm_3ac2323f12a5c8d6"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_nova_book_14",
@@ -197,7 +203,8 @@
           "supporting_claim_ids": [
             "clm_d37a81d013da4914"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_nova_book_14",
@@ -209,7 +216,8 @@
           "supporting_claim_ids": [
             "clm_3bed19288173fb0e"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         }
       ],
       "community": {
@@ -253,7 +261,8 @@
           "supporting_claim_ids": [
             "clm_dc147cd38e1e6839"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_kestrel_slim_15",
@@ -267,7 +276,8 @@
           ],
           "conflicting_claim_ids": [
             "clm_46feb890769b8225"
-          ]
+          ],
+          "alternatives": []
         },
         {
           "product_id": "prd_kestrel_slim_15",
@@ -279,7 +289,8 @@
           "supporting_claim_ids": [
             "clm_c6d748e9c7945937"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_kestrel_slim_15",
@@ -291,7 +302,8 @@
           "supporting_claim_ids": [
             "clm_e32836d2e2257930"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_kestrel_slim_15",
@@ -303,7 +315,8 @@
           "supporting_claim_ids": [
             "clm_8fe73a640ab049ef"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_kestrel_slim_15",
@@ -315,7 +328,8 @@
           "supporting_claim_ids": [
             "clm_9e9b1d688e0274e6"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_kestrel_slim_15",
@@ -327,7 +341,8 @@
           "supporting_claim_ids": [
             "clm_92a4c00d3f53f206"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_kestrel_slim_15",
@@ -339,7 +354,8 @@
           "supporting_claim_ids": [
             "clm_762fc11b7a21cdde"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         }
       ],
       "community": null
@@ -376,7 +392,8 @@
           "supporting_claim_ids": [
             "clm_e13d8f66bd7c5e47"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_orion_play_15",
@@ -388,7 +405,8 @@
           "supporting_claim_ids": [
             "clm_8f6737d75a7a0501"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_orion_play_15",
@@ -400,7 +418,8 @@
           "supporting_claim_ids": [
             "clm_1cf7047e908108a3"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_orion_play_15",
@@ -412,7 +431,8 @@
           "supporting_claim_ids": [
             "clm_21fa900998d83915"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_orion_play_15",
@@ -424,7 +444,8 @@
           "supporting_claim_ids": [
             "clm_e1c5552273f9da7e"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_orion_play_15",
@@ -434,7 +455,8 @@
           "value": null,
           "confidence": 0.3,
           "supporting_claim_ids": [],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_orion_play_15",
@@ -446,7 +468,8 @@
           "supporting_claim_ids": [
             "clm_5139615e2d353cc9"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         },
         {
           "product_id": "prd_orion_play_15",
@@ -458,7 +481,8 @@
           "supporting_claim_ids": [
             "clm_2f93718e8d47a941"
           ],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         }
       ],
       "community": {
@@ -524,7 +548,8 @@
           "value": null,
           "confidence": 0.0,
           "supporting_claim_ids": [],
-          "conflicting_claim_ids": []
+          "conflicting_claim_ids": [],
+          "alternatives": []
         }
       ],
       "community": null

@@ -230,6 +230,7 @@ export function resultFromSearch(
       imageUrl: null,
       rank: shownRank.get(r.product_id) ?? r.rank,
       separatingCriterion: r.separating_criterion ? label(r.separating_criterion) : null,
+      // Null when decide had nothing to rank on (S3-10b): the card says "No score", never 0.
       score: r.score,
       confidence: r.confidence,
       chanceFirst: r.chance_first === null ? null : Math.round(r.chance_first * 100),
@@ -240,14 +241,18 @@ export function resultFromSearch(
       dataCoverage: Math.round(r.coverage * 100),
       explanation: text || null,
       explanationParts: parts,
-      contributions: r.contributions.map((c) => ({
-        criterionId: c.criterion_key,
-        label: label(c.criterion_key),
-        points: pointsOf(c.contribution),
-      })),
+      // With no score there are no points to break down: no 0-point bars for criteria nothing was known about.
+      contributions:
+        r.score === null
+          ? []
+          : r.contributions.map((c) => ({
+              criterionId: c.criterion_key,
+              label: label(c.criterion_key),
+              points: pointsOf(c.contribution),
+            })),
       reasons: reasonsFor(r, rows, label),
       label: r.label,
-      gapToLeader: r.gap_to_leader,
+      gapToLeader: r.score === null ? null : r.gap_to_leader,
       criteria: rows,
       offers: offers
         .filter((o) => o.product_id === r.product_id)

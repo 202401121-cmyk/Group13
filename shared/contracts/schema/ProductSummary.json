@@ -1,5 +1,74 @@
 {
   "$defs": {
+    "AlternativeValue": {
+      "additionalProperties": false,
+      "description": "The other side of a disputed value (DR-03): what the outvoted sources say, and the claims that say it. 1.8.0",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 10.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Score"
+        },
+        "claim_ids": {
+          "description": "Among the value's conflicting claims",
+          "items": {
+            "pattern": "^clm_[a-f0-9]{8,64}$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Claim Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "score",
+        "claim_ids"
+      ],
+      "title": "AlternativeValue",
+      "type": "object"
+    },
     "CommunitySignal": {
       "additionalProperties": false,
       "description": "US-42: whether communities agree about a product.",
@@ -202,6 +271,15 @@
           },
           "title": "Conflicting Claim Ids",
           "type": "array"
+        },
+        "alternatives": {
+          "description": "A disputed value's other side, each with its claims. 1.8.0",
+          "items": {
+            "$ref": "#/$defs/AlternativeValue"
+          },
+          "maxItems": 20,
+          "title": "Alternatives",
+          "type": "array"
         }
       },
       "required": [
@@ -212,7 +290,8 @@
         "value",
         "confidence",
         "supporting_claim_ids",
-        "conflicting_claim_ids"
+        "conflicting_claim_ids",
+        "alternatives"
       ],
       "title": "ResolvedValue",
       "type": "object"

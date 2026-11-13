@@ -10,6 +10,7 @@ import app.contracts as C
 from app.contracts import examples as ex
 from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
 from app.research import ResearchStage
+from tests.fakes.live_run import use_live_shaped_run
 
 
 def _request() -> C.SearchRequest:
@@ -103,7 +104,10 @@ class _AlwaysFails:
 
 
 @pytest.mark.parametrize("field", SEARCH_STAGES)
-def test_any_failing_search_stage_falls_back_and_the_search_finishes(field: str) -> None:
+def test_any_failing_search_stage_falls_back_and_the_search_finishes(
+    field: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    use_live_shaped_run(monkeypatch)  # a run whose real decide ranks something, so every stage runs (S3-10b)
     stages = default_search_stages()
     setattr(stages, field, _AlwaysFails(getattr(stages, field)))
     result = PipelineRunner(stages, InMemoryResultStore()).run(_request())

@@ -13,6 +13,7 @@ import pytest
 from app import contracts as C
 from app.contracts import examples as ex
 from app.db import DatabaseSettings, InMemoryAliasStore, PostgresAliasStore, PostgresRequestStore
+from app.decide import DecideStage
 from app.entities import FuzzyMatchStage, MatchStage
 from app.entities.clustering import product_id_for
 from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
@@ -27,12 +28,14 @@ def _request() -> C.SearchRequest:
     return C.SearchRequest(session_id=ex.SESSION_ID, raw_query="made-up request", rubric=ex.rubric())
 
 
-def _run(*names: str, aliases: object, match: object | None = None) -> C.SearchResult:
+def _run(*names: str, aliases: object, match: object | None = None, decide: object | None = None) -> C.SearchResult:
     stages = default_search_stages()
     stages.research = FixedResearch(web_source("https://made-up-reviews.example/a"))
     stages.extract = Mentions(*(C.ProductMention(raw_name=n, is_product=True) for n in names))
     if match is not None:
         stages.match = match  # type: ignore[assignment]
+    if decide is not None:
+        stages.decide = decide  # type: ignore[assignment]
     runner = PipelineRunner(stages, InMemoryResultStore(), aliases=aliases)  # type: ignore[arg-type]
     return runner.run(_request())
 
@@ -114,8 +117,9 @@ def test_a_fallback_or_sample_match_saves_no_aliases() -> None:
 
 
 def test_a_live_search_with_stub_decide_still_gives_a_valid_result() -> None:
-    """Until US-17, decide is a stub that ranks the example products: they come with the sample note, not a crash."""
-    result = _run("Sony WH-1000XM5", "XM5", aliases=InMemoryAliasStore())
+    """The decide stub, now only the fallback (S3-10b), ranks the example products: they come with the sample note,
+    not a crash."""
+    result = _run("Sony WH-1000XM5", "XM5", aliases=InMemoryAliasStore(), decide=DecideStage())
     assert result.decision is not None
     ranked = {r.product_id for r in result.decision.ranked}
     assert ranked <= {s.product.id for s in result.products}
@@ -123,6 +127,17 @@ def test_a_live_search_with_stub_decide_still_gives_a_valid_result() -> None:
     assert result.coverage_note is not None and "sample" in result.coverage_note.casefold()
     assert result.commerce is not None  # the sample ranking is priced as before, not skipped as "nothing ranked"
     assert "nothing to price" not in result.coverage_note
+
+
+def test_a_live_search_with_the_real_decide_gives_a_valid_result() -> None:
+    """S3-10b: the real decide decides the products match found, with no price can't tell, and nothing is a sample."""
+    result = _run("Sony WH-1000XM5", "XM5", aliases=InMemoryAliasStore())
+    assert result.decision is not None and result.decision.method == "weighted"
+    decided = {r.product_id for r in result.decision.ranked} | {f.product_id for f in result.decision.filtered}
+    assert decided == {s.product.id for s in result.products}
+    assert any(s.product.name == "Sony WH-1000XM5" for s in result.products)
+    assert all(f.group == "cant_tell" for f in result.decision.filtered)  # no source gave a price
+    assert result.coverage_note is not None and "nothing to price" in result.coverage_note
 
 
 def test_no_mentions_at_all_still_gives_a_valid_result() -> None:

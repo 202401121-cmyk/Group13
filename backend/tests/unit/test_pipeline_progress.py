@@ -26,6 +26,7 @@ from app.pipeline import (
     new_search_id,
 )
 from app.research import ResearchStage
+from tests.fakes.live_run import use_live_shaped_run
 
 RUN_ID = re.compile(r"^srch_[a-f0-9]{24}$")
 ORDER = [
@@ -306,7 +307,8 @@ def test_a_run_cancelled_before_it_starts_runs_no_stage() -> None:
     assert store.results == []
 
 
-def test_cancel_during_the_last_stage_still_saves_nothing() -> None:
+def test_cancel_during_the_last_stage_still_saves_nothing(monkeypatch: pytest.MonkeyPatch) -> None:
+    use_live_shaped_run(monkeypatch)  # a run whose real decide ranks something, so every stage runs (S3-10b)
     cancel = CancelFlag()
     store = InMemoryResultStore()
     stages = default_search_stages()
@@ -397,7 +399,8 @@ def test_a_callback_that_raises_does_not_stop_the_search(caplog: pytest.LogCaptu
     assert "Looking for" not in caplog.text  # the error's type only, never its text
 
 
-def test_with_no_callback_the_runner_behaves_as_before() -> None:
+def test_with_no_callback_the_runner_behaves_as_before(monkeypatch: pytest.MonkeyPatch) -> None:
+    use_live_shaped_run(monkeypatch)  # a run whose real decide ranks something, so every stage runs (S3-10b)
     plain_store = InMemoryResultStore()
     plain = PipelineRunner(default_search_stages(), plain_store).run(_request())
     followed, _ = _run()

@@ -7,6 +7,7 @@ from app.contracts import (
     ExplainResult,
     Explanation,
     ExplanationSentence,
+    RankedProduct,
     StageContext,
     StageName,
     examples,
@@ -23,14 +24,21 @@ class ExplainStage:
         return ExplainResult(explanations=examples.explanations())
 
     def fallback(self, inp: ExplainInput, ctx: StageContext, error: Exception) -> ExplainResult:
-        # A template sentence states only numbers the code already computed, so it needs no citation.
+        # A template sentence states only numbers the code already computed, so it needs no citation. With nothing to
+        # rank on there is no score, and it is never shown as a number (DR-09).
         return ExplainResult(
             explanations=[
                 Explanation(
                     product_id=r.product_id,
-                    sentences=[ExplanationSentence(text=f"Ranked #{r.rank} with a score of {r.score:.0f} out of 100.")],
+                    sentences=[ExplanationSentence(text=_template(r))],
                     method="template",
                 )
                 for r in inp.ranked
             ]
         )
+
+
+def _template(ranked: RankedProduct) -> str:
+    if ranked.score is None:
+        return f"Listed #{ranked.rank}. We found no scores to rank it on."
+    return f"Ranked #{ranked.rank} with a score of {ranked.score:.0f} out of 100."
