@@ -2,8 +2,9 @@
  * The live ResearchService. It reads the finished interview's rubric from GET /api/presearch/{id}, starts a
  * run with POST /api/search/runs, follows its Server-Sent Events, and turns the run's SearchResult into the
  * screens' ResearchResult. This file is the only place that happens. A value the contract does not carry (a
- * product image, a value-for-money verdict, what each source said about a disputed value) is left empty, never
- * made up. Every event and run state is checked against its contract before anything else reads it.
+ * product image, a value-for-money verdict) is left empty, never made up. Each value's claims come from the
+ * result's citations and sources; "Where this comes from" asks the evidence route for more, and falls back to
+ * those claims if it can't answer. Every answer is checked against its contract before anything else reads it.
  */
 import {
   ApiError,
@@ -15,31 +16,39 @@ import {
 } from "@/lib/api/client";
 import { checkContract, loadContracts } from "@/lib/api/schemas";
 import { keyInWords } from "@/lib/text";
+import type { EvidenceResponse } from "@/types/contracts/EvidenceResponse";
 import type { ProgressEvent as WireEvent } from "@/types/contracts/ProgressEvent";
 import type { SearchRequest } from "@/types/contracts/SearchRequest";
 import type {
+  Citation,
   ProductSummary,
   RankedProduct,
   ResolvedValue,
   SearchResult,
+  Source,
+  SourceType,
 } from "@/types/contracts/SearchResult";
 import type { SearchRun } from "@/types/contracts/SearchRun";
 import {
   ResearchError,
   type CancelOutcome,
+  type ClaimView,
   type CriterionValue,
+  type EvidenceView,
   type ExcludedProduct,
   type FollowHandlers,
   type Offer,
   type ProductResult,
   type ProgressEvent,
+  type ReasonView,
   type ResearchInput,
   type ResearchResult,
   type ResearchService,
   type RubricItem,
   type RunSnapshot,
+  type SourceRef,
 } from "./types";
-import { isPriceStale } from "./view";
+import { WITHHELD, isPriceStale, sourceDateLabel } from "./view";
 
 export const FINISH_FIRST = "Finish the questions first, then start the research.";
 
@@ -56,6 +65,95 @@ function valueText(v: ResolvedValue | undefined): string | null {
   if (v.value !== null) return String(v.value);
   if (v.score !== null) return `${v.score} / 10`;
   return null;
+}
+
+/** The kinds of source, in plain words. */
+export const SOURCE_TYPES: Record<SourceType, string> = {
+  review_site: "Review site",
+  reddit: "Reddit",
+  manufacturer: "Maker's site",
+  lab: "Lab test",
+  retailer: "Store",
+  web_search: "Web search",
+  youtube: "YouTube",
+};
+
+export { WITHHELD };
+
+const withheldFor = (type: SourceType) => (type === "reddit" ? WITHHELD.reddit : WITHHELD.other);
+
+function sourceRef(s: Source): SourceRef {
+  return {
+    id: s.id,
+    // The site, else the community ("r/..."), else the page's title.
+    name: s.site || s.community || s.title || s.url,
+    typeLabel: SOURCE_TYPES[s.type],
+    url: s.url,
+    dateLabel: sourceDateLabel(s.published_at, s.fetched_at),
+  };
+}
+
+/** The result's citations and sources, looked up by ID. */
+interface Cited {
+  citations: Map<string, Citation>;
+  sources: Map<string, Source>;
+}
+
+/**
+ * A value's claims: supporting first, then conflicting. A claim with no citation or no source is left out,
+ * never filled in. Estimated and unknown values rest on no source, so they have none.
+ */
+function claimsFor(v: ResolvedValue | undefined, cited: Cited): ClaimView[] {
+  if (!v || v.state === "estimated" || v.state === "unknown") return [];
+  return citedClaims(
+    [
+      ...v.supporting_claim_ids.map((id) => [id, "supporting"] as const),
+      ...v.conflicting_claim_ids.map((id) => [id, "conflicting"] as const),
+    ],
+    cited,
+  );
+}
+
+/** Claims by ID, each with its citation and source. An ID with neither is left out, never filled in. */
+function citedClaims(sides: (readonly [string, ClaimView["side"]])[], cited: Cited): ClaimView[] {
+  return sides.flatMap(([id, side]): ClaimView[] => {
+    const citation = cited.citations.get(id);
+    const source = citation && cited.sources.get(citation.source_id);
+    if (!citation || !source) return [];
+    return [
+      {
+        claimId: id,
+        side,
+        quote: citation.quote,
+        quoteWithheld: citation.quote === null ? withheldFor(source.type) : null,
+        source: sourceRef(source),
+      },
+    ];
+  });
+}
+
+/** Points a criterion added to the 0-100 score: decide adds up contribution x 10. */
+const pointsOf = (contribution: number) => Math.round(contribution * 100) / 10;
+
+/** The three criteria that added the most points. An unknown value is never counted as 0 points. */
+function reasonsFor(
+  r: RankedProduct,
+  rows: CriterionValue[],
+  label: (key: string) => string,
+): ReasonView[] {
+  return [...r.contributions]
+    .sort((a, b) => {
+      const unknown = Number(a.state === "unknown") - Number(b.state === "unknown");
+      return unknown || b.contribution - a.contribution;
+    })
+    .slice(0, 3)
+    .map((c) => ({
+      criterionId: c.criterion_key,
+      label: label(c.criterion_key),
+      state: STATES[c.state],
+      points: c.state === "unknown" ? null : pointsOf(c.contribution),
+      claims: rows.find((row) => row.criterionId === c.criterion_key)?.claims ?? [],
+    }));
 }
 
 /** Every product tied with another shows the best rank in its group ("=2"); ranks are never invented. */
@@ -76,6 +174,7 @@ function criteriaRows(
   summary: ProductSummary | undefined,
   keys: string[],
   label: (key: string) => string,
+  cited: Cited,
 ): CriterionValue[] {
   return keys.map((key) => {
     const v = summary?.values.find((x) => x.criterion_key === key);
@@ -85,6 +184,7 @@ function criteriaRows(
       label: label(key),
       state: v ? STATES[v.state] : "unknown",
       value: valueText(v),
+      claims: claimsFor(v, cited),
     };
   });
 }
@@ -101,16 +201,29 @@ export function resultFromSearch(
   const offers = result.commerce?.offers ?? [];
   const ranked = [...(result.decision?.ranked ?? [])].sort((a, b) => a.rank - b.rank);
   const shownRank = displayRanks(ranked);
+  const cited: Cited = {
+    citations: new Map(result.citations.map((c) => [c.claim_id, c])),
+    sources: new Map(result.sources.map((s) => [s.id, s])),
+  };
 
   const products: ProductResult[] = ranked.map((r) => {
     const summary = summaries.get(r.product_id);
-    const rows = criteriaRows(summary, keys, label);
+    const rows = criteriaRows(summary, keys, label, cited);
     const explanation = result.explanations.find((e) => e.product_id === r.product_id);
-    const text = explanation
-      ? [...explanation.sentences.map((s) => s.text), explanation.trade_off ?? ""]
-          .filter(Boolean)
-          .join(" ")
-      : "";
+    // Each sentence keeps the claims it cites. The contract gives the trade-off no claim IDs, so it has none.
+    const parts = explanation
+      ? [
+          ...explanation.sentences.map((s) => ({
+            text: s.text,
+            claims: citedClaims(
+              s.claim_ids.map((id) => [id, "supporting"] as const),
+              cited,
+            ),
+          })),
+          ...(explanation.trade_off ? [{ text: explanation.trade_off, claims: [] }] : []),
+        ].filter((p) => p.text)
+      : [];
+    const text = parts.map((p) => p.text).join(" ");
     return {
       id: r.product_id,
       name: summary?.product.name ?? r.product_id,
@@ -126,12 +239,15 @@ export function resultFromSearch(
       },
       dataCoverage: Math.round(r.coverage * 100),
       explanation: text || null,
+      explanationParts: parts,
       contributions: r.contributions.map((c) => ({
         criterionId: c.criterion_key,
         label: label(c.criterion_key),
-        // decide adds up contribution x 10 into the 0-100 score
-        points: Math.round(c.contribution * 100) / 10,
+        points: pointsOf(c.contribution),
       })),
+      reasons: reasonsFor(r, rows, label),
+      label: r.label,
+      gapToLeader: r.gap_to_leader,
       criteria: rows,
       offers: offers
         .filter((o) => o.product_id === r.product_id)
@@ -163,6 +279,7 @@ export function resultFromSearch(
   const hint = result.decision?.relaxation_hint ?? null;
   const asOf = offers.map((o) => o.as_of).sort();
   return {
+    searchId: result.search_id,
     products,
     leftOut: excluded("filtered_out"),
     couldntCheck: excluded("cant_tell"),
@@ -183,6 +300,42 @@ function relaxedRule(result: SearchResult): string {
   }
   const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
   return result.request.rubric.hard_rules.find((r) => r.attribute === top)?.source_text ?? "";
+}
+
+function claimValueText(c: EvidenceResponse["claims"][number]): string | null {
+  if (c.value !== null) return c.unit ? `${c.value} ${c.unit}` : String(c.value);
+  if (c.score !== null) return `${c.score} / 10`;
+  return null;
+}
+
+/** The evidence route's answer, ready to show: the winning claims support the value, the rest disagree. */
+function evidenceView(ev: EvidenceResponse): EvidenceView {
+  const winning = new Set(ev.winning_claim_ids);
+  const claims = ev.claims.map((c): ClaimView => ({
+    claimId: c.claim_id,
+    side: winning.has(c.claim_id) ? "supporting" : "conflicting",
+    quote: c.quote,
+    quoteWithheld:
+      c.quote === null ? (ev.quote_withheld_reason ?? withheldFor(c.source.type)) : null,
+    valueText: claimValueText(c),
+    source: {
+      id: c.source.id,
+      name: c.source.name,
+      typeLabel: SOURCE_TYPES[c.source.type],
+      url: c.source.url,
+      dateLabel: sourceDateLabel(null, c.source.fetched_at),
+    },
+  }));
+  return {
+    state: STATES[ev.state],
+    // Supporting first, then what disagrees, each in the route's own order.
+    claims: [
+      ...claims.filter((c) => c.side === "supporting"),
+      ...claims.filter((c) => c.side === "conflicting"),
+    ],
+    withheldReason: ev.quote_withheld_reason,
+    from: "route",
+  };
 }
 
 /** The session, checked whole against the contract. A search needs its request and the finished rubric. */
@@ -431,6 +584,31 @@ export function createLiveResearchService(
       }
     },
     follow,
+    async evidence(searchId, productId, criterionId, fallback): Promise<EvidenceView> {
+      const fromCitations: EvidenceView = {
+        state: null,
+        claims: fallback,
+        withheldReason: null,
+        from: "citations",
+      };
+      if (!searchId) return fromCitations;
+      const query = `product_id=${encodeURIComponent(productId)}&criterion_key=${encodeURIComponent(criterionId)}`;
+      try {
+        const raw = await client.get(`${runPath(encodeURIComponent(searchId))}/evidence?${query}`, {
+          timeoutMs: TIMEOUTS.step,
+        });
+        const ev = await checkContract("EvidenceResponse", raw);
+        const same =
+          ev.search_id === searchId &&
+          ev.product_id === productId &&
+          ev.criterion_key === criterionId;
+        return same ? evidenceView(ev) : fromCitations;
+      } catch {
+        // Not there (an older backend, or a run that is gone), unreadable or unreachable: the result's own
+        // citations still say where each value came from. This never fails the results page.
+        return fromCitations;
+      }
+    },
     async cancel(searchId): Promise<CancelOutcome> {
       checkedId(searchId);
       try {

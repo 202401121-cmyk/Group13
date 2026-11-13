@@ -40,13 +40,69 @@ export interface RunSnapshot {
 
 export type ValueState = "verified" | "estimated" | "unknown" | "disputed";
 
+/** Where a claim came from, ready to show. */
+export interface SourceRef {
+  id: string;
+  /** The site, the community (such as "r/..."), or the page title. */
+  name: string;
+  /** Plain words for the kind of source, such as "Review site" or "Reddit". */
+  typeLabel: string;
+  url: string;
+  /** "Published 3 Oct 2026", or "Checked 3 Oct 2026" when the publish date isn't known. */
+  dateLabel: string | null;
+}
+
+/** One claim behind a value: the source's own words, or why they aren't shown. */
+export interface ClaimView {
+  claimId: string;
+  /** Supporting claims back the value shown; conflicting ones are the other side of a disputed value. */
+  side: "supporting" | "conflicting";
+  /** The exact words from the source. Null when they weren't kept. */
+  quote: string | null;
+  /** Set exactly when the quote is null: why it isn't shown. */
+  quoteWithheld: string | null;
+  source: SourceRef;
+  /** What this source said the value is, when it is known. */
+  valueText?: string | null;
+}
+
 export interface CriterionValue {
+  /** The criterion's key, which the evidence route takes as criterion_key. */
   criterionId: string;
   label: string;
   state: ValueState;
   value: string | null;
   /** For disputed values: what each source said. */
   sources?: { source: string; value: string }[];
+  /** The claims this value rests on, supporting first. Missing or empty when no source gave it. */
+  claims?: ClaimView[];
+}
+
+/** One sentence of a product's explanation, with the claims it rests on (none for the trade-off). */
+export interface ExplanationPart {
+  text: string;
+  claims: ClaimView[];
+}
+
+/** One of a product's main reasons: a criterion that added the most points to its score. */
+export interface ReasonView {
+  criterionId: string;
+  label: string;
+  state: ValueState;
+  /** Points added to the score. Null for an unknown value, which is never shown as 0. */
+  points: number | null;
+  claims: ClaimView[];
+}
+
+/** What "Where this comes from" shows for one product and criterion. */
+export interface EvidenceView {
+  /** The value's state as the evidence route gives it. Null when the route wasn't used: the card's state stands. */
+  state: ValueState | null;
+  claims: ClaimView[];
+  /** Why some quotes are missing, when the route says. */
+  withheldReason: string | null;
+  /** "route": the evidence route answered. "citations": built from the result's own citations instead. */
+  from: "route" | "citations";
 }
 
 export interface Contribution {
@@ -69,6 +125,7 @@ export interface Offer {
 export type Confidence = "high" | "medium" | "low";
 
 export interface ProductResult {
+  /** The product's ID, which the evidence route takes as product_id. */
   id: string;
   name: string;
   imageUrl?: string | null;
@@ -82,7 +139,15 @@ export interface ProductResult {
   /** Whole percent of the score backed by real evidence (the contract's RankedProduct.coverage). */
   dataCoverage?: number | null;
   explanation?: string | null;
+  /** The explanation sentence by sentence, each with its sources. Its texts joined are `explanation`. */
+  explanationParts?: ExplanationPart[];
   contributions?: Contribution[];
+  /** The three criteria that added the most points, largest first. */
+  reasons?: ReasonView[];
+  /** "best_match" or "runner_up" when the result names one. */
+  label?: "best_match" | "runner_up" | null;
+  /** Score points behind the top product; 0 for the top product. */
+  gapToLeader?: number | null;
   criteria: CriterionValue[];
   offers: Offer[];
   /** With no offer: a store search for this product (the contract's commerce.no_offer). */
@@ -98,6 +163,8 @@ export interface ExcludedProduct {
 }
 
 export interface ResearchResult {
+  /** The run this result came from, which the evidence route needs. */
+  searchId?: string | null;
   /** Ranked, eligible products (best first). */
   products: ProductResult[];
   leftOut: ExcludedProduct[];
@@ -152,6 +219,16 @@ export interface ResearchService {
   follow(searchId: string, input: ResearchInput, handlers: FollowHandlers): () => void;
   /** Asks the run to stop. */
   cancel(searchId: string): Promise<CancelOutcome>;
+  /**
+   * Where one product's value for one criterion comes from. Never fails: when the answer can't be had, it gives
+   * back `fallback` (the claims the result already carries) with `from: "citations"`.
+   */
+  evidence(
+    searchId: string | null,
+    productId: string,
+    criterionId: string,
+    fallback: ClaimView[],
+  ): Promise<EvidenceView>;
 }
 
 export const RESEARCH_TIMEOUT_MS = 170_000;

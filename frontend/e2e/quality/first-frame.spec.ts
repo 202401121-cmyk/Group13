@@ -33,7 +33,7 @@ const SIZES = [
 const SCENARIOS = [
   ["success", "tie", "tie-first", "disputed", "disputed-no-sources"],
   ["unknown", "estimated", "stale", "no-offer", "left-out"],
-  ["couldnt-check", "partial", "relaxation", "empty"],
+  ["couldnt-check", "partial", "relaxation", "empty", "withheld-quote"],
 ];
 
 /** Anything that holds text and is changing opacity right now, by what it says. */

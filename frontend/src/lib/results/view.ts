@@ -58,6 +58,50 @@ export function researchInput(
   };
 }
 
+/**
+ * Keeps only the latest of several answers on their way. Each request takes a token with next(); its answer is
+ * used only while isCurrent(token). cancel() drops every answer still on its way (the drawer was closed).
+ */
+export function latestOnly() {
+  let current = 0;
+  return {
+    next: () => ++current,
+    isCurrent: (token: number) => token === current,
+    cancel: () => {
+      current += 1;
+    },
+  };
+}
+
+/** Why a quote isn't shown, when nothing more is said. Reddit's words are not kept in saved results (D-53). */
+export const WITHHELD = {
+  reddit: "Reddit's words aren't kept in saved results. Open the link to read them on Reddit.",
+  other: "The quote wasn't kept.",
+} as const;
+
+function dayOf(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+/** "Published 3 Oct 2026" when the source says when, else "Checked 3 Oct 2026" from when it was read. */
+export function sourceDateLabel(
+  published: string | null | undefined,
+  fetched: string | null | undefined,
+): string | null {
+  const day = dayOf(published);
+  if (day) return `Published ${day}`;
+  const checked = dayOf(fetched);
+  return checked ? `Checked ${checked}` : null;
+}
+
 export function formatCheckTime(iso: string | null | undefined) {
   if (!iso) return null;
   const d = new Date(iso);

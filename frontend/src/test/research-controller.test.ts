@@ -60,6 +60,14 @@ function service(over: Partial<ResearchService> = {}) {
       };
     }),
     cancel: vi.fn(() => Promise.resolve("stopping" as const)),
+    evidence: vi.fn((_search, _product, _criterion, fallback) =>
+      Promise.resolve({
+        state: null,
+        claims: fallback,
+        withheldReason: null,
+        from: "citations" as const,
+      }),
+    ),
     ...over,
   };
   fake.service = s;

@@ -11,7 +11,7 @@ import {
   Calculator,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Confidence } from "@/lib/results/types";
+import type { Confidence, ValueState } from "@/lib/results/types";
 
 /** Horizontal weight meter. The percentage is always shown as text too. */
 export function Meter({ percent, label }: { percent: number; label: string }) {
@@ -71,6 +71,19 @@ export function StatusBadge({ variant, children }: { variant: BadgeVariant; chil
       <span className="min-w-0 break-words">{children}</span>
     </span>
   );
+}
+
+const VALUE_STATE: Record<ValueState, { variant: BadgeVariant; text: string }> = {
+  verified: { variant: "good", text: "Known" },
+  disputed: { variant: "disputed", text: "Disputed" },
+  unknown: { variant: "unknown", text: "Unknown" },
+  estimated: { variant: "estimated", text: "Estimated" },
+};
+
+/** A value's state in one word. An unknown value says "Unknown", never 0. */
+export function ValueStateBadge({ state }: { state: ValueState }) {
+  const { variant, text } = VALUE_STATE[state];
+  return <StatusBadge variant={variant}>{text}</StatusBadge>;
 }
 
 const CONF_STEPS: Record<Confidence, number> = { low: 1, medium: 2, high: 3 };

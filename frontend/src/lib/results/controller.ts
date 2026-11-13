@@ -12,6 +12,8 @@ import {
   QUIET_AFTER_MS,
   RESEARCH_TIMEOUT_MS,
   ResearchError,
+  type ClaimView,
+  type EvidenceView,
   type ResearchInput,
   type RunSnapshot,
 } from "./types";
@@ -286,4 +288,14 @@ export function useResearch(id: string): ResearchState {
 
 export function researchServiceInfo() {
   return { isMock: getResearchService().isMock };
+}
+
+/** Where one product's value for one criterion comes from. Never fails: it falls back to the result's claims. */
+export function sourcesFor(
+  searchId: string | null,
+  productId: string,
+  criterionId: string,
+  fallback: ClaimView[],
+): Promise<EvidenceView> {
+  return getResearchService().evidence(searchId, productId, criterionId, fallback);
 }
