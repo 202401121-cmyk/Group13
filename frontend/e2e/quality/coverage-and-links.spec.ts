@@ -60,7 +60,7 @@ test.describe("estimates and unchecked products", () => {
   test("a product we couldn't check links to a web search in a new tab", async ({ page }) => {
     const id = await reachBrief(page);
     await showScenario(page, id, "couldnt-check");
-    const link = page.getByRole("link", { name: /Search the web/ });
+    const link = page.getByRole("link", { name: /Research it/ });
     await expect(link).toHaveCount(1);
     await expect(link).toHaveAttribute("target", "_blank");
     await expect(link).toHaveAttribute("rel", "noopener noreferrer");

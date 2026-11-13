@@ -9,12 +9,15 @@
 import { MESSAGES } from "@/lib/api/client";
 import type {
   CancelOutcome,
+  ClaimView,
   CriterionValue,
+  EvidenceView,
   FollowHandlers,
   Offer,
   ProductResult,
   ProgressEvent,
   ProgressStatus,
+  ReasonView,
   ResearchInput,
   ResearchResult,
   ResearchService,
@@ -22,7 +25,7 @@ import type {
   RunSnapshot,
 } from "./types";
 import { ResearchError } from "./types";
-import { isPriceStale } from "./view";
+import { WITHHELD, isPriceStale, sourceDateLabel } from "./view";
 
 export const MOCK_SCENARIOS = [
   { id: "success", label: "Ranked products" },
@@ -38,6 +41,7 @@ export const MOCK_SCENARIOS = [
   { id: "couldnt-check", label: "Couldn't check some" },
   { id: "partial", label: "Partial results" },
   { id: "relaxation", label: "Relaxation hint" },
+  { id: "withheld-quote", label: "A Reddit quote not kept" },
   { id: "empty", label: "No results" },
   { id: "timeout", label: "Research timeout" },
   { id: "network-retry", label: "Network error, then retry" },
@@ -69,13 +73,116 @@ function checkedAt(offer: Offer, time: string | null, now: number): Offer {
   return { ...offer, checkedAt: time, stale: isPriceStale(time, now) };
 }
 
-function values(rubric: RubricItem[], seed: number): CriterionValue[] {
-  return rubric.map((r, i) => ({
-    criterionId: r.criterionId,
-    label: r.title,
-    state: "verified" as const,
-    value: `Sample rating ${((seed + i * 3) % 4) + 6} / 10`,
-  }));
+const DAY_MS = 24 * HOUR_MS;
+
+/** Made-up review sites for the preview. Every link goes to example.com, never a real review. */
+const REVIEW_SITES = [
+  { slug: "sample-tech-reviews", name: "Sample Tech Reviews" },
+  { slug: "sample-review-lab", name: "Sample Review Lab" },
+] as const;
+
+const slug = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+interface MockSource {
+  key: string;
+  name: string;
+  typeLabel: string;
+  url: string;
+  /** Days before `now` it was published, or null when only the day it was read is known. */
+  publishedDaysAgo: number | null;
+}
+
+function mockClaim(
+  id: string,
+  side: ClaimView["side"],
+  source: MockSource,
+  quote: string | null,
+  valueText: string | null,
+  now: number,
+): ClaimView {
+  const day = (days: number) => new Date(now - days * DAY_MS).toISOString();
+  return {
+    claimId: `clm_mock_${id}`,
+    side,
+    quote,
+    quoteWithheld:
+      quote === null ? (source.typeLabel === "Reddit" ? WITHHELD.reddit : WITHHELD.other) : null,
+    source: {
+      id: `src_mock_${source.key}`,
+      name: source.name,
+      typeLabel: source.typeLabel,
+      url: source.url,
+      dateLabel: sourceDateLabel(
+        source.publishedDaysAgo === null ? null : day(source.publishedDaysAgo),
+        day(1),
+      ),
+    },
+    valueText,
+  };
+}
+
+/** A known value rests on one or two made-up review sites, each quoting the same rating. */
+function reviewClaims(
+  name: string,
+  criterion: RubricItem,
+  rating: number,
+  count: number,
+  now: number,
+): ClaimView[] {
+  return REVIEW_SITES.slice(0, count).map((site, k) =>
+    mockClaim(
+      `${slug(name)}_${slug(criterion.criterionId)}_${k}`,
+      "supporting",
+      {
+        key: `${site.slug}_${slug(name)}`,
+        name: site.name,
+        typeLabel: "Review site",
+        url: `https://example.com/reviews/${site.slug}/${slug(name)}`,
+        publishedDaysAgo: 6 + k * 9,
+      },
+      `${name} scores ${rating} out of 10 for ${criterion.title} in our tests.`,
+      `${rating} / 10`,
+      now,
+    ),
+  );
+}
+
+function values(rubric: RubricItem[], seed: number, name: string, now: number): CriterionValue[] {
+  return rubric.map((r, i) => {
+    const rating = ((seed + i * 3) % 4) + 6;
+    return {
+      criterionId: r.criterionId,
+      label: r.title,
+      state: "verified" as const,
+      value: `Sample rating ${rating} / 10`,
+      claims: reviewClaims(name, r, rating, (seed + i) % 2 === 0 ? 2 : 1, now),
+    };
+  });
+}
+
+/** The three criteria that added the most points, with each one's state and claims, as live results give them. */
+function reasonsOf(p: ProductResult): ReasonView[] {
+  return [...(p.contributions ?? [])]
+    .sort((x, y) => y.points - x.points)
+    .slice(0, 3)
+    .flatMap((c) => {
+      const row = p.criteria.find((r) => r.criterionId === c.criterionId);
+      if (!row) return [];
+      return [
+        {
+          criterionId: c.criterionId,
+          label: c.label,
+          state: row.state,
+          // An unknown value is never shown as 0 points.
+          points: row.state === "unknown" ? null : c.points,
+          claims: row.claims ?? [],
+        },
+      ];
+    });
 }
 
 function product(
@@ -86,7 +193,7 @@ function product(
   rubric: RubricItem[],
   now: number,
 ): ProductResult {
-  const criteria = values(rubric, rank);
+  const criteria = values(rubric, rank, `Sample ${category} ${letter}`, now);
   const contributions = criteria.map((c, i) => ({
     criterionId: c.criterionId,
     label: c.label,
@@ -144,13 +251,53 @@ export function buildMockResult(
     x.score = y.score = score;
     x.separatingCriterion = y.separatingCriterion = r[0]?.title ?? null;
   };
-  const dispute = (sources?: CriterionValue["sources"]) => {
-    if (a.criteria[1]) {
+  /** A's second value is disputed: with both sides' sources, or (as a result with no citations) with none. */
+  const dispute = (withSources: boolean) => {
+    const row = a.criteria[1];
+    if (row) {
+      const id = `${slug(a.name)}_${slug(row.criterionId)}`;
       a.criteria[1] = {
-        ...a.criteria[1],
+        ...row,
         state: "disputed",
         value: null,
-        ...(sources ? { sources } : {}),
+        ...(withSources
+          ? {
+              sources: [
+                { source: "Sample Store One listing", value: "16 GB" },
+                { source: "Sample maker spec sheet", value: "8 GB" },
+              ],
+              claims: [
+                mockClaim(
+                  `${id}_store`,
+                  "supporting",
+                  {
+                    key: "sample-store-one",
+                    name: "Sample Store One listing",
+                    typeLabel: "Store",
+                    url: "https://example.com/sample-store-one/listing",
+                    publishedDaysAgo: null,
+                  },
+                  "Comes with 16 GB of memory.",
+                  "16 GB",
+                  now,
+                ),
+                mockClaim(
+                  `${id}_maker`,
+                  "conflicting",
+                  {
+                    key: "sample-maker",
+                    name: "Sample maker spec sheet",
+                    typeLabel: "Maker's site",
+                    url: "https://example.com/sample-maker/spec-sheet",
+                    publishedDaysAgo: 30,
+                  },
+                  "Memory: 8 GB, which can be upgraded later.",
+                  "8 GB",
+                  now,
+                ),
+              ],
+            }
+          : { claims: [] }),
       };
     }
     a.confidence = "medium";
@@ -163,19 +310,16 @@ export function buildMockResult(
       tie(a, b, 1, 84);
       break;
     case "disputed":
-      dispute([
-        { source: "Sample Store One listing", value: "16 GB" },
-        { source: "Sample maker spec sheet", value: "8 GB" },
-      ]);
+      dispute(true);
       break;
     case "disputed-no-sources":
-      // What a live result carries until the evidence route arrives: the state, but no claims to show.
-      dispute();
+      // A result that carries the state but no citations: there are no claims to show.
+      dispute(false);
       break;
     case "unknown":
       for (const p of products) {
         const last = p.criteria.at(-1);
-        if (last) Object.assign(last, { state: "unknown", value: null });
+        if (last) Object.assign(last, { state: "unknown", value: null, claims: [] });
         if (p.coverage) p.coverage = { ...p.coverage, checked: p.coverage.total - 1 };
       }
       break;
@@ -185,6 +329,7 @@ export function buildMockResult(
           Object.assign(p.criteria[2], {
             state: "estimated",
             value: "About 9 hours (sample estimate)",
+            claims: [],
           });
       }
       a.dataCoverage = 62;
@@ -232,6 +377,42 @@ export function buildMockResult(
         };
       }
       break;
+    case "withheld-quote": {
+      // A Reddit thread backs A's top value too, but Reddit's words aren't kept in saved results (D-53).
+      const row = a.criteria[0];
+      if (row) {
+        row.claims = [
+          ...(row.claims ?? []),
+          mockClaim(
+            `${slug(a.name)}_${slug(row.criterionId)}_reddit`,
+            "supporting",
+            {
+              key: "reddit-sample-shoppers",
+              name: "r/SampleShoppers",
+              typeLabel: "Reddit",
+              url: "https://www.reddit.com/r/SampleShoppers/comments/sample1/",
+              publishedDaysAgo: 12,
+            },
+            null,
+            null,
+            now,
+          ),
+        ];
+      }
+      break;
+    }
+  }
+  // As a live result names them: the top product's lead, and each product's main reasons.
+  const leader = res.products[0]?.score ?? null;
+  for (const p of res.products) {
+    p.reasons = reasonsOf(p);
+    // The sample explanation rests on the same claims as the product's top reason.
+    p.explanationParts = p.explanation
+      ? [{ text: p.explanation, claims: p.reasons[0]?.claims ?? [] }]
+      : [];
+    p.label = p.rank === 1 ? "best_match" : p.rank === 2 ? "runner_up" : null;
+    p.gapToLeader =
+      leader === null || p.score == null ? null : Math.round((leader - p.score) * 10) / 10;
   }
   return res;
 }
@@ -391,7 +572,38 @@ function snapshotOf(
   }
   if (script.ending === "failed") return { ...base, status: "failed", result: null };
   const scenario = run.scenario === "stage-failed" ? "partial" : run.scenario;
-  return { ...base, status: "done", result: buildMockResult(input, scenario, now) };
+  const result = { ...buildMockResult(input, scenario, now), searchId };
+  // The evidence answers come from this same result, as the live route answers from the saved run.
+  results.set(searchId, result);
+  return { ...base, status: "done", result };
+}
+
+/** Finished results, by search ID, for "Where this comes from". Kept only while the tab is open. */
+const results = new Map<string, ResearchResult>();
+/** Reading a value's evidence takes a moment, as it does live, so the loading state can be seen. */
+const EVIDENCE_MS = 250;
+
+async function mockEvidence(
+  searchId: string | null,
+  productId: string,
+  criterionId: string,
+  fallback: ClaimView[],
+): Promise<EvidenceView> {
+  await new Promise((resolve) => setTimeout(resolve, EVIDENCE_MS));
+  const row = searchId
+    ? results
+        .get(searchId)
+        ?.products.find((p) => p.id === productId)
+        ?.criteria.find((c) => c.criterionId === criterionId)
+    : undefined;
+  if (!row) return { state: null, claims: fallback, withheldReason: null, from: "citations" };
+  const claims = row.claims ?? [];
+  return {
+    state: row.state,
+    claims,
+    withheldReason: claims.find((c) => c.quote === null)?.quoteWithheld ?? null,
+    from: "route",
+  };
 }
 
 const notFound = () =>
@@ -490,6 +702,8 @@ export function createMockResearchService(): ResearchService {
       else tick();
       return close;
     },
+
+    evidence: mockEvidence,
 
     cancel(searchId): Promise<CancelOutcome> {
       const run = loadRun(searchId);

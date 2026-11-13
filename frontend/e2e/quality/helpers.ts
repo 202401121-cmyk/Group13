@@ -29,6 +29,7 @@ export const RESULT_SCENARIOS = [
   "partial",
   "relaxation",
   "empty",
+  "withheld-quote",
 ] as const;
 
 /** Waits until React has hydrated the element, so typing is not lost to the server-rendered copy. */

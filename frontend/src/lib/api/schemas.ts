@@ -5,6 +5,7 @@
  * match its schema is rejected with ApiError("bad_response"): the screens never build on a guessed shape.
  */
 import type { CriteriaSet } from "@/types/contracts/CriteriaSet";
+import type { EvidenceResponse } from "@/types/contracts/EvidenceResponse";
 import type { IntakeResponse } from "@/types/contracts/IntakeResponse";
 import type { Intent } from "@/types/contracts/Intent";
 import type { InterviewStep } from "@/types/contracts/InterviewStep";
@@ -27,6 +28,7 @@ export interface Contracts {
   SearchRun: SearchRun;
   SearchRunStarted: SearchRunStarted;
   ProgressEvent: ProgressEvent;
+  EvidenceResponse: EvidenceResponse;
 }
 export type ContractName = keyof Contracts;
 
@@ -43,6 +45,7 @@ const SCHEMAS: Record<ContractName, () => Promise<{ default: unknown }>> = {
   SearchRun: () => import("@contracts/schema/SearchRun.json"),
   SearchRunStarted: () => import("@contracts/schema/SearchRunStarted.json"),
   ProgressEvent: () => import("@contracts/schema/ProgressEvent.json"),
+  EvidenceResponse: () => import("@contracts/schema/EvidenceResponse.json"),
 };
 
 /** CommonJS packages arrive as { default } or { default: { default } } depending on the bundler. */

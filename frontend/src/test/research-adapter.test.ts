@@ -115,7 +115,7 @@ describe("SearchResult -> results page", () => {
       value: "7.25 / 10",
     });
     expect(orion.coverage).toEqual({ checked: 6, total: 7 });
-    // The contract carries no claims, so a disputed value can't list what each source said.
+    // What each source said comes as claims (research-citations.test.ts); the old per-source list stays empty.
     expect(kestrel.criteria.every((c) => c.sources === undefined)).toBe(true);
     expect(r.products.every((p) => p.imageUrl === null && p.value === null)).toBe(true);
   });

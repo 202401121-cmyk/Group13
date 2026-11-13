@@ -268,15 +268,24 @@ describe("no offer", () => {
     expect(search).toHaveAttribute("rel", "noopener noreferrer");
   });
 
+  // The card's other links are the sources behind its main reasons (US-21); the store offers have none.
+  const offerLinks = (shown: HTMLElement) =>
+    shown.querySelectorAll("[aria-label^='Store offers'] a");
+  const sourceUrls = new Set(example.sources.map((s) => s.url));
+
   it("with no link for the product, the card shows none and invents none", () => {
     const shown = card({ ...orion(), storeSearchUrl: null });
     expect(shown).toHaveTextContent("No price found yet");
-    expect(shown.querySelector("a")).toBeNull();
+    expect(offerLinks(shown)).toHaveLength(0);
+    for (const a of shown.querySelectorAll("a")) expect(sourceUrls).toContain(a.href);
   });
 
   it("never links to anything but a web address", () => {
     const shown = card({ ...orion(), storeSearchUrl: "javascript:alert(1)" });
-    expect(shown.querySelector("a")).toBeNull();
+    expect(offerLinks(shown)).toHaveLength(0);
+    for (const a of shown.querySelectorAll("a")) {
+      expect(a.getAttribute("href")).toMatch(/^https?:\/\//);
+    }
   });
 
   it("a product with offers shows them and no store search", () => {
@@ -305,11 +314,40 @@ describe("disputed values", () => {
   const row = (shown: HTMLElement) =>
     [...shown.querySelectorAll("li")].find((li) => li.textContent?.includes("Sources disagree"));
 
-  it("in live mode says the sources disagree and shows no value and no source", () => {
+  it("in live mode says the sources disagree and names each side's source, with no value made up", () => {
     const kestrel = resultFromSearch(example, rubric, T0).products[1]!;
     expect(kestrel.criteria.find((c) => c.state === "disputed")?.sources).toBeUndefined();
-    // The row's whole text: the criterion, the badge and the note, with nothing made up beside them.
+    // The row's whole text: the criterion, the badge and the source on each side (search_result.json's
+    // supporting and conflicting claims), with no value beside them: the citations carry none.
     expect(row(card(kestrel))?.textContent).toBe(
+      "Battery Life!Sources disagreeSupports: kestrel.example.comDisagrees: r/developersIndia",
+    );
+  });
+
+  it("shows a claim's own value beside its source only when the claim has one", () => {
+    const kestrel = resultFromSearch(example, rubric, T0).products[1]!;
+    const criteria = kestrel.criteria.map((c) =>
+      c.state === "disputed"
+        ? {
+            ...c,
+            claims: c.claims!.map((x) =>
+              x.side === "supporting" ? { ...x, valueText: "10 hours" } : x,
+            ),
+          }
+        : c,
+    );
+    const shown = row(card({ ...kestrel, criteria }));
+    expect(shown).toHaveTextContent("Supports: kestrel.example.com: 10 hours");
+    expect(shown?.textContent).toContain("Disagrees: r/developersIndia");
+    expect(shown?.textContent).not.toMatch(/r\/developersIndia:/);
+  });
+
+  it("a disputed value with neither sources nor claims still says the details aren't there", () => {
+    const kestrel = resultFromSearch(example, rubric, T0).products[1]!;
+    const criteria = kestrel.criteria.map((c) =>
+      c.state === "disputed" ? { ...c, claims: [] } : c,
+    );
+    expect(row(card({ ...kestrel, criteria }))?.textContent).toBe(
       "Battery Life!Sources disagreeSource details aren't available yet.",
     );
   });
@@ -324,7 +362,10 @@ describe("disputed values", () => {
 
   it("an empty sources list counts as no details", () => {
     const a = buildMockResult(mockInput, "disputed").products[0]!;
-    const criteria = a.criteria.map((c) => (c.state === "disputed" ? { ...c, sources: [] } : c));
+    // The mock's disputed value now carries claims too; with both lists empty there is nothing to show.
+    const criteria = a.criteria.map((c) =>
+      c.state === "disputed" ? { ...c, sources: [], claims: [] } : c,
+    );
     expect(row(card({ ...a, criteria }))).toHaveTextContent("Source details aren't available yet.");
   });
 
@@ -337,8 +378,9 @@ describe("disputed values", () => {
 
 describe("data coverage", () => {
   const scenario = buildMockResult(mockInput, "estimated");
+  // The badge beside the estimated value ("Estimated. ..."), not the one-word state on a main reason.
   const estimatedBadge = (shown: HTMLElement) =>
-    [...shown.querySelectorAll("li span")].find((e) => /^Estimated/.test(e.textContent ?? ""));
+    [...shown.querySelectorAll("li span")].find((e) => /^Estimated\./.test(e.textContent ?? ""));
 
   it("is a whole percentage, from the contract's coverage", () => {
     const { products } = resultFromSearch(example, rubric, T0);
@@ -405,7 +447,7 @@ describe("couldn't check", () => {
     expect(new URL(link.href).searchParams.get("q")).toBe("Sample laptop F CPU performance");
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
-    expect(link).toHaveTextContent("Search the web");
+    expect(link).toHaveTextContent("Research it");
     expect(link).toHaveTextContent("for Sample laptop F (opens in a new tab)");
   });
 

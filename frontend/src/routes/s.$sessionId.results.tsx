@@ -9,8 +9,21 @@ import { MissingSession, PageLoading } from "@/components/interview/shared";
 import { BriefSections } from "@/components/results/BriefSections";
 import { ResearchProgress } from "@/components/results/ResearchProgress";
 import { Disclosure, NotSavedNotice, Notice, StatusBadge } from "@/components/results/primitives";
-import { CouldntCheckItem, ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
-import { formatCheckTime, researchInput, tieGroups, tiesFor } from "@/lib/results/view";
+import {
+  CouldntCheckItem,
+  ResultCard,
+  TooCloseToCall,
+  type ShowSources,
+} from "@/components/results/ResultCard";
+import { SourceDrawer, type SourceTarget } from "@/components/results/SourceDrawer";
+import {
+  formatCheckTime,
+  giveFocusBack,
+  latestOnly,
+  researchInput,
+  tieGroups,
+  tiesFor,
+} from "@/lib/results/view";
 import { useInterview } from "@/lib/interview/useInterview";
 import { loadSession, saveSession, type Session } from "@/lib/session/store";
 import { rubricForBrief, weightRows, type WeightRow } from "@/lib/results/rubric";
@@ -22,6 +35,7 @@ import {
   researchServiceInfo,
   resetResearch,
   retryResearch,
+  sourcesFor,
   stopResearch,
   useResearch,
 } from "@/lib/results/controller";
@@ -34,7 +48,12 @@ import {
   type StopNote,
 } from "@/lib/results/machine";
 import { announcementFor } from "@/lib/results/progress";
-import type { ProductResult, ProgressEvent, ResearchResult } from "@/lib/results/types";
+import type {
+  EvidenceView,
+  ProductResult,
+  ProgressEvent,
+  ResearchResult,
+} from "@/lib/results/types";
 import { inSentence, listInWords } from "@/lib/text";
 
 // Loaded on demand: the dialog library is only needed if the shopper tries to stop or leave during research.
@@ -614,6 +633,37 @@ function Results({
   const leaders = firstTie?.products ?? (best ? [best] : []);
   const others = result.products.filter((p) => !leaders.includes(p));
 
+  // One "Where this comes from" drawer for the whole page. Only the latest opening's answer is shown: one that
+  // arrives after the drawer was closed, or opened again for something else, is dropped.
+  const [drawer, setDrawer] = useState<{
+    target: SourceTarget;
+    opener: HTMLElement;
+    evidence: EvidenceView | null;
+  } | null>(null);
+  const [answers] = useState(latestOnly);
+  const showSources: ShowSources = (product, criterion, opener) => {
+    const token = answers.next();
+    setDrawer({
+      target: { productId: product.id, productName: product.name, criterion },
+      opener,
+      evidence: null,
+    });
+    void sourcesFor(
+      result.searchId ?? null,
+      product.id,
+      criterion.criterionId,
+      criterion.claims,
+    ).then((evidence) => {
+      if (answers.isCurrent(token)) setDrawer((d) => (d ? { ...d, evidence } : d));
+    });
+  };
+  const closeSources = () => {
+    const opener = drawer?.opener ?? null;
+    answers.cancel();
+    setDrawer(null);
+    giveFocusBack(opener);
+  };
+
   useEffect(() => {
     h1.current?.focus();
     const count = `Results ready. ${result.products.length} options`;
@@ -638,6 +688,7 @@ function Results({
           tiedWith={tiesFor(result.products, p)}
           featured={featured}
           index={index}
+          onShowSources={showSources}
         />
       </li>
     );
@@ -719,6 +770,26 @@ function Results({
         </p>
       )}
 
+      {result.couldntCheck.length > 0 && (
+        <section
+          aria-labelledby="couldnt-check-title"
+          className="mt-10 rounded-2xl border border-border bg-card px-4 py-4 sm:px-5"
+        >
+          <h2 id="couldnt-check-title" className="font-serif text-2xl text-foreground">
+            Couldn't check ({result.couldntCheck.length})
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            We couldn't tell if these meet your must-haves, so they aren't ranked. You can look them
+            up yourself.
+          </p>
+          <ul className="mt-2 divide-y divide-border">
+            {result.couldntCheck.map((p) => (
+              <CouldntCheckItem key={p.name} product={p} />
+            ))}
+          </ul>
+        </section>
+      )}
+
       <div className="mt-10 space-y-3">
         {result.leftOut.length > 0 && (
           <Disclosure summary={`Left out (${result.leftOut.length})`}>
@@ -732,21 +803,16 @@ function Results({
             </ul>
           </Disclosure>
         )}
-        {result.couldntCheck.length > 0 && (
-          <Disclosure summary={`Couldn't check (${result.couldntCheck.length})`}>
-            <ul className="divide-y divide-border">
-              {result.couldntCheck.map((p) => (
-                <CouldntCheckItem key={p.name} product={p} />
-              ))}
-            </ul>
-          </Disclosure>
-        )}
       </div>
 
       {pricesTime && (
         <p className="mt-10 border-t border-border pt-6 text-sm text-muted-foreground">
           Prices checked {pricesTime}. Prices can change. Check the store before you buy.
         </p>
+      )}
+
+      {drawer && (
+        <SourceDrawer target={drawer.target} evidence={drawer.evidence} onClose={closeSources} />
       )}
     </section>
   );
