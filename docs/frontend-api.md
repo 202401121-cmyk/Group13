@@ -21,7 +21,7 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
 
 ## Every route the backend serves
 
-These thirteen routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). The frontend
+These fourteen routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). The frontend
 calls all of them except `GET /api/health`, which `scripts/dev.py` uses to see that the backend is up.
 
 | Route | What it does | Request body | Response 200 | Errors | Details |
@@ -33,6 +33,7 @@ calls all of them except `GET /api/health`, which `scripts/dev.py` uses to see t
 | `POST /api/presearch/{session_id}/interview/start` | The first question | none | `InterviewStep` | 404, 409 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewstart) |
 | `POST /api/presearch/{session_id}/interview/reply` | Answers the current question | `reply_text` (1 to 500 characters); `question_id` (optional: makes a repeated reply safe); `level` or `exact_weight` (optional, never both: [rough answers](#rough-answers-us-08)) | `InterviewStep` (next question, rephrase, or finished with the rubric) | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewreply) |
 | `POST /api/presearch/{session_id}/interview/back` | Asks an earlier question again | `question_id` (1 to 64 characters) | `InterviewStep` | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewback) |
+| `POST /api/presearch/{session_id}/rubric` | The shopper's rubric edits: switch a must-have, add or remove a leave-out, set a weight | `RubricEditRequest` | `RubricEditResponse` (the rebuilt `Rubric`) | 404, 409, 422 | [editing the rubric](#editing-the-rubric-us-09) |
 | `GET /api/presearch/{session_id}` | Everything about the session, for a page reload | none | the session | 404 | [presearch.md](api/presearch.md#get-apipresearchsession_id) |
 | `POST /api/search` | Runs the search with the finished rubric | `SearchRequest` | `SearchResult` | 422 | below |
 | `POST /api/search/runs` | Starts the same search in the background | `SearchRequest` | 202 `SearchRunStarted` | 422, 503 | [search runs](#search-runs-with-live-progress-us-12) |
@@ -236,6 +237,83 @@ dev.py ends the backend at once; elsewhere uvicorn closes open streams after 5 s
 stop before their next step, and dev.py forces it after 10. Started by hand, add the same flag:
 `uvicorn app.main:app --timeout-graceful-shutdown 5`.
 
+## Editing the rubric (US-09)
+
+`POST /api/presearch/{session_id}/rubric` takes the shopper's own changes to the rubric and answers the rubric rebuilt
+with them. The rubric has two lists that never mix (DR-08):
+
+- **`hard_rules`**, the must-haves. They only filter, and only while `active` is true. Each keeps `source_text`, the
+  shopper's own words, so the screen can show which thing they said became which rule. Identical rules share one `id`,
+  and the rubric keeps one rule per `id`.
+- **`weights`**, the preferences, each 0 to 10. They only change the order. Their `normalized` shares add up to exactly
+  1. `origin` says where each came from: `answered`, `skipped`, `default` (the category's usual weight, for a criterion
+  the interview didn't ask about) or `manual` (set here).
+
+The body holds 1 to 20 edits, applied in order. Each edit carries exactly the fields of its kind:
+
+| `kind` | Fields | What it does |
+|---|---|---|
+| `switch_rule` | `rule_id`, `active` | `false` makes the must-have a preference: it stays in `hard_rules` with `active: false` and no longer filters. `true` makes it a must-have again |
+| `add_exclusion` | `exclusion` (`kind`, `value`, `always`) | Adds a leave-out; adding one the shopper removed brings it back |
+| `remove_exclusion` | `exclusion` | Removes a leave-out, whether the request named it or the shopper added it. Matched on `kind` and `value`, ignoring case |
+| `set_weight` | `criterion_key`, `weight` (0 to 10) | Sets that criterion's weight, with `origin: "manual"` |
+
+The edits are stored on the session, so every later rebuild applies them last: a new answer and going back to a
+question keep them. So does a changed intent: after `PUT /intent` (and `POST /criteria` when the use changed), start
+the interview again and the edits are there. What is dropped: a switch for a rule the changed intent no longer has, a
+weight for a criterion the new criteria don't list (kept, but unused), and every edit if the product category itself
+changes, as they belong to the other category's criteria. Example request:
+
+```json
+{
+  "edits": [
+    {"kind": "switch_rule", "rule_id": "ram_gb_min_1c18a881e7", "active": false},
+    {"kind": "set_weight", "criterion_key": "weight", "weight": 9},
+    {"kind": "add_exclusion", "exclusion": {"kind": "brand", "value": "Nova"}}
+  ]
+}
+```
+
+Response 200 (`RubricEditResponse`; two of the seven weights left out here):
+
+```json
+{
+  "rubric": {
+    "category": "laptop",
+    "use_case": "coding",
+    "region": "IN",
+    "budget": {"min": null, "max": {"amount": 70000.0, "currency": "INR"}},
+    "hard_rules": [
+      {"attribute": "ram_gb", "operator": ">=", "value": 16.0, "unit": "GB",
+       "source_text": "at least 16 GB RAM", "id": "ram_gb_min_1c18a881e7", "active": false}
+    ],
+    "exclusions": [
+      {"kind": "brand", "value": "Zenith", "always": false},
+      {"kind": "brand", "value": "Nova", "always": false}
+    ],
+    "weights": [
+      {"key": "cpu_performance", "weight": 8.0, "normalized": 0.17777777777777778, "origin": "default", "uncertainty": 0.5},
+      {"key": "battery_life", "weight": 7.0, "normalized": 0.15555555555555556, "origin": "default", "uncertainty": 0.5},
+      {"key": "weight", "weight": 9.0, "normalized": 0.20000000000000007, "origin": "manual", "uncertainty": 0.0}
+    ]
+  }
+}
+```
+
+- **Every weight 0:** when the edits leave every weight at 0, the rubric uses the category's usual weights (`origin:
+  "default"`), and the response has an `X-Rubric-Note` header (exposed to the browser through CORS) to show: `Every weight was set to 0, so the usual weights
+  are used until you raise one.` The edits stay stored, so raising one weight counts again.
+- **Errors:**
+  - 404: the session has expired.
+  - 409: the interview hasn't started (`The interview hasn't started yet. Please start it first.`).
+  - 422: an unknown rule or criterion, with its name, such as `No criterion is called oops.` or
+    `No hard rule has the id …`. Nothing is stored then.
+  - 422: an edit with the wrong fields, with the field named.
+- **What else changes:** if the interview has finished, the session's stored `interview_step.rubric` follows the edits,
+  so a page reload shows them. After `PUT /intent`, `GET /api/presearch/{session_id}` may show an `interview` whose
+  `history` is empty and an `interview_step` of `null`: the edits are waiting for the interview to start again.
+- **Not here yet:** the editor itself is S3-14, and filtering by active rules is S3-10.
+
 ## Sprint 2 contracts
 
 These types are agreed and exported now, so screens can be built against them. The work behind them lands in later
@@ -318,7 +396,7 @@ inventing data.
 | Real search results | `POST /api/search` still runs the US-52 stub stages: every search returns the same example laptops, whose criteria differ from the session's rubric. `coverage_note` says they are samples. | US-12 and US-14 to US-18, Sprints 2 and 3 |
 | Live progress | The backend streams it now ([search runs](#search-runs-with-live-progress-us-12)), but the research screen still calls `POST /api/search` and keeps `streamsProgress: false`. Never fake progress. | Task #27, Sprint 2 |
 | Every source of a disputed value | `SearchResult` has no claims list. | The evidence route (US-21), Sprint 3 |
-| Typed edits to must-haves and leave-outs | `PUT /intent` refuses them with a plain 422. | US-09, US-10 and the rubric editor, Sprint 3 |
+| Typed edits to must-haves and leave-outs | `PUT /intent` still refuses them with a plain 422; the rubric route switches a must-have, adds or removes a leave-out and sets a weight ([editing the rubric](#editing-the-rubric-us-09)). Leave-outs read from typed words come with US-10. | US-10 and the rubric editor (S3-14), Sprint 3 |
 | Sessions live in the server's memory | A backend restart in the middle of a search shows "session expired". | Not planned yet: raised for Sprint 2 planning |
 | A running search can't be cancelled from the screen | The backend can cancel a run now (`DELETE /api/search/runs/{search_id}`, US-12), but the screen doesn't start runs yet, so its stop dialog has nothing to cancel. | Task #27, Sprint 2 |
 | A filtered product may be missing from `products` | The page has no name to show for it; show the product ID's fallback text. | Not planned yet: raised for Sprint 2 planning |
