@@ -1,10 +1,25 @@
-# The trained product matcher (US-15, S3-4), for the match stage in S3-15. Nothing reads this file yet.
+# The trained product matcher (US-15): S3-4 trained and exported it, and the match stage reads this file (S3-15,
+# app/entities/settings.py).
 #
 # The model is the ONNX export in ml/training/export_onnx.py, on Hugging Face and pinned by an exact revision (a
-# commit hash, never "main"; ml/MODELS.md card 1). Weights are never in git. The revision is now set, so the model is
-# available to S3-15. The fuzzy baseline stays the default until S3-15 shows the matcher does better (build rule 9:
-# fall back, never stop).
+# commit hash, never "main"; ml/MODELS.md card 1). Weights are never in git: the first run that uses the model
+# downloads model.onnx and tokenizer.json at this revision into backend/.cache/matcher/, and later runs read them from
+# there. A file whose sha256 is not model_sha256 is not used.
+#
+# MATCHER=model or MATCHER=fuzzy (in .env or the environment) picks the scorer; unset, `default` decides.
+# MATCHER_FORCE_FAIL=1 makes the model fail on purpose, to watch the fallback. Any failure, or scoring past
+# time_share_s, gives fuzzy matching for that run, with method "fuzzy" and one log line naming the reason.
 repo: "Om-Pandya/shopsense-matcher"
 revision: "6a2ce26b0c4caf6fd1655ef88d27e6ee3954b296"
+model_sha256: "7fa622c2ec76d0f15d5559eec9368ed4adbf0dc89258865f966b17fa441737d4"  # ml/MODELS.md card 1
 # The score at or above which a pair is called the same product, chosen on dev data (ml/results/matcher_v1.json).
-threshold: 0.9646  # ml/results/matcher_v1.json; the precision target is not shown on our test part, so fuzzy stays the default
+threshold: 0.9646
+# Fuzzy stays the default (DECIDED 4 of S3-15). On our test part the model called one pair a match, correctly, so its
+# precision is 1.0 from a single pair: that can't show the 0.95 target (ml/MODELS.md card 1, "What this says").
+# Change this to model only when a test part with more matches shows precision of 0.95 or more.
+default: fuzzy
+# Of the match stage's 5-second limit, the most the model may take, waiting for its load included. Past it, fuzzy
+# matching reruns the whole match, which keeps 2 seconds (app/entities/stage.py, FUZZY_ROOM_S).
+time_share_s: 3.0
+batch_size: 32  # pairs per call to the model, as S3-4 timed it
+max_length: 128  # tokens per pair, as S3-4 trained it (ml/training/common.py)

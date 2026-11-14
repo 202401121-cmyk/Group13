@@ -95,6 +95,31 @@ def _no_real_database(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture(autouse=True)
+def _no_real_matcher_model(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """US-15 (S3-15): every test sees the default matcher, whatever the shell sets, and none downloads the model.
+
+    Tests of the model stage give it a fake loader or fake downloads; only tests marked `live` may fetch the real one.
+    The model holders last as long as the process, so each test starts with none.
+    """
+    from app.entities import model
+
+    monkeypatch.delenv("MATCHER", raising=False)
+    monkeypatch.delenv("MATCHER_FORCE_FAIL", raising=False)
+    tried: list[str] = []
+    if not may_use_network(request.node):
+
+        def no_download(**kwargs: object) -> str:
+            tried.append(str(kwargs.get("filename")))
+            raise RuntimeError("tests never download the matcher model")
+
+        monkeypatch.setattr(model, "_hf_download", no_download)
+    model.clear_shared_models()
+    yield
+    model.clear_shared_models()
+    assert not tried, f"a test tried to download the matcher model: {tried}"
+
+
+@pytest.fixture(autouse=True)
 def _fresh_aliases() -> Iterator[None]:
     """The in-memory alias store lives as long as the process (US-15): one test's aliases never reach another."""
     shared_memory_aliases().clear()

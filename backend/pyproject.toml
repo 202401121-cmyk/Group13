@@ -28,6 +28,15 @@ dependencies = [
     # The match stage's fuzzy scorer (US-15). Pinned to ml/requirements.txt's version (D-57), so the stage scores pairs
     # exactly as the baseline in ml/MODELS.md card 8 did.
     "rapidfuzz==3.14.6",
+    # The trained matcher (US-15, S3-15), run on CPU through ONNX (D-64, P-10). Pinned exactly after checking PyPI on
+    # 14 Nov 2026. onnxruntime: the version S3-4 checked the export and timed with (ml/results/matcher_v1_onnx.json),
+    # not 1.32.0, a day old. huggingface_hub: the last 1.x line, on httpx<1; 2.x pulls in httpx2, which starlette's
+    # TestClient then uses instead of the pinned httpx above. numpy: ml/requirements.txt's version (2.5 needs 3.12).
+    # They are imported only when MATCHER=model loads the model (app/entities/model.py).
+    "onnxruntime==1.31.1",
+    "tokenizers==0.23.3",
+    "huggingface_hub==1.33.0",
+    "numpy==2.4.6",
 ]
 # Stories add their own libraries when they need them (for example sentence-transformers,
 # rapidfuzz, pyahocorasick, numpy, slowapi). Add them here in the same pull request.
@@ -72,6 +81,10 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+module = ["onnxruntime", "onnxruntime.*"]  # it ships no type hints
+ignore_missing_imports = true
 
 [tool.coverage.run]
 source = ["app"]
