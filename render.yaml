@@ -1,0 +1,53 @@
+# ShopSense staging backend on Render (DEP-1, P-08). The runbook is docs/deploy.md.
+#
+# Render reads this Blueprint when the service is created from the dashboard (New > Blueprint). Every variable but
+# the Python version is `sync: false`: the dashboard asks for its value once, at creation, and the value lives only
+# there. Never write a value into this file. backend/tests/unit/test_render_blueprint.py checks all of this.
+services:
+  - type: web
+    name: shopsense-backend-staging
+    runtime: python
+    plan: free  # 512 MB, 0.1 CPU; spins down after 15 minutes without traffic (docs/deploy.md)
+    region: singapore  # the closest to our users; it can't be changed after creation
+    rootDir: backend
+    # Editable: the app reads backend/config/ through its own path, so it must run from the source tree.
+    buildCommand: pip install -e .
+    # One process (512 MB). The app reads no client address, so no proxy-header flags are needed.
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health  # 200 whether the database is ok, off or down: a search never needs it (rule 10)
+    autoDeployTrigger: checksPass  # main is not protected, so only commits whose CI passed reach staging
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.15"  # a build setting, not a secret: CI runs 3.11, and Render's default is now 3.14
+      - key: FRONTEND_ORIGINS
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: CEREBRAS_API_KEY
+        sync: false
+      - key: MISTRAL_API_KEY
+        sync: false
+      - key: SERPER_API_KEY
+        sync: false
+      - key: JINA_API_KEY
+        sync: false
+      - key: FIRECRAWL_API_KEY
+        sync: false
+      - key: REDDIT_SOURCE
+        sync: false
+      - key: REDDIT_USER_SALT
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_TIMEOUT_SECONDS
+        sync: false
+      - key: MATCHER
+        sync: false
+      - key: EXTRACT_MAX_SOURCES
+        sync: false
+      - key: SEARCH_RUN_WORKERS
+        sync: false
