@@ -3,7 +3,8 @@
 It has its own module because two parts of the app must agree on it. The search runs (app/api/search_runs.py) keep a
 finished run this long, even while a progress stream reads it. The Reddit cache (app/research/reddit/cache.py) stops
 serving an answer this much sooner than 24 hours, less the longest search and a margin as well (serve_limit()), so a run
-that read the answer late is gone before the data turns 24 hours old (D-53 covers every copy).
+that read the answer late is gone before the data turns 24 hours old when it is dropped at its keep-time (D-53 covers
+every copy). On an idle server the app's housekeeping drops it within ten minutes of that (app/main.py).
 """
 
 from __future__ import annotations

@@ -232,6 +232,7 @@ event then says `done` or `partial`. Show the results, not a "cancelled" message
 ### How long a run is kept
 
 A run's state stays in the backend's memory for `SEARCH_RUN_KEEP_MINUTES` (default 30, from 1 to 120) after it ends, then answers 404.
+It leaves memory within 10 minutes of that, even if nobody asks for it again.
 That holds even while a progress stream is still open on it, because its result holds Reddit text (D-53). Such a stream
 then sends the final `run` event, if it hasn't yet, with the result as it is saved: Reddit's words are replaced by
 `[Reddit text is not kept]`. Then it closes. Only a client that stopped reading, or opened the stream, just as the keep

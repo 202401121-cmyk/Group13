@@ -42,7 +42,9 @@ def sweep_expired_files(
 ) -> None:
     """Everything past its limit. It needs no client or source, so D-53 holds whatever else is broken.
 
-    The folders are read when it runs (not when this module loads), so the defaults are always the current ones.
+    It runs at app start-up and then every ten minutes (the housekeeping in app/main.py), and at each search (the
+    research stage), so expired Reddit text goes even on a server nobody searches with. The folders are read when it
+    runs (not when this module loads), so the defaults are always the current ones.
     """
     folder = folder if folder is not None else DEFAULT_CACHE_DIR
     reddit_folder = reddit_folder if reddit_folder is not None else REDDIT_CACHE_DIR

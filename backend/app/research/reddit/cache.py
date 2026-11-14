@@ -7,9 +7,10 @@ stops a search (build rule 10).
 D-53 keeps Reddit data at most 24 hours, counted from when it was read, and covers every copy we hold. So an answer's
 age is its oldest source's, and storing a thread again with its comments doesn't restart the clock. An answer is served
 only before serve_limit(): 24 hours less the longest search, the time a finished run is kept (SEARCH_RUN_KEEP_MINUTES)
-and a margin, so a run holding it is gone in time. Files past it are deleted by the next search (the research stage
-sweeps first, whatever else works), and by the first use of a cache. A machine that runs no search deletes nothing
-until it does.
+and a margin, so a run holding it is gone in time when it is dropped at its keep-time (serve_limit() says when it
+may not be). Files past it are deleted at app start-up and then within ten
+minutes (the app's housekeeping), by each search (the research stage sweeps first, whatever else works), and by the
+first use of a cache. A machine where the app isn't running deletes nothing until it starts.
 """
 
 from __future__ import annotations
@@ -49,7 +50,9 @@ def serve_limit(env: Mapping[str, str] | None = None) -> timedelta:
     which includes saving the result), whose run is then kept for SEARCH_RUN_KEEP_MINUTES (30 by default), is gone
     SERVE_MARGIN (60 s) before it is 24 hours old: served at the edge + the longest search + the keep-time stays under
     24 hours. By default that is 23 hours 26 minutes 30 seconds. A finished run goes at its keep-time even while a
-    progress stream reads it (app/api/search_runs.py).
+    progress stream reads it (app/api/search_runs.py), when a request or a stream drops it then. On an idle server the
+    app's housekeeping drops it within ten minutes of its keep-time (app/main.py), so up to about nine minutes past 24
+    hours: a known gap that a margin as long as that timer would close.
     """
     return DEFAULT_TTL - timedelta(minutes=keep_minutes(env)) - timedelta(seconds=SEARCH_TIME_LIMIT_S) - SERVE_MARGIN
 
