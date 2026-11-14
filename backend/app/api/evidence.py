@@ -3,7 +3,8 @@
 A finished result cites claims by ID, and SearchResult has no place for the claims themselves. So a search run wraps
 the extract stage in a ClaimRecorder, and once the run ends it keeps, in memory, only the claims its values cite
 (`cited_claims`). Like the run's result, they are served for at most SEARCH_RUN_KEEP_MINUTES (120 at most) after it
-ended, go with the run and are never saved. `evidence_for` builds one value's EvidenceResponse from the two.
+ended, even while a progress stream reads the run, go with the run and are never saved. `evidence_for` builds one
+value's EvidenceResponse from the two.
 """
 
 from __future__ import annotations
@@ -125,8 +126,8 @@ def evidence_for(
     is not among the result's, is left out; if that leaves too little to answer validly, the answer is 404.
 
     Reddit quotes are served here although the saved result drops them (app/research/retention.py): these claims live
-    only in the run's memory, which serves a run for at most SEARCH_RUN_KEEP_MINUTES (120 at most), far less than
-    the 24 hours D-53 allows. They are never saved.
+    only in the run's memory, which keeps a run for at most SEARCH_RUN_KEEP_MINUTES (120 at most) after it ends, even
+    while a progress stream reads it, far less than the 24 hours D-53 allows. They are never saved.
     """
     summary = next((p for p in result.products if p.product.id == product_id), None)
     if summary is None:

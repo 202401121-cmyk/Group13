@@ -12,8 +12,8 @@ import re
 import threading
 import time
 from collections.abc import Callable, Iterator
-from datetime import UTC, datetime
-from typing import Any
+from datetime import UTC, datetime, timedelta
+from typing import Any, NamedTuple
 
 import anyio
 import pytest
@@ -25,10 +25,13 @@ from app.api.search_runs import (
     BUSY,
     NOT_FOUND,
     RETRY_AFTER_SECONDS,
+    RUN_EXPIRED,
+    ExpiredRun,
     RunSettings,
     SearchRuns,
     default_runner,
     get_search_runs,
+    load_run_settings,
 )
 from app.contracts import examples as ex
 from app.contracts.pipeline import MAX_RUN_EVENTS
@@ -43,7 +46,10 @@ from app.pipeline import (
     default_search_stages,
 )
 from app.research import ResearchStage
+from app.research.reddit.cache import SERVE_MARGIN, RedditCache
+from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
 from tests.fakes.live_run import use_live_shaped_run
+from tests.fakes.research import thread
 
 RUN_ID = re.compile(r"^srch_[a-f0-9]{24}$")
 WAIT_S = 5.0
@@ -969,3 +975,215 @@ def test_checking_a_stream_again_and_again_never_keeps_a_run_past_its_keep_time(
     clock.jumped_s = 61.0
     with pytest.raises(LookupError):
         runs.get(search_id)  # gone at its keep-time, reservation or not
+
+
+# --- D-53: a finished run goes at its keep-time, even while a stream reads it (US-12 fix) ---------
+
+
+class Stalled:
+    """A client that stops reading after the first event, until released: its stream stays open on the run."""
+
+    def __init__(self) -> None:
+        self.release = threading.Event()
+
+    def __call__(self, message: Any) -> None:
+        if message.comment is None and message.id == "1":
+            self.release.wait(WAIT_S)
+
+
+class BeingRead(NamedTuple):
+    runs: SearchRuns
+    clock: _JumpingClock
+    search_id: str
+    got: list[Any]
+    stalled: Stalled
+    reader: threading.Thread
+
+
+def finished_run_being_read(harness: Harness) -> BeingRead:
+    """A finished run (kept 60 s) whose one stream has sent event 1 and now waits on its client."""
+    clock = _JumpingClock()
+    runs = harness.runs(keep_s=60.0, clock=clock)
+    search_id = runs.start(C.SearchRequest.model_validate(body()))
+    assert search_id is not None
+    wait_until(lambda: runs._runs[search_id].ended_at is not None, "the run to end")
+    got: list[Any] = []
+    stalled = Stalled()
+    reader = follow(runs, search_id, got, stalled)
+    wait_until(lambda: len(got) == 1, "the stream to send its first event")
+    assert runs._runs[search_id].streams == 1
+    return BeingRead(runs, clock, search_id, got, stalled, reader)
+
+
+def closed_stream(read: BeingRead) -> list[Any]:
+    """Let the client read again; its stream must end. The events it was sent, keep-alives left out."""
+    read.stalled.release.set()
+    read.reader.join(WAIT_S)
+    assert not read.reader.is_alive()
+    return [m for m in read.got if m.comment is None]
+
+
+def reddit_sources(result: C.SearchResult) -> list[C.Source]:
+    return [s for s in result.sources if s.type is C.SourceType.REDDIT]
+
+
+def test_a_finished_run_being_read_is_dropped_at_its_keep_time(harness: Harness) -> None:
+    read = finished_run_being_read(harness)
+    kept = read.runs._runs[read.search_id]
+    assert kept.result is not None and kept.claims  # it holds its result and the claims its values cite
+    read.clock.jumped_s = 59.0
+    assert read.runs.get(read.search_id).finished_at is not None  # still there just before its keep-time
+    read.clock.jumped_s = 61.0
+    with pytest.raises(ExpiredRun):
+        read.runs.get(read.search_id)  # gone at its keep-time, though a stream is still reading it
+    assert kept.result is None and kept.claims == {}  # the stream's hold on the run keeps neither
+    closed_stream(read)
+
+
+def test_the_stream_then_gets_the_final_event_and_closes(harness: Harness) -> None:
+    read = finished_run_being_read(harness)
+    read.clock.jumped_s = 61.0
+    with pytest.raises(ExpiredRun):
+        read.runs.get(read.search_id)
+    sent = closed_stream(read)
+    assert [m.id for m in sent] == [str(n) for n in range(1, ALL_EVENTS + 2)]  # every event, then the final one
+    assert [m.event for m in sent] == ["progress"] * ALL_EVENTS + ["run"]
+    final = sent[-1].data
+    assert final.search_id == read.search_id and final.finished_at is not None and final.result is not None
+    assert [e.event_id for e in final.progress] == list(range(1, ALL_EVENTS + 1))
+
+
+def test_that_final_event_holds_no_reddit_text(harness: Harness) -> None:
+    read = finished_run_being_read(harness)
+    state_before = read.runs.get(read.search_id)
+    before = state_before.result
+    assert before is not None
+    assert reddit_sources(before) and all(s.title != REDDIT_TEXT_NOT_KEPT for s in reddit_sources(before))
+    read.clock.jumped_s = 61.0
+    with pytest.raises(ExpiredRun):
+        read.runs.get(read.search_id)
+    final = closed_stream(read)[-1].data
+    assert final.result.model_dump(mode="json") == without_reddit_text(before.model_dump(mode="json"))  # as saved
+    assert all(s.title == REDDIT_TEXT_NOT_KEPT for s in reddit_sources(final.result))
+    assert final.status is state_before.status and final.progress == state_before.progress
+
+
+def test_the_evidence_route_then_answers_expired(harness: Harness) -> None:
+    read = finished_run_being_read(harness)
+    result = read.runs.get(read.search_id).result
+    assert result is not None
+    product_id, key = next((p.product.id, v.criterion_key) for p in result.products for v in p.values)
+    path = f"/api/search/runs/{read.search_id}/evidence"
+    with TestClient(harness.app(read.runs)) as client:
+        assert client.get(path, params={"product_id": product_id, "criterion_key": key}).status_code == 200
+        read.clock.jumped_s = 61.0
+        response = client.get(path, params={"product_id": product_id, "criterion_key": key})
+    assert response.status_code == 404
+    assert response.json() == {"detail": RUN_EXPIRED}
+    closed_stream(read)
+
+
+def test_a_stream_back_after_the_keep_time_drops_the_run_itself(harness: Harness) -> None:
+    read = finished_run_being_read(harness)
+    kept = read.runs._runs[read.search_id]
+    read.clock.jumped_s = 61.0  # no request comes in: only the stream itself looks at the run again
+    final = closed_stream(read)[-1]
+    assert final.event == "run"
+    assert all(s.title == REDDIT_TEXT_NOT_KEPT for s in reddit_sources(final.data.result))
+    assert read.search_id not in read.runs._runs
+    assert kept.result is None and kept.claims == {}
+    with pytest.raises(ExpiredRun):
+        read.runs.get(read.search_id)
+
+
+def test_a_run_in_progress_with_an_open_stream_is_kept(harness: Harness) -> None:
+    gate = harness.gate()
+    clock = _JumpingClock()
+    runs = harness.runs(stages_with(research=lambda real: Held(real, gate)), keep_s=60.0, clock=clock)
+    search_id = runs.start(C.SearchRequest.model_validate(body()))
+    assert search_id is not None
+    assert gate.entered.wait(WAIT_S)
+    got: list[Any] = []
+    reader = follow(runs, search_id, got)
+    wait_until(lambda: runs.open_streams == 1, "the stream to open")
+    clock.jumped_s = 3600.0  # an hour on: the keep-time counts from the end, and it hasn't ended
+    assert runs.get(search_id).status is C.SearchRunStatus.RUNNING
+    gate.opened.set()
+    reader.join(WAIT_S)
+    assert not reader.is_alive()
+    final = [m for m in got if m.comment is None][-1]
+    assert final.event == "run" and final.data.result is not None
+    assert all(s.title != REDDIT_TEXT_NOT_KEPT for s in reddit_sources(final.data.result))  # its full result
+    assert runs.get(search_id).result == final.data.result  # and it is still kept
+
+
+def test_a_final_state_that_cannot_be_made_still_drops_the_run_and_closes_the_stream(
+    harness: Harness, monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    def broken(result: dict[str, Any]) -> dict[str, Any]:
+        raise ValueError("no")
+
+    monkeypatch.setattr("app.api.search_runs.without_reddit_text", broken)
+    read = finished_run_being_read(harness)
+    kept = read.runs._runs[read.search_id]
+    read.clock.jumped_s = 61.0
+    with caplog.at_level("WARNING", logger="app.api.search_runs"), pytest.raises(ExpiredRun):
+        read.runs.get(read.search_id)  # the request that dropped it still gets its plain answer (build rule 9)
+    assert kept.result is None and kept.claims == {}
+    sent = closed_stream(read)
+    assert [m.event for m in sent] == ["progress"] * ALL_EVENTS  # the events it had taken, then no final event at all
+    assert "no final state without Reddit text: ValueError" in caplog.text
+
+
+class _JumpingWall:
+    def __init__(self) -> None:
+        self.jumped = timedelta()
+
+    def __call__(self) -> datetime:
+        return datetime.now(UTC) + self.jumped
+
+
+def test_a_finished_run_goes_at_its_keep_time_on_the_wall_clock_too(harness: Harness) -> None:
+    """A laptop that slept: its monotonic clock stood still, while Reddit data aged on the wall clock (D-53)."""
+    wall = _JumpingWall()
+    runs = SearchRuns(
+        lambda: PipelineRunner(default_search_stages(), harness.store), RunSettings(keep_s=60.0), wall_clock=wall
+    )
+    harness.registries.append(runs)
+    search_id = runs.start(C.SearchRequest.model_validate(body()))
+    assert search_id is not None
+    wait_until(lambda: runs._runs[search_id].ended_at is not None, "the run to end")
+    wall.jumped = timedelta(seconds=59)
+    assert runs.get(search_id).finished_at is not None
+    wall.jumped = timedelta(seconds=61)  # the registry's own clock has hardly moved
+    with pytest.raises(ExpiredRun):
+        runs.get(search_id)
+
+
+@pytest.mark.parametrize("keep", ["1", "30", "120"])
+def test_a_run_that_read_a_reddit_answer_at_the_edge_is_gone_before_it_is_24_hours_old(
+    harness: Harness, keep: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The worst case, with the real cache and run store reading one setting: the edge, the longest search, the keep."""
+    monkeypatch.setenv("SEARCH_RUN_KEEP_MINUTES", keep)
+    read_at = datetime(2026, 11, 14, 9, 0, tzinfo=UTC)
+    wall = [read_at]
+    cache = RedditCache(folder=None, now=lambda: wall[0])  # its limit: serve_limit(), from the setting
+    cache.put(("q",), [thread("aaa", fetched_at=read_at)])
+    wall[0] = read_at + cache.ttl - timedelta(seconds=1)
+    assert cache.get(("q",)) is not None  # served at the last moment
+
+    clock = _JumpingClock()
+    settings = load_run_settings({"SEARCH_RUN_KEEP_MINUTES": keep})
+    runs = SearchRuns(lambda: PipelineRunner(default_search_stages(), harness.store), settings, clock=clock)
+    harness.registries.append(runs)
+    search_id = runs.start(C.SearchRequest.model_validate(body()))
+    assert search_id is not None
+    wait_until(lambda: runs._runs[search_id].ended_at is not None, "the run to end")
+
+    # The longest search, then the keep-time and one second (as the other keep-time tests: off the exact boundary).
+    wall[0] += timedelta(seconds=C.SEARCH_TIME_LIMIT_S + settings.keep_s + 1)
+    clock.jumped_s = settings.keep_s + 1
+    with pytest.raises(ExpiredRun):
+        runs.get(search_id)  # the run that read it is gone...
+    assert wall[0] - read_at == timedelta(hours=24) - SERVE_MARGIN  # ...while the answer is still under 24 hours old

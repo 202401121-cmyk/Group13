@@ -6,9 +6,10 @@ stops a search (build rule 10).
 
 D-53 keeps Reddit data at most 24 hours, counted from when it was read, and covers every copy we hold. So an answer's
 age is its oldest source's, and storing a thread again with its comments doesn't restart the clock. An answer is served
-only while younger than 24 hours minus SEARCH_RUN_KEEP_MINUTES, so a finished run holding it is gone in time. Files past
-deleted by the next search (the research stage sweeps first, whatever else works), and by the first use of a cache. A
-machine that runs no search deletes nothing until it does.
+only before serve_limit(): 24 hours less the longest search, the time a finished run is kept (SEARCH_RUN_KEEP_MINUTES)
+and a margin, so a run holding it is gone in time. Files past it are deleted by the next search (the research stage
+sweeps first, whatever else works), and by the first use of a cache. A machine that runs no search deletes nothing
+until it does.
 """
 
 from __future__ import annotations
@@ -24,13 +25,14 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from app.contracts import Source
+from app.contracts import SEARCH_TIME_LIMIT_S, Source
 from app.search_run_limits import keep_minutes
 
 log = logging.getLogger(__name__)
 
 DEFAULT_CACHE_DIR = Path(__file__).resolve().parents[3] / ".cache" / "reddit"
 DEFAULT_TTL = timedelta(hours=24)
+SERVE_MARGIN = timedelta(seconds=60)  # the team's choice (US-12 fix): what is left of the 24 hours in the worst case
 _FORMAT = 1
 
 CacheKey = tuple[str | int, ...]
@@ -41,8 +43,15 @@ def _utc_now() -> datetime:
 
 
 def serve_limit(env: Mapping[str, str] | None = None) -> timedelta:
-    """How long a Reddit answer may be served."""
-    return DEFAULT_TTL - timedelta(minutes=keep_minutes(env))
+    """How long a Reddit answer may be served: 24 hours less the longest search, the keep-time and SERVE_MARGIN (D-53).
+
+    An answer served at the last moment, read by a search that takes the longest it may (SEARCH_TIME_LIMIT_S, 150 s,
+    which includes saving the result), whose run is then kept for SEARCH_RUN_KEEP_MINUTES (30 by default), is gone
+    SERVE_MARGIN (60 s) before it is 24 hours old: served at the edge + the longest search + the keep-time stays under
+    24 hours. By default that is 23 hours 26 minutes 30 seconds. A finished run goes at its keep-time even while a
+    progress stream reads it (app/api/search_runs.py).
+    """
+    return DEFAULT_TTL - timedelta(minutes=keep_minutes(env)) - timedelta(seconds=SEARCH_TIME_LIMIT_S) - SERVE_MARGIN
 
 
 class RedditCache:

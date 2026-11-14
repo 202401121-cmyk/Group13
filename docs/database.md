@@ -51,8 +51,9 @@ One row per finished search, in `public.searches` (US-52):
 - **No expiry, so no Reddit text (US-12, D-53):** rows stay until someone deletes them, and Reddit data may be kept at
   most 24 hours. So Reddit's words never reach this table ("What a saved result holds", below). D-53 covers every copy, so
   the other two are limited as well: a finished run stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES` (1 to 120
-  minutes), and the Reddit cache serves an entry only while it is younger than 24 hours minus that
-  ([api-setup.md](api-setup.md), "Keeping Reddit data", which gives the two small limits on this).
+  minutes), even while a progress stream reads it, and the Reddit cache serves an entry only while it is younger than 24
+  hours less that, less the longest search (150 seconds) and a 60-second margin ([api-setup.md](api-setup.md), "Keeping
+  Reddit data", which also says what an idle server does).
 - **Guests (decision D-36):** there is no sign-in yet, so every row is a guest's. A guest's request and search are
   stored only under the anonymous session ID, are never linked to an account, and are never used to remember
   preferences.
@@ -61,8 +62,10 @@ One row per finished search, in `public.searches` (US-52):
 
 `rubric` holds the rubric as it was searched with, in the shopper's own words. `result` holds the whole `SearchResult` the
 shopper saw, with one difference: no Reddit text. A row stays until someone deletes it, and D-53 lets us keep Reddit data
-for at most 24 hours, so `without_reddit_text` in `backend/app/research/retention.py` runs at the save, and nowhere else.
-The response to the shopper is not changed.
+for at most 24 hours, so `without_reddit_text` in `backend/app/research/retention.py` runs at the save. The response to
+the shopper is not changed, with one exception: a progress stream still open when its run is dropped at its keep-time
+sends its final event through the same function (`app/api/search_runs.py`), so that copy holds no Reddit text either.
+It runs nowhere else.
 
 | Part of the result | In the saved row |
 |---|---|

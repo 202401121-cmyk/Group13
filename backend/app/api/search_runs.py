@@ -15,12 +15,19 @@ POST /api/search does. The stream sends its own keep-alive comment, so tests can
 
 A finished run also keeps the claims its result's values cite (never the rest), so the evidence route can show each
 value's sources (app/api/evidence.py). They are never saved, and go with the run.
+
+A finished run goes at its keep-time even while a progress stream reads it, so the Reddit text in its result and claims
+never outlives D-53's 24 hours (with serve_limit(), app/research/reddit/cache.py). A stream still open then sends the
+run's final event, with its result as it is saved (no Reddit text, app/research/retention.py), and closes. The keep-time
+runs out on the registry's own clock or on the wall clock, whichever is first: a machine that sleeps can stop the first,
+but Reddit data keeps ageing on the second.
 """
 
 from __future__ import annotations
 
 import copy
 import dataclasses
+import json
 import logging
 import threading
 from collections import deque
@@ -54,6 +61,7 @@ from app.pipeline import (
     default_search_stages,
     new_search_id,
 )
+from app.research.retention import without_reddit_text
 from app.search_run_limits import DEFAULT_KEEP_MINUTES, environment, keep_minutes, number
 
 from .evidence import NO_PRODUCT, NO_VALUE, SOURCES_GONE, ClaimRecorder, EvidenceUnavailable, cited_claims, evidence_for
@@ -125,10 +133,12 @@ class _Run:
     events: list[ProgressEvent] = field(default_factory=list)
     result: SearchResult | None = None
     cancel: CancelFlag = field(default_factory=CancelFlag)
-    streams: int = 0  # progress streams reading this run now; a run being read is never dropped
+    streams: int = 0  # progress streams reading this run now: the count limit spares it, its keep-time doesn't
     reserved_until: float = 0.0  # set by a stream's start check, so the run is still there for its first read
     # The claims the result's values cite, by ID, for the evidence route (US-21). Never in the run's state, never saved.
     claims: dict[str, Claim] = field(default_factory=dict)
+    # Set when the run is dropped while streams still read it: its final state, with no Reddit text in it (D-53).
+    parting: SearchRun | None = None
 
 
 class _Batch(NamedTuple):
@@ -172,10 +182,12 @@ class SearchRuns:
         runner_factory: Callable[[], PipelineRunner],
         settings: RunSettings | None = None,
         clock: Callable[[], float] = monotonic,
+        wall_clock: Callable[[], datetime] = lambda: datetime.now(UTC),
     ) -> None:
         self.settings = settings or RunSettings()
         self._runner_factory = runner_factory
         self._clock = clock
+        self._wall = wall_clock  # the time Reddit data ages by, and the run's own times
         self._free = threading.BoundedSemaphore(self.settings.workers)  # one per worker: no hidden queue
         self._lock = threading.RLock()
         self._runs: dict[str, _Run] = {}
@@ -276,19 +288,20 @@ class SearchRuns:
             quiet_since = monotonic()
             poll_s = min(POLL_SECONDS, self.settings.ping_s)
             while True:
-                batch = self._take(search_id, sent)
+                batch = self._take(search_id, sent, following)
                 if batch is None:
-                    return  # the run was dropped, or the server is shutting down
-                for event in batch.events:
-                    sent = event.event_id
-                    yield ServerSentEvent(id=str(event.event_id), event="progress", data=event)
+                    return  # the run was dropped before this stream read it, or the server is shutting down
                 if batch.final is not None:
                     yield ServerSentEvent(id=str(len(batch.final.progress) + 1), event="run", data=batch.final)
                     return
+                for event in batch.events:
+                    sent = event.event_id
+                    yield ServerSentEvent(id=str(event.event_id), event="progress", data=event)
                 now = monotonic()
                 if batch.events:
                     quiet_since = now
-                elif now - quiet_since >= self.settings.ping_s:
+                    continue  # look again at once: the run may have ended, or gone, while these were sent
+                if now - quiet_since >= self.settings.ping_s:
                     yield ServerSentEvent(comment="ping")
                     quiet_since = now
                 await anyio.sleep(poll_s)
@@ -320,7 +333,7 @@ class SearchRuns:
             if run.cancel.requested:
                 return SearchRunStatus.CANCELLED, None, {}
             run.status = SearchRunStatus.RUNNING
-            run.started_at = datetime.now(UTC)
+            run.started_at = self._wall()
         try:
             runner, recorder = _recording(self._runner_factory())
             result = runner.run(
@@ -342,7 +355,7 @@ class SearchRuns:
 
     def _end(self, run: _Run, status: SearchRunStatus, result: SearchResult | None, claims: dict[str, Claim]) -> None:
         with self._lock:
-            now = datetime.now(UTC)
+            now = self._wall()
             run.status = status
             run.result = result
             run.claims = claims
@@ -350,14 +363,28 @@ class SearchRuns:
             run.ended_at = self._clock()
             self._forget_old()  # so the limit on kept runs holds as runs end, not only at the next request
 
-    def _take(self, search_id: str, sent: int) -> _Batch | None:
-        """What a stream sends next, without waiting: the events after `sent`, and the final state once it has ended."""
+    def _take(self, search_id: str, sent: int, following: _Run | None) -> _Batch | None:
+        """What a stream sends next, without waiting: the events after `sent`, then the final state once it has ended.
+
+        The final state comes only once every event has been sent, so a stream waiting on a slow client holds no result.
+        A run past its keep-time is dropped here as well (D-53), so a stream back from a long wait never sends its
+        Reddit text: it gets the parting state its run was given (`following` is the run it started reading).
+        """
         with self._lock:
             run = self._runs.get(search_id)
-            if run is None or (self.closed and run.status not in _ENDED):
+            if run is not None and self._past_keep_time(run, self._clock(), self._wall()):
+                self._drop(run)
+                run = None
+            if run is None:
+                parting = following.parting if following is not None else None
+                if parting is None:
+                    return None
+                events = parting.progress[sent:]
+                return _Batch(events=events, final=None if events else parting)
+            if self.closed and run.status not in _ENDED:
                 return None
-            final = self._state(run) if run.status in _ENDED else None
-            return _Batch(events=run.events[sent:], final=final)
+            events = run.events[sent:]
+            return _Batch(events=events, final=self._state(run) if run.status in _ENDED and not events else None)
 
     def _find(self, search_id: str) -> _Run:
         self._forget_old()
@@ -369,21 +396,35 @@ class SearchRuns:
     def _forget_old(self) -> None:
         """Drop finished runs past the keep-time, and the oldest beyond the limit.
 
-        A run that is still going, that a progress stream is reading, or that has just passed a stream's start check
-        (so its stream gets its events, not an empty answer) is never dropped.
+        The keep-time holds for every finished run, even one a progress stream is reading (D-53). The limit on kept
+        runs never drops a run that a stream is reading, or that has just passed a stream's start check (so its stream
+        gets its events, not an empty answer). A run that is still going is never dropped.
         """
-        now = self._clock()
-        cutoff = now - self.settings.keep_s
-        ended = sorted(
-            (r for r in self._runs.values() if r.ended_at is not None and r.streams == 0 and r.reserved_until <= now),
-            key=lambda r: r.ended_at or 0.0,
-        )
-        too_many = max(0, len(ended) - self.settings.max_kept)
-        for index, run in enumerate(ended):
-            if index < too_many or (run.ended_at is not None and run.ended_at <= cutoff):
-                del self._runs[run.search_id]
-                run.claims = {}  # replaced, not cleared: a request reading the old ones finishes with them
-                self._forgotten.add(run.search_id)
+        now, wall = self._clock(), self._wall()
+        ended = sorted((r for r in self._runs.values() if r.ended_at is not None), key=lambda r: r.ended_at or 0.0)
+        may_go = [r for r in ended if r.streams == 0 and r.reserved_until <= now]
+        too_many = {r.search_id for r in may_go[: max(0, len(may_go) - self.settings.max_kept)]}
+        for run in ended:
+            if run.search_id in too_many or self._past_keep_time(run, now, wall):
+                self._drop(run)
+
+    def _past_keep_time(self, run: _Run, now: float, wall: datetime) -> bool:
+        """Past its keep-time on the registry's clock, or on the wall clock that Reddit data ages by (D-53)."""
+        if run.ended_at is None:
+            return False
+        if run.ended_at <= now - self.settings.keep_s:
+            return True
+        return run.finished_at is not None and (wall - run.finished_at).total_seconds() >= self.settings.keep_s
+
+    def _drop(self, run: _Run) -> None:
+        """Forget a finished run. Its result and claims go now, even from a stream that still holds the run (D-53)."""
+        del self._runs[run.search_id]
+        self._forgotten.add(run.search_id)
+        if run.streams:
+            run.parting = _as_saved(self._state(run))
+        # Replaced, not cleared: a request already reading the old ones finishes with them.
+        run.result = None
+        run.claims = {}
 
     @staticmethod
     def _state(run: _Run) -> SearchRun:
@@ -398,6 +439,21 @@ class SearchRuns:
 
 
 _Outcome = tuple[SearchRunStatus, SearchResult | None, dict[str, Claim]]
+
+
+def _as_saved(state: SearchRun) -> SearchRun | None:
+    """A run's final state as it may outlive the run: its result as it is saved, with no Reddit text (D-53).
+
+    None when that can't be made (build rule 9): the stream then closes without its final event.
+    """
+    if state.result is None:
+        return state
+    try:
+        saved = SearchResult.model_validate_json(json.dumps(without_reddit_text(state.result.model_dump(mode="json"))))
+        return SearchRun.model_validate({**state.model_dump(), "result": saved})
+    except Exception as exc:  # never let a dropped run break the request that dropped it
+        log.warning("search run %s: no final state without Reddit text: %s", state.search_id, type(exc).__name__)
+        return None
 
 
 def _recording(runner: PipelineRunner) -> tuple[PipelineRunner, ClaimRecorder | None]:
