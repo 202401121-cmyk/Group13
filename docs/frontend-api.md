@@ -22,9 +22,9 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
 ## Every route the backend serves
 
 These sixteen routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). `GET /api/health`
-is for `scripts/dev.py`, to see that the backend is up. The screens do not call `POST /api/search` (they use search runs),
-and the rubric editor's two routes (`POST /api/presearch/{session_id}/rubric` and `POST /api/presearch/exclusions/parse`)
-wait for its screen (S3-14).
+is for `scripts/dev.py`, to see that the backend is up. The screens do not call `POST /api/search` (they use search runs).
+The brief page's rubric editor (S3-14) calls `POST /api/presearch/{session_id}/rubric` to save the shopper's edits and
+`POST /api/presearch/exclusions/parse` to read leave-outs from their words.
 
 | Route | What it does | Request body | Response 200 | Errors | Details |
 |---|---|---|---|---|---|

@@ -11,6 +11,7 @@
  * A product named "Test error" fails criteria loading once.
  */
 import type { Brief } from "@/lib/request/types";
+import type { createMockRubric } from "./mockRubric";
 import { ALREADY_ANSWERED, questionFor } from "./questions";
 import { exactFromAnswer, levelOf } from "./roughLevels";
 import type {
@@ -271,8 +272,18 @@ export function runTurn({ criteria, answers, turn }: TurnInput): TurnResult {
 
 export function createMockInterviewService(latency = 600): InterviewService {
   let failedOnce = false;
+  // The rubric editor's mock (US-09, US-10) is mock-only code, so it is its own chunk: live mode never downloads it.
+  // It is fetched while the questions are answered, so the brief is ready when they are. A save is shown at once, so
+  // a shorter wait than a turn's is enough to look real.
+  let rubricMock: Promise<ReturnType<typeof createMockRubric>> | null = null;
+  const rubric = () =>
+    (rubricMock ??= import("./mockRubric").then((m) => m.createMockRubric(Math.min(latency, 300))));
   return {
+    loadRubric: async (sessionId, seed) => (await rubric()).loadRubric(sessionId, seed),
+    editRubric: async (sessionId, edits) => (await rubric()).editRubric(sessionId, edits),
+    parseExclusions: async (text) => (await rubric()).parseExclusions(text),
     async getCriteria(brief) {
+      void rubric();
       await delay(latency);
       if (brief.product === "Test error" && !failedOnce) {
         failedOnce = true;
@@ -281,6 +292,7 @@ export function createMockInterviewService(latency = 600): InterviewService {
       return criteriaFor(brief);
     },
     async turn(input) {
+      void rubric();
       await delay(latency);
       return runTurn(input);
     },
