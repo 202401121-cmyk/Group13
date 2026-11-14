@@ -21,8 +21,10 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
 
 ## Every route the backend serves
 
-These fifteen routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). The frontend
-calls all of them except `GET /api/health`, which `scripts/dev.py` uses to see that the backend is up.
+These sixteen routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). `GET /api/health`
+is for `scripts/dev.py`, to see that the backend is up. The screens do not call `POST /api/search` (they use search runs),
+and the rubric editor's two routes (`POST /api/presearch/{session_id}/rubric` and `POST /api/presearch/exclusions/parse`)
+wait for its screen (S3-14).
 
 | Route | What it does | Request body | Response 200 | Errors | Details |
 |---|---|---|---|---|---|
@@ -41,6 +43,7 @@ calls all of them except `GET /api/health`, which `scripts/dev.py` uses to see t
 | `GET /api/search/runs/{search_id}` | The run's state, and its result once it has finished | none | `SearchRun` | 404 | [search runs](#search-runs-with-live-progress-us-12) |
 | `GET /api/search/runs/{search_id}/events` | The run's progress, live (Server-Sent Events) | none | `text/event-stream` | 204, 404 | [search runs](#following-its-progress) |
 | `DELETE /api/search/runs/{search_id}` | Cancels the run | none | `SearchRun` (202 while it stops) | 404 | [search runs](#cancelling) |
+| `GET /api/search/runs/{search_id}/evidence` | The claims behind one value of a finished run, each with its quote and source | none; query `product_id` and `criterion_key`, both required | `EvidenceResponse` | 404, 409, 422 | [sources behind a value](#sources-behind-a-value-us-21) |
 
 What each error means:
 
@@ -52,8 +55,10 @@ What each error means:
 | 422 | The body is not valid | Names the field, and never repeats what was typed |
 | 503 | Every search worker is busy (starting a search run only); `Retry-After` says how many seconds to wait | `ShopSense is busy with other searches right now. Please try again in a moment.` |
 
-Trust this page for errors, not the OpenAPI. The OpenAPI lists no 404 or 409, and it shows 422 as FastAPI's list of
-errors, when the real answer is the one plain sentence above.
+The evidence route has its own sentences, which say why it can't answer: see [when it can't answer](#when-it-cant-answer).
+
+Trust this page for errors, not the OpenAPI. The OpenAPI lists 404 and 409 only for some routes (search runs and the
+evidence route), and it shows 422 as FastAPI's list of errors, when the real answer is the one plain sentence above.
 
 FastAPI also serves its own pages, `GET /docs` and `GET /redoc`, which show the OpenAPI. They describe the API and are
 not part of it. A path that doesn't exist answers 404 with `Not Found`, and a route called with the wrong method
@@ -133,10 +138,11 @@ shapes are in [search runs and live progress](#search-runs-and-live-progress-p-0
 | `GET /api/search/runs/{search_id}` | **200** `SearchRun`. Its `result` is there once the status is `done` or `partial` |
 | `GET /api/search/runs/{search_id}/events` | **200** `text/event-stream`; **204** when the client has already seen the end |
 | `DELETE /api/search/runs/{search_id}` | **202** `SearchRun` while it stops; **200** and its `SearchRun`, unchanged, when it is too late to cancel |
+| `GET /api/search/runs/{search_id}/evidence?product_id=…&criterion_key=…` | **200** `EvidenceResponse`: see [sources behind a value](#sources-behind-a-value-us-21) |
 
 An unknown `search_id`, or one whose run ended more than 30 minutes ago (or was pushed out by newer ones; see
-[how long a run is kept](#how-long-a-run-is-kept)), answers **404** on every route. Every finished run's result is
-saved, as `POST /api/search` saves it.
+[how long a run is kept](#how-long-a-run-is-kept)), answers **404** on every route (the evidence route says which of
+the two it is). Every finished run's result is saved, as `POST /api/search` saves it.
 
 ### Starting a run
 
@@ -195,8 +201,8 @@ data: {"search_id":"srch_5f2c9a1e7b3d4860a1c2e3f4","status":"done","started_at":
   last progress event's plus 1, and the stream ends after it. Call `close()`, or the browser reconnects.
 - **`: ping`** is a comment that `EventSource` ignores. The backend sends it after `SEARCH_RUN_PING_SECONDS` (default 15,
   never more than 15) of silence, so the connection stays open through long stages.
-- **`sources_found`** lists every source type. The counts stay 0 until live research lands; today's research stage
-  returns samples, which are not counted.
+- **`sources_found`** lists every source type. Live research counts the sources it found; if research falls back to
+  samples, they are not counted and the counts stay 0.
 
 **Reconnecting:** the browser reconnects by itself and sends the last `id` it saw as `Last-Event-ID`. The stream then
 sends only what came after it. A client that connects late gets every event so far, then the live ones. A
@@ -237,6 +243,135 @@ as long as the search (at most 150 seconds). `python scripts/dev.py` starts uvic
 dev.py ends the backend at once; elsewhere uvicorn closes open streams after 5 seconds and asks running searches to
 stop before their next step, and dev.py forces it after 10. Started by hand, add the same flag:
 `uvicorn app.main:app --timeout-graceful-shutdown 5`.
+
+## Sources behind a value (US-21)
+
+`GET /api/search/runs/{search_id}/evidence?product_id=…&criterion_key=…` answers the claims behind one value of a
+finished search run, each with its exact words and its source, as an `EvidenceResponse`
+(`shared/contracts/schema/EvidenceResponse.json`). "Where this comes from" shows it. Both query parameters are required:
+`product_id` is one of the result's products, and `criterion_key` is a criterion or hard-rule attribute that product
+has a value for (`products[].values[].criterion_key`).
+
+- **`state`** is the value's state, and **`winning_claim_ids`** are the claims it rests on.
+- **`claims`** lists those claims first, then the ones that disagree:
+  - `known`: its claims, and any that disagreed;
+  - `disputed`: both sides; the claims not in `winning_claim_ids` are the other side;
+  - `estimated`: a peer average has no claims of its own, so `winning_claim_ids` is empty, and `claims` holds only
+    the claims that conflicted, if there were any;
+  - `unknown`: none.
+- **Each claim** has its exact `quote`; its `value` (with `unit`) or its `score`, never both; `polarity`, `claim_type`
+  and `retrieved_at`; and its `source`: `id`, `url`, `name` (the site's domain, or the community, such as `r/...`),
+  `type`, `tier` and `fetched_at`.
+- **Reddit's words are here.** The saved result drops them (D-53): once saved, a Reddit claim's `citations[].quote` is
+  `null`. The run keeps its claims in memory only, for as long as it keeps the run (`SEARCH_RUN_KEEP_MINUTES`: 30 by
+  default, never more than 120, far less than the 24 hours D-53 allows), so this route still has them.
+  `quote_withheld_reason` is set exactly when a quote is `null`, which a kept run never gives today.
+- **What is kept:** only the claims the result's values cite. They are never in `GET /api/search/runs/{search_id}` or
+  its stream, never saved, and they go with the run (a backend restart loses them too). When this route can't answer,
+  the frontend shows the result's own `citations` instead.
+
+```bash
+curl -s "http://localhost:8000/api/search/runs/$RUN/evidence?product_id=prd_kestrel_slim_15&criterion_key=battery_life"
+```
+
+Response 200 for a disputed value, from the sample stages (the tests run these):
+
+```json
+{
+  "search_id": "srch_665f0028e3c2fccbb0a29523",
+  "product_id": "prd_kestrel_slim_15",
+  "criterion_key": "battery_life",
+  "state": "disputed",
+  "winning_claim_ids": ["clm_2c31271c5c981d18"],
+  "claims": [
+    {
+      "claim_id": "clm_2c31271c5c981d18",
+      "quote": "battery rated up to 10 hours",
+      "value": 10.0,
+      "unit": null,
+      "score": null,
+      "polarity": "neutral",
+      "claim_type": "spec",
+      "retrieved_at": "2026-10-03T10:00:00Z",
+      "source": {
+        "id": "src_2958fd9d1b3643cf",
+        "url": "https://kestrel.example.com/slim-15/specs",
+        "name": "kestrel.example.com",
+        "type": "manufacturer",
+        "tier": 1,
+        "fetched_at": "2026-10-03T10:00:00Z"
+      }
+    },
+    {
+      "claim_id": "clm_46feb890769b8225",
+      "quote": "I get about 6 hours, not 10",
+      "value": 6.0,
+      "unit": null,
+      "score": null,
+      "polarity": "neutral",
+      "claim_type": "experience",
+      "retrieved_at": "2026-10-03T10:00:00Z",
+      "source": {
+        "id": "src_edb2d0c42af72797",
+        "url": "https://www.reddit.com/r/developersIndia/comments/abc123/",
+        "name": "r/developersIndia",
+        "type": "reddit",
+        "tier": 4,
+        "fetched_at": "2026-10-03T10:00:00Z"
+      }
+    }
+  ],
+  "quote_withheld_reason": null
+}
+```
+
+And for a known value with one source (`product_id=prd_nova_book_14&criterion_key=cpu_performance`):
+
+```json
+{
+  "search_id": "srch_665f0028e3c2fccbb0a29523",
+  "product_id": "prd_nova_book_14",
+  "criterion_key": "cpu_performance",
+  "state": "known",
+  "winning_claim_ids": ["clm_053f4bf83174cf53"],
+  "claims": [
+    {
+      "claim_id": "clm_053f4bf83174cf53",
+      "quote": "Nova Book 14: cpu performance rated 7.5/10.",
+      "value": null,
+      "unit": null,
+      "score": 7.5,
+      "polarity": "positive",
+      "claim_type": "experience",
+      "retrieved_at": "2026-10-03T10:00:00Z",
+      "source": {
+        "id": "src_37c43827cfe41e89",
+        "url": "https://example-reviews.in/kestrel-slim-15-review",
+        "name": "example-reviews.in",
+        "type": "review_site",
+        "tier": 3,
+        "fetched_at": "2026-10-03T10:00:00Z"
+      }
+    }
+  ],
+  "quote_withheld_reason": null
+}
+```
+
+### When it can't answer
+
+Every error is `{"detail": "<one plain sentence>"}`. Show `detail`, or fall back to the result's `citations`.
+
+| Status | When | `detail` |
+|---|---|---|
+| 404 | The server has no record of this run: it never existed, the backend restarted since, or it was dropped so long ago that the server forgot it (after 1,000 newer drops) | `We couldn't find that search.` |
+| 404 | The run has been dropped: it ended more than `SEARCH_RUN_KEEP_MINUTES` ago, or newer runs pushed it out | `This search has expired. Run it again to see its sources.` |
+| 404 | The run was cancelled or failed, so it has no result | `This search has no results to show sources for.` |
+| 404 | `product_id` is not one of the result's products | `This search didn't keep that product.` |
+| 404 | That product has no value for `criterion_key` | `That product has no value for that criterion.` |
+| 404 | The claims behind the value were not kept, so there is nothing valid to show | `The sources for this value are no longer kept.` |
+| 409 | The run is still `queued` or `running` | `This search hasn't finished yet.` |
+| 422 | `product_id` or `criterion_key` is missing | Names the parameter, such as `Please check: query.criterion_key - Field required.` |
 
 ## Editing the rubric (US-09)
 
@@ -411,8 +546,8 @@ The shapes the [search-run routes](#search-runs-with-live-progress-us-12) use (U
 | `message` | Short plain English. Show it as it is |
 | `sources_found` | Sources found so far, per source type, such as `{"reddit": 12, "review_site": 3}`. The backend lists every type |
 
-Never fake progress: the live research service keeps `streamsProgress: false` until the research screen moves to these
-routes (task #27).
+Never fake progress: the research screen starts a run (`POST /api/search/runs`), follows its events and cancels it with
+`DELETE`; it shows only the progress the backend sends (task #27).
 
 Examples: `search_run_started.json`, `search_run_running.json`, `search_run_done.json`, `progress_events.json`.
 
@@ -437,10 +572,8 @@ inventing data.
 
 | Gap | Today | When it is planned |
 |---|---|---|
-| Real search results | `POST /api/search` still runs the US-52 stub stages: every search returns the same example laptops, whose criteria differ from the session's rubric. `coverage_note` says they are samples. | US-12 and US-14 to US-18, Sprints 2 and 3 |
-| Live progress | The backend streams it now ([search runs](#search-runs-with-live-progress-us-12)), but the research screen still calls `POST /api/search` and keeps `streamsProgress: false`. Never fake progress. | Task #27, Sprint 2 |
-| Every source of a disputed value | `SearchResult` has no claims list. | The evidence route (US-21), Sprint 3 |
+| Real search results | `POST /api/search` and search runs now run live research, extract, match, verify and decide, so the products, values and ranking are real. Enrich, explain and commerce are still samples, so `coverage_note` carries the sample sentence. | US-41 (enrich), US-20 and US-22 (explain), US-24 (commerce) |
+| Every source of a disputed value | Done: the [evidence route](#sources-behind-a-value-us-21) gives both sides of a value, with each claim's quote and source, while the run is kept. After that, only the result's `citations` remain, without Reddit's words. | Done (US-21, S3-11) |
 | Typed edits to must-haves and leave-outs | `PUT /intent` still refuses them with a plain 422; the rubric route switches a must-have, adds or removes a leave-out and sets a weight ([editing the rubric](#editing-the-rubric-us-09)). Leave-outs read from typed words come with US-10. | US-10 and the rubric editor (S3-14), Sprint 3 |
 | Sessions live in the server's memory | A backend restart in the middle of a search shows "session expired". | Not planned yet: raised for Sprint 2 planning |
-| A running search can't be cancelled from the screen | The backend can cancel a run now (`DELETE /api/search/runs/{search_id}`, US-12), but the screen doesn't start runs yet, so its stop dialog has nothing to cancel. | Task #27, Sprint 2 |
 | A filtered product may be missing from `products` | The page has no name to show for it; show the product ID's fallback text. | Not planned yet: raised for Sprint 2 planning |
