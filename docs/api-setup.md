@@ -847,9 +847,9 @@ a thread again with its comments doesn't restart the clock.
 
 - **The cache** serves an answer only while it is younger than 24 hours less `SEARCH_RUN_KEEP_MINUTES`, less the longest a
   search may take (150 seconds), one tick of the backend's own timer (10 minutes) and a 60-second margin: 23 hours 16.5
-  minutes by default (`serve_limit()`).
-  Search results and review pages keep their full 24 hours. The only Reddit words among them are the titles of results that
-  point at Reddit. Those are used to spot product names and never reach a finished run.
+  minutes by default (`serve_limit()`). So does a cached web search, kept as one answer with the titles and links of its
+  results on reddit.com, which are Reddit text (`backend/.cache/research/searches` and `search_text`). Review pages and
+  robots files keep their full 24 hours: they hold no Reddit text, as reddit.com is never read as a page.
 - **A finished run** stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES`, limited to 1 to 120 minutes, and that copy does
   hold Reddit text. So a run that read the cache at the last moment, took the longest a search may and was kept its full
   time still goes at least 60 seconds before the 24 hours, even on an idle server where only the timer drops it. It goes at its keep-time even while a progress stream is reading it: that
@@ -860,9 +860,10 @@ a thread again with its comments doesn't restart the clock.
   start, but the cache reads it at each search.
 - **Files** past the limit are deleted within 10 minutes: when the backend starts, then every 10 minutes, search or no
   search, and also by each search. This holds even with `REDDIT_SOURCE=off`, `RESEARCH_CACHE=off` or no working client. A
-  machine where the backend isn't running deletes nothing until it starts. A Reddit file goes before 24 hours, as its
-  limit leaves room for one tick. A file kept the full 24 hours (search results, whose titles can point at Reddit) can
-  outlive them by up to one tick, 10 minutes, on an idle server.
+  machine where the backend isn't running deletes nothing until it starts. A file with Reddit text in it (an answer, a
+  thread, a cached search with its Reddit titles and links) goes before 24 hours, as its limit leaves room for one tick.
+  Review pages and robots files can outlive their 24 hours by up to one tick on an idle server; they hold no Reddit
+  text.
 - **A saved search** holds no Reddit text at all: a Reddit source keeps its URL, community, fetch time, archive and counts
   (`app/research/retention.py`, and see [database.md](database.md)). US-14 and US-16 will fill fields that can carry Reddit's
   words, and must extend that module before those reach a saved row.

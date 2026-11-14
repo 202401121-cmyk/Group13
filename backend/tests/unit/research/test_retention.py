@@ -920,15 +920,56 @@ def test_a_cached_answer_and_a_run_that_read_it_last_are_gone_by_24_hours() -> N
         assert limit + longest_search + kept + one_tick + SERVE_MARGIN == timedelta(hours=24)
 
 
-def test_web_results_keep_their_full_24_hours(monkeypatch) -> None:  # type: ignore[no-untyped-def]
-    monkeypatch.setenv("SEARCH_RUN_KEEP_MINUTES", "120")
+def test_a_review_page_still_keeps_24_hours(tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    """A page read in full holds no Reddit text (pages never fetches reddit.com), so it keeps the full 24 hours."""
+    monkeypatch.setenv("SEARCH_RUN_KEEP_MINUTES", "120")  # the shortest Reddit limit there is
     now = datetime(2026, 11, 8, 12, 0, tzinfo=UTC)
     moments = [now]
-    cache = ResearchCache(folder=None, now=lambda: moments[0])
+    cache = ResearchCache(folder=tmp_path, now=lambda: moments[0])
+    key = ("page", "https://web.example/a")
     source = web_source("https://web.example/a")
-    cache.put_sources(("serper",), [Source.model_validate({**source.model_dump(), "fetched_at": now})])
+    cache.put_sources(key, [Source.model_validate({**source.model_dump(), "fetched_at": now})])
     moments[0] = now + timedelta(hours=23, minutes=59)
-    assert cache.get_sources(("serper",)) is not None
+    assert ResearchCache(folder=tmp_path, now=lambda: moments[0]).get_sources(key) is not None
+    (page,) = tmp_path.rglob("*.json")
+    sweep_expired_files(folder=tmp_path, reddit_folder=tmp_path / "reddit", now=lambda: now + serve_limit())
+    assert page.exists()  # the sweep at Reddit's limit leaves it
+
+
+def test_a_cached_search_naming_a_reddit_thread_is_served_until_serve_limit_and_then_swept(tmp_path: Path) -> None:
+    """A search is cached as one answer: its sources and the titles and links of its reddit.com results (Reddit text,
+    D-53). All of it is served until serve_limit() and none of it at it, and the sweep deletes all of it then."""
+    now = datetime(2026, 11, 8, 12, 0, tzinfo=UTC)
+    moments = [now]
+    key = ("serper", "best laptop for coding", "in")
+    cache = ResearchCache(folder=tmp_path, now=lambda: moments[0])
+    source = web_source("https://web.example/a")
+    cache.put_sources(key, [Source.model_validate({**source.model_dump(), "fetched_at": now})])
+    cache.put_text((*key, "reddit_titles"), SECRET_TITLE)
+    cache.put_text((*key, "reddit_links"), "https://www.reddit.com/r/laptops/comments/abc123/a_made_up_thread/")
+    limit = serve_limit()
+
+    moments[0] = now + limit - timedelta(seconds=1)
+    later = ResearchCache(folder=tmp_path, now=lambda: moments[0])  # a new search, reading the files
+    assert later.get_sources(key) is not None
+    assert later.get_text((*key, "reddit_titles")) == SECRET_TITLE
+    assert later.get_text((*key, "reddit_links")) is not None
+
+    moments[0] = now + limit
+    assert cache.get_sources(key) is None
+    assert cache.get_text((*key, "reddit_titles")) is None
+    assert cache.get_text((*key, "reddit_links")) is None
+
+    files = list(tmp_path.rglob("*.json"))
+    assert len(files) == 3
+    for path in files:
+        os.utime(path, (now.timestamp(), now.timestamp()))
+    sweep_expired_files(
+        folder=tmp_path, reddit_folder=tmp_path / "reddit", now=lambda: now + limit - timedelta(seconds=1)
+    )
+    assert len(list(tmp_path.rglob("*.json"))) == 3  # not yet
+    sweep_expired_files(folder=tmp_path, reddit_folder=tmp_path / "reddit", now=lambda: now + limit)
+    assert list(tmp_path.rglob("*.json")) == []
 
 
 def test_the_sweep_deletes_a_reddit_file_at_its_shorter_limit(tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]

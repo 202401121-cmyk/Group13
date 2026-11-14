@@ -20,7 +20,6 @@ from functools import cache
 
 from app.contracts import Exclusion, ExclusionParseResponse
 from app.decide.features import FEATURES_PATH, feature_key, feature_name, known_feature, load_feature_words
-from app.research.reddit.quality import load_quality_settings
 
 # The feature table is app/decide/features.py's, shared with the search and decide (S3-9).
 __all__ = ["FEATURES_PATH", "feature_key", "known_feature", "load_feature_words", "parse_exclusions"]
@@ -88,6 +87,10 @@ _LETTERS_AND_DIGITS = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9+-]+$")
 
 @cache
 def _brands() -> frozenset[str]:
+    # Here, not at the top: app.research.reddit imports app.intake (for subreddits_for), so importing it while intake
+    # loads is a cycle, and `import app.research` alone fails (tests/unit/test_imports.py).
+    from app.research.reddit.quality import load_quality_settings
+
     return frozenset(brand.casefold() for brand in load_quality_settings().counting.brands)
 
 

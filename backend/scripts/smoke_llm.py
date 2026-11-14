@@ -13,6 +13,7 @@ It is a report, not a gate: it exits 0 even when a provider fails.
 
 from __future__ import annotations
 
+import argparse
 import io
 import os
 import sys
@@ -144,4 +145,9 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # No options: this only makes --help answer (tests/unit/test_imports.py) before any provider is called.
+    argparse.ArgumentParser(
+        prog="python -m scripts.smoke_llm",
+        description="Live smoke test for every LLM provider that has a key. Calls real APIs.",
+    ).parse_args()
     sys.exit(main())
