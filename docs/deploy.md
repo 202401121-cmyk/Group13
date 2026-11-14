@@ -44,7 +44,12 @@ These shape how staging behaves. Check them again before the demo: free plans ch
   [fair use guidelines](https://vercel.com/docs/limits/fair-use-guidelines) count payments, ads, affiliate links and
   paid work as commercial. A student project with none of those fits.
 - [TanStack Start on Vercel](https://vercel.com/docs/frameworks/full-stack/tanstack-start) (page updated 14 Nov
-  2026): the app needs Nitro's Vite plugin.
+  2026): the app needs Nitro's Vite plugin. [Nitro's Vercel page](https://nitro.build/deploy/providers/vercel) names
+  the preset `vercel`.
+- [Root Directory](https://vercel.com/docs/builds/configure-a-build#root-directory): by default, a build can read
+  files outside the project's folder. The frontend needs this, because its build reads `shared/contracts/`.
+- [Instant Rollback](https://vercel.com/docs/instant-rollback): on Hobby, only to the previous production
+  deployment. Afterwards, new pushes don't go live until the rollback is undone.
 - Vercel's [deploy guide](https://vercel.com/kb/guide/deploy-a-tanstack-start-app-to-vercel) (updated 14 Oct 2026):
   - Vercel usually detects the framework, and `vercel.json` with `"framework": "tanstack-start"` makes it certain;
   - it asks for Node.js 24 or later;
@@ -158,7 +163,73 @@ curl -s -o /dev/null -D - -X OPTIONS https://<service>.onrender.com/api/presearc
 
 ## 3. Frontend on Vercel (Yashkumar)
 
-Added in DEP-1's second part (`chore/DEP-1-frontend`).
+### What the repository sets
+- **`frontend/vite.config.ts`** builds with Nitro. Nitro's preset comes from `frontend/src/lib/deploy/nitro-preset.ts`:
+  - **`NITRO_PRESET`**, when set, wins;
+  - else **`vercel`** when `VERCEL` is set, giving Vercel functions in `.vercel/output`;
+  - else **`node-server`**, giving the plain Node server that `npm start` runs (the laptop demo).
+- **`frontend/vercel.json`**:
+  - names the framework (`tanstack-start`), so detection can't go wrong in our monorepo;
+  - installs with `npm ci` from the lockfile, as CI does (`frontend/.npmrc` keeps `legacy-peer-deps`);
+  - builds with `NITRO_PRESET=vercel npm run build`, so the Vercel build never depends on Vercel's system variables
+    (step 6 below turns them off).
+
+### Create the project
+1. Make sure the change is on `main`.
+2. In Vercel, choose **Add New > Project** and import the GitHub repository.
+3. Set **Root Directory** to `frontend`. Keep **Include files outside the root directory in the Build Step** on (the
+   default): the build reads `shared/contracts/` and `scripts/gen-frontend-types.sh`, outside `frontend/`.
+4. The framework shows as **TanStack Start**. Leave the build command, output directory and install command as they
+   are: `vercel.json` and the framework set them.
+5. **Node.js version: nothing to set.** `frontend/package.json`'s `"engines": {"node": ">=20.19"}` overrides the
+   project setting ([Node.js versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)). Vercel
+   then builds with its newest major, 26.x today, which meets the TanStack Start guide's "24 or later". It moves to a
+   newer major on its own; pin `engines` if that ever breaks the build.
+6. **Turn off Vercel's system variables:** Settings > Environment Variables, untick **Enable access to System
+   Environment Variables**.
+   - With it on, Vercel adds `VITE_`-prefixed copies such as `VITE_VERCEL_GIT_COMMIT_AUTHOR_NAME` and
+     `VITE_VERCEL_GIT_COMMIT_MESSAGE` to the build
+     ([framework variables](https://vercel.com/docs/environment-variables/framework-environment-variables)).
+   - `src/lib/api/client.ts` reads `import.meta.env` whole, so the build would copy all of them into every visitor's
+     JavaScript.
+7. Add the variables below, then deploy.
+
+### The variables
+| Variable | Production | Preview | Secret? |
+|---|---|---|---|
+| `VITE_API_MODE` | `live` | `mock` | no |
+| `VITE_API_BASE_URL` | The Render address, such as `https://<service>.onrender.com`, with no slash at the end | not needed | no |
+
+- **Only public values, and only these two.** A `VITE_` variable is copied into the JavaScript every visitor
+  downloads, so it must never hold a key. The build copies *every* `VITE_` variable set on the project, not just the
+  ones the code names. So add no other `VITE_` variable, and keep step 6's setting off.
+  `frontend/src/lib/deploy/deploy-config.test.ts` checks that the source names only these two.
+- **Previews run in mock mode.** Each preview deployment has its own address, which is not in `FRONTEND_ORIGINS`, so
+  the backend would refuse its calls. Mock mode shows the sample data and calls nothing.
+- **A changed variable needs a redeploy:** the values are built into the code. **Deployments > … > Redeploy** does it.
+
+### Deploy
+Each push to `main` deploys production at once, without waiting for CI (section 4 says what follows), and each pull
+request gets a preview. To deploy by hand, choose **Deployments > … > Redeploy** on the latest deployment.
+
+### Check it
+1. Open the production address. The home page loads.
+2. Open the browser's developer tools (Network). A request goes to the Render address (`/api/presearch/intake`) and
+   answers 200, with no CORS error in the Console.
+3. If the Console shows a CORS error, `FRONTEND_ORIGINS` on Render doesn't hold this exact address (section 2).
+
+### Roll back
+[Instant Rollback](https://vercel.com/docs/instant-rollback) serves an earlier build at once, with no new build. On
+Hobby it goes back to the **previous** production deployment only.
+1. On the project's overview page, choose **Instant Rollback** on the production deployment tile, check the dialog and
+   confirm.
+2. Fix the problem on `main` with a pull request.
+3. **Undo the rollback.** After a rollback, Vercel stops putting new pushes to `main` live. Choose **Manage** on the
+   production tile and promote the fixed deployment.
+
+### Build it locally the way Vercel does
+From `frontend/`, `NITRO_PRESET=vercel npm run build` writes `.vercel/output/`, which is git-ignored and not linted.
+`npm run build` alone still writes `.output/` for `npm start`.
 
 ## 4. Connect the two
 1. Once Vercel has given the frontend its production address, set `FRONTEND_ORIGINS` on Render to it and deploy.
