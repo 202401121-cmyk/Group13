@@ -9,6 +9,7 @@ and fails if the committed files are out of date.
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -62,4 +63,9 @@ def main(out: Path = OUT) -> int:
 
 
 if __name__ == "__main__":
+    # No options: this only makes --help answer (tests/unit/test_imports.py) before anything is written.
+    argparse.ArgumentParser(
+        prog="python -m scripts.export_contracts",
+        description="Write the contracts' JSON schemas and examples to shared/contracts.",
+    ).parse_args()
     sys.exit(main())
