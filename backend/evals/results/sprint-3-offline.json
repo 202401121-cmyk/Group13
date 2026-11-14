@@ -1,0 +1,434 @@
+{
+  "generated": "2026-11-14",
+  "commit": "a6148f0",
+  "runner": "python -m evals.run_baselines (offline)",
+  "measures": [
+    {
+      "id": "decide.briefs_as_expected",
+      "value": 5.0,
+      "unit": "briefs",
+      "status": "measured",
+      "source": "backend/tests/fixtures/decide (5 made-up briefs), app.decide",
+      "detail": "of 5, against the hand labels"
+    },
+    {
+      "id": "decide.coverage_mean",
+      "value": 0.9668,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/tests/fixtures/decide (5 made-up briefs), app.decide",
+      "detail": "mean coverage over 11 ranked products"
+    },
+    {
+      "id": "decide.coverage_min",
+      "value": 0.739,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/tests/fixtures/decide (5 made-up briefs), app.decide",
+      "detail": "lowest coverage"
+    },
+    {
+      "id": "decide.hard_rule_violations_shown",
+      "value": 0.0,
+      "unit": "products",
+      "status": "measured",
+      "source": "backend/tests/fixtures/decide (5 made-up briefs), app.decide",
+      "detail": "shown products breaking a rule, by evals/checks.py's own reading of the rubric (not decide's filter)"
+    },
+    {
+      "id": "decide.most_mentioned_worst_fit_wins",
+      "value": 0.0,
+      "unit": "briefs",
+      "status": "measured",
+      "source": "backend/tests/fixtures/decide (5 made-up briefs), app.decide",
+      "detail": "briefs where the most-mentioned product ranks first while it fits worst (fit: weights times each value's own score, not decide's score)"
+    },
+    {
+      "id": "extraction.claims_per_source",
+      "value": null,
+      "unit": "claims",
+      "status": "not_recorded",
+      "source": "backend/tests/fixtures/recorded",
+      "detail": "the recorded runs hold no extract calls or page reads; measured live (evals/results/sprint-3-live.json)"
+    },
+    {
+      "id": "extraction.quote_found_share",
+      "value": null,
+      "unit": "rate",
+      "status": "not_recorded",
+      "source": "backend/tests/fixtures/recorded",
+      "detail": "the recorded runs hold no extract calls or page reads; measured live (evals/results/sprint-3-live.json)"
+    },
+    {
+      "id": "matching.fuzzy.own_pairs.f1",
+      "value": 0.4,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: own_pairs",
+      "detail": "token_set_ratio at 1.0, test part; 95% interval [0.0, 0.727273]; machine labels (ml/DATA.md 4.1)"
+    },
+    {
+      "id": "matching.fuzzy.own_pairs.precision",
+      "value": 0.6667,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: own_pairs",
+      "detail": "token_set_ratio at 1.0, test part; 95% interval [0.0, 1.0]; machine labels (ml/DATA.md 4.1)"
+    },
+    {
+      "id": "matching.fuzzy.own_pairs.recall",
+      "value": 0.2857,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: own_pairs",
+      "detail": "token_set_ratio at 1.0, test part; 95% interval [0.0, 0.666667]; machine labels (ml/DATA.md 4.1)"
+    },
+    {
+      "id": "matching.fuzzy.wdc_20cc80.f1",
+      "value": 0.4228,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: wdc_20cc80",
+      "detail": "token_set_ratio at 0.78, test part"
+    },
+    {
+      "id": "matching.fuzzy.wdc_20cc80.precision",
+      "value": 0.3766,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: wdc_20cc80",
+      "detail": "token_set_ratio at 0.78, test part"
+    },
+    {
+      "id": "matching.fuzzy.wdc_20cc80.recall",
+      "value": 0.482,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: wdc_20cc80",
+      "detail": "token_set_ratio at 0.78, test part"
+    },
+    {
+      "id": "matching.fuzzy.wdc_50cc50.f1",
+      "value": 0.3587,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: wdc_50cc50",
+      "detail": "token_set_ratio at 0.79, test part"
+    },
+    {
+      "id": "matching.fuzzy.wdc_50cc50.precision",
+      "value": 0.3252,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: wdc_50cc50",
+      "detail": "token_set_ratio at 0.79, test part"
+    },
+    {
+      "id": "matching.fuzzy.wdc_50cc50.recall",
+      "value": 0.4,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: wdc_50cc50",
+      "detail": "token_set_ratio at 0.79, test part"
+    },
+    {
+      "id": "matching.fuzzy.wdc_80cc20.f1",
+      "value": 0.2918,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: wdc_80cc20",
+      "detail": "token_set_ratio at 0.79, test part"
+    },
+    {
+      "id": "matching.fuzzy.wdc_80cc20.precision",
+      "value": 0.2628,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: wdc_80cc20",
+      "detail": "token_set_ratio at 0.79, test part"
+    },
+    {
+      "id": "matching.fuzzy.wdc_80cc20.recall",
+      "value": 0.328,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matching_baseline.json: wdc_80cc20",
+      "detail": "token_set_ratio at 0.79, test part"
+    },
+    {
+      "id": "matching.model.own_pairs.f1",
+      "value": 0.25,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: own_pairs",
+      "detail": "matcher at 0.9646, tp 1 fp 0; [0.0, 0.6667]; machine labels (ml/DATA.md 4.1)"
+    },
+    {
+      "id": "matching.model.own_pairs.precision",
+      "value": 1.0,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: own_pairs",
+      "detail": "matcher at 0.9646, tp 1 fp 0; [1.0, 1.0]; machine labels (ml/DATA.md 4.1)"
+    },
+    {
+      "id": "matching.model.own_pairs.recall",
+      "value": 0.1429,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: own_pairs",
+      "detail": "matcher at 0.9646, tp 1 fp 0; [0.0, 0.5]; machine labels (ml/DATA.md 4.1)"
+    },
+    {
+      "id": "matching.model.wdc_20cc80.f1",
+      "value": 0.0989,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: wdc_20cc80",
+      "detail": "matcher at 0.9646, tp 26 fp 0; [0.0665, 0.1355]"
+    },
+    {
+      "id": "matching.model.wdc_20cc80.precision",
+      "value": 1.0,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: wdc_20cc80",
+      "detail": "matcher at 0.9646, tp 26 fp 0; [1.0, 1.0]"
+    },
+    {
+      "id": "matching.model.wdc_20cc80.recall",
+      "value": 0.052,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: wdc_20cc80",
+      "detail": "matcher at 0.9646, tp 26 fp 0; [0.0344, 0.0726]"
+    },
+    {
+      "id": "matching.model.wdc_50cc50.f1",
+      "value": 0.069,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: wdc_50cc50",
+      "detail": "matcher at 0.9646, tp 18 fp 4; [0.0394, 0.1026]"
+    },
+    {
+      "id": "matching.model.wdc_50cc50.precision",
+      "value": 0.8182,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: wdc_50cc50",
+      "detail": "matcher at 0.9646, tp 18 fp 4; [0.6429, 0.9583]"
+    },
+    {
+      "id": "matching.model.wdc_50cc50.recall",
+      "value": 0.036,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: wdc_50cc50",
+      "detail": "matcher at 0.9646, tp 18 fp 4; [0.0203, 0.0544]"
+    },
+    {
+      "id": "matching.model.wdc_80cc20.f1",
+      "value": 0.0348,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: wdc_80cc20",
+      "detail": "matcher at 0.9646, tp 9 fp 8; [0.0149, 0.058]"
+    },
+    {
+      "id": "matching.model.wdc_80cc20.precision",
+      "value": 0.5294,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: wdc_80cc20",
+      "detail": "matcher at 0.9646, tp 9 fp 8; [0.2857, 0.8]"
+    },
+    {
+      "id": "matching.model.wdc_80cc20.recall",
+      "value": 0.018,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/results/matcher_v1.json: wdc_80cc20",
+      "detail": "matcher at 0.9646, tp 9 fp 8; [0.0076, 0.0304]"
+    },
+    {
+      "id": "matching.stage.different_merged",
+      "value": 0.0,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/labelling (agreed machine labels), FuzzyMatchStage",
+      "detail": "different pairs the stage wrongly merges"
+    },
+    {
+      "id": "matching.stage.same_merged",
+      "value": 0.4118,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/labelling (agreed machine labels), FuzzyMatchStage",
+      "detail": "same pairs the stage merges"
+    },
+    {
+      "id": "matching.stage.variant_merged",
+      "value": 0.3478,
+      "unit": "rate",
+      "status": "measured",
+      "source": "ml/labelling (agreed machine labels), FuzzyMatchStage",
+      "detail": "variant pairs merged as one product with variants (DR-02)"
+    },
+    {
+      "id": "research.pages_read",
+      "value": null,
+      "unit": "pages",
+      "status": "not_recorded",
+      "source": "backend/tests/fixtures/recorded",
+      "detail": "the recorded runs hold no extract calls or page reads; measured live (evals/results/sprint-3-live.json)"
+    },
+    {
+      "id": "research.recorded.source_types",
+      "value": 1.0,
+      "unit": "types",
+      "status": "measured",
+      "source": "backend/tests/fixtures/recorded: research_laptop_coding_70k",
+      "detail": "kinds of source found"
+    },
+    {
+      "id": "research.recorded.sources",
+      "value": 55.0,
+      "unit": "sources",
+      "status": "measured",
+      "source": "backend/tests/fixtures/recorded: research_laptop_coding_70k",
+      "detail": "from 6 searches"
+    },
+    {
+      "id": "trust.learned.correct",
+      "value": 3.0,
+      "unit": "conflicts",
+      "status": "measured",
+      "source": "ml/labelling/conflicts.csv, scripts/eval_trust.py",
+      "detail": "of 5 conflicts"
+    },
+    {
+      "id": "trust.learned_minus_majority",
+      "value": 3.0,
+      "unit": "conflicts",
+      "status": "measured",
+      "source": "ml/labelling/conflicts.csv, scripts/eval_trust.py",
+      "detail": "learned 3 against majority vote 0, of 5"
+    },
+    {
+      "id": "trust.tier_order.correct",
+      "value": 3.0,
+      "unit": "conflicts",
+      "status": "measured",
+      "source": "ml/labelling/conflicts.csv, scripts/eval_trust.py",
+      "detail": "of 5 conflicts"
+    }
+  ],
+  "context": {
+    "matching_stage": {
+      "pairs": {
+        "same": {
+          "merged": 7,
+          "pairs": 17
+        },
+        "variant": {
+          "merged": 8,
+          "pairs": 23
+        },
+        "different": {
+          "merged": 0,
+          "pairs": 106
+        },
+        "mixed": {
+          "merged": 0,
+          "pairs": 0
+        }
+      },
+      "dropped": {
+        "unsure": 49,
+        "labellers disagree": 0,
+        "texts differ": 0,
+        "a name longer than a mention (150 characters)": 80
+      },
+      "labels": "machine labels (ml/DATA.md 4.1); every agreed pair, not only S3-5's test part"
+    },
+    "trust": {
+      "conflicts": 5,
+      "correct": {
+        "learned": 3,
+        "tier_order": 3,
+        "majority_vote": 0
+      },
+      "no_answer": {
+        "learned": 0,
+        "tier_order": 0,
+        "majority_vote": 3
+      },
+      "fair_subset": {
+        "conflicts": 3,
+        "correct": {
+          "learned": 1,
+          "tier_order": 1,
+          "majority_vote": 0
+        }
+      }
+    },
+    "decide": {
+      "briefs": {
+        "ereader_8k": {
+          "shown": 0,
+          "held_back": 5,
+          "coverage": [],
+          "as_expected": true
+        },
+        "headphones_anc_range": {
+          "shown": 3,
+          "held_back": 4,
+          "coverage": [
+            1.0,
+            0.739,
+            1.0
+          ],
+          "as_expected": true
+        },
+        "laptop_coding_70k": {
+          "shown": 3,
+          "held_back": 6,
+          "coverage": [
+            1.0,
+            0.896,
+            1.0
+          ],
+          "as_expected": true
+        },
+        "monitor_27_gaming": {
+          "shown": 3,
+          "held_back": 4,
+          "coverage": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "as_expected": true
+        },
+        "phone_camera_30k": {
+          "shown": 2,
+          "held_back": 5,
+          "coverage": [
+            1.0,
+            1.0
+          ],
+          "as_expected": true
+        }
+      },
+      "shown_with_unknown_rule": 0
+    },
+    "research_recorded": {
+      "searches": 6,
+      "sources_by_type": {
+        "web_search": 55
+      },
+      "reddit_links": 4
+    }
+  }
+}

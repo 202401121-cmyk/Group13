@@ -1,0 +1,658 @@
+{
+  "generated": "2026-11-14",
+  "commit": "a6148f0",
+  "runner": "python -m evals.live_briefs (live)",
+  "budget_note": "limits {'llm': 60, 'serper': 30, 'reddit': 30, 'jina': 30, 'firecrawl': 10}, EXTRACT_MAX_SOURCES=8, MATCHER=fuzzy",
+  "calls_used": {
+    "llm": 30,
+    "serper": 8,
+    "reddit": 7,
+    "jina": 2,
+    "firecrawl": 0
+  },
+  "measures": [
+    {
+      "id": "live.briefs_finished",
+      "value": 5.0,
+      "unit": "briefs",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "of 5"
+    },
+    {
+      "id": "live.briefs_with_a_score",
+      "value": 0.0,
+      "unit": "briefs",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "briefs where at least one shown product has a score (S3-10b's 'not ranked' risk)"
+    },
+    {
+      "id": "live.claims_per_source.manufacturer",
+      "value": 0.0,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "0 claims from 1 manufacturer sources given to extract"
+    },
+    {
+      "id": "live.claims_per_source.reddit",
+      "value": 0.1667,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "7 claims from 42 reddit sources given to extract"
+    },
+    {
+      "id": "live.claims_per_source.retailer",
+      "value": 0.0,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "0 claims from 3 retailer sources given to extract"
+    },
+    {
+      "id": "live.claims_per_source.review_site",
+      "value": 0.5714,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "8 claims from 14 review_site sources given to extract"
+    },
+    {
+      "id": "live.claims_per_source_given",
+      "value": 0.1515,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "15 claims kept from 99 sources given to extract. Search snippets and sources past the 8-source cap count too: extract passes them over without a model call"
+    },
+    {
+      "id": "live.coverage_mean",
+      "value": 0.0,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "mean coverage over 4 ranked products"
+    },
+    {
+      "id": "live.hard_rule_violations_shown",
+      "value": 0.0,
+      "unit": "products",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "shown products breaking a rule, by decide's own filter: this record predates the independent check"
+    },
+    {
+      "id": "live.most_mentioned_worst_fit_wins",
+      "value": null,
+      "unit": "briefs",
+      "status": "not_recorded",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "this record predates the independent check (14 Nov 2026); the next live run measures it"
+    },
+    {
+      "id": "live.pages_direct",
+      "value": 17.0,
+      "unit": "pages",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "pages read by a plain fetch"
+    },
+    {
+      "id": "live.pages_firecrawl",
+      "value": 0.0,
+      "unit": "pages",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "pages read through Firecrawl"
+    },
+    {
+      "id": "live.pages_jina",
+      "value": 1.0,
+      "unit": "pages",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "pages read through Jina Reader"
+    },
+    {
+      "id": "live.quote_found_share",
+      "value": 0.9375,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "claims whose quote is in their source, of 16 the parser checked (1 dropped). Kept claims are counted after duplicates go; a quote found but refused as an instruction counts as not found"
+    },
+    {
+      "id": "live.ranked_products",
+      "value": 4.0,
+      "unit": "products",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "shown"
+    },
+    {
+      "id": "live.search_seconds_max",
+      "value": 30.62,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest search"
+    },
+    {
+      "id": "live.sources_per_brief",
+      "value": 19.8,
+      "unit": "sources",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "sources the search kept, mean per brief"
+    },
+    {
+      "id": "live.stage_seconds_max.commerce",
+      "value": 0.0,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest commerce stage"
+    },
+    {
+      "id": "live.stage_seconds_max.decide",
+      "value": 0.0,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest decide stage"
+    },
+    {
+      "id": "live.stage_seconds_max.enrich",
+      "value": 0.01,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest enrich stage"
+    },
+    {
+      "id": "live.stage_seconds_max.explain",
+      "value": 0.0,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest explain stage"
+    },
+    {
+      "id": "live.stage_seconds_max.extract",
+      "value": 14.7,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest extract stage"
+    },
+    {
+      "id": "live.stage_seconds_max.match",
+      "value": 0.02,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest match stage"
+    },
+    {
+      "id": "live.stage_seconds_max.research",
+      "value": 23.89,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest research stage"
+    },
+    {
+      "id": "live.stage_seconds_max.verify",
+      "value": 0.06,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest verify stage"
+    },
+    {
+      "id": "live.unsourced_shown",
+      "value": null,
+      "unit": "products",
+      "status": "not_recorded",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "this record predates the independent check (14 Nov 2026); the next live run measures it"
+    }
+  ],
+  "briefs": [
+    {
+      "category": "smartphone",
+      "finished": true,
+      "presearch_seconds": 12.56,
+      "search_seconds": 27.11,
+      "stages": {
+        "research": {
+          "status": "ok",
+          "seconds": 23.89
+        },
+        "extract": {
+          "status": "ok",
+          "seconds": 3.14
+        },
+        "match": {
+          "status": "ok",
+          "seconds": 0.02
+        },
+        "verify": {
+          "status": "ok",
+          "seconds": 0.06
+        },
+        "enrich": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "decide": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "explain": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "commerce": {
+          "status": "skipped",
+          "seconds": 0.0
+        }
+      },
+      "methods": {
+        "match": "fuzzy",
+        "trust": "learned",
+        "decide": "weighted"
+      },
+      "products": {
+        "ranked": 0,
+        "with_a_score": 0,
+        "not_ranked": 0,
+        "filtered_out": 0,
+        "cant_tell": 13,
+        "coverage": []
+      },
+      "checks": {
+        "hard_rule_violations_shown": 0,
+        "shown_with_unknown_rule": 0,
+        "unsourced_shown": 0,
+        "dropped_unsourced": 0,
+        "most_mentioned_worst_fit_wins": false
+      },
+      "research": {
+        "sources": 49,
+        "sources_by_type": {
+          "manufacturer": 1,
+          "reddit": 20,
+          "retailer": 1,
+          "review_site": 7,
+          "web_search": 20
+        },
+        "pages_by_via": {
+          "api": 20,
+          "direct": 9,
+          "search_snippet": 20
+        }
+      },
+      "extraction": {
+        "sources_read": 49,
+        "claims_kept": 7,
+        "claims_by_source_type": {
+          "reddit": 7
+        },
+        "dropped_by_reason": {
+          "product": 1,
+          "quote": 1
+        },
+        "quote_found_share": 0.875
+      },
+      "calls": {
+        "llm": 10,
+        "serper": 5,
+        "reddit": 6,
+        "jina": 1,
+        "firecrawl": 0
+      }
+    },
+    {
+      "category": "air_fryer",
+      "finished": true,
+      "presearch_seconds": 1.06,
+      "search_seconds": 30.62,
+      "stages": {
+        "research": {
+          "status": "ok",
+          "seconds": 15.84
+        },
+        "extract": {
+          "status": "ok",
+          "seconds": 14.7
+        },
+        "match": {
+          "status": "ok",
+          "seconds": 0.01
+        },
+        "verify": {
+          "status": "ok",
+          "seconds": 0.03
+        },
+        "enrich": {
+          "status": "ok",
+          "seconds": 0.01
+        },
+        "decide": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "explain": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "commerce": {
+          "status": "ok",
+          "seconds": 0.0
+        }
+      },
+      "methods": {
+        "match": "fuzzy",
+        "trust": "learned",
+        "decide": "weighted"
+      },
+      "products": {
+        "ranked": 4,
+        "with_a_score": 0,
+        "not_ranked": 4,
+        "filtered_out": 2,
+        "cant_tell": 36,
+        "coverage": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "checks": {
+        "hard_rule_violations_shown": 0,
+        "shown_with_unknown_rule": 0,
+        "unsourced_shown": 0,
+        "dropped_unsourced": 0,
+        "most_mentioned_worst_fit_wins": false
+      },
+      "research": {
+        "sources": 28,
+        "sources_by_type": {
+          "retailer": 2,
+          "review_site": 7,
+          "web_search": 19
+        },
+        "pages_by_via": {
+          "direct": 8,
+          "jina": 1,
+          "search_snippet": 19
+        }
+      },
+      "extraction": {
+        "sources_read": 28,
+        "claims_kept": 8,
+        "claims_by_source_type": {
+          "review_site": 8
+        },
+        "dropped_by_reason": {},
+        "quote_found_share": 1.0
+      },
+      "calls": {
+        "llm": 11,
+        "serper": 3,
+        "reddit": 0,
+        "jina": 1,
+        "firecrawl": 0
+      }
+    },
+    {
+      "category": "laptop",
+      "finished": true,
+      "presearch_seconds": 1.5,
+      "search_seconds": 1.15,
+      "stages": {
+        "research": {
+          "status": "ok",
+          "seconds": 1.11
+        },
+        "extract": {
+          "status": "ok",
+          "seconds": 0.01
+        },
+        "match": {
+          "status": "ok",
+          "seconds": 0.02
+        },
+        "verify": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "enrich": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "decide": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "explain": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "commerce": {
+          "status": "skipped",
+          "seconds": 0.0
+        }
+      },
+      "methods": {
+        "match": "fuzzy",
+        "trust": "learned",
+        "decide": "weighted"
+      },
+      "products": {
+        "ranked": 0,
+        "with_a_score": 0,
+        "not_ranked": 0,
+        "filtered_out": 0,
+        "cant_tell": 0,
+        "coverage": []
+      },
+      "checks": {
+        "hard_rule_violations_shown": 0,
+        "shown_with_unknown_rule": 0,
+        "unsourced_shown": 0,
+        "dropped_unsourced": 0,
+        "most_mentioned_worst_fit_wins": false
+      },
+      "research": {
+        "sources": 3,
+        "sources_by_type": {
+          "reddit": 3
+        },
+        "pages_by_via": {
+          "api": 3
+        }
+      },
+      "extraction": {
+        "sources_read": 3,
+        "claims_kept": 0,
+        "claims_by_source_type": {},
+        "dropped_by_reason": {},
+        "quote_found_share": null
+      },
+      "calls": {
+        "llm": 1,
+        "serper": 0,
+        "reddit": 1,
+        "jina": 0,
+        "firecrawl": 0
+      }
+    },
+    {
+      "category": "smartwatch",
+      "finished": true,
+      "presearch_seconds": 7.95,
+      "search_seconds": 0.28,
+      "stages": {
+        "research": {
+          "status": "ok",
+          "seconds": 0.28
+        },
+        "extract": {
+          "status": "skipped",
+          "seconds": 0.0
+        },
+        "match": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "verify": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "enrich": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "decide": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "explain": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "commerce": {
+          "status": "skipped",
+          "seconds": 0.0
+        }
+      },
+      "methods": {
+        "match": "fuzzy",
+        "trust": "learned",
+        "decide": "weighted"
+      },
+      "products": {
+        "ranked": 0,
+        "with_a_score": 0,
+        "not_ranked": 0,
+        "filtered_out": 0,
+        "cant_tell": 0,
+        "coverage": []
+      },
+      "checks": {
+        "hard_rule_violations_shown": 0,
+        "shown_with_unknown_rule": 0,
+        "unsourced_shown": 0,
+        "dropped_unsourced": 0,
+        "most_mentioned_worst_fit_wins": false
+      },
+      "research": {
+        "sources": 0,
+        "sources_by_type": {},
+        "pages_by_via": {}
+      },
+      "extraction": {
+        "sources_read": 0,
+        "claims_kept": 0,
+        "claims_by_source_type": {},
+        "dropped_by_reason": {},
+        "quote_found_share": null
+      },
+      "calls": {
+        "llm": 2,
+        "serper": 0,
+        "reddit": 0,
+        "jina": 0,
+        "firecrawl": 0
+      }
+    },
+    {
+      "category": "earbuds",
+      "finished": true,
+      "presearch_seconds": 2.06,
+      "search_seconds": 13.85,
+      "stages": {
+        "research": {
+          "status": "ok",
+          "seconds": 0.45
+        },
+        "extract": {
+          "status": "ok",
+          "seconds": 13.38
+        },
+        "match": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "verify": {
+          "status": "ok",
+          "seconds": 0.02
+        },
+        "enrich": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "decide": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "explain": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "commerce": {
+          "status": "skipped",
+          "seconds": 0.0
+        }
+      },
+      "methods": {
+        "match": "fuzzy",
+        "trust": "learned",
+        "decide": "weighted"
+      },
+      "products": {
+        "ranked": 0,
+        "with_a_score": 0,
+        "not_ranked": 0,
+        "filtered_out": 0,
+        "cant_tell": 6,
+        "coverage": []
+      },
+      "checks": {
+        "hard_rule_violations_shown": 0,
+        "shown_with_unknown_rule": 0,
+        "unsourced_shown": 0,
+        "dropped_unsourced": 0,
+        "most_mentioned_worst_fit_wins": false
+      },
+      "research": {
+        "sources": 19,
+        "sources_by_type": {
+          "reddit": 19
+        },
+        "pages_by_via": {
+          "api": 19
+        }
+      },
+      "extraction": {
+        "sources_read": 19,
+        "claims_kept": 0,
+        "claims_by_source_type": {},
+        "dropped_by_reason": {},
+        "quote_found_share": null
+      },
+      "calls": {
+        "llm": 6,
+        "serper": 0,
+        "reddit": 0,
+        "jina": 0,
+        "firecrawl": 0
+      }
+    }
+  ]
+}
