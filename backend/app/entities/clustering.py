@@ -21,6 +21,7 @@ import re
 from collections import Counter
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
+from typing import Literal
 
 from app.contracts import MatchInput, MatchResult, Product, ProductMention, Variant
 
@@ -232,7 +233,8 @@ def _start(state: _Clustering, entry: _Entry, *, unsure: bool) -> None:
 # --- products ----------------------------------------------------------------------------------------------------
 
 
-def match_names(inp: MatchInput, scorer: PairScorer) -> MatchResult:
+def match_names(inp: MatchInput, scorer: PairScorer, *, method: Literal["model", "fuzzy"] = "fuzzy") -> MatchResult:
+    """Group the names into products. `method` names the scorer that settled the open pairs (S3-15)."""
     entries = _entries(inp.mentions, inp.known_aliases)
     needed = {e.known_id for e in entries if e.known_id is not None}
     known_names: dict[str, list[ParsedName]] = {}
@@ -241,7 +243,7 @@ def match_names(inp: MatchInput, scorer: PairScorer) -> MatchResult:
             known_names.setdefault(product_id, []).append(parse_name(key))
     clusters = group(entries, scorer, known_names)
     unmatched = sorted(e.raw for c in clusters if c.unsure for e in c.entries)
-    return _result(clusters, inp, unmatched)
+    return _result(clusters, inp, unmatched, method)
 
 
 def unmerged(inp: MatchInput) -> MatchResult:
@@ -269,7 +271,9 @@ def _entries(mentions: Iterable[ProductMention], known: Mapping[str, str]) -> li
     return entries
 
 
-def _result(clusters: list[_Cluster], inp: MatchInput, unmatched: list[str]) -> MatchResult:
+def _result(
+    clusters: list[_Cluster], inp: MatchInput, unmatched: list[str], method: Literal["model", "fuzzy"] = "fuzzy"
+) -> MatchResult:
     kept = sorted(clusters, key=lambda c: (-c.size, c.rep.raw))[:MAX_PRODUCTS]
     if len(kept) < len(clusters):
         log.info("match: kept the %d products with the most mentions of %d", len(kept), len(clusters))
@@ -290,7 +294,7 @@ def _result(clusters: list[_Cluster], inp: MatchInput, unmatched: list[str]) -> 
         products=sorted(products, key=lambda p: p.id),
         alias_map=alias_map,
         unmatched=[name for name in unmatched if name in kept_names],
-        method="fuzzy",
+        method=method,
     )
 
 

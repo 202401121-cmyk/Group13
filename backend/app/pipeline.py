@@ -76,7 +76,7 @@ from app.decide import PRICE_KEY, WeightedDecideStage
 from app.decide.features import feature_key, known_feature
 from app.decide.rules import NO_SINGLE_CHANGE
 from app.enrich import EnrichStage
-from app.entities import FuzzyMatchStage, alias_keys
+from app.entities import ModelMatchStage, alias_keys
 from app.explain import ExplainStage
 from app.extract import default_extract_stage
 from app.llm.errors import AuthFailed, InvalidOutput, ProviderTimeout, RateLimited, ServerError
@@ -293,7 +293,7 @@ def default_search_stages() -> SearchStages:
     return SearchStages(
         research=default_research_stage(),
         extract=default_extract_stage(),
-        match=FuzzyMatchStage(),
+        match=ModelMatchStage(),  # the trained matcher, with fuzzy matching as its baseline (US-15, S3-15)
         verify=TrustVerifyStage(),
         enrich=EnrichStage(),
         decide=WeightedDecideStage(),

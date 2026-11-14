@@ -96,6 +96,55 @@ and `python ml/training/export_onnx.py --model ml/models/matcher_v1/epoch-001`. 
 the hard-negative miner: `python ml/scripts/candidates.py` (it never labels; the recorded searches hold page titles,
 so its output is poor and is not committed).
 
+**Serving (S3-15, 14 Nov 2026).** The match stage is `ModelMatchStage` (`backend/app/entities/stage.py`), with the fuzzy
+stage as its baseline.
+
+- **How it matches.** The rules decide first, as in S3-3. The model scores only the pairs they leave open, in batches
+  of 32, on CPU (onnxruntime 1.31.1). A pair merges only at or above 0.9646. The chaining guard and the variant rules
+  are unchanged. The model is given the normalised names the rules compare (`ParsedName.base`), not raw titles.
+- **The switch.** `MATCHER=model` or `MATCHER=fuzzy`. The default is **fuzzy** (`backend/config/matcher.yaml`): on our
+  test part the model called one pair a match, which can't show the 0.95 target.
+- **Getting the model.** The first use downloads `model.onnx` and `tokenizer.json` at revision `6a2ce26b…` into
+  `backend/.cache/matcher/` (git-ignored). No token is sent. A `model.onnx` whose sha256 differs from the one above is
+  not used. Loading starts in the background when the stage is built, so it overlaps research.
+- **Fallback (criterion 6).** Each of these gives fuzzy matching for the whole run, method "fuzzy", and one log line,
+  `match: fuzzy matching ran instead of the model: <reason>`:
+  - no revision;
+  - a failed download or load, or a wrong checksum;
+  - an error while scoring;
+  - the model still loading, or scoring past its 3-second share of match's 5 seconds;
+  - `MATCHER_FORCE_FAIL=1`, for drills.
+
+  A failed load is tried again after 10 minutes.
+
+**Measured** (`tests/live/test_matcher_live.py`, Windows laptop, 16 threads, Python 3.11.15). The hosted server has
+fewer cores, so expect longer times there; they were not measured.
+
+| What | Time | Method | Peak memory |
+|---|---|---|---|
+| Loading from the cache | 0.61 s | | 79 MB before, 255 MB after (+176 MB) |
+| 1,000 pairs | 1.39 s | model | |
+| S3-3's 1,000 realistic mentions | 0.08 s | model (the rules left no pair open) | |
+| 1,000 mentions of 40 names sharing one word (about 780 pairs the model decides) | 0.96 s | model | |
+| 1,000 names sharing one word | 3.21 s | fuzzy (the share ran out) | |
+| A CLI search, model loaded | | | 254 MB |
+| A CLI search, no model | | | 86 MB |
+
+Both searches stay inside P-10's 512 MB.
+
+**Live** (14 Nov 2026, `best wireless headphones under 30000`, `--no-db`)
+- With `MATCHER=model`: 60 mentions of 28 names gave 28 products, method model.
+- Fuzzy on the same 60 mentions: the same 28 groups.
+- The rules settled every pair but one ("triggr trinity 2" against "audeze maxwell 2"), and both scorers kept it apart:
+  model 0.004, fuzzy 0.19.
+- `MATCHER_FORCE_FAIL=1` gave method fuzzy and the log line.
+
+**What this says.** At 0.9646 the model changes little in real searches: the rules decide almost every pair, and the
+model rarely calls a pair the same. On normalised names it scores even two identical names at 0.92 ("nova 14"; the rules
+merge those before it is asked) and a one-letter typo at 0.81 ("kindle paperwhite" against "kindle paperwite"), which
+stays apart where fuzzy merges it.
+Fuzzy stays the default until a larger labelled test part shows the target.
+
 ## 2. Source trust
 
 | | |

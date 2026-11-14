@@ -14,7 +14,7 @@ from app import contracts as C
 from app.contracts import examples as ex
 from app.db import DatabaseSettings, InMemoryAliasStore, PostgresAliasStore, PostgresRequestStore
 from app.decide import DecideStage
-from app.entities import FuzzyMatchStage, MatchStage
+from app.entities import FuzzyMatchStage, MatchStage, ModelMatchStage
 from app.entities.clustering import product_id_for
 from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
 from tests.fakes.research import web_source
@@ -55,7 +55,12 @@ def down() -> Iterator[PostgresRequestStore]:
 
 
 def test_the_default_stages_match_with_the_fuzzy_stage() -> None:
-    assert isinstance(default_search_stages().match, FuzzyMatchStage)
+    """Since S3-15 the model stage runs, with the fuzzy stage as its baseline; with the default MATCHER it matches
+    as the fuzzy stage alone does."""
+    stage = default_search_stages().match
+    assert isinstance(stage, ModelMatchStage)
+    assert isinstance(stage.baseline, FuzzyMatchStage)
+    assert stage.settings.use == "fuzzy"
 
 
 FULL = "Sony WH-1000XM5 Wireless Noise Cancelling"
