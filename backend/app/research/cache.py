@@ -2,11 +2,12 @@
 
 Sources go through RedditCache's code, which does the same job. A Reddit thread read through Firecrawl (US-38) is kept
 apart, in reddit_pages, and like every Reddit read it is served and kept only until serve_limit(): 24 hours less the
-longest search, the time a result is kept and a margin, so a run holding a result never holds Reddit text past 24 hours
-(D-53). Everything else, including robots files and the titles of results that point at Reddit, is kept the full 24
-hours: those titles only help spot product names and never reach a run. Only complete answers are cached, never a
-failure, and a failed write never stops a search (build rule 10). What is cached is what we chose to keep: a search
-result pointing at Reddit keeps its title only, and its snippet never gets this far (D-53).
+longest search, the time a result is kept, one housekeeping tick and a margin, so neither a run holding a result nor
+the file holds Reddit text past 24 hours (D-53). Everything else, including robots files and the titles of results
+that point at Reddit, is kept the full 24 hours: those titles only help spot product names and never reach a run. Only
+complete answers are cached, never a failure, and a failed write never stops a search (build rule 10). What is cached
+is what we chose to keep: a search result pointing at Reddit keeps its title only, and its snippet never gets this far
+(D-53).
 """
 
 from __future__ import annotations
@@ -42,7 +43,9 @@ def sweep_expired_files(
 ) -> None:
     """Everything past its limit. It needs no client or source, so D-53 holds whatever else is broken.
 
-    The folders are read when it runs (not when this module loads), so the defaults are always the current ones.
+    It runs at app start-up and then every ten minutes (the housekeeping in app/main.py), and at each search (the
+    research stage), so expired Reddit text goes even on a server nobody searches with. The folders are read when it
+    runs (not when this module loads), so the defaults are always the current ones.
     """
     folder = folder if folder is not None else DEFAULT_CACHE_DIR
     reddit_folder = reddit_folder if reddit_folder is not None else REDDIT_CACHE_DIR

@@ -4,15 +4,20 @@ Run: uvicorn app.main:app --reload
 No auth yet. Requests and finished searches are saved to Postgres when DATABASE_URL is set (US-01, US-52); the health
 check reports the database as "ok", "off" or "down". CORS allows only the origins in FRONTEND_ORIGINS (default
 http://localhost:3000).
+
+While the app runs, its housekeeping deletes expired Reddit text without waiting for a search (D-53, US-12): at
+start-up and then every SWEEP_EVERY_S, the cache files past their limit, and the finished runs past their keep-time.
 """
 
 from __future__ import annotations
 
 import logging
 import os
-from collections.abc import AsyncIterator, Mapping
+import threading
+from collections.abc import AsyncIterator, Awaitable, Callable, Mapping
 from contextlib import asynccontextmanager
 
+import anyio
 from dotenv import dotenv_values, find_dotenv
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -25,10 +30,61 @@ from app.api.exclusions import router as exclusions_router
 from app.api.presearch import plain_validation_message
 from app.contracts import SCHEMA_VERSION, SearchRequest, SearchResult
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
+from app.research.cache import sweep_expired_files
+from app.search_run_limits import SWEEP_EVERY_S
 
 log = logging.getLogger(__name__)
 
 DEFAULT_FRONTEND_ORIGINS = ("http://localhost:3000",)  # the frontend's dev server (npm run dev)
+
+
+class Housekeeping:
+    """D-53 without a search: at start-up, then every `every_s`, finished runs past their keep-time and expired cache
+    files go.
+
+    Each tick runs in a worker thread of its own, so file work never holds up a request on the event loop and never
+    waits for the requests' threads. The runs go first: that is quick and in memory, so a slow disk never holds it up.
+    Each part, and each pass of the loop, has its own guard: a failure is logged by its type only (build rule 9), and
+    nothing else is stopped. The loop ends only when the app shuts down and cancels it; a tick still in its thread is
+    left to finish on its own, so shutting down never waits for a stuck disk.
+    """
+
+    def __init__(
+        self,
+        runs: SearchRuns,
+        sweep: Callable[[], None] = sweep_expired_files,
+        every_s: float = SWEEP_EVERY_S,
+        wait: Callable[[float], Awaitable[None]] = anyio.sleep,
+    ) -> None:
+        self.runs = runs
+        self.sweep = sweep
+        self.every_s = every_s
+        self.wait = wait
+        self.ticks = 0
+        self.ticked = threading.Event()  # set after each tick
+        self.running = False
+
+    def tick(self) -> None:
+        for part, job in (("run store", self.runs.drop_expired), ("cache sweep", self.sweep)):
+            try:
+                job()
+            except Exception as exc:  # never let housekeeping stop the app, a request or the next tick
+                log.warning("housekeeping: the %s failed (%s)", part, type(exc).__name__)
+        self.ticks += 1
+        self.ticked.set()
+
+    async def run(self) -> None:
+        self.running = True
+        limiter = anyio.CapacityLimiter(1)  # one thread of its own, never queued behind busy request threads
+        try:
+            while True:
+                try:
+                    await anyio.to_thread.run_sync(self.tick, abandon_on_cancel=True, limiter=limiter)
+                except Exception as exc:  # such as no thread to be had: log it, and try again at the next tick
+                    log.warning("housekeeping: a tick failed (%s)", type(exc).__name__)
+                await self.wait(self.every_s)
+        finally:
+            self.running = False
 
 
 def allowed_origins(env: Mapping[str, str] | None = None) -> list[str]:
@@ -71,13 +127,19 @@ def create_app(env: Mapping[str, str] | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        yield
-        # Ask running searches to stop before their next stage. Uvicorn runs this once open progress streams have
-        # ended, or its graceful-shutdown timeout has passed; a forced stop skips it (docs/frontend-api.md).
-        app.state.search_runs.close()
+        try:
+            async with anyio.create_task_group() as tasks:
+                tasks.start_soon(app.state.housekeeping.run)  # its first tick is the start-up sweep
+                yield
+                tasks.cancel_scope.cancel()  # a tick still in its thread is left to finish on its own
+        finally:
+            # Ask running searches to stop before their next stage. Uvicorn runs this once open progress streams have
+            # ended, or its graceful-shutdown timeout has passed; a forced stop skips it (docs/frontend-api.md).
+            app.state.search_runs.close()
 
     app = FastAPI(title="ShopSense", version=SCHEMA_VERSION, lifespan=lifespan)
     app.state.search_runs = SearchRuns(default_runner, load_run_settings(env))
+    app.state.housekeeping = Housekeeping(app.state.search_runs)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins(env),

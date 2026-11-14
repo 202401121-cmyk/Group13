@@ -10,17 +10,20 @@
 Runs execute on a small, bounded set of worker threads, so a request thread is never held for a whole search. They
 are daemon threads, so a forced stop of the server never waits for a whole search. A progress stream holds no thread
 either: it is an async generator that looks for new events every POLL_SECONDS. Each run's state lives in memory
-(build rule 10) and is dropped a while after it ends; the result itself is saved at the end by the runner, as
-POST /api/search does. The stream sends its own keep-alive comment, so tests can make it short.
+(build rule 10) and is dropped once its keep-time has passed: at the next request or stream read, and within ten
+minutes even when nobody asks (drop_expired, called by the app's housekeeping in app/main.py). The result itself is
+saved at the end by the runner, as POST /api/search does. The stream sends its own keep-alive comment, so tests can
+make it short.
 
 A finished run also keeps the claims its result's values cite (never the rest), so the evidence route can show each
 value's sources (app/api/evidence.py). They are never saved, and go with the run.
 
-A finished run goes at its keep-time even while a progress stream reads it, so the Reddit text in its result and claims
-never outlives D-53's 24 hours (with serve_limit(), app/research/reddit/cache.py). A stream still open then sends the
-run's final event, with its result as it is saved (no Reddit text, app/research/retention.py), and closes. The keep-time
-runs out on the registry's own clock or on the wall clock, whichever is first: a machine that sleeps can stop the first,
-but Reddit data keeps ageing on the second.
+A finished run goes at its keep-time even while a progress stream reads it, and on an idle server the app's housekeeping
+drops it at the next tick, so the Reddit text in its result and claims is gone before D-53's 24 hours (serve_limit(),
+app/research/reddit/cache.py, leaves room for both). A stream still open then sends the run's final event, with its
+result as it is saved (no Reddit text, app/research/retention.py), and closes. The keep-time runs out on the registry's
+own clock or on the wall clock, whichever is first: a machine that sleeps can stop the first, but Reddit data keeps
+ageing on the second.
 """
 
 from __future__ import annotations
@@ -248,6 +251,15 @@ class SearchRuns:
         if result is None:
             raise EvidenceUnavailable(404, NO_RESULTS)
         return evidence_for(result, claims, product_id, criterion_key)  # `claims` is replaced, never changed
+
+    def drop_expired(self) -> None:
+        """Drop every finished run past its keep-time now, with no request (D-53).
+
+        The app's housekeeping (app/main.py) calls this at start-up and every SWEEP_EVERY_S, so a run goes within that
+        of its keep-time even on an idle server. The limit on kept runs is applied too, as on any other look.
+        """
+        with self._lock:
+            self._forget_old()
 
     def resume_from(self, search_id: str, last_event_id: str | None) -> int | None:
         """The event ID a stream starts after, or None when the run has ended and the client has seen all of it.

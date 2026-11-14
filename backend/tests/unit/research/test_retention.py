@@ -39,6 +39,7 @@ from app.research.dedupe import merge_near_duplicates
 from app.research.reddit.archive import add_comments
 from app.research.reddit.cache import SERVE_MARGIN, RedditCache, serve_limit
 from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
+from app.search_run_limits import SWEEP_EVERY_S
 from app.verify import TrustVerifyStage
 from tests.fakes.live_run import use_live_shaped_run
 from tests.fakes.reddit import NOW
@@ -890,12 +891,12 @@ def test_a_poster_filling_a_thread_with_merged_lines_cannot_push_the_row_past_it
 @pytest.mark.parametrize(
     ("keep", "limit"),
     [
-        # 24 hours less the keep-time, the longest search (150 s) and the margin (60 s)
-        ("", timedelta(hours=23, minutes=26, seconds=30)),
-        ("30", timedelta(hours=23, minutes=26, seconds=30)),
-        ("120", timedelta(hours=21, minutes=56, seconds=30)),
-        ("1", timedelta(hours=23, minutes=55, seconds=30)),
-        ("99999", timedelta(hours=21, minutes=56, seconds=30)),  # brought inside 1 to 120
+        # 24 hours less the keep-time, the longest search (150 s), one housekeeping tick (600 s) and the margin (60 s)
+        ("", timedelta(hours=23, minutes=16, seconds=30)),
+        ("30", timedelta(hours=23, minutes=16, seconds=30)),
+        ("120", timedelta(hours=21, minutes=46, seconds=30)),
+        ("1", timedelta(hours=23, minutes=45, seconds=30)),
+        ("99999", timedelta(hours=21, minutes=46, seconds=30)),  # brought inside 1 to 120
     ],
 )
 def test_the_cache_stops_serving_in_time_for_a_finished_run_to_go(keep: str, limit: timedelta, monkeypatch) -> None:  # type: ignore[no-untyped-def]
@@ -912,11 +913,11 @@ def test_the_cache_stops_serving_in_time_for_a_finished_run_to_go(keep: str, lim
 
 def test_a_cached_answer_and_a_run_that_read_it_last_are_gone_by_24_hours() -> None:
     longest_search = timedelta(seconds=SEARCH_TIME_LIMIT_S)
+    one_tick = timedelta(seconds=SWEEP_EVERY_S)  # on an idle server the timer drops the run up to a tick late
     for keep in ("1", "30", "120"):
         kept = timedelta(minutes=float(keep))
-        assert serve_limit({"SEARCH_RUN_KEEP_MINUTES": keep}) + longest_search + kept + SERVE_MARGIN == timedelta(
-            hours=24
-        )
+        limit = serve_limit({"SEARCH_RUN_KEEP_MINUTES": keep})
+        assert limit + longest_search + kept + one_tick + SERVE_MARGIN == timedelta(hours=24)
 
 
 def test_web_results_keep_their_full_24_hours(monkeypatch) -> None:  # type: ignore[no-untyped-def]

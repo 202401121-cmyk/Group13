@@ -10,7 +10,9 @@ No test may ever reach the internet, a real LLM provider or a developer's saved 
 - default stages keep the research stub, so no test can search the web (US-12), and the extract stub, so none can
   call a model (US-14);
 - python-dotenv reads no .env (PYTHON_DOTENV_DISABLED, set before the app is imported), so a test sees the same
-  settings on a laptop with a .env as in CI, which has none. The live tests turn it back on for themselves.
+  settings on a laptop with a .env as in CI, which has none. The live tests turn it back on for themselves;
+- the cache sweep (at every app start-up and at each search, US-12) sees only empty folders of its own, never a
+  developer's backend/.cache/.
 Tests that need LLM answers build a stage with their own FakeLLMClient; tests that need a database build their
 own store.
 """
@@ -22,6 +24,7 @@ import os
 os.environ["PYTHON_DOTENV_DISABLED"] = "1"  # before any app import below: app modules call load_dotenv() when used
 
 from collections.abc import Iterator
+from pathlib import Path
 
 import pytest
 
@@ -41,6 +44,18 @@ def network_guard(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatc
         guard.install(monkeypatch)
     yield guard
     guard.check()
+
+
+@pytest.fixture(scope="session")
+def _empty_cache_root(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    return tmp_path_factory.mktemp("cache")
+
+
+@pytest.fixture(autouse=True)
+def _no_real_cache_sweep(monkeypatch: pytest.MonkeyPatch, _empty_cache_root: Path) -> None:
+    """The app sweeps the cache folders as it starts (US-12): in tests, empty ones. A test may point them elsewhere."""
+    monkeypatch.setattr("app.research.cache.DEFAULT_CACHE_DIR", _empty_cache_root / "research")
+    monkeypatch.setattr("app.research.cache.REDDIT_CACHE_DIR", _empty_cache_root / "reddit")
 
 
 @pytest.fixture(autouse=True)
