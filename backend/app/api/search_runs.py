@@ -4,18 +4,26 @@
     GET    /api/search/runs/{search_id}         the run's state (SearchRun), with its result once it has finished
     GET    /api/search/runs/{search_id}/events  Server-Sent Events: each ProgressEvent, then one final "run" event
     DELETE /api/search/runs/{search_id}         cancel; 202 while it stops, 200 (and no change) when it is too late
+    GET    /api/search/runs/{search_id}/evidence?product_id=&criterion_key=
+                                                the claims behind one value, with their sources (US-21)
 
 Runs execute on a small, bounded set of worker threads, so a request thread is never held for a whole search. They
 are daemon threads, so a forced stop of the server never waits for a whole search. A progress stream holds no thread
 either: it is an async generator that looks for new events every POLL_SECONDS. Each run's state lives in memory
 (build rule 10) and is dropped a while after it ends; the result itself is saved at the end by the runner, as
 POST /api/search does. The stream sends its own keep-alive comment, so tests can make it short.
+
+A finished run also keeps the claims its result's values cite (never the rest), so the evidence route can show each
+value's sources (app/api/evidence.py). They are never saved, and go with the run.
 """
 
 from __future__ import annotations
 
+import copy
+import dataclasses
 import logging
 import threading
+from collections import deque
 from collections.abc import AsyncIterator, Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -23,11 +31,20 @@ from time import monotonic
 from typing import Annotated, Any, NamedTuple
 
 import anyio
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, Response, status
 from fastapi.sse import EventSourceResponse, ServerSentEvent
 
 from app import db
-from app.contracts import ProgressEvent, SearchRequest, SearchResult, SearchRun, SearchRunStarted, SearchRunStatus
+from app.contracts import (
+    Claim,
+    EvidenceResponse,
+    ProgressEvent,
+    SearchRequest,
+    SearchResult,
+    SearchRun,
+    SearchRunStarted,
+    SearchRunStatus,
+)
 from app.contracts.pipeline import MAX_RUN_EVENTS
 from app.pipeline import (
     CancelFlag,
@@ -39,11 +56,18 @@ from app.pipeline import (
 )
 from app.search_run_limits import DEFAULT_KEEP_MINUTES, environment, keep_minutes, number
 
+from .evidence import NO_PRODUCT, NO_VALUE, SOURCES_GONE, ClaimRecorder, EvidenceUnavailable, cited_claims, evidence_for
+
 log = logging.getLogger(__name__)
 
 RETRY_AFTER_SECONDS = 30
 BUSY = "ShopSense is busy with other searches right now. Please try again in a moment."
 NOT_FOUND = "We couldn't find that search. Finished searches are only kept for a while."
+# The evidence route tells a search that has gone from one that never was, and says why it can't answer.
+NO_SUCH_SEARCH = "We couldn't find that search."
+RUN_EXPIRED = "This search has expired. Run it again to see its sources."
+NOT_FINISHED = "This search hasn't finished yet."
+NO_RESULTS = "This search has no results to show sources for."
 
 DEFAULT_WORKERS = 4
 MAX_WORKERS = 16
@@ -54,6 +78,7 @@ DEFAULT_MAX_KEPT = 500  # finished runs kept in memory at once; the oldest go fi
 MIN_MAX_KEPT, MAX_MAX_KEPT = 1, 10_000
 POLL_SECONDS = 0.1  # how often an open stream looks for new events
 STREAM_START_GRACE_S = 10.0  # a run that passed a stream's start check is kept this long, until the stream reads it
+MAX_FORGOTTEN_IDS = 1000  # dropped runs remembered by ID, so the evidence route can say "expired"; the oldest go first
 
 _ENDED = {SearchRunStatus.DONE, SearchRunStatus.PARTIAL, SearchRunStatus.FAILED, SearchRunStatus.CANCELLED}
 
@@ -102,6 +127,8 @@ class _Run:
     cancel: CancelFlag = field(default_factory=CancelFlag)
     streams: int = 0  # progress streams reading this run now; a run being read is never dropped
     reserved_until: float = 0.0  # set by a stream's start check, so the run is still there for its first read
+    # The claims the result's values cite, by ID, for the evidence route (US-21). Never in the run's state, never saved.
+    claims: dict[str, Claim] = field(default_factory=dict)
 
 
 class _Batch(NamedTuple):
@@ -111,6 +138,30 @@ class _Batch(NamedTuple):
 
 class UnknownRun(LookupError):
     """No run has this ID: it never existed, or it ended longer ago than the keep-time."""
+
+
+class ExpiredRun(UnknownRun):
+    """The run with this ID was dropped: it ended longer ago than the keep-time, or newer runs pushed it out."""
+
+
+class RecentIds:
+    """The last `limit` IDs added, oldest out first: a bounded set."""
+
+    def __init__(self, limit: int) -> None:
+        self.limit = limit
+        self._order: deque[str] = deque()
+        self._ids: set[str] = set()
+
+    def add(self, item: str) -> None:
+        if item in self._ids:
+            return
+        self._order.append(item)
+        self._ids.add(item)
+        while len(self._order) > self.limit:
+            self._ids.discard(self._order.popleft())
+
+    def __contains__(self, item: object) -> bool:
+        return item in self._ids
 
 
 class SearchRuns:
@@ -128,6 +179,7 @@ class SearchRuns:
         self._free = threading.BoundedSemaphore(self.settings.workers)  # one per worker: no hidden queue
         self._lock = threading.RLock()
         self._runs: dict[str, _Run] = {}
+        self._forgotten = RecentIds(MAX_FORGOTTEN_IDS)
         self._open_streams = 0
         self.closed = False
 
@@ -169,6 +221,21 @@ class SearchRuns:
             run = self._find(search_id)
             stopping = run.status not in _ENDED and run.cancel.request()
             return self._state(run), stopping
+
+    def evidence(self, search_id: str, product_id: str, criterion_key: str) -> EvidenceResponse:
+        """The claims behind one value of a finished run, with their sources (US-21).
+
+        Raises UnknownRun (ExpiredRun for one that was dropped), or EvidenceUnavailable: 409 while the run is still
+        going, 404 when it has no result (it was cancelled or failed) or the value can't be shown.
+        """
+        with self._lock:
+            run = self._find(search_id)
+            ended, result, claims = run.status in _ENDED, run.result, run.claims
+        if not ended:
+            raise EvidenceUnavailable(409, NOT_FINISHED)
+        if result is None:
+            raise EvidenceUnavailable(404, NO_RESULTS)
+        return evidence_for(result, claims, product_id, criterion_key)  # `claims` is replaced, never changed
 
     def resume_from(self, search_id: str, last_event_id: str | None) -> int | None:
         """The event ID a stream starts after, or None when the run has ended and the client has seen all of it.
@@ -241,42 +308,44 @@ class SearchRuns:
     # Inside.
 
     def _work(self, run: _Run, request: SearchRequest) -> None:
-        outcome: tuple[SearchRunStatus, SearchResult | None] = (SearchRunStatus.FAILED, None)
+        outcome: _Outcome = (SearchRunStatus.FAILED, None, {})
         try:
             outcome = self._execute(run, request)
         finally:
             self._free.release()  # first, so a client that sees the run end can start the next one
             self._end(run, *outcome)
 
-    def _execute(self, run: _Run, request: SearchRequest) -> tuple[SearchRunStatus, SearchResult | None]:
+    def _execute(self, run: _Run, request: SearchRequest) -> _Outcome:
         with self._lock:
             if run.cancel.requested:
-                return SearchRunStatus.CANCELLED, None
+                return SearchRunStatus.CANCELLED, None, {}
             run.status = SearchRunStatus.RUNNING
             run.started_at = datetime.now(UTC)
         try:
-            runner = self._runner_factory()
+            runner, recorder = _recording(self._runner_factory())
             result = runner.run(
                 request, search_id=run.search_id, progress=lambda e: self._add(run, e), cancel=run.cancel
             )
         except SearchCancelled:
-            return SearchRunStatus.CANCELLED, None
+            return SearchRunStatus.CANCELLED, None, {}
         except Exception as exc:  # the runner never raises by design; if it does, the run still ends (rule 9)
             log.error("search run %s failed: %s", run.search_id, type(exc).__name__)
             # A run the shopper had already cancelled (and was told so) ends cancelled: it never reached its save.
-            return (SearchRunStatus.CANCELLED if run.cancel.requested else SearchRunStatus.FAILED), None
-        return (SearchRunStatus.PARTIAL if result.partial else SearchRunStatus.DONE), result
+            return (SearchRunStatus.CANCELLED if run.cancel.requested else SearchRunStatus.FAILED), None, {}
+        claims = cited_claims(result, recorder.claims()) if recorder is not None else {}
+        return (SearchRunStatus.PARTIAL if result.partial else SearchRunStatus.DONE), result, claims
 
     def _add(self, run: _Run, event: ProgressEvent) -> None:
         with self._lock:
             if len(run.events) < MAX_RUN_EVENTS:  # a run's state may hold no more (P1); the final event still comes
                 run.events.append(event)
 
-    def _end(self, run: _Run, status: SearchRunStatus, result: SearchResult | None) -> None:
+    def _end(self, run: _Run, status: SearchRunStatus, result: SearchResult | None, claims: dict[str, Claim]) -> None:
         with self._lock:
             now = datetime.now(UTC)
             run.status = status
             run.result = result
+            run.claims = claims
             run.finished_at = max(now, run.started_at) if run.started_at else now
             run.ended_at = self._clock()
             self._forget_old()  # so the limit on kept runs holds as runs end, not only at the next request
@@ -294,7 +363,7 @@ class SearchRuns:
         self._forget_old()
         run = self._runs.get(search_id)
         if run is None:
-            raise UnknownRun(search_id)
+            raise ExpiredRun(search_id) if search_id in self._forgotten else UnknownRun(search_id)
         return run
 
     def _forget_old(self) -> None:
@@ -313,6 +382,8 @@ class SearchRuns:
         for index, run in enumerate(ended):
             if index < too_many or (run.ended_at is not None and run.ended_at <= cutoff):
                 del self._runs[run.search_id]
+                run.claims = {}  # replaced, not cleared: a request reading the old ones finishes with them
+                self._forgotten.add(run.search_id)
 
     @staticmethod
     def _state(run: _Run) -> SearchRun:
@@ -324,6 +395,25 @@ class SearchRuns:
             progress=list(run.events),
             result=run.result,
         )
+
+
+_Outcome = tuple[SearchRunStatus, SearchResult | None, dict[str, Claim]]
+
+
+def _recording(runner: PipelineRunner) -> tuple[PipelineRunner, ClaimRecorder | None]:
+    """A shallow copy of the runner whose extract stage keeps its claims, and that recorder.
+
+    The factory's runner and its stages are never changed, so a factory may hand out one runner to every run. A runner
+    that can't be copied runs as it is: the search still finishes, and its values just have no sources to show.
+    """
+    try:
+        recorder = ClaimRecorder(runner.stages.extract)
+        recording = copy.copy(runner)
+        recording.stages = dataclasses.replace(runner.stages, extract=recorder)
+    except Exception as exc:  # build rule 9: keeping claims must never stop a search
+        log.warning("claims not kept for this run: %s", type(exc).__name__)
+        return runner, None
+    return recording, recorder
 
 
 def default_runner() -> PipelineRunner:
@@ -385,6 +475,32 @@ async def run_events(
     # threads for as long as the run lasts, so a few dozen open streams could stall every other request.
     async for message in runs.stream(search_id, after):
         yield message
+
+
+_EVIDENCE_ERRORS: dict[int | str, dict[str, Any]] = {
+    404: {"description": " / ".join((NO_SUCH_SEARCH, RUN_EXPIRED, NO_RESULTS, NO_PRODUCT, NO_VALUE, SOURCES_GONE))},
+    409: {"description": NOT_FINISHED},
+}
+
+
+@router.get("/{search_id}/evidence", responses=_EVIDENCE_ERRORS)
+def run_evidence(
+    search_id: str,
+    runs: Runs,
+    product_id: Annotated[str, Query(min_length=1, description="One of the result's products")],
+    criterion_key: Annotated[
+        str, Query(min_length=1, description="A criterion or hard-rule attribute with a value for it")
+    ],
+) -> EvidenceResponse:
+    """The claims behind one value of a finished run, with their sources (US-21). A missing parameter is a plain 422."""
+    try:
+        return runs.evidence(search_id, product_id, criterion_key)
+    except ExpiredRun:
+        raise HTTPException(404, RUN_EXPIRED) from None
+    except UnknownRun:
+        raise HTTPException(404, NO_SUCH_SEARCH) from None
+    except EvidenceUnavailable as unavailable:
+        raise HTTPException(unavailable.status_code, unavailable.detail) from None
 
 
 @router.delete(
