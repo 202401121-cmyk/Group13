@@ -18,13 +18,12 @@ make it short.
 A finished run also keeps the claims its result's values cite (never the rest), so the evidence route can show each
 value's sources (app/api/evidence.py). They are never saved, and go with the run.
 
-A finished run goes at its keep-time even while a progress stream reads it, so the Reddit text in its result and claims
-is gone before D-53's 24 hours (with serve_limit(), app/research/reddit/cache.py) when a request or a stream drops it
-then. On an idle server the app's housekeeping drops it within ten minutes of its keep-time, which can be up to about
-nine minutes past the 24 hours: a known gap (docs/api-setup.md, "Keeping Reddit data"). A stream still open then sends
-the run's final event, with its result as it is saved (no Reddit text, app/research/retention.py), and closes. The
-keep-time runs out on the registry's own clock or on the wall clock, whichever is first: a machine that sleeps can stop
-the first, but Reddit data keeps ageing on the second.
+A finished run goes at its keep-time even while a progress stream reads it, and on an idle server the app's housekeeping
+drops it at the next tick, so the Reddit text in its result and claims is gone before D-53's 24 hours (serve_limit(),
+app/research/reddit/cache.py, leaves room for both). A stream still open then sends the run's final event, with its
+result as it is saved (no Reddit text, app/research/retention.py), and closes. The keep-time runs out on the registry's
+own clock or on the wall clock, whichever is first: a machine that sleeps can stop the first, but Reddit data keeps
+ageing on the second.
 """
 
 from __future__ import annotations

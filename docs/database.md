@@ -52,8 +52,9 @@ One row per finished search, in `public.searches` (US-52):
   most 24 hours. So Reddit's words never reach this table ("What a saved result holds", below). D-53 covers every copy, so
   the other two are limited as well: a finished run stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES` (1 to 120
   minutes), even while a progress stream reads it, and the Reddit cache serves an entry only while it is younger than 24
-  hours less that, less the longest search (150 seconds) and a 60-second margin. Expired copies go within 10 minutes,
-  search or no search: the backend's own timer deletes them ([api-setup.md](api-setup.md), "Keeping Reddit data").
+  hours less that, less the longest search (150 seconds), one tick of the backend's own timer (10 minutes) and a
+  60-second margin. The timer deletes expired copies within those 10 minutes, search or no search, so a run and a
+  Reddit file are gone before 24 hours ([api-setup.md](api-setup.md), "Keeping Reddit data").
 - **Guests (decision D-36):** there is no sign-in yet, so every row is a guest's. A guest's request and search are
   stored only under the anonymous session ID, are never linked to an account, and are never used to remember
   preferences.

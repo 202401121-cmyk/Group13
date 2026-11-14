@@ -2,11 +2,12 @@
 
 Sources go through RedditCache's code, which does the same job. A Reddit thread read through Firecrawl (US-38) is kept
 apart, in reddit_pages, and like every Reddit read it is served and kept only until serve_limit(): 24 hours less the
-longest search, the time a result is kept and a margin, so a run holding a result never holds Reddit text past 24 hours
-(D-53). Everything else, including robots files and the titles of results that point at Reddit, is kept the full 24
-hours: those titles only help spot product names and never reach a run. Only complete answers are cached, never a
-failure, and a failed write never stops a search (build rule 10). What is cached is what we chose to keep: a search
-result pointing at Reddit keeps its title only, and its snippet never gets this far (D-53).
+longest search, the time a result is kept, one housekeeping tick and a margin, so neither a run holding a result nor
+the file holds Reddit text past 24 hours (D-53). Everything else, including robots files and the titles of results
+that point at Reddit, is kept the full 24 hours: those titles only help spot product names and never reach a run. Only
+complete answers are cached, never a failure, and a failed write never stops a search (build rule 10). What is cached
+is what we chose to keep: a search result pointing at Reddit keeps its title only, and its snippet never gets this far
+(D-53).
 """
 
 from __future__ import annotations

@@ -846,24 +846,23 @@ App-only, read-only sign-in: no Reddit password is ever used.
 a thread again with its comments doesn't restart the clock.
 
 - **The cache** serves an answer only while it is younger than 24 hours less `SEARCH_RUN_KEEP_MINUTES`, less the longest a
-  search may take (150 seconds) and a 60-second margin: 23 hours 26.5 minutes by default (`serve_limit()`).
+  search may take (150 seconds), one tick of the backend's own timer (10 minutes) and a 60-second margin: 23 hours 16.5
+  minutes by default (`serve_limit()`).
   Search results and review pages keep their full 24 hours. The only Reddit words among them are the titles of results that
   point at Reddit. Those are used to spot product names and never reach a finished run.
 - **A finished run** stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES`, limited to 1 to 120 minutes, and that copy does
   hold Reddit text. So a run that read the cache at the last moment, took the longest a search may and was kept its full
-  time still goes 60 seconds before the 24 hours, when a request or a stream drops it at its keep time. It goes at its keep-time even while a progress stream is reading it: that
+  time still goes at least 60 seconds before the 24 hours, even on an idle server where only the timer drops it. It goes at its keep-time even while a progress stream is reading it: that
   stream then sends the run's final event, with the result as it is saved (no Reddit text), and closes. The keep time runs
   out on the wall clock too, so a laptop that slept doesn't stretch it. A run past its time is dropped the next time any
   search starts, ends or is looked up, or a stream on it reads again, and within 10 minutes even on an idle server: the
-  backend's own timer drops it. **Known gap:** on an idle server that can be up to about 9 minutes past the 24 hours, as
-  the 60-second margin is shorter than the timer. A margin as long as the timer, or a timer that wakes when a run is due,
-  would close it (a team decision). Restart the backend after changing `SEARCH_RUN_KEEP_MINUTES`: the runs read it once, at
+  backend's own timer drops it. Restart the backend after changing `SEARCH_RUN_KEEP_MINUTES`: the runs read it once, at
   start, but the cache reads it at each search.
 - **Files** past the limit are deleted within 10 minutes: when the backend starts, then every 10 minutes, search or no
   search, and also by each search. This holds even with `REDDIT_SOURCE=off`, `RESEARCH_CACHE=off` or no working client. A
-  machine where the backend isn't running deletes nothing until it starts. On an idle server the timer can be up to 10
-  minutes late: a file kept the full 24 hours (search results, whose titles can point at Reddit) can then outlive them by
-  that much, and so can a Reddit file when `SEARCH_RUN_KEEP_MINUTES` is under 7. That is the same known gap.
+  machine where the backend isn't running deletes nothing until it starts. A Reddit file goes before 24 hours, as its
+  limit leaves room for one tick. A file kept the full 24 hours (search results, whose titles can point at Reddit) can
+  outlive them by up to one tick, 10 minutes, on an idle server.
 - **A saved search** holds no Reddit text at all: a Reddit source keeps its URL, community, fetch time, archive and counts
   (`app/research/retention.py`, and see [database.md](database.md)). US-14 and US-16 will fill fields that can carry Reddit's
   words, and must extend that module before those reach a saved row.

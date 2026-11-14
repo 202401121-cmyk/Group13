@@ -35,7 +35,7 @@ from app.api.search_runs import (
 )
 from app.contracts import examples as ex
 from app.contracts.pipeline import MAX_RUN_EVENTS
-from app.main import create_app
+from app.main import Housekeeping, create_app
 from app.pipeline import (
     CancelFlag,
     DatabaseResultStore,
@@ -48,6 +48,7 @@ from app.pipeline import (
 from app.research import ResearchStage
 from app.research.reddit.cache import SERVE_MARGIN, RedditCache
 from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
+from app.search_run_limits import SWEEP_EVERY_S
 from tests.fakes.live_run import use_live_shaped_run
 from tests.fakes.research import thread
 
@@ -1164,7 +1165,8 @@ def test_a_finished_run_goes_at_its_keep_time_on_the_wall_clock_too(harness: Har
 def test_a_run_that_read_a_reddit_answer_at_the_edge_is_gone_before_it_is_24_hours_old(
     harness: Harness, keep: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """The worst case, with the real cache and run store reading one setting: the edge, the longest search, the keep."""
+    """The worst case, with the real cache, run store and timer reading one setting, on an idle server: the edge, the
+    longest search, the keep-time, then a full tick before the timer drops the run, with no request in between."""
     monkeypatch.setenv("SEARCH_RUN_KEEP_MINUTES", keep)
     read_at = datetime(2026, 11, 14, 9, 0, tzinfo=UTC)
     wall = [read_at]
@@ -1181,9 +1183,13 @@ def test_a_run_that_read_a_reddit_answer_at_the_edge_is_gone_before_it_is_24_hou
     assert search_id is not None
     wait_until(lambda: runs._runs[search_id].ended_at is not None, "the run to end")
 
-    # The longest search, then the keep-time and one second (as the other keep-time tests: off the exact boundary).
-    wall[0] += timedelta(seconds=C.SEARCH_TIME_LIMIT_S + settings.keep_s + 1)
-    clock.jumped_s = settings.keep_s + 1
-    with pytest.raises(ExpiredRun):
-        runs.get(search_id)  # the run that read it is gone...
+    # The longest search, the keep-time and one second (as the other keep-time tests: off the exact boundary), then a
+    # full tick: the run passed its keep-time just after one tick, so the next one is the first to see it.
+    wall[0] += timedelta(seconds=C.SEARCH_TIME_LIMIT_S + settings.keep_s + 1 + SWEEP_EVERY_S)
+    clock.jumped_s = settings.keep_s + 1 + SWEEP_EVERY_S
+    assert search_id in runs._runs  # nothing has asked for it, so it is still held
+    Housekeeping(runs, sweep=lambda: None).tick()  # the timer's tick
+    assert search_id not in runs._runs  # the run that read it is gone...
     assert wall[0] - read_at == timedelta(hours=24) - SERVE_MARGIN  # ...while the answer is still under 24 hours old
+    with pytest.raises(ExpiredRun):
+        runs.get(search_id)

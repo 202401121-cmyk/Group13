@@ -31,11 +31,11 @@ from app.api.presearch import plain_validation_message
 from app.contracts import SCHEMA_VERSION, SearchRequest, SearchResult
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
 from app.research.cache import sweep_expired_files
+from app.search_run_limits import SWEEP_EVERY_S
 
 log = logging.getLogger(__name__)
 
 DEFAULT_FRONTEND_ORIGINS = ("http://localhost:3000",)  # the frontend's dev server (npm run dev)
-SWEEP_EVERY_S = 600.0  # the team's choice (US-12): expired Reddit text goes within ten minutes, search or no search
 
 
 class Housekeeping:

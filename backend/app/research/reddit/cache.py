@@ -6,11 +6,11 @@ stops a search (build rule 10).
 
 D-53 keeps Reddit data at most 24 hours, counted from when it was read, and covers every copy we hold. So an answer's
 age is its oldest source's, and storing a thread again with its comments doesn't restart the clock. An answer is served
-only before serve_limit(): 24 hours less the longest search, the time a finished run is kept (SEARCH_RUN_KEEP_MINUTES)
-and a margin, so a run holding it is gone in time when it is dropped at its keep-time (serve_limit() says when it
-may not be). Files past it are deleted at app start-up and then within ten
-minutes (the app's housekeeping), by each search (the research stage sweeps first, whatever else works), and by the
-first use of a cache. A machine where the app isn't running deletes nothing until it starts.
+only before serve_limit(): 24 hours less the longest search, the time a finished run is kept (SEARCH_RUN_KEEP_MINUTES),
+one housekeeping tick and a margin, so a run holding it, and its file, are gone in time. Files past it are deleted at
+app start-up and then within ten minutes (the app's housekeeping), by each search (the research stage sweeps first,
+whatever else works), and by the first use of a cache. A machine where the app isn't running deletes nothing until it
+starts.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from app.contracts import SEARCH_TIME_LIMIT_S, Source
-from app.search_run_limits import keep_minutes
+from app.search_run_limits import SWEEP_EVERY_S, keep_minutes
 
 log = logging.getLogger(__name__)
 
@@ -44,17 +44,17 @@ def _utc_now() -> datetime:
 
 
 def serve_limit(env: Mapping[str, str] | None = None) -> timedelta:
-    """How long a Reddit answer may be served: 24 hours less the longest search, the keep-time and SERVE_MARGIN (D-53).
+    """How long a Reddit answer may be served: 24 hours less the longest search, the keep-time, one housekeeping tick
+    and SERVE_MARGIN (D-53).
 
-    An answer served at the last moment, read by a search that takes the longest it may (SEARCH_TIME_LIMIT_S, 150 s,
-    which includes saving the result), whose run is then kept for SEARCH_RUN_KEEP_MINUTES (30 by default), is gone
-    SERVE_MARGIN (60 s) before it is 24 hours old: served at the edge + the longest search + the keep-time stays under
-    24 hours. By default that is 23 hours 26 minutes 30 seconds. A finished run goes at its keep-time even while a
-    progress stream reads it (app/api/search_runs.py), when a request or a stream drops it then. On an idle server the
-    app's housekeeping drops it within ten minutes of its keep-time (app/main.py), so up to about nine minutes past 24
-    hours: a known gap that a margin as long as that timer would close.
+    The sum: served at the edge + the longest search (SEARCH_TIME_LIMIT_S, 150 s, which includes saving the result) +
+    the keep-time (SEARCH_RUN_KEEP_MINUTES, 30 by default) + one tick (SWEEP_EVERY_S, 600 s) stays SERVE_MARGIN (60 s)
+    under 24 hours. That holds for the runs in memory, which go at their keep-time even while a progress stream reads
+    them (app/api/search_runs.py) and at the latest at the next tick on an idle server (app/main.py), and for the files
+    on disk, which the next tick deletes once they pass this limit. By default it is 23 hours 16 minutes 30 seconds.
     """
-    return DEFAULT_TTL - timedelta(minutes=keep_minutes(env)) - timedelta(seconds=SEARCH_TIME_LIMIT_S) - SERVE_MARGIN
+    keep = timedelta(minutes=keep_minutes(env))
+    return DEFAULT_TTL - keep - timedelta(seconds=SEARCH_TIME_LIMIT_S) - timedelta(seconds=SWEEP_EVERY_S) - SERVE_MARGIN
 
 
 class RedditCache:

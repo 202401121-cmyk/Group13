@@ -1,10 +1,11 @@
-"""How long a finished search stays in the server's memory (SEARCH_RUN_KEEP_MINUTES).
+"""How long a finished search stays in the server's memory (SEARCH_RUN_KEEP_MINUTES), and how often it is cleared.
 
-It has its own module because two parts of the app must agree on it. The search runs (app/api/search_runs.py) keep a
-finished run this long, even while a progress stream reads it. The Reddit cache (app/research/reddit/cache.py) stops
-serving an answer this much sooner than 24 hours, less the longest search and a margin as well (serve_limit()), so a run
-that read the answer late is gone before the data turns 24 hours old when it is dropped at its keep-time (D-53 covers
-every copy). On an idle server the app's housekeeping drops it within ten minutes of that (app/main.py).
+It has its own module because three parts of the app must agree on these. The search runs (app/api/search_runs.py) keep
+a finished run this long, even while a progress stream reads it. The app's housekeeping (app/main.py) drops runs past
+that, and deletes expired cache files, every SWEEP_EVERY_S, search or no search. The Reddit cache
+(app/research/reddit/cache.py) stops serving an answer this much sooner than 24 hours, less the longest search, one
+housekeeping tick and a margin as well (serve_limit()), so a run that read the answer late, and the answer's own file,
+are gone before the data turns 24 hours old even on an idle server (D-53 covers every copy).
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ log = logging.getLogger(__name__)
 
 DEFAULT_KEEP_MINUTES = 30.0
 MIN_KEEP_MINUTES, MAX_KEEP_MINUTES = 1.0, 120.0
+SWEEP_EVERY_S = 600.0  # the team's choice (US-12): expired Reddit text goes within ten minutes, search or no search
 
 
 def environment() -> dict[str, str]:
