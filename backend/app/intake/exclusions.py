@@ -17,15 +17,14 @@ from __future__ import annotations
 
 import re
 from functools import cache
-from pathlib import Path
-
-import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs
-from pydantic import BaseModel, ConfigDict, Field
 
 from app.contracts import Exclusion, ExclusionParseResponse
+from app.decide.features import FEATURES_PATH, feature_key, feature_name, known_feature, load_feature_words
 from app.research.reddit.quality import load_quality_settings
 
-FEATURES_PATH = Path(__file__).resolve().parents[2] / "config" / "exclusions.yaml"
+# The feature table is app/decide/features.py's, shared with the search and decide (S3-9).
+__all__ = ["FEATURES_PATH", "feature_key", "known_feature", "load_feature_words", "parse_exclusions"]
+
 MAX_EXCLUSIONS = 30  # ExclusionParseResponse.exclusions
 MAX_NOT_UNDERSTOOD = 20  # ExclusionParseResponse.not_understood
 MAX_ITEM_CHARS = 200  # each not-understood item, as the contract allows
@@ -87,26 +86,6 @@ _MEASURE = re.compile(
 _LETTERS_AND_DIGITS = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9+-]+$")
 
 
-class _Feature(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    name: str = Field(min_length=1, max_length=80)
-    also: list[str] = Field(default_factory=list)
-
-
-class _FeatureFile(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    features: list[_Feature] = Field(min_length=1)
-
-
-@cache
-def load_feature_words(path: Path = FEATURES_PATH) -> dict[str, str]:
-    """Every way of writing a feature, in lowercase, mapped to the feature's own name."""
-    data = _FeatureFile.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
-    return {_plain(form): f.name for f in data.features for form in (f.name, *f.also)}
-
-
 @cache
 def _brands() -> frozenset[str]:
     return frozenset(brand.casefold() for brand in load_quality_settings().counting.brands)
@@ -148,15 +127,6 @@ def _is_model(item: str) -> bool:
     return 2 <= len(words) <= 3 and words[-1].isdigit() and words[0].isalpha()  # "Pixel 8", "iPhone 15"
 
 
-def _feature(item: str) -> str | None:
-    features = load_feature_words()
-    plain = _plain(item)
-    for form in (plain, plain.removesuffix("s"), plain.removesuffix("es")):
-        if form in features:
-            return features[form]
-    return None
-
-
 def _kind_of(item: str) -> Exclusion | None:
     if _COMPARISON.match(item) or _MEASURE.match(item):
         return None
@@ -164,7 +134,7 @@ def _kind_of(item: str) -> Exclusion | None:
         return Exclusion(kind="model", value=item[:80])
     if _plain(item) in _brands():
         return Exclusion(kind="brand", value=item)
-    feature = _feature(item)
+    feature = feature_name(item)
     if feature is not None:
         return Exclusion(kind="feature", value=feature)
     return None

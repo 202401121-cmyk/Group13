@@ -517,3 +517,44 @@ def test_decide_never_imports_the_llm_client() -> None:
             for name in names:
                 assert not name.startswith("app.") or name.startswith(allowed), f"{path.name} imports {name}"
                 assert name.split(".")[0] not in sdks, f"{path.name} imports {name}"
+
+
+@pytest.mark.parametrize(
+    ("written", "key"),
+    [
+        pytest.param("touch screen", "has_touchscreen", id="another-spelling"),
+        pytest.param("rgb", "has_rgb_lighting", id="a-short-form"),
+        pytest.param("Touch-Screen", "has_touchscreen", id="capitals-and-a-hyphen"),
+    ],
+)
+def test_a_feature_written_another_way_matches_the_key_the_search_asked_for(written: str, key: str) -> None:
+    """The search asks extract and verify for the feature's own key in config/exclusions.yaml (S3-9), whatever words
+    the exclusion holds, so decide reads that key too."""
+    rb = rubric(exclusions=[Exclusion(kind="feature", value=written)])
+    values = [known(A, "battery_life", score=7.0), known(A, key, value="yes")]
+    result = decide(decide_input(rb, [product(A)], values))
+    assert filtered(result, A) == ("filtered_out", [f"You ruled out {written}"], "feature")
+
+
+def test_the_exclusions_own_words_still_count() -> None:
+    rb = rubric(exclusions=[Exclusion(kind="feature", value="touch screen")])
+    values = [known(A, "battery_life", score=7.0), known(A, "has_touch_screen", value="yes")]
+    assert group_of(decide(decide_input(rb, [product(A)], values)), A) == "filtered_out"
+
+
+def test_an_unknown_feature_reads_only_its_own_words() -> None:
+    rb = rubric(exclusions=[Exclusion(kind="feature", value="glitter finish")])
+    values = [known(A, "battery_life", score=7.0), known(A, "has_glitter_finish", value="yes")]
+    assert group_of(decide(decide_input(rb, [product(A)], values)), A) == "filtered_out"
+
+
+def test_a_broken_feature_table_never_stops_decide(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Build rule 9: with config/exclusions.yaml unusable, decide still reads the exclusion's own words."""
+
+    def broken() -> dict[str, str]:
+        raise OSError("made-up failure")
+
+    monkeypatch.setattr("app.decide.features.load_feature_words", broken)
+    rb = rubric(exclusions=[Exclusion(kind="feature", value="touch screen")])
+    values = [known(A, "battery_life", score=7.0), known(A, "has_touch_screen", value="yes")]
+    assert group_of(decide(decide_input(rb, [product(A)], values)), A) == "filtered_out"

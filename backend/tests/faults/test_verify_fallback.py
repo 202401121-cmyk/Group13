@@ -57,7 +57,9 @@ def test_if_tier_order_fails_too_every_value_is_unknown(
         out, report = run_stage(TrustVerifyStage(), _input(), _ctx(), 2.0)
     assert report.status is StageStatus.FALLBACK
     assert out is not None and out.trust_method == "tier_order"
-    assert len(out.values) == len(examples.match().products) * 2
+    # Every product a source names, by both keys: the two no example source names are still dropped (US-40).
+    assert out.dropped_unsourced == ["prd_aurora_air_13", "prd_vela_pro_14"]
+    assert len(out.values) == (len(examples.match().products) - 2) * 2
     assert {v.state for v in out.values} == {ValueState.UNKNOWN}
     assert all(v.score is None for v in out.values)
     assert "secret claim text" not in caplog.text

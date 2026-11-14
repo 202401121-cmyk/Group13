@@ -8,7 +8,8 @@
 # keeps the tier research gives it (editorial) and the youtube default below.
 #
 # Every number marked "team's choice" is a setting, not a fact: change it here and say why in the pull request.
-# This table also holds every domain in config/extract.yaml's tiers, with the same tier (a test checks it).
+# Extract reads its tiers from this table too (app/extract/settings.py), so both stages agree on every site's tier. It
+# holds every site extract.yaml listed before S3-7, with the same tier (a test checks it).
 
 # Sites we know. Makers' own pages score highest, then labs, then editorial reviews, then community (DR-03), and in
 # every category after its adjustments too (a test checks it). Shops' listings are unchecked, so they score low.

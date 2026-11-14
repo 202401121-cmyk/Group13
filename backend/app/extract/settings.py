@@ -1,4 +1,8 @@
-"""The extract stage's settings (US-14): config/extract.yaml, one environment switch, and the pool's Reddit budget."""
+"""The extract stage's settings (US-14): config/extract.yaml, one environment switch, and the pool's Reddit budget.
+
+What kind of site each domain is comes from the one table of known sites, config/trust.yaml (US-16, S3-7), which
+verify reads too, so the two stages always agree on a site's tier.
+"""
 
 from __future__ import annotations
 
@@ -19,7 +23,6 @@ log = logging.getLogger(__name__)
 
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "extract.yaml"
 MAX_SOURCES_SWITCH = "EXTRACT_MAX_SOURCES"
-_DOMAIN = re.compile(r"[a-z0-9-]+(\.[a-z0-9-]+)+")
 _KEY = re.compile(r"[a-z][a-z0-9_]{1,59}")
 PRICE_DEFINITION = "The price in Indian rupees that a store in India asks for it, as a number."
 
@@ -32,7 +35,6 @@ class ExtractSettings(BaseModel):
     max_sources_per_search: int = Field(default=40, ge=1, le=100)
     reddit_tokens_per_search: int = Field(default=18_000, gt=0)
     book_real_use: bool = Field(default=False, description="Count real use in the Reddit budget, as the pool does")
-    tiers: dict[str, list[str]] = Field(default_factory=dict)
     # What a public prompt may carry besides fixed criteria (US-14, US-46). Only these keys and our own definitions go:
     # never a generated key or the shopper's words. Empty tables keep public prompts to the fixed criteria alone.
     public_synonyms: dict[str, list[str]] = Field(
@@ -62,22 +64,15 @@ class ExtractSettings(BaseModel):
                 )
         return table
 
-    @field_validator("tiers")
-    @classmethod
-    def _known_tiers(cls, tiers: dict[str, list[str]]) -> dict[str, list[str]]:
-        for name, domains in tiers.items():
-            if name.upper() not in SourceTier.__members__:
-                raise ValueError(f"unknown tier: {name}")
-            if not all(_DOMAIN.fullmatch(domain) for domain in domains):
-                raise ValueError(f"a domain under {name} is not a plain lowercase domain")
-        return tiers
-
     def output_tokens(self, data_class: DataClass) -> int:
         return self.reddit_output_tokens if data_class is DataClass.REDDIT else self.public_output_tokens
 
     @property
     def domain_tiers(self) -> dict[str, SourceTier]:
-        return {domain: SourceTier[name.upper()] for name, domains in self.tiers.items() for domain in domains}
+        """Each known site's tier, from config/trust.yaml. With that file broken, none: research's tier is used."""
+        from app.verify import trust  # here, because app.verify.trust imports this package's tiers
+
+        return trust.default_trust_table().domain_tiers()
 
 
 def load_extract_settings(path: Path | str | None = None, env: Mapping[str, str] | None = None) -> ExtractSettings:

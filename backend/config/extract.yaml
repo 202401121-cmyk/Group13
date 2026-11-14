@@ -69,6 +69,13 @@ public_synonyms:
   price_to_performance: [value_for_money]
   price_performance: [value_for_money]
 
+# Features the shopper rules out (S3-9) need no table here: a public prompt asks for "has_<feature>" for each feature
+# config/exclusions.yaml lists, by its own name there, with our own definition "Whether it has <feature> (yes or no).",
+# after the price and the rules' spec keys and only in the room the criteria leave. A key listed below keeps the
+# definition given here. A feature that file doesn't list is never sent: it may be the shopper's own words.
+#
+# What kind of site each domain is lives in config/trust.yaml, the one table of known sites, which verify reads too.
+#
 # public_spec_keys: the spec keys a hard rule may name that a public prompt may ask for, each with our own definition,
 # so verify (US-16) and decide (US-17) get values to filter on. A hard rule's key not listed here stays out of public
 # prompts: it may be made from the shopper's words.
@@ -89,40 +96,3 @@ public_spec_keys:
 
 # price_definition: what a public prompt asks for under price_inr, only when the search has a budget (US-17).
 price_definition: The price in Indian rupees that a store in India asks for it, as a number.
-
-# What kind of site each domain is. A domain covers its subdomains, and the longest match wins. A domain not listed
-# here counts as whatever research said, which is editorial for web and review pages. Reddit is always community, and so
-# is a subdomain or folder named as a forum, even on a maker's domain (app/extract/tiers.py), so most forums need no line.
-# A claim's type follows from this: manufacturer and lab give spec, and the rest give experience (DR-05).
-# A small list on purpose: US-16 replaces it in Sprint 3.
-tiers:
-  manufacturer:
-    - acer.com
-    - apple.com
-    - asus.com
-    - bose.com
-    - dell.com
-    - hp.com
-    - lenovo.com
-    - lg.com
-    - mi.com
-    - msi.com
-    - oneplus.in
-    - samsung.com
-    - sony.co.in
-  lab:
-    - notebookcheck.net
-    - rtings.com
-  community:
-    - c.mi.com
-    - h30434.www3.hp.com
-    - head-fi.org
-    - quora.com
-    - stackexchange.com
-    - zentalk.asus.com
-  retailer:
-    - amazon.in
-    - croma.com
-    - flipkart.com
-    - reliancedigital.in
-    - vijaysales.com

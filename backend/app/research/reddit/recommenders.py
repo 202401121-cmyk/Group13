@@ -129,6 +129,15 @@ class ProductMatcher:
                 found.append((start, plain))
         return [self._products[plain] for _, plain in sorted(found)]
 
+    def find_all(self, text: str) -> set[str]:
+        """Every product any of whose names stands as whole words in the text, in any case, overlaps included: in
+        "Galaxy S24 Ultra", both "Galaxy S24 Ultra" and "Galaxy S24". For sourcing (US-40), where any naming counts;
+        find() keeps one name per stretch of text, for counting people."""
+        plain_text = _plain(text)
+        return {
+            self._products[plain] for start, end, plain in self._walk(plain_text) if _bounded(plain_text, start, end)
+        }
+
 
 def _what_each_wrote(thread: Source) -> Iterator[tuple[str | None, str]]:
     """Who wrote what. A "Same topic" line is ours, added when near-duplicates merge, so it isn't the author's words."""

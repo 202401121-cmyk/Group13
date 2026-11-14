@@ -12,6 +12,8 @@ import app.contracts as C
 from app.contracts import examples as ex
 from app.entities import FuzzyMatchStage
 from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
+from app.research import ResearchStage
+from tests.fakes.research import review_source
 
 
 class _Exploding(FuzzyMatchStage):
@@ -21,12 +23,23 @@ class _Exploding(FuzzyMatchStage):
         raise RuntimeError("the made-up model would not load")
 
 
+class _AlsoNamesNova14(ResearchStage):
+    """The example sources, and one made-up page that calls Nova Book 14 "Nova 14": a name no source holds would be
+    dropped before decide (US-40), and this test needs both names to reach the result."""
+
+    def run(self, inp: C.ResearchInput, ctx: C.StageContext) -> C.ResearchResult:
+        out = super().run(inp, ctx)
+        page = review_source("https://made-up-reviews.example/nova-14", text="The Nova 14 is a fine laptop.")
+        return C.ResearchResult.model_validate({**out.model_dump(), "sources": [*out.model_dump()["sources"], page]})
+
+
 def _request() -> C.SearchRequest:
     return C.SearchRequest(session_id=ex.SESSION_ID, raw_query=ex.QUERY, rubric=ex.rubric())
 
 
 def test_a_failing_match_falls_back_and_the_report_says_so(caplog: pytest.LogCaptureFixture) -> None:
     stages = default_search_stages()
+    stages.research = _AlsoNamesNova14()
     stages.match = _Exploding()
     with caplog.at_level(logging.WARNING):
         result = PipelineRunner(stages, InMemoryResultStore()).run(_request())

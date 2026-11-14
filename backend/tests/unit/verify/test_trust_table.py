@@ -40,8 +40,10 @@ def test_the_table_has_the_indian_review_sites_and_every_research_site(table: Tr
 
 
 def test_the_table_agrees_with_extracts_tiers(table: TrustTable) -> None:
-    """Until extract reads this table, its own tier list must say the same."""
-    for domain, tier in load_extract_settings(env={}).domain_tiers.items():
+    """Extract reads this table's tiers (S3-7), so both stages always agree on every site's tier."""
+    extract = load_extract_settings(env={}).domain_tiers
+    assert extract == table.domain_tiers()
+    for domain, tier in extract.items():
         assert domain in table.sites, domain
         assert table.domain_tiers()[domain] is tier, domain
 

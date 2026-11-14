@@ -12,7 +12,10 @@ definitions, chosen by code from config/extract.yaml:
 - a generated criterion, as the category's fixed criterion it stands for (public_synonyms). Its claims come back under
   the search's own key;
 - a hard rule's key, if it is a known spec key (public_spec_keys), so verify and decide get values to filter on;
-- price_inr, when the search has a budget.
+- price_inr, when the search has a budget;
+- "has_<feature>" for each feature the shopper ruled out (S3-9) that config/exclusions.yaml lists, by the feature's own
+  name there and with our own definition, so decide can tell which products have it. A feature not listed there is
+  left out: it may be the shopper's own words.
 """
 
 from __future__ import annotations
@@ -22,6 +25,7 @@ from dataclasses import dataclass, field
 
 from app.contracts import DataClass, ExtractInput, Source, SourceType
 from app.criteria.fallback import fallback_criteria
+from app.decide.features import feature_key, known_feature
 from app.decide.rules import PRICE_KEY
 from app.intake.lexicon import load_lexicon
 from app.llm.data_block import DATA_RULE, wrap_as_data
@@ -57,14 +61,17 @@ MAX_TITLE_CHARS = 100
 # public last resort (tests/unit/llm/test_data_block.py), so spec keys only fill the room the criteria leave.
 MAX_PROMPT_KEYS = 10
 NO_CRITERIA = "No criteria for this source: list the products it names, and leave claims empty."
+FEATURE_DEFINITION = "Whether it has {feature} (yes or no)."
 
 
 @dataclass(frozen=True)
 class SpecAsk:
-    """What a search asks every public call for besides criteria: its hard rules' keys, and whether it has a budget."""
+    """What a search asks every public call for besides criteria: its hard rules' keys, whether it has a budget, and
+    the features it rules out, each by its own name in config/exclusions.yaml (S3-9)."""
 
     attributes: tuple[str, ...] = ()
     has_budget: bool = False
+    features: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -88,6 +95,7 @@ class PublicKeys:
     criteria: tuple[str, ...]
     specs: tuple[str, ...]
     renames: Mapping[str, str]
+    definitions: Mapping[str, str] = field(default_factory=dict)  # our own, for each feature key among the specs
 
     def line(self, criteria_in_search: int) -> str:
         """For the CLI's --claims: how much of the search reached public prompts."""
@@ -106,10 +114,12 @@ def public_prompt_keys(
     attributes: Sequence[str],
     has_budget: bool,
     settings: ExtractSettings,
+    features: Sequence[str] = (),
 ) -> PublicKeys:
     """Fixed keys only, chosen by code (no LLM): the search's fixed criteria, each generated one's fixed stand-in, known
-    spec keys and the price. A generated key with no stand-in in this category stays out, as does an unknown rule key.
-    Spec keys only fill the room the criteria leave, up to MAX_PROMPT_KEYS lines in all, the price first.
+    spec keys, the price and the ruled-out features config/exclusions.yaml knows. A generated key with no stand-in in
+    this category stays out, as do an unknown rule key and an unknown feature. Spec keys only fill the room the
+    criteria leave, up to MAX_PROMPT_KEYS lines in all: the price first, then the rules, then the features.
     """
     fixed = {c.key for c in fallback_criteria(category).criteria}
     own = {key for key in criterion_keys if key in fixed}
@@ -127,8 +137,22 @@ def public_prompt_keys(
     # The price first, as decide checks the budget before the rules (US-17); then the rules, in their order.
     wanted = [*([PRICE_KEY] if has_budget else []), *attributes]
     specs = [k for k in dict.fromkeys(wanted) if k in known and k not in criteria]
+    ours = _feature_definitions(features)
+    specs += [k for k in ours if k not in criteria and k not in specs]
     room = max(0, MAX_PROMPT_KEYS - len(criteria))  # never more lines than a full rubric: the page must fit whole
-    return PublicKeys(tuple(criteria), tuple(specs[:room]), renames)
+    sent = tuple(specs[:room])
+    return PublicKeys(tuple(criteria), sent, renames, {k: text for k, text in ours.items() if k in sent})
+
+
+def _feature_definitions(features: Sequence[str]) -> dict[str, str]:
+    """Each known feature's key, with our definition made from its own name in config/exclusions.yaml, never from how
+    it was written. An unknown feature has none, so it is never sent."""
+    out: dict[str, str] = {}
+    for written in features:
+        name, key = known_feature(written), feature_key(written)
+        if name is not None and key is not None:
+            out.setdefault(key, FEATURE_DEFINITION.format(feature=name))
+    return out
 
 
 def allowed_criteria(
@@ -152,9 +176,9 @@ def allowed_criteria(
     else:
         settings = settings if settings is not None else ExtractSettings()
         ask = specs if specs is not None else SpecAsk()
-        public = public_prompt_keys(slug, inp.criterion_keys, ask.attributes, ask.has_budget, settings)
+        public = public_prompt_keys(slug, inp.criterion_keys, ask.attributes, ask.has_budget, settings, ask.features)
         keys, renames = public.criteria + public.specs, public.renames
-        ours = {**fixed, **settings.public_spec_keys, PRICE_KEY: settings.price_definition}
+        ours = {**fixed, **public.definitions, **settings.public_spec_keys, PRICE_KEY: settings.price_definition}
         lines = tuple(f"- {key}: {ours[key]}" for key in keys)
     if slug in lexicon.categories:
         return PromptCriteria(keys, lines, lexicon.label(slug), renames)

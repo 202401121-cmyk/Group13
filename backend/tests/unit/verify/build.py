@@ -13,6 +13,7 @@ from app.contracts import (
     MatchResult,
     Product,
     Source,
+    SourceComment,
     SourceTier,
     SourceType,
     VerifyInput,
@@ -31,8 +32,12 @@ def source(
     kind: SourceType = SourceType.REVIEW_SITE,
     tier: SourceTier | None = None,
     community: str | None = None,
+    *,
+    title: str = "A made-up page",
+    text: str | None = None,
+    comments: Sequence[str] = (),
 ) -> Source:
-    """A page or a Reddit thread. The site is the URL's host, unless it is Reddit."""
+    """A page or a Reddit thread. The site is the URL's host, unless it is Reddit. A thread may have comments."""
     tiers = {
         SourceType.MANUFACTURER: SourceTier.MANUFACTURER,
         SourceType.LAB: SourceTier.LAB,
@@ -40,24 +45,36 @@ def source(
         SourceType.RETAILER: SourceTier.RETAILER,
     }
     host = url.split("/")[2].removeprefix("www.")
-    text = f"Made-up page for tests: {url}"
+    text = text if text is not None else f"Made-up page for tests: {url}"
+    replies = tuple(
+        SourceComment(id=f"c{i}", depth=1, upvotes=1, text=reply, parent_id=None) for i, reply in enumerate(comments)
+    )
     return Source(
         id=f"src_{_hex(url)[:16]}",
         url=url,
         type=kind,
         tier=tier or tiers.get(kind, SourceTier.EDITORIAL),
-        title="A made-up page",
+        title=title,
         text=text,
         text_hash=_hex(text),
         fetched_at=T0,
         community=community if kind is SourceType.REDDIT else None,
         site=None if kind is SourceType.REDDIT else host,
         via="api" if kind is SourceType.REDDIT else "direct",
+        comments=replies,
     )
 
 
-def reddit(sub: str = "r/SuggestALaptop", post: str = "abc123") -> Source:
-    return source(f"https://www.reddit.com/{sub}/comments/{post}/", SourceType.REDDIT, community=sub)
+def reddit(
+    sub: str = "r/SuggestALaptop",
+    post: str = "abc123",
+    *,
+    title: str = "A made-up page",
+    text: str | None = None,
+    comments: Sequence[str] = (),
+) -> Source:
+    url = f"https://www.reddit.com/{sub}/comments/{post}/"
+    return source(url, SourceType.REDDIT, community=sub, title=title, text=text, comments=comments)
 
 
 def claim(
@@ -71,6 +88,7 @@ def claim(
     claim_type: ClaimType | None = None,
     weight: float = 1.0,
     n: int = 0,
+    quote: str | None = None,
 ) -> Claim:
     kind = claim_type or (
         ClaimType.SPEC if src.tier in (SourceTier.MANUFACTURER, SourceTier.LAB) else ClaimType.EXPERIENCE
@@ -84,7 +102,7 @@ def claim(
         value=value,
         unit=unit,
         score=score,
-        quote=f"made-up quote {n}",
+        quote=quote if quote is not None else src.text[:600],  # word for word from its source, as extract checks
         claim_type=kind,
         polarity="neutral",
         weight=weight,

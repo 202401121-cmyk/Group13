@@ -30,7 +30,9 @@ def _request() -> C.SearchRequest:
 
 def _run(*names: str, aliases: object, match: object | None = None, decide: object | None = None) -> C.SearchResult:
     stages = default_search_stages()
-    stages.research = FixedResearch(web_source("https://made-up-reviews.example/a"))
+    # The page names every product, as a real one would: a name no source holds is dropped before decide (US-40).
+    page = web_source("https://made-up-reviews.example/a", text="Made-up review: " + "; ".join(names) + ".")
+    stages.research = FixedResearch(page)
     stages.extract = Mentions(*(C.ProductMention(raw_name=n, is_product=True) for n in names))
     if match is not None:
         stages.match = match  # type: ignore[assignment]

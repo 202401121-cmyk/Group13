@@ -1,6 +1,7 @@
-"""What kind of site a source is, and so what type its claims are (US-14, DR-05). US-16 replaces this in Sprint 3.
+"""What kind of site a source is, and so what type its claims are (US-14, DR-05).
 
-Code decides this from the source, never the model: a page could otherwise talk its way into counting as a spec.
+The domains and their tiers are config/trust.yaml's (US-16, S3-7), passed in by the caller. Code decides this from the
+source, never the model: a page could otherwise talk its way into counting as a spec.
 """
 
 from __future__ import annotations

@@ -310,10 +310,12 @@ NO_SALT = "REDDIT_USER_SALT is not set"
 
 
 def public_keys_line(rubric: Rubric, settings: ExtractSettings) -> str:
-    """How many criteria and spec keys reached public prompts (US-14): fixed keys and our own definitions only."""
+    """How many criteria and spec keys reached public prompts (US-14): fixed keys and our own definitions only. Spec
+    keys include each ruled-out feature config/exclusions.yaml knows (S3-9)."""
     keys = [w.key for w in rubric.weights]
     rules = [r.attribute for r in rubric.hard_rules]
-    public = public_prompt_keys(rubric.category, keys, rules, rubric.budget is not None, settings)
+    features = [e.value for e in rubric.exclusions if e.kind == "feature"]
+    public = public_prompt_keys(rubric.category, keys, rules, rubric.budget is not None, settings, features)
     return public.line(len(keys))
 
 
