@@ -1,0 +1,749 @@
+# Sprint 3 baselines: one floor per measure (S3-18, task #45). US-49's quality gate (Sprint 4) enforces them.
+# Written by `python -m evals.thresholds --write` from evals/results/; check with `python -m evals.thresholds --check`.
+# The rules (evals/thresholds.py): a safety floor is exact; a quality floor is the measured value less the stated
+# margin; a time has a ceiling at its stage's own limit; a target from the plan is written next to its floor and is
+# never lowered. Changing a floor is a team decision: say so in the pull request. The report is
+# docs/evaluation/sprint-3-baselines.md.
+version: 1
+measures:
+  decide.briefs_as_expected:
+    kind: quality
+    direction: at_least
+    floor: 5.0
+    measured: 5.0
+    unit: briefs
+    margin: 'none: hand-written expectations are right or wrong'
+    measured_on: offline
+    source: backend/evals/results/sprint-3-offline.json; backend/tests/fixtures/decide (5 made-up briefs), app.decide
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Every made-up brief gives its hand-written groups (US-17, US-18).
+  decide.coverage_mean:
+    kind: quality
+    direction: at_least
+    floor: 0.9168
+    measured: 0.9668
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: backend/evals/results/sprint-3-offline.json; backend/tests/fixtures/decide (5 made-up briefs), app.decide
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Ranked products keep the evidence coverage they have now (US-18).
+  decide.coverage_min:
+    kind: quality
+    direction: at_least
+    floor: 0.689
+    measured: 0.739
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: backend/evals/results/sprint-3-offline.json; backend/tests/fixtures/decide (5 made-up briefs), app.decide
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Ranked products keep the evidence coverage they have now (US-18).
+  decide.hard_rule_violations_shown:
+    kind: safety
+    direction: at_most
+    floor: 0.0
+    measured: 0.0
+    unit: products
+    margin: 'exact: none at all'
+    measured_on: offline
+    source: backend/evals/results/sprint-3-offline.json; backend/tests/fixtures/decide (5 made-up briefs), app.decide
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'A shown product never breaks an active hard rule, the budget or an exclusion (US-17, build rule 2): decide holds
+      it back.'
+  decide.most_mentioned_worst_fit_wins:
+    kind: safety
+    direction: at_most
+    floor: 0.0
+    measured: 0.0
+    unit: briefs
+    margin: 'exact: none at all'
+    measured_on: offline
+    source: backend/evals/results/sprint-3-offline.json; backend/tests/fixtures/decide (5 made-up briefs), app.decide
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'Mentions never buy a rank: the most-mentioned product never wins while it fits worst (US-17, build rule 2).'
+  live.briefs_finished:
+    kind: quality
+    direction: at_least
+    floor: 4.0
+    measured: 5.0
+    unit: briefs
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Every brief finishes, whatever fails on the way (build rules 9 and 10).
+  live.briefs_with_a_score:
+    kind: quality
+    direction: at_least
+    floor: 0.0
+    measured: 0.0
+    unit: briefs
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Shown products get scores, not 'not ranked' everywhere (S3-10b's demo risk).
+  live.claims_per_source.manufacturer:
+    kind: quality
+    direction: at_least
+    floor: 0.0
+    measured: 0.0
+    unit: claims
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Extraction keeps finding claims in what it reads (US-14).
+  live.claims_per_source.reddit:
+    kind: quality
+    direction: at_least
+    floor: 0.15
+    measured: 0.1667
+    unit: claims
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Extraction keeps finding claims in what it reads (US-14).
+  live.claims_per_source.retailer:
+    kind: quality
+    direction: at_least
+    floor: 0.0
+    measured: 0.0
+    unit: claims
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Extraction keeps finding claims in what it reads (US-14).
+  live.claims_per_source.review_site:
+    kind: quality
+    direction: at_least
+    floor: 0.51
+    measured: 0.5714
+    unit: claims
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Extraction keeps finding claims in what it reads (US-14).
+  live.claims_per_source_given:
+    kind: quality
+    direction: at_least
+    floor: 0.13
+    measured: 0.1515
+    unit: claims
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Extraction keeps finding claims in what it reads (US-14).
+  live.coverage_mean:
+    kind: quality
+    direction: at_least
+    floor: 0.0
+    measured: 0.0
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Ranked products keep the evidence coverage they have now (US-18).
+  live.hard_rule_violations_shown:
+    kind: safety
+    direction: at_most
+    floor: 0.0
+    measured: 0.0
+    unit: products
+    margin: 'exact: none at all'
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: A shown product never breaks an active hard rule, the budget or an exclusion (US-17, build rule 2), in a real search.
+  live.pages_direct:
+    kind: quality
+    direction: at_least
+    floor: 15.0
+    measured: 17.0
+    unit: pages
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The page readers keep reading pages (US-38).
+  live.pages_firecrawl:
+    kind: quality
+    direction: at_least
+    floor: 0.0
+    measured: 0.0
+    unit: pages
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The page readers keep reading pages (US-38).
+  live.pages_jina:
+    kind: quality
+    direction: at_least
+    floor: 0.0
+    measured: 1.0
+    unit: pages
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The page readers keep reading pages (US-38).
+  live.quote_found_share:
+    kind: quality
+    direction: at_least
+    floor: 0.8875
+    measured: 0.9375
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: A claim's quote is its source's own words (build rule 4, US-14).
+  live.ranked_products:
+    kind: quality
+    direction: at_least
+    floor: 3.0
+    measured: 4.0
+    unit: products
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Real searches keep showing products.
+  live.search_seconds_max:
+    kind: quality
+    direction: at_most
+    floor: 150.0
+    measured: 30.62
+    unit: seconds
+    margin: a ceiling at the search's own limit, 150 s
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: No stage may hang (build rule 9).
+  live.sources_per_brief:
+    kind: quality
+    direction: at_least
+    floor: 17.82
+    measured: 19.8
+    unit: sources
+    margin: 10% below the measured value, rounded down
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Research keeps finding sources (US-12, US-38).
+  live.stage_seconds_max.commerce:
+    kind: quality
+    direction: at_most
+    floor: 15.0
+    measured: 0.0
+    unit: seconds
+    margin: a ceiling at the stage's own limit, 15 s
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: No stage may hang (build rule 9).
+  live.stage_seconds_max.decide:
+    kind: quality
+    direction: at_most
+    floor: 2.0
+    measured: 0.0
+    unit: seconds
+    margin: a ceiling at the stage's own limit, 2 s
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: No stage may hang (build rule 9).
+  live.stage_seconds_max.enrich:
+    kind: quality
+    direction: at_most
+    floor: 20.0
+    measured: 0.01
+    unit: seconds
+    margin: a ceiling at the stage's own limit, 20 s
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: No stage may hang (build rule 9).
+  live.stage_seconds_max.explain:
+    kind: quality
+    direction: at_most
+    floor: 15.0
+    measured: 0.0
+    unit: seconds
+    margin: a ceiling at the stage's own limit, 15 s
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: No stage may hang (build rule 9).
+  live.stage_seconds_max.extract:
+    kind: quality
+    direction: at_most
+    floor: 150.0
+    measured: 14.7
+    unit: seconds
+    margin: a ceiling at the search's limit, 150 s (each source has 15 s)
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: No stage may hang (build rule 9).
+  live.stage_seconds_max.match:
+    kind: quality
+    direction: at_most
+    floor: 5.0
+    measured: 0.02
+    unit: seconds
+    margin: a ceiling at the stage's own limit, 5 s
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: No stage may hang (build rule 9).
+  live.stage_seconds_max.research:
+    kind: quality
+    direction: at_most
+    floor: 40.0
+    measured: 23.89
+    unit: seconds
+    margin: a ceiling at the stage's own limit, 40 s
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: No stage may hang (build rule 9).
+  live.stage_seconds_max.verify:
+    kind: quality
+    direction: at_most
+    floor: 2.0
+    measured: 0.06
+    unit: seconds
+    margin: a ceiling at the stage's own limit, 2 s
+    measured_on: live
+    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: No stage may hang (build rule 9).
+  matching.fuzzy.own_pairs.f1:
+    kind: quality
+    direction: at_least
+    floor: 0.35
+    measured: 0.4
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: own_pairs'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.fuzzy.own_pairs.precision:
+    kind: quality
+    direction: at_least
+    floor: 0.6167
+    measured: 0.6667
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: own_pairs'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.fuzzy.own_pairs.recall:
+    kind: quality
+    direction: at_least
+    floor: 0.2357
+    measured: 0.2857
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: own_pairs'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.fuzzy.wdc_20cc80.f1:
+    kind: quality
+    direction: at_least
+    floor: 0.3728
+    measured: 0.4228
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: wdc_20cc80'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.fuzzy.wdc_20cc80.precision:
+    kind: quality
+    direction: at_least
+    floor: 0.3266
+    measured: 0.3766
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: wdc_20cc80'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.fuzzy.wdc_20cc80.recall:
+    kind: quality
+    direction: at_least
+    floor: 0.432
+    measured: 0.482
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: wdc_20cc80'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.fuzzy.wdc_50cc50.f1:
+    kind: quality
+    direction: at_least
+    floor: 0.3087
+    measured: 0.3587
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: wdc_50cc50'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.fuzzy.wdc_50cc50.precision:
+    kind: quality
+    direction: at_least
+    floor: 0.2752
+    measured: 0.3252
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: wdc_50cc50'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.fuzzy.wdc_50cc50.recall:
+    kind: quality
+    direction: at_least
+    floor: 0.35
+    measured: 0.4
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: wdc_50cc50'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.fuzzy.wdc_80cc20.f1:
+    kind: quality
+    direction: at_least
+    floor: 0.2418
+    measured: 0.2918
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: wdc_80cc20'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.fuzzy.wdc_80cc20.precision:
+    kind: quality
+    direction: at_least
+    floor: 0.2128
+    measured: 0.2628
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: wdc_80cc20'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.fuzzy.wdc_80cc20.recall:
+    kind: quality
+    direction: at_least
+    floor: 0.278
+    measured: 0.328
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matching_baseline.json: wdc_80cc20'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The fuzzy baseline (ml/MODELS.md card 8) is the matcher''s fallback: it must not get worse.'
+  matching.model.own_pairs.f1:
+    kind: quality
+    direction: at_least
+    floor: 0.2
+    measured: 0.25
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: own_pairs'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+  matching.model.own_pairs.precision:
+    kind: quality
+    direction: at_least
+    floor: 0.95
+    measured: 1.0
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: own_pairs'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+    target:
+      value: 0.95
+      source: 'ml/MODELS.md card 1 and project_docs/07_DATA_AND_ML.md: precision of 0.95 or more'
+      note: 'met as a number, but not shown: matcher at 0.9646, tp 1 fp 0; [1.0, 1.0]; machine labels (ml/DATA.md 4.1)'
+  matching.model.own_pairs.recall:
+    kind: quality
+    direction: at_least
+    floor: 0.0929
+    measured: 0.1429
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: own_pairs'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+  matching.model.wdc_20cc80.f1:
+    kind: quality
+    direction: at_least
+    floor: 0.0489
+    measured: 0.0989
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: wdc_20cc80'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+  matching.model.wdc_20cc80.precision:
+    kind: quality
+    direction: at_least
+    floor: 0.95
+    measured: 1.0
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: wdc_20cc80'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+  matching.model.wdc_20cc80.recall:
+    kind: quality
+    direction: at_least
+    floor: 0.002
+    measured: 0.052
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: wdc_20cc80'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+  matching.model.wdc_50cc50.f1:
+    kind: quality
+    direction: at_least
+    floor: 0.019
+    measured: 0.069
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: wdc_50cc50'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+  matching.model.wdc_50cc50.precision:
+    kind: quality
+    direction: at_least
+    floor: 0.7682
+    measured: 0.8182
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: wdc_50cc50'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+  matching.model.wdc_50cc50.recall:
+    kind: quality
+    direction: at_least
+    floor: 0.0
+    measured: 0.036
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: wdc_50cc50'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+  matching.model.wdc_80cc20.f1:
+    kind: quality
+    direction: at_least
+    floor: 0.0
+    measured: 0.0348
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: wdc_80cc20'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+  matching.model.wdc_80cc20.precision:
+    kind: quality
+    direction: at_least
+    floor: 0.4794
+    measured: 0.5294
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: wdc_80cc20'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+  matching.model.wdc_80cc20.recall:
+    kind: quality
+    direction: at_least
+    floor: 0.0
+    measured: 0.018
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; ml/results/matcher_v1.json: wdc_80cc20'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The trained matcher (ml/MODELS.md card 1) must not get worse than Sprint 3's.
+  matching.stage.different_merged:
+    kind: quality
+    direction: at_most
+    floor: 0.05
+    measured: 0.0
+    unit: rate
+    margin: 0.05 above the measured rate
+    measured_on: offline
+    source: backend/evals/results/sprint-3-offline.json; ml/labelling (agreed machine labels), FuzzyMatchStage
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: 'The match stage must not merge more different products than now: uncertain pairs stay separate (US-15).'
+  matching.stage.same_merged:
+    kind: quality
+    direction: at_least
+    floor: 0.3618
+    measured: 0.4118
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: backend/evals/results/sprint-3-offline.json; ml/labelling (agreed machine labels), FuzzyMatchStage
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The match stage (rules and fuzzy) must keep merging the same products it merges now (US-15).
+  matching.stage.variant_merged:
+    kind: quality
+    direction: at_least
+    floor: 0.2978
+    measured: 0.3478
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: backend/evals/results/sprint-3-offline.json; ml/labelling (agreed machine labels), FuzzyMatchStage
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: The match stage must keep folding variants into one product (DR-02, US-15).
+  research.recorded.source_types:
+    kind: quality
+    direction: at_least
+    floor: 0.0
+    measured: 1.0
+    unit: types
+    margin: 10% below the measured value, rounded down
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; backend/tests/fixtures/recorded: research_laptop_coding_70k'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Reading the recorded web searches finds the sources it finds now (US-12).
+  research.recorded.sources:
+    kind: quality
+    direction: at_least
+    floor: 49.0
+    measured: 55.0
+    unit: sources
+    margin: 10% below the measured value, rounded down
+    measured_on: offline
+    source: 'backend/evals/results/sprint-3-offline.json; backend/tests/fixtures/recorded: research_laptop_coding_70k'
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Reading the recorded web searches finds the sources it finds now (US-12).
+  trust.learned.correct:
+    kind: quality
+    direction: at_least
+    floor: 2.0
+    measured: 3.0
+    unit: conflicts
+    margin: one conflict below the measured count (5 conflicts)
+    measured_on: offline
+    source: backend/evals/results/sprint-3-offline.json; ml/labelling/conflicts.csv, scripts/eval_trust.py
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Learned trust (US-16) must keep resolving the seeded conflicts it resolves now, and beat majority vote.
+  trust.learned_minus_majority:
+    kind: quality
+    direction: at_least
+    floor: 2.0
+    measured: 3.0
+    unit: conflicts
+    margin: one conflict below the measured difference (5 conflicts)
+    measured_on: offline
+    source: backend/evals/results/sprint-3-offline.json; ml/labelling/conflicts.csv, scripts/eval_trust.py
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Learned trust (US-16) must keep resolving the seeded conflicts it resolves now, and beat majority vote.
+    target:
+      value: 1
+      source: 'ml/MODELS.md card 2: more seeded conflicts resolved correctly than majority vote'
+      note: met
+  trust.tier_order.correct:
+    kind: quality
+    direction: at_least
+    floor: 2.0
+    measured: 3.0
+    unit: conflicts
+    margin: one conflict below the measured count (5 conflicts)
+    measured_on: offline
+    source: backend/evals/results/sprint-3-offline.json; ml/labelling/conflicts.csv, scripts/eval_trust.py
+    date: '2026-11-14'
+    commit: a6148f0
+    rule: Learned trust (US-16) must keep resolving the seeded conflicts it resolves now, and beat majority vote.
