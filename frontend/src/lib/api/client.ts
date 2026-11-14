@@ -73,6 +73,12 @@ export interface ApiClient {
   get(path: string, opts: CallOptions): Promise<unknown>;
   post(path: string, body: unknown, opts: CallOptions): Promise<unknown>;
   put(path: string, body: unknown, opts: CallOptions): Promise<unknown>;
+  /** A POST whose answer's headers matter too, such as the rubric route's X-Rubric-Note (US-09). */
+  postWithHeaders(
+    path: string,
+    body: unknown,
+    opts: CallOptions,
+  ): Promise<{ data: unknown; headers: Headers }>;
   /** Gives the status too: for a run, 202 and 200 mean different things. */
   delete(path: string, opts: CallOptions): Promise<{ status: number; data: unknown }>;
 }
@@ -88,7 +94,7 @@ export function createApiClient(
     path: string,
     body: unknown,
     opts: CallOptions,
-  ): Promise<{ status: number; data: unknown }> {
+  ): Promise<{ status: number; data: unknown; headers: Headers }> {
     const timeout = new AbortController();
     const timer = setTimeout(() => timeout.abort(), opts.timeoutMs);
     const onAbort = () => timeout.abort();
@@ -115,14 +121,21 @@ export function createApiClient(
     if (!response.ok) throw errorFor(response.status, data);
     if (data === undefined)
       throw new ApiError("bad_response", MESSAGES.badResponse, response.status);
-    return { status: response.status, data };
+    return { status: response.status, data, headers: response.headers };
   }
   const dataOf = async (answer: Promise<{ data: unknown }>) => (await answer).data;
   return {
     get: (path, opts) => dataOf(call("GET", path, undefined, opts)),
     post: (path, body, opts) => dataOf(call("POST", path, body, opts)),
     put: (path, body, opts) => dataOf(call("PUT", path, body, opts)),
-    delete: (path, opts) => call("DELETE", path, undefined, opts),
+    postWithHeaders: async (path, body, opts) => {
+      const { data, headers } = await call("POST", path, body, opts);
+      return { data, headers };
+    },
+    delete: async (path, opts) => {
+      const { status, data } = await call("DELETE", path, undefined, opts);
+      return { status, data };
+    },
   };
 }
 

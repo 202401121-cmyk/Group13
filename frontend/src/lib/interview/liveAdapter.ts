@@ -6,6 +6,9 @@
  *
  * Every reply names its question (question_id), so a retry can never answer the next question. When the
  * backend refuses a reply as out of date (409), the screen catches up from GET /{id} instead of failing.
+ *
+ * The rubric editor (US-09, US-10) reads the rubric from GET /{id}, saves edits through POST /{id}/rubric (whose
+ * X-Rubric-Note header carries a sentence to show) and reads leave-outs from words through POST /exclusions/parse.
  */
 import { ApiError, MESSAGES, SESSION_ID_PATTERN, TIMEOUTS, type ApiClient } from "@/lib/api/client";
 import { checkContract } from "@/lib/api/schemas";
@@ -14,13 +17,17 @@ import { keyInWords } from "@/lib/text";
 import type { CriteriaSet } from "@/types/contracts/CriteriaSet";
 import type { InterviewState, InterviewStep, Rubric } from "@/types/contracts/InterviewStep";
 import type { ReplyRequest } from "@/types/contracts/ReplyRequest";
+import type { RubricEdit, RubricEditRequest } from "@/types/contracts/RubricEditRequest";
 import { ALREADY_ANSWERED } from "./questions";
 import { exactFromAnswer, levelOf } from "./roughLevels";
 import type {
   Answers,
   CriteriaResult,
   Criterion,
+  EditableRubric,
+  ExclusionView,
   InterviewService,
+  RubricEditView,
   Step,
   Turn,
   TurnInput,
@@ -80,7 +87,7 @@ const ORIGINS: Record<string, WeightOrigin | undefined> = {
   remembered: "remembered",
   default: "standard",
   skipped: "standard", // a skipped question keeps the standard weight, as in mock mode
-  manual: undefined, // no label on the screens yet
+  manual: "manual", // set by the shopper in the rubric editor (US-09)
 };
 
 /** The backend's weights. `weight` is the share the backend really uses, so the percentages match it. */
@@ -91,6 +98,42 @@ export function rubricItems(rubric: Rubric, criteria: Criterion[]): RubricItem[]
     weight: w.normalized,
     origin: ORIGINS[w.origin],
   }));
+}
+
+/** The backend's rubric as the editor shows it: each rule in the shopper's words, each weight with its title. */
+export function editableRubric(rubric: Rubric, title: (key: string) => string): EditableRubric {
+  return {
+    rules: rubric.hard_rules.map((r) => ({ id: r.id, words: r.source_text, active: r.active })),
+    weights: rubric.weights.map((w) => ({
+      key: w.key,
+      title: title(w.key),
+      weight: w.weight,
+      share: w.normalized,
+      origin: ORIGINS[w.origin],
+    })),
+    exclusions: rubric.exclusions.map(viewExclusion),
+  };
+}
+
+function viewExclusion(e: {
+  kind: ExclusionView["kind"];
+  value: string;
+  always?: boolean;
+}): ExclusionView {
+  return { kind: e.kind, value: e.value, always: e.always ?? false };
+}
+
+/** One edit as the rubric route takes it: exactly the fields of its kind (docs/frontend-api.md). */
+export function wireEdit(edit: RubricEditView): RubricEdit {
+  switch (edit.kind) {
+    case "switch_rule":
+      return { kind: edit.kind, rule_id: edit.ruleId, active: edit.active };
+    case "set_weight":
+      return { kind: edit.kind, criterion_key: edit.key, weight: edit.weight };
+    case "add_exclusion":
+    case "remove_exclusion":
+      return { kind: edit.kind, exclusion: { ...edit.exclusion } };
+  }
 }
 
 /** True when going back changed or cleared an answer to a different question. */
@@ -144,6 +187,10 @@ function checkedSessionId(sessionId: string | undefined): string {
 export function createLiveInterviewService(client: ApiClient): InterviewService {
   const lastState = new Map<string, InterviewState>();
   const opts = { timeoutMs: TIMEOUTS.step };
+  /** Each session's criterion titles, by key, for the rubric editor. */
+  const titles = new Map<string, Map<string, string>>();
+  const titleIn = (sessionId: string) => (key: string) =>
+    titles.get(sessionId)?.get(key) ?? keyInWords(key);
 
   async function step(sessionId: string, path: string, body?: unknown): Promise<InterviewStep> {
     const raw = await client.post(`/api/presearch/${sessionId}/interview/${path}`, body, opts);
@@ -217,6 +264,38 @@ export function createLiveInterviewService(client: ApiClient): InterviewService 
         ...(result.kind === "finished" && result.rubric
           ? { rubric: rubricItems(result.rubric, input.criteria) }
           : {}),
+      };
+    },
+    async loadRubric(sessionId, seed) {
+      const id = checkedSessionId(sessionId);
+      const raw = await client.get(`/api/presearch/${id}`, opts);
+      const session = await checkContract("PresearchSession", raw);
+      const known = new Map(seed.items.map((i) => [i.criterionId, i.title]));
+      for (const c of session.criteria?.criteria ?? []) known.set(c.key, c.label);
+      titles.set(id, known);
+      const rubric = session.interview_step?.rubric;
+      return rubric ? editableRubric(rubric, titleIn(id)) : null;
+    },
+    async editRubric(sessionId, edits) {
+      const id = checkedSessionId(sessionId);
+      const body: RubricEditRequest = { edits: edits.map(wireEdit) as RubricEditRequest["edits"] };
+      const { data, headers } = await client.postWithHeaders(
+        `/api/presearch/${id}/rubric`,
+        body,
+        opts,
+      );
+      const checked = await checkContract("RubricEditResponse", data);
+      return {
+        rubric: editableRubric(checked.rubric, titleIn(id)),
+        note: headers.get("X-Rubric-Note") || null,
+      };
+    },
+    async parseExclusions(text) {
+      const raw = await client.post("/api/presearch/exclusions/parse", { text }, opts);
+      const checked = await checkContract("ExclusionParseResponse", raw);
+      return {
+        exclusions: checked.exclusions.map(viewExclusion),
+        notUnderstood: checked.not_understood,
       };
     },
   };

@@ -6,12 +6,14 @@
  */
 import type { CriteriaSet } from "@/types/contracts/CriteriaSet";
 import type { EvidenceResponse } from "@/types/contracts/EvidenceResponse";
+import type { ExclusionParseResponse } from "@/types/contracts/ExclusionParseResponse";
 import type { IntakeResponse } from "@/types/contracts/IntakeResponse";
 import type { Intent } from "@/types/contracts/Intent";
 import type { InterviewStep } from "@/types/contracts/InterviewStep";
 import type { PresearchSession } from "@/types/contracts/PresearchSession";
 import type { ProgressEvent } from "@/types/contracts/ProgressEvent";
 import type { ReplyRequest } from "@/types/contracts/ReplyRequest";
+import type { RubricEditResponse } from "@/types/contracts/RubricEditResponse";
 import type { SearchResult } from "@/types/contracts/SearchResult";
 import type { SearchRun } from "@/types/contracts/SearchRun";
 import type { SearchRunStarted } from "@/types/contracts/SearchRunStarted";
@@ -29,6 +31,8 @@ export interface Contracts {
   SearchRunStarted: SearchRunStarted;
   ProgressEvent: ProgressEvent;
   EvidenceResponse: EvidenceResponse;
+  RubricEditResponse: RubricEditResponse;
+  ExclusionParseResponse: ExclusionParseResponse;
 }
 export type ContractName = keyof Contracts;
 
@@ -46,6 +50,8 @@ const SCHEMAS: Record<ContractName, () => Promise<{ default: unknown }>> = {
   SearchRunStarted: () => import("@contracts/schema/SearchRunStarted.json"),
   ProgressEvent: () => import("@contracts/schema/ProgressEvent.json"),
   EvidenceResponse: () => import("@contracts/schema/EvidenceResponse.json"),
+  RubricEditResponse: () => import("@contracts/schema/RubricEditResponse.json"),
+  ExclusionParseResponse: () => import("@contracts/schema/ExclusionParseResponse.json"),
 };
 
 /** CommonJS packages arrive as { default } or { default: { default } } depending on the bundler. */

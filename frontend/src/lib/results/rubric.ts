@@ -91,4 +91,5 @@ export const ORIGIN_LABEL: Record<WeightOrigin, string> = {
   answer: "From your answer",
   standard: "Standard",
   remembered: "Remembered",
+  manual: "You set this",
 };

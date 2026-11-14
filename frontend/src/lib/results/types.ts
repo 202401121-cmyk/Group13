@@ -4,7 +4,8 @@
  * optional, and the UI omits it when missing.
  */
 
-export type WeightOrigin = "answer" | "standard" | "remembered";
+/** Where a weight came from; "manual" is one the shopper set in the rubric editor (US-09). */
+export type WeightOrigin = "answer" | "standard" | "remembered" | "manual";
 
 export interface RubricItem {
   criterionId: string;
