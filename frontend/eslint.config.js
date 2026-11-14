@@ -11,6 +11,7 @@ export default tseslint.config(
     ignores: [
       "dist",
       ".output",
+      ".vercel",
       ".vinxi",
       ".nitro",
       "playwright-report",

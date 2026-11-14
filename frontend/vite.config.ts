@@ -1,6 +1,6 @@
 // Explicit Vite setup (it replaces the prototype builder's Vite wrapper).
 // TanStack Start builds the app and its server-side rendering; nitro turns that server into a plain
-// Node program in .output/ that `npm start` runs.
+// Node program in .output/ that `npm start` runs, or, on Vercel, into Vercel functions (DEP-1, docs/deploy.md).
 import { fileURLToPath } from "node:url";
 import { defineConfig, searchForWorkspaceRoot } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -8,6 +8,7 @@ import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 import { nitro } from "nitro/vite";
+import { nitroPreset } from "./src/lib/deploy/nitro-preset";
 
 export default defineConfig({
   server: {
@@ -57,7 +58,7 @@ export default defineConfig({
       server: { entry: "server" },
     }),
     nitro({
-      preset: "node-server",
+      preset: nitroPreset(process.env),
       // Pre-compress the built files (gzip and brotli) so `npm start` serves them compressed: about 70%
       // less to download on a phone. Found by the FE-4 Lighthouse runs (uses-text-compression).
       compressPublicAssets: { gzip: true, brotli: true },
