@@ -687,3 +687,50 @@ python ml/scripts/trust_baseline.py ml/examples/conflicts_synthetic.csv
   was even, even if the fallback then found an answer.
 
 Commit `ml/results/trust_baseline.json` when the real conflicts change. The first run on real conflicts creates it.
+
+### 9.5 Finding candidates
+
+`backend/scripts/find_conflicts.py` finds candidate conflicts in real searches, so you don't have to hunt for them. It
+only proposes: you check every candidate, and nothing goes into `conflicts.csv` without your name.
+
+```bash
+# From backend/. Calls real APIs and stays inside its budget (S3-16: 60 LLM calls, 15 Serper, 20 Jina, 15 Firecrawl).
+python -m scripts.find_conflicts
+python -m scripts.find_conflicts --categories laptop earbuds --budget-llm 20
+```
+
+It runs one search for each category in `ml/labelling/listings.csv`, with the database off and Reddit off. It keeps a
+product and criterion when two pages on different sites give values in the same unit that differ by more than the
+criterion's tolerance (`backend/config/trust.yaml`). Reddit is never a side. For each one it looks for the maker's own
+page (one it read, or a search on the brand's site) and proposes the figure only when the page writes it, with its
+unit, in words. Only brands listed under `maker_domains` in `backend/config/research.yaml` get a search on their site.
+For each search it prints where the claims dropped out (with a figure, on a matched product, on two sites or more), so
+a run with no candidates says why.
+
+The file is `ml/data/interim/conflict_candidates/<date>.csv` (git-ignored), or `<date>-2.csv` and on for a later run the
+same day: it never overwrites one. It is in `conflicts.csv`'s columns, with conflict ids after the last one in
+`conflicts.csv` and in earlier candidate files. `claim_tier` is the tier verify uses (`trust.yaml`). `how_established`
+starts `PROPOSED:` and says one of these:
+
+- what the maker page says, with its link and exact words;
+- that the maker page doesn't state it in the conflict's unit;
+- that the maker page could not be read;
+- that no maker page was found.
+
+`added_by` is empty. The script never writes into `ml/labelling/`.
+
+**Checking a candidate.** For each one:
+
+1. Open the maker page in `how_established`. If there is none, find the maker's spec page, a lab's measurement or the
+   product itself (9.2). If you can't, drop the candidate.
+2. Check that it is the same product and variant as every claim, and that the exact words are on the page.
+3. Check that it is a real conflict (9.1): not rounding, not another variant or region, not two different measures.
+   Open each claim's page and check its value and date.
+4. Set `known_answer` from the maker page, and check the proposed `tolerance` (a share of the answer). If the claims'
+   values are all within it, `check_conflicts.py` warns that they agree: narrow it only if the criterion allows. Fix
+   the unit if a page writes it another way.
+5. Rewrite `how_established` without `PROPOSED:`, keeping the link, and put your first name in `added_by`.
+6. Copy the rows into `conflicts.csv` and run `python ml/scripts/check_conflicts.py ml/labelling/conflicts.csv`.
+
+Never copy a candidate unchecked. When the file holds 30 conflicts, rerun `python -m scripts.eval_trust` from
+`backend/`.
