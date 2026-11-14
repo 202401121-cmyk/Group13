@@ -1,7 +1,7 @@
 /** The rubric editor (US-09, US-10) through the real component, rendered with React itself, on the mock service. */
 import { act, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { rubricSaved } from "@/lib/interview/rubricSaves";
 import { RubricEditor, type RubricApi } from "@/components/rubric/RubricEditor";
 import { ApiError, MESSAGES } from "@/lib/api/client";
@@ -104,13 +104,29 @@ function render(element: ReactElement) {
   act(() => root!.render(element));
 }
 
-/** Lets the saves and loads that are under way finish. */
-async function settle() {
-  for (let i = 0; i < 5; i++) {
-    await act(async () => {
-      await new Promise((r) => setTimeout(r, 0));
-    });
-  }
+/**
+ * Waits until the assertion holds, for at most a few seconds. The editor's answers come back through promises and
+ * code loaded on first use, so how many ticks they take depends on the machine: a test waits for the state it expects,
+ * never for a fixed number of ticks.
+ */
+async function until(assertion: () => void) {
+  await vi.waitFor(
+    async () => {
+      // Let what is under way go on, inside React's act, then look.
+      await act(async () => {
+        await new Promise((r) => setTimeout(r, 10));
+      });
+      assertion();
+    },
+    { timeout: 3000, interval: 0 },
+  );
+}
+
+/** Waits for every save under way, and a leave-out still being read, as "Start research" does (rubricSaved). */
+async function landed() {
+  await act(async () => {
+    await rubricSaved(SID);
+  });
 }
 
 function fieldset(legend: string): HTMLFieldSetElement {
@@ -175,11 +191,12 @@ async function open(service: RubricApi, s: RubricSeed = seed) {
   render(<RubricEditor sessionId={SID} seed={s} initial={initial} service={service} />);
 }
 
-/** Types words into the leave-out box and adds them, waiting for the save. */
+/** Types words into the leave-out box and adds them, waiting until they are read and saved. */
 async function addWords(words: string) {
   type(byLabel("Rule something out"), words);
   act(() => button("Add").click());
-  await settle();
+  await landed();
+  await until(() => expect(button("Add").disabled).toBe(false));
 }
 
 function alertText(): string {
@@ -198,10 +215,12 @@ describe("RubricEditor", () => {
     const service = spy();
     await open(service, seed);
     act(() => radio(fieldset(RULE_WORDS), "Preference").click());
-    await settle();
-    expect(service.sent).toEqual([
-      [{ kind: "switch_rule", ruleId: expect.any(String) as string, active: false }],
-    ]);
+    await until(() =>
+      expect(service.sent).toEqual([
+        [{ kind: "switch_rule", ruleId: expect.any(String) as string, active: false }],
+      ]),
+    );
+    await landed(); // stored, so the reload finds it
     await open(spy(), seed); // a reload: a new page and service
     expect(radio(fieldset(RULE_WORDS), "Preference").checked).toBe(true);
   });
@@ -215,8 +234,10 @@ describe("RubricEditor", () => {
     expect([share("cpu_performance"), share("battery_life")]).toEqual(["29%", "71%"]); // before any save
     expect(service.sent).toEqual([]);
     leave(box);
-    await settle();
-    expect(service.sent).toEqual([[{ kind: "set_weight", key: "cpu_performance", weight: 2 }]]);
+    await until(() =>
+      expect(service.sent).toEqual([[{ kind: "set_weight", key: "cpu_performance", weight: 2 }]]),
+    );
+    await landed(); // stored, so the rebuild finds it
     // A new answer rebuilds the rubric (battery life now 8): the shopper's own weight stays.
     const rebuilt = { ...seed, items: [seed.items[0]!, { ...seed.items[1]!, weight: 8 }] };
     await open(spy(), rebuilt);
@@ -231,8 +252,8 @@ describe("RubricEditor", () => {
     const box = byLabel("Rule something out");
     type(box, "no Xiaomi");
     act(() => button("Add").click());
-    await settle();
-    expect(chips()).toEqual(["Zenith", "Xiaomi"]);
+    await until(() => expect(chips()).toEqual(["Zenith", "Xiaomi"]));
+    await landed();
     expect(service.sent).toEqual([
       [{ kind: "add_exclusion", exclusion: { kind: "brand", value: "Xiaomi", always: false } }],
     ]);
@@ -244,8 +265,8 @@ describe("RubricEditor", () => {
     await open(service, seed);
     type(byLabel("Rule something out"), "no Zorblax");
     act(() => button("Add").click());
-    await settle();
-    expect(document.body.textContent).toContain("We couldn't read “Zorblax”");
+    await until(() => expect(document.body.textContent).toContain("We couldn't read “Zorblax”"));
+    await landed(); // nothing is waiting to be saved
     expect(service.sent).toEqual([]);
     expect(chips()).toEqual(["Zenith"]);
   });
@@ -255,10 +276,16 @@ describe("RubricEditor", () => {
     await open(service, seed);
     act(() => button("Remove Zenith").click());
     expect(chips()).toEqual([]); // at once, before the save comes back
-    await settle();
-    expect(service.sent).toEqual([
-      [{ kind: "remove_exclusion", exclusion: { kind: "brand", value: "Zenith", always: false } }],
-    ]);
+    await until(() =>
+      expect(service.sent).toEqual([
+        [
+          {
+            kind: "remove_exclusion",
+            exclusion: { kind: "brand", value: "Zenith", always: false },
+          },
+        ],
+      ]),
+    );
   });
 
   it("a failed save rolls back with a message", async () => {
@@ -266,9 +293,10 @@ describe("RubricEditor", () => {
     await open(service, seed);
     service.failNext(new ApiError("server", MESSAGES.server, 500));
     act(() => radio(fieldset(RULE_WORDS), "Preference").click());
-    await settle();
+    await until(() =>
+      expect(alertText()).toBe(`${MESSAGES.server} Your last change wasn't saved.`),
+    );
     expect(radio(fieldset(RULE_WORDS), "Must-have").checked).toBe(true);
-    expect(alertText()).toBe(`${MESSAGES.server} Your last change wasn't saved.`);
   });
 
   it("a 422 shows its message", async () => {
@@ -278,9 +306,10 @@ describe("RubricEditor", () => {
     const box = byLabel("CPU performance, from 0 to 10");
     type(box, "3");
     leave(box);
-    await settle();
-    expect(alertText()).toBe(
-      "No criterion is called cpu_performance. Your last change wasn't saved.",
+    await until(() =>
+      expect(alertText()).toBe(
+        "No criterion is called cpu_performance. Your last change wasn't saved.",
+      ),
     );
     expect(byLabel("CPU performance, from 0 to 10").value).toBe("8"); // rolled back
   });
@@ -291,11 +320,13 @@ describe("RubricEditor", () => {
       const box = byLabel(label);
       type(box, "0");
       leave(box);
-      await settle();
+      await landed();
     }
+    await until(() =>
+      expect(document.querySelector("[data-rubric-note]")?.textContent?.trim()).toBe(ALL_ZERO_NOTE),
+    );
     const note = document.querySelector("[data-rubric-note]");
     expect(note?.getAttribute("aria-live")).toBe("polite");
-    expect(note?.textContent?.trim()).toBe(ALL_ZERO_NOTE);
   });
 
   it("Always saves, and a guest sees the sign-in note", async () => {
@@ -303,12 +334,14 @@ describe("RubricEditor", () => {
     await open(service, seed);
     await addWords("no Xiaomi");
     act(() => byLabel("Always leave out Xiaomi").click());
-    await settle();
     const xiaomi = { kind: "brand", value: "Xiaomi" };
-    expect(service.sent.at(-1)).toEqual([
-      { kind: "remove_exclusion", exclusion: { ...xiaomi, always: false } },
-      { kind: "add_exclusion", exclusion: { ...xiaomi, always: true } },
-    ]);
+    await until(() =>
+      expect(service.sent.at(-1)).toEqual([
+        { kind: "remove_exclusion", exclusion: { ...xiaomi, always: false } },
+        { kind: "add_exclusion", exclusion: { ...xiaomi, always: true } },
+      ]),
+    );
+    await landed();
     expect(byLabel("Always leave out Xiaomi").checked).toBe(true);
     expect(chips()).toEqual(["Zenith", "Xiaomi"]); // in its place, not moved to the end
     const noteId = byLabel("Always leave out Xiaomi").getAttribute("aria-describedby") ?? "";
@@ -318,11 +351,12 @@ describe("RubricEditor", () => {
   it("Always on a leave-out from the request says it can't be kept yet", async () => {
     await open(spy(), seed);
     act(() => byLabel("Always leave out Zenith").click());
-    await settle();
-    expect(byLabel("Always leave out Zenith").checked).toBe(false); // as the backend keeps it
-    expect(alertText()).toBe(
-      "“Always” can't be kept yet for “Zenith”, as it came from your request. It is still left out of this search.",
+    await until(() =>
+      expect(alertText()).toBe(
+        "“Always” can't be kept yet for “Zenith”, as it came from your request. It is still left out of this search.",
+      ),
     );
+    expect(byLabel("Always leave out Zenith").checked).toBe(false); // as the backend keeps it
   });
 
   it("the note shown is the one the backend's answer carries", async () => {
@@ -332,9 +366,10 @@ describe("RubricEditor", () => {
     const box = byLabel("Battery life, from 0 to 10");
     type(box, "3");
     leave(box);
-    await settle();
-    expect(document.querySelector("[data-rubric-note]")?.textContent).toBe(
-      "A sentence from the backend.",
+    await until(() =>
+      expect(document.querySelector("[data-rubric-note]")?.textContent).toBe(
+        "A sentence from the backend.",
+      ),
     );
   });
 
@@ -347,32 +382,39 @@ describe("RubricEditor", () => {
     act(() => button("Remove Zenith").click()); // queued behind the first
     expect(chips()).toEqual([]);
     release();
-    await settle();
+    await until(() => {
+      expect(radio(fieldset(RULE_WORDS), "Must-have").checked).toBe(true);
+      expect(chips()).toEqual(["Zenith"]);
+    });
+    await landed(); // the queue has run to its end
     expect(service.sent).toHaveLength(1); // the second never went
-    expect(radio(fieldset(RULE_WORDS), "Must-have").checked).toBe(true);
-    expect(chips()).toEqual(["Zenith"]);
   });
 
   it("Start research can tell a save landed, and when it failed", async () => {
     const service = spy();
     await open(service, seed);
     act(() => radio(fieldset(RULE_WORDS), "Preference").click());
-    await expect(rubricSaved(SID)).resolves.toBe(true);
+    let saved: boolean | null = null;
+    await act(async () => {
+      saved = await rubricSaved(SID);
+    });
+    expect(saved).toBe(true);
     service.failNext(new ApiError("timeout", MESSAGES.timeout));
     act(() => radio(fieldset(RULE_WORDS), "Must-have").click());
-    await expect(rubricSaved(SID)).resolves.toBe(false);
-    await settle();
+    await act(async () => {
+      saved = await rubricSaved(SID);
+    });
+    expect(saved).toBe(false);
+    await until(() => expect(radio(fieldset(RULE_WORDS), "Preference").checked).toBe(true)); // rolled back
   });
 
   it("removing a chip moves the focus to the next one, then to the box", async () => {
     await open(spy(), seed);
     await addWords("no Xiaomi");
     act(() => button("Remove Zenith").click());
-    await settle();
-    expect(document.activeElement).toBe(button("Remove Xiaomi"));
+    await until(() => expect(document.activeElement).toBe(button("Remove Xiaomi")));
     act(() => button("Remove Xiaomi").click());
-    await settle();
-    expect(document.activeElement).toBe(byLabel("Rule something out"));
+    await until(() => expect(document.activeElement).toBe(byLabel("Rule something out")));
   });
 
   it("words with nothing to leave out ask for a brand, a model or a feature", async () => {
@@ -380,8 +422,12 @@ describe("RubricEditor", () => {
     await open(service, seed);
     type(byLabel("Rule something out"), "no");
     act(() => button("Add").click());
-    await settle();
-    expect(document.body.textContent).toContain("Type a brand, a model or a feature to leave out");
+    await until(() =>
+      expect(document.body.textContent).toContain(
+        "Type a brand, a model or a feature to leave out",
+      ),
+    );
+    await landed(); // nothing is waiting to be saved
     expect(service.sent).toEqual([]);
   });
 
@@ -411,8 +457,8 @@ describe("RubricEditor", () => {
     await open(service, seed);
     service.failNext(new ApiError("server", MESSAGES.server, 500));
     await addWords("no Xiaomi");
+    await until(() => expect(byLabel("Rule something out").value).toBe("no Xiaomi"));
     expect(chips()).toEqual(["Zenith"]);
-    expect(byLabel("Rule something out").value).toBe("no Xiaomi");
   });
 
   it("a number that isn't 0 to 10 is not saved and says why", async () => {
@@ -421,7 +467,10 @@ describe("RubricEditor", () => {
     const box = byLabel("CPU performance, from 0 to 10");
     type(box, "12");
     leave(box);
-    await settle();
+    await until(() =>
+      expect(document.body.textContent).toContain("Please enter a number from 0 to 10."),
+    );
+    await landed(); // nothing is waiting to be saved
     expect(service.sent).toEqual([]);
     expect(box.getAttribute("aria-invalid")).toBe("true");
     expect(document.body.textContent).toContain("Please enter a number from 0 to 10.");
