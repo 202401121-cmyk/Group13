@@ -20,6 +20,7 @@ from pydantic import BaseModel, HttpUrl, computed_field
 
 import app
 from app.contracts import (
+    SEARCH_TIME_LIMIT_S,
     Claim,
     ClaimType,
     SearchRequest,
@@ -36,7 +37,7 @@ from app.pipeline import DatabaseResultStore, InMemoryResultStore, PipelineRunne
 from app.research.cache import ResearchCache, sweep_expired_files
 from app.research.dedupe import merge_near_duplicates
 from app.research.reddit.archive import add_comments
-from app.research.reddit.cache import RedditCache, serve_limit
+from app.research.reddit.cache import SERVE_MARGIN, RedditCache, serve_limit
 from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
 from app.verify import TrustVerifyStage
 from tests.fakes.live_run import use_live_shaped_run
@@ -704,9 +705,10 @@ def _uses(tree: ast.AST, path: Path) -> list[str]:
     return found
 
 
-def test_the_function_is_called_at_the_save_boundary_and_nowhere_else() -> None:
+def test_the_function_is_called_at_the_save_boundary_and_for_a_dropped_runs_last_event_only() -> None:
     uses = [use for p in Path(app.__file__).parent.rglob("*.py") for use in _uses(ast.parse(p.read_text("utf-8")), p)]
-    assert uses == ["pipeline.py: save"]
+    # The save, and the final event a stream still sends after its run went at its keep-time (D-53, US-12 fix).
+    assert sorted(uses) == ["pipeline.py: save", "search_runs.py: _as_saved"]
 
 
 @pytest.mark.parametrize(
@@ -888,11 +890,12 @@ def test_a_poster_filling_a_thread_with_merged_lines_cannot_push_the_row_past_it
 @pytest.mark.parametrize(
     ("keep", "limit"),
     [
-        ("", timedelta(hours=23, minutes=30)),
-        ("30", timedelta(hours=23, minutes=30)),
-        ("120", timedelta(hours=22)),
-        ("1", timedelta(hours=23, minutes=59)),
-        ("99999", timedelta(hours=22)),  # brought inside 1 to 120
+        # 24 hours less the keep-time, the longest search (150 s) and the margin (60 s)
+        ("", timedelta(hours=23, minutes=26, seconds=30)),
+        ("30", timedelta(hours=23, minutes=26, seconds=30)),
+        ("120", timedelta(hours=21, minutes=56, seconds=30)),
+        ("1", timedelta(hours=23, minutes=55, seconds=30)),
+        ("99999", timedelta(hours=21, minutes=56, seconds=30)),  # brought inside 1 to 120
     ],
 )
 def test_the_cache_stops_serving_in_time_for_a_finished_run_to_go(keep: str, limit: timedelta, monkeypatch) -> None:  # type: ignore[no-untyped-def]
@@ -908,9 +911,12 @@ def test_the_cache_stops_serving_in_time_for_a_finished_run_to_go(keep: str, lim
 
 
 def test_a_cached_answer_and_a_run_that_read_it_last_are_gone_by_24_hours() -> None:
+    longest_search = timedelta(seconds=SEARCH_TIME_LIMIT_S)
     for keep in ("1", "30", "120"):
         kept = timedelta(minutes=float(keep))
-        assert serve_limit({"SEARCH_RUN_KEEP_MINUTES": keep}) + kept == timedelta(hours=24)
+        assert serve_limit({"SEARCH_RUN_KEEP_MINUTES": keep}) + longest_search + kept + SERVE_MARGIN == timedelta(
+            hours=24
+        )
 
 
 def test_web_results_keep_their_full_24_hours(monkeypatch) -> None:  # type: ignore[no-untyped-def]

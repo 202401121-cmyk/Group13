@@ -845,13 +845,18 @@ App-only, read-only sign-in: no Reddit password is ever used.
 **Keeping Reddit data.** D-53 allows it at most 24 hours, counted from when it was read, and covers every copy we hold. Storing
 a thread again with its comments doesn't restart the clock.
 
-- **The cache** serves an answer only while it is younger than 24 hours minus `SEARCH_RUN_KEEP_MINUTES`: 23.5 hours by default.
+- **The cache** serves an answer only while it is younger than 24 hours less `SEARCH_RUN_KEEP_MINUTES`, less the longest a
+  search may take (150 seconds) and a 60-second margin: 23 hours 26.5 minutes by default (`serve_limit()`).
   Search results and review pages keep their full 24 hours. The only Reddit words among them are the titles of results that
   point at Reddit. Those are used to spot product names and never reach a finished run.
 - **A finished run** stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES`, limited to 1 to 120 minutes, and that copy does
-  hold Reddit text. So a run that read the cache at the last moment goes at about the 24 hours: later by the length of the
-  search itself, up to 150 seconds. A run past its time is dropped the next time any search starts, ends or is looked up, so
-  on an idle server it can stay in memory until then, though nobody can fetch it.
+  hold Reddit text. So a run that read the cache at the last moment, took the longest a search may and was kept its full
+  time still goes 60 seconds before the 24 hours. It goes at its keep-time even while a progress stream is reading it: that
+  stream then sends the run's final event, with the result as it is saved (no Reddit text), and closes. The keep time runs
+  out on the wall clock too, so a laptop that slept doesn't stretch it. A run past its time is dropped the next time any
+  search starts, ends or is looked up, or a stream on it reads again, so on an idle server it can stay in memory until
+  then, though nobody can fetch it. Restart the backend after changing `SEARCH_RUN_KEEP_MINUTES`: the runs read it once,
+  at start, but the cache reads it at each search.
 - **Files** past the limit are deleted by the next search, even with `REDDIT_SOURCE=off`, `RESEARCH_CACHE=off` or no working
   client. A machine that runs no search deletes nothing until it does.
 - **A saved search** holds no Reddit text at all: a Reddit source keeps its URL, community, fetch time, archive and counts

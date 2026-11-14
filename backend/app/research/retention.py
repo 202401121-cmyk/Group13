@@ -2,8 +2,10 @@
 
 So Reddit's words never reach the saved row. A Reddit source keeps what says it was read: its URL, community, fetch
 time, archive and counts, and each comment's ID, place in the thread and upvotes. Its title, text and comment bodies
-become the marker, and its author hashes go, as a hash can follow a person from thread to thread. The search itself, and
-the result the shopper sees, are untouched. This runs once, at the save (DatabaseResultStore.save), and nowhere else.
+become the marker, and its author hashes go, as a hash can follow a person from thread to thread. This runs at the save
+(DatabaseResultStore.save), and in one other place: the final event a progress stream still sends once its run has been
+dropped at its keep-time (app/api/search_runs.py), so that copy holds no Reddit text either. Nowhere else. So the search
+itself, and the result the shopper sees, are untouched, except in that one late final event.
 
 A quote stays only if it names a source we know isn't Reddit. A claim keeps its value, score and source link, and its
 quote becomes the marker. SearchResult.citations (1.7.0) holds quotes, and a citation's quote is optional: from Reddit,

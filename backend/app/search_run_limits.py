@@ -1,8 +1,9 @@
 """How long a finished search stays in the server's memory (SEARCH_RUN_KEEP_MINUTES).
 
 It has its own module because two parts of the app must agree on it. The search runs (app/api/search_runs.py) keep a
-finished run this long. The Reddit cache (app/research/reddit/cache.py) stops serving an answer this much sooner than 24
-hours, so a run that read the answer late is gone by the time the data turns 24 hours old (D-53 covers every copy).
+finished run this long, even while a progress stream reads it. The Reddit cache (app/research/reddit/cache.py) stops
+serving an answer this much sooner than 24 hours, less the longest search and a margin as well (serve_limit()), so a run
+that read the answer late is gone before the data turns 24 hours old (D-53 covers every copy).
 """
 
 from __future__ import annotations
