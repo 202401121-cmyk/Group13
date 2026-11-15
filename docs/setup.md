@@ -9,7 +9,7 @@ check your machine, and prove it works end to end. Commands are for Git Bash unl
 |---|---|---|
 | Git | any recent | `git --version` |
 | Python | 3.11 or later (CI uses 3.11) | `python --version` |
-| Node | 20.19 or later (Vite needs it) | `node --version` |
+| Node | 24 (24.x: CI and Vercel use 24 too) | `node --version` |
 | npm | comes with Node | `npm --version` |
 
 On Windows, use Git Bash or PowerShell, and keep the clone and its virtual environment in a short path (for

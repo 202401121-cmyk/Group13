@@ -10,8 +10,8 @@ results. Yash Patel and Manu Pardhan built it in a prototype builder, and it was
 - **Vite 8**, with an explicit `vite.config.ts`; **nitro** builds a plain Node server into `.output/`
 - **Tailwind CSS 4** and a few **shadcn/ui** components (`alert-dialog`, `button`, `sonner`)
 - **TypeScript strict**; **Vitest** for unit tests, **Playwright** with **axe** for the end-to-end test
-- **npm only** (Node 20.19 or newer). `.npmrc` sets `legacy-peer-deps=true`: npm 10 fails on these dependencies
-  without it.
+- **npm only**, on Node 24 (`engines`: `24.x`, the same as CI and Vercel). `.npmrc` sets `legacy-peer-deps=true`:
+  npm 10 fails on these dependencies without it.
 
 ## Getting started
 
