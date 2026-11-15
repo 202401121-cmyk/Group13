@@ -471,7 +471,8 @@ def _numbers(
     wins = checks.most_mentioned_wins_fitting_worst([(r.product_id, r.rank) for r in ranked], fits, mentions)
     extractions = _first_per_source(outputs)  # a copy taken under the extract wrapper's lock
     kept_claims = [c for out in extractions for c in out.claims]
-    reached_quote = len(kept_claims) + dropped.get("contract", 0)
+    # A claim dropped for "room" (S4-1) had its quote found too: it passed the quote check, then the room was full.
+    reached_quote = len(kept_claims) + dropped.get("contract", 0) + dropped.get("room", 0)
     quote_checked = reached_quote + dropped.get("quote", 0)
     given = Counter(type_of.get(out.source_id, "unknown") for out in extractions)
     filtered = result.decision.filtered if result.decision is not None else []
@@ -760,7 +761,8 @@ def measures(briefs: list[dict[str, Any]], source: str, max_sources: int = MAX_S
     kept = sum(b["extraction"]["claims_kept"] for b in done)
     dropped_quote = sum(b["extraction"]["dropped_by_reason"].get("quote", 0) for b in done)
     dropped_contract = sum(b["extraction"]["dropped_by_reason"].get("contract", 0) for b in done)
-    checked = kept + dropped_contract + dropped_quote
+    dropped_room = sum(b["extraction"]["dropped_by_reason"].get("room", 0) for b in done)  # quote found (S4-1)
+    checked = kept + dropped_contract + dropped_room + dropped_quote
     via = Counter[str]()
     given_by_type = Counter[str]()
     claims_by_type = Counter[str]()
@@ -841,12 +843,12 @@ def measures(briefs: list[dict[str, Any]], source: str, max_sources: int = MAX_S
         ),
         measure(
             "live.quote_found_share",
-            (kept + dropped_contract) / checked if checked else None,
+            (kept + dropped_contract + dropped_room) / checked if checked else None,
             "rate",
             source,
             f"claims whose quote is in their source, of {checked} the parser checked ({dropped_quote} dropped). "
-            "Kept claims are counted after duplicates go; a quote found but refused as an instruction counts as "
-            "not found",
+            "Kept claims are counted after duplicates go; a claim dropped because the answer passed its room counts as "
+            "found; a quote found but refused as an instruction counts as not found",
         ),
         measure(
             "live.search_seconds_max",

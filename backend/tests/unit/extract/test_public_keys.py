@@ -116,18 +116,18 @@ def test_a_known_hard_rule_key_is_asked_for_with_our_definition() -> None:
     criteria = allowed_criteria(
         _input(["battery_life"]), DataClass.PUBLIC, SpecAsk(("ram_gb",), has_budget=False), SETTINGS
     )
-    assert criteria.keys == ("battery_life", "ram_gb")
+    assert criteria.keys == ("ram_gb", "battery_life")  # a rule key is listed first (S4-1)
     assert f"- ram_gb: {SETTINGS.public_spec_keys['ram_gb']}" in criteria.lines
 
 
 def test_a_hard_rule_key_outside_the_known_list_is_not_sent() -> None:
     keys = _public(["battery_life"], SpecAsk(("ram_gb", "fits_in_my_daughters_bag"), has_budget=False))
-    assert keys == ("battery_life", "ram_gb")
+    assert keys == ("ram_gb", "battery_life")  # the known rule key, listed first (S4-1); the unknown one is not sent
 
 
 def test_price_inr_is_asked_for_only_with_a_budget() -> None:
     assert PRICE_KEY not in _public(["battery_life"], SpecAsk((), has_budget=False))
-    assert _public(["battery_life"], SpecAsk((), has_budget=True)) == ("battery_life", PRICE_KEY)
+    assert _public(["battery_life"], SpecAsk((), has_budget=True)) == (PRICE_KEY, "battery_life")  # first (S4-1)
 
 
 def test_a_spec_claim_keeps_its_spec_key() -> None:

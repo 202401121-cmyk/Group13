@@ -90,7 +90,15 @@ def test_a_capped_source_fits_every_model_on_the_extraction_routes(data_class: D
     """Fitting must never have to trim a capped source, because trimming could cut the block's closing marker."""
     from app.criteria.fallback import load_category_sets, load_fallback_sets
     from app.extract.parsing import RawExtraction
-    from app.extract.prompts import MAX_PROMPT_KEYS, SYSTEM_PROMPT, PromptCriteria, user_message
+    from app.extract.prompts import (
+        BASE_CLAIMS,
+        EXTRA_CLAIMS,
+        MAX_PROMPT_KEYS,
+        SYSTEM_PROMPT,
+        PromptCriteria,
+        system_prompt,
+        user_message,
+    )
     from app.extract.settings import load_extract_settings
     from app.llm.output import build_system_prompt
     from app.llm.pool import ModelPool
@@ -98,7 +106,10 @@ def test_a_capped_source_fits_every_model_on_the_extraction_routes(data_class: D
     from tests.fakes.research import review_source
 
     config = load_llm_config()
-    system = build_system_prompt(SYSTEM_PROMPT, RawExtraction)
+    # A public page may send the price-first variant (S4-1): the longest one, at the most claims, is what must fit.
+    longest_first = system_prompt(BASE_CLAIMS + EXTRA_CLAIMS, first=MAX_PROMPT_KEYS)
+    assert len(longest_first) > len(SYSTEM_PROMPT)
+    system = build_system_prompt(longest_first if data_class is DataClass.PUBLIC else SYSTEM_PROMPT, RawExtraction)
     pool = ModelPool(config.pool)
     output = load_extract_settings(env={}).output_tokens(data_class)
     keep_free = pool.keep_free(LLMTask.EXTRACT_CLAIMS)
@@ -110,7 +121,8 @@ def test_a_capped_source_fits_every_model_on_the_extraction_routes(data_class: D
     lines += [f"- {key}: {text}" for key, text in extract.public_spec_keys.items()]
     lines.append(f"- price_inr: {extract.price_definition}")
     longest = max(len(line) for line in lines)
-    most = tuple("c" * longest for _ in range(MAX_PROMPT_KEYS))  # criteria and spec keys together never pass this
+    # Criteria and spec keys together never pass this; the price-first variant only puts some of the same lines first.
+    most = tuple("c" * longest for _ in range(MAX_PROMPT_KEYS))
     criteria = PromptCriteria(keys=(), lines=most, category="d" * 60)
     # A long Hindi title: three bytes a letter. The real prompt builder, so a line added to it is counted here too.
     source = review_source("https://www.reviews.example/a", title=chr(0x939) * 300, text="a" * cap_bytes)
