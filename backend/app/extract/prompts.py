@@ -9,8 +9,10 @@ typed. Those go only into Reddit calls, whose route has no provider that trains.
 
 A public call may still carry more than the fixed criteria (US-14, with US-46), always as fixed keys with our own
 definitions, chosen by code from config/extract.yaml:
-- a generated criterion, as the category's fixed criterion it stands for (public_synonyms). Its claims come back under
-  the search's own key;
+- a generated criterion, as the category's fixed criterion it stands for: an exact public_synonyms entry, else the
+  fixed key its words name, unit words left out ("capacity_litres" -> capacity), else a one-word public_synonyms
+  alias among its words (app/decide/directions.stand_in, which decide uses too). Only the fixed key and our own
+  definition are sent, never the generated key; its claims come back under the search's own key;
 - a hard rule's key, if it is a known spec key (public_spec_keys), so verify and decide get values to filter on;
 - price_inr, when the search has a budget;
 - "has_<feature>" for each feature the shopper ruled out (S3-9) that config/exclusions.yaml lists, by the feature's own
@@ -25,6 +27,7 @@ from dataclasses import dataclass, field
 
 from app.contracts import DataClass, ExtractInput, Source, SourceType
 from app.criteria.fallback import fallback_criteria
+from app.decide.directions import stand_in
 from app.decide.features import feature_key, known_feature
 from app.decide.rules import PRICE_KEY
 from app.intake.lexicon import load_lexicon
@@ -129,10 +132,10 @@ def public_prompt_keys(
         if key in fixed:
             criteria.append(key)
             continue
-        stand_in = next((t for t in settings.public_synonyms.get(key, ()) if t in fixed), None)
-        if stand_in is not None and stand_in not in own and stand_in not in renames:
-            criteria.append(stand_in)
-            renames[stand_in] = key
+        found = stand_in(key, fixed, settings.public_synonyms)  # matched in code, never sent as written (D-51)
+        if found is not None and found not in own and found not in renames:
+            criteria.append(found)
+            renames[found] = key
     known = {*settings.public_spec_keys, PRICE_KEY}
     # The price first, as decide checks the budget before the rules (US-17); then the rules, in their order.
     wanted = [*([PRICE_KEY] if has_budget else []), *attributes]

@@ -306,3 +306,22 @@ def test_derived_scores_never_let_a_rule_breaker_through() -> None:
     assert filtered(result, A)[0] == "filtered_out"
     assert [r.product_id for r in result.ranked] == [C, B]
     assert _scores(result, "weight") == {C: 9.0, B: 1.0}  # compared among the shown products only
+
+
+def test_capacity_power_and_temperature_are_compared_in_one_unit() -> None:
+    """An air fryer's generated criteria take their stand-ins' directions (US-14), and litres, ml, watts and °C read
+    as numbers on one scale each."""
+    from app.contracts import Rubric
+
+    weights = [("capacity_litres", 5.0), ("power_watts", 5.0), ("cooking_temperature_range", 5.0)]
+    rb = Rubric.model_validate({**rubric(weights=weights).model_dump(), "category": "air_fryer"})
+    values = [known(A, "capacity_litres", value="5.5 litres"), known(B, "capacity_litres", value="3000 ml")]
+    values += [known(A, "power_watts", value="1400 W"), known(B, "power_watts", value="1700 watts")]
+    values += [
+        known(A, "cooking_temperature_range", value="200 °C"),
+        known(B, "cooking_temperature_range", value="180°C"),
+    ]
+    result = decide(decide_input(rb, [product(A), product(B)], values))
+    assert _scores(result, "capacity_litres") == {A: 9.0, B: 1.0}
+    assert _scores(result, "power_watts") == {A: 1.0, B: 9.0}
+    assert _scores(result, "cooking_temperature_range") == {A: 9.0, B: 1.0}

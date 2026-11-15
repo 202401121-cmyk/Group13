@@ -74,6 +74,12 @@ public_synonyms:
   value: [value_for_money]
   price_to_performance: [value_for_money]
   price_performance: [value_for_money]
+  # One-word entries also work inside a longer key, word by word (US-14 stand-ins): "basket_volume" -> capacity.
+  volume: [capacity]
+  size: [capacity]
+  wattage: [power]
+  temperature: [temperature_range]
+  temp: [temperature_range]
 
 # Features the shopper rules out (S3-9) need no table here: a public prompt asks for "has_<feature>" for each feature
 # config/exclusions.yaml lists, by its own name there, with our own definition "Whether it has <feature> (yes or no).",
