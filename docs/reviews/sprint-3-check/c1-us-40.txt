@@ -1,0 +1,38 @@
+US-40: Never recommend an unsourced product. Sprint 3 review check (S3-19), C1. The criteria are copied word for word from
+backlog/stories.yaml (for US-46-S3-1, from PR #91's description). Each criterion lists the backend tests that
+prove it, run with the network guard on (tests/conftest.py: any connection outside this machine fails the
+test). Frontend, ML and live evidence for the same criteria are in the files the report names.
+Run at 2026-11-15 09:58 UTC on main ce8090d, Python 3.11.15 in a fresh venv.
+
+Criterion 1: A product with no mention in any source and no source link is dropped before scoring
+  tests/unit/verify/test_unsourced.py::test_a_product_named_only_in_a_title_counts  ->  1 PASSED
+  tests/unit/verify/test_unsourced.py::test_a_quote_found_in_another_source_does_not_save_it  ->  1 PASSED
+  tests/unit/verify/test_unsourced.py::test_dropped_products_have_no_values  ->  1 PASSED
+  tests/unit/verify/test_unsourced.py::test_a_dropped_products_claims_never_reach_the_combiner  ->  1 PASSED
+  tests/unit/test_pipeline_live_decide.py::test_a_dropped_product_appears_nowhere  ->  1 PASSED
+
+Criterion 2: Dropped products are logged with the reason, for testing
+  tests/unit/verify/test_unsourced.py::test_each_drop_has_its_reason  ->  1 PASSED
+  tests/unit/verify/test_unsourced.py::test_a_planted_name_is_dropped_and_logged_once  ->  1 PASSED
+  tests/unit/verify/test_unsourced.py::test_a_run_then_its_fallback_log_once_and_count_distinct_drops  ->  1 PASSED
+  tests/unit/test_pipeline_unsourced.py::test_the_verify_report_counts_the_drops  ->  1 PASSED
+
+Criterion 3: In recorded runs with planted invented product names, none reaches the results
+  tests/unit/test_pipeline_unsourced.py::test_the_fixture_plants_three_names_no_source_holds  ->  1 PASSED
+  tests/unit/test_pipeline_unsourced.py::test_the_planted_names_never_reach_the_results  ->  1 PASSED
+
+$ cd backend && pytest -rA -p no:cacheprovider -m "not live" <the tests above> --junitxml=<scratch>/junit.xml
+exit code 0; junit: 11 cases, 0 failures, 0 errors, 0 skipped
+
+Short test summary:
+PASSED tests/unit/verify/test_unsourced.py::test_a_product_named_only_in_a_title_counts
+PASSED tests/unit/verify/test_unsourced.py::test_a_quote_found_in_another_source_does_not_save_it
+PASSED tests/unit/verify/test_unsourced.py::test_dropped_products_have_no_values
+PASSED tests/unit/verify/test_unsourced.py::test_a_dropped_products_claims_never_reach_the_combiner
+PASSED tests/unit/test_pipeline_live_decide.py::test_a_dropped_product_appears_nowhere
+PASSED tests/unit/verify/test_unsourced.py::test_each_drop_has_its_reason
+PASSED tests/unit/verify/test_unsourced.py::test_a_planted_name_is_dropped_and_logged_once
+PASSED tests/unit/verify/test_unsourced.py::test_a_run_then_its_fallback_log_once_and_count_distinct_drops
+PASSED tests/unit/test_pipeline_unsourced.py::test_the_verify_report_counts_the_drops
+PASSED tests/unit/test_pipeline_unsourced.py::test_the_fixture_plants_three_names_no_source_holds
+PASSED tests/unit/test_pipeline_unsourced.py::test_the_planted_names_never_reach_the_results

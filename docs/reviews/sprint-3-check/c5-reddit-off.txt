@@ -1,0 +1,75 @@
+R4: the Reddit-off drill (S3-19, C5), walked in a browser, database off. main ce8090d, 15 Nov 2026, 10:40 UTC.
+Started from a launcher outside the repository (<scratch>/s3c_backend.py): the app's INFO log to a scratch file, and every call
+to an LLM, Serper, Jina, Firecrawl or a Reddit archive counted and refused past the run's cap (evals/live_briefs.py's guard).
+The frontend: npm run dev in live mode (VITE_API_MODE=live, VITE_API_BASE_URL=http://localhost:8000), as scripts/dev.py starts it.
+EXTRACT_MAX_SOURCES=4 on every run (the default is 40). The checker did not open, print or change .env; the app loaded its keys and
+settings from it as usual, and each run's own settings were temporary shell variables, which win over .env.
+Also REDDIT_SOURCE=off for this backend. Caps: llm 8, serper 4, reddit 0, jina 5, firecrawl 3.
+
+$ curl http://127.0.0.1:8000/api/health
+{"status":"ok","schema_version":"1.8.0","database":"off"}
+
+Steps, in a real Chromium page through Playwright, as a shopper:
+  1. Typed "Laptop for coding under 80k", Start my research, Looks right (session sess_e55ee3807e48c81782e09c4b).
+  2. Criteria (laptop, coding: 10 criteria), Start the questions.
+  3. Answered all ten "High" (clicked by a short script in the page). Questions with "What does this mean?":
+     CPU Clock Speed, RAM Size, SSD Read Speed, Display PPI, Max CPU Temp (5 of 10). Without it: Keyboard
+     Travel, Battery Life, Laptop Weight, Connectivity Ports, Value for Money.
+  4. Review your brief, Start research (search srch_3f31fa4b69ed6f33eebe4307). Results in about 15 s.
+  5. Read the banners, the cards and the groups; opened Battery Life's sources on the best match.
+
+What the results page showed (c5-reddit-off-results.png):
+  banner: "This result isn't saved. It stays at this address for up to 30 minutes, then it's gone."
+  coverage note begins: "Extract took too long, so a simpler fallback was used. Reddit could not be read. ..."
+  Best match: Apple Macbook Neo, Score 88, Medium confidence, Checked 2 of 10 criteria, Data coverage 100%;
+    Battery Life Known +88 points, with a 91mobiles.com link; Weakest: Value for Money; Store offers: No price
+    found yet.
+  Runner-up: Acer Aspire 5 A514-54H, Score 88, Battery Life Estimated +88 points, Data coverage 0%.
+  #3: Acer Swift Neo OLED, Score 88, Estimated. Couldn't check (16), each with a Research it link. Left out (3).
+  Footer: "Prices checked 3 Oct, 1:30 pm." (the example offers' time; see c4-example-data.txt)
+
+Battery Life's sources (c5-reddit-off-drawer-known.png), the dialog's text:
+  Battery Life: where this comes from / Apple Macbook Neo / Known
+  91mobiles.com / Review site · Checked 15 Nov 2026 / Says: 8.8 / 10 / “a Battery Rating of 8.8/10” / Open source
+
+The search's result, read back from GET /api/search/runs/srch_3f31fa4b69ed6f33eebe4307 (fields picked):
+  status done, saved False, partial False
+  sources: {'web_search': 20, 'review_site': 8, 'retailer': 2, 'manufacturer': 1}; citations 13
+  stages: research ok, extract timeout, match ok, verify ok, enrich ok, decide ok, explain ok, commerce ok
+  ranked (3):
+    1. Apple Macbook Neo: score 88, coverage 100%, label best_match, gap 0.0
+    2. Acer Aspire 5 A514-54H (UN.370SI.002) Laptop: score 88, coverage 0%, label runner_up, gap 0.0
+    3. Acer Swift Neo OLED AI PC SFN14-54H (UN.35GSI.002) Laptop: score 88, coverage 0%, label None, gap 0.0
+  held back: {'cant_tell': 16, 'filtered_out': 3}
+    cant_tell: Acer Aspire 15 AS15-42 (UN.35MSI.00D) Laptop: We couldn't find its price
+    cant_tell: Acer Swift Go 14 (2024): We couldn't find its price
+    cant_tell: Apple MacBook Air 13 (M5, 2026): We couldn't find its price
+    cant_tell: Apple MacBook Neo (A18 Pro, 2026): We couldn't find its price
+    cant_tell: Apple MacBook Pro 14 (M4, 2024): We couldn't find its price
+    cant_tell: Apple MacBook Pro 14 (M5, 2025): We couldn't find its price
+    cant_tell: Apple MacBook Pro 16 (M5, 2026): We couldn't find its price
+    cant_tell: Dell XPS 13 (2026): We couldn't find its price
+    cant_tell: Dell XPS 14 (2026): We couldn't find its price
+    filtered_out: HP 14-ep1152TU (C72QJPA) Laptop: ₹89,990 is above your ₹80,000 budget
+    filtered_out: HP 14-ep1181TU (CJ9E0PA) Laptop: ₹95,990 is above your ₹80,000 budget
+    filtered_out: HP 14-gr1036TU (C33RKPA) Laptop: ₹94,500 is above your ₹80,000 budget
+    cant_tell: HP OMEN MAX 16 (2025): We couldn't find its price
+    cant_tell: HP OmniBook 3 14 (2025): We couldn't find its price
+    cant_tell: HP OmniBook 5 16 (2026): We couldn't find its price
+    cant_tell: Lenovo Legion Pro 7i Gen 10 16 (2026): We couldn't find its price
+    cant_tell: Lenovo ThinkPad X1 Carbon Gen 14 Aura Edition (2026): We couldn't find its price
+    cant_tell: Lenovo ThinkPad X9 Aura Edition (2025): We couldn't find its price
+    cant_tell: Microsoft Surface Laptop 8th Edition (2026): We couldn't find its price
+  relaxation hint: None
+  coverage note: Extract took too long, so a simpler fallback was used. Reddit could not be read. We found no information on CPU performance, RAM capacity, storage speed, keyboard travel, screen resolution, weight, port count, max temperature and value for money for any product, so they were left out of the scores. 7... These are sample results while live research is being built. They are not real recommendations.
+  example markers in the result: Nova Book 14 at .explanations[1].sentences[0].text, .commerce.offers[0].listing_title; Kestrel Slim 15 at .commerce.offers[1].listing_title; Orion Play 15 at .explanations[0].trade_off; Example Store at .commerce.offers[0].store; Another Store at .commerce.offers[1].store
+  example markers among products, ranked and held back: none
+
+LLM calls:
+  1 x task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok
+  3 x task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok
+  1 x task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=timeout
+  2 x task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=timeout
+Research: INFO app.research.stage: research: reddit 0.0s (0), web_search 0.0s (20), review_site 0.0s (11); total 0.0s; used serper 0, reddit_archive 0, pages 0, jina 0, firecrawl_pages 0, firecrawl 0
+Pipeline: WARNING app.pipeline: stage extract: TimeoutError; using its fallback
+Guard's count for R4: llm 7 sent. usage.json today, change: serper +0, reddit_archive +0, pages +0, jina +0, firecrawl_pages +0, firecrawl +0.

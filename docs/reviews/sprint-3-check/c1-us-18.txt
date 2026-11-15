@@ -1,0 +1,72 @@
+US-18: Rank on the user's priorities with coverage. Sprint 3 review check (S3-19), C1. The criteria are copied word for word from
+backlog/stories.yaml (for US-46-S3-1, from PR #91's description). Each criterion lists the backend tests that
+prove it, run with the network guard on (tests/conftest.py: any connection outside this machine fails the
+test). Frontend, ML and live evidence for the same criteria are in the files the report names.
+Run at 2026-11-15 09:58 UTC on main ce8090d, Python 3.11.15 in a fresh venv.
+
+Criterion 1: Score is the weighted sum of criterion scores using the user's weights
+  tests/unit/decide/test_rank.py::test_the_score_is_the_weighted_sum_times_ten  ->  1 PASSED
+  tests/unit/decide/test_rank.py::test_the_contributions_add_up_to_the_score  ->  1 PASSED
+
+Criterion 2: [DR-10] Mention counts show how strong the evidence is but never set the score by themselves
+  tests/unit/decide/test_rank.py::test_the_most_mentioned_product_does_not_win_when_it_fits_worst  ->  1 PASSED
+  tests/unit/decide/test_rank.py::test_mention_counts_never_change_the_score  ->  1 PASSED
+  tests/unit/decide/test_value_scores.py::test_the_most_mentioned_product_does_not_win_when_its_values_are_worst  ->  1 PASSED
+
+Criterion 3: [DR-09] An unknown criterion takes the average of similar products and is marked estimated
+  tests/unit/decide/test_rank.py::test_an_unknown_criterion_takes_the_peer_average_and_is_marked_estimated  ->  1 PASSED
+  tests/unit/decide/test_rank.py::test_only_shown_products_are_ranked_and_give_peer_averages  ->  1 PASSED
+  tests/unit/decide/test_value_scores.py::test_a_product_with_neither_is_estimated_from_its_peers  ->  1 PASSED
+
+Criterion 4: Each product shows a data-coverage percentage
+  tests/unit/decide/test_rank.py::test_coverage_is_the_evidenced_share_of_the_score  ->  1 PASSED
+
+Criterion 5: Labels show best match, runner-up, and the gap to the leader
+  tests/unit/decide/test_rank.py::test_labels_and_the_gap_to_the_leader  ->  1 PASSED
+
+Criterion 6: The results page shows ranked cards with score, coverage, main reasons and source links
+  tests/unit/decide/test_value_scores.py  ->  31 passed, 0 not passed (whole file)
+
+$ cd backend && pytest -rA -p no:cacheprovider -m "not live" <the tests above> --junitxml=<scratch>/junit.xml
+exit code 0; junit: 39 cases, 0 failures, 0 errors, 0 skipped
+
+Short test summary:
+PASSED tests/unit/decide/test_rank.py::test_the_score_is_the_weighted_sum_times_ten
+PASSED tests/unit/decide/test_rank.py::test_the_contributions_add_up_to_the_score
+PASSED tests/unit/decide/test_rank.py::test_the_most_mentioned_product_does_not_win_when_it_fits_worst
+PASSED tests/unit/decide/test_rank.py::test_mention_counts_never_change_the_score
+PASSED tests/unit/decide/test_rank.py::test_an_unknown_criterion_takes_the_peer_average_and_is_marked_estimated
+PASSED tests/unit/decide/test_rank.py::test_only_shown_products_are_ranked_and_give_peer_averages
+PASSED tests/unit/decide/test_rank.py::test_coverage_is_the_evidenced_share_of_the_score
+PASSED tests/unit/decide/test_rank.py::test_labels_and_the_gap_to_the_leader
+PASSED tests/unit/decide/test_value_scores.py::test_a_higher_is_better_number_scores_1_to_9_across_the_shown_products
+PASSED tests/unit/decide/test_value_scores.py::test_a_lower_is_better_number_scores_the_other_way
+PASSED tests/unit/decide/test_value_scores.py::test_mixed_units_are_compared_after_conversion
+PASSED tests/unit/decide/test_value_scores.py::test_a_value_whose_unit_cant_be_converted_is_left_out
+PASSED tests/unit/decide/test_value_scores.py::test_equal_values_all_score_5
+PASSED tests/unit/decide/test_value_scores.py::test_one_product_with_a_value_gets_no_derived_score
+PASSED tests/unit/decide/test_value_scores.py::test_yes_and_no_score_9_and_1_as_the_direction_says
+PASSED tests/unit/decide/test_value_scores.py::test_an_opinion_score_beats_a_derived_one
+PASSED tests/unit/decide/test_value_scores.py::test_text_values_get_no_derived_score
+PASSED tests/unit/decide/test_value_scores.py::test_a_criterion_with_no_direction_gets_no_derived_score
+PASSED tests/unit/decide/test_value_scores.py::test_a_disputed_value_uses_its_winning_side
+PASSED tests/unit/decide/test_value_scores.py::test_a_derived_score_counts_as_evidence_in_coverage
+PASSED tests/unit/decide/test_value_scores.py::test_a_product_with_neither_is_estimated_from_its_peers
+PASSED tests/unit/decide/test_value_scores.py::test_the_most_mentioned_product_does_not_win_when_its_values_are_worst
+PASSED tests/unit/decide/test_value_scores.py::test_the_same_inputs_give_the_same_output
+PASSED tests/unit/decide/test_value_scores.py::test_200_products_are_ranked_in_under_2_seconds
+PASSED tests/unit/decide/test_value_scores.py::test_a_generated_criterion_takes_its_stand_ins_direction
+PASSED tests/unit/decide/test_value_scores.py::test_the_note_names_the_criteria_scored_by_comparing_values
+PASSED tests/unit/decide/test_value_scores.py::test_a_month_never_passes_a_rule_in_days
+PASSED tests/unit/decide/test_value_scores.py::test_weeks_and_days_compare_exactly_in_a_hard_rule
+PASSED tests/unit/decide/test_value_scores.py::test_years_against_years_in_a_rule_compare_as_before
+PASSED tests/unit/decide/test_value_scores.py::test_months_and_years_compare_by_their_average_length_for_derived_scores
+PASSED tests/unit/decide/test_value_scores.py::test_a_year_and_365_days_score_as_the_same
+PASSED tests/unit/decide/test_value_scores.py::test_365_days_never_pass_a_rule_in_years
+PASSED tests/unit/decide/test_value_scores.py::test_a_unitless_number_never_pushes_out_values_with_a_unit
+PASSED tests/unit/decide/test_value_scores.py::test_verify_reads_days_and_hours_on_one_scale
+PASSED tests/unit/decide/test_value_scores.py::test_a_reason_writes_days_and_weeks_in_plain_words
+PASSED tests/unit/decide/test_value_scores.py::test_a_stand_in_need_not_be_the_first_target
+PASSED tests/unit/decide/test_value_scores.py::test_the_note_joins_the_left_out_and_compared_notes
+PASSED tests/unit/decide/test_value_scores.py::test_derived_scores_never_let_a_rule_breaker_through
+PASSED tests/unit/decide/test_value_scores.py::test_capacity_power_and_temperature_are_compared_in_one_unit

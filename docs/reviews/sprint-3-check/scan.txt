@@ -1,0 +1,18 @@
+Scan of this report and its evidence (S3-19), for D-53 and the rule that no file names an AI tool. Each pattern
+was searched in 31 files: docs/reviews/sprint-3-check.md and every .txt in docs/reviews/sprint-3-check/.
+
+Reddit links (reddit.com/, redd.it): 0 matches
+Subreddit paths (/r/name): 0 matches
+Reddit usernames (u/name): 0 matches
+Author hashes: 0 matches
+API keys (sk-, gsk_, AIza, Bearer, fc-, jina_): 0 matches
+Database URLs with a password other than the throwaway 'postgres': 0 matches
+Local user paths: 0 matches
+AI tool names (list kept outside the repository): 0 matches
+
+Reddit appears in the evidence only as a source type, a data class, a count or a setting (REDDIT_SOURCE), never
+as a thread's text, title, quote or author. The screenshots cannot be searched as text. Ten show screens
+that hold no source text (the request, what we understood, the criteria, a question, the brief, the
+research screen) or a source drawer (a review site's, and an unknown value's). The two results pages
+(c4-walk-10, c5-reddit-off-results) were looked at before they were kept, and the review pass opened nine
+of the twelve again. None shows Reddit text or a username; R4 ran with Reddit off.

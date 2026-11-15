@@ -1,0 +1,123 @@
+Frontend unit tests named for the Sprint 3 stories (S3-19, C1). Taken from one full vitest run on main ce8090d.
+These run on mock data or a fake backend; the live browser walk (c4-walk.txt) checks the same screens live.
+
+$ cd frontend && npm ci && npm run lint && npm run typecheck && npx vitest run --reporter=verbose
+(run through cmd /d /c with an upper-case C: path, which vitest needs on this machine)
+
+US-09 c2 (hard rules shown and switched), c5 (weight edits survive):
+  ✓ src/test/rubric-service.test.ts > mock rubric > a mock weight edit survives a rebuild
+  ✓ src/test/rubric-editor.test.tsx > RubricEditor > each hard rule shows the shopper's words with Must-have and Preference
+  ✓ src/test/rubric-editor.test.tsx > RubricEditor > switching a rule saves it, and a reload keeps it
+  ✓ src/test/rubric-editor.test.tsx > RubricEditor > a weight edit updates every share live and survives a rebuild
+
+US-10 c1 (typed exclusions), c3 (Always):
+  ✓ src/test/rubric-service.test.ts > live rubric > live parse returns exclusions and the words not understood
+  ✓ src/test/rubric-service.test.ts > mock rubric > mock parse turns "no Xiaomi" into a brand and shows back the rest
+  ✓ src/test/rubric-service.test.ts > mock rubric > the mock keeps Always on a leave-out the shopper added
+  ✓ src/test/rubric-editor.test.tsx > RubricEditor > "no Xiaomi" becomes a chip
+  ✓ src/test/rubric-editor.test.tsx > RubricEditor > words not understood are shown back
+  ✓ src/test/rubric-editor.test.tsx > RubricEditor > Always saves, and a guest sees the sign-in note
+  ✓ src/test/rubric-editor.test.tsx > RubricEditor > Always on a leave-out from the request says it can't be kept yet
+  ✓ src/test/rubric-edits.test.ts > applyEdits > adding an exclusion that is there already replaces it, so Always can change
+
+US-17 c3 (can't tell visible, with a research link):
+  ✓ src/test/results-states.test.tsx > couldn't check > gives each item a web search for the product and the criterion
+  ✓ src/test/results-states.test.tsx > couldn't check > keeps the name and the reason
+  ✓ src/test/results-states.test.tsx > couldn't check > the link uses the criterion's name, never the shopper's own words for the rule
+  ✓ src/test/results-states.test.tsx > couldn't check > uses the criterion's title when the rubric has one
+  ✓ src/test/results-states.test.tsx > couldn't check > with no criterion named, the link searches for the product alone
+  ✓ src/test/results-states.test.tsx > couldn't check > products left out get no search link
+
+US-18 c4 (coverage), c5 (gap to the leader), c6 (cards: main reasons, source links):
+  ✓ src/test/research-citations.test.ts > main reasons > are the three criteria that added the most points, largest first
+  ✓ src/test/research-citations.test.ts > main reasons > carry a disputed value's state and both sides
+  ✓ src/test/research-citations.test.ts > main reasons > never show an unknown value as 0 points
+  ✓ src/test/research-citations.test.ts > main reasons > the result keeps its search ID, so the evidence route can be asked
+  ✓ src/test/source-drawer.test.tsx > main reasons on a card > lists the top three, each with its state and up to two source links
+  ✓ src/test/source-drawer.test.tsx > main reasons on a card > links each explanation sentence to its sources, and leaves the trade-off plain
+  ✓ src/test/source-drawer.test.tsx > main reasons on a card > a sentence whose two claims share a source links it once
+  ✓ src/test/source-drawer.test.tsx > main reasons on a card > gives each reason a button named for its criterion
+  ✓ src/test/source-drawer.test.tsx > main reasons on a card > has no source button when nothing can open the drawer
+  ✓ src/test/source-drawer.test.tsx > main reasons on a card > shows the gap to the leader for a product that isn't tied
+  ✓ src/test/results-states.test.tsx > data coverage > is a whole percentage, from the contract's coverage
+  ✓ src/test/results-states.test.tsx > data coverage > rounds to a whole number and never writes a fraction
+  ✓ src/test/results-states.test.tsx > data coverage > sits next to the Estimated label
+  ✓ src/test/results-states.test.tsx > data coverage > the example's estimated value, through the adapter, shows its product's coverage
+  ✓ src/test/results-states.test.tsx > data coverage > says it isn't known when the figure is missing, and never shows 0%
+  ✓ src/test/results-states.test.tsx > data coverage > a real 0% is a real figure, shown as it is
+  ✓ src/test/results-states.test.tsx > data coverage > only a usable number counts as a figure
+  ✓ src/test/results-states.test.tsx > data coverage > every product shows its coverage on the card, estimated or not
+
+US-21 c1-c3 (quote, source name/type/date, disputed both sides):
+  ✓ src/test/research-citations.test.ts > claims behind each value > a known value carries its supporting claim, with the exact quote and its source
+  ✓ src/test/research-citations.test.ts > claims behind each value > a disputed value carries both sides: supporting first, then what disagrees
+  ✓ src/test/research-citations.test.ts > claims behind each value > an estimated value has no claims: no source gave it
+  ✓ src/test/research-citations.test.ts > claims behind each value > an unknown value has no claims, even if the result lists claim IDs for it
+  ✓ src/test/research-citations.test.ts > claims behind each value > a criterion with no value at all is unknown with no claims
+  ✓ src/test/research-citations.test.ts > claims behind each value > a Reddit quote that wasn't kept says why, and keeps the link
+  ✓ src/test/research-citations.test.ts > claims behind each value > any other quote that wasn't kept says so plainly
+  ✓ src/test/research-citations.test.ts > claims behind each value > leaves out a claim with no citation, or whose source is missing, and never invents one
+  ✓ src/test/research-citations.test.ts > claims behind each value > names a source by its site, then its community, then its title
+  ✓ src/test/source-drawer.test.tsx > where this comes from > is a dialog named by its heading
+  ✓ src/test/source-drawer.test.tsx > where this comes from > a known value shows its source's name, type and date, the exact quote and a link
+  ✓ src/test/source-drawer.test.tsx > where this comes from > a disputed value shows every source on both sides
+  ✓ src/test/source-drawer.test.tsx > where this comes from > an unknown value says no source gave it, and never shows 0
+  ✓ src/test/source-drawer.test.tsx > where this comes from > an estimated value says where the estimate came from
+  ✓ src/test/source-drawer.test.tsx > where this comes from > a withheld quote says why, and keeps the link
+  ✓ src/test/source-drawer.test.tsx > where this comes from > says it is loading while the evidence is on its way
+  ✓ src/test/source-drawer.test.tsx > where this comes from > keeps the card's state when the route wasn't used
+  ✓ src/test/source-drawer.test.tsx > where this comes from > a disputed value with no claims says the details aren't available yet
+  ✓ src/test/research-evidence.test.ts > evidence route (live) > maps a disputed answer: the winning claim supports, the other disagrees
+  ✓ src/test/research-evidence.test.ts > evidence (mock) > answers a disputed value from the same data, with both sides
+  ✓ src/test/results-states.test.tsx > disputed values > in live mode says the sources disagree and names each side's source, with no value made up
+  ✓ src/test/results-states.test.tsx > disputed values > shows a claim's own value beside its source only when the claim has one
+  ✓ src/test/results-states.test.tsx > disputed values > a disputed value with neither sources nor claims still says the details aren't there
+  ✓ src/test/results-states.test.tsx > disputed values > in mock mode keeps both values, each with its source
+  ✓ src/test/results-states.test.tsx > disputed values > an empty sources list counts as no details
+  ✓ src/test/results-states.test.tsx > disputed values > the mock can show the state a live result is in
+
+US-07 c1, c3, c4 (the link, opening is not an answer, terms from the backend):
+  ✓ src/test/term-help.test.tsx > the live adapter > passes the backend's terms through, as term and explanation
+  ✓ src/test/term-help.test.tsx > the live adapter > gives a question without terms an empty list, never an invented one
+  ✓ src/test/term-help.test.tsx > the live adapter > a finished step has no terms
+  ✓ src/test/term-help.test.tsx > the mock > explains a word in the first laptop question, so it is easy to reach
+  ✓ src/test/term-help.test.tsx > the mock > explains processor speed for a phone, and nothing for value for money
+  ✓ src/test/term-help.test.tsx > the mock > keeps the terms when the question is asked again or another way
+  ✓ src/test/term-help.test.tsx > the reducer > forgets the last criteria's explanations when a new set of criteria loads
+  ✓ src/test/term-help.test.tsx > the reducer > keeps a question's terms when the shopper goes back to change it
+  ✓ src/test/term-help.test.tsx > the reducer > a question reopened that never had terms gets none
+  ✓ src/test/term-help.test.tsx > TermHelp > is not there when the question has no terms
+  ✓ src/test/term-help.test.tsx > TermHelp > starts closed: a link-like button, aria-expanded false, the explanation not shown
+  ✓ src/test/term-help.test.tsx > TermHelp > opens on a click: expanded, with the term in bold and its explanation
+  ✓ src/test/term-help.test.tsx > TermHelp > toggling sends nothing, answers nothing and keeps focus on the button
+  ✓ src/test/term-help.test.tsx > TermHelp > never submits a form it sits in
+  ✓ src/test/term-help.test.tsx > TermHelp > names each term when there is more than one, each with its own region
+  ✓ src/test/term-help.test.tsx > TermHelp > closes again when the question changes
+
+Summary of the whole run:
+  Test Files  29 passed (29)
+  Tests  639 passed (639)
+
+Browser tests in mock mode (Playwright), from the one run of npm run test:e2e in c3-regression-frontend.txt.
+Each line passed ("ok"); the axe checks of the same specs passed too:
+  US-07 criteria 1 and 3: e2e/term-help.spec.ts
+  US-09 criteria 2 and 5, US-10 criterion 1: e2e/rubric-editor.spec.ts
+  US-17 criteria 3 and 4, US-18 criterion 6, US-21 criteria 1 to 3: e2e/results-sources.spec.ts
+  US-17 criterion 3, US-18 criterion 4: e2e/quality/coverage-and-links.spec.ts
+  ok e2e/quality/coverage-and-links.spec.ts:38:3 › estimates and unchecked products › an estimate shows its product's coverage, or says it isn't known
+  ok e2e/quality/coverage-and-links.spec.ts:48:3 › estimates and unchecked products › each product shows its coverage on the card
+  ok e2e/quality/coverage-and-links.spec.ts:60:3 › estimates and unchecked products › a product we couldn't check links to a web search in a new tab
+  ok e2e/results-sources.spec.ts:106:3 › where each result comes from › an answer for a drawer that was closed never shows in the next one
+  ok e2e/results-sources.spec.ts:144:3 › where each result comes from › Enter opens the sources with the exact quote; Escape closes them and gives focus back
+  ok e2e/results-sources.spec.ts:194:3 › where each result comes from › a disputed value shows every source on both sides
+  ok e2e/results-sources.spec.ts:219:3 › where each result comes from › a quote that wasn't kept says why, and keeps the link
+  ok e2e/results-sources.spec.ts:233:3 › where each result comes from › an estimated value says no source gave it, and quotes nothing
+  ok e2e/results-sources.spec.ts:247:3 › where each result comes from › an unknown value is never shown as 0
+  ok e2e/results-sources.spec.ts:256:3 › where each result comes from › left out stays folded away, with its reason inside
+  ok e2e/results-sources.spec.ts:267:3 › where each result comes from › products we couldn't check have their own section and a way to research them
+  ok e2e/results-sources.spec.ts:284:3 › where each result comes from › with nothing left, the relaxation hint says which must-have to loosen
+  ok e2e/results-sources.spec.ts:76:3 › where each result comes from › each card lists its main reasons, with state and source links
+  ok e2e/rubric-editor.spec.ts:39:3 › rubric editor › keyboard only: switch a rule, edit a weight, add and remove an exclusion
+  ok e2e/rubric-editor.spec.ts:77:3 › rubric editor › edits survive a reload and a step back
+  ok e2e/term-help.spec.ts:31:1 › keyboard alone: Tab reaches it, Enter opens it, Space closes it, and nothing is answered
+  ok e2e/term-help.spec.ts:66:1 › a question without a word to explain has no control

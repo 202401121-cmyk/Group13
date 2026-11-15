@@ -1,0 +1,26 @@
+Staging (S3-17, DEP-1): health and one search (S3-19, C6). BLOCKED.
+
+Why it could not run: the staging services do not exist yet. Om confirmed on 15 Nov 2026 that the Render backend and
+the Vercel frontend are not created. docs/deploy.md section 5 says the same: "Not run yet: the staging services were not
+created on 14 Nov 2026." It records no address, and section 6 lists no staging session.
+
+What exists in the repository:
+- render.yaml: the backend service shopsense-backend-staging (free plan, Singapore, health check path /api/health).
+- frontend/vercel.json and docs/deploy.md sections 2 to 4: how to create the backend on Render (Pal) and the frontend
+  on Vercel (Yashkumar), and how to connect them (FRONTEND_ORIGINS on Render, VITE_API_BASE_URL on Vercel).
+
+The check to run once both exist (docs/deploy.md section 5):
+1. Health, timed: curl -s -w "\n%{time_total} s\n" https://<service>.onrender.com/api/health shows "database": "ok".
+2. One live search from the deployed page, request to results: note the session ID and time, whether results came
+   back and were saved, and which matcher ran (Render's logs).
+3. Memory: the backend's peak during that search (Metrics > Memory).
+4. Health again after 15 or more idle minutes (the first request after a spin-down).
+Record each saved session in docs/deploy.md section 6, so Om can delete it from Supabase.
+
+Om's 14 Nov decisions for that search, not yet written into docs/deploy.md: the Reddit budget is 14 for the one smoke
+search, so REDDIT_SOURCE stays archive (section 5 still says to switch it off); DATABASE_URL stays set and the address
+stays within the team; P-09 (CI and engines.node on Node 24) is not on main yet: ci.yml uses node-version "20" and
+frontend/package.json has "node": ">=20.19", so Vercel would build on the newest major it allows.
+
+Suggested owners: Pal (Render backend), Yashkumar (Vercel frontend), Palak (P-09).
+No staging call was made by this check.

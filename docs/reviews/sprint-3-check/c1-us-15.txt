@@ -1,0 +1,78 @@
+US-15: Match product names and variants. Sprint 3 review check (S3-19), C1. The criteria are copied word for word from
+backlog/stories.yaml (for US-46-S3-1, from PR #91's description). Each criterion lists the backend tests that
+prove it, run with the network guard on (tests/conftest.py: any connection outside this machine fails the
+test). Frontend, ML and live evidence for the same criteria are in the files the report names.
+Run at 2026-11-15 09:58 UTC on main ce8090d, Python 3.11.15 in a fresh venv.
+
+Criterion 1: "Sony WH-1000XM5", "XM5" and "1000XM5 headphones" become one product
+  tests/unit/entities/test_match_stage.py::test_three_names_for_the_xm5_become_one_product  ->  1 PASSED
+  tests/unit/entities/test_match_stage.py::test_wh_and_wf_1000xm5_stay_apart  ->  1 PASSED
+  tests/unit/entities/test_model_matcher.py::test_the_model_merges_criterion_1s_names_and_keeps_wh_and_wf_apart  ->  1 PASSED
+
+Criterion 2: A fine-tuned matching model decides each pair, and only confident matches merge; uncertain pairs stay separate
+  tests/unit/entities/test_model_matcher.py::test_a_pair_at_the_threshold_merges_and_one_below_stays_separate  ->  1 PASSED
+  tests/unit/entities/test_model_matcher.py::test_the_pipeline_matches_with_the_model_stage  ->  1 PASSED
+  tests/unit/entities/test_model_matcher.py::test_the_onnx_scorer_batches_and_returns_sigmoid_probabilities  ->  1 PASSED
+  tests/contract/test_match_contract.py::test_the_model_stage_gives_a_valid_match_result  ->  2 PASSED
+
+Criterion 3: [DR-02] Versions that differ in price or specs, such as RAM, storage or region, are separate variants of one family
+  tests/unit/entities/test_match_stage.py::test_iphone_16_128_and_256_gb_are_one_product_with_two_variants  ->  1 PASSED
+  tests/unit/entities/test_match_stage.py::test_names_that_differ_in_anything_but_variants_stay_separate_products  ->  1 PASSED
+  tests/unit/entities/test_match_stage.py::test_galaxy_a35_and_a55_stay_apart  ->  1 PASSED
+
+Criterion 4: [DR-06] Aliases are saved and reused in later searches
+  tests/unit/test_pipeline_aliases.py::test_an_alias_saved_by_an_earlier_search_is_used  ->  1 PASSED
+  tests/unit/entities/test_match_stage.py::test_a_known_alias_gives_its_product_id  ->  1 PASSED
+  tests/unit/entities/test_match_stage.py::test_a_known_alias_never_pulls_a_product_apart  ->  1 PASSED
+  tests/unit/db/test_aliases.py::test_memory_store_saves_and_loads_by_category  ->  1 PASSED
+
+Criterion 5: On held-out labelled pairs it beats fuzzy matching, with precision of 0.95 or better (target)
+  (no backend test: see the report)
+
+Criterion 6: If the model fails to load, fuzzy matching runs instead and the run is logged
+  tests/unit/entities/test_model_matcher.py::test_each_fallback_reason_gives_method_fuzzy_and_one_log_line  ->  7 PASSED
+  tests/unit/entities/test_model_matcher.py::test_matcher_force_fail_falls_back_to_fuzzy  ->  1 PASSED
+  tests/faults/test_match_fallback.py::test_the_model_stage_falls_back_to_fuzzy_matching  ->  1 PASSED
+  tests/faults/test_match_fallback.py::test_a_failing_match_falls_back_and_the_report_says_so  ->  1 PASSED
+
+$ cd backend && pytest -rA -p no:cacheprovider -m "not live" <the tests above> --junitxml=<scratch>/junit.xml
+exit code 0; junit: 25 cases, 0 failures, 0 errors, 0 skipped
+
+Short test summary:
+PASSED tests/unit/entities/test_match_stage.py::test_three_names_for_the_xm5_become_one_product
+PASSED tests/unit/entities/test_match_stage.py::test_wh_and_wf_1000xm5_stay_apart
+PASSED tests/unit/entities/test_model_matcher.py::test_the_model_merges_criterion_1s_names_and_keeps_wh_and_wf_apart
+PASSED tests/unit/entities/test_model_matcher.py::test_a_pair_at_the_threshold_merges_and_one_below_stays_separate
+PASSED tests/unit/entities/test_model_matcher.py::test_the_pipeline_matches_with_the_model_stage
+PASSED tests/unit/entities/test_model_matcher.py::test_the_onnx_scorer_batches_and_returns_sigmoid_probabilities
+PASSED tests/contract/test_match_contract.py::test_the_model_stage_gives_a_valid_match_result[run]
+PASSED tests/contract/test_match_contract.py::test_the_model_stage_gives_a_valid_match_result[fallback]
+PASSED tests/unit/entities/test_match_stage.py::test_iphone_16_128_and_256_gb_are_one_product_with_two_variants
+PASSED tests/unit/entities/test_match_stage.py::test_names_that_differ_in_anything_but_variants_stay_separate_products
+PASSED tests/unit/entities/test_match_stage.py::test_galaxy_a35_and_a55_stay_apart
+PASSED tests/unit/test_pipeline_aliases.py::test_an_alias_saved_by_an_earlier_search_is_used
+PASSED tests/unit/entities/test_match_stage.py::test_a_known_alias_gives_its_product_id
+PASSED tests/unit/entities/test_match_stage.py::test_a_known_alias_never_pulls_a_product_apart
+PASSED tests/unit/db/test_aliases.py::test_memory_store_saves_and_loads_by_category
+PASSED tests/unit/entities/test_model_matcher.py::test_each_fallback_reason_gives_method_fuzzy_and_one_log_line[no revision]
+PASSED tests/unit/entities/test_model_matcher.py::test_each_fallback_reason_gives_method_fuzzy_and_one_log_line[the download failed (ConnectionError)]
+PASSED tests/unit/entities/test_model_matcher.py::test_each_fallback_reason_gives_method_fuzzy_and_one_log_line[sha256]
+PASSED tests/unit/entities/test_model_matcher.py::test_each_fallback_reason_gives_method_fuzzy_and_one_log_line[could not be loaded (ValueError)]
+PASSED tests/unit/entities/test_model_matcher.py::test_each_fallback_reason_gives_method_fuzzy_and_one_log_line[scoring failed (RuntimeError)]
+PASSED tests/unit/entities/test_model_matcher.py::test_each_fallback_reason_gives_method_fuzzy_and_one_log_line[longer than its 3 s share]
+PASSED tests/unit/entities/test_model_matcher.py::test_each_fallback_reason_gives_method_fuzzy_and_one_log_line[still loading]
+PASSED tests/unit/entities/test_model_matcher.py::test_matcher_force_fail_falls_back_to_fuzzy
+PASSED tests/faults/test_match_fallback.py::test_the_model_stage_falls_back_to_fuzzy_matching
+PASSED tests/faults/test_match_fallback.py::test_a_failing_match_falls_back_and_the_report_says_so
+
+Criterion 5 (a target): the recorded evaluation, ml/results/matcher_v1.json (S3-4, 11 Nov, commit 3cebd05).
+Threshold 0.9646, chosen on the dev part for precision >= 0.95: dev precision 1.0, dev recall 0.0755.
+Held-out test part of our own pairs (machine labels (ml/DATA.md section 4.1)):
+  matcher                pairs 57, true matches 7: tp 1, fp 0, fn 6; precision 1.0, recall 0.1429, F1 0.25; precision 95% interval [1.0, 1.0]
+  fuzzy token_set_ratio  pairs 57, true matches 7: tp 2, fp 1, fn 5; precision 0.6667, recall 0.2857, F1 0.4; precision 95% interval [0.0, 1.0]
+So the matcher's precision of 1.0 rests on one called pair (tp 1, fp 0), and its F1 (0.25) is below fuzzy's (0.4).
+The target is not shown. The ML tests that pick and pin the threshold pass:
+$ python -m pytest -rA -q ml/tests/test_matcher_threshold.py::test_the_picker_takes_the_highest_recall_with_precision_of_0_95 \
+    ml/tests/test_match_metrics.py::test_the_threshold_is_chosen_on_dev_only ml/tests/test_matcher_config.py::test_the_threshold_is_the_one_chosen_on_dev \
+    ml/tests/test_trust_baseline.py ml/tests/test_check_conflicts.py
+412 passed (all three named matcher tests among them; the rest are the trust-baseline and conflicts-checker files).

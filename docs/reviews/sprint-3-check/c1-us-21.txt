@@ -1,0 +1,34 @@
+US-21: Click any claim to see its source. Sprint 3 review check (S3-19), C1. The criteria are copied word for word from
+backlog/stories.yaml (for US-46-S3-1, from PR #91's description). Each criterion lists the backend tests that
+prove it, run with the network guard on (tests/conftest.py: any connection outside this machine fails the
+test). Frontend, ML and live evidence for the same criteria are in the files the report names.
+Run at 2026-11-15 09:59 UTC on main ce8090d, Python 3.11.15 in a fresh venv.
+
+Criterion 1: Every factual claim on the results page has a source link and its quote
+  tests/unit/api/test_evidence_route.py::test_every_cited_claim_in_the_example_result_is_served  ->  1 PASSED
+  tests/unit/test_pipeline_live_decide.py::test_citations_cover_every_claim_a_value_cites  ->  1 PASSED
+
+Criterion 2: Clicking shows the source name, type, date and exact quote
+  tests/unit/api/test_evidence_route.py::test_a_known_value_with_one_source  ->  1 PASSED
+
+Criterion 3: A Disputed claim shows all its sources, not only the winner
+  tests/unit/api/test_evidence_route.py::test_a_disputed_value_shows_both_sides  ->  1 PASSED
+  tests/unit/api/test_evidence_route.py::test_a_value_with_too_many_claims_shows_both_sides_within_the_limit  ->  1 PASSED
+
+Criterion 4: The quote is stored at retrieval time, so it stays visible even if the page changes
+  tests/unit/api/test_evidence_route.py::test_a_reddit_claims_quote_is_served_from_memory  ->  1 PASSED
+  tests/unit/extract/test_quote_check.py::test_the_stored_quote_is_the_sources_own_words  ->  1 PASSED
+  tests/unit/research/test_retention.py::test_retention_drops_reddit_citation_quotes_and_keeps_web_ones  ->  1 PASSED
+
+$ cd backend && pytest -rA -p no:cacheprovider -m "not live" <the tests above> --junitxml=<scratch>/junit.xml
+exit code 0; junit: 8 cases, 0 failures, 0 errors, 0 skipped
+
+Short test summary:
+PASSED tests/unit/api/test_evidence_route.py::test_every_cited_claim_in_the_example_result_is_served
+PASSED tests/unit/test_pipeline_live_decide.py::test_citations_cover_every_claim_a_value_cites
+PASSED tests/unit/api/test_evidence_route.py::test_a_known_value_with_one_source
+PASSED tests/unit/api/test_evidence_route.py::test_a_disputed_value_shows_both_sides
+PASSED tests/unit/api/test_evidence_route.py::test_a_value_with_too_many_claims_shows_both_sides_within_the_limit
+PASSED tests/unit/api/test_evidence_route.py::test_a_reddit_claims_quote_is_served_from_memory
+PASSED tests/unit/extract/test_quote_check.py::test_the_stored_quote_is_the_sources_own_words
+PASSED tests/unit/research/test_retention.py::test_retention_drops_reddit_citation_quotes_and_keeps_web_ones

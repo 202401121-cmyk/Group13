@@ -1,0 +1,112 @@
+R1: the walk through every screen, as a shopper, database on (S3-19, C4). main ce8090d, 15 Nov 2026, 10:28 to 10:35 UTC.
+Started from a launcher outside the repository (<scratch>/s3c_backend.py): the app's INFO log to a scratch file, and every call
+to an LLM, Serper, Jina, Firecrawl or a Reddit archive counted and refused past the run's cap (evals/live_briefs.py's guard).
+The frontend: npm run dev in live mode (VITE_API_MODE=live, VITE_API_BASE_URL=http://localhost:8000), as scripts/dev.py starts it.
+EXTRACT_MAX_SOURCES=4 on every run (the default is 40). The checker did not open, print or change .env; the app loaded its keys and
+settings from it as usual, and each run's own settings were temporary shell variables, which win over .env.
+Caps for R1: llm 10, serper 6, reddit 8, jina 6, firecrawl 3.
+
+$ curl http://127.0.0.1:8000/api/health
+{"status":"ok","schema_version":"1.8.0","database":"ok"}
+
+Each step was clicked or typed in a real Chromium page through Playwright, as a shopper would. The request is made
+up. Screenshots are c4-walk-NN-*.png; none shows Reddit text or a username (D-53). Read off the page's
+accessibility tree unless a screenshot is named.
+
+01 Home (c4-walk-01-request.png): typed "Phone with a good camera under ₹30,000 with at least 8 GB RAM, no Xiaomi", Start my research.
+02 What we understood (c4-walk-02-understood.png): Product Smartphone; Used for photography; Budget Up to ₹30,000;
+   Region India; Must-haves at least 8 GB RAM; Leave out Xiaomi. Looks right -> session sess_4f3e848d3bc34225870f86de.
+03 Criteria (c4-walk-03-criteria.png): "What matters for a smartphone", 10 generated criteria: Sensor Size,
+   Maximum Aperture (Lower is better), Optical Image Stabilization, Low-Light SNR, Dynamic Range, Resolution (MP),
+   35mm Equivalent Focal Length, Battery Life, Storage Capacity, Value for Money (shown as "Lower is better").
+04 Questions. Which questions had "What does this mean?" (US-07):
+   Sensor Size no | Maximum Aperture no | Optical Image Stabilization YES | Low-Light SNR no | Dynamic Range no |
+   Resolution (MP) no | 35mm Equivalent Focal Length no | Battery Life no | Storage Capacity no | Value for Money no.
+   Every question also has "Why this question?", which shows the criterion's definition.
+   Opened "What does this mean?" on question 3 (c4-walk-04-what-does-this-mean.png): aria-expanded true; text
+   "Optical Image Stabilization: Quantifies how many stops of camera shake the OIS can compensate, helping keep
+   photos sharp in low light." (21 words). Before and after opening: "2 of 10 settled", "Answers so far (2)", the
+   same question. Closed it again; nothing was answered. No LLM call was made while it was open (the guard's
+   times are in c4-live-checks.txt, item 4).
+   Answers: High, Medium, High, High, Skip (Dynamic Range), Good enough, Low, High, Medium, Medium.
+05 "Your brief is ready" (c4-walk-05-interview-done.png): Answered 9, Skipped 1, Remembered 0.
+06 Brief, as it first opened (the page's accessibility tree): "Must have" holds "Budget: Up to ₹30,000" and the
+   rule "at least 8 GB RAM" with Must-have and Preference; "What counts most" holds 10 weights from 0 to 10 with
+   shares adding to 100%: Sensor Size 8 (14%), Maximum Aperture 5 (9%), OIS 8 (14%), Low-Light SNR 8 (14%), Dynamic
+   Range 6 (10%, "Standard", the default: it was skipped), Resolution 3 (5%), Focal Length 2 (3%), Battery Life 8
+   (14%), Storage Capacity 5 (9%), Value for Money 5 (8%). High = 8, Medium = 5, Good enough = 3, Low = 2.
+   c4-walk-08-brief.png is the whole page after the edits below (Battery Life 10, the new answer, the leave-out
+   list). In that full-page capture the sticky header covers the Focal Length row.
+   - Switched the rule to Preference, reloaded the page: Preference still checked. (Its screenshot,
+     c4-walk-06, was not captured: the tool's element reference went stale. The page's accessibility tree after
+     the reload read: radio "Must-have" unchecked, radio "Preference" [checked].) Switched it back to Must-have.
+   - Set Battery Life to 10: it reads "You set this", 17%, and every other share changed (total 100%).
+   - Went back to the questions, changed Storage Capacity to High, returned: Battery Life still 10 "You set this",
+     Storage Capacity 8 "From your answer", the rule still Must-have. Shares: 13, 8, 13, 13, 9, 5, 3, 16, 12, 8.
+07 Leave out (c4-walk-07-leave-out.png):
+   - Xiaomi (Brand) from the request. Ticking its Always box: "“Always” can't be kept yet for “Xiaomi”, as it came
+     from your request. It is still left out of this search." (the box stays unticked).
+   - Typed "not a curved screen", Add: a chip "curved display", Feature.
+   - Typed "no weak speakers": "We couldn't read “weak speakers”. Try a brand, a model or a feature, such as
+     “no Xiaomi” or “not touchscreen”." Nothing added.
+   - Ticked Always on "curved display": ticked. The note under the list: "“Always” applies to this search for now.
+     ShopSense will remember it for later searches once you can sign in."
+08 Start research (c4-walk-09-researching.png): search srch_8fe6696753f97a8606320d14; eight stage rows; results
+   in about 8 s (the web searches were cached).
+09 Results (c4-walk-10-results.png):
+   - Coverage note: "Not ranked: we found no scores for your criteria. 8 sources were not read, to keep the search
+     from running too long. 18 Reddit threads were not read, to leave room for web pages. These are sample results
+     while live research is being built. They are not real recommendations."
+   - Best match: Motorola Edge 70 Fusion, "No score", Low confidence, Checked 0 of 10 criteria, Data coverage 0%.
+     Main reasons: Sensor Size, Maximum Aperture, Optical Image Stabilization, each "Unknown". Store offers: "No
+     price found yet". Show all criteria: all 10 "Not verified".
+   - Couldn't check (6), each with its reason and a "Research it" link to a web search in a new tab.
+   - Left out (8), folded: 4 for "It fails "at least 8 GB RAM": it has 6 GB", 4 for "You ruled out Xiaomi".
+   - Footer: "Prices checked 3 Oct, 1:30 pm. Prices can change. Check the store before you buy."
+10 Sources of an unknown value (c4-walk-11-drawer-unknown.png): "Sensor Size: where this comes from", Motorola
+   Edge 70 Fusion, "Unknown", "No source gave this value. It isn't counted as zero." Escape closed it.
+Console: 0 errors in the whole walk; every warning was a font preload notice from the dev server.
+
+The search's result, read back from GET /api/search/runs/srch_8fe6696753f97a8606320d14 (fields picked):
+  status done, saved True, partial False
+  sources: {'reddit': 20, 'web_search': 20, 'review_site': 7, 'retailer': 2, 'manufacturer': 1}; citations 10
+  stages: research ok, extract ok, match ok, verify ok, enrich ok, decide ok, explain ok, commerce ok
+  ranked (1):
+    1. Motorola Edge 70 Fusion: no score, coverage 0%, label None, gap 0.0
+  held back: {'cant_tell': 6, 'filtered_out': 8}
+    cant_tell: OnePlus 8 Pro: We couldn't find its price; We couldn't find its RAM, so we can't check "at least 8 GB RAM"
+    filtered_out: OnePlus Nord CE 6 Lite 5G: It fails "at least 8 GB RAM": it has 6 GB
+    cant_tell: POCO X7 Pro 12GB RAM: We couldn't find its price; We couldn't find its RAM, so we can't check "at least 8 GB RAM"
+    filtered_out: POCO X8 5G: It fails "at least 8 GB RAM": it has 6 GB
+    cant_tell: realme 11 256GB: We couldn't find its price; We couldn't find its RAM, so we can't check "at least 8 GB RAM"
+    cant_tell: realme GT 2 Pro 5G: We couldn't find its price; We couldn't find its RAM, so we can't check "at least 8 GB RAM"
+    filtered_out: Samsung Galaxy A27 5G: It fails "at least 8 GB RAM": it has 6 GB
+    cant_tell: Samsung Galaxy F70 Pro 5G: We couldn't find its price; We couldn't find its RAM, so we can't check "at least 8 GB RAM"
+    cant_tell: Samsung Galaxy M52 5G 8GB RAM: We couldn't find its price; We couldn't find its RAM, so we can't check "at least 8 GB RAM"
+    filtered_out: vivo T5x 8GB RAM: It fails "at least 8 GB RAM": it has 6 GB
+    filtered_out: Xiaomi Mi 10T Pro: You ruled out Xiaomi
+    filtered_out: Xiaomi Redmi 15 256GB 8GB RAM: You ruled out Xiaomi
+    filtered_out: Xiaomi Redmi Note 12 Pro 5G 8GB RAM: You ruled out Xiaomi
+    filtered_out: Xiaomi Redmi Note 15 SE 5G 8GB RAM: You ruled out Xiaomi
+  relaxation hint: None
+  coverage note: Not ranked: we found no scores for your criteria. 8 sources were not read, to keep the search from running too long. 18 Reddit threads were not read, to leave room for web pages. These are sample results while live research is being built. They are not real recommendations.
+  example markers in the result: Nova Book 14 at .explanations[1].sentences[0].text, .commerce.offers[0].listing_title; Kestrel Slim 15 at .commerce.offers[1].listing_title; Orion Play 15 at .explanations[0].trade_off; Example Store at .commerce.offers[0].store; Another Store at .commerce.offers[1].store
+  example markers among products, ranked and held back: none
+The shown product's hard-rule values, from the result: price_inr 28980 INR and ram_gb 8 GB, each from one
+review_site claim on 91mobiles.com (quotes "₹28,980" and "8 GB RAM"). Neither appears on its card.
+
+$ python scripts/check_request_saved.py sess_4f3e848d3bc34225870f86de
+saved
+Supabase (read-only select, section 6 of the report): a requests row and a searches row for this session, and one
+product_aliases row: alias "vivo t5x" -> prd_vivo_t5x_8gb_ram, smartphone, first seen 10:33:21 UTC.
+
+LLM calls:
+  1 x task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok
+  1 x task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok
+  1 x task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=ok
+  1 x task=extract_claims class=reddit provider=groq model=openai/gpt-oss-120b outcome=invalid_output
+  2 x task=extract_claims class=reddit provider=groq model=openai/gpt-oss-20b outcome=ok
+  1 x task=generate_criteria class=private provider=groq model=openai/gpt-oss-120b outcome=ok
+Research: INFO app.research.stage: research: reddit 1.9s (20), web_search 0.0s (20), review_site 3.8s (10); total 3.8s; used serper 0, reddit_archive 1, pages 9, jina 0, firecrawl_pages 0, firecrawl 0
+Decide: INFO app.decide.stage: decide: Not ranked: we found no scores for your criteria.
+Guard's count for R1: llm 7 sent, reddit 1 sent. usage.json today, change: serper +0, reddit_archive +1, pages +9, jina +0, firecrawl_pages +0, firecrawl +0.

@@ -1,0 +1,22 @@
+Backend regression, as CI's backend job runs it (S3-19, C3). main ce8090d, Python 3.11.15 in a fresh venv
+(pip install -e ".[dev]"), from backend/. No TEST_DATABASE_URL here, so the 46 database cases skip; they ran on
+postgres:17 in c3-db-tests.txt and in CI.
+
+$ ruff check . && ruff format --check .
+All checks passed!
+392 files already formatted
+$ mypy app
+Success: no issues found in 135 source files
+$ pytest -q -m "not live" --cov --cov-report=term-missing
+exit=0 wall_seconds=292
+TOTAL                                 12468    266    98%
+Required test coverage of 70.0% reached. Total coverage: 97.87%
+junit: {'tests': '5115', 'failures': '0', 'errors': '0', 'skipped': '46', 'time': '289.028'}
+$ python -m scripts.check_coverage
+
+Coverage gates passed: 70% on core modules, 80% on app/decide/.
+$ python -m scripts.export_contracts && git diff --exit-code -- ../shared/contracts
+wrote 75 schemas and 26 examples to <repo>/shared/contracts
+no diff
+
+junit for the test step: {'tests': '5115', 'failures': '0', 'errors': '0', 'skipped': '46', 'time': '289.028'}

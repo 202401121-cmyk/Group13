@@ -1,0 +1,9 @@
+Backend regression, as CI's backend-windows job runs it (S3-19, C3). main ce8090d, Python 3.13.13 in a fresh
+venv (pip install -e ".[dev]"), from backend/.
+
+$ pytest -q -m "not live"
+exit code 0; junit: 5115 cases, 0 failures, 0 errors, 46 skipped (the database cases, no TEST_DATABASE_URL); pytest time 147.8 s
+
+$ python -m scripts.export_contracts && git diff --exit-code -- ../shared/contracts
+wrote 75 schemas and 26 examples to <repo>/shared/contracts
+no diff

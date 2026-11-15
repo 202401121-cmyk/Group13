@@ -1,0 +1,29 @@
+B-2 from Sprint 2 (moved here by D-61), S3-19 C2. US-32 criterion 1, word for word from backlog/stories.yaml:
+"Filtering, scoring, ranking, weight mapping and mention counting run in tests with no network"
+
+How no network is proved: tests/conftest.py installs tests/network_guard.py's NetworkGuard for every test not
+marked live (an autouse fixture). Any connection, DNS lookup or UDP send outside this machine raises at once, and
+the guard also fails the test at teardown if any attempt was made, so a blocked call that a fallback swallowed
+still fails. The runs below select -m "not live", and none of these files holds a live mark (grep below).
+Run on main ce8090d, Python 3.11.15, fresh venv.
+
+$ grep -l "mark.live" <the files below>
+  none
+
+filtering:
+$ cd backend && pytest -q -m "not live" tests/unit/decide/test_filter.py tests/unit/decide/test_disputed_sides.py tests/unit/decide/test_price_reading.py tests/unit/decide/test_briefs.py
+  exit code 0; 375 cases, 0 failures, 0 errors, 0 skipped; 1.2 s
+
+scoring and ranking:
+$ cd backend && pytest -q -m "not live" tests/unit/decide/test_rank.py tests/unit/decide/test_value_scores.py tests/unit/decide/test_directions.py
+  exit code 0; 66 cases, 0 failures, 0 errors, 0 skipped; 1.1 s
+
+weight mapping:
+$ cd backend && pytest -q -m "not live" tests/unit/interview/test_one_table.py tests/unit/interview/test_answers.py tests/unit/interview/test_rubric_builder.py tests/unit/interview/test_rubric_edits.py
+  exit code 0; 145 cases, 0 failures, 0 errors, 0 skipped; 1.2 s
+
+mention counting:
+$ cd backend && pytest -q -m "not live" tests/unit/research/test_recommenders.py tests/unit/test_pipeline_recommenders.py tests/unit/entities/test_match_stage.py
+  exit code 0; 173 cases, 0 failures, 0 errors, 0 skipped; 1.4 s
+
+Total: 759 cases, 0 failures, 0 errors, 0 skipped, all with the network guard on.

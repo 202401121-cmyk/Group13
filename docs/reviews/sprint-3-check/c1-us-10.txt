@@ -1,0 +1,64 @@
+US-10: Rule out brands and features. Sprint 3 review check (S3-19), C1. The criteria are copied word for word from
+backlog/stories.yaml (for US-46-S3-1, from PR #91's description). Each criterion lists the backend tests that
+prove it, run with the network guard on (tests/conftest.py: any connection outside this machine fails the
+test). Frontend, ML and live evidence for the same criteria are in the files the report names.
+Run at 2026-11-15 09:58 UTC on main ce8090d, Python 3.11.15 in a fresh venv.
+
+Criterion 1: Brand, model or feature exclusions can be typed in words, such as "no Xiaomi" or "not touchscreen"
+  tests/unit/intake/test_exclusions.py::test_no_xiaomi_is_a_brand  ->  1 PASSED
+  tests/unit/intake/test_exclusions.py::test_not_touchscreen_is_a_feature  ->  1 PASSED
+  tests/unit/intake/test_exclusions.py::test_no_galaxy_a35_is_a_model  ->  1 PASSED
+  tests/unit/intake/test_exclusions.py::test_an_unknown_word_comes_back_not_understood  ->  1 PASSED
+  tests/unit/intake/test_exclusions.py::test_the_keyword_fallback_finds_the_same_exclusions  ->  1 PASSED
+  tests/unit/api/test_exclusions_route.py::test_the_route_returns_exclusions_and_words_not_understood  ->  1 PASSED
+
+Criterion 2: Excluded items never appear in results, and they show in the filtered-out list with the reason
+  tests/unit/decide/test_filter.py::test_an_excluded_brand_is_filtered_out  ->  7 PASSED
+  tests/unit/decide/test_filter.py::test_an_excluded_model_is_filtered_out_by_name_or_alias  ->  7 PASSED
+  tests/unit/decide/test_filter.py::test_an_excluded_feature_is_filtered_out  ->  10 PASSED
+  tests/unit/decide/test_filter.py::test_a_feature_written_another_way_matches_the_key_the_search_asked_for  ->  3 PASSED
+  tests/unit/test_pipeline_unsourced.py::test_a_feature_written_another_way_rules_the_product_out_end_to_end  ->  2 PASSED
+
+Criterion 3: An exclusion can be marked "always" and is then saved to memory
+  tests/unit/intake/test_exclusions.py::test_always_is_never_set_here  ->  1 PASSED
+
+$ cd backend && pytest -rA -p no:cacheprovider -m "not live" <the tests above> --junitxml=<scratch>/junit.xml
+exit code 0; junit: 36 cases, 0 failures, 0 errors, 0 skipped
+
+Short test summary:
+PASSED tests/unit/intake/test_exclusions.py::test_no_xiaomi_is_a_brand
+PASSED tests/unit/intake/test_exclusions.py::test_not_touchscreen_is_a_feature
+PASSED tests/unit/intake/test_exclusions.py::test_no_galaxy_a35_is_a_model
+PASSED tests/unit/intake/test_exclusions.py::test_an_unknown_word_comes_back_not_understood
+PASSED tests/unit/intake/test_exclusions.py::test_the_keyword_fallback_finds_the_same_exclusions
+PASSED tests/unit/api/test_exclusions_route.py::test_the_route_returns_exclusions_and_words_not_understood
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_brand_is_filtered_out[Mi Notebook 14-Xiaomi-filtered_out]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_brand_is_filtered_out[Mi Notebook 14-XIAOMI-filtered_out]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_brand_is_filtered_out[Xiaomi Redmi Book 15-None-filtered_out]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_brand_is_filtered_out[xiaomi-Redmi Book 15-Redmi-filtered_out]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_brand_is_filtered_out[Redmi Book 15-Redmi-shown]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_brand_is_filtered_out[Book 15 for Xiaomi fans-None-shown]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_brand_is_filtered_out[Xiaomiplus Book-None-shown]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_model_is_filtered_out_by_name_or_alias[Samsung Galaxy S23-aliases0-Galaxy S23-filtered_out]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_model_is_filtered_out_by_name_or_alias[Samsung Galaxy S23 Ultra-aliases1-Galaxy S23-filtered_out]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_model_is_filtered_out_by_name_or_alias[Samsung Galaxy S24-aliases2-Galaxy S23-shown]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_model_is_filtered_out_by_name_or_alias[Google Pixel 8a-aliases3-Pixel 8-shown]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_model_is_filtered_out_by_name_or_alias[Nova Book 14-aliases4-nova 14-filtered_out]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_model_is_filtered_out_by_name_or_alias[Nova Book 14-aliases5-nova 14-shown]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_model_is_filtered_out_by_name_or_alias[S23 Galaxy Case-aliases6-Galaxy S23-shown]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_feature_is_filtered_out[known-true-key]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_feature_is_filtered_out[known-true-has-key]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_feature_is_filtered_out[known-yes-is-key]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_feature_is_filtered_out[known-false]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_feature_is_filtered_out[unknown-is-not-excluded]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_feature_is_filtered_out[disputed-is-not-known]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_feature_is_filtered_out[every-variant-has-it]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_feature_is_filtered_out[one-variant-without-it]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_feature_is_filtered_out[variant-key-with-yes]
+PASSED tests/unit/decide/test_filter.py::test_an_excluded_feature_is_filtered_out[variant-key-with-no]
+PASSED tests/unit/decide/test_filter.py::test_a_feature_written_another_way_matches_the_key_the_search_asked_for[another-spelling]
+PASSED tests/unit/decide/test_filter.py::test_a_feature_written_another_way_matches_the_key_the_search_asked_for[a-short-form]
+PASSED tests/unit/decide/test_filter.py::test_a_feature_written_another_way_matches_the_key_the_search_asked_for[capitals-and-a-hyphen]
+PASSED tests/unit/test_pipeline_unsourced.py::test_a_feature_written_another_way_rules_the_product_out_end_to_end[touch screen]
+PASSED tests/unit/test_pipeline_unsourced.py::test_a_feature_written_another_way_rules_the_product_out_end_to_end[rgb]
+PASSED tests/unit/intake/test_exclusions.py::test_always_is_never_set_here

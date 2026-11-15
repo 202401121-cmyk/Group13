@@ -1,0 +1,31 @@
+US-07: Explain unfamiliar terms on request. Sprint 3 review check (S3-19), C1. The criteria are copied word for word from
+backlog/stories.yaml (for US-46-S3-1, from PR #91's description). Each criterion lists the backend tests that
+prove it, run with the network guard on (tests/conftest.py: any connection outside this machine fails the
+test). Frontend, ML and live evidence for the same criteria are in the files the report names.
+Run at 2026-11-15 09:59 UTC on main ce8090d, Python 3.11.15 in a fresh venv.
+
+Criterion 1: Every question containing a technical term has a "What does this mean?" link
+  tests/unit/interview/test_terms.py::test_a_technical_criterion_gets_a_term  ->  1 PASSED
+  tests/unit/interview/test_terms.py::test_a_plain_criterion_gets_none  ->  1 PASSED
+  tests/unit/interview/test_terms.py::test_no_short_sentence_means_no_term  ->  1 PASSED
+
+Criterion 2: Explanations are at most 40 words, in plain language, and say why the term matters for this use
+  tests/unit/interview/test_terms.py::test_a_41_word_definition_falls_back_to_its_first_sentence  ->  1 PASSED
+  tests/contract/test_sprint3_contracts.py::test_an_explanation_over_40_words_is_refused  ->  1 PASSED
+
+Criterion 3: Opening an explanation does not count as an answer
+  (no backend test: see the report)
+
+Criterion 4: Definitions come from the saved criteria in US-03, so no extra LLM call is needed
+  tests/unit/interview/test_terms.py::test_terms_need_no_llm  ->  1 PASSED
+
+$ cd backend && pytest -rA -p no:cacheprovider -m "not live" <the tests above> --junitxml=<scratch>/junit.xml
+exit code 0; junit: 6 cases, 0 failures, 0 errors, 0 skipped
+
+Short test summary:
+PASSED tests/unit/interview/test_terms.py::test_a_technical_criterion_gets_a_term
+PASSED tests/unit/interview/test_terms.py::test_a_plain_criterion_gets_none
+PASSED tests/unit/interview/test_terms.py::test_no_short_sentence_means_no_term
+PASSED tests/unit/interview/test_terms.py::test_a_41_word_definition_falls_back_to_its_first_sentence
+PASSED tests/contract/test_sprint3_contracts.py::test_an_explanation_over_40_words_is_refused
+PASSED tests/unit/interview/test_terms.py::test_terms_need_no_llm

@@ -1,0 +1,70 @@
+US-38: Add YouTube and hard-to-read pages (criteria 3, 4 and the page part of 5). Sprint 3 review check (S3-19), C1. The criteria are copied word for word from
+backlog/stories.yaml (for US-46-S3-1, from PR #91's description). Each criterion lists the backend tests that
+prove it, run with the network guard on (tests/conftest.py: any connection outside this machine fails the
+test). Frontend, ML and live evidence for the same criteria are in the files the report names.
+Run at 2026-11-15 09:59 UTC on main ce8090d, Python 3.11.15 in a fresh venv.
+
+Criterion 3: Pages that fail a simple fetch or need JavaScript are read through Jina Reader
+  tests/unit/research/test_page_readers.py::test_a_thin_page_goes_to_jina_and_is_read  ->  1 PASSED
+  tests/unit/research/test_page_readers.py::test_a_page_the_site_refuses_goes_to_a_reader_too  ->  1 PASSED
+  tests/unit/research/test_page_readers.py::test_a_page_read_plainly_never_reaches_a_reader  ->  1 PASSED
+  tests/faults/research/test_source_faults.py::test_a_review_page_goes_through_the_real_page_reader  ->  1 PASSED
+
+Criterion 4: Video and page text goes through the same extraction and quote rules as every other source
+  tests/unit/research/test_page_readers.py::test_reader_text_goes_through_the_same_extraction_and_quote_rules  ->  1 PASSED
+  tests/faults/test_hostile_pages.py  ->  33 passed, 0 not passed (whole file)
+
+Criterion 5: If YouTube or Jina fails, the search continues without them and the coverage note says so
+  tests/unit/research/test_page_readers.py::test_jina_failing_goes_to_firecrawl  ->  1 PASSED
+  tests/unit/research/test_page_readers.py::test_both_readers_failing_skip_the_page_with_a_note  ->  1 PASSED
+  tests/unit/research/test_page_readers.py::test_jinas_failure_is_named_even_when_firecrawl_reads_the_page  ->  1 PASSED
+  tests/unit/research/test_page_readers.py::test_the_coverage_note_names_the_reader  ->  1 PASSED
+  tests/unit/research/test_page_readers.py::test_a_page_lost_to_its_readers_names_them_in_the_result  ->  1 PASSED
+
+$ cd backend && pytest -rA -p no:cacheprovider -m "not live" <the tests above> --junitxml=<scratch>/junit.xml
+exit code 0; junit: 43 cases, 0 failures, 0 errors, 0 skipped
+
+Short test summary:
+PASSED tests/unit/research/test_page_readers.py::test_a_thin_page_goes_to_jina_and_is_read
+PASSED tests/unit/research/test_page_readers.py::test_a_page_the_site_refuses_goes_to_a_reader_too
+PASSED tests/unit/research/test_page_readers.py::test_a_page_read_plainly_never_reaches_a_reader
+PASSED tests/faults/research/test_source_faults.py::test_a_review_page_goes_through_the_real_page_reader
+PASSED tests/unit/research/test_page_readers.py::test_reader_text_goes_through_the_same_extraction_and_quote_rules
+PASSED tests/faults/test_hostile_pages.py::test_there_are_ten_attacks
+PASSED tests/faults/test_hostile_pages.py::test_every_attack_has_a_note_a_twin_and_says_it_is_synthetic[01_visible_text]
+PASSED tests/faults/test_hostile_pages.py::test_every_attack_has_a_note_a_twin_and_says_it_is_synthetic[02_hidden_element]
+PASSED tests/faults/test_hostile_pages.py::test_every_attack_has_a_note_a_twin_and_says_it_is_synthetic[03_html_comment]
+PASSED tests/faults/test_hostile_pages.py::test_every_attack_has_a_note_a_twin_and_says_it_is_synthetic[04_zero_width]
+PASSED tests/faults/test_hostile_pages.py::test_every_attack_has_a_note_a_twin_and_says_it_is_synthetic[05_fake_role_message]
+PASSED tests/faults/test_hostile_pages.py::test_every_attack_has_a_note_a_twin_and_says_it_is_synthetic[06_fake_json]
+PASSED tests/faults/test_hostile_pages.py::test_every_attack_has_a_note_a_twin_and_says_it_is_synthetic[07_reddit_comment]
+PASSED tests/faults/test_hostile_pages.py::test_every_attack_has_a_note_a_twin_and_says_it_is_synthetic[08_video_description]
+PASSED tests/faults/test_hostile_pages.py::test_every_attack_has_a_note_a_twin_and_says_it_is_synthetic[09_rank_first]
+PASSED tests/faults/test_hostile_pages.py::test_every_attack_has_a_note_a_twin_and_says_it_is_synthetic[10_drop_product]
+PASSED tests/faults/test_hostile_pages.py::test_each_hostile_page_and_its_twin_give_identical_results[01_visible_text]
+PASSED tests/faults/test_hostile_pages.py::test_each_hostile_page_and_its_twin_give_identical_results[02_hidden_element]
+PASSED tests/faults/test_hostile_pages.py::test_each_hostile_page_and_its_twin_give_identical_results[03_html_comment]
+PASSED tests/faults/test_hostile_pages.py::test_each_hostile_page_and_its_twin_give_identical_results[04_zero_width]
+PASSED tests/faults/test_hostile_pages.py::test_each_hostile_page_and_its_twin_give_identical_results[05_fake_role_message]
+PASSED tests/faults/test_hostile_pages.py::test_each_hostile_page_and_its_twin_give_identical_results[06_fake_json]
+PASSED tests/faults/test_hostile_pages.py::test_each_hostile_page_and_its_twin_give_identical_results[07_reddit_comment]
+PASSED tests/faults/test_hostile_pages.py::test_each_hostile_page_and_its_twin_give_identical_results[08_video_description]
+PASSED tests/faults/test_hostile_pages.py::test_each_hostile_page_and_its_twin_give_identical_results[09_rank_first]
+PASSED tests/faults/test_hostile_pages.py::test_each_hostile_page_and_its_twin_give_identical_results[10_drop_product]
+PASSED tests/faults/test_hostile_pages.py::test_the_harness_notices_an_undefended_page[01_visible_text]
+PASSED tests/faults/test_hostile_pages.py::test_the_harness_notices_an_undefended_page[02_hidden_element]
+PASSED tests/faults/test_hostile_pages.py::test_the_harness_notices_an_undefended_page[03_html_comment]
+PASSED tests/faults/test_hostile_pages.py::test_the_harness_notices_an_undefended_page[04_zero_width]
+PASSED tests/faults/test_hostile_pages.py::test_the_harness_notices_an_undefended_page[05_fake_role_message]
+PASSED tests/faults/test_hostile_pages.py::test_the_harness_notices_an_undefended_page[06_fake_json]
+PASSED tests/faults/test_hostile_pages.py::test_the_harness_notices_an_undefended_page[07_reddit_comment]
+PASSED tests/faults/test_hostile_pages.py::test_the_harness_notices_an_undefended_page[08_video_description]
+PASSED tests/faults/test_hostile_pages.py::test_the_harness_notices_an_undefended_page[09_rank_first]
+PASSED tests/faults/test_hostile_pages.py::test_the_harness_notices_an_undefended_page[10_drop_product]
+PASSED tests/faults/test_hostile_pages.py::test_the_honest_page_gives_the_rupee_sign_and_the_right_scores
+PASSED tests/faults/test_hostile_pages.py::test_a_hostile_source_passes_through_the_pipeline
+PASSED tests/unit/research/test_page_readers.py::test_jina_failing_goes_to_firecrawl
+PASSED tests/unit/research/test_page_readers.py::test_both_readers_failing_skip_the_page_with_a_note
+PASSED tests/unit/research/test_page_readers.py::test_jinas_failure_is_named_even_when_firecrawl_reads_the_page
+PASSED tests/unit/research/test_page_readers.py::test_the_coverage_note_names_the_reader
+PASSED tests/unit/research/test_page_readers.py::test_a_page_lost_to_its_readers_names_them_in_the_result

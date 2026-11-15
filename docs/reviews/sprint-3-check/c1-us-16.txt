@@ -1,0 +1,97 @@
+US-16: Learned source trust, disputes and unknowns. Sprint 3 review check (S3-19), C1. The criteria are copied word for word from
+backlog/stories.yaml (for US-46-S3-1, from PR #91's description). Each criterion lists the backend tests that
+prove it, run with the network guard on (tests/conftest.py: any connection outside this machine fails the
+test). Frontend, ML and live evidence for the same criteria are in the files the report names.
+Run at 2026-11-15 09:58 UTC on main ce8090d, Python 3.11.15 in a fresh venv.
+
+Criterion 1: Claims for one product and criterion are combined using source weights
+  tests/unit/verify/test_combine.py::test_scores_are_a_weighted_mean  ->  1 PASSED
+  tests/unit/verify/test_combine.py::test_values_in_other_units_are_converted_before_the_median  ->  1 PASSED
+  tests/unit/verify/test_combine.py::test_claims_inside_the_tolerance_agree  ->  1 PASSED
+  tests/unit/verify/test_combine.py::test_one_site_repeated_three_times_counts_once  ->  1 PASSED
+
+Criterion 2: [DR-03] Manufacturer and lab sources outrank editorial reviews, and editorial outranks community posts
+  tests/unit/verify/test_combine.py::test_a_maker_claim_beats_an_editorial_one_which_beats_reddit  ->  2 PASSED
+  tests/unit/verify/test_trust_table.py::test_unknown_sites_take_their_types_default_in_dr03_order  ->  1 PASSED
+  tests/unit/verify/test_trust_table.py::test_every_category_keeps_dr03_order  ->  1 PASSED
+  tests/unit/verify/test_verify_stage.py::test_a_forum_on_a_makers_domain_never_speaks_as_the_maker  ->  1 PASSED
+
+Criterion 3: Each known site starts from a 0 to 100 trust score adjusted per category, kept in one config table that includes Indian review sites such as 91mobiles, Smartprix, Digit and Gadgets 360
+  tests/unit/verify/test_trust_table.py::test_the_table_has_the_indian_review_sites_and_every_research_site  ->  1 PASSED
+  tests/unit/verify/test_trust_table.py::test_a_category_adjusts_a_sites_score  ->  1 PASSED
+  tests/unit/verify/test_trust_table.py::test_the_table_agrees_with_extracts_tiers  ->  1 PASSED
+  tests/unit/verify/test_category_and_community.py::test_the_category_adjustment_changes_which_site_is_trusted  ->  1 PASSED
+
+Criterion 4: Affiliate pages (paths such as /advisor/ or /deals/) start lower than editorial reviews, and Reddit counts as community evidence, never editorial
+  tests/unit/verify/test_trust_table.py::test_an_affiliate_page_starts_lower_than_the_same_sites_review  ->  2 PASSED
+  tests/unit/verify/test_trust_table.py::test_reddit_is_never_editorial  ->  1 PASSED
+
+Criterion 5: Weights are then learned; sources that often disagree with the wider consensus count for less
+  tests/unit/verify/test_combine.py::test_learned_weights_fall_for_a_site_that_often_disagrees  ->  1 PASSED
+  tests/unit/verify/test_combine.py::test_learning_stops_within_ten_rounds  ->  1 PASSED
+  tests/unit/verify/test_combine.py::test_two_sources_alone_teach_nothing_about_who_is_reliable  ->  1 PASSED
+
+Criterion 6: When independent sources disagree strongly the state is Disputed, and both values are shown with their sources
+  tests/unit/verify/test_combine.py::test_two_independent_sites_disagreeing_give_disputed_with_both_claim_ids  ->  1 PASSED
+  tests/unit/verify/test_combine.py::test_a_small_minority_is_not_a_dispute  ->  1 PASSED
+  tests/unit/verify/test_alternatives.py::test_a_disputed_number_keeps_the_other_value_with_its_unit_and_claims  ->  1 PASSED
+  tests/unit/verify/test_verify_stage.py::test_the_example_claims_resolve_with_a_disputed_battery  ->  1 PASSED
+
+Criterion 7: [DR-09] With no trustworthy claim the state is Unknown, and it is never scored as zero
+  tests/unit/verify/test_combine.py::test_no_trustworthy_claim_gives_unknown_with_no_score  ->  1 PASSED
+  tests/unit/verify/test_combine.py::test_claims_with_no_weight_are_not_trustworthy  ->  1 PASSED
+  tests/unit/verify/test_verify_stage.py::test_every_product_and_key_gets_a_value  ->  1 PASSED
+  tests/faults/test_verify_fallback.py::test_if_tier_order_fails_too_every_value_is_unknown  ->  1 PASSED
+
+Criterion 8: It resolves more of the 30 seeded conflicts correctly than majority voting (target)
+  tests/unit/verify/test_eval_trust.py::test_on_the_seeded_conflicts_learned_beats_majority  ->  1 PASSED
+
+$ cd backend && pytest -rA -p no:cacheprovider -m "not live" <the tests above> --junitxml=<scratch>/junit.xml
+exit code 0; junit: 28 cases, 0 failures, 0 errors, 0 skipped
+
+Short test summary:
+ERROR    app.verify.stage:stage.py:113 verify's tier order failed too (RuntimeError); every value is Unknown
+PASSED tests/unit/verify/test_combine.py::test_scores_are_a_weighted_mean
+PASSED tests/unit/verify/test_combine.py::test_values_in_other_units_are_converted_before_the_median
+PASSED tests/unit/verify/test_combine.py::test_claims_inside_the_tolerance_agree
+PASSED tests/unit/verify/test_combine.py::test_one_site_repeated_three_times_counts_once
+PASSED tests/unit/verify/test_combine.py::test_a_maker_claim_beats_an_editorial_one_which_beats_reddit[learned]
+PASSED tests/unit/verify/test_combine.py::test_a_maker_claim_beats_an_editorial_one_which_beats_reddit[tier_order]
+PASSED tests/unit/verify/test_trust_table.py::test_unknown_sites_take_their_types_default_in_dr03_order
+PASSED tests/unit/verify/test_trust_table.py::test_every_category_keeps_dr03_order
+PASSED tests/unit/verify/test_verify_stage.py::test_a_forum_on_a_makers_domain_never_speaks_as_the_maker
+PASSED tests/unit/verify/test_trust_table.py::test_the_table_has_the_indian_review_sites_and_every_research_site
+PASSED tests/unit/verify/test_trust_table.py::test_a_category_adjusts_a_sites_score
+PASSED tests/unit/verify/test_trust_table.py::test_the_table_agrees_with_extracts_tiers
+PASSED tests/unit/verify/test_category_and_community.py::test_the_category_adjustment_changes_which_site_is_trusted
+PASSED tests/unit/verify/test_trust_table.py::test_an_affiliate_page_starts_lower_than_the_same_sites_review[advisor]
+PASSED tests/unit/verify/test_trust_table.py::test_an_affiliate_page_starts_lower_than_the_same_sites_review[deals]
+PASSED tests/unit/verify/test_trust_table.py::test_reddit_is_never_editorial
+PASSED tests/unit/verify/test_combine.py::test_learned_weights_fall_for_a_site_that_often_disagrees
+PASSED tests/unit/verify/test_combine.py::test_learning_stops_within_ten_rounds
+PASSED tests/unit/verify/test_combine.py::test_two_sources_alone_teach_nothing_about_who_is_reliable
+PASSED tests/unit/verify/test_combine.py::test_two_independent_sites_disagreeing_give_disputed_with_both_claim_ids
+PASSED tests/unit/verify/test_combine.py::test_a_small_minority_is_not_a_dispute
+PASSED tests/unit/verify/test_alternatives.py::test_a_disputed_number_keeps_the_other_value_with_its_unit_and_claims
+PASSED tests/unit/verify/test_verify_stage.py::test_the_example_claims_resolve_with_a_disputed_battery
+PASSED tests/unit/verify/test_combine.py::test_no_trustworthy_claim_gives_unknown_with_no_score
+PASSED tests/unit/verify/test_combine.py::test_claims_with_no_weight_are_not_trustworthy
+PASSED tests/unit/verify/test_verify_stage.py::test_every_product_and_key_gets_a_value
+PASSED tests/faults/test_verify_fallback.py::test_if_tier_order_fails_too_every_value_is_unknown
+PASSED tests/unit/verify/test_eval_trust.py::test_on_the_seeded_conflicts_learned_beats_majority
+
+Criterion 8 (a target): the seeded conflicts, run now with the verify stage's own combiner (no network,
+no quote printed). ml/labelling/conflicts.csv holds 5 conflicts, not 30.
+$ cd backend && python -m scripts.eval_trust
+conflict  known      learned                tier order             majority              
+-----------------------------------------------------------------------------------------
+c001      150 min    200 min (wrong)        200 min (wrong)        200 min (wrong)       
+c002      30 h       30 h (right)           30 h (right)           - (no answer)         
+c006      7 days     7 days (right)         7 days (right)         - (no answer)         
+c007      5.7 L      6 L (wrong)            6 L (wrong)            6 L (wrong)           
+c008      8 cores    8 cores (right)        8 cores (right)        - (no answer)         
+-----------------------------------------------------------------------------------------
+total                3 of 5 right           3 of 5 right           0 of 5 right          
+fairer               1 of 3 right           1 of 3 right           0 of 3 right            (the known answer's source is not a claim)
+Learned beats majority voting on the 5 conflicts that exist (3 to 0), and ties the fixed tier order (3 of 5).
+The target names 30 seeded conflicts: 25 are not yet entered.
