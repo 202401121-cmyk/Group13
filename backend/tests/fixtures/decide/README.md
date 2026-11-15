@@ -15,7 +15,7 @@ Each file holds:
 | Brief | What it covers |
 |---|---|
 | `laptop_coding_70k` | The recorded run's criterion keys; over budget, a price on the boundary, an unknown and a disputed price, too little RAM, unknown RAM, an excluded brand, the most-mentioned laptop fitting worst, a criterion no laptop has |
-| `phone_camera_30k` | A true-or-false rule, a model exclusion (and the Pro model whose name holds it), a feature exclusion by a known value, a variant that keeps a product in |
+| `phone_camera_30k` | A true-or-false rule, a model exclusion (and the Pro model whose name holds it), a feature exclusion by a known value, a variant that keeps a product in. Prices written as text (US-17): "₹28k" and a bare "26k" shown under the budget, "Rs 1.2 lakh", "₹31k", "INR 1.1 lac" and "MRP 32k" over it, a discount and an EMI that are no price, and a disputed "₹35k" against "₹28,999" |
 | `headphones_anc_range` | A budget range (a price below the minimum), weights in kg, g and oz, "yes" read as true, a brand found from the name |
 | `monitor_27_gaming` | Sizes in cm and inches, Hz and kHz, values on the boundary, a rule switched to a preference, a feature exclusion |
 | `ereader_8k` | Nothing passes: the hint names the budget, the rule that lets the most products through |
