@@ -14,6 +14,12 @@ public_output_tokens: 2000
 # The most sources one search sends to a model. A normal search has about 30 public sources and 4 Reddit sources that
 # fit their budget, so this is only a safety limit. EXTRACT_MAX_SOURCES in the environment overrides it.
 max_sources_per_search: 40
+# The most of that cap Reddit threads may take, rounded up (US-14). An evaluation-fairness limit: research lists Reddit
+# first and the cap is filled first come, so a small cap (EXTRACT_MAX_SOURCES=4 in a live eval) was all Reddit, and no
+# page was read. Only pages give the prices and specs decide filters on (DR-01 drops Reddit's). Under the usual cap of
+# 40 the share is 20, which is research's max_reddit_threads (research.yaml), so a search never has more Reddit threads
+# than it may send. tests/unit/extract/test_budgets.py holds the two equal.
+reddit_share_of_sources: 0.5
 
 # What a public prompt may carry besides the category's fixed criteria (US-14, with US-46). A public call may reach a
 # provider that trains on inputs (build rule 8), so it carries only fixed keys and our own definitions, never a generated

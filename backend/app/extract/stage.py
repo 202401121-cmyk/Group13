@@ -12,6 +12,7 @@ them as a coverage note at the end. Claims are never kept here: Reddit text and 
 from __future__ import annotations
 
 import logging
+import math
 import threading
 import time
 from collections import OrderedDict
@@ -82,9 +83,23 @@ class _Counts:
     reddit_booked: int = 0
     reddit_running: int = 0  # the part of reddit_booked held by calls still running
     sent: int = 0
+    reddit_sent: int = 0
     over_reddit_budget: int = 0
+    over_reddit_share: int = 0  # Reddit threads past their share of the source cap, to leave room for pages
     over_source_cap: int = 0
     unreadable: int = 0
+    no_criteria: int = 0  # sent with no criteria: it can name products, but every claim it gives is dropped
+
+    def snapshot(self) -> dict[str, int]:
+        """The counts the live briefs' funnel reads (US-14): sources sent and not sent, by reason."""
+        return {
+            "sent": self.sent,
+            "over_reddit_budget": self.over_reddit_budget,
+            "over_reddit_share": self.over_reddit_share,
+            "over_source_cap": self.over_source_cap,
+            "unreadable": self.unreadable,
+            "no_criteria": self.no_criteria,
+        }
 
 
 def _plural(count: int, one: str, many: str) -> str:
@@ -99,6 +114,9 @@ def _note(counts: _Counts) -> str | None:
     if counts.over_source_cap:
         sources = _plural(counts.over_source_cap, "source was", "sources were")
         parts.append(f"{sources} not read, to keep the search from running too long.")
+    if counts.over_reddit_share:  # only under a small cap: under the usual one Reddit never reaches its share
+        threads = _plural(counts.over_reddit_share, "Reddit thread was", "Reddit threads were")
+        parts.append(f"{threads} not read, to leave room for web pages.")
     if counts.unreadable:
         sources = _plural(counts.unreadable, "source", "sources")
         parts.append(
@@ -138,6 +156,9 @@ class GuardedExtractStage:
         held = self._booking(user, source.data_class)
         if not self._may_send(ctx.search_id, source, held):
             return ExtractionResult(source_id=source.id)
+        if not criteria.keys:
+            with self._lock:
+                self._for(ctx.search_id).no_criteria += 1
         meter = TokenMeter(already_spent_s=time.monotonic() - started)  # the runner's limit started with this run
         failed = False
         try:
@@ -192,6 +213,12 @@ class GuardedExtractStage:
             counts = self._counts.pop(search_id, None)
         return _note(counts) if counts is not None else None
 
+    def counts_for(self, search_id: str) -> dict[str, int] | None:
+        """A copy of this search's counts so far, or None. Unlike coverage_note, reading them clears nothing."""
+        with self._lock:
+            counts = self._counts.get(search_id)
+            return None if counts is None else counts.snapshot()
+
     def booked_tokens(self, inp: ExtractInput) -> int:
         """What the pool will book for this source: the same sum as the wrapper's own, for a source that fits."""
         data_class = inp.source.data_class
@@ -215,20 +242,38 @@ class GuardedExtractStage:
         give_up_at = time.monotonic() + BUDGET_WAIT_S
         with self._settled:
             counts = self._for(search_id)
+            if reddit and self._over_share(counts):
+                counts.over_reddit_share += 1  # at once, never after a wait: the share can't free up
+                return False
             while reddit and counts.reddit_booked + booking > self.settings.reddit_tokens_per_search:
                 left = give_up_at - time.monotonic()
                 if left <= 0 or not self._running_calls_may_free(counts, booking):
                     counts.over_reddit_budget += 1
                     return False
                 self._settled.wait(left)
+            if reddit and self._over_share(counts):  # the wait let go of the lock: other threads may have taken it
+                counts.over_reddit_share += 1
+                return False
             if counts.sent >= self.settings.max_sources_per_search:
                 counts.over_source_cap += 1
                 return False
             counts.sent += 1
             if reddit:
+                counts.reddit_sent += 1
                 counts.reddit_booked += booking
                 counts.reddit_running += booking
             return True
+
+    def _reddit_room(self) -> int:
+        """How many of the source cap Reddit threads may take: their share, rounded up, and at least one."""
+        share = self.settings.reddit_share_of_sources * self.settings.max_sources_per_search
+        return max(1, math.ceil(share - 1e-9))
+
+    def _over_share(self, counts: _Counts) -> bool:
+        """Has Reddit taken its share while the cap still has room? (A full cap is counted as the cap.) The caller
+        holds the lock."""
+        room_left = counts.sent < self.settings.max_sources_per_search
+        return room_left and counts.reddit_sent >= self._reddit_room()
 
     def _running_calls_may_free(self, counts: _Counts, booking: int) -> bool:
         """Would this booking fit if the calls running now used nothing? The caller holds the lock."""

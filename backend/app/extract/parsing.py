@@ -22,6 +22,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from app.contracts import Claim, ClaimType, ExtractionResult, ProductMention, Source, SourceTier
+from app.decide.rules import PRICE_KEY
 from app.intake.lexicon import load_lexicon
 from app.llm.output import looks_like_instruction
 
@@ -140,24 +141,34 @@ def to_extraction_result(
     claim_type = claim_type_for(source, domains or {})
     claims: dict[str, Claim] = {}
     dropped: Counter[str] = Counter()
+    price_dropped: Counter[str] = Counter()  # the price's own, for the live funnel (US-14)
     for item in raw.claims:
         quote = found_quote(item.quote, parts)
+        reason: str | None = None
         if item.criterion_key is None or item.criterion_key not in criterion_keys:
-            dropped["criterion"] += 1
+            reason = "criterion"
         elif not _names(item.product_mention, lowered) or looks_like_instruction(item.product_mention):
-            dropped["product"] += 1  # a hostile page can hold the words, so being in the source isn't enough
+            reason = "product"  # a hostile page can hold the words, so being in the source isn't enough
         elif quote is None or looks_like_instruction(quote):
-            dropped["quote"] += 1
+            reason = "quote"
         else:
             kind = _name_key(item.product_mention) in types
             claim = _claim(item, source, quote, kind, claim_type, now)
             if claim is None:
-                dropped["contract"] += 1
+                reason = "contract"
+            elif claim.id in claims:
+                reason = "duplicate"  # the same claim again: merged into the first, as before
             else:
-                claims.setdefault(claim.id, claim)
+                claims[claim.id] = claim
+        if reason is not None:
+            dropped[reason] += 1
+            if item.criterion_key == PRICE_KEY:
+                price_dropped[reason] += 1
+    # The counts only: the text would repeat what the page or the model said.
     if dropped:
-        # The counts only: the text would repeat what the page or the model said.
         log.info("extract: claims dropped from a %s source: %s", source.type.value, dict(dropped))
+    if price_dropped:
+        log.info("extract: price claims dropped from a %s source: %s", source.type.value, dict(price_dropped))
     mentions = _mentions(raw, lowered, types, claims.values())
     return ExtractionResult(source_id=source.id, mentions=mentions, claims=list(claims.values()))
 

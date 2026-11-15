@@ -33,6 +33,9 @@ class ExtractSettings(BaseModel):
     reddit_output_tokens: int = Field(default=1200, ge=100, le=3500)
     public_output_tokens: int = Field(default=2000, ge=100, le=3500)
     max_sources_per_search: int = Field(default=40, ge=1, le=100)
+    reddit_share_of_sources: float = Field(
+        default=0.5, gt=0, le=1, description="The most of max_sources_per_search Reddit threads may take, rounded up"
+    )
     reddit_tokens_per_search: int = Field(default=18_000, gt=0)
     book_real_use: bool = Field(default=False, description="Count real use in the Reddit budget, as the pool does")
     # What a public prompt may carry besides fixed criteria (US-14, US-46). Only these keys and our own definitions go:

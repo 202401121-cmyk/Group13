@@ -1,0 +1,54 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "Made-up laptops under 70000, compared. Nova Book 14 costs ₹64,990 and its battery easily lasts a full workday. Orion Play 15 costs ₹68,990, but its battery dies by lunch.",
+    "budget": true
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "Nova Book 14",
+        "is_product": true
+      },
+      {
+        "raw_name": "Orion Play 15",
+        "is_product": true
+      }
+    ],
+    "claims": [
+      {
+        "product_mention": "Nova Book 14",
+        "criterion_key": "price_inr",
+        "value": "₹64,990",
+        "quote": "Nova Book 14 costs ₹64,990",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Nova Book 14",
+        "criterion_key": "battery_life",
+        "score": 8.0,
+        "quote": "its battery easily lasts a full workday",
+        "claim_type": "experience",
+        "polarity": "positive"
+      },
+      {
+        "product_mention": "Orion Play 15",
+        "criterion_key": "price_inr",
+        "value": "₹68,990",
+        "quote": "Orion Play 15 costs ₹68,990",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Orion Play 15",
+        "criterion_key": "battery_life",
+        "score": 3.0,
+        "quote": "its battery dies by lunch",
+        "claim_type": "experience",
+        "polarity": "negative"
+      }
+    ]
+  }
+}

@@ -173,6 +173,8 @@ def _run_extract(raw: str, given: Given) -> Ran:
     category = str(given.get("category", "laptop"))
     inp = ExtractInput(source=source, criterion_keys=["battery_life"], category_label=category)
     stage = GuardedExtractStage(client, now=lambda: NOW)
+    if given.get("budget"):  # the search has a budget, so a public page is asked for its price too, as in a search
+        stage.ask_for_specs(SEARCH_ID, [], has_budget=True)
     result: ExtractionResult = stage.run(inp, StageContext(search_id=SEARCH_ID))
     for claim in result.claims:  # code sets these from the source, whatever the model said (build rule 4)
         assert (claim.source_id, claim.source_url, claim.retrieved_at) == (source.id, source.url, source.fetched_at)
