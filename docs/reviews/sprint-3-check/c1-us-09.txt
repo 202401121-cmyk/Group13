@@ -1,0 +1,111 @@
+US-09: Keep must-haves separate from preferences. Sprint 3 review check (S3-19), C1. The criteria are copied word for word from
+backlog/stories.yaml (for US-46-S3-1, from PR #91's description). Each criterion lists the backend tests that
+prove it, run with the network guard on (tests/conftest.py: any connection outside this machine fails the
+test). Frontend, ML and live evidence for the same criteria are in the files the report names.
+Run at 2026-11-15 09:58 UTC on main ce8090d, Python 3.11.15 in a fresh venv.
+
+Criterion 1: The rubric has two lists: hard rules, and preferences weighted 0 to 10 that add up to 1
+  tests/unit/interview/test_rubric_edits.py::test_weights_add_to_exactly_1_for_every_mix_of_origins  ->  3 PASSED
+  tests/unit/interview/test_rubric_builder.py::test_shares_follow_the_weights  ->  1 PASSED
+  tests/unit/interview/test_rubric_builder.py::test_all_zero_weights_still_add_up_to_one  ->  1 PASSED
+  tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers  ->  40 PASSED
+  tests/unit/interview/test_rubric_builder.py::test_hard_rules_exclusions_budget_and_use_come_from_the_intent  ->  1 PASSED
+  tests/contract/test_sprint3_contracts.py::test_a_weight_edit_is_a_real_0_to_10_number  ->  1 PASSED
+
+Criterion 2: The user sees which of their statements became hard rules and can switch any of them
+  tests/unit/interview/test_rubric_edits.py::test_a_switched_rule_is_kept_with_its_source_text_and_never_filters  ->  1 PASSED
+  tests/unit/interview/test_rubric_edits.py::test_a_switched_rule_stays_switched_after_a_rebuild  ->  1 PASSED
+  tests/unit/api/test_rubric_route.py::test_the_route_returns_the_rebuilt_rubric_and_stores_the_edits  ->  1 PASSED
+
+Criterion 3: [DR-08] Hard rules only filter products; preferences only change the order
+  tests/unit/decide/test_filter.py::test_a_switched_off_rule_does_not_filter  ->  3 PASSED
+  tests/unit/decide/test_rank.py::test_the_score_is_the_weighted_sum_times_ten  ->  1 PASSED
+  tests/unit/decide/test_value_scores.py::test_derived_scores_never_let_a_rule_breaker_through  ->  1 PASSED
+  tests/unit/decide/test_briefs.py::test_no_shown_product_breaks_a_rule_in_any_brief  ->  5 PASSED
+
+Criterion 4: Criteria the interview did not ask about keep the category's default weight
+  tests/unit/interview/test_rubric_edits.py::test_a_never_asked_criterion_keeps_its_default  ->  1 PASSED
+  tests/unit/interview/test_rubric_builder.py::test_default_rubric_ignores_answers  ->  1 PASSED
+
+Criterion 5: A user's manual weight edits survive if the rubric is rebuilt
+  tests/unit/interview/test_rubric_edits.py::test_a_manual_weight_survives_a_new_answer  ->  1 PASSED
+  tests/unit/interview/test_rubric_edits.py::test_a_manual_weight_survives_going_back  ->  1 PASSED
+  tests/unit/interview/test_rubric_edits.py::test_edits_are_carried_to_a_changed_intent_but_not_a_switch_for_a_rule_it_lost  ->  1 PASSED
+  tests/unit/api/test_rubric_route.py::test_a_manual_weight_survives_a_new_answer_through_the_routes  ->  1 PASSED
+  tests/unit/api/test_rubric_route.py::test_a_manual_weight_and_a_switch_survive_a_changed_intent  ->  1 PASSED
+  tests/unit/api/test_rubric_route.py::test_new_criteria_keep_the_edits  ->  1 PASSED
+  tests/unit/api/test_rubric_route.py::test_going_back_through_the_route_keeps_the_edits  ->  1 PASSED
+
+$ cd backend && pytest -rA -p no:cacheprovider -m "not live" <the tests above> --junitxml=<scratch>/junit.xml
+exit code 0; junit: 69 cases, 0 failures, 0 errors, 0 skipped
+
+Short test summary:
+PASSED tests/unit/interview/test_rubric_edits.py::test_weights_add_to_exactly_1_for_every_mix_of_origins[manual0]
+PASSED tests/unit/interview/test_rubric_edits.py::test_weights_add_to_exactly_1_for_every_mix_of_origins[manual1]
+PASSED tests/unit/interview/test_rubric_edits.py::test_weights_add_to_exactly_1_for_every_mix_of_origins[manual2]
+PASSED tests/unit/interview/test_rubric_builder.py::test_shares_follow_the_weights
+PASSED tests/unit/interview/test_rubric_builder.py::test_all_zero_weights_still_add_up_to_one
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[0]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[1]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[2]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[3]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[4]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[5]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[6]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[7]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[8]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[9]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[10]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[11]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[12]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[13]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[14]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[15]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[16]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[17]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[18]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[19]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[20]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[21]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[22]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[23]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[24]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[25]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[26]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[27]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[28]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[29]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[30]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[31]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[32]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[33]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[34]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[35]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[36]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[37]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[38]
+PASSED tests/unit/interview/test_rubric_builder.py::test_the_rubric_sums_to_1_after_any_mix_of_rough_and_exact_answers[39]
+PASSED tests/unit/interview/test_rubric_builder.py::test_hard_rules_exclusions_budget_and_use_come_from_the_intent
+PASSED tests/contract/test_sprint3_contracts.py::test_a_weight_edit_is_a_real_0_to_10_number
+PASSED tests/unit/interview/test_rubric_edits.py::test_a_switched_rule_is_kept_with_its_source_text_and_never_filters
+PASSED tests/unit/interview/test_rubric_edits.py::test_a_switched_rule_stays_switched_after_a_rebuild
+PASSED tests/unit/api/test_rubric_route.py::test_the_route_returns_the_rebuilt_rubric_and_stores_the_edits
+PASSED tests/unit/decide/test_filter.py::test_a_switched_off_rule_does_not_filter[ram0]
+PASSED tests/unit/decide/test_filter.py::test_a_switched_off_rule_does_not_filter[ram1]
+PASSED tests/unit/decide/test_filter.py::test_a_switched_off_rule_does_not_filter[None]
+PASSED tests/unit/decide/test_rank.py::test_the_score_is_the_weighted_sum_times_ten
+PASSED tests/unit/decide/test_value_scores.py::test_derived_scores_never_let_a_rule_breaker_through
+PASSED tests/unit/decide/test_briefs.py::test_no_shown_product_breaks_a_rule_in_any_brief[ereader_8k]
+PASSED tests/unit/decide/test_briefs.py::test_no_shown_product_breaks_a_rule_in_any_brief[headphones_anc_range]
+PASSED tests/unit/decide/test_briefs.py::test_no_shown_product_breaks_a_rule_in_any_brief[laptop_coding_70k]
+PASSED tests/unit/decide/test_briefs.py::test_no_shown_product_breaks_a_rule_in_any_brief[monitor_27_gaming]
+PASSED tests/unit/decide/test_briefs.py::test_no_shown_product_breaks_a_rule_in_any_brief[phone_camera_30k]
+PASSED tests/unit/interview/test_rubric_edits.py::test_a_never_asked_criterion_keeps_its_default
+PASSED tests/unit/interview/test_rubric_builder.py::test_default_rubric_ignores_answers
+PASSED tests/unit/interview/test_rubric_edits.py::test_a_manual_weight_survives_a_new_answer
+PASSED tests/unit/interview/test_rubric_edits.py::test_a_manual_weight_survives_going_back
+PASSED tests/unit/interview/test_rubric_edits.py::test_edits_are_carried_to_a_changed_intent_but_not_a_switch_for_a_rule_it_lost
+PASSED tests/unit/api/test_rubric_route.py::test_a_manual_weight_survives_a_new_answer_through_the_routes
+PASSED tests/unit/api/test_rubric_route.py::test_a_manual_weight_and_a_switch_survive_a_changed_intent
+PASSED tests/unit/api/test_rubric_route.py::test_new_criteria_keep_the_edits
+PASSED tests/unit/api/test_rubric_route.py::test_going_back_through_the_route_keeps_the_edits

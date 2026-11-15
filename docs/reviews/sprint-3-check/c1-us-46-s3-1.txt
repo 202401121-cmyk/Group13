@@ -1,0 +1,78 @@
+US-46-S3-1: US-46 additions in S3-1 (PR #91, commit 8c2c54a). Sprint 3 review check (S3-19), C1. Criteria a to e are PR #91's
+description bullets, word for word (they are not in backlog/stories.yaml); f is US-46's criterion 4. Each criterion lists the backend tests that
+prove it, run with the network guard on (tests/conftest.py: any connection outside this machine fails the
+test). Frontend, ML and live evidence for the same criteria are in the files the report names.
+Run at 2026-11-15 09:59 UTC on main ce8090d, Python 3.11.15 in a fresh venv.
+
+Criterion a: DeepSeek (D-63) is switched on for public text only, after Gemini and Mistral and before Groq, in the short, medium and long public routes. It takes no turn in bulk work's rotation. JSON mode is on, as its API docs list it.
+  (JSON mode: test_deepseek_is_switched_on_for_public_text_only asserts deepseek.json_mode. The short route is
+  mistral, deepseek, groq in config/models.yaml: it has no Gemini.)
+  tests/unit/llm/test_deepseek.py::test_deepseek_is_switched_on_for_public_text_only  ->  1 PASSED
+  tests/unit/llm/test_deepseek.py::test_the_routes_are_the_decided_ones  ->  1 PASSED
+  tests/unit/llm/test_deepseek.py::test_config_refuses_deepseek_in_a_private_or_reddit_route  ->  2 PASSED
+  tests/unit/llm/test_deepseek.py::test_no_private_or_reddit_call_ever_reaches_deepseek  ->  1 PASSED
+  tests/unit/llm/test_deepseek.py::test_a_public_call_reaches_deepseek_when_mistral_has_no_key  ->  1 PASSED
+  tests/unit/llm/test_deepseek.py::test_route_order_for_each_length  ->  1 PASSED
+  tests/unit/llm/test_deepseek.py::test_bulk_work_takes_turns_then_keeps_the_route_order_with_deepseek_before_groq  ->  1 PASSED
+  tests/unit/llm/test_deepseek.py::test_a_public_page_goes_to_deepseek_before_groq_when_gemini_and_mistral_fail  ->  1 PASSED
+  tests/unit/llm/test_config.py::test_deepseek_takes_public_text_only_and_is_in_public_routes_only  ->  1 PASSED
+  tests/unit/llm/test_provider_pacing.py::test_public_extraction_goes_flash_lite_then_mistral_then_deepseek_then_groq_then_openrouter  ->  1 PASSED
+  tests/contract/test_sprint3_contracts.py::test_deepseek_is_a_provider  ->  1 PASSED
+
+Criterion b: HTTP 402 (no balance) switches a provider off for the run with one warning and no retry, so DeepSeek never spends money that isn't a granted balance (D-11). A provider dead for the run is logged once, not on every call after.
+  tests/unit/llm/test_deepseek.py::test_402_marks_deepseek_dead_and_the_next_provider_answers  ->  1 PASSED
+  tests/unit/llm/test_deepseek.py::test_deepseek_out_of_its_daily_budget_is_skipped  ->  1 PASSED
+  tests/unit/llm/test_health.py::test_a_bad_key_or_an_account_without_credit_is_dead_for_the_run  ->  2 PASSED
+
+Criterion c: Public pages may use at most 25% of each Groq model's daily tokens (pool.public_daily_share). Past it they skip Groq, and private and Reddit work keep the rest.
+  tests/unit/llm/test_deepseek.py::test_groq_public_share_is_a_quarter_of_each_models_day  ->  1 PASSED
+  tests/unit/llm/test_deepseek.py::test_groq_public_share_stops_public_use_at_25_percent_while_private_continues  ->  1 PASSED
+  tests/unit/llm/test_deepseek.py::test_a_public_call_counts_against_the_share_as_it_does_against_the_day  ->  1 PASSED
+  tests/unit/llm/test_deepseek.py::test_a_private_call_leaves_the_public_share_alone  ->  1 PASSED
+
+Criterion d: US-14: a public extraction prompt may carry a generated criterion as the fixed criterion it maps to (a synonyms table in config/extract.yaml), known spec keys from the hard rules, and price_inr when there is a budget. Only fixed keys and our own definitions are sent; claims come back under the search's own key. Spec keys only fill the room the criteria leave (10 lines in all, the price first), so a capped page still fits Groq whole. --claims prints the count.
+  tests/unit/extract/test_public_keys.py::test_price_inr_is_asked_for_only_with_a_budget  ->  1 PASSED
+  tests/unit/extract/test_public_keys.py::test_spec_keys_only_fill_the_room_the_criteria_leave_price_first  ->  1 PASSED
+  tests/unit/extract/test_public_keys.py::test_a_mapped_generated_criterion_is_sent_under_its_fixed_key  ->  1 PASSED
+  tests/unit/extract/test_public_keys.py::test_reddit_prompts_are_unchanged  ->  1 PASSED
+  tests/unit/extract/test_stand_ins.py::test_no_generated_text_appears_in_any_public_prompt  ->  1 PASSED
+
+Criterion e: smoke_apis checks DeepSeek with one call and reports "HTTP 402, no balance" plainly. docs/api-setup.md has a DeepSeek section with its URL, model, limits and terms.
+  tests/unit/test_smoke_apis.py::test_deepseek_is_checked_with_one_call  ->  1 PASSED
+  tests/unit/test_smoke_apis.py::test_deepseek_without_balance_says_402_no_balance_after_one_call  ->  1 PASSED
+
+Criterion f: (not a PR #91 bullet: US-46's own criterion 4 from backlog/stories.yaml, run with DeepSeek in the chain) Tests simulate a failing, a slow and a rate-limited provider
+  tests/unit/llm/test_deepseek.py::test_failing_slow_and_rate_limited_providers_are_cooled_and_the_next_answers  ->  1 PASSED
+
+$ cd backend && pytest -rA -p no:cacheprovider -m "not live" <the tests above> --junitxml=<scratch>/junit.xml
+exit code 0; junit: 28 cases, 0 failures, 0 errors, 0 skipped
+
+Short test summary:
+PASSED tests/unit/llm/test_deepseek.py::test_deepseek_is_switched_on_for_public_text_only
+PASSED tests/unit/llm/test_deepseek.py::test_the_routes_are_the_decided_ones
+PASSED tests/unit/llm/test_deepseek.py::test_config_refuses_deepseek_in_a_private_or_reddit_route[private]
+PASSED tests/unit/llm/test_deepseek.py::test_config_refuses_deepseek_in_a_private_or_reddit_route[reddit]
+PASSED tests/unit/llm/test_deepseek.py::test_no_private_or_reddit_call_ever_reaches_deepseek
+PASSED tests/unit/llm/test_deepseek.py::test_a_public_call_reaches_deepseek_when_mistral_has_no_key
+PASSED tests/unit/llm/test_deepseek.py::test_route_order_for_each_length
+PASSED tests/unit/llm/test_deepseek.py::test_bulk_work_takes_turns_then_keeps_the_route_order_with_deepseek_before_groq
+PASSED tests/unit/llm/test_deepseek.py::test_a_public_page_goes_to_deepseek_before_groq_when_gemini_and_mistral_fail
+PASSED tests/unit/llm/test_config.py::test_deepseek_takes_public_text_only_and_is_in_public_routes_only
+PASSED tests/unit/llm/test_provider_pacing.py::test_public_extraction_goes_flash_lite_then_mistral_then_deepseek_then_groq_then_openrouter
+PASSED tests/contract/test_sprint3_contracts.py::test_deepseek_is_a_provider
+PASSED tests/unit/llm/test_deepseek.py::test_402_marks_deepseek_dead_and_the_next_provider_answers
+PASSED tests/unit/llm/test_deepseek.py::test_deepseek_out_of_its_daily_budget_is_skipped
+PASSED tests/unit/llm/test_health.py::test_a_bad_key_or_an_account_without_credit_is_dead_for_the_run[AuthFailed]
+PASSED tests/unit/llm/test_health.py::test_a_bad_key_or_an_account_without_credit_is_dead_for_the_run[NoCredit]
+PASSED tests/unit/llm/test_deepseek.py::test_groq_public_share_is_a_quarter_of_each_models_day
+PASSED tests/unit/llm/test_deepseek.py::test_groq_public_share_stops_public_use_at_25_percent_while_private_continues
+PASSED tests/unit/llm/test_deepseek.py::test_a_public_call_counts_against_the_share_as_it_does_against_the_day
+PASSED tests/unit/llm/test_deepseek.py::test_a_private_call_leaves_the_public_share_alone
+PASSED tests/unit/extract/test_public_keys.py::test_price_inr_is_asked_for_only_with_a_budget
+PASSED tests/unit/extract/test_public_keys.py::test_spec_keys_only_fill_the_room_the_criteria_leave_price_first
+PASSED tests/unit/extract/test_public_keys.py::test_a_mapped_generated_criterion_is_sent_under_its_fixed_key
+PASSED tests/unit/extract/test_public_keys.py::test_reddit_prompts_are_unchanged
+PASSED tests/unit/extract/test_stand_ins.py::test_no_generated_text_appears_in_any_public_prompt
+PASSED tests/unit/test_smoke_apis.py::test_deepseek_is_checked_with_one_call
+PASSED tests/unit/test_smoke_apis.py::test_deepseek_without_balance_says_402_no_balance_after_one_call
+PASSED tests/unit/llm/test_deepseek.py::test_failing_slow_and_rate_limited_providers_are_cooled_and_the_next_answers

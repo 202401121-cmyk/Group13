@@ -1,0 +1,77 @@
+Database tests (S3-19, C3): every test marked db, on a throwaway postgres:17 container, with REQUIRE_DB_TESTS=1 so a
+missing database fails rather than skips. Run on main ce8090d, Python 3.11.15, fresh venv.
+
+First attempt, with the commands the project's root rules file gives (port 5432):
+$ docker run -d --rm --name ss-test-db -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:17
+$ TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres REQUIRE_DB_TESTS=1 pytest -q -m db
+46 errors: 'password authentication failed for user "postgres"'. This machine runs a Windows PostgreSQL 18 service
+(postgresql-x64-18) on localhost:5432, so the tests reached that server, never the container. The container itself
+answered inside (docker exec ... psql -c "select 'inside ok'" -> inside ok). Not a code failure: the service was left
+alone and the container was moved to another port.
+
+Second attempt, the container on port 55432:
+$ docker run -d --rm --name ss-test-db -e POSTGRES_PASSWORD=postgres -p 55432:5432 postgres:17
+$ docker exec ss-test-db postgres --version
+postgres (PostgreSQL) 17.11 (Debian 17.11-1.pgdg13+2)
+$ cd backend && TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:55432/postgres REQUIRE_DB_TESTS=1 \
+    pytest -q -rA -p no:cacheprovider -m db --junitxml=<scratch>/junit-db.xml
+exit code 0; junit: 46 cases, 0 failures, 0 errors, 0 skipped, 7.5 s
+
+Per file: test functions / collected cases
+  tests/integration/test_product_aliases_table.py: 5 / 9
+  tests/integration/test_requests_table.py: 5 / 5
+  tests/integration/test_results_in_postgres.py: 8 / 8
+  tests/integration/test_searches_table.py: 19 / 24
+  total: 37 functions / 46 cases
+
+Short test summary:
+PASSED tests/integration/test_product_aliases_table.py::test_the_migration_applies_and_sorts_after_create_searches
+PASSED tests/integration/test_product_aliases_table.py::test_row_level_security_is_on_with_no_policies_and_no_access_for_anon
+PASSED tests/integration/test_product_aliases_table.py::test_the_table_refuses_what_does_not_fit[-prd_sony_xm5-headphones]
+PASSED tests/integration/test_product_aliases_table.py::test_the_table_refuses_what_does_not_fit[xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-prd_sony_xm5-headphones]
+PASSED tests/integration/test_product_aliases_table.py::test_the_table_refuses_what_does_not_fit[ xm5-prd_sony_xm5-headphones]
+PASSED tests/integration/test_product_aliases_table.py::test_the_table_refuses_what_does_not_fit[xm5-sony_xm5-headphones]
+PASSED tests/integration/test_product_aliases_table.py::test_the_table_refuses_what_does_not_fit[xm5-prd_sony_xm5-Head Phones]
+PASSED tests/integration/test_product_aliases_table.py::test_postgres_alias_store_round_trip_and_upsert_keeps_the_first_id
+PASSED tests/integration/test_product_aliases_table.py::test_the_migration_runs_on_a_plain_postgres_without_supabase_roles
+PASSED tests/integration/test_requests_table.py::test_a_saved_request_can_be_read_back
+PASSED tests/integration/test_requests_table.py::test_an_unclear_request_is_saved_without_an_intent
+PASSED tests/integration/test_requests_table.py::test_row_level_security_is_on_and_the_data_api_roles_have_no_access
+PASSED tests/integration/test_requests_table.py::test_the_table_enforces_the_length_limit_and_the_session_id_format
+PASSED tests/integration/test_requests_table.py::test_each_pooled_connection_has_the_statement_timeout
+PASSED tests/integration/test_results_in_postgres.py::test_database_on_gives_saved_true_and_one_row_equal_to_the_response_with_no_reddit_text
+PASSED tests/integration/test_results_in_postgres.py::test_the_api_stores_what_it_answers_with_no_reddit_text
+PASSED tests/integration/test_results_in_postgres.py::test_the_cli_stores_the_request_and_the_search_under_one_session
+PASSED tests/integration/test_results_in_postgres.py::test_a_failed_insert_gives_saved_false_and_no_row
+PASSED tests/integration/test_results_in_postgres.py::test_a_locked_table_gives_saved_false_in_time_and_no_row_lands_later
+PASSED tests/integration/test_results_in_postgres.py::test_with_the_breaker_open_the_result_is_unsaved_and_nothing_reaches_the_table
+PASSED tests/integration/test_results_in_postgres.py::test_a_saved_row_read_back_holds_no_reddit_text
+PASSED tests/integration/test_results_in_postgres.py::test_a_saved_row_read_back_keeps_web_text_and_reddit_links
+PASSED tests/integration/test_searches_table.py::test_every_migration_applies_in_order_on_a_blank_database
+PASSED tests/integration/test_searches_table.py::test_the_table_has_the_agreed_columns_and_a_plain_index_on_session_id
+PASSED tests/integration/test_searches_table.py::test_row_level_security_is_on_with_no_policies
+PASSED tests/integration/test_searches_table.py::test_the_data_api_roles_have_no_access
+PASSED tests/integration/test_searches_table.py::test_the_revoke_beats_the_default_grants_supabase_gives_new_tables
+PASSED tests/integration/test_searches_table.py::test_a_bad_session_id_is_rejected_by_the_check[not-a-session]
+PASSED tests/integration/test_searches_table.py::test_a_bad_session_id_is_rejected_by_the_check[sess_x]
+PASSED tests/integration/test_searches_table.py::test_a_bad_session_id_is_rejected_by_the_check[sess_abcdef\n]
+PASSED tests/integration/test_searches_table.py::test_a_bad_session_id_is_rejected_by_the_check[sess_has-dash1]
+PASSED tests/integration/test_searches_table.py::test_a_bad_session_id_is_rejected_by_the_check[sess_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+PASSED tests/integration/test_searches_table.py::test_the_table_accepts_the_same_session_ids_as_public_requests
+PASSED tests/integration/test_searches_table.py::test_a_search_needs_both_its_rubric_and_its_result[rubric]
+PASSED tests/integration/test_searches_table.py::test_a_search_needs_both_its_rubric_and_its_result[result]
+PASSED tests/integration/test_searches_table.py::test_a_saved_search_reads_back_with_the_same_rubric_and_result
+PASSED tests/integration/test_searches_table.py::test_offsets_microseconds_urls_and_awkward_text_survive_exactly
+PASSED tests/integration/test_searches_table.py::test_a_real_pipeline_result_saves_and_reads_back_equal
+PASSED tests/integration/test_searches_table.py::test_one_session_can_save_more_than_one_search
+PASSED tests/integration/test_searches_table.py::test_a_search_saves_with_no_request_row_for_its_session
+PASSED tests/integration/test_searches_table.py::test_a_failed_insert_answers_false_with_one_clean_line
+PASSED tests/integration/test_searches_table.py::test_with_the_breaker_open_nothing_reaches_the_database
+PASSED tests/integration/test_searches_table.py::test_a_save_works_again_once_the_breaker_lets_a_trial_through
+PASSED tests/integration/test_searches_table.py::test_a_locked_table_answers_false_in_time_and_no_row_lands_later
+PASSED tests/integration/test_searches_table.py::test_an_insert_that_finishes_after_the_caller_gave_up_is_rolled_back
+PASSED tests/integration/test_searches_table.py::test_jsonb_refuses_what_the_row_check_refuses_so_it_must_be_checked_first
+
+CI on main (run 43699440887, job backend, postgres:17 service, REQUIRE_DB_TESTS=1): the test step printed 5,115
+dots and no s, F or E, so the same 46 database cases ran and passed there too (c3-ci-on-main.txt).
+$ docker stop ss-test-db

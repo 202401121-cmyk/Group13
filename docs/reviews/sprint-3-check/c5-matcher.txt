@@ -1,0 +1,70 @@
+R5: the matcher drill (S3-19, C5), through the CLI, database off. main ce8090d, 15 Nov 2026, 10:42 UTC.
+Started through <scratch>/s3c_cli.py: the same guard and ledger as the backend runs, and app's INFO log to a scratch file.
+Caps: llm 7, serper 4, reddit 4, jina 5, firecrawl 3.
+
+$ cd backend && EXTRACT_MAX_SOURCES=4 MATCHER=model MATCHER_FORCE_FAIL=1 python -m app.cli "Laptop for coding under 80k" --claims --no-db
+exit code 0. Lines picked from the output (the claims, quotes and Reddit sections are left out, D-53):
+  Saved: no, the database is off (no DATABASE_URL)
+  Understood: Laptop · use coding · budget up to ₹80,000 · region IN · detected by llm
+  Ranked:
+    1. Apple Macbook Neo: score 88.0, coverage 100%, chance of being first n/a
+         source: https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+         source: https://www.rtings.com/laptop/reviews/best/by-usage/programming
+    2. Acer Aspire 5 A514-54H (UN.370SI.002) Laptop: score 88.0, coverage 0%, chance of being first n/a
+         source: https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+    3. Acer Swift Neo OLED AI PC SFN14-54H (UN.35GSI.002) Laptop: score 88.0, coverage 0%, chance of being first n/a
+         source: https://www.91mobiles.com/list-of-laptops/laptops-for-coding
+         source: https://www.91mobiles.com/list-of-laptops/best-laptops-under-80000
+  
+  Filtered out:
+    - HP 14-ep1152TU (C72QJPA) Laptop: ₹89,990 is above your ₹80,000 budget
+    - HP 14-ep1181TU (CJ9E0PA) Laptop: ₹95,990 is above your ₹80,000 budget
+    - HP 14-gr1036TU (C33RKPA) Laptop: ₹94,500 is above your ₹80,000 budget
+  
+  Can't tell:
+    - Acer Aspire 15 AS15-42 (UN.35MSI.00D) Laptop: We couldn't find its price
+    - Chromebook: We couldn't find its price
+    - Dell: We couldn't find its price
+    - Lenovo: We couldn't find its price
+    - MacBook: We couldn't find its price
+    - MSI Cyborg 15.6" 144Hz Gaming Laptop: We couldn't find its price
+    - t490: We couldn't find its price
+    - ThinkPad T14: We couldn't find its price
+  
+  Products after matching (14, method fuzzy):
+    prd_acer_aspire_15_as15_42_un_35msi_00d_laptop  Acer Aspire 15 AS15-42 (UN.35MSI.00D) Laptop
+    prd_acer_aspire_5_a514_54h_un_370si_002_laptop  Acer Aspire 5 A514-54H (UN.370SI.002) Laptop
+    prd_acer_swift_neo_oled_ai_pc_sfn14_54h_un_35gsi_002_laptop  Acer Swift Neo OLED AI PC SFN14-54H (UN.35GSI.002) Laptop
+    prd_apple_macbook_neo  Apple Macbook Neo
+    prd_chromebook  Chromebook  (kind of product)
+    prd_dell  Dell  (kind of product)
+    prd_hp_14_ep1152tu_c72qjpa_laptop  HP 14-ep1152TU (C72QJPA) Laptop
+    prd_hp_14_ep1181tu_cj9e0pa_laptop  HP 14-ep1181TU (CJ9E0PA) Laptop
+    prd_hp_14_gr1036tu_c33rkpa_laptop  HP 14-gr1036TU (C33RKPA) Laptop
+    prd_lenovo  Lenovo  (kind of product)
+    prd_macbook  MacBook
+    prd_msi_cyborg_15_6_144hz_gaming_laptop  MSI Cyborg 15.6" 144Hz Gaming Laptop
+    prd_t490  t490
+    prd_thinkpad_t14  ThinkPad T14
+  
+  LLM calls per provider:
+    provider     calls   median  slowest timeouts  429s
+    gemini           2    3.8 s    5.9 s        0     0
+    groq             4    2.3 s    3.2 s        1     0
+    mistral          1    9.4 s    9.4 s        1     0
+
+Also from the same output (US-46 S3-1, criterion d):
+  Public prompts carried 6 of 10 criteria and 1 spec key (price_inr).
+
+The app's log (WARNING line):
+  WARNING app.entities.stage: match: fuzzy matching ran instead of the model: MATCHER_FORCE_FAIL=1 made it fail on purpose
+
+LLM calls:
+  1 x task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=timeout
+  1 x task=detect_intent class=private provider=groq model=openai/gpt-oss-20b outcome=ok
+  2 x task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok
+  1 x task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=timeout
+  1 x task=extract_claims class=reddit provider=groq model=openai/gpt-oss-120b outcome=ok
+  1 x task=extract_claims class=reddit provider=groq model=openai/gpt-oss-20b outcome=ok
+Research: INFO app.research.stage: research: reddit 0.1s (20), web_search 0.1s (20), review_site 0.1s (11); total 0.1s; used serper 0, reddit_archive 0, pages 0, jina 0, firecrawl_pages 0, firecrawl 0
+Guard's count for R5: llm 7 sent. usage.json today, change: serper +0, reddit_archive +0, pages +0, jina +0, firecrawl_pages +0, firecrawl +0.

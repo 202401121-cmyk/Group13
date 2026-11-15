@@ -1,0 +1,67 @@
+R3: the live end-to-end test, database off (S3-19, C4). main ce8090d, 15 Nov 2026.
+Started from a launcher outside the repository (<scratch>/s3c_backend.py): the app's INFO log to a scratch file, and every call
+to an LLM, Serper, Jina, Firecrawl or a Reddit archive counted and refused past the run's cap (evals/live_briefs.py's guard).
+The frontend: npm run dev in live mode (VITE_API_MODE=live, VITE_API_BASE_URL=http://localhost:8000), as scripts/dev.py starts it.
+EXTRACT_MAX_SOURCES=4 on every run (the default is 40). The checker did not open, print or change .env; the app loaded its keys and
+settings from it as usual, and each run's own settings were temporary shell variables, which win over .env.
+Caps for R3: llm 8, serper 4, reddit 4, jina 5, firecrawl 3. DATABASE_URL set to empty in the backend process (as dev.py --no-db).
+
+$ curl http://127.0.0.1:8000/api/health
+{"status":"ok","schema_version":"1.8.0","database":"off"}
+
+$ cd frontend && LIVE_E2E=1 npx playwright test -c e2e/live/playwright.live.config.ts
+Running 1 test using 1 worker
+LIVE_SESSION sess_9c118d93d80f6c57fa6842c5
+LIVE_TIMINGS {"understood":2573,"criteria":121,"interview (10 answers)":3759,"brief":224,"research and results":13559}
+  ok 1 [chromium] › e2e\live\full-flow.spec.ts:16:1 › @live a shopper goes from a typed request to ranked results with sources (20.3s)
+  1 passed (21.2s)
+
+Session sess_9c118d93d80f6c57fa6842c5, search srch_81faad811e6f9df0d8e43334 (from the backend's request log).
+
+$ curl http://127.0.0.1:8000/api/presearch/sess_9c118d93d80f6c57fa6842c5   (fields picked)
+{'request_saved': 'off', 'intent_source': None, 'session_id': 'sess_9c118d93d80f6c57fa6842c5'}
+Backend log: INFO app.db.store: search not saved: the database is off
+
+The search's result, read back from GET /api/search/runs/srch_81faad811e6f9df0d8e43334 (fields picked):
+  status done, saved False, partial False
+  sources: {'reddit': 20, 'web_search': 20, 'review_site': 8, 'retailer': 2, 'manufacturer': 1}; citations 20
+  stages: research ok, extract ok, match ok, verify ok, enrich ok, decide ok, explain ok, commerce ok
+  ranked (11):
+    1. Apple Macbook Neo: score 88, coverage 100%, label best_match, gap 0.0
+    2. Acer 14 TravelLite TL14-42M Laptop (AMD Ryzen 7 7730U/ 16GB/ 512GB SSD/ Win11): score 88, coverage 0%, label runner_up, gap 0.0
+    3. Acer AL15-52H Aspire Lite 15 Laptop (12th Gen Core i7/ 16GB/ 512GB SSD/ Win11): score 88, coverage 0%, label None, gap 0.0
+    4. Acer ALG AL15G-53 Gaming Laptop (13th Gen Intel Core i7/ 16GB/ 512GB SSD/ Win11/ 6GB RTX 3050 Graphics): score 88, coverage 0%, label None, gap 0.0
+    5. Acer Travel Lite TL14-42M 14 Laptop (AMD Ryzen 7 7730U/ 32GB/ 1TB SSD/ Win11): score 88, coverage 0%, label None, gap 0.0
+    6. HP Pavilion 15-EH3101AU Laptop (AMD Ryzen 7-7730U/ 16GB/ 512GB SSD/ Win11 Home): score 88, coverage 0%, label None, gap 0.0
+    7. Lenovo IdeaPad 15 ITL 05 82FG0148IN Laptop (11th Gen Core i5/ 16GB/ 512GB SSD/ Win10 Home/ 2GB Graph): score 88, coverage 0%, label None, gap 0.0
+    8. Lenovo IdeaPad Gaming 3 82K1019BIN Laptop (11th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home/ 4GB Graph): score 88, coverage 0%, label None, gap 0.0
+    9. Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home): score 88, coverage 0%, label None, gap 0.0
+    10. Lenovo IdeaPad Slim 3 15IAH8 83ER00MCIN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home): score 88, coverage 0%, label None, gap 0.0
+    11. Lenovo IdeaPad Slim 3 15IAH8 83ER00MDIN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home): score 88, coverage 0%, label None, gap 0.0
+  held back: {'cant_tell': 11}
+    cant_tell: Acer Aspire 15 AS15-42 (UN.35MSI.00D) Laptop: We couldn't find its price
+    cant_tell: Acer Swift Neo OLED AI PC SFN14-54H (UN.35GSI.002) Laptop: We couldn't find its price
+    cant_tell: ASUS Strix G16: We couldn't find its price
+    cant_tell: Chromebook: We couldn't find its price
+    cant_tell: Dell: We couldn't find its price
+    cant_tell: HP HyperX OMEN MAX 16: We couldn't find its price
+    cant_tell: Lenovo: We couldn't find its price
+    cant_tell: Llano V12: We couldn't find its price
+    cant_tell: MacBook: We couldn't find its price
+    cant_tell: t490: We couldn't find its price
+    cant_tell: ThinkPad T14: We couldn't find its price
+  relaxation hint: None
+  coverage note: We found no information on CPU performance, RAM capacity, storage speed, keyboard travel, screen resolution, weight, port count, max temperature and value for money for any product, so they were left out of the scores. 9 sources were not read, to keep the search from running too long. 18 Reddit threa... These are sample results while live research is being built. They are not real recommendations.
+  example markers in the result: Nova Book 14 at .explanations[1].sentences[0].text, .commerce.offers[0].listing_title; Kestrel Slim 15 at .commerce.offers[1].listing_title; Orion Play 15 at .explanations[0].trade_off; Example Store at .commerce.offers[0].store; Another Store at .commerce.offers[1].store
+  example markers among products, ranked and held back: none
+
+LLM calls (backend log; outcome=rate_limited with in=0 means skipped before sending: the client found no
+room before the time limit, c4-live-checks.txt item 3):
+  1 x task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=ok
+  2 x task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok
+  1 x task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=timeout
+  1 x task=extract_claims class=reddit provider=groq model=openai/gpt-oss-120b outcome=ok
+  1 x task=extract_claims class=reddit provider=groq model=openai/gpt-oss-20b outcome=ok
+Research: INFO app.research.stage: research: reddit 0.2s (20), web_search 0.1s (20), review_site 0.1s (11); total 0.2s; used serper 0, reddit_archive 0, pages 0, jina 0, firecrawl_pages 0, firecrawl 0
+Decide: INFO app.decide.stage: decide: We found no information on CPU performance, RAM capacity, storage speed, keyboard travel, screen resolution, weight, port count, max temperature and value for money for 
+Guard's count for R3: llm 6 sent. usage.json today, change: serper +0, reddit_archive +0, pages +0, jina +0, firecrawl_pages +0, firecrawl +0.

@@ -1,0 +1,23 @@
+The fast suite, timed (S3-19, C3; US-32: "the fast suite runs in under 60 seconds"). The fast suite is a plain
+pytest from backend/: pyproject.toml's addopts select "not slow and not live". Timed by JUnit (pytest's own time).
+Each ran once, on this laptop (Windows 11, 16 logical processors, Docker Desktop running). The 3.11 run came right
+after the 3.11 coverage run, in the foreground, with nothing else from this check running. The 3.13 runs ran in the
+background while only files were read, tools loaded and bare connection checks made (no test, build or server).
+
+$ cd backend && pytest -p no:cacheprovider --junitxml=<scratch>/junit-fast.xml      (Python 3.11.15)
+exit code 0; 5098 cases, 0 failures, 0 errors, 46 skipped; pytest time 199.9 s
+$ cd backend && pytest -p no:cacheprovider --junitxml=<scratch>/junit-fast313.xml   (Python 3.13.13)
+exit code 0; 5098 cases, 0 failures, 0 errors, 46 skipped; pytest time 106.3 s
+
+Where the 3.11 time went (sum of test times per file, the six largest):
+    48.0 s    29 cases  tests.unit.test_imports
+    11.5 s    79 cases  tests.faults.research.test_source_faults
+     8.6 s    64 cases  tests.unit.api.test_search_runs_api
+     7.9 s    49 cases  tests.unit.api.test_reply_idempotency
+     6.0 s     4 cases  tests.unit.test_export_contracts
+     4.6 s   125 cases  tests.unit.test_record_run
+
+tests/unit/test_imports.py starts a new Python process for each package and script, so it is slow on Windows.
+Sprint 2 measured 3,846 cases in 64.1 s (3.11) and 58.4 s (3.13) on 10 Nov (sprint-2-check/c2-fast-suite.txt);
+the Product Owner accepted that as F-1. Both runs here are over 60 s. Not re-run.
+CI's whole test step (with coverage and the slow tests) took 163 s on the Linux runner (c3-ci-on-main.txt).

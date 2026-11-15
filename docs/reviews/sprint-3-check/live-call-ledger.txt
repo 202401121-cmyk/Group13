@@ -1,0 +1,17 @@
+Live-call ledger (S3-19). Every call each live run made to an LLM, Serper, Jina, Firecrawl or a Reddit archive,
+counted by the guard at the point it leaves the process (httpx), and refused past the run's cap. Review-page
+reads count against no budget; they come from usage.json's change. EXTRACT_MAX_SOURCES=4 on every run.
+Budget for the check: LLM 40, Serper 18, Reddit archive 20, Jina 20 pages, Firecrawl 10 credits.
+
+run | caps llm/serper/reddit/jina/firecrawl | llm sent (by provider) | serper | reddit archive | jina | firecrawl credits | review pages | refused
+R1 walk in the browser, database on, smartphone request (sess_4f3e848d3bc34225870f86de) | 10/6/8/6/3 | 7 (gemini 1, groq 5, mistral 1) | 0 | 1 | 0 | 0 | 9 | 0
+R2 live e2e (full-flow.spec.ts), database on (sess_43c7b936aa0a7a0a422a8334) | 8/6/6/5/3 | 7 (gemini 2, groq 4, mistral 1) | 2 | 6 | 0 | 0 | 7 | 0
+R3 live e2e (full-flow.spec.ts), database off (sess_9c118d93d80f6c57fa6842c5) | 8/4/4/5/3 | 6 (gemini 2, groq 3, mistral 1) | 0 | 0 | 0 | 0 | 0 | 0
+R4 Reddit-off drill, walked in the browser, database off (sess_e55ee3807e48c81782e09c4b) | 8/4/0/5/3 | 7 (gemini 4, groq 1, mistral 2) | 0 | 0 | 0 | 0 | 0 | 0
+R5 matcher drill, CLI --claims --no-db, MATCHER=model MATCHER_FORCE_FAIL=1 | 7/4/4/5/3 | 7 (gemini 2, groq 4, mistral 1) | 0 | 0 | 0 | 0 | 0 | 0
+
+TOTAL | llm 34 of 40 | serper 2 of 18 | reddit archive 7 of 20 | jina 0 of 20 | firecrawl 0 of 10 | review pages 16 | refused 0
+usage.json today before R1: {'firecrawl': 11, 'reddit_archive': 44, 'pages': 32, 'firecrawl_pages': 1, 'jina': 4, 'serper': 24}
+usage.json today after R5:  {'jina': 4, 'reddit_archive': 51, 'firecrawl': 11, 'pages': 48, 'serper': 26, 'firecrawl_pages': 1}
+The guard's counts and usage.json's changes agree for Serper (2), the Reddit archive (7), Jina (0) and Firecrawl (0).
+LLM calls by task and class are in each run's evidence file (from the app's log).

@@ -1,0 +1,24 @@
+Supabase, project "ShopSense IT314 Group 13" (S3-19, section 6). Read-only selects through the Supabase connector;
+nothing was written or deleted by this check. Times are UTC.
+
+Before the live runs (10:27 UTC):
+> select 'requests', count(*), max(created_at) from public.requests union all select 'searches', count(*),
+>   max(created_at) from public.searches union all select 'product_aliases', count(*), null from public.product_aliases;
+  requests 14 (latest 2026-11-08 22:26:43), searches 8 (latest 2026-11-08 22:27:09), product_aliases 0
+
+After the live runs (10:44 UTC):
+> select 'requests', session_id, created_at from public.requests where created_at > '2026-11-15 10:00:00+00'
+>   union all select 'searches', session_id, created_at from public.searches where created_at > '2026-11-15 10:00:00+00';
+  requests  sess_4f3e848d3bc34225870f86de  2026-11-15 10:29:06.820545+00   (R1)
+  requests  sess_43c7b936aa0a7a0a422a8334  2026-11-15 10:36:38.848581+00   (R2)
+  searches  sess_4f3e848d3bc34225870f86de  2026-11-15 10:33:21.290486+00   (R1)
+  searches  sess_43c7b936aa0a7a0a422a8334  2026-11-15 10:37:09.591901+00   (R2)
+> select (select count(*) from public.requests), (select count(*) from public.searches),
+>   (select count(*) from public.product_aliases);
+  requests 16, searches 10, product_aliases 1
+> select * from public.product_aliases limit 5;
+  alias "vivo t5x", product_id prd_vivo_t5x_8gb_ram, category smartphone, first_seen and last_seen
+  2026-11-15 10:33:21.202107+00   (R1's search finished at 10:33:21)
+
+So the check added 2 requests, 2 searches (R1, R2) and 1 alias (R1). R2 added no alias: the table holds one row.
+R3, R4 and R5 ran with the database off and saved nothing.

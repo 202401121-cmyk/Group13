@@ -1,0 +1,84 @@
+R2: the live end-to-end test, database on (S3-19, C4). main ce8090d, 15 Nov 2026.
+Started from a launcher outside the repository (<scratch>/s3c_backend.py): the app's INFO log to a scratch file, and every call
+to an LLM, Serper, Jina, Firecrawl or a Reddit archive counted and refused past the run's cap (evals/live_briefs.py's guard).
+The frontend: npm run dev in live mode (VITE_API_MODE=live, VITE_API_BASE_URL=http://localhost:8000), as scripts/dev.py starts it.
+EXTRACT_MAX_SOURCES=4 on every run (the default is 40). The checker did not open, print or change .env; the app loaded its keys and
+settings from it as usual, and each run's own settings were temporary shell variables, which win over .env.
+Caps for R2: llm 8, serper 6, reddit 6, jina 5, firecrawl 3.
+
+$ curl http://127.0.0.1:8000/api/health
+{"status":"ok","schema_version":"1.8.0","database":"ok"}
+
+$ cd frontend && LIVE_E2E=1 npx playwright test -c e2e/live/playwright.live.config.ts
+Running 1 test using 1 worker
+  x  1 [chromium] › e2e\live\full-flow.spec.ts:16:1 › @live a shopper goes from a typed request to ranked results with sources (42.0s)
+  1) [chromium] › e2e\live\full-flow.spec.ts:16:1 › @live a shopper goes from a typed request to ranked results with sources
+    Error: expect(locator).toHaveAttribute(expected) failed
+    Locator: getByRole('list', { name: 'Best match' }).getByRole('link').first()
+    Expected pattern: /^https:\/\//
+    Timeout: 5000ms
+    Error: element(s) not found
+    Call log:
+      - Expect "toHaveAttribute" getByRole('list', { name: 'Best match' }).getByRole('link').first() with timeout 5000ms
+      - waiting for getByRole('list', { name: 'Best match' }).getByRole('link').first()
+      78 |   // Tied products share this list, so there can be more than one.
+      79 |   await expect(best.getByRole("region", { name: /Why .* ranks here/ }).first()).toBeVisible();
+    > 80 |   await expect(best.getByRole("link").first()).toHaveAttribute("href", /^https:\/\//); // a store offer's source
+         |                                                ^
+      81 |   const criteria = best.getByRole("group").first(); // "Show all criteria": each value with its sources
+      82 |   await criteria.locator("summary").click();
+      83 |   await expect(criteria.getByRole("listitem").first()).toBeVisible();
+        at <repo>\frontend\e2e\live\full-flow.spec.ts:80:48
+    Error Context: test-results\full-flow--live-a-shopper--2807d-ranked-results-with-sources-chromium\error-context.md
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\full-flow--live-a-shopper--2807d-ranked-results-with-sources-chromium\trace.zip
+    Usage:
+        npx playwright show-trace test-results\full-flow--live-a-shopper--2807d-ranked-results-with-sources-chromium\trace.zip
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+  1 failed
+    [chromium] › e2e\live\full-flow.spec.ts:16:1 › @live a shopper goes from a typed request to ranked results with sources
+
+Session sess_43c7b936aa0a7a0a422a8334, search srch_48c5f2e317a5b507bfa535ef (from the backend's request log: the test failed before printing LIVE_SESSION).
+
+$ python scripts/check_request_saved.py sess_43c7b936aa0a7a0a422a8334
+saved
+
+The search's result, read back from GET /api/search/runs/srch_48c5f2e317a5b507bfa535ef (fields picked):
+  status done, saved True, partial False
+  sources: {'reddit': 20, 'web_search': 20, 'review_site': 8, 'retailer': 2, 'manufacturer': 1}; citations 15
+  stages: research ok, extract ok, match ok, verify ok, enrich ok, decide ok, explain ok, commerce ok
+  ranked (2):
+    1. Acer Aspire 5 A514-54H (UN.370SI.002) Laptop: no score, coverage 0%, label None, gap 0.0
+    2. Acer Swift Neo OLED AI PC SFN14-54H (UN.35GSI.002) Laptop: no score, coverage 0%, label None, gap 0.0
+  held back: {'cant_tell': 6, 'filtered_out': 6}
+    cant_tell: Apple MacBook Pro M5 Max: We couldn't find its price
+    filtered_out: ASUS ExpertBook Ultra: ₹3,49,990 is above your ₹80,000 budget
+    filtered_out: ASUS Zenbook Duo: ₹1,94,270 is above your ₹80,000 budget
+    cant_tell: ASUS Zenbook Duo OLED UX8406CA-PZ106WS: We couldn't find its price
+    filtered_out: Dell Pro Max 16 Plus: ₹9,00,000 is above your ₹80,000 budget
+    cant_tell: Dell Pro Max 16 Plus MB16250: We couldn't find its price
+    filtered_out: HP 14-ep1152TU (C72QJPA) Laptop: ₹89,990 is above your ₹80,000 budget
+    filtered_out: HP 14-ep1181TU (CJ9E0PA) Laptop: ₹95,990 is above your ₹80,000 budget
+    filtered_out: HP 14-gr1036TU (C33RKPA) Laptop: ₹94,500 is above your ₹80,000 budget
+    cant_tell: HP OmniBook Ultra 14: We couldn't find its price
+    cant_tell: MacBook Pro M5: We couldn't find its price
+    cant_tell: Samsung Galaxy Book6 Pro: We couldn't find its price
+  relaxation hint: None
+  coverage note: Not ranked: we found no scores for your criteria. 9 sources were not read, to keep the search from running too long. 18 Reddit threads were not read, to leave room for web pages. 2 sources could not be read, because the AI services were busy or their answers could not be used. These are sample results while live research is being built. They are not real recommendations.
+  example markers in the result: Nova Book 14 at .explanations[1].sentences[0].text, .commerce.offers[0].listing_title; Kestrel Slim 15 at .commerce.offers[1].listing_title; Orion Play 15 at .explanations[0].trade_off; Example Store at .commerce.offers[0].store; Another Store at .commerce.offers[1].store
+  example markers among products, ranked and held back: none
+
+LLM calls (backend log; outcome=rate_limited with in=0 means skipped before sending: the client found no
+room before the time limit, c4-live-checks.txt item 3):
+  1 x task=detect_intent class=private provider=groq model=openai/gpt-oss-120b outcome=timeout
+  1 x task=detect_intent class=private provider=groq model=openai/gpt-oss-20b outcome=ok
+  2 x task=extract_claims class=public provider=gemini model=gemini-3.5-flash-lite outcome=ok
+  1 x task=extract_claims class=public provider=mistral model=ministral-8b-latest outcome=timeout
+  1 x task=extract_claims class=reddit provider=groq model=openai/gpt-oss-120b outcome=invalid_output
+  2 x task=extract_claims class=reddit provider=groq model=openai/gpt-oss-120b outcome=rate_limited
+  2 x task=extract_claims class=reddit provider=groq model=openai/gpt-oss-20b outcome=rate_limited
+  1 x task=extract_claims class=reddit provider=groq model=qwen/qwen3.8-27b outcome=invalid_output
+  2 x task=extract_claims class=reddit provider=groq model=qwen/qwen3.8-27b outcome=rate_limited
+Research: INFO app.research.stage: research: reddit 11.0s (20), web_search 3.2s (20), review_site 12.7s (11); total 12.7s; used serper 2, reddit_archive 6, pages 7, jina 0, firecrawl_pages 0, firecrawl 0
+Decide: INFO app.decide.stage: decide: Not ranked: we found no scores for your criteria.
+Guard's count for R2: llm 7 sent, reddit 6 sent, serper 2 sent. usage.json today, change: serper +2, reddit_archive +6, pages +7, jina +0, firecrawl_pages +0, firecrawl +0.

@@ -1,0 +1,33 @@
+CI on main (S3-19, C3): the run for main's head ce8090d (merge of PR #112), read with gh. Nothing was re-run.
+
+$ gh run list --branch main --limit 6 --json databaseId,headSha,status,conclusion,createdAt,displayTitle
+43699440887 ce8090d completed success 2026-11-15T09:28:50Z Merge pull request #112 from 202401121-cmyk/fix/US-14-criteria-stand-ins
+43694263461 13b4570 completed success 2026-11-15T08:23:19Z Merge pull request #110 from 202401121-cmyk/feature/US-18-value-scores
+43694247137 32ffd3a completed success 2026-11-15T08:23:07Z Merge pull request #111 from 202401121-cmyk/fix/US-17-price-reading
+43683975010 e88ed97 completed success 2026-11-15T06:07:03Z Merge pull request #109 from 202401121-cmyk/fix/US-14-extraction-yield
+43621163830 f2cdadc completed success 2026-11-14T17:27:01Z Merge pull request #108 from 202401121-cmyk/chore/sprint-3-baselines
+43615887032 a6148f0 completed success 2026-11-14T16:29:38Z Merge pull request #107 from 202401121-cmyk/chore/DEP-1-frontend
+
+$ gh run view 43699440887 --json jobs --jq ".jobs[] | name | conclusion | startedAt | completedAt"
+secrets | success | 2026-11-15T09:28:53Z | 2026-11-15T09:29:05Z
+frontend | success | 2026-11-15T09:28:53Z | 2026-11-15T09:30:12Z
+backend | success | 2026-11-15T09:28:53Z | 2026-11-15T09:32:16Z
+backend-windows | success | 2026-11-15T09:28:54Z | 2026-11-15T09:32:26Z
+ml | success | 2026-11-15T09:28:53Z | 2026-11-15T09:29:18Z
+
+Five jobs, all success. The workflow is .github/workflows/ci.yml (one workflow, five jobs).
+
+$ gh run view --job <backend job id> --log   (saved to <scratch>/ci_backend.log; lines picked below)
+Tests (no live APIs)	2026-11-15T09:29:30.4295842Z ##[group]Run pytest -q -m "not live" --cov --cov-report=term-missing
+Tests (no live APIs)	2026-11-15T09:29:30.4315541Z   REQUIRE_DB_TESTS: 1
+Tests (no live APIs)	2026-11-15T09:32:13.4647622Z TOTAL                                 12468    257    98%
+Tests (no live APIs)	2026-11-15T09:32:13.6230588Z Required test coverage of 70.0% reached. Total coverage: 97.94%
+Coverage gates (70% on core modules, 80% on app/decide/)	2026-11-15T09:32:14.0420610Z   REQUIRE_DB_TESTS: 1
+Coverage gates (70% on core modules, 80% on app/decide/)	2026-11-15T09:32:14.7386829Z Coverage gates passed: 70% on core modules, 80% on app/decide/.
+Shared contracts are up to date	2026-11-15T09:32:14.7551335Z   REQUIRE_DB_TESTS: 1
+Python on the runner: 3.11.18; Postgres: the postgres:17 service of the backend job.
+
+The test step's progress dots, counted (pytest -q prints . for a pass, s for a skip, F or E for a failure):
+  characters 5115 {'.': 5115}
+So 5,115 cases ran and passed, none skipped: the 46 database cases ran on postgres:17 with REQUIRE_DB_TESTS=1.
+The test step took 163 s on the runner (09:29:30 to 09:32:13), with coverage and the slow tests.

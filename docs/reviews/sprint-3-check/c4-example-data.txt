@@ -1,0 +1,57 @@
+Example data in live results (S3-19, C4). Each live search's result was read back from the backend and searched for the
+example products and stores in app/contracts/examples.py, and for the mock badge.
+
+R1 (srch_8fe6696753f97a8606320d14):
+  Nova Book 14: 2  at .explanations[1].sentences[0].text, .commerce.offers[0].listing_title
+  Kestrel Slim 15: 1  at .commerce.offers[1].listing_title
+  Orion Play 15: 1  at .explanations[0].trade_off
+  Aurora Air 13: 0
+  Vela Pro 14: 0
+  Example Store: 1  at .commerce.offers[0].store
+  Another Store: 1  at .commerce.offers[1].store
+  sess_demo0001: 0
+  Preview: mock data: 0
+  explanations[].product_id: ['prd_nova_book_14', 'prd_kestrel_slim_15']; commerce.offers[].product_id: ['prd_nova_book_14', 'prd_kestrel_slim_15']; offers' as_of: ['2026-10-03T08:00:00Z', '2026-10-02T04:00:00Z']
+
+R2 (srch_48c5f2e317a5b507bfa535ef):
+  Nova Book 14: 2  at .explanations[1].sentences[0].text, .commerce.offers[0].listing_title
+  Kestrel Slim 15: 1  at .commerce.offers[1].listing_title
+  Orion Play 15: 1  at .explanations[0].trade_off
+  Aurora Air 13: 0
+  Vela Pro 14: 0
+  Example Store: 1  at .commerce.offers[0].store
+  Another Store: 1  at .commerce.offers[1].store
+  sess_demo0001: 0
+  Preview: mock data: 0
+  explanations[].product_id: ['prd_nova_book_14', 'prd_kestrel_slim_15']; commerce.offers[].product_id: ['prd_nova_book_14', 'prd_kestrel_slim_15']; offers' as_of: ['2026-10-03T08:00:00Z', '2026-10-02T04:00:00Z']
+
+R3 (srch_81faad811e6f9df0d8e43334):
+  Nova Book 14: 2  at .explanations[1].sentences[0].text, .commerce.offers[0].listing_title
+  Kestrel Slim 15: 1  at .commerce.offers[1].listing_title
+  Orion Play 15: 1  at .explanations[0].trade_off
+  Aurora Air 13: 0
+  Vela Pro 14: 0
+  Example Store: 1  at .commerce.offers[0].store
+  Another Store: 1  at .commerce.offers[1].store
+  sess_demo0001: 0
+  Preview: mock data: 0
+  explanations[].product_id: ['prd_nova_book_14', 'prd_kestrel_slim_15']; commerce.offers[].product_id: ['prd_nova_book_14', 'prd_kestrel_slim_15']; offers' as_of: ['2026-10-03T08:00:00Z', '2026-10-02T04:00:00Z']
+
+R4 (srch_3f31fa4b69ed6f33eebe4307):
+  Nova Book 14: 2  at .explanations[1].sentences[0].text, .commerce.offers[0].listing_title
+  Kestrel Slim 15: 1  at .commerce.offers[1].listing_title
+  Orion Play 15: 1  at .explanations[0].trade_off
+  Aurora Air 13: 0
+  Vela Pro 14: 0
+  Example Store: 1  at .commerce.offers[0].store
+  Another Store: 1  at .commerce.offers[1].store
+  sess_demo0001: 0
+  Preview: mock data: 0
+  explanations[].product_id: ['prd_nova_book_14', 'prd_kestrel_slim_15']; commerce.offers[].product_id: ['prd_nova_book_14', 'prd_kestrel_slim_15']; offers' as_of: ['2026-10-03T08:00:00Z', '2026-10-02T04:00:00Z']
+
+None of these products is among a result's products, ranked or held-back lists, so no example product is shown as
+a card or in a group. But every live result carries the explain and commerce stubs' example output
+(app/explain/stage.py and app/commerce/stage.py return examples.explanations() and examples.commerce()), and
+the results page shows one trace of it: "Prices checked 3 Oct, 1:30 pm." is the example offers' as_of
+(2026-10-03T08:00Z, 1:30 pm IST), on searches that found no offer at all ("No price found yet" on every card).
+The sample note ("These are sample results while live research is being built...") is on every live result.

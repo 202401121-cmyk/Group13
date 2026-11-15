@@ -1,0 +1,78 @@
+Live checks behind single claims in the report (S3-19, C1 and C4). Read from the backend's logs and each search's
+result (GET /api/search/runs/<search ID>), kept in a scratch folder. Product names, labels, counts and web-page
+quotes only.
+
+1. Products dropped as unsourced (US-40). verify logs each drop as "verify: dropped <id> ..."
+   (app/verify/stage.py:101). Lines in each run's app log:
+   R1: 0
+   R2: 0
+   R3: 0
+   R4: 0
+   R5: 0
+
+2. Every shown (ranked) product's hard-rule values (US-17 criterion 5). Budgets: R1 ₹30,000 with "at least 8 GB
+   RAM"; R2 to R4 ₹80,000 and no other rule.
+   R1: Motorola Edge 70 Fusion: price_inr 28980 INR, ram_gb 8 GB
+   R2: Acer Aspire 5 A514-54H (UN.370SI.002) Laptop: price_inr 69890 INR
+   R2: Acer Swift Neo OLED AI PC SFN14-54H (UN.35GSI.002) Laptop: price_inr 73286 INR
+   R3: Apple Macbook Neo: price_inr 71890 INR
+   R3: Acer 14 TravelLite TL14-42M Laptop (AMD Ryzen 7 7730U/ 16GB/ 512GB SSD/ Win11): price_inr 65990 INR
+   R3: Acer AL15-52H Aspire Lite 15 Laptop (12th Gen Core i7/ 16GB/ 512GB SSD/ Win11): price_inr 74940 INR
+   R3: Acer ALG AL15G-53 Gaming Laptop (13th Gen Intel Core i7/ 16GB/ 512GB SSD/ Win11/ 6GB RTX 3050 Graphics): price_inr 79990 INR
+   R3: Acer Travel Lite TL14-42M 14 Laptop (AMD Ryzen 7 7730U/ 32GB/ 1TB SSD/ Win11): price_inr 79990 INR
+   R3: HP Pavilion 15-EH3101AU Laptop (AMD Ryzen 7-7730U/ 16GB/ 512GB SSD/ Win11 Home): price_inr 77337 INR
+   R3: Lenovo IdeaPad 15 ITL 05 82FG0148IN Laptop (11th Gen Core i5/ 16GB/ 512GB SSD/ Win10 Home/ 2GB Graph): price_inr 62999 INR
+   R3: Lenovo IdeaPad Gaming 3 82K1019BIN Laptop (11th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home/ 4GB Graph): price_inr 71990 INR
+   R3: Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home): price_inr 64899 INR
+   R3: Lenovo IdeaPad Slim 3 15IAH8 83ER00MCIN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home): price_inr 73595 INR
+   R3: Lenovo IdeaPad Slim 3 15IAH8 83ER00MDIN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home): price_inr 74985 INR
+   R4: Apple Macbook Neo: price_inr 71890 INR
+   R4: Acer Aspire 5 A514-54H (UN.370SI.002) Laptop: price_inr 69890 INR
+   R4: Acer Swift Neo OLED AI PC SFN14-54H (UN.35GSI.002) Laptop: price_inr 73286 INR
+   17 shown products; each has a known price at or under its budget, and R1's has 8 GB RAM.
+
+3. R2's two shown products: every value that is not Unknown (S3-F2).
+   Acer Aspire 5 A514-54H (UN.370SI.002) Laptop: [('price_inr', 'known', '69890 INR')]; score None
+   Acer Swift Neo OLED AI PC SFN14-54H (UN.35GSI.002) Laptop: [('battery_life', 'known', '8 Hrs'), ('price_inr', 'known', '73286 INR')]; score None
+   R2's app log, the Groq models skipped for Reddit extraction (each then logged as outcome=rate_limited, in=0):
+   2 x INFO app.llm.client: llm openai/gpt-oss-120b skipped: no room before the time limit
+   2 x INFO app.llm.client: llm openai/gpt-oss-20b skipped: no room before the time limit
+   2 x INFO app.llm.client: llm qwen/qwen3.8-27b skipped: no room before the time limit
+   INFO app.extract.stage: extract: a reddit source was dropped: no valid answer  (twice)
+
+4. R1's LLM calls by time (the guard's ledger), around "What does this mean?" (US-07 criterion 4). The
+   explanation was opened and closed at about 10:30:11 to 10:30:17 UTC (the browser steps' times):
+   R1|10:29:04|llm|1|api.groq.com|sent
+   R1|10:29:13|llm|1|api.groq.com|sent
+   R1|10:33:15|llm|1|api.groq.com|sent
+   R1|10:33:15|llm|1|api.groq.com|sent
+   R1|10:33:16|llm|1|generativelanguage.googleapis.com|sent
+   R1|10:33:16|llm|1|api.mistral.ai|sent
+   R1|10:33:19|llm|1|api.groq.com|sent
+   No call between 10:29:13 (criteria) and 10:33:15 (extraction, after Start research).
+
+5. R1's facts behind "vivo T5x 8GB RAM" and the Motorola Edge 70 Fusion (section 7, observations 2 and 3):
+   Motorola Edge 70 Fusion: variants []
+     price_inr: known 28980 INR ['review_site https://www.91mobiles.com/list-of-phones/best-mobile-under-25000-to-30000 quote "₹28,980"']
+     ram_gb: known 8 GB ['review_site https://www.91mobiles.com/list-of-phones/best-mobile-under-25000-to-30000 quote "8 GB RAM"']
+   Samsung Galaxy M52 5G 8GB RAM: variants [('8 GB RAM', {'ram': '8GB'})]
+     price_inr: unknown None []
+     ram_gb: unknown None []
+   vivo T5x 8GB RAM: variants [('8 GB RAM', {'ram': '8GB'})]
+     price_inr: known 26376 INR ['review_site https://www.91mobiles.com/list-of-phones/best-mobile-under-25000-to-30000 quote "₹26,376"']
+     ram_gb: known 6 GB ['review_site https://www.91mobiles.com/list-of-phones/best-mobile-under-25000-to-30000 quote "6 GB RAM"']
+
+6. Opening R2's results address in another browser (the walk's browser, 10:37 UTC):
+   http://localhost:3000/s/sess_43c7b936aa0a7a0a422a8334/results?search=srch_48c5f2e317a5b507bfa535ef
+   The page: heading "We couldn't find this search"; "It may have expired when the browser tab was closed. Start
+   again by telling us what you're shopping for."; link "Describe what you need". The backend still answered
+   GET /api/search/runs/srch_48c5f2e317a5b507bfa535ef with status done at that time.
+
+7. The text behind each "What does this mean?" shown in R1 and R4 (US-07 criterion 2). It is the criterion's saved
+   definition (backend/.cache/criteria/, the sets these searches used):
+   CPU Clock Speed (15 words): Measures the processor's single‑core clock frequency in gigahertz, affecting compile times and responsiveness while coding.
+   RAM Size (16 words): Indicates total volatile memory in gigabytes, allowing many IDEs, virtual machines, and browsers to run simultaneously.
+   SSD Read Speed (15 words): Measures sequential read throughput in megabytes per second, speeding up project loading and file operations.
+   Display PPI (18 words): Pixels per inch of the screen, determining how sharp text appears and reducing eye strain while reading code.
+   Max CPU Temp (15 words): Highest processor temperature in degrees Celsius under load, indicating cooling efficiency for sustained coding tasks.
+   Optical Image Stabilization (18 words): Quantifies how many stops of camera shake the OIS can compensate, helping keep photos sharp in low light.

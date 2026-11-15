@@ -1,0 +1,32 @@
+Frontend regression (S3-19, C3). main ce8090d, Node 22.18.0 here (CI's frontend job uses Node 20).
+Run through cmd /d /c from frontend/ with an upper-case C: path (vitest needs it on this machine).
+
+$ npm ci
+  added 420 packages, and audited 427 packages in 32s
+  105 packages are looking for funding
+  8 vulnerabilities (7 moderate, 1 high)
+
+$ npm run lint
+  > lint
+  > eslint .
+  (no output after eslint: no problems)
+
+$ npm run typecheck
+  > typecheck
+  > tsc --noEmit
+  (no output after tsc: no errors)
+
+$ npx vitest run --reporter=verbose   (CI runs npm test, the same tests)
+  Test Files  29 passed (29)
+  Tests  639 passed (639)
+  Duration  13.92s (transform 9.32s, setup 19.85s, import 17.04s, tests 18.19s, environment 116.61s)
+
+$ npm run test:e2e   (Playwright and axe, mock mode; not in CI)
+  ok 177 [chromium] › e2e\results-sources.spec.ts:295:5 › where each result comes from › axe and screenshots at 1440 px (52.0s)
+  2 skipped
+  185 passed (6.8m)
+  skipped:
+    -    1 [chromium] › e2e\live\full-flow.spec.ts:16:1 › @live a shopper goes from a typed request to ranked results with sources
+    -  102 [chromium] › e2e\quality\motion.spec.ts:68:3 › motion allowed › the background stops drawing when the tab is hidden
+  failed: none
+  The live test skips itself without LIVE_E2E=1 (it ran on its own in C4). The motion test skips itself when the browser keeps a background tab visible (its own reason in the spec).
