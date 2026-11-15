@@ -1,0 +1,166 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "Made-up laptops under 60000, ranked by price. Alto One costs ₹41,990, its battery is only average. Brio Two costs ₹43,990, its battery lasts all day. Cora Three costs ₹45,990, its battery is only average. Dune Four costs ₹47,990, its battery lasts all day. Echo Five costs ₹49,990, its battery is only average. Fable Six costs ₹51,990, its battery lasts all day. Gala Seven costs ₹53,990, its battery is only average. Halo Eight costs ₹55,990, its battery lasts all day.",
+    "budget": true
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "Alto One",
+        "is_product": true
+      },
+      {
+        "raw_name": "Brio Two",
+        "is_product": true
+      },
+      {
+        "raw_name": "Cora Three",
+        "is_product": true
+      },
+      {
+        "raw_name": "Dune Four",
+        "is_product": true
+      },
+      {
+        "raw_name": "Echo Five",
+        "is_product": true
+      },
+      {
+        "raw_name": "Fable Six",
+        "is_product": true
+      },
+      {
+        "raw_name": "Gala Seven",
+        "is_product": true
+      },
+      {
+        "raw_name": "Halo Eight",
+        "is_product": true
+      }
+    ],
+    "claims": [
+      {
+        "product_mention": "Alto One",
+        "criterion_key": "price_inr",
+        "value": "₹41,990",
+        "quote": "Alto One costs ₹41,990",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Brio Two",
+        "criterion_key": "price_inr",
+        "value": "₹43,990",
+        "quote": "Brio Two costs ₹43,990",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Cora Three",
+        "criterion_key": "price_inr",
+        "value": "₹45,990",
+        "quote": "Cora Three costs ₹45,990",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Dune Four",
+        "criterion_key": "price_inr",
+        "value": "₹47,990",
+        "quote": "Dune Four costs ₹47,990",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Echo Five",
+        "criterion_key": "price_inr",
+        "value": "₹49,990",
+        "quote": "Echo Five costs ₹49,990",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Fable Six",
+        "criterion_key": "price_inr",
+        "value": "₹51,990",
+        "quote": "Fable Six costs ₹51,990",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Gala Seven",
+        "criterion_key": "price_inr",
+        "value": "₹53,990",
+        "quote": "Gala Seven costs ₹53,990",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Halo Eight",
+        "criterion_key": "price_inr",
+        "value": "₹55,990",
+        "quote": "Halo Eight costs ₹55,990",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Alto One",
+        "criterion_key": "battery_life",
+        "score": 5.0,
+        "quote": "its battery is only average",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Brio Two",
+        "criterion_key": "battery_life",
+        "score": 8.0,
+        "quote": "its battery lasts all day",
+        "claim_type": "experience",
+        "polarity": "positive"
+      },
+      {
+        "product_mention": "Cora Three",
+        "criterion_key": "battery_life",
+        "score": 5.0,
+        "quote": "its battery is only average",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Dune Four",
+        "criterion_key": "battery_life",
+        "score": 8.0,
+        "quote": "its battery lasts all day",
+        "claim_type": "experience",
+        "polarity": "positive"
+      },
+      {
+        "product_mention": "Echo Five",
+        "criterion_key": "battery_life",
+        "score": 5.0,
+        "quote": "its battery is only average",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      },
+      {
+        "product_mention": "Fable Six",
+        "criterion_key": "battery_life",
+        "score": 8.0,
+        "quote": "its battery lasts all day",
+        "claim_type": "experience",
+        "polarity": "positive"
+      },
+      {
+        "product_mention": "Gala Seven",
+        "criterion_key": "battery_life",
+        "score": 5.0,
+        "quote": "its battery is only average",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      }
+    ]
+  }
+}

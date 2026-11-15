@@ -24,6 +24,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
+from functools import lru_cache
 
 from app.contracts import DataClass, ExtractInput, Source, SourceType
 from app.criteria.fallback import fallback_criteria
@@ -31,6 +32,7 @@ from app.decide.directions import stand_in
 from app.decide.features import feature_key, known_feature
 from app.decide.rules import PRICE_KEY
 from app.intake.lexicon import load_lexicon
+from app.llm.config import LLMConfigError, load_llm_config
 from app.llm.data_block import DATA_RULE, wrap_as_data
 
 from .settings import ExtractSettings
@@ -56,6 +58,64 @@ Leave out any field you do not use. If no listed criterion fits a statement, lea
 If the source says nothing useful, return empty lists.
 
 {DATA_RULE}"""
+
+# A public page asked for the price or a rule key gives those first (US-14, S4-1): for every product it prices or
+# specifies, before the criteria, with up to EXTRA_CLAIMS more claims where the call's output limit holds them. Reddit
+# calls, and public calls asked for neither, keep SYSTEM_PROMPT byte for byte.
+#
+# The variant must still let a capped page go whole to Groq, the public last resort, with its 1,200-token answer
+# (tests/unit/llm/test_data_block.py): the worst case there leaves about 26 tokens. So the keys to give first are not
+# listed again: their lines simply come first in the criteria, and only the claims phrase below changes, by about 19.
+BASE_CLAIMS = 10
+EXTRA_CLAIMS = 5
+CLAIM_TOKENS = 70  # about what one claim takes in an answer (config/extract.yaml)
+MENTIONS_TOKENS = 600  # 15 mentions: a live reply used 566 on them alone
+GROQ_PUBLIC_ANSWER = 1200  # config/models.yaml pool.public_output_tokens, if that file can't be read
+_CLAIMS_PHRASE = "- claims: at most 10, the most useful ones."
+if _CLAIMS_PHRASE not in SYSTEM_PROMPT:  # pragma: no cover - a guard on our own text
+    raise RuntimeError("SYSTEM_PROMPT changed: update the price-first variant in app/extract/prompts.py")
+
+
+def claim_room(first: Sequence[str], output_tokens: int) -> int:
+    """How many claims a call may ask for: BASE_CLAIMS, and with keys to give first up to EXTRA_CLAIMS more, as many
+    as `output_tokens` holds after the mentions and the base claims: 2,000 holds all 5, Groq's 1,200 none."""
+    if not first:
+        return BASE_CLAIMS
+    spare = (output_tokens - MENTIONS_TOKENS) // CLAIM_TOKENS - BASE_CLAIMS
+    return BASE_CLAIMS + max(0, min(EXTRA_CLAIMS, spare))
+
+
+@lru_cache(maxsize=1)
+def groq_public_answer() -> int | None:
+    """The answer a public page gets when Groq reads it as the last resort (F-6): the pool's public answer, 1,200
+    tokens today, never raised here. A call's one prompt goes to every model on its route, so the room must fit this
+    smallest answer too: 15 claims cut Groq's public answers off in the 15 Nov live run. An unreadable config counts as
+    the safe 1,200."""
+    try:
+        return load_llm_config().pool.public_output_tokens
+    except LLMConfigError:
+        return GROQ_PUBLIC_ANSWER
+
+
+def public_answer_tokens(settings: ExtractSettings) -> int:
+    """What a public page's room has to fit: the smaller of the answer extract asks for and Groq's public answer as the
+    last resort. Every other model on the public routes may write at least 4,096 tokens (config/models.yaml)."""
+    asked = settings.output_tokens(DataClass.PUBLIC)
+    groq = groq_public_answer()
+    return asked if groq is None else min(asked, groq)
+
+
+def system_prompt(room: int, first: int) -> str:
+    """SYSTEM_PROMPT, or with `first` keys listed first, its price-first variant allowing `room` claims: a claim on
+    each of those keys for every product the source prices or specifies, then the most useful ones."""
+    if first <= 0:
+        return SYSTEM_PROMPT
+    keys = "the first key" if first == 1 else f"the first {first} keys"
+    phrase = (
+        f"- claims: at most {room}, starting with {keys} for each product priced or specified, then the most useful."
+    )
+    return SYSTEM_PROMPT.replace(_CLAIMS_PHRASE, phrase)
+
 
 _LABELS = {SourceType.REDDIT: "Reddit text", SourceType.YOUTUBE: "video text"}
 # A title isn't counted in the source's cap, so a long one could push the data block's end past what fits a call.
@@ -85,6 +145,9 @@ class PromptCriteria:
     lines: tuple[str, ...]
     category: str | None
     renames: Mapping[str, str] = field(default_factory=dict)  # a key sent in place of the search's own key -> that key
+    first: tuple[str, ...] = ()  # the price and rule keys to give first, as sent; empty for Reddit and plain calls
+    room: int = BASE_CLAIMS  # the claims this call may ask for (claim_room)
+    system: str = SYSTEM_PROMPT  # the system prompt this call sends
 
     def claim_key(self, key: str) -> str:
         """The search's own key for a claim made under `key`."""
@@ -163,16 +226,22 @@ def allowed_criteria(
     data_class: DataClass,
     specs: SpecAsk | None = None,
     settings: ExtractSettings | None = None,
+    answer_tokens: int | None = None,
 ) -> PromptCriteria:
     """Lexicon keys and labels go in any call. Anything else goes only in a call no provider that trains can see.
 
-    A public call carries fixed keys and our own definitions only (public_prompt_keys). Reddit calls are unchanged.
+    A public call carries fixed keys and our own definitions only (public_prompt_keys). Asked for the price or rule
+    keys, it lists them first and asks for them first, for every product the page prices or specifies (S4-1), with the
+    room claim_room gives within `answer_tokens`: by default the smallest answer any model on the route may give
+    (public_answer_tokens), so the extra claims never cut off Groq's public answer. Reddit calls are unchanged.
     """
     slug = inp.category_label
     lexicon = load_lexicon()
     fixed = {c.key: c.definition for c in fallback_criteria(slug).criteria}
     may_hold_their_words = data_class is not DataClass.PUBLIC
     renames: Mapping[str, str] = {}
+    first: tuple[str, ...] = ()
+    room = BASE_CLAIMS
     if may_hold_their_words:
         keys = tuple(inp.criterion_keys)
         lines = tuple(f"- {key}: {fixed.get(key, _words(key))}" for key in keys)
@@ -180,12 +249,18 @@ def allowed_criteria(
         settings = settings if settings is not None else ExtractSettings()
         ask = specs if specs is not None else SpecAsk()
         public = public_prompt_keys(slug, inp.criterion_keys, ask.attributes, ask.has_budget, settings, ask.features)
-        keys, renames = public.criteria + public.specs, public.renames
+        first = tuple(key for key in public.specs if key not in public.definitions)  # price, rules; never a feature
+        # The keys to give first are listed first (the system prompt names them by position, not again by name).
+        keys = first + tuple(key for key in public.criteria + public.specs if key not in first)
+        renames = public.renames
         ours = {**fixed, **public.definitions, **settings.public_spec_keys, PRICE_KEY: settings.price_definition}
         lines = tuple(f"- {key}: {ours[key]}" for key in keys)
+        room = claim_room(first, answer_tokens if answer_tokens is not None else public_answer_tokens(settings))
+    system = system_prompt(room, len(first))
     if slug in lexicon.categories:
-        return PromptCriteria(keys, lines, lexicon.label(slug), renames)
-    return PromptCriteria(keys, lines, _words(slug) if may_hold_their_words and slug else None, renames)
+        return PromptCriteria(keys, lines, lexicon.label(slug), renames, first, room, system)
+    label = _words(slug) if may_hold_their_words and slug else None
+    return PromptCriteria(keys, lines, label, renames, first, room, system)
 
 
 def source_text(source: Source) -> str:

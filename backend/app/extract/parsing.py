@@ -134,7 +134,16 @@ def to_extraction_result(
     now: datetime,
     domains: Mapping[str, SourceTier] | None = None,
     category: str = "",
+    room: int | None = None,
+    first: Sequence[str] = (),
+    others: int | None = None,
 ) -> ExtractionResult:
+    """The claims and mentions code can stand behind.
+
+    With a `room` (a public call asked for the price or rule keys, S4-1), an answer past it is trimmed: the claims on
+    the `first` keys are kept first, in that order, then the rest in the model's order, at most `others` of them, so the
+    room above `others` stays for the price and rule keys. Only an answer past those limits loses claims: one that
+    arrived whole within them keeps them all. With no room, every claim code accepts is kept, as before."""
     parts = [source.text, *(comment.text for comment in source.comments)]
     lowered = _name_key(" ".join([source.title, *parts]))
     types = _product_types(raw, category)
@@ -164,6 +173,8 @@ def to_extraction_result(
             dropped[reason] += 1
             if item.criterion_key == PRICE_KEY:
                 price_dropped[reason] += 1
+    if room is not None:
+        claims = _within_room(claims, room, room if others is None else others, first, dropped, price_dropped)
     # The counts only: the text would repeat what the page or the model said.
     if dropped:
         log.info("extract: claims dropped from a %s source: %s", source.type.value, dict(dropped))
@@ -171,6 +182,34 @@ def to_extraction_result(
         log.info("extract: price claims dropped from a %s source: %s", source.type.value, dict(price_dropped))
     mentions = _mentions(raw, lowered, types, claims.values())
     return ExtractionResult(source_id=source.id, mentions=mentions, claims=list(claims.values()))
+
+
+def _within_room(
+    claims: Mapping[str, Claim],
+    room: int,
+    others: int,
+    first: Sequence[str],
+    dropped: Counter[str],
+    price_dropped: Counter[str],
+) -> dict[str, Claim]:
+    """The claims to keep (US-14, S4-1): those on the `first` keys first (in `first`'s order, then the model's), up to
+    `room`; then the rest in the model's order, at most `others` and never past `room`. Claims past those limits are
+    counted as dropped for "room", the price's own too, for the live funnel."""
+    order = {key: n for n, key in enumerate(first)}
+    asked_first = sorted(
+        (c for c in claims.values() if c.criterion_key in order), key=lambda c: order[c.criterion_key or ""]
+    )
+    rest = [c for c in claims.values() if c.criterion_key not in order]
+    kept_first = asked_first[:room]
+    kept_rest = rest[: max(0, min(others, room - len(kept_first)))]
+    gone = [*asked_first[room:], *rest[len(kept_rest) :]]
+    if not gone:
+        return dict(claims)  # within its limits: kept whole, in the model's own order
+    for claim in gone:
+        dropped["room"] += 1
+        if claim.criterion_key == PRICE_KEY:
+            price_dropped["room"] += 1
+    return {claim.id: claim for claim in [*kept_first, *kept_rest]}
 
 
 def _mentions(raw: RawExtraction, lowered: str, types: set[str], claims: Iterable[Claim]) -> list[ProductMention]:

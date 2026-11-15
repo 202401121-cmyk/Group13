@@ -41,7 +41,15 @@ from app.llm.pool import ATTEMPT_SHARE, CALL_MARGIN_S, time_limit_s
 from app.llm.usage import TokenMeter
 
 from .parsing import RawExtraction, to_extraction_result
-from .prompts import SYSTEM_PROMPT, PromptCriteria, SpecAsk, allowed_criteria, user_message
+from .prompts import (
+    BASE_CLAIMS,
+    EXTRA_CLAIMS,
+    SYSTEM_PROMPT,
+    PromptCriteria,
+    SpecAsk,
+    allowed_criteria,
+    user_message,
+)
 from .settings import ExtractSettings, load_extract_settings
 
 log = logging.getLogger(__name__)
@@ -165,7 +173,7 @@ class GuardedExtractStage:
             with meter.counting():
                 raw = self.llm.complete(
                     LLMTask.EXTRACT_CLAIMS,
-                    SYSTEM_PROMPT,
+                    criteria.system,  # SYSTEM_PROMPT, or its price-first variant for a public page (S4-1)
                     user,
                     RawExtraction,
                     data_class=source.data_class,
@@ -182,7 +190,17 @@ class GuardedExtractStage:
         finally:
             self._book_real_use(ctx.search_id, source, held, meter, failed)
         result = to_extraction_result(
-            raw, source, criteria.keys, self._now(), self.settings.domain_tiers, inp.category_label
+            raw,
+            source,
+            criteria.keys,
+            self._now(),
+            self.settings.domain_tiers,
+            inp.category_label,
+            # Only a call asked for keys first can be trimmed, and only past 15 claims, or past 10 that aren't on those
+            # keys: the 5 above the base are theirs. An answer that arrived whole within that keeps every claim.
+            room=BASE_CLAIMS + EXTRA_CLAIMS if criteria.first else None,
+            first=criteria.first,
+            others=BASE_CLAIMS,
         )
         return _under_own_keys(result, criteria)
 
