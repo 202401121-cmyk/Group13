@@ -154,6 +154,76 @@
         ],
         "recommender_count": 0,
         "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_nimbus_a1",
+        "name": "Nimbus A1",
+        "brand": "Nimbus",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_pella_r3",
+        "name": "Pella R3",
+        "brand": "Pella",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_drift_d4",
+        "name": "Drift D4",
+        "brand": "Drift",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_orla_e5",
+        "name": "Orla E5",
+        "brand": "Orla",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_halo_h2",
+        "name": "Halo H2",
+        "brand": "Halo",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_quanta_q1",
+        "name": "Quanta Q1",
+        "brand": "Quanta",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_rivo_r2",
+        "name": "Rivo R2",
+        "brand": "Rivo",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
       }
     ],
     "values": [
@@ -498,7 +568,7 @@
         "criterion_key": "price_inr",
         "state": "known",
         "score": null,
-        "value": 27999.0,
+        "value": "₹28k",
         "confidence": 0.8,
         "supporting_claim_ids": [
           "clm_6dc2b8efad8d"
@@ -570,7 +640,7 @@
         "criterion_key": "price_inr",
         "state": "known",
         "score": null,
-        "value": 25999.0,
+        "value": "26k",
         "confidence": 0.8,
         "supporting_claim_ids": [
           "clm_2177d06518d3"
@@ -682,6 +752,521 @@
           "clm_a8c1223f9d63"
         ],
         "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nimbus_a1",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1b3a20392d4c"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nimbus_a1",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_9706fe5be54f"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nimbus_a1",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_be70ce95306d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nimbus_a1",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_061c81337cde"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nimbus_a1",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_44c3890640f7"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_nimbus_a1",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": "Rs 1.2 lakh",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_da8dbbbe0343"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pella_r3",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1af9fa01b538"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pella_r3",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_4b1eafe04486"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pella_r3",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e8e8f3274490"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pella_r3",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_efd3ce25c0ad"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pella_r3",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_3ed8b625ff8a"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_pella_r3",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": "₹31k",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_90ee86027880"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_d4",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b4082e6fb3b5"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_d4",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f9cba9ea9fff"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_d4",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_72543c29d711"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_d4",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_29d1219aa0d3"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_d4",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1fe5242a6923"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_drift_d4",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": "₹24,999 off",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2bde3f34fab5"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orla_e5",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_852de1cab77a"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orla_e5",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_20a0490d10c8"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orla_e5",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_592cacbc85a2"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orla_e5",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1b0a733f9872"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orla_e5",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_d6f8d3b07971"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_orla_e5",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": "EMI ₹2,999/month",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_53845e0af8fb"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_halo_h2",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_c7bca798ad16"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_halo_h2",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_411bf8217c8d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_halo_h2",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b6d1da5f9cfd"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_halo_h2",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_4d02f3e8eee8"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_halo_h2",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_355e6252c77f"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_halo_h2",
+        "criterion_key": "price_inr",
+        "state": "disputed",
+        "score": null,
+        "value": "₹35k",
+        "confidence": 0.5,
+        "supporting_claim_ids": [
+          "clm_4340104a4b2c"
+        ],
+        "conflicting_claim_ids": [
+          "clm_0d607608fd79"
+        ],
+        "alternatives": [
+          {
+            "value": "₹28,999",
+            "unit": null,
+            "claim_ids": [
+              "clm_0d607608fd79"
+            ]
+          }
+        ]
+      },
+      {
+        "product_id": "prd_quanta_q1",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_199076ddb707"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quanta_q1",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2c34650f671d"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quanta_q1",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5d205067fa74"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quanta_q1",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1360be57f6d3"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quanta_q1",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_017ee15038e1"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_quanta_q1",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": "INR 1.1 lac",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_413bcbb2461e"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_rivo_r2",
+        "criterion_key": "camera_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_267fdc3de3ab"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_rivo_r2",
+        "criterion_key": "low_light",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_d025ee059899"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_rivo_r2",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_7de885bfc1a6"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_rivo_r2",
+        "criterion_key": "display_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_8706c367ce39"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_rivo_r2",
+        "criterion_key": "has_ois",
+        "state": "known",
+        "score": null,
+        "value": true,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_17cf0986168f"
+        ],
+        "conflicting_claim_ids": []
+      },
+      {
+        "product_id": "prd_rivo_r2",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": "MRP 32k",
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_157e7d115312"
+        ],
+        "conflicting_claim_ids": []
       }
     ],
     "community": [],
@@ -704,11 +1289,32 @@
       ],
       "prd_vista_p8": [
         "You ruled out curved display"
+      ],
+      "prd_nimbus_a1": [
+        "₹1,20,000 is above your ₹30,000 budget"
+      ],
+      "prd_pella_r3": [
+        "₹31,000 is above your ₹30,000 budget"
+      ],
+      "prd_quanta_q1": [
+        "₹1,10,000 is above your ₹30,000 budget"
+      ],
+      "prd_rivo_r2": [
+        "₹32,000 is above your ₹30,000 budget"
       ]
     },
     "cant_tell": {
       "prd_quill_m4": [
         "We couldn't find its OIS, so we can't check \"must have OIS\""
+      ],
+      "prd_drift_d4": [
+        "We couldn't find its price"
+      ],
+      "prd_orla_e5": [
+        "We couldn't find its price"
+      ],
+      "prd_halo_h2": [
+        "Sources disagree: ₹35,000 or ₹28,999"
       ]
     },
     "left_out": [],

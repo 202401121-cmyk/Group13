@@ -97,6 +97,22 @@ def _number(value: object, attribute: str) -> float:
     return float(match[1]) * _TO_BASE[match[2].lower()]
 
 
+# Prices as the briefs write them (US-17, DR-01): a bare number, or rupees with a mark and a scale word. Anything that
+# is not plainly a selling price (a discount, an EMI, a range) is no price, so the product can't be shown.
+_RUPEE_SCALE = {"": 1.0, "k": 1e3, "thousand": 1e3, "lakh": 1e5, "lakhs": 1e5, "lac": 1e5, "l": 1e5}
+_RUPEE_SCALE |= {"crore": 1e7, "cr": 1e7}
+_RUPEES = re.compile(r"\s*(?:₹|rs\.?|inr|mrp)?\s*(\d[\d,]*(?:\.\d+)?)\s*([a-z]*)\s*", re.IGNORECASE)
+
+
+def _rupees(value: object) -> float | None:
+    if isinstance(value, int | float) and not isinstance(value, bool):
+        return float(value)
+    match = _RUPEES.fullmatch(str(value))
+    if match is None or match[2].lower() not in _RUPEE_SCALE:
+        return None
+    return float(match[1].replace(",", "")) * _RUPEE_SCALE[match[2].lower()]
+
+
 def _truth(value: object) -> bool:
     if isinstance(value, bool):
         return value
@@ -111,12 +127,13 @@ def _breaks(inp: DecideInput, pid: str, values: dict[str, ResolvedValue]) -> lis
     budget = inp.rubric.budget
     if budget is not None:
         price = values.get("price_inr")
-        if price is None or price.state is not ValueState.KNOWN or not isinstance(price.value, int | float):
+        amount = _rupees(price.value) if price is not None and price.state is ValueState.KNOWN else None
+        if amount is None:
             broken.append("price unknown")
         else:
-            if budget.max is not None and price.value > budget.max.amount:
+            if budget.max is not None and amount > budget.max.amount:
                 broken.append("above the budget")
-            if budget.min is not None and price.value < budget.min.amount:
+            if budget.min is not None and amount < budget.min.amount:
                 broken.append("below the minimum")
     for rule in inp.rubric.hard_rules:
         if not rule.active:

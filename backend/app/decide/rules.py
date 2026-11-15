@@ -30,6 +30,7 @@ from .units import (
     money,
     number_text,
     quantity,
+    rupee_price,
     rupees,
     unit_key,
     unit_label,
@@ -154,13 +155,13 @@ def _budget_sides(budget: Budget, raws: Sequence[object]) -> Check:
     found: list[Literal["pass", "above", "below"] | None] = []
     shown: list[str] = []
     for raw in raws:
-        price = quantity(raw)
-        if price is None or price.unit not in (None, "inr"):
+        price = rupee_price(raw)
+        if price is None:
             found.append(None)
             shown.append(_value_text(raw, PRICE_KEY))
         else:
-            found.append(_against(budget, price.number))
-            shown.append(rupees(price.number))
+            found.append(_against(budget, price))
+            shown.append(rupees(price))
     named = either(shown)
     if all(f == "pass" for f in found):
         return Check(BUDGET, "pass", attribute=PRICE_KEY)
@@ -185,22 +186,18 @@ def check_budget(budget: Budget, value: ResolvedValue | None) -> Check:
         return unknown(f"We can't compare its price with a budget in {', '.join(sorted(currencies))}")
     if value is None or value.state not in _EVIDENCE:
         return unknown("We couldn't find its price")
-    price = quantity(value.value)
-    if price is None or price.unit not in (None, "inr"):
+    price = rupee_price(value.value)  # never smaller than its text: "₹25k" is ₹25,000, a discount is no price
+    if price is None:
         return unknown("We couldn't find its price")
     if value_disputed(value):
         raws = sides(value)
         if len(raws) > 1:
             return _budget_sides(budget, raws)
-        return unknown(f"Sources disagree on its price: one says {rupees(price.number)}")
-    if budget.max is not None and price.number > budget.max.amount:
-        return Check(
-            BUDGET, "fail", f"{rupees(price.number)} is above your {rupees(budget.max.amount)} budget", PRICE_KEY
-        )
-    if budget.min is not None and price.number < budget.min.amount:
-        return Check(
-            BUDGET, "fail", f"{rupees(price.number)} is below your {rupees(budget.min.amount)} minimum", PRICE_KEY
-        )
+        return unknown(f"Sources disagree on its price: one says {rupees(price)}")
+    if budget.max is not None and price > budget.max.amount:
+        return Check(BUDGET, "fail", f"{rupees(price)} is above your {rupees(budget.max.amount)} budget", PRICE_KEY)
+    if budget.min is not None and price < budget.min.amount:
+        return Check(BUDGET, "fail", f"{rupees(price)} is below your {rupees(budget.min.amount)} minimum", PRICE_KEY)
     return Check(BUDGET, "pass", attribute=PRICE_KEY)
 
 

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import math
 import re
+import unicodedata
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal
 
@@ -132,7 +133,7 @@ _ACRONYMS = frozenset(
     | {"ram", "sd", "ssd", "uhd", "usb", "va", "tn"}
 )
 
-_CURRENCY = r"(?P<currency>(?<![A-Za-z])(?:₹|rs\.?|inr|\$|usd))"
+_CURRENCY = r"(?P<currency>(?<![A-Za-z])(?:₹|rs\.?|inr|mrp|\$|usd))"
 # A whole number only: never the 7 of "i7", the 5 of "DDR5", or the 990 left after a comma or a point.
 _NUMBER = r"(?<![A-Za-z\d,.])(?:\d[\d,]*(?:\.\d+)?|\.\d+)"
 _ONE_NUMBER = re.compile(rf"^(?P<before>.*?){_CURRENCY}?\s*(?P<number>{_NUMBER})\s*(?P<after>.*)$", re.IGNORECASE)
@@ -141,6 +142,60 @@ _ANY_NUMBER = re.compile(_NUMBER)
 _GLUED_PRICE = re.compile(r"(?<![A-Za-z])(₹|rs\.?|inr|mrp|\$|usd)(?=\d)", re.IGNORECASE)
 _UNIT_WORD = re.compile(r'^(?:[A-Za-z]+|"|″|”)')
 _PAIRS = re.compile(r"(\d)(?=(\d{2})+$)")  # where Indian grouping puts its commas, two digits at a time
+
+# Money (US-17, DR-01): a price is never read smaller than its text means. Text is money when a mark stands next to
+# its number: ₹, Rs, Rs., INR, MRP, rupee(s), $ or USD, just before it, or just after it or its scale word. A mark
+# anywhere else ("RS-232 port") leaves the text as it was read before.
+_MONEY_MARK = re.compile(r"(?<![A-Za-z])(?:₹|rs\.?|inr|mrp|rupees?|\$|usd)(?![A-Za-z])", re.IGNORECASE)
+_DOTTED_MRP = re.compile(r"(?<![A-Za-z])m\.\s?r\.\s?p\.?", re.IGNORECASE)  # "M.R.P." is written MRP
+_LEADING_MARK = re.compile(r"^(?:₹|\$|[A-Za-z]+\.?)")  # the mark or word right after a number
+# How many rupees one of each scale word is (DECIDED 1, and the words intake reads in a budget). Read only in money,
+# or under the price's own key. Whole numbers, so 1.15 lakh is exactly ₹1,15,000.
+_SCALES: dict[str, int] = {
+    "k": 1_000,
+    "thousand": 1_000,
+    "thousands": 1_000,
+    "hazaar": 1_000,
+    "hazar": 1_000,
+    "hajar": 1_000,
+    "lakh": 100_000,
+    "lakhs": 100_000,
+    "lac": 100_000,
+    "lacs": 100_000,
+    "l": 100_000,
+    "crore": 10_000_000,
+    "crores": 10_000_000,
+    "cr": 10_000_000,
+    "crs": 10_000_000,
+}
+# Size words the list above doesn't name: never guessed, so the amount is Unknown rather than read too small.
+_UNSURE_SCALES = frozenset(
+    {"m", "mn", "mil", "million", "millions", "b", "bn", "bil", "billion", "billions", "tn", "trillion"}
+    | {"hundred", "hundreds", "grand"}
+)
+# Text that is not a selling price (DECIDED 2, 3), so it is no price at all:
+# - a discount, saving or offer: off, discount, cashback, coupon, exchange bonus, an "effective" price, money taken off;
+# - an EMI or an amount per period: per month, /mo, p.m., a month, yearly, p.a., per day;
+# - an estimate or a bound, which is a range with one end: around, approx., under, up to, from, onwards, "25k+".
+# A range with both ends has two numbers, so the reader already gives nothing for it.
+_NOT_A_PRICE = re.compile(
+    r"\b(?:off|discount|save|saving|savings|cashback|coupons?|rebate|bonus|exchange|effective|less"
+    r"|emis?|monthly|yearly|annually|weekly|daily|approx|approximately|around|about|roughly|nearly|expected"
+    r"|estimated|est|under|below|upto|within|max|maximum|min|minimum|onwards?|from|starting|starts)\b"
+    r"|\b(?:up\s+to|and\s+above|or\s+(?:more|less)|at\s+least|price\s+drop|bank\s+offers?|cash\s+back)\b"
+    r"|\ba\s+(?:month|year|week|day)\b|\bper[\s-]*(?:month|mo|mth|year|yr|annum|week|wk|day)\b"
+    r"|/\s*(?:month|mo|mth|m|year|yr|annum|week|wk|day)\b|\bp\.\s?[ma]\.|\bp[ma]\b|[~≈+]"
+    # money taken off: a minus at the start, glued to its amount, or after the mark ("-₹2,000", "₹-2,000"). A dash
+    # with spaces round it after a word ("Price - ₹24,999") only separates the two.
+    r"|^\s*[-−–—]|\(\s*[-−–—]|\s[-−–—](?:₹|rs\.?|inr)?\d|(?:₹|rs\.?|inr)\s*[-−–—]\s*\d",
+    re.IGNORECASE,
+)
+# Another currency anywhere in a price: never read as rupees (DECIDED 3).
+_OTHER_CURRENCY = re.compile(
+    r"(?<![A-Za-z])(?:usd|us\$|eur|euros?|gbp|pounds?|aed|dirhams?|sgd|aud|cad|jpy|yen|cny|yuan|sar|riyals?"
+    r"|dollars?|bucks)(?![A-Za-z])",
+    re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
@@ -202,7 +257,7 @@ def quantity(value: object) -> Quantity | None:
         return Quantity(number, None) if math.isfinite(number) else None
     if not isinstance(value, str):
         return None
-    text = _GLUED_PRICE.sub(r"\1 ", value.strip())
+    text = _GLUED_PRICE.sub(r"\1 ", _DOTTED_MRP.sub("MRP", value.strip()))
     if len(_ANY_NUMBER.findall(text)) != 1:
         return None
     match = _ONE_NUMBER.match(text)
@@ -215,11 +270,100 @@ def quantity(value: object) -> Quantity | None:
     if not math.isfinite(number):
         return None
     before, after = match["before"].strip(), match["after"].strip()
-    if match["currency"]:
-        return Quantity(number, unit_key(match["currency"]), plain=not before and not after.strip("/-"))
+    if match["currency"] or _mark_after(after) is not None:
+        glued = text[match.end("number") : match.end("number") + 1].isalpha()
+        return _money(text, number, _mark_unit(match["currency"]), before, after, glued)
     word = _UNIT_WORD.match(after)
     unit = word.group(0) if word else ""
     return Quantity(number, unit_key(unit), plain=not before and after == unit)
+
+
+def _is_mark(word: str) -> bool:
+    return bool(word) and (
+        _MONEY_MARK.fullmatch(word) is not None or _MONEY_MARK.fullmatch(word.rstrip(".")) is not None
+    )
+
+
+def _mark_unit(mark: str | None) -> str | None:
+    """Our unit for a money mark: MRP is rupees too ("inr"), "$" is "usd"."""
+    if not mark:
+        return None
+    return "inr" if mark.casefold().rstrip(".") == "mrp" else unit_key(mark)
+
+
+def _first(after: str) -> str:
+    """The mark or word right after a number: "₹", "$", "k", "Rs.", "lakh"; or "" for anything else."""
+    found = _LEADING_MARK.match(after)
+    return found.group(0) if found else ""
+
+
+def _mark_after(after: str) -> str | None:
+    """A money mark right after a number, or right after its scale word ("24,999 INR", "25k INR", "24,999₹")."""
+    word = _first(after)
+    if _is_mark(word):
+        return word
+    if word.casefold().rstrip(".") in _SCALES:
+        rest = _first(after[len(word) :].strip())
+        return rest if _is_mark(rest) else None
+    return None
+
+
+def _scaled(number: float, scale: int) -> float:
+    """number x scale, exactly as written: 1.15 lakh is 115000, never 114999.99999999999."""
+    return float(Decimal(repr(number)) * scale)
+
+
+def _money(text: str, number: float, unit: str | None, before: str, after: str, glued: bool) -> Quantity | None:
+    """An amount of money, or None when the text isn't surely a selling price (DECIDED 1 to 3). `unit` is the mark
+    before the number; a mark after it ("24,999 INR") counts the same. "₹25k" is ₹25,000. A size word the list
+    doesn't name, or a letter glued to the number that is no scale word ("₹2m"), makes it Unknown, never smaller."""
+    if _NOT_A_PRICE.search(text):
+        return None
+    word = _first(after)
+    scale = _SCALES.get(word.casefold().rstrip(".")) if word else None
+    if scale is not None:
+        number = _scaled(number, scale)
+        after = after[len(word) :].strip()
+        word = _first(after)
+    if _is_mark(word):
+        unit = unit or _mark_unit(word)
+        after = after[len(word) :].strip()
+    elif word.casefold().rstrip(".") in _UNSURE_SCALES or (glued and word and scale is None):
+        return None
+    if (scale is not None and unit not in (None, "inr")) or not math.isfinite(number):
+        return None  # only rupees are scaled: another currency's "k" is never guessed
+    return Quantity(number, unit, plain=not before and not after.strip("/-"))
+
+
+def _other_currency(text: str) -> bool:
+    """Does a price name a currency other than rupees, by its code, name or symbol ($, €, £...)?"""
+    return _OTHER_CURRENCY.search(text) is not None or any(
+        unicodedata.category(ch) == "Sc" and ch != "₹" for ch in text
+    )
+
+
+def rupee_price(value: object) -> float | None:
+    """A price_inr value as a selling price in rupees, or None (Unknown) when it isn't surely one (US-17, DR-01).
+
+    A bare number is rupees, as it always was; zero or less is no price. Text is read by quantity(): rupees, or no unit
+    at all. Under the price's own key a bare scale word is money too, so "25k" is ₹25,000 and "1.2 lakh" ₹1,20,000; any
+    other unit ("120k mAh") or currency ("$299", "€999") is Unknown. A discount, an EMI, a range, a bound or an
+    estimate is never a price.
+    """
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int | float):
+        number = float(value)
+        return number if math.isfinite(number) and number > 0 else None
+    if not isinstance(value, str) or _NOT_A_PRICE.search(value) or _other_currency(value):
+        return None
+    amount = quantity(value)
+    if amount is None or not math.isfinite(amount.number) or amount.number <= 0:
+        return None
+    if amount.unit in (None, "inr"):
+        return amount.number
+    scale = _SCALES.get(amount.unit) if amount.plain else None
+    return _scaled(amount.number, scale) if scale is not None else None
 
 
 def known_unit(unit: str | None) -> bool:
