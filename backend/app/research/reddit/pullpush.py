@@ -15,6 +15,7 @@ sort_type, link_id, ids), and replies are read leniently. Check them with `pytho
 
 from __future__ import annotations
 
+import random
 import time
 from collections.abc import Callable, Sequence
 from datetime import datetime
@@ -54,6 +55,7 @@ class PullPushSource(ArchiveSource):
         breaker: CircuitBreaker | None = None,
         now: Callable[[], datetime] = _utc_now,
         sleep: Callable[[float], None] = time.sleep,
+        rng: random.Random | None = None,
     ) -> None:
         super().__init__(
             http,
@@ -64,6 +66,7 @@ class PullPushSource(ArchiveSource):
             breaker=breaker if breaker is not None else CircuitBreaker(BREAKER_FAILURES, BREAKER_COOLDOWN_S),
             now=now,
             sleep=sleep,
+            rng=rng,
         )
 
     def listing_params(self, subreddit: str, query: str, after: datetime | None) -> dict[str, str | int]:

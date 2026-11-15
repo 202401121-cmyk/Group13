@@ -100,10 +100,12 @@ def test_public_extraction_goes_flash_lite_then_mistral_then_deepseek_then_groq_
             raise ServerError(self.provider, "HTTP 503")
 
     every = {name: Busy(name, journal=journal) for name in Provider}
-    client = WrapperLLMClient(config, dict(every), InMemoryCallLog(), limiters={})
+    no_wait = ModelPool(config.pool, sleep=lambda _: None)
+    client = WrapperLLMClient(config, dict(every), InMemoryCallLog(), limiters={}, pool=no_wait)
     with pytest.raises(LLMUnavailable):
         _public(client)
-    assert journal == [Provider.GEMINI, Provider.MISTRAL, Provider.DEEPSEEK, *[Provider.GROQ] * 3, Provider.OPENROUTER]
+    in_order = [Provider.GEMINI, Provider.MISTRAL, Provider.DEEPSEEK, *[Provider.GROQ] * 3, Provider.OPENROUTER]
+    assert journal == [p for p in in_order for _ in range(2)]  # each 503 is tried once more on its model (US-31)
     assert every[Provider.GEMINI].calls[0].model == "gemini-3.5-flash-lite"
 
 

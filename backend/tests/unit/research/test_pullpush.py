@@ -11,6 +11,7 @@ from app.db.breaker import CircuitBreaker
 from app.research.reddit import IntervalLimiter, PullPushSource
 from app.research.reddit.cache import RedditCache
 from tests.fakes.reddit import NOW, Archive, Clock, fixture, ok
+from tests.fakes.retry import NoJitter
 
 SUBMISSIONS = "/reddit/search/submission/"
 COMMENTS = "/reddit/search/comment/"
@@ -27,6 +28,7 @@ def _source(archive: Archive, clock: Clock | None = None) -> PullPushSource:
         breaker=CircuitBreaker(3, 30, clock=clock),
         now=lambda: NOW,
         sleep=clock.sleep,
+        rng=NoJitter(),  # the retry's jitter (US-31) at its shortest, so each wait below is exact
     )
 
 
@@ -120,7 +122,7 @@ def test_the_short_breaker_pauses_for_30_seconds() -> None:
     source = _source(archive, clock)
     for _ in range(4):
         source.search_threads("laptop", ["laptops"])
-    assert len(archive.requests) == 3
+    assert len(archive.requests) == 6  # three failures, each a 522 and its one retry (US-31); then paused
     clock.now += 31
     source.search_threads("laptop", ["laptops"])
-    assert len(archive.requests) == 4  # one trial after the pause
+    assert len(archive.requests) == 8  # one trial after the pause, and its one retry

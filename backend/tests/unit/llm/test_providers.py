@@ -12,6 +12,7 @@ import pytest
 from app.contracts import Provider
 from app.llm.errors import (
     AuthFailed,
+    ConnectionFailed,
     ModelForbidden,
     ModelNotFound,
     ModelRetired,
@@ -133,7 +134,7 @@ FAILURES: list[tuple[str, Handler, type[ProviderFailure], str]] = [
     ("402", lambda r: httpx.Response(402, json={"message": "payment required"}), NoCredit, "error"),
     ("400", lambda r: httpx.Response(400, text="bad request"), ProviderError, "error"),
     ("timeout", _raise_timeout, ProviderTimeout, "timeout"),
-    ("network", _raise_connect, ProviderError, "error"),
+    ("network", _raise_connect, ConnectionFailed, "error"),  # US-31: retried once, as a 5xx is
     ("not json", lambda r: httpx.Response(200, text="<html>oops</html>"), ProviderError, "error"),
     ("no choices", lambda r: httpx.Response(200, json={"id": "x"}), ProviderError, "error"),
     ("null content", lambda r: httpx.Response(200, json=_completion(None)), ProviderError, "error"),

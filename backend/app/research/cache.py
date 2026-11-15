@@ -13,8 +13,11 @@ app/research/reddit/cache.py), and a folder that can't keeps the full 24 hours:
 - reddit_pages/  serve_limit()  Reddit threads read through Firecrawl (US-38).
 - sources/       24 hours       Review pages read in full. pages.py never fetches reddit.com (NEVER_FETCH).
 - text/          24 hours       robots.txt files.
+- sites/         24 hours       Each site's failure score, and when it is skipped until (US-31, sites.py). Hosts and
+                                numbers only: no page text.
 
-Each entry goes to its folder by its key: a page is ("page", url) and a robots file ("robots", host); any other key is
+Each entry goes to its folder by its key: a page is ("page", url), a robots file ("robots", host) and a site's score
+("site", host); any other key is
 taken as part of a search, so a new kind of entry gets the shorter limit until it is placed here. Sources go through
 RedditCache's code, which does the same job. Only complete answers are cached, never a failure, and a failed write
 never stops a search (build rule 10). What is cached is what we chose to keep: a search result pointing at Reddit keeps
@@ -45,6 +48,7 @@ SEARCHES = "searches"  # a search's results, kept with its Reddit titles and lin
 SEARCH_TEXT = "search_text"  # the titles and links of a search's results on reddit.com: serve_limit()
 PAGES = "sources"  # review pages read in full: 24 hours
 ROBOTS = "text"  # robots.txt files: 24 hours
+SITES = "sites"  # each site's failure score (US-31): 24 hours
 
 
 def _is_page(key: CacheKey) -> bool:
@@ -53,6 +57,10 @@ def _is_page(key: CacheKey) -> bool:
 
 def _is_robots(key: CacheKey) -> bool:
     return len(key) > 0 and key[0] == "robots"
+
+
+def _is_site(key: CacheKey) -> bool:
+    return len(key) > 0 and key[0] == "site"
 
 
 def _utc_now() -> datetime:
@@ -75,7 +83,7 @@ def sweep_expired_files(
     delete_expired(reddit_folder, serve_limit(), now)
     for name in (REDDIT_PAGES, SEARCHES, SEARCH_TEXT):
         delete_expired(folder / name, serve_limit(), now)
-    for name in (PAGES, ROBOTS):
+    for name in (PAGES, ROBOTS, SITES):
         delete_expired(folder / name, DEFAULT_TTL, now)
 
 
@@ -100,7 +108,7 @@ class ResearchCache:
         self._lock = threading.Lock()
         self._text: dict[str, tuple[datetime, str]] = {}
         if folder is not None:  # switched off or not: Reddit text lives here, and goes in time (D-53)
-            for name in (PAGES, ROBOTS):
+            for name in (PAGES, ROBOTS, SITES):
                 delete_expired(folder / name, ttl, now)
             for name in (REDDIT_PAGES, SEARCHES, SEARCH_TEXT):
                 delete_expired(folder / name, self.reddit_ttl, now)
@@ -109,7 +117,10 @@ class ResearchCache:
         return self._pages if _is_page(key) else self._searches
 
     def _text_place(self, key: CacheKey) -> tuple[str, timedelta]:
-        """A robots file keeps 24 hours; any other text is a search's Reddit titles or links, so Reddit's limit."""
+        """A robots file and a site's score keep 24 hours; any other text is a search's Reddit titles or links, so
+        Reddit's limit."""
+        if _is_site(key):
+            return SITES, self.ttl
         return (ROBOTS, self.ttl) if _is_robots(key) else (SEARCH_TEXT, self.reddit_ttl)
 
     def get_sources(self, key: CacheKey) -> tuple[Source, ...] | None:
@@ -132,11 +143,14 @@ class ResearchCache:
             return None
         name = _name(key)
         place, ttl = self._text_place(key)
+        # A site's score is shared by every search in the process (US-31): read from its file each time, never from
+        # this search's own copy, which another search may have changed since.
+        fresh = _is_site(key) and self.folder is not None
         with self._lock:
-            hit = self._text.get(name)
+            hit = None if fresh else self._text.get(name)
         if hit is None:
             hit = self._read_text(place, name)
-            if hit is not None:
+            if hit is not None and not fresh:
                 with self._lock:
                     self._text[name] = hit
         if hit is None or self._now() - hit[0] >= ttl:

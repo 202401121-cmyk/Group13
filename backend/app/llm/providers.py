@@ -21,6 +21,7 @@ from app.contracts import Provider
 
 from .errors import (
     AuthFailed,
+    ConnectionFailed,
     ModelForbidden,
     ModelNotFound,
     ModelRetired,
@@ -187,6 +188,8 @@ class OpenAICompatibleAdapter:
                 body = self._read_before(response, deadline, timeout_s)
         except httpx.TimeoutException:
             raise ProviderTimeout(self.provider, f"no reply within {timeout_s:g}s") from None
+        except (httpx.NetworkError, httpx.RemoteProtocolError) as exc:
+            raise ConnectionFailed(self.provider, f"request failed ({type(exc).__name__})") from None
         except httpx.HTTPError as exc:
             raise ProviderError(self.provider, f"request failed ({type(exc).__name__})") from None
 

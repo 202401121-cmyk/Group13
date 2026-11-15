@@ -28,6 +28,7 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from functools import partial
 from time import monotonic
 from typing import Literal
 from urllib.parse import urljoin
@@ -37,15 +38,18 @@ from pydantic import ValidationError
 
 from app.contracts import Source, SourceFailure, SourceType
 from app.contracts.research import DEFAULT_TIER, MAX_SOURCE_CHARS
+from app.llm.retry import RetryClock
 
 from .cache import ResearchCache
 from .cleaning import clean_html, decode_page
 from .readers import FIRECRAWL, FirecrawlClient, JinaReader, ReaderText, reader_failure
 from .reddit.base import FailureReason, IntervalLimiter
 from .reddit.settings import archive_user_agent
+from .retrying import kind_of, send_tracked
 from .robots import RobotsRules
 from .serper import host_is_under, host_of
 from .settings import ResearchSettings, maker_domains_of
+from .sites import SiteMemory, SiteOutcome, site_of
 from .usage import SearchUsage
 
 log = logging.getLogger(__name__)
@@ -86,8 +90,18 @@ _TYPES: dict[Kind, SourceType] = {
     "store": SourceType.RETAILER,
 }
 # What a plain fetch can end with besides a page. "refused" (HTTP 403) is often a bot check, so a reader may try.
-_Plain = httpx.Response | FailureReason | Literal["refused"]
-_FOR_READERS = ("error", "timeout", "rate_limited")  # and "refused", not HTML or too thin
+# A plain fetch's reply, or why it failed. "refused" is a 403, "down" a 5xx or a broken connection (US-31: the site's
+# own failure, which its memory counts), both after the one retry.
+_Plain = httpx.Response | FailureReason | Literal["refused", "down"]
+_FOR_READERS = ("error", "timeout", "rate_limited", "down")  # and "refused", not HTML or too thin
+# What a failed plain fetch says about its site (sites.py). Not found, or a reply we couldn't use, says nothing.
+_SITE_OUTCOMES: dict[str, SiteOutcome] = {
+    "blocked": "blocked",
+    "refused": "blocked",
+    "rate_limited": "rate_limited",
+    "timeout": "failed",
+    "down": "failed",
+}
 
 
 def _utc_now() -> datetime:
@@ -159,6 +173,8 @@ class _Attempt:
 
     result: PageResult
     reader_url: str | None = None
+    site: SiteOutcome | None = None  # what the site itself did, for its memory (US-31)
+    site_url: str | None = None  # the page whose site that was: after a redirect, the one it landed on
 
 
 class ReviewPages:
@@ -172,6 +188,8 @@ class ReviewPages:
         now: Callable[[], datetime] = _utc_now,
         clock: Callable[[], float] = monotonic,
         sleep: Callable[[float], None] = time.sleep,
+        retry: RetryClock | None = None,
+        sites: SiteMemory | None = None,
     ) -> None:
         self.http = http
         self.settings = settings
@@ -180,6 +198,11 @@ class ReviewPages:
         self._now = now
         self._clock = clock
         self._sleep = sleep
+        self.retry = retry if retry is not None else RetryClock(sleep=sleep)  # the one retry (US-31)
+        self.sites = sites if sites is not None else SiteMemory(cache, now)  # sites that keep failing (US-31)
+        # Hosts whose robots.txt could not be read this search, and what that says about the site (None: nothing).
+        self._robots_trouble: dict[str, SiteOutcome | None] = {}
+        self._robots_counted: set[str] = set()  # hosts whose robots answer was counted this search: once a search
         self._headers = {"User-Agent": archive_user_agent(), "Accept": "text/html,application/xhtml+xml"}
         self._lock = threading.Lock()
         self._limiters: dict[str, IntervalLimiter] = {}
@@ -193,6 +216,12 @@ class ReviewPages:
         """The configured site this URL is on, or None."""
         found = self.kind_of(url)
         return found[0] if found is not None else None
+
+    def skipped_site(self, url: str) -> str | None:
+        """This page's site, if the site is being skipped for 24 hours (US-31) and the page isn't cached; else None."""
+        if not self.sites.skipped(url) or self.cache.get_sources(("page", url)):
+            return None
+        return site_of(url)
 
     def fetch(self, url: str, usage: SearchUsage) -> PageResult:
         found = self.kind_of(url)
@@ -209,6 +238,9 @@ class ReviewPages:
             result = self._read_through(attempt.reader_url, *landed, usage, plain=result)
         if result.source is not None:
             self.cache.put_sources(("page", url), [result.source])
+            self.sites.record(url, "ok")  # read, by any route: the site works
+        elif attempt.site is not None:
+            self.sites.record(attempt.site_url or url, attempt.site)  # the site's own reply; never a reader's
         return result
 
     def read_reddit(self, url: str, usage: SearchUsage) -> PageResult:
@@ -227,7 +259,7 @@ class ReviewPages:
             return PageResult(source=cached[0], from_cache=True)
         problem = self._may_fetch(url, "reddit.com", usage, _reddit_site)
         if problem is not None:
-            return PageResult(reason=problem)
+            return PageResult(reason=problem[0])
         read = firecrawl.scrape(url, usage, keep_in_their_cache=False, before_cleaning=without_profile_links)
         if not isinstance(read, ReaderText):
             reason, detail = read
@@ -279,16 +311,20 @@ class ReviewPages:
                 return _Attempt(PageResult(reason="blocked"))
             domain = found[0]
             problem = self._may_fetch(current, domain, usage, self.domain_of)
-            if problem is not None:
-                return _Attempt(PageResult(reason=problem))  # robots said no, or its cap: never a reader
+            if problem is not None:  # robots said no, or its cap: never a reader
+                return _Attempt(PageResult(reason=problem[0]), site=problem[1], site_url=current)
             if not usage.take("pages"):
                 return _Attempt(PageResult(reason="quota_exhausted"))
-            outcome = self._get(current, domain)
+            outcome, retried = self._get(current, domain, usage)
             if isinstance(outcome, str):
+                # A 5xx, a timeout or a broken connection counts only if it failed again on its retry (US-31).
+                repeated = retried or outcome not in ("timeout", "down")
+                site = _SITE_OUTCOMES.get(outcome) if repeated else None
                 if outcome == "refused":
-                    return _Attempt(PageResult(reason="blocked"), current)
+                    return _Attempt(PageResult(reason="blocked"), current, site=site, site_url=current)
+                reason: FailureReason = "error" if outcome == "down" else outcome
                 reader_url = current if outcome in _FOR_READERS else None
-                return _Attempt(PageResult(reason=outcome), reader_url)
+                return _Attempt(PageResult(reason=reason), reader_url, site=site, site_url=current)
             if outcome.is_redirect:
                 location = outcome.headers.get("location")
                 outcome.close()
@@ -304,18 +340,29 @@ class ReviewPages:
 
     def _may_fetch(
         self, url: str, domain: str, usage: SearchUsage, site_of: Callable[[str], str | None]
-    ) -> FailureReason | None:
+    ) -> tuple[FailureReason, SiteOutcome | None] | None:
+        """Why this page may not be fetched, and what that says about its site (US-31); None if it may be."""
         host = host_of(url) or ""
         rules = self._robots_for(url, host, domain, usage, site_of)
         if rules is None:
-            return "quota_exhausted"
+            return "quota_exhausted", None
         if not rules.allowed(httpx.URL(url).raw_path.decode("ascii", errors="replace")):
             log.info("research: robots.txt disallows a page on %s", host)
-            return "blocked"
+            # A robots file that couldn't be read counts as what went wrong reading it; a real "no" is a block.
+            site = self._robots_trouble.get(host, "blocked")  # a stored None stays None: it says nothing
+            return "blocked", self._once_a_search(host, site)
         if rules.crawl_delay > self.settings.max_crawl_delay_s:
             log.info("research: %s asks for a longer crawl delay than we allow", host)
-            return "blocked"
+            return "blocked", self._once_a_search(host, "blocked")
         return None
+
+    def _once_a_search(self, host: str, site: SiteOutcome | None) -> SiteOutcome | None:
+        """A robots answer is one answer for the whole site: it counts once a search, however many pages it stops."""
+        with self._lock:
+            if site is None or host in self._robots_counted:
+                return None
+            self._robots_counted.add(host)
+            return site
 
     def _robots_for(
         self, url: str, host: str, domain: str, usage: SearchUsage, site_of: Callable[[str], str | None]
@@ -337,6 +384,9 @@ class ReviewPages:
                 if read is None:
                     return None
                 text, keep = read
+                if text == _DISALLOW_ALL and not keep:
+                    with self._lock:  # unread, and nothing more is known: it says nothing about the site
+                        self._robots_trouble.setdefault(host, None)
                 if keep:
                     self.cache.put_text(("robots", host), text)
             rules = RobotsRules(text, ROBOTS_AGENT)
@@ -350,6 +400,7 @@ class ReviewPages:
         self, url: str, usage: SearchUsage, site_of: Callable[[str], str | None]
     ) -> tuple[str, bool] | None:
         """(the rules, whether to keep them for 24 hours). None if the page cap stops us reading them."""
+        host = host_of(url) or ""
         current = str(httpx.URL(url).copy_with(path="/robots.txt", query=None, fragment=None))
         for _ in range(MAX_REDIRECTS + 1):
             domain = site_of(current)
@@ -357,14 +408,28 @@ class ReviewPages:
                 return _DISALLOW_ALL, False  # sent off the configured sites, so we can't say
             if not usage.take("pages"):
                 return None
-            self._limiter(domain).wait()
             try:  # httpx reads a redirect's host as it replies, and a bad one raises a ValueError
-                request = self.http.build_request("GET", current, headers=self._headers, timeout=TIMEOUT_S)
-                response = self.http.send(request, stream=True, follow_redirects=False)
-            except (httpx.HTTPError, httpx.InvalidURL, ValueError) as exc:
+                outcome, retried = send_tracked(
+                    partial(self._send_get, current, domain),
+                    self.retry,
+                    MAX_FETCH_S,
+                    lambda: usage.take("pages"),  # a retry is a request like any other
+                    "robots.txt",
+                )
+            except (httpx.InvalidURL, ValueError) as exc:
                 log.info("research: robots.txt could not be read (%s)", type(exc).__name__)
+                return _DISALLOW_ALL, False
+            if isinstance(outcome, httpx.HTTPError):
+                log.info("research: robots.txt could not be read (%s)", type(outcome).__name__)
+                if retried and kind_of(outcome) in ("timeout", "connection"):
+                    with self._lock:
+                        self._robots_trouble[host] = "failed"  # it failed again on its retry
                 return _DISALLOW_ALL, False  # unreachable: no for now, and asked again next time
+            response = outcome
             if not response.is_redirect:
+                if response.status_code == 429 or (response.status_code >= 500 and retried):
+                    with self._lock:
+                        self._robots_trouble[host] = "rate_limited" if response.status_code == 429 else "failed"
                 return self._robots_answer(response)
             location = response.headers.get("location")
             response.close()
@@ -400,16 +465,34 @@ class ReviewPages:
                 limiter = self._limiters[domain] = _shared_page_limiter(domain, interval, self._clock, self._sleep)
             return limiter
 
-    def _get(self, url: str, domain: str) -> _Plain:
+    def _send_get(self, url: str, domain: str) -> httpx.Response:
+        """One GET, paced for its site and streamed, with no redirect followed."""
         self._limiter(domain).wait()
+        request = self.http.build_request("GET", url, headers=self._headers, timeout=TIMEOUT_S)
+        return self.http.send(request, stream=True, follow_redirects=False)
+
+    def _get(self, url: str, domain: str, usage: SearchUsage) -> tuple[_Plain, bool]:
+        """The plain fetch's reply or why it failed, and whether its one retry was sent (US-31)."""
         try:  # httpx reads a redirect's host as it replies, and a bad one raises a ValueError
-            request = self.http.build_request("GET", url, headers=self._headers, timeout=TIMEOUT_S)
-            response = self.http.send(request, stream=True, follow_redirects=False)
-        except httpx.TimeoutException:
-            return "timeout"
-        except (httpx.HTTPError, httpx.InvalidURL, ValueError) as exc:
+            outcome, retried = send_tracked(
+                lambda: self._send_get(url, domain),
+                self.retry,
+                MAX_FETCH_S,
+                lambda: usage.take("pages"),  # a retry is a page fetch like any other
+                "page",
+            )
+        except (httpx.InvalidURL, ValueError) as exc:
             log.info("research: a page fetch failed (%s)", type(exc).__name__)
-            return "error"
+            return "error", False
+        return self._plain(outcome), retried
+
+    def _plain(self, outcome: httpx.Response | httpx.HTTPError) -> _Plain:
+        if isinstance(outcome, httpx.TimeoutException):
+            return "timeout"
+        if isinstance(outcome, httpx.HTTPError):
+            log.info("research: a page fetch failed (%s)", type(outcome).__name__)
+            return "down" if kind_of(outcome) == "connection" else "error"
+        response = outcome
         status = response.status_code
         if response.is_redirect:
             return response
@@ -424,6 +507,8 @@ class ReviewPages:
             return "rate_limited"
         if status in (404, 410):
             return "not_found"
+        if status >= 500:
+            return "down"
         return "error"
 
     def _page(self, url: str, domain: str, kind: Kind, response: httpx.Response) -> _Attempt:

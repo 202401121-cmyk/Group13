@@ -29,6 +29,7 @@ from app.llm import InMemoryCallLog, WrapperLLMClient, load_llm_config
 from app.llm.config import DEFAULT_CONFIG_PATH, LLMConfig, LLMConfigError
 from app.llm.errors import ServerError
 from app.llm.output import build_system_prompt
+from app.llm.pool import ModelPool
 from app.llm.providers import Adapter
 from tests.fakes.llm import FakeAdapter
 
@@ -55,7 +56,9 @@ class Answer(BaseModel):
 
 def _client(adapters: dict[Provider, FakeAdapter], config: LLMConfig | None = None) -> WrapperLLMClient:
     typed: dict[Provider, Adapter] = dict(adapters)
-    return WrapperLLMClient(config or load_llm_config(), typed, InMemoryCallLog(), limiters={})
+    chosen = config or load_llm_config()
+    no_wait = ModelPool(chosen.pool, sleep=lambda _: None)  # no real wait before a retry (US-31)
+    return WrapperLLMClient(chosen, typed, InMemoryCallLog(), limiters={}, pool=no_wait)
 
 
 def _records(client: WrapperLLMClient) -> list[tuple[Provider, str]]:
@@ -135,7 +138,7 @@ def test_even_a_bad_route_cannot_send_private_text_to_a_training_provider(data_c
             LLMTask.DISCOVER_ALIASES, "s", "my words", Answer, data_class=data_class, difficulty=Difficulty.SHORT
         )
     assert all(a.calls == [] for a in trainers.values())
-    assert _records(client) == [(G, "error")] * 3
+    assert _records(client) == [(G, "error")] * 6  # each of Groq's 3 models, and its one retry after a 5xx (US-31)
 
 
 @pytest.mark.parametrize(
@@ -189,7 +192,7 @@ def test_intake_sends_the_shoppers_words_only_to_non_training_providers() -> Non
     client = _client(adapters)
     intent = IntakeStage(client).run(IntakeInput(raw_query="gaming laptop under 80k for my bad back"), CTX)
     assert intent.detected_by == "rules"  # every allowed provider failed, so the keyword rules answered
-    assert [r[0] for r in _records(client)] == [G, G, G]
+    assert [r[0] for r in _records(client)] == [G] * 6  # Groq's 3 models, each retried once after a 5xx
     assert all(adapters[p].calls == [] for p in TRAINING)
 
 

@@ -20,6 +20,7 @@ from app.research.settings import ProviderCap
 from app.research.threads import CountingBudget
 from app.research.usage import UsageBook
 from tests.fakes.reddit import NOW, Archive, Clock, fixture, ok
+from tests.fakes.retry import NoJitter
 
 POSTS = "/api/posts/search"
 COMMENTS = "/api/comments/search"
@@ -46,6 +47,7 @@ def _source(
         breaker=breaker or CircuitBreaker(3, 600, clock=clock),
         now=lambda: NOW,
         sleep=clock.sleep,
+        rng=NoJitter(),  # the retry's jitter (US-31) at its shortest, so each wait below is exact
     )
 
 
@@ -320,9 +322,7 @@ def test_a_422_also_ends_a_half_open_trial() -> None:
     clock = Clock()
     archive = Archive().on(
         POSTS,
-        httpx.Response(503),
-        httpx.Response(503),
-        httpx.Response(503),
+        *[httpx.Response(503)] * 6,  # three searches, each a 503 and its one retry (US-31)
         _slow_down(),
         _slow_down(),
         ok({"data": []}),
@@ -347,9 +347,10 @@ def test_a_429_twice_still_counts_toward_the_pause() -> None:
 
 
 def test_a_422_with_enough_time_left_does_wait() -> None:
+    """The wait (5 s) and a whole request (10 s) both fit, so it waits and retries (US-31)."""
     clock = Clock()
     archive = Archive().on(POSTS, _slow_down(), ok(fixture("arctic_shift_posts.json")))
-    budget = _timed_budget(6.0)
+    budget = _timed_budget(15.0)
     _source(archive, clock=clock).search_threads("laptop", ["SuggestALaptop"], budget=budget)
     assert 5.0 in clock.slept
 
@@ -378,11 +379,25 @@ def test_a_reset_longer_than_30_seconds_is_not_waited_for() -> None:
     assert result.failure is not None and result.failure.reason == "rate_limited"
 
 
-def test_a_rate_limit_without_a_reset_header_waits_briefly() -> None:
+def test_a_rate_limit_without_a_reset_header_is_not_retried() -> None:
+    """US-31: a rate limit is retried only after the wait it names. One that names none moves on at once."""
     clock = Clock()
     archive = Archive().on(POSTS, httpx.Response(422), ok({"data": []}))
-    _source(archive, clock=clock).search_threads("laptop", ["laptops"])
-    assert 2.0 in clock.slept
+    found = _source(archive, clock=clock).search_threads("laptop", ["laptops"])
+    assert len(archive.requests) == 1
+    assert clock.slept == [] or max(clock.slept) <= 1.0  # only the limiter's pacing, never a retry's wait
+    assert found.failure is not None and found.failure.reason == "rate_limited"
+
+
+def test_a_rate_limit_whose_retry_cannot_be_paid_for_still_says_the_archive_is_up() -> None:
+    """A 422 is Arctic Shift's "slow down": it is up. With no request left for the retry, that is still so."""
+    clock = Clock()
+    archive = Archive().on(POSTS, _slow_down(), ok({"data": []}))
+    source = _source(archive, clock=clock)
+    found = source.search_threads("laptop", ["laptops"], budget=RequestBudget(1))
+    assert found.failure is not None and found.failure.reason == "rate_limited"
+    assert len(archive.requests) == 1
+    assert source.breaker.state == "closed"
 
 
 def test_requests_are_at_least_a_second_apart() -> None:
@@ -403,12 +418,12 @@ def test_the_shared_limiter_is_one_per_process() -> None:
 
 def test_three_failures_pause_arctic_shift_then_one_trial_request() -> None:
     clock = Clock()
-    archive = Archive().on(POSTS, httpx.Response(503), httpx.Response(503), httpx.Response(503), ok({"data": []}))
+    archive = Archive().on(POSTS, *[httpx.Response(503)] * 6, ok({"data": []}))
     source = _source(archive, clock=clock)
     for _ in range(3):
         source.search_threads("laptop", ["laptops"])
     paused = source.search_threads("laptop", ["laptops"])
-    assert len(archive.requests) == 3  # the fourth search sent nothing
+    assert len(archive.requests) == 6  # each 503 and its one retry (US-31); the fourth search sent nothing
     assert paused.failure is not None and paused.failure.detail == "Arctic Shift is paused after repeated failures"
     clock.now += 601
     assert source.search_threads("laptop", ["laptops"]).failure is None  # the trial works: back to normal
@@ -467,7 +482,7 @@ def test_a_broken_cache_file_is_ignored(tmp_path: Path) -> None:
 
 
 def test_failures_are_never_cached() -> None:
-    archive = Archive().on(POSTS, httpx.Response(500), ok(fixture("arctic_shift_posts.json")))
+    archive = Archive().on(POSTS, httpx.Response(500), httpx.Response(500), ok(fixture("arctic_shift_posts.json")))
     source = _source(archive)
     assert source.search_threads("laptop", ["SuggestALaptop"]).failure is not None
     assert source.search_threads("laptop", ["SuggestALaptop"]).failure is None

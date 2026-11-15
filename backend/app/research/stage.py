@@ -39,6 +39,7 @@ from app.contracts import (
     StageName,
     examples,
 )
+from app.llm.retry import RetryClock
 
 from .cache import ResearchCache, sweep_expired_files
 from .capping import cap_source
@@ -53,6 +54,7 @@ from .reddit.quality import ThreadScore
 from .reddit.settings import load_reddit_settings
 from .serper import SerperResult, SerperSource, shared_limiter, url_key
 from .settings import ResearchSettings, load_research_settings
+from .sites import skipped_detail
 from .threads import CountingBudget, ThreadProgress, find_threads, read_comments
 from .usage import SearchUsage, UsageBook
 
@@ -187,18 +189,20 @@ class LiveResearchStage:
         wiring.client = client
         if client is not None:
             cache = ResearchCache(enabled=settings.cache_on)
+            retry = wiring.retry = RetryClock()
             load_dotenv()
             # The page readers (US-38). Jina works without a key; Firecrawl needs one, and without it is simply absent.
             jina_key = os.environ.get("JINA_API_KEY", "").strip() or None
             firecrawl_key = os.environ.get("FIRECRAWL_API_KEY", "").strip() or None
-            firecrawl = FirecrawlClient(client, firecrawl_key, cache=cache) if firecrawl_key else None
+            firecrawl = FirecrawlClient(client, firecrawl_key, cache=cache, retry=retry) if firecrawl_key else None
             if self.serper is None:
                 key = os.environ.get("SERPER_API_KEY", "").strip() or None
-                serper = SerperSource(client, key, cache=cache, limiter=shared_limiter(settings.serper_interval_s))
+                limiter = shared_limiter(settings.serper_interval_s)
+                serper = SerperSource(client, key, cache=cache, limiter=limiter, retry=retry)
                 wiring.serper = SearchWithBackup(serper, firecrawl) if firecrawl is not None else serper
             if self.pages is None:
-                readers = PageReaders(jina=JinaReader(client, jina_key), firecrawl=firecrawl)
-                wiring.pages = ReviewPages(client, settings, cache=cache, readers=readers)
+                readers = PageReaders(jina=JinaReader(client, jina_key, retry=retry), firecrawl=firecrawl)
+                wiring.pages = ReviewPages(client, settings, cache=cache, readers=readers, retry=retry)
         if isinstance(self.reddit, _Unset):
             try:
                 wiring.reddit = build_reddit_source(load_reddit_settings(), http=client)
@@ -223,6 +227,7 @@ class _Wiring:
     pages_problem: FailureReason | None = None
     reddit_problem: FailureReason | None = None
     client: httpx.Client | None = None  # built for this search, so closed after it
+    retry: RetryClock | None = None  # the sources' one retry (US-31): told this search's time left once it starts
 
 
 @dataclass
@@ -258,6 +263,8 @@ class _Job:
         self.comparison: SearchQuery | None = None
         self.deadline_s = min(settings.deadline_s, max(0.0, ctx.seconds_left - DEADLINE_MARGIN_S))
         self.fetches = FetchRun(pool, self.deadline_s)
+        if wiring.retry is not None:  # a retry must fit before this search's deadline (US-31)
+            wiring.retry.time_left = self.fetches.time_left
         self.threads = ThreadProgress()
         self.web: dict[str, tuple[int, int, Source]] = {}  # url_key -> (query number, rank in its reply, source)
         self.review: dict[str, tuple[int, int, Source]] = {}
@@ -277,6 +284,7 @@ class _Job:
         self.problems: dict[SourceType, list[FailureReason]] = {}
         self.page_failures: list[FailureReason] = []
         self.links_tried: set[str] = set()
+        self.skipped_sites: set[str] = set()  # sites skipped for 24 hours after they kept failing (US-31)
         self.timing = _Timing()
         self.started = monotonic()
         self.total_seconds = 0.0
@@ -437,6 +445,11 @@ class _Job:
         key = url_key(url)
         if pages is None or found is None or key in self.links_tried or not self.settings.pages_on:
             return
+        skipped = getattr(pages, "skipped_site", None)
+        site = skipped(url) if skipped is not None else None
+        if site is not None:  # it kept failing: no request, no cap and no thread for it for 24 hours (US-31)
+            self.skipped_sites.add(site)
+            return
         domain, kind = found
         if len(self.links_tried) >= self.settings.max_review_pages:
             return
@@ -518,6 +531,8 @@ class _Job:
             return [*problems, *self.page_failures]
         if not self.settings.pages_on:
             return ["blocked"]
+        if self.skipped_sites:
+            return []  # every page found was on a skipped site: that has its own line
         if not self.links_tried and WEB not in self.problems and self.wiring.serper is not None:
             return ["not_found"]
         return self.problems.get(WEB, [])
@@ -529,7 +544,13 @@ class _Job:
             WEB: self.problems.get(WEB, []),
             REVIEW: self._review_problems(),
         }
-        named = {(f.detail.split(":")[0], f.reason): f for f in self.reader_failures}  # one line per reader and reason
+        # One line per reader and reason, and Firecrawl as Serper's backup apart from Firecrawl reading pages
+        named = {(f.detail.split(":")[0], f.source_type is WEB, f.reason): f for f in self.reader_failures}
+        skipped = (
+            [SourceFailure(source_type=REVIEW, reason="blocked", detail=skipped_detail(sorted(self.skipped_sites)))]
+            if self.skipped_sites
+            else []
+        )
         return [
             *(
                 SourceFailure(source_type=kind, reason=reason)
@@ -537,6 +558,7 @@ class _Job:
                 for reason in dict.fromkeys(found[kind])
             ),
             *named.values(),
+            *skipped,
         ]
 
     def _ordered(self, found: dict[str, tuple[int, int, Source]], limit: int) -> list[Source]:

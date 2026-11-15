@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 import os
+import random
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -37,13 +38,22 @@ from app.contracts import (
 )
 
 from .config import LLMConfig, load_llm_config, with_env_overrides
-from .errors import AttemptOutcome, InvalidOutput, ProviderFailure, ProviderTimeout
+from .errors import (
+    AttemptOutcome,
+    ConnectionFailed,
+    InvalidOutput,
+    ProviderFailure,
+    ProviderTimeout,
+    RateLimited,
+    ServerError,
+)
 from .fitting import CHUNKABLE_TASKS, FitResult, estimate_tokens, fit, merge_chunk_results, reserve_output
 from .health import ProviderHealth
 from .limits import Booking, DailyTokenBudget, RateLimiter
 from .output import RETRIEVED_TEXT_TASKS, build_system_prompt, parse_output
 from .pool import ATTEMPT_SHARE, BULK_TASKS, CALL_MARGIN_S, RUNNING_CALL_LOOK_S, ModelPool, time_limit_s
 from .providers import Adapter, OpenAICompatibleAdapter, build_http_client, note_no_client
+from .retry import Kind, retry_after_of, retry_wait
 from .usage import record_use, time_already_spent
 
 log = logging.getLogger(__name__)
@@ -51,6 +61,7 @@ log = logging.getLogger(__name__)
 T = TypeVar("T", bound=BaseModel)
 
 MAX_INVALID_OUTPUT_RETRIES = 1  # retry the same model once, then move on
+MAX_FAILURE_RETRIES = 1  # US-31: one retry after a timeout, 5xx or connection error (or a 429), then move on
 
 ModelState = Literal["go", "busy", "no"]  # send it; no room yet, come back; or leave this model for this call
 
@@ -184,6 +195,7 @@ class WrapperLLMClient:
         limiters: Mapping[Provider, RateLimiter] | None = None,
         pool: ModelPool | None = None,
         requests: DailyTokenBudget[Provider] | None = None,
+        rng: random.Random | None = None,
     ) -> None:
         self.config = config
         self.adapters = dict(adapters)
@@ -198,6 +210,7 @@ class WrapperLLMClient:
         self.requests = requests
         self.limiters = dict(limiters) if limiters is not None else default_limiters(config)
         self.pool = pool if pool is not None else ModelPool(config.pool)
+        self.rng = rng if rng is not None else random.Random()  # the retry's jitter (US-31)
         self._reported_missing: set[Provider] = set()
         self._reported_dead: set[tuple[Provider, str | None]] = set()
 
@@ -255,10 +268,12 @@ class WrapperLLMClient:
         )
         pending = [plan for model in order if (plan := self._plan(call, model, user, max_output_tokens))]
         retries: dict[str, int] = {}  # per model, for the whole call: coming back to a busy model is not a new retry
+        failure_retries: dict[str, int] = {}  # the same, for the one retry after a failure (US-31)
         while pending:
             busy: list[_Plan] = []
-            for plan in pending:
-                result, state = self._try_model(call, plan, retries)
+            for at, plan in enumerate(pending):
+                last = at == len(pending) - 1
+                result, state = self._try_model(call, plan, retries, failure_retries, last)
                 if result is not None:
                     return result
                 if state == "busy":
@@ -297,17 +312,38 @@ class WrapperLLMClient:
             return None
         return _Plan(model, fitted, reserve, planned_tokens(call.system, fitted, reserve))
 
-    def _try_model(self, call: _Call[T], plan: _Plan, retries: dict[str, int]) -> tuple[T | None, ModelState]:
-        """One model, retrying invalid output once. A busy model is left to come back to."""
+    def _try_model(
+        self,
+        call: _Call[T],
+        plan: _Plan,
+        retries: dict[str, int],
+        failure_retries: dict[str, int],
+        last: bool,
+    ) -> tuple[T | None, ModelState]:
+        """One model, retrying invalid output once, and a failure once (US-31). A busy model is left to come back to.
+
+        `last`: no other model on the route is waiting for this call, so a 429 that says how long to wait may be
+        waited out. Otherwise the next model is tried at once, which is quicker (F-6)."""
         name = plan.model.model
+        held: Exception | None = None  # a failure set aside for its retry: counted after all if the retry can't go
         while True:
             state, booking = self._may_call(call, plan)
             if state != "go":
+                if held is not None:
+                    self._count_failure(plan, held)
                 return None, state
-            result, outcome = self._attempt(call, plan, booking)
+            # One retry a model in a call, of either kind: a failure's, or invalid output's (US-31).
+            used = retries.get(name, 0) + failure_retries.get(name, 0)
+            may_retry = used < MAX_FAILURE_RETRIES
+            result, outcome, wait, held = self._attempt(call, plan, booking, may_retry=may_retry, last=last)
             if result is not None:
                 return result, "go"
-            if not should_retry(outcome, retries.get(name, 0)):
+            if wait is not None:
+                failure_retries[name] = failure_retries.get(name, 0) + 1
+                log.info("llm %s: %s; trying it once more in %.1fs", name, outcome, wait)
+                self.pool.pause(wait)
+                continue
+            if not should_retry(outcome, used):
                 return None, "no"
             retries[name] = retries.get(name, 0) + 1
 
@@ -468,8 +504,20 @@ class WrapperLLMClient:
         left = max(call.stage_ends_at - self.pool.now(), CALL_MARGIN_S)
         return min(self._full_timeout_s(call, model), left)
 
-    def _attempt(self, call: _Call[T], plan: _Plan, booking: Booking | None = None) -> tuple[T | None, AttemptOutcome]:
-        """One attempt on one model: every chunk is sent and parsed. Always writes one call record."""
+    def _attempt(
+        self,
+        call: _Call[T],
+        plan: _Plan,
+        booking: Booking | None = None,
+        *,
+        may_retry: bool = False,
+        last: bool = False,
+    ) -> tuple[T | None, AttemptOutcome, float | None, Exception | None]:
+        """One attempt on one model: every chunk is sent and parsed. Always writes one call record.
+
+        The third value is the wait before the one retry this failure gets (US-31), or None for no retry. A failure
+        about to be retried is not counted against the provider's health yet: it comes back as the fourth value, and
+        the caller counts it if the retry never goes out. Otherwise only a failure that repeats is counted."""
         model, fitted, system = plan.model, plan.fitted, call.system
         provider, member = model.provider, self._member(model)
         adapter = self.adapters[provider]
@@ -504,8 +552,11 @@ class WrapperLLMClient:
             log.warning("llm %s raised %s; trying the next model", provider.value, type(exc).__name__)
             outcome, error = "error", exc
         cut_short = timeout_s < self._full_timeout_s(call, model)
+        wait = self._retry_wait(call, plan, error, cut_short, last) if may_retry and error is not None else None
         if error is None:
             self.health.record_success(provider, member)
+        elif wait is not None:
+            self.health.release(provider, member)  # it gets one more try: a failure that repeats is what counts
         elif isinstance(error, ProviderTimeout) and cut_short:
             self.health.release(provider, member)  # we gave it less than a fair time: that says nothing about it
         elif self.health.record_failure(provider, error, member):
@@ -523,7 +574,42 @@ class WrapperLLMClient:
         self.requests.settle(provider, plan.requests, sent)  # each request that went out counts, whatever came back
         duration_ms = int((monotonic() - started) * 1000)
         self._record(call, plan, outcome, tokens_in + unanswered, tokens_out, duration_ms, started_at)
-        return result, outcome
+        return result, outcome, wait, error if wait is not None else None
+
+    def _count_failure(self, plan: _Plan, error: Exception) -> None:
+        """A failure set aside for a retry that never went out (no room, no budget): it counts after all."""
+        provider, member = plan.model.provider, self._member(plan.model)
+        if self.health.record_failure(provider, error, member):
+            log.warning("llm %s switched off for this run: %s", provider.value, error)
+            self._reported_dead.add((provider, member))
+
+    def _retry_wait(self, call: _Call[T], plan: _Plan, error: Exception, cut_short: bool, last: bool) -> float | None:
+        """The wait before the one retry a failure gets (US-31, app/llm/retry.py), or None.
+
+        A timeout, a connection error or a 5xx gets it after a short jitter. A 429 gets it after its Retry-After, and
+        only on the route's last model. Never a chunked attempt (its chunks went out already), a timeout we cut short,
+        or any other failure. The retry must still have its full attempt before the stage's limit."""
+        if plan.fitted.mode == "chunked":
+            return None
+        kind: Kind | None = None
+        retry_after: float | None = None
+        if isinstance(error, ProviderTimeout):
+            kind = None if cut_short else "timeout"
+        elif isinstance(error, ConnectionFailed):
+            kind = "connection"
+        elif isinstance(error, ServerError):
+            kind = "server"
+        elif isinstance(error, RateLimited) and last:
+            kind, retry_after = "rate_limited", retry_after_of(error.ratelimit_headers)
+        if kind is None:
+            return None
+        return retry_wait(
+            kind,
+            retry_after,
+            time_left_s=call.stage_ends_at - self.pool.now(),
+            attempt_s=self._full_timeout_s(call, plan.model),
+            rng=self.rng,
+        )
 
     def _record(
         self,

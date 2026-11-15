@@ -282,7 +282,7 @@ def test_the_cache_serves_a_repeat_page_with_no_call() -> None:
 
 
 def test_a_failed_page_is_never_cached() -> None:
-    answers = [httpx.Response(500), html_page()]
+    answers = [httpx.Response(500), httpx.Response(500), html_page()]  # a 500, its one retry (US-31), then the page
     web = Web().on(PAGE, lambda _: answers.pop(0))
     pages = _pages(web)
     usage = _usage()
@@ -423,8 +423,8 @@ def test_a_dead_site_is_asked_for_its_robots_once_in_a_search() -> None:
     pages.fetch(PAGE, usage)
     pages.fetch(f"{SITE}/b", usage)
     pages.fetch(f"{SITE}/c", usage)
-    assert web.asked(ROBOTS) == 1
-    assert usage.used["pages"] == 1
+    assert web.asked(ROBOTS) == 2  # once in the search, and its one retry after the refused connection (US-31)
+    assert usage.used["pages"] == 2
 
 
 def test_a_crawl_delay_learned_later_keeps_the_limiters_memory() -> None:

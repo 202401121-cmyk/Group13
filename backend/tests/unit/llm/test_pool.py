@@ -405,11 +405,22 @@ def test_failures_outside_the_window_do_not_trip_the_breaker() -> None:
     assert client.health.state(Provider.GROQ, BIG) == "ok"
 
 
-def test_a_server_error_cools_a_member_at_once() -> None:
-    groq = GroqFake({BIG: [ServerError(Provider.GROQ, "HTTP 503")]})
+def test_a_server_error_that_repeats_cools_a_member_at_once() -> None:
+    groq = GroqFake({BIG: [ServerError(Provider.GROQ, "HTTP 503"), ServerError(Provider.GROQ, "HTTP 503")]})
     client = _client(groq, Clock())
     _ask(client)
+    assert groq.calls[:2] == [BIG, BIG]  # the 503 and its one retry (US-31)
+    assert groq.calls.count(BIG) == 2  # and never a third: the call moves on
+    assert len(groq.calls) == 3
     assert client.health.state(Provider.GROQ, BIG) == "cooling"
+
+
+def test_a_server_error_that_passes_on_its_retry_leaves_the_member_well() -> None:
+    groq = GroqFake({BIG: [ServerError(Provider.GROQ, "HTTP 503")]})
+    client = _client(groq, Clock())
+    assert _ask(client) is not None
+    assert groq.calls == [BIG, BIG]
+    assert client.health.state(Provider.GROQ, BIG) == "ok"
 
 
 def test_a_bad_key_marks_every_member_of_that_provider_dead_for_the_run() -> None:
@@ -699,12 +710,12 @@ def test_pooled_calls_count_towards_the_daily_budget() -> None:
 
 
 def test_a_failed_call_still_counts_what_it_sent() -> None:
-    groq = GroqFake({BIG: [ProviderTimeout(Provider.GROQ, "no reply")]})
+    groq = GroqFake({BIG: [ProviderTimeout(Provider.GROQ, "no reply"), ProviderTimeout(Provider.GROQ, "no reply")]})
     client = _client(groq, Clock())
     _ask(client)
     system = build_system_prompt(SYSTEM, Answer)
     sent = estimate_tokens(system) + estimate_tokens("gaming laptop under 80k")
-    assert client.pool.tokens_left_today(_member(client, BIG)) == 200_000 - sent
+    assert client.pool.tokens_left_today(_member(client, BIG)) == 200_000 - 2 * sent  # the timeout and its retry
 
 
 def test_parallel_calls_cannot_overshoot_the_daily_budget() -> None:
