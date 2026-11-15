@@ -1,0 +1,25 @@
+{
+  "additionalProperties": false,
+  "description": "What the interview believes about one criterion's weight so far (US-04): a mean on the 0 to 10 scale and how\nunsure it is. The adaptive interview asks next about the criterion whose answer would teach it the most.",
+  "properties": {
+    "mean": {
+      "maximum": 10.0,
+      "minimum": 0.0,
+      "title": "Mean",
+      "type": "number"
+    },
+    "sd": {
+      "description": "Standard deviation on the 0 to 10 scale: above 0, at most 5",
+      "exclusiveMinimum": 0,
+      "maximum": 5,
+      "title": "Sd",
+      "type": "number"
+    }
+  },
+  "required": [
+    "mean",
+    "sd"
+  ],
+  "title": "WeightBelief",
+  "type": "object"
+}

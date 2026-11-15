@@ -125,6 +125,14 @@ class RememberedPreference(Contract):
     age_days: int = Field(ge=0)
 
 
+class WeightBelief(Contract):
+    """What the interview believes about one criterion's weight so far (US-04): a mean on the 0 to 10 scale and how
+    unsure it is. The adaptive interview asks next about the criterion whose answer would teach it the most."""
+
+    mean: Score10
+    sd: float = Field(gt=0, le=5, description="Standard deviation on the 0 to 10 scale: above 0, at most 5")
+
+
 class AskedQuestion(Contract):
     question: InterviewQuestion
     reply_text: str | None = Field(default=None, max_length=500)
@@ -154,6 +162,10 @@ class InterviewState(Contract):
     )
     manual_exclusions_removed: list[Exclusion] = Field(
         default_factory=list, max_length=MAX_EXCLUSIONS, description="Exclusions the shopper removed (US-09)"
+    )
+    beliefs: dict[Slug, WeightBelief] = Field(
+        default_factory=dict,
+        description="The interview's belief about each criterion's weight (US-04). Empty: the fixed order is used",
     )
 
     @model_validator(mode="after")

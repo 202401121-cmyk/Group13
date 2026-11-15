@@ -76,10 +76,11 @@ def _ranked(product_id: str, rank: int, score: float | None, label: str | None =
 # --- the version ---------------------------------------------------------------------------------------------------
 
 
-def test_the_schema_version_is_1_8_0() -> None:
-    assert C.SCHEMA_VERSION == "1.8.0"
-    assert ex.search_result().schema_version == "1.8.0"
-    assert (SHARED / "VERSION").read_text(encoding="utf-8").strip() == "1.8.0"
+def test_the_schema_version_is_1_8_0_or_later() -> None:
+    """S3-10b brought 1.8.0; S4-0 moved on to 1.9.0 (tests/contract/test_sprint4_contracts.py pins it)."""
+    assert tuple(int(part) for part in C.SCHEMA_VERSION.split(".")) >= (1, 8, 0)
+    assert ex.search_result().schema_version == C.SCHEMA_VERSION
+    assert (SHARED / "VERSION").read_text(encoding="utf-8").strip() == C.SCHEMA_VERSION
 
 
 # --- the other side of a dispute -----------------------------------------------------------------------------------

@@ -46,6 +46,7 @@ _YES, _NO = {"yes", "true"}, {"no", "false"}
 Values = Mapping[tuple[str, str], ResolvedValue]
 Confidence = Literal["high", "medium", "low"]
 Label = Literal["best_match", "runner_up"]
+Basis = Literal["opinion", "compared", "estimated"]  # Contribution.basis: how a criterion score was made (1.9.0)
 
 
 def _label(position: int) -> Label | None:
@@ -195,11 +196,14 @@ def _score_one(
             )
             continue
         own = scores[product.id].get(key)
+        basis: Basis
         if own is not None:
             score, state = own.score, own.state
+            # verify's own estimate is a peer average too (DR-09), so it is "estimated", never a source's opinion
+            basis = "compared" if own.compared else "estimated" if state is ValueState.ESTIMATED else "opinion"
         else:  # DR-09: the average of the other shown products that have it, never zero
             peers = [s[key].score for pid, s in scores.items() if pid != product.id and key in s]
-            score, state = round(sum(peers) / len(peers), 2), ValueState.ESTIMATED
+            score, state, basis = round(sum(peers) / len(peers), 2), ValueState.ESTIMATED, "estimated"
         weight = weights[key]
         contributions.append(
             Contribution(
@@ -208,6 +212,7 @@ def _score_one(
                 normalized_weight=weight,
                 contribution=round(score * weight, 4),
                 state=state,
+                basis=basis,
             )
         )
     exact = sum((c.score or 0.0) * c.normalized_weight for c in contributions)

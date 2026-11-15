@@ -382,7 +382,7 @@
         },
         "data_class": {
           "default": "public",
-          "description": "What this text may be sent to (US-46). Follows the type: Reddit is reddit, the rest public",
+          "description": "What this text may be sent to (US-46). Reddit is always reddit. YouTube is reddit when its text holds viewers' comments (community text, P-23), else public. Every other type is public. Left out, it follows the type: Reddit is reddit, the rest public",
           "enum": [
             "public",
             "reddit"

@@ -5,6 +5,7 @@ Import from here, not from the submodules:
     from app.contracts import Intent, Rubric, SearchResult
 """
 
+from .account import MAX_SAVED_SEARCHES_PAGE, MeResponse, SavedSearchList, SavedSearchSummary
 from .claims import Claim, ExtractInput, ExtractionResult, ProductMention
 from .commerce import PRICE_STALE_AFTER, CommerceInput, CommerceResult, Offer
 from .common import (
@@ -44,6 +45,7 @@ from .interview import (
     RoughLevel,
     RoughLevelWeights,
     TermExplanation,
+    WeightBelief,
 )
 from .llm import (
     PERSONAL_TASKS,
@@ -104,6 +106,7 @@ __all__ = [
     "MAX_EXPLANATION_WORDS",
     "MAX_QUESTIONS",
     "MAX_RUBRIC_EDITS",
+    "MAX_SAVED_SEARCHES_PAGE",
     "MAX_SOURCE_COMMENTS",
     "MAX_TERMS",
     "MAX_UNCLEAR_ATTEMPTS",
@@ -164,6 +167,7 @@ __all__ = [
     "LLMUnavailable",
     "MatchInput",
     "MatchResult",
+    "MeResponse",
     "ModelLimits",
     "Money",
     "Offer",
@@ -190,6 +194,8 @@ __all__ = [
     "RubricEditKind",
     "RubricEditRequest",
     "RubricEditResponse",
+    "SavedSearchList",
+    "SavedSearchSummary",
     "SearchRequest",
     "SearchResult",
     "SearchRun",
@@ -211,6 +217,7 @@ __all__ = [
     "Variant",
     "VerifyInput",
     "VerifyResult",
+    "WeightBelief",
     "WeightedCriterion",
     "hard_rule_id",
     "normalize",

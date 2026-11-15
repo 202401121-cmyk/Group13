@@ -64,6 +64,7 @@ export function stepOf(
       manual_rule_switches: {},
       manual_exclusions_added: [],
       manual_exclusions_removed: [],
+      beliefs: {},
     },
     questions_asked: history.length,
     ordering: "fixed_order",

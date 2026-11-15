@@ -1,0 +1,84 @@
+{
+  "rubric": {
+    "category": "laptop",
+    "use_case": "coding",
+    "region": "IN",
+    "budget": {
+      "min": null,
+      "max": {
+        "amount": 70000.0,
+        "currency": "INR"
+      }
+    },
+    "hard_rules": [
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM",
+        "id": "ram_gb_min_1c18a881e7",
+        "active": true
+      }
+    ],
+    "exclusions": [
+      {
+        "kind": "brand",
+        "value": "Zenith",
+        "always": false
+      }
+    ],
+    "weights": [
+      {
+        "key": "cpu_performance",
+        "weight": 9.0,
+        "normalized": 0.20454545454545456,
+        "origin": "answered",
+        "uncertainty": 0.2
+      },
+      {
+        "key": "battery_life",
+        "weight": 7.0,
+        "normalized": 0.1590909090909091,
+        "origin": "answered",
+        "uncertainty": 0.2
+      },
+      {
+        "key": "keyboard_comfort",
+        "weight": 8.0,
+        "normalized": 0.18181818181818182,
+        "origin": "answered",
+        "uncertainty": 0.2
+      },
+      {
+        "key": "display_quality",
+        "weight": 4.0,
+        "normalized": 0.09090909090909091,
+        "origin": "default",
+        "uncertainty": 0.5
+      },
+      {
+        "key": "weight",
+        "weight": 6.0,
+        "normalized": 0.13636363636363635,
+        "origin": "remembered",
+        "uncertainty": 0.5
+      },
+      {
+        "key": "build_durability",
+        "weight": 4.0,
+        "normalized": 0.09090909090909091,
+        "origin": "skipped",
+        "uncertainty": 0.5
+      },
+      {
+        "key": "value_for_money",
+        "weight": 6.0,
+        "normalized": 0.13636363636363635,
+        "origin": "default",
+        "uncertainty": 0.5
+      }
+    ]
+  },
+  "note": null
+}

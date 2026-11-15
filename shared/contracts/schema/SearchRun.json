@@ -257,6 +257,24 @@
         },
         "state": {
           "$ref": "#/$defs/ValueState"
+        },
+        "basis": {
+          "anyOf": [
+            {
+              "enum": [
+                "opinion",
+                "compared",
+                "estimated"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "How the score was made: a source's opinion, a stated value compared with the other shown products' (P-20), or the peers' average (DR-09). Decide leaves it None where it made no score; None on a result from before 1.9.0",
+          "title": "Basis"
         }
       },
       "required": [
@@ -264,7 +282,8 @@
         "score",
         "normalized_weight",
         "contribution",
-        "state"
+        "state",
+        "basis"
       ],
       "title": "Contribution",
       "type": "object"
@@ -1238,7 +1257,7 @@
       "description": "Everything the results page needs, including what went wrong. Saved at the end (build rule 10).",
       "properties": {
         "schema_version": {
-          "default": "1.8.0",
+          "default": "1.9.0",
           "title": "Schema Version",
           "type": "string"
         },
@@ -1343,6 +1362,12 @@
           "description": "True only when this result's row was committed to the database. False when the database is off, down, slow or failing (the UI then says the result isn't saved).",
           "title": "Saved",
           "type": "boolean"
+        },
+        "llm_unavailable": {
+          "default": false,
+          "description": "True when every LLM provider failed during the run, so the page can say so plainly and offer a retry (US-31). False on a result from before 1.9.0",
+          "title": "Llm Unavailable",
+          "type": "boolean"
         }
       },
       "required": [
@@ -1360,7 +1385,8 @@
         "citations",
         "stage_reports",
         "coverage_note",
-        "saved"
+        "saved",
+        "llm_unavailable"
       ],
       "title": "SearchResult",
       "type": "object"
@@ -1466,7 +1492,7 @@
         },
         "data_class": {
           "default": "public",
-          "description": "What this text may be sent to (US-46). Follows the type: Reddit is reddit, the rest public",
+          "description": "What this text may be sent to (US-46). Reddit is always reddit. YouTube is reddit when its text holds viewers' comments (community text, P-23), else public. Every other type is public. Left out, it follows the type: Reddit is reddit, the rest public",
           "enum": [
             "public",
             "reddit"

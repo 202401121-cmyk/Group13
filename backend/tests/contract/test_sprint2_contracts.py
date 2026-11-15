@@ -676,7 +676,8 @@ def test_post_search_keeps_its_contract() -> None:
         "stage_reports",
         "coverage_note",
         "saved",
-    }  # fmt: skip  (citations: S3-0, 1.7.0)
+        "llm_unavailable",
+    }  # fmt: skip  (citations: S3-0, 1.7.0; llm_unavailable: S4-0, 1.9.0)
 
 
 # --- Export ----------------------------------------------------------------------------------------

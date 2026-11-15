@@ -612,6 +612,19 @@
           "maxItems": 30,
           "title": "Manual Exclusions Removed",
           "type": "array"
+        },
+        "beliefs": {
+          "description": "The interview's belief about each criterion's weight (US-04). Empty: the fixed order is used",
+          "patternProperties": {
+            "^[a-z0-9]+(?:[_-][a-z0-9]+)*$": {
+              "$ref": "#/$defs/WeightBelief"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 64
+          },
+          "title": "Beliefs",
+          "type": "object"
         }
       },
       "required": [
@@ -623,7 +636,8 @@
         "manual_weights",
         "manual_rule_switches",
         "manual_exclusions_added",
-        "manual_exclusions_removed"
+        "manual_exclusions_removed",
+        "beliefs"
       ],
       "title": "InterviewState",
       "type": "object"
@@ -997,6 +1011,31 @@
         "explanation"
       ],
       "title": "TermExplanation",
+      "type": "object"
+    },
+    "WeightBelief": {
+      "additionalProperties": false,
+      "description": "What the interview believes about one criterion's weight so far (US-04): a mean on the 0 to 10 scale and how\nunsure it is. The adaptive interview asks next about the criterion whose answer would teach it the most.",
+      "properties": {
+        "mean": {
+          "maximum": 10.0,
+          "minimum": 0.0,
+          "title": "Mean",
+          "type": "number"
+        },
+        "sd": {
+          "description": "Standard deviation on the 0 to 10 scale: above 0, at most 5",
+          "exclusiveMinimum": 0,
+          "maximum": 5,
+          "title": "Sd",
+          "type": "number"
+        }
+      },
+      "required": [
+        "mean",
+        "sd"
+      ],
+      "title": "WeightBelief",
       "type": "object"
     },
     "WeightedCriterion": {

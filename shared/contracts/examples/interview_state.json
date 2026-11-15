@@ -1,0 +1,130 @@
+{
+  "session_id": "sess_demo0001",
+  "intent": {
+    "raw_query": "best laptop for coding under 70k, at least 16 GB RAM, not too heavy, no Zenith",
+    "category": "laptop",
+    "category_label": "Laptop",
+    "use_case": "coding",
+    "budget": {
+      "min": null,
+      "max": {
+        "amount": 70000.0,
+        "currency": "INR"
+      }
+    },
+    "region": "IN",
+    "hard_rules": [
+      {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM",
+        "id": "ram_gb_min_1c18a881e7",
+        "active": true
+      }
+    ],
+    "exclusions": [
+      {
+        "kind": "brand",
+        "value": "Zenith",
+        "always": false
+      }
+    ],
+    "needs_clarification": false,
+    "clarification_question": null,
+    "clarification_options": [],
+    "show_example_requests": false,
+    "detected_by": "llm"
+  },
+  "criteria": {
+    "category": "laptop",
+    "use_case": "coding",
+    "criteria": [
+      {
+        "key": "cpu_performance",
+        "label": "CPU performance",
+        "definition": "How fast it compiles code and runs tools like Docker and IDEs.",
+        "direction": "higher_is_better",
+        "unit": null,
+        "default_weight": 8.0,
+        "is_value_for_money": false
+      },
+      {
+        "key": "battery_life",
+        "label": "Battery life",
+        "definition": "Hours of real work on one charge, away from a plug.",
+        "direction": "higher_is_better",
+        "unit": "h",
+        "default_weight": 7.0,
+        "is_value_for_money": false
+      },
+      {
+        "key": "keyboard_comfort",
+        "label": "Keyboard comfort",
+        "definition": "How pleasant the keys are for long typing sessions.",
+        "direction": "higher_is_better",
+        "unit": null,
+        "default_weight": 6.0,
+        "is_value_for_money": false
+      },
+      {
+        "key": "display_quality",
+        "label": "Display quality",
+        "definition": "Sharpness, brightness and eye comfort of the screen.",
+        "direction": "higher_is_better",
+        "unit": null,
+        "default_weight": 5.0,
+        "is_value_for_money": false
+      },
+      {
+        "key": "weight",
+        "label": "Weight",
+        "definition": "How heavy it is to carry every day; lighter is better.",
+        "direction": "lower_is_better",
+        "unit": "kg",
+        "default_weight": 5.0,
+        "is_value_for_money": false
+      },
+      {
+        "key": "build_durability",
+        "label": "Build durability",
+        "definition": "How well the body, hinge and ports hold up over years.",
+        "direction": "higher_is_better",
+        "unit": null,
+        "default_weight": 4.0,
+        "is_value_for_money": false
+      },
+      {
+        "key": "value_for_money",
+        "label": "Value for money",
+        "definition": "How much laptop you get for the price you pay.",
+        "direction": "higher_is_better",
+        "unit": null,
+        "default_weight": 6.0,
+        "is_value_for_money": true
+      }
+    ],
+    "source": "generated"
+  },
+  "history": [],
+  "remembered": [],
+  "manual_weights": {},
+  "manual_rule_switches": {},
+  "manual_exclusions_added": [],
+  "manual_exclusions_removed": [],
+  "beliefs": {
+    "cpu_performance": {
+      "mean": 8.0,
+      "sd": 2.5
+    },
+    "battery_life": {
+      "mean": 7.0,
+      "sd": 2.5
+    },
+    "keyboard_comfort": {
+      "mean": 6.0,
+      "sd": 2.5
+    }
+  }
+}
