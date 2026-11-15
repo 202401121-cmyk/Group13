@@ -630,3 +630,123 @@ def test_the_extract_folder_never_writes_a_file() -> None:
     folder = Path(extract_package.__file__).parent
     code = "\n".join(path.read_text(encoding="utf-8") for path in folder.glob("*.py"))
     assert not re.search(r"\bopen\(|write_text|write_bytes|\.dump\(|\bsqlite|\bshelve|\bpickle", code)
+
+
+# --- the counts, for the live funnel (US-14 yield) ----------------------------------------------------------------
+
+
+def test_the_stage_counts_survive_until_read_and_are_a_snapshot() -> None:
+    stage = _stage(_llm(), cap=1)
+    for name in ("a", "b"):
+        stage.run(_inp(review_source(f"https://www.reviews.example/{name}", text="Nova Book 14 page.")), CTX)
+    counts = stage.counts_for(CTX.search_id)
+    assert counts is not None
+    assert (counts["sent"], counts["over_source_cap"], counts["over_reddit_budget"]) == (1, 1, 0)
+    counts["sent"] = 99  # a snapshot: changing it changes nothing in the stage
+    again = stage.counts_for(CTX.search_id)
+    assert again is not None and again["sent"] == 1  # reading it twice is fine, unlike the coverage note
+    assert stage.coverage_note(CTX.search_id) is not None
+    assert stage.counts_for(CTX.search_id) is None  # the note clears them, as before
+    assert stage.counts_for("srch_never") is None
+
+
+def test_a_public_source_with_no_criteria_is_counted_and_still_sent() -> None:
+    llm = _llm()
+    stage = _stage(llm)
+    page = review_source("https://www.reviews.example/n", text="Nova Book 14 page.")
+    # A generated key the category has no stand-in for, no budget and no specs: the public prompt has no criteria.
+    stage.run(ExtractInput(source=page, criterion_keys=["made_up_key"], category_label="laptop"), CTX)
+    counts = stage.counts_for(CTX.search_id)
+    assert counts is not None
+    assert (counts["sent"], counts["no_criteria"]) == (1, 1)
+    assert len(llm.calls) == 1  # still sent, as before: only counted
+
+
+# --- Reddit's share of the cap (US-14 yield) ------------------------------------------------------------------------
+
+
+def _shared(cap: int, share: float = 0.5) -> tuple[FakeLLMClient, GuardedExtractStage]:
+    llm = _llm()
+    return llm, GuardedExtractStage(llm, ExtractSettings(max_sources_per_search=cap, reddit_share_of_sources=share))
+
+
+def test_reddit_threads_leave_room_for_pages_when_the_cap_is_small() -> None:
+    """Research lists Reddit first. Only pages give the prices and specs decide needs (DR-01), so with a small cap
+    Reddit may take only its share, and the pages after it are still read."""
+    llm, stage = _shared(cap=4)
+    for name in ("aaa", "bbb", "ccc", "ddd"):
+        stage.run(_inp(_reddit(name)), CTX)
+    for name in ("a", "b", "c"):
+        stage.run(_inp(review_source(f"https://{name}.example/")), CTX)
+    assert [call.data_class for call in llm.calls] == [DataClass.REDDIT] * 2 + [DataClass.PUBLIC] * 2
+    counts = stage.counts_for(CTX.search_id)
+    assert counts is not None
+    assert (counts["sent"], counts["over_reddit_share"], counts["over_source_cap"]) == (4, 2, 1)
+    note = _note(stage)
+    assert "1 source was not read, to keep the search from running too long." in note
+    assert "2 Reddit threads were not read, to leave room for web pages." in note
+
+
+def test_reddit_share_changes_nothing_under_the_usual_cap() -> None:
+    llm, stage = _shared(cap=40)
+    for index in range(6):  # more threads than the Reddit token budget usually lets through
+        stage.run(_inp(_reddit(f"t{index}")), CTX)
+    assert len(llm.calls) == 6
+    assert stage.coverage_note(CTX.search_id) is None
+
+
+def test_reddit_share_is_rounded_up_and_never_below_one() -> None:
+    for cap, share, threads in ((1, 0.5, 1), (3, 0.5, 2), (8, 0.5, 4), (5, 0.1, 1), (4, 1.0, 4)):
+        llm, stage = _shared(cap=cap, share=share)
+        for index in range(cap + 1):
+            stage.run(_inp(_reddit(f"t{index}")), CTX)
+        assert len(llm.calls) == threads, (cap, share)
+
+
+def test_reddit_share_comes_from_config() -> None:
+    assert load_extract_settings(env={}).reddit_share_of_sources == 0.5
+    for bad in (0.0, 1.5):
+        with pytest.raises(ValueError):
+            ExtractSettings(reddit_share_of_sources=bad)
+
+
+def test_a_thread_that_waited_for_the_budget_still_keeps_to_the_share() -> None:
+    """The wait lets go of the lock, so other threads may take the last of the share meanwhile: it is checked again."""
+    settings = ExtractSettings(max_sources_per_search=8, reddit_tokens_per_search=10_000, book_real_use=True)
+    stage = GuardedExtractStage(_llm(), settings)  # room for 4 Reddit threads
+    search = "srch_waits"
+    with stage._settled:
+        counts = stage._for(search)
+        counts.sent = counts.reddit_sent = 3
+        counts.reddit_booked = counts.reddit_running = 9_000  # the running calls hold the budget, so a thread waits
+    answer: list[bool] = []
+    waiter = threading.Thread(target=lambda: answer.append(stage._may_send(search, _reddit("w"), 2_000)))
+    waiter.start()
+    time.sleep(0.2)
+    with stage._settled:
+        counts.sent = counts.reddit_sent = 4  # another thread took the last of the share
+        counts.reddit_booked = counts.reddit_running = 1_000  # and the running calls finished
+        stage._settled.notify_all()
+    waiter.join(timeout=10)
+    assert answer == [False]
+    after = stage.counts_for(search)
+    assert after is not None
+    assert (after["over_reddit_share"], after["sent"]) == (1, 4)
+
+
+def test_the_share_follows_the_cap_from_the_environment() -> None:
+    settings = load_extract_settings(env={"EXTRACT_MAX_SOURCES": "8"})
+    assert GuardedExtractStage(_llm(), settings)._reddit_room() == 4
+
+
+def test_the_share_at_the_usual_cap_is_researchs_reddit_thread_limit() -> None:
+    """Under the usual cap the share never holds a thread back: it equals the most threads research ever finds."""
+    from app.research.settings import load_research_settings
+
+    room = GuardedExtractStage(_llm(), load_extract_settings(env={}))._reddit_room()
+    assert room == load_research_settings(env={}).max_reddit_threads == 20
+    llm = _llm()
+    roomy = GuardedExtractStage(llm, ExtractSettings(max_sources_per_search=40, reddit_tokens_per_search=10_000_000))
+    for index in range(room):
+        roomy.run(_inp(_reddit(f"t{index}")), CTX)
+    assert len(llm.calls) == room  # all 20 sent

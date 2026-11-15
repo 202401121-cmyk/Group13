@@ -2,6 +2,8 @@
 by hand, never in CI or pytest.
 
 Run from backend/:  python -m evals.live_briefs        (writes evals/results/sprint-3-live.json)
+Options (US-14): --out FILE, --categories in the order to run, --max-sources N, --budget-<service> N. A run with --out
+leaves the committed record alone.
 
 One made-up request for each of the five categories with the most data in ml/labelling/listings.csv. Each runs the
 CLI's flow: intake, criteria, an interview answered "Skip", then the pipeline, with results kept in memory only. The
@@ -11,6 +13,9 @@ name or link is written, so no Reddit text reaches the repository (D-53).
 Every call to a paid or rate-limited service is counted and refused past its share (scripts/find_conflicts.py's
 guard, with Reddit's archives allowed up to theirs): LLM 60, Serper 30, Reddit archive 30, Jina 30 pages, Firecrawl 10
 credits. Extraction reads at most EXTRACT_MAX_SOURCES=8 sources a search, so a brief stays near 12 LLM calls.
+
+Each brief also gets a funnel (US-14): where its sources stopped turning into scored products, as counts with a reason
+for each. It holds counts and fixed labels only, like the rest of the record.
 """
 
 from __future__ import annotations
@@ -25,14 +30,29 @@ import statistics
 import sys
 import threading
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Callable, Collection, Mapping, Sequence
+from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from time import monotonic
 from typing import Any
 
 import httpx
 
-from app.contracts import InterviewState, SearchRequest, SourceType, StageName, StageStatus
+from app.contracts import (
+    DataClass,
+    ExtractionResult,
+    InterviewState,
+    LLMCallRecord,
+    Rubric,
+    SearchRequest,
+    SearchResult,
+    SourceType,
+    StageName,
+    StageStatus,
+    ValueState,
+)
+from app.extract.settings import ExtractSettings
 from scripts.find_conflicts import QUERIES, Budget, OverBudget, service_of
 
 from . import checks
@@ -44,7 +64,45 @@ BUDGET = {"llm": 60, "serper": 30, "reddit": 30, "jina": 30, "firecrawl": 10}
 MAX_SOURCES = 8
 NOT_FINISHED = ("needs a clarification", "the interview did not finish")
 SOURCE = "backend/evals/live_briefs.py, 5 live briefs, --no-db"
-__all__ = ["BUDGET", "CATEGORIES", "LIVE_OUT", "LiveBudget", "OverBudget", "main", "text_in"]
+SEARCH_SNIPPET = "search_snippet"  # Source.via for a search result whose page was never fetched (app/extract/stage.py)
+PRICE_ATTRIBUTES = {checks.PRICE_KEY, "price"}  # what decide names a budget hold-back by
+CUT_OFF_SHARE = 0.95  # an unusable answer this close to its output reserve was most likely cut off
+KEY_KINDS = ("rubric", "spec", "neither")
+PRICE_LINE = f"\n- {checks.PRICE_KEY}: "  # how a prompt asks for the price (app/extract/prompts.py)
+# A title that names a list: "best ... under", "top 10", "vs". Matched by code; only the label is kept.
+_LIST_TITLE = re.compile(r"\b(best|top|under|below|vs|versus|compared|comparison)\b", re.IGNORECASE)
+_DISCOUNT = re.compile(r"\b(off|discount|save|saving|savings|cashback|emi)\b", re.IGNORECASE)
+_SCALED = re.compile(r"\d\s*(k|lakh|lakhs|lac|crore|cr)\b", re.IGNORECASE)
+PAGE_KINDS = {"reddit": "thread", "web_search": "snippet", "retailer": "store", "manufacturer": "maker"}
+
+
+def page_kind(source_type: str, title: str, products: int) -> str:
+    """What kind of page a source is, by code: a store's or a maker's page, a Reddit thread, a search snippet, a list
+    of products (its title says so, or it names 3 or more) or a review of one or two. Only the label is ever kept."""
+    if source_type in PAGE_KINDS:
+        return PAGE_KINDS[source_type]
+    return "list" if _LIST_TITLE.search(title) or products >= 3 else "review"
+
+
+def price_problem(value: object, unit: str | None) -> str | None:
+    """Why decide could not use this kept price, read the way verify passes it on (the value, then its unit), or None.
+    A discount is not a price; "25k" and "1.2 lakh" are read as 25 and 1.2 (app/decide/units.py)."""
+    from app.decide.units import quantity
+
+    text = str(value) if unit is None else f"{value} {unit}"
+    if isinstance(value, bool):
+        return "unreadable"
+    if _DISCOUNT.search(text):
+        return "discount"
+    if _SCALED.search(text):
+        return "k_or_lakh"
+    amount = quantity(text)
+    if amount is None:
+        return "unreadable"
+    return None if amount.unit in (None, "inr") else "other_currency"
+
+
+__all__ = ["BUDGET", "CATEGORIES", "LIVE_OUT", "LiveBudget", "OverBudget", "funnel", "main", "options", "text_in"]
 
 
 class LiveBudget(Budget):
@@ -58,6 +116,8 @@ class LiveBudget(Budget):
             spent = self.used.get(service, 0) + cost
             cap = min(self.limits.get(service, 0), self._caps.get(service, sys.maxsize))
             if spent > cap:
+                if service == "llm":  # so the funnel can tell the run's own share from a provider with no room
+                    _CURRENT.refused = getattr(_CURRENT, "refused", 0) + 1
                 raise OverBudget(f"the {service} budget is spent", request=request)
             self.used[service] = spent
 
@@ -88,17 +148,219 @@ class _Keep:
         return getattr(self.inner, name)
 
 
-class _Dropped(logging.Handler):
-    """Counts the claims the extract parser drops, by reason, from its own log line (counts only, never text)."""
+_CURRENT = threading.local()  # in a thread reading one source: that source's id, and the run's own refusals
 
-    def __init__(self) -> None:
-        super().__init__(logging.INFO)
+
+class _KeepExtract(_Keep):
+    """Extract's wrapper also keeps the stage's own counts (US-14). The pipeline asks for the coverage note once, and
+    the note clears them, so they are read just before it.
+
+    Each source gets one row: its type, page kind, what its call asked and returned, how the call ended, and the
+    parser's drops for it. A source the runner gave up on gets a row saying so, and its run, which may still finish
+    later, is left out of every count: the search used the fallback's empty result, not the late one."""
+
+    def __init__(self, inner: Any, returned: _Returned | None = None) -> None:
+        super().__init__(inner)
+        self.counts: dict[str, int] | None = None
+        self.fallbacks: Counter[str] = Counter()
+        self.returned = returned
+        self.sources: dict[str, dict[str, Any]] = {}  # per source id: its row (labels and counts only)
+        self.started: set[str] = set()
+        self.drops: dict[str, Counter[str]] = {}  # per source id: the parser's drops, by reason
+        self.price_drops: dict[str, Counter[str]] = {}
+
+    def run(self, inp: Any, ctx: Any) -> Any:
+        source = inp.source
+        with self._lock:
+            self.started.add(source.id)
+        _CURRENT.source, _CURRENT.refused = source.id, 0
+        if self.returned is not None:
+            self.returned.start()
+        try:
+            out = self.inner.run(inp, ctx)
+        finally:
+            call = self.returned.last() if self.returned is not None else None
+            _CURRENT.source = None
+        products = sum(1 for m in getattr(out, "mentions", []) if m.is_product)
+        row = _row(source, products, call)
+        with self._lock:
+            self.outputs.append(out)
+            self.sources.setdefault(source.id, row)  # a row from the fallback stays: that run was given up on
+        return out
+
+    def fallback(self, inp: Any, ctx: Any, error: Exception) -> Any:
+        why = "timeout" if isinstance(error, TimeoutError) else "error"
+        with self._lock:
+            self.fallbacks[why] += 1
+            self.sources[inp.source.id] = _row(inp.source, 0, None) | {"answer": "gave_up", "gave_up": True}
+        return super().fallback(inp, ctx, error)
+
+    def note_drops(self, counts: Mapping[str, int], price: bool) -> None:
+        """The parser's drops for the source this thread is reading, if it is one of this brief's."""
+        source_id = getattr(_CURRENT, "source", None)
+        with self._lock:
+            if source_id is None or source_id not in self.started:
+                return  # a late run from an earlier brief: not this brief's
+            target = self.price_drops if price else self.drops
+            target.setdefault(source_id, Counter()).update(counts)
+
+    def snapshot(self) -> tuple[dict[str, dict[str, Any]], list[Any]]:
+        """The rows, each with its parser drops, and the outputs as they stand, copied under the lock: a run given up
+        on may still be adding to them."""
+        with self._lock:
+            rows = {
+                key: {
+                    **row,
+                    "dropped": dict(self.drops.get(key, {})),
+                    "price_dropped": dict(self.price_drops.get(key, {})),
+                }
+                for key, row in self.sources.items()
+            }
+            return rows, list(self.outputs)
+
+    def coverage_note(self, search_id: str) -> str | None:
+        read = getattr(self.inner, "counts_for", None)
+        if read is not None:
+            self.counts = read(search_id)
+        note = getattr(self.inner, "coverage_note", None)
+        return note(search_id) if note is not None else None
+
+
+class _Returned:
+    """Wraps extract's LLM client to count the claims each answer holds before the parser drops any: all of them, and
+    the price claims. Counts only: the answer itself is passed on untouched and never kept."""
+
+    def __init__(self, inner: Any) -> None:
+        self.inner = inner
         self.counts: Counter[str] = Counter()
+        self._lock = threading.Lock()
+        self._local = threading.local()  # the last call this thread made: a source runs in one thread
+
+    def start(self) -> None:
+        self._local.call = None
+
+    def last(self) -> dict[str, Any] | None:
+        """This thread's call since start(): whether it asked for the price, what came back, and how it ended."""
+        call = getattr(self._local, "call", None)
+        return dict(call) if call is not None else None
+
+    def watch(self) -> Callable[[], None]:
+        """Note each attempt's outcome for the thread that made it, as the client logs it. Returns the undo."""
+        log = getattr(self.inner, "call_log", None)
+        if log is None or not callable(getattr(log, "record", None)):
+            return lambda: None
+        own = "record" in vars(log)
+        original = log.record
+
+        def record(entry: Any) -> None:
+            outcomes = getattr(self._local, "outcomes", None)
+            if outcomes is not None:
+                outcomes.append(str(getattr(entry, "outcome", "")))
+            original(entry)
+
+        log.record = record
+
+        def undo() -> None:
+            if own:
+                log.record = original
+            else:
+                del log.record
+
+        return undo
+
+    def complete(self, *args: Any, **kwargs: Any) -> Any:
+        user = args[2] if len(args) > 2 else kwargs.get("user", "")
+        call: dict[str, Any] = {
+            "price_asked": PRICE_LINE in str(user),
+            "price_returned": 0,
+            "claims_returned": 0,
+            "answer": "ok",
+        }
+        self._local.call = call
+        self._local.outcomes = []
+        try:
+            out = self.inner.complete(*args, **kwargs)
+        except Exception:
+            call["answer"] = _why_no_answer(self._local.outcomes, getattr(_CURRENT, "refused", 0))
+            raise
+        finally:
+            self._local.outcomes = None
+        claims = getattr(out, "claims", None)
+        if isinstance(claims, list):
+            price = sum(1 for c in claims if getattr(c, "criterion_key", None) == checks.PRICE_KEY)
+            call["price_returned"], call["claims_returned"] = price, len(claims)
+            with self._lock:
+                self.counts["claims"] += len(claims)
+                self.counts[checks.PRICE_KEY] += price
+        return out
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.inner, name)
+
+
+NO_ROOM = {"skipped_budget", "rate_limited"}
+
+
+def _why_no_answer(outcomes: list[str] | None, refused: int) -> str:
+    """Why a call gave no answer, from its own attempts: the run's own LLM share refused it, every provider had no
+    room, it ran out of time, or it failed (an unusable answer or an error)."""
+    seen = set(outcomes or ())
+    if refused:
+        return "over_run_budget"
+    if seen and seen <= NO_ROOM:
+        return "no_room"
+    if "timeout" in seen and seen <= NO_ROOM | {"timeout"}:
+        return "timed_out"
+    return "failed"
+
+
+def _row(source: Any, products: int, call: Mapping[str, Any] | None) -> dict[str, Any]:
+    """One source's row: labels and counts only."""
+    kind = source.type.value
+    return {
+        "type": kind,
+        "kind": page_kind(kind, source.title, products),
+        "sent": call is not None,
+        "price_asked": bool(call and call["price_asked"]),
+        "price_returned": int(call["price_returned"]) if call else 0,
+        "claims_returned": int(call["claims_returned"]) if call else 0,
+        "answer": str(call["answer"]) if call else "not_sent",
+        "gave_up": False,
+    }
+
+
+class _Dropped(logging.Handler):
+    """Counts the claims the extract parser drops, by reason, from its own log lines (counts only, never text), for
+    the source the logging thread is reading: so a late run from an earlier brief is never this brief's."""
+
+    def __init__(self, extract: _KeepExtract) -> None:
+        super().__init__(logging.INFO)
+        self.extract = extract
 
     def emit(self, record: logging.LogRecord) -> None:
         args = record.args if isinstance(record.args, tuple) else ()
-        if record.getMessage().startswith("extract: claims dropped") and len(args) == 2 and isinstance(args[1], dict):
-            self.counts.update({str(k): int(v) for k, v in args[1].items()})
+        if len(args) != 2 or not isinstance(args[1], dict):
+            return
+        message = record.getMessage()
+        if message.startswith(("extract: claims dropped", "extract: price claims dropped")):
+            counts = {str(k): int(v) for k, v in args[1].items()}
+            self.extract.note_drops(counts, price=message.startswith("extract: price claims dropped"))
+
+
+def tally(rows: Mapping[str, Mapping[str, Any]]) -> tuple[dict[str, int], Counter[str], Counter[str]]:
+    """What the search used, from its sources' rows: the claims and price claims the model returned, and the parser's
+    drops. A source the runner gave up on is left out: its late run's claims never reached the search."""
+    used = [row for row in rows.values() if not row.get("gave_up")]
+    returned = {
+        "claims": sum(int(row.get("claims_returned", 0)) for row in used),
+        checks.PRICE_KEY: sum(int(row.get("price_returned", 0)) for row in used),
+    }
+    dropped: Counter[str] = Counter()
+    price_dropped: Counter[str] = Counter()
+    for row in used:
+        dropped.update(row.get("dropped", {}))
+        price_dropped.update(row.get("price_dropped", {}))
+    return returned, dropped, price_dropped
 
 
 def run_brief(category: str, query: str) -> dict[str, Any]:
@@ -124,23 +386,52 @@ def run_brief(category: str, query: str) -> dict[str, Any]:
     if step.rubric is None:
         return {"category": category, "finished": False, "why": NOT_FINISHED[1], "presearch_seconds": timings}
 
+    from app.llm import load_llm_config
+    from app.presearch import default_llm
+
     stages = default_search_stages()
-    research, extract, match, verify = (
-        _Keep(s) for s in (stages.research, stages.extract, stages.match, stages.verify)
-    )
+    reader: Any = stages.extract
+    returned = _Returned(reader.llm)
+    reader.llm = returned
+    extract = _KeepExtract(reader, returned)
+    research, match, verify = (_Keep(s) for s in (stages.research, stages.match, stages.verify))
     stages.research, stages.extract, stages.match, stages.verify = research, extract, match, verify
-    dropped = _Dropped()
+    dropped = _Dropped(extract)
     parser_log = logging.getLogger("app.extract.parsing")
     parser_log.addHandler(dropped)
     level = parser_log.level
     parser_log.setLevel(logging.INFO)
+    unwatch = returned.watch()
     try:
         request = SearchRequest(session_id=session_id, raw_query=query, rubric=step.rubric)
         result = PipelineRunner(stages, InMemoryResultStore()).run(request)
     finally:
         parser_log.removeHandler(dropped)
         parser_log.setLevel(level)
-    record = _numbers(category, result, research, extract, match, verify, dropped.counts)
+        unwatch()
+    rows, outputs = extract.snapshot()
+    used, drops, price_drops = tally(rows)
+    with extract._lock:
+        fallbacks = Counter(extract.fallbacks)
+    record = _numbers(category, result, research, outputs, match, verify, drops)
+    call_log = getattr(default_llm(), "call_log", None)
+    pool = load_llm_config().pool
+    record["funnel"] = funnel(
+        result,
+        _first_per_source(outputs),
+        stage_counts=extract.counts,
+        fallbacks=fallbacks,
+        dropped=drops,
+        price_dropped=price_drops,
+        per_source=rows,
+        returned=used,
+        alias_map=match.outputs[0].alias_map if match.outputs else {},
+        calls=list(getattr(call_log, "records", [])),
+        reserve={data_class: reader.settings.output_tokens(data_class) for data_class in DataClass},
+        last_resort={m.provider.value: pool.public_output_tokens for m in pool.members if pool.public_output_tokens},
+        spec_keys=set(reader.settings.public_spec_keys),
+        settings=reader.settings,
+    )
     record["presearch_seconds"] = timings
     return record
 
@@ -161,7 +452,7 @@ def _numbers(
     category: str,
     result: Any,
     research: _Keep,
-    extract: _Keep,
+    outputs: list[Any],
     match: _Keep,
     verify: _Keep,
     dropped: Mapping[str, int],
@@ -178,7 +469,7 @@ def _numbers(
     fits = {r.product_id: checks.fit(rubric, indexed.get(r.product_id, {})) for r in ranked}
     mentions = {pid: summary.product.recommender_count for pid, summary in products.items()}
     wins = checks.most_mentioned_wins_fitting_worst([(r.product_id, r.rank) for r in ranked], fits, mentions)
-    extractions = _first_per_source(extract.outputs)
+    extractions = _first_per_source(outputs)  # a copy taken under the extract wrapper's lock
     kept_claims = [c for out in extractions for c in out.claims]
     reached_quote = len(kept_claims) + dropped.get("contract", 0)
     quote_checked = reached_quote + dropped.get("quote", 0)
@@ -231,6 +522,224 @@ def _numbers(
     }
 
 
+# --- the funnel (US-14) ----------------------------------------------------------------------------------------------
+
+
+def _spacing(name: str) -> str:
+    return " ".join(name.split()).casefold()
+
+
+def _sorted(counts: Mapping[str, int]) -> dict[str, int]:
+    return dict(sorted((k, v) for k, v in counts.items() if v))
+
+
+def funnel(
+    result: SearchResult,
+    extractions: Sequence[ExtractionResult],
+    *,
+    stage_counts: Mapping[str, int] | None,
+    fallbacks: Mapping[str, int],
+    dropped: Mapping[str, int],
+    returned: Mapping[str, int],
+    alias_map: Mapping[str, str],
+    price_dropped: Mapping[str, int] | None = None,
+    per_source: Mapping[str, Mapping[str, Any]] | None = None,
+    calls: Sequence[LLMCallRecord],
+    reserve: Mapping[DataClass, int],
+    spec_keys: Collection[str],
+    settings: ExtractSettings | None = None,
+    last_resort: Mapping[str, int] | None = None,
+) -> dict[str, Any]:
+    """Where one search's sources stopped turning into scored products: counts per step, each with its reason.
+
+    `extractions` is one per source that reached extract; `stage_counts` the extract stage's own counts; `fallbacks`
+    the runs the runner gave up on, by why; `dropped` the parser's drop log; `returned` the claims the model gave;
+    `alias_map` match's names; `price_dropped` the parser's drops of price claims; `per_source` each source's type,
+    page kind, price counts and how its call ended; `reserve` each data class's answer size, and `last_resort` the
+    smaller one a pool member answers a public page with. A claim's product is found as verify finds it: its exact
+    name, then its case only. With `settings`, it also counts what every public prompt carried."""
+    rubric = result.request.rubric
+    sources = list(result.sources)
+    type_of = {s.id: s.type.value for s in sources}
+    reached = {out.source_id for out in extractions}
+    counts = stage_counts or {}
+    weights = [w.key for w in rubric.weights]
+    specs = {*spec_keys, checks.PRICE_KEY, *(rule.attribute for rule in rubric.hard_rules)}
+    names = dict(alias_map)
+    folded = {raw.casefold(): pid for raw, pid in sorted(names.items())}
+    kept = [claim for out in extractions for claim in out.claims]
+
+    def product_of(mention: str) -> str | None:
+        return names.get(mention) or folded.get(mention.casefold())
+
+    def key_kind(key: str | None) -> str:
+        if key in weights:
+            return "rubric"
+        return "spec" if key is not None and (key in specs or key.startswith("has_")) else "neither"
+
+    matched = [claim for claim in kept if product_of(claim.product_mention) is not None]
+    spaced = {_spacing(raw) for raw in names}
+    lost = Counter[str](
+        "spacing" if _spacing(c.product_mention) in spaced else "no_product"
+        for c in kept
+        if product_of(c.product_mention) is None
+    )
+    own = [c for c in calls if c.search_id == result.search_id]
+    outcomes = Counter[str](c.outcome for c in own)
+    by_provider: dict[str, Counter[str]] = {}
+    for call in own:
+        by_provider.setdefault(call.provider.value, Counter())[call.data_class.value] += 1
+    cut_off = sum(1 for c in own if _cut_off(c, reserve, last_resort or {}))
+
+    ranked = result.decision.ranked if result.decision is not None else []
+    filtered = result.decision.filtered if result.decision is not None else []
+    summaries = {s.product.id: s for s in result.products}
+    states = Counter[str]({state.value: 0 for state in ValueState})
+    per_product: list[dict[str, Any]] = []
+    by_criterion = [Counter[str]({state.value: 0 for state in ValueState}) for _ in weights]  # in rubric order
+    for item in ranked:
+        values = {v.criterion_key: v for v in summaries[item.product_id].values} if item.product_id in summaries else {}
+        each = [values[key].state.value if key in values else ValueState.UNKNOWN.value for key in weights]
+        mine = Counter[str](each)
+        states.update(mine)
+        for position, state in enumerate(each):
+            by_criterion[position][state] += 1
+        per_product.append(
+            {"rank": item.rank, "scored": item.score is not None}
+            | {state.value: mine.get(state.value, 0) for state in ValueState}
+        )
+    priced = {
+        pid
+        for pid, summary in summaries.items()
+        for v in summary.values
+        if v.criterion_key == checks.PRICE_KEY and v.state in (ValueState.KNOWN, ValueState.DISPUTED)
+    }
+    price_kept = [claim for claim in kept if claim.criterion_key == checks.PRICE_KEY]
+    unusable = Counter[str](p for c in price_kept if (p := price_problem(c.value, c.unit)) is not None)
+    by_source: dict[str, Counter[str]] = {}
+    for row in (per_source or {}).values():
+        counted = by_source.setdefault(f"{row['type']}.{row['kind']}", Counter())
+        counted.update(
+            reached=1,
+            sent=int(row["sent"]),
+            gave_up=int(bool(row.get("gave_up"))),
+            price_asked=int(row["price_asked"]),
+            price_returned=int(row["price_returned"]),
+        )
+    unanswered = Counter[str](
+        str(row.get("answer")) for row in (per_source or {}).values() if row.get("answer") not in ("ok", "not_sent")
+    )
+    for_price = [f for f in filtered if f.rule_attribute in PRICE_ATTRIBUTES]
+    return {
+        "sources": {
+            "found": len(sources),
+            "by_type": _sorted(Counter(s.type.value for s in sources)),
+            "by_via": _sorted(Counter(s.via for s in sources)),
+        },
+        "extract": {
+            "reached_the_stage": len(reached),
+            "not_started_time_limit": sum(1 for s in sources if s.id not in reached),
+            "search_snippet": sum(1 for s in sources if s.via == SEARCH_SNIPPET and s.id in reached),
+            "over_source_cap": counts.get("over_source_cap", 0),
+            "over_reddit_budget": counts.get("over_reddit_budget", 0),
+            "over_reddit_share": counts.get("over_reddit_share", 0),
+            "sent": counts.get("sent", 0),
+            "sent_with_no_criteria": counts.get("no_criteria", 0),
+            "no_valid_answer": counts.get("unreadable", 0),
+            # per source, how its call ended when no answer came: the run's own LLM share refused it, every provider
+            # had no room, it ran out of time, it failed, or the runner gave up on the source
+            "no_answer_by_reason": _sorted(unanswered),
+            "timed_out": fallbacks.get("timeout", 0),
+            "failed": fallbacks.get("error", 0),
+        },
+        "llm": {
+            "calls": len(own),
+            "by_provider": {p: _sorted(c) for p, c in sorted(by_provider.items())},
+            "by_outcome": _sorted(outcomes),
+            "failed": len(own) - outcomes.get("ok", 0),
+            "cut_off": cut_off,
+            "no_room": outcomes.get("skipped_budget", 0) + outcomes.get("rate_limited", 0),
+        },
+        "claims": {
+            "returned": returned.get("claims", 0),
+            "dropped_by_reason": _sorted(dropped),
+            "kept": len(kept),
+            "kept_by_kind": _sorted(Counter("score" if c.score is not None else "value" for c in kept)),
+            "kept_by_key": {kind: sum(1 for c in kept if key_kind(c.criterion_key) == kind) for kind in KEY_KINDS},
+            "kept_by_source_type": _sorted(Counter(type_of.get(c.source_id, "unknown") for c in kept)),
+            "scorable": sum(1 for c in matched if c.score is not None and c.criterion_key in weights),
+        },
+        "match": {
+            "claims_matching_a_product": len(matched),
+            "claims_matching_nothing": len(kept) - len(matched),
+            "nothing_by_reason": _sorted(lost),  # spacing: the same name, spaced otherwise; no_product: no such name
+        },
+        "shown": {
+            "products": len(ranked),
+            "with_a_score": sum(1 for item in ranked if item.score is not None),
+            "states": dict(sorted(states.items())),
+            "per_product": per_product,
+            "by_criterion": [dict(sorted(c.items())) for c in by_criterion],  # by the rubric's order, never its keys
+        },
+        "held_back": {
+            "filtered_out": sum(1 for f in filtered if f.group == "filtered_out"),
+            "cant_tell": sum(1 for f in filtered if f.group == "cant_tell"),
+            "cant_tell_for_price": sum(1 for f in for_price if f.group == "cant_tell"),
+        },
+        "price": {
+            "asked": rubric.budget is not None,
+            "returned": returned.get(checks.PRICE_KEY, 0),
+            "dropped_by_reason": _sorted(price_dropped or {}),
+            "kept": len(price_kept),
+            "kept_unusable_by_reason": _sorted(unusable),
+            "attached": sum(1 for c in price_kept if product_of(c.product_mention) is not None),
+            "products_with_a_price": len(priced),
+            "shown_with_a_price": sum(1 for item in ranked if item.product_id in priced),
+            "cant_tell_for_price": sum(1 for f in for_price if f.group == "cant_tell"),
+            "filtered_for_price": sum(1 for f in for_price if f.group == "filtered_out"),
+            "by_source": {
+                kind: {k: counted[k] for k in ("reached", "sent", "gave_up", "price_asked", "price_returned")}
+                for kind, counted in sorted(by_source.items())
+            },
+        },
+    } | ({"public_prompt": _public_prompt(rubric, settings)} if settings is not None else {})
+
+
+def _cut_off(call: LLMCallRecord, reserve: Mapping[DataClass, int], last_resort: Mapping[str, int]) -> bool:
+    """Was this unusable answer most likely cut off at its size limit? The limit is the stage's for the data class,
+    or the smaller one a pool member answers a public page with. A chunked call adds up its chunks' output, so it is
+    left out rather than guessed at."""
+    if call.outcome != "invalid_output" or call.fitted == "chunked":
+        return False
+    limit = reserve.get(call.data_class, sys.maxsize)
+    if call.data_class is DataClass.PUBLIC and call.provider.value in last_resort:
+        limit = min(limit, last_resort[call.provider.value])
+    return call.output_tokens >= CUT_OFF_SHARE * limit
+
+
+def _public_prompt(rubric: Rubric, settings: ExtractSettings) -> dict[str, Any]:
+    """How many of the search's criteria and rules every public prompt carried, and whether it asked for the price:
+    the keys the extract stage picks, by its own function, from the keys the pipeline gives it."""
+    from app.decide.features import known_feature
+    from app.extract.prompts import public_prompt_keys
+    from app.pipeline import MAX_CATEGORY_LABEL
+
+    weights = [w.key for w in rubric.weights]
+    rules = list(dict.fromkeys(rule.attribute for rule in rubric.hard_rules))
+    named = (known_feature(e.value) for e in rubric.exclusions if e.kind == "feature")
+    features = list(dict.fromkeys(name for name in named if name is not None))
+    category = rubric.category[:MAX_CATEGORY_LABEL]
+    keys = public_prompt_keys(category, weights, rules, rubric.budget is not None, settings, features)
+    return {
+        "criteria": len(keys.criteria),
+        "of_criteria": len(weights),
+        "spec_keys": len(keys.specs),
+        "price_asked": checks.PRICE_KEY in keys.specs,
+        "rules_asked": sum(1 for rule in rules if rule in keys.specs),
+        "rules": len(rules),
+    }
+
+
 # --- the record -------------------------------------------------------------------------------------------------------
 
 READ_TYPES = ("reddit", "review_site", "manufacturer", "lab", "retailer", "youtube")  # web_search: snippets, never read
@@ -244,7 +753,7 @@ def _given(brief: Mapping[str, Any]) -> tuple[int, Mapping[str, int]]:
     return total, extraction.get("sources_given_by_type", brief["research"]["sources_by_type"])
 
 
-def measures(briefs: list[dict[str, Any]], source: str) -> list[dict[str, Any]]:
+def measures(briefs: list[dict[str, Any]], source: str, max_sources: int = MAX_SOURCES) -> list[dict[str, Any]]:
     done = [b for b in briefs if b.get("finished")]
     coverage = [c for b in done for c in b["products"]["coverage"]]
     given = sum(_given(b)[0] for b in done)
@@ -328,7 +837,7 @@ def measures(briefs: list[dict[str, Any]], source: str) -> list[dict[str, Any]]:
             "claims",
             source,
             f"{kept} claims kept from {given} sources given to extract. Search snippets and sources past the "
-            f"{MAX_SOURCES}-source cap count too: extract passes them over without a model call",
+            f"{max_sources}-source cap count too: extract passes them over without a model call",
         ),
         measure(
             "live.quote_found_share",
@@ -391,63 +900,122 @@ def text_in(record: Any, key: str = "") -> list[str]:
     return []
 
 
-def main(argv: list[str] | None = None) -> int:
+@dataclass(frozen=True)
+class Options:
+    out: Path
+    categories: tuple[str, ...]
+    max_sources: int
+    budget: dict[str, int]
+    rebuild: bool
+
+
+def _cap(text: str) -> int:
+    """A source cap from 1 to config/extract.yaml's own: a run may read fewer sources, never more (and the stage would
+    quietly ignore anything outside 1 to 100)."""
+    from app.extract.settings import load_extract_settings
+
+    highest = load_extract_settings(env={}).max_sources_per_search
+    try:
+        value = int(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"{text!r} is not a whole number") from None
+    if not 1 <= value <= highest:
+        raise argparse.ArgumentTypeError(f"the cap must be 1 to {highest}")
+    return value
+
+
+def _recorded_cap(record: Mapping[str, Any], default: int) -> int:
+    """The source cap a record was made with, from its budget note."""
+    found = re.search(r"EXTRACT_MAX_SOURCES=(\d+)", str(record.get("budget_note", "")))
+    return int(found[1]) if found else default
+
+
+def options(argv: list[str] | None = None) -> Options:
     parser = argparse.ArgumentParser(prog="python -m evals.live_briefs", description=(__doc__ or "").splitlines()[0])
     parser.add_argument(
         "--rebuild", action="store_true", help="recompute the measures from the briefs already recorded (no calls)"
     )
+    parser.add_argument("--out", type=Path, default=LIVE_OUT, help="the record to write (default: the committed one)")
+    parser.add_argument(
+        "--categories", nargs="+", choices=CATEGORIES, default=list(CATEGORIES), help="the briefs, in the order to run"
+    )
+    parser.add_argument(
+        "--max-sources", type=_cap, default=MAX_SOURCES, help="EXTRACT_MAX_SOURCES for every brief, 1 to config's cap"
+    )
+    for service, limit in BUDGET.items():
+        parser.add_argument(f"--budget-{service}", type=int, default=limit, help=f"calls to {service} in all")
     args = parser.parse_args(argv)
-    if isinstance(sys.stdout, io.TextIOWrapper):
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    if args.rebuild:
-        recorded = json.loads(LIVE_OUT.read_text(encoding="utf-8"))
-        recorded["measures"] = measures(recorded["briefs"], SOURCE)
-        LIVE_OUT.write_bytes((json.dumps(recorded, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
-        print(f"Rebuilt {len(recorded['measures'])} measures from the recorded briefs; no call was made")
-        return 0
-    from dotenv import load_dotenv
+    budget = {service: int(getattr(args, f"budget_{service}")) for service in BUDGET}
+    return Options(args.out, tuple(args.categories), args.max_sources, budget, args.rebuild)
 
+
+def run_all(opts: Options, budget: LiveBudget, run: Callable[[str, str], dict[str, Any]]) -> dict[str, Any]:
+    """Every brief in order, each held to an even share of what is left, and the record they make."""
     from scripts.eval_trust import current_commit
 
-    load_dotenv()  # the keys stay in the environment; nothing here prints them
-    os.environ["EXTRACT_MAX_SOURCES"] = str(MAX_SOURCES)
-    os.environ["MATCHER"] = "fuzzy"  # the default (S3-15), stated so a developer's .env can't change it
-    budget = LiveBudget(BUDGET)
-    budget.install()  # kept until the process ends: a stage thread still running after a brief counts too
     briefs: list[dict[str, Any]] = []
-    calls: dict[str, dict[str, int]] = {}
-    for index, category in enumerate(CATEGORIES):
-        left = len(CATEGORIES) - index
-        share = {service: budget.left(service) // left for service in BUDGET}
+    for index, category in enumerate(opts.categories):
+        left = len(opts.categories) - index
+        share = {service: budget.left(service) // left for service in opts.budget}
         before = dict(budget.used)
         print(f"\n== {category} (share {share})")
         with budget.share(**share):
             try:
-                brief = run_brief(category, QUERIES[category])
+                brief = run(category, QUERIES[category])
             except Exception as exc:  # one brief failing must not lose the others
                 print(f"   failed: {type(exc).__name__}")
                 brief = {"category": category, "finished": False, "why": NOT_FINISHED[1]}
-        calls[category] = {service: budget.used[service] - before.get(service, 0) for service in BUDGET}
-        brief["calls"] = calls[category]
+        brief["calls"] = {service: budget.used.get(service, 0) - before.get(service, 0) for service in opts.budget}
         briefs.append(brief)
         print(f"   {json.dumps({k: v for k, v in brief.items() if k in ('products', 'methods', 'calls')})}")
-    record = {
+    return {
         "generated": datetime.now(UTC).date().isoformat(),
         "commit": current_commit(),
         "runner": "python -m evals.live_briefs (live)",
-        "budget_note": f"limits {BUDGET}, EXTRACT_MAX_SOURCES={MAX_SOURCES}, MATCHER=fuzzy",
+        "budget_note": f"limits {opts.budget}, EXTRACT_MAX_SOURCES={opts.max_sources}, MATCHER=fuzzy",
         "calls_used": dict(budget.used),
-        "measures": measures(briefs, SOURCE),
+        "measures": measures(briefs, SOURCE, opts.max_sources),
         "briefs": briefs,
     }
+
+
+def _write(path: Path, record: Mapping[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes((json.dumps(record, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
+
+
+def _shown(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(BACKEND.parent).as_posix()
+    except ValueError:
+        return str(path)
+
+
+def main(argv: list[str] | None = None) -> int:
+    opts = options(argv)
+    if isinstance(sys.stdout, io.TextIOWrapper):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if opts.rebuild:
+        recorded = json.loads(opts.out.read_text(encoding="utf-8"))
+        recorded["measures"] = measures(recorded["briefs"], SOURCE, _recorded_cap(recorded, opts.max_sources))
+        _write(opts.out, recorded)
+        print(f"Rebuilt {len(recorded['measures'])} measures from the recorded briefs; no call was made")
+        return 0
+    from dotenv import load_dotenv
+
+    load_dotenv()  # the keys stay in the environment; nothing here prints them
+    os.environ["EXTRACT_MAX_SOURCES"] = str(opts.max_sources)
+    os.environ["MATCHER"] = "fuzzy"  # the default (S3-15), stated so a developer's .env can't change it
+    budget = LiveBudget(opts.budget)
+    budget.install()  # kept until the process ends: a stage thread still running after a brief counts too
+    record = run_all(opts, budget, run_brief)
     leaked = text_in(record)
     if leaked:  # never write text that could be a quote, a name or a link
         print(f"refused to write: {len(leaked)} strings are not fixed labels")
         return 1
-    LIVE_OUT.parent.mkdir(parents=True, exist_ok=True)
-    LIVE_OUT.write_bytes((json.dumps(record, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
-    print(f"\ncalls used: {budget.used} of {BUDGET}")
-    print(f"Written: {LIVE_OUT.relative_to(BACKEND.parent).as_posix()}")
+    _write(opts.out, record)
+    print(f"\ncalls used: {budget.used} of {opts.budget}")
+    print(f"Written: {_shown(opts.out)}")
     return 0
 
 

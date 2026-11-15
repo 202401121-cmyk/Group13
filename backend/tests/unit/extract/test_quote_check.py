@@ -111,3 +111,32 @@ def test_the_log_holds_counts_and_no_text(caplog: pytest.LogCaptureFixture) -> N
     assert "quote" in caplog.text
     assert secret not in caplog.text
     assert QUOTE not in caplog.text
+
+
+def test_merged_duplicate_claims_are_counted_in_the_drop_log(caplog: pytest.LogCaptureFixture) -> None:
+    """Two identical claims merge into one (as before); the merge is now counted, for the live funnel (US-14)."""
+    with caplog.at_level(logging.INFO, logger="app.extract"):
+        result = to_extraction_result(RawExtraction(mentions=[], claims=[_raw(QUOTE), _raw(QUOTE)]), PAGE, KEYS, NOW)
+    assert len(result.claims) == 1
+    (record,) = [r for r in caplog.records if r.getMessage().startswith("extract: claims dropped")]
+    assert record.args is not None and isinstance(record.args, tuple)
+    assert record.args[1] == {"duplicate": 1}
+
+
+def test_price_claims_dropped_are_counted_apart(caplog: pytest.LogCaptureFixture) -> None:
+    """The live funnel needs the price's own drops (US-14): every claim's drop is in the first line, as before, and a
+    price claim's drop is in a second line of its own. Counts only."""
+    page = review_source("https://www.reviews.example/p", title="A made-up list", text="Nova Book 14 costs ₹ 64,990.")
+
+    def price(quote: str, name: str = "Nova Book 14") -> RawClaim:
+        return RawClaim(
+            product_mention=name, criterion_key="price_inr", value="₹64,990", quote=quote, polarity="neutral"
+        )
+
+    raw = [price("costs ₹ 64,990"), price("costs ₹99"), price("costs ₹ 64,990", "Orion Play 15"), _raw("nine hours")]
+    with caplog.at_level(logging.INFO, logger="app.extract"):
+        result = to_extraction_result(RawExtraction(mentions=[], claims=raw), page, ["price_inr"], NOW)
+    assert len(result.claims) == 1
+    by_line = [r.args[1] for r in caplog.records if isinstance(r.args, tuple) and len(r.args) == 2]
+    assert by_line == [{"quote": 1, "product": 1, "criterion": 1}, {"quote": 1, "product": 1}]
+    assert [r.getMessage().startswith("extract: price claims dropped") for r in caplog.records] == [False, True]
