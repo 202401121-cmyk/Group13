@@ -8,6 +8,8 @@ Criterion names and fixed words only, never what the shopper typed or a source s
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from app.contracts import DecideResult, ValueState
 
 from .units import attribute_words
@@ -36,10 +38,8 @@ def left_out_note(result: DecideResult) -> str | None:
     keys = left_out(result)
     if not keys:
         return None
-    words = [attribute_words(k) for k in keys]
-    named = words[0] if len(words) == 1 else f"{', '.join(words[:-1])} and {words[-1]}"
-    pronoun = "it was" if len(words) == 1 else "they were"
-    return f"We found no information on {named} for any product, so {pronoun} left out of the scores."
+    pronoun = "it was" if len(keys) == 1 else "they were"
+    return f"We found no information on {_listed(keys)} for any product, so {pronoun} left out of the scores."
 
 
 def not_ranked(result: DecideResult) -> bool:
@@ -47,9 +47,23 @@ def not_ranked(result: DecideResult) -> bool:
     return bool(result.ranked) and all(r.score is None for r in result.ranked)
 
 
-def decide_note(result: DecideResult) -> str | None:
+def _listed(keys: Sequence[str]) -> str:
+    words = [attribute_words(k) for k in keys]
+    return words[0] if len(words) == 1 else f"{', '.join(words[:-1])} and {words[-1]}"
+
+
+def compared_note(keys: Sequence[str]) -> str | None:
+    """ "We scored battery life and weight by comparing what the sources say about each product." None if none
+    (US-18): those criteria were scored from the products' stated facts, not from opinions."""
+    if not keys:
+        return None
+    return f"We scored {_listed(keys)} by comparing what the sources say about each product."
+
+
+def decide_note(result: DecideResult, compared: Sequence[str] = ()) -> str | None:
     """The stage's note: "Not ranked: ..." when nothing was scored (every criterion was left out then, so naming them
-    would only repeat it), else the left-out note, else None."""
+    would only repeat it); else the left-out note and the compared note, each when there is one; else None."""
     if not_ranked(result):
         return NOT_RANKED_NOTE
-    return left_out_note(result)
+    parts = [note for note in (left_out_note(result), compared_note(compared)) if note is not None]
+    return " ".join(parts) or None

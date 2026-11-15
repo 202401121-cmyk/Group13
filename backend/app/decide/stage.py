@@ -17,7 +17,7 @@ from collections import OrderedDict
 
 from app.contracts import DecideInput, DecideResult, StageContext, StageName, examples
 
-from .decision import decide
+from .decision import decide_with_notes
 from .notes import decide_note
 
 log = logging.getLogger(__name__)
@@ -50,8 +50,8 @@ class WeightedDecideStage:
         self._notes: OrderedDict[str, str] = OrderedDict()
 
     def run(self, inp: DecideInput, ctx: StageContext) -> DecideResult:
-        result = decide(inp)
-        note = decide_note(result)
+        result, compared = decide_with_notes(inp)
+        note = decide_note(result, compared)
         if note is not None:  # criterion names and fixed words only, never what the shopper typed
             log.info("decide: %s", note)
             self._keep(ctx.search_id, note)

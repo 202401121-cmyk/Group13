@@ -23,6 +23,7 @@ from app.contracts import Budget, Exclusion, FilteredProduct, HardRule, Product,
 from .features import feature_key
 from .units import (
     Quantity,
+    amount_text,
     attribute_unit,
     attribute_words,
     in_base,
@@ -33,7 +34,6 @@ from .units import (
     rupee_price,
     rupees,
     unit_key,
-    unit_label,
 )
 
 PRICE_KEY = "price_inr"
@@ -103,7 +103,7 @@ def _value_text(raw: object, attribute: str) -> str:
         unit = attribute_unit(attribute)
         if unit == "inr":
             return rupees(raw)
-        return f"{number_text(raw)} {unit_label(unit)}".strip()
+        return amount_text(raw, unit)
     return str(raw).strip()[:80]
 
 
