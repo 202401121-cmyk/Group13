@@ -40,7 +40,7 @@ const seed: RubricSeed = {
 };
 
 function edited(active: boolean) {
-  return { rubric: { ...rubric, hard_rules: [{ ...rubric.hard_rules[0]!, active }] } };
+  return { rubric: { ...rubric, hard_rules: [{ ...rubric.hard_rules[0]!, active }] }, note: null };
 }
 
 function withNote(body: unknown, note: string): Response {

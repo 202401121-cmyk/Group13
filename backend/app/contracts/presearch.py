@@ -90,6 +90,11 @@ class RubricEditResponse(Contract):
     """What the rubric editor's route answers: the rubric rebuilt with the shopper's edits applied last (US-09)."""
 
     rubric: Rubric
+    note: str | None = Field(
+        default=None,
+        max_length=300,
+        description="A plain sentence when the edits left every weight at 0, so the usual weights are used (US-09)",
+    )
 
 
 class ExclusionParseRequest(Contract):

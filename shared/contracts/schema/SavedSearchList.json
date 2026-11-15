@@ -1,0 +1,98 @@
+{
+  "$defs": {
+    "SavedSearchSummary": {
+      "additionalProperties": false,
+      "description": "One saved search in a signed-in shopper's list: what they asked, when, and the product that came first.",
+      "properties": {
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "request_text": {
+          "description": "What the shopper typed",
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Request Text",
+          "type": "string"
+        },
+        "category": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Category"
+        },
+        "top_product": {
+          "anyOf": [
+            {
+              "maxLength": 150,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The best match's name; None when nothing ranked",
+          "title": "Top Product"
+        }
+      },
+      "required": [
+        "id",
+        "created_at",
+        "request_text",
+        "category",
+        "top_product"
+      ],
+      "title": "SavedSearchSummary",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One page of saved searches, newest first.",
+  "properties": {
+    "items": {
+      "items": {
+        "$ref": "#/$defs/SavedSearchSummary"
+      },
+      "maxItems": 50,
+      "title": "Items",
+      "type": "array"
+    },
+    "next_cursor": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Ask with it for the next page; None on the last",
+      "title": "Next Cursor"
+    }
+  },
+  "required": [
+    "items",
+    "next_cursor"
+  ],
+  "title": "SavedSearchList",
+  "type": "object"
+}

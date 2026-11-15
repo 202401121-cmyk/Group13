@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.8.0",
+  "schema_version": "1.9.0",
   "search_id": "srch_demo0001",
   "request": {
     "session_id": "sess_demo0001",
@@ -567,49 +567,56 @@
             "score": 7.5,
             "normalized_weight": 0.20454545454545456,
             "contribution": 1.5341,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "battery_life",
             "score": 8.0,
             "normalized_weight": 0.1590909090909091,
             "contribution": 1.2727,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "keyboard_comfort",
             "score": 9.0,
             "normalized_weight": 0.18181818181818182,
             "contribution": 1.6364,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "display_quality",
             "score": 7.0,
             "normalized_weight": 0.09090909090909091,
             "contribution": 0.6364,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "weight",
             "score": 7.5,
             "normalized_weight": 0.13636363636363635,
             "contribution": 1.0227,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "build_durability",
             "score": 7.0,
             "normalized_weight": 0.09090909090909091,
             "contribution": 0.6364,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "value_for_money",
             "score": 8.0,
             "normalized_weight": 0.13636363636363635,
             "contribution": 1.0909,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           }
         ],
         "coverage": 1.0,
@@ -632,49 +639,56 @@
             "score": 8.0,
             "normalized_weight": 0.20454545454545456,
             "contribution": 1.6364,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "battery_life",
             "score": 7.0,
             "normalized_weight": 0.1590909090909091,
             "contribution": 1.1136,
-            "state": "disputed"
+            "state": "disputed",
+            "basis": "opinion"
           },
           {
             "criterion_key": "keyboard_comfort",
             "score": 7.5,
             "normalized_weight": 0.18181818181818182,
             "contribution": 1.3636,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "display_quality",
             "score": 7.5,
             "normalized_weight": 0.09090909090909091,
             "contribution": 0.6818,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "weight",
             "score": 8.0,
             "normalized_weight": 0.13636363636363635,
             "contribution": 1.0909,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "build_durability",
             "score": 7.5,
             "normalized_weight": 0.09090909090909091,
             "contribution": 0.6818,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "value_for_money",
             "score": 7.5,
             "normalized_weight": 0.13636363636363635,
             "contribution": 1.0227,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           }
         ],
         "coverage": 1.0,
@@ -697,49 +711,56 @@
             "score": 9.0,
             "normalized_weight": 0.20454545454545456,
             "contribution": 1.8409,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "battery_life",
             "score": 5.0,
             "normalized_weight": 0.1590909090909091,
             "contribution": 0.7955,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "keyboard_comfort",
             "score": 6.5,
             "normalized_weight": 0.18181818181818182,
             "contribution": 1.1818,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "display_quality",
             "score": 8.0,
             "normalized_weight": 0.09090909090909091,
             "contribution": 0.7273,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "weight",
             "score": 4.0,
             "normalized_weight": 0.13636363636363635,
             "contribution": 0.5455,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           },
           {
             "criterion_key": "build_durability",
             "score": 7.25,
             "normalized_weight": 0.09090909090909091,
             "contribution": 0.6591,
-            "state": "estimated"
+            "state": "estimated",
+            "basis": "estimated"
           },
           {
             "criterion_key": "value_for_money",
             "score": 7.0,
             "normalized_weight": 0.13636363636363635,
             "contribution": 0.9545,
-            "state": "known"
+            "state": "known",
+            "basis": "opinion"
           }
         ],
         "coverage": 0.902,
@@ -1099,5 +1120,6 @@
     }
   ],
   "coverage_note": "YouTube didn't respond in time, and one value is estimated. Results use Reddit, a review site and the maker's page.",
-  "saved": true
+  "saved": true,
+  "llm_unavailable": false
 }

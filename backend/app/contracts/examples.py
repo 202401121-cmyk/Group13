@@ -14,7 +14,10 @@ from __future__ import annotations
 
 import hashlib
 from datetime import UTC, datetime, timedelta
+from typing import Literal
+from uuid import UUID
 
+from .account import MeResponse, SavedSearchList, SavedSearchSummary
 from .claims import Claim, ProductMention
 from .commerce import CommerceResult, Offer
 from .common import ClaimType, Money, SourceTier, SourceType, StageName, StageReport, StageStatus
@@ -24,7 +27,7 @@ from .entities import MatchResult, Product, Variant
 from .evidence import Citation, ClaimEvidence, EvidenceResponse, EvidenceSource
 from .explain import Explanation, ExplanationSentence
 from .intake import Budget, Exclusion, HardRule, Intent
-from .interview import ROUGH_LEVEL_WEIGHTS, RoughLevel, RoughLevelWeights
+from .interview import ROUGH_LEVEL_WEIGHTS, InterviewState, RoughLevel, RoughLevelWeights, WeightBelief
 from .pipeline import (
     ProductSummary,
     ProgressEvent,
@@ -34,7 +37,7 @@ from .pipeline import (
     SearchRunStarted,
     SearchRunStatus,
 )
-from .presearch import ExclusionParseResponse, ReplyRequest, RubricEdit, RubricEditRequest
+from .presearch import ExclusionParseResponse, ReplyRequest, RubricEdit, RubricEditRequest, RubricEditResponse
 from .research import RecommenderCount, ResearchResult, Source, SourceComment, SourceFailure
 from .rubric import Rubric, WeightedCriterion, normalize
 from .verify import CommunitySignal, ResolvedValue, ValueState, VerifyResult
@@ -595,6 +598,13 @@ def verify() -> VerifyResult:
 # --- 9 decide -------------------------------------------------------------------------------
 
 
+def _basis(value: ResolvedValue) -> Literal["opinion", "estimated"] | None:
+    """The example's scores are sources' opinions, or estimates (DR-09); with no score, no basis (1.9.0)."""
+    if value.score is None:
+        return None
+    return "estimated" if value.state is ValueState.ESTIMATED else "opinion"
+
+
 def decision() -> DecideResult:
     rb = rubric()
     vals = {(v.product_id, v.criterion_key): v for v in verify().values}
@@ -613,6 +623,7 @@ def decision() -> DecideResult:
                     normalized_weight=w.normalized,
                     contribution=round(score * w.normalized, 4),
                     state=v.state,
+                    basis=_basis(v),
                 )
             )
         totals[pid] = sum(c.contribution for c in contribs) * 10
@@ -923,6 +934,49 @@ def exclusion_parse_response() -> ExclusionParseResponse:
     )
 
 
+def rubric_edit_response() -> RubricEditResponse:
+    """What the rubric editor's route answers: the rebuilt rubric, and no note, as some weight is above 0 (US-09)."""
+    return RubricEditResponse(rubric=rubric(), note=None)
+
+
+def interview_state() -> InterviewState:
+    """The interview before any answer, believing each weight is near the category's default but unsure (US-04)."""
+    return InterviewState(
+        session_id=SESSION_ID,
+        intent=intent(),
+        criteria=criteria(),
+        beliefs={c.key: WeightBelief(mean=c.default_weight, sd=2.5) for c in criteria().criteria[:3]},
+    )
+
+
+def me_response() -> MeResponse:
+    """A signed-in shopper: an id and a display name, never an email (US-30, D-36)."""
+    return MeResponse(signed_in=True, user_id=UUID("6f1c2b8e-3d4a-4f5b-9c7d-2e1a0b9c8d7e"), display_name="Asha")
+
+
+def saved_search_list() -> SavedSearchList:
+    """A signed-in shopper's saved searches, newest first, on one page (US-30). The first ranked nothing."""
+    return SavedSearchList(
+        items=[
+            SavedSearchSummary(
+                id=UUID("0b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d"),
+                created_at=T0 + timedelta(days=2),
+                request_text="Phone with a good camera under 30k",
+                category="smartphone",
+                top_product=None,
+            ),
+            SavedSearchSummary(
+                id=UUID("9d8c7b6a-5f4e-4d3c-8b2a-1f0e9d8c7b6a"),
+                created_at=T0,
+                request_text=QUERY,
+                category="laptop",
+                top_product="Nova Book 14",
+            ),
+        ],
+        next_cursor=None,
+    )
+
+
 ALL_EXAMPLES = {
     "intent": intent,
     "intent_unclear": unclear_intent,
@@ -950,4 +1004,8 @@ ALL_EXAMPLES = {
     "evidence_unknown": evidence_unknown,
     "rubric_edit_request": rubric_edit_request,
     "exclusion_parse_response": exclusion_parse_response,
+    "rubric_edit_response": rubric_edit_response,
+    "interview_state": interview_state,
+    "me_response": me_response,
+    "saved_search_list": saved_search_list,
 }

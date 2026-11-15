@@ -20,6 +20,9 @@ RedditOrigin = Literal["arctic_shift", "pullpush", "official"]
 
 # A source is never private: it is text we fetched, not something the shopper typed (build rule 8).
 SourceDataClass = Literal[DataClass.PUBLIC, DataClass.REDDIT]
+# The source types whose text may be community text, so may carry the reddit data class: a Reddit thread always, and a
+# YouTube video when its text holds viewers' comments (P-23: Groq only, kept at most 24 hours, never saved).
+_COMMUNITY_TEXT_TYPES = frozenset({SourceType.REDDIT, SourceType.YOUTUBE})
 
 # Which tier a source type gets by default (US-16 can refine per site).
 DEFAULT_TIER: dict[SourceType, SourceTier] = {
@@ -84,7 +87,11 @@ class Source(Contract):
     )
     data_class: SourceDataClass = Field(
         default=DataClass.PUBLIC,
-        description="What this text may be sent to (US-46). Follows the type: Reddit is reddit, the rest public",
+        description=(
+            "What this text may be sent to (US-46). Reddit is always reddit. YouTube is reddit when its text holds "
+            "viewers' comments (community text, P-23), else public. Every other type is public. Left out, it follows "
+            "the type: Reddit is reddit, the rest public"
+        ),
     )
     quality: Fraction = Field(default=0.5, description="US-13 thread or page quality score")
     via: Literal["api", "direct", "jina", "search_snippet", "firecrawl"] = Field(
@@ -121,8 +128,10 @@ class Source(Contract):
             raise ValueError("Reddit is community evidence, never editorial (US-16)")
         if self.source_detail is not None and self.type != SourceType.REDDIT:
             raise ValueError("source_detail says which Reddit archive or API was used, so it is for Reddit only")
-        if (self.type == SourceType.REDDIT) != (self.data_class == DataClass.REDDIT):
-            raise ValueError("a source's data class must match its type: Reddit is reddit, the rest are public")
+        if self.type == SourceType.REDDIT and self.data_class != DataClass.REDDIT:
+            raise ValueError("a Reddit source's data class is always reddit")
+        if self.data_class == DataClass.REDDIT and self.type not in _COMMUNITY_TEXT_TYPES:
+            raise ValueError("only a Reddit or YouTube source may carry the reddit data class; the rest are public")
         if (self.site is None) == (self.community is None):
             raise ValueError("a source has a site or a community: exactly one of the two")
         if self.type != SourceType.REDDIT and (self.upvotes, self.comment_count, self.comments) != (None, None, ()):

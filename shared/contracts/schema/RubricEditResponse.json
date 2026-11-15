@@ -316,10 +316,25 @@
   "properties": {
     "rubric": {
       "$ref": "#/$defs/Rubric"
+    },
+    "note": {
+      "anyOf": [
+        {
+          "maxLength": 300,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A plain sentence when the edits left every weight at 0, so the usual weights are used (US-09)",
+      "title": "Note"
     }
   },
   "required": [
-    "rubric"
+    "rubric",
+    "note"
   ],
   "title": "RubricEditResponse",
   "type": "object"

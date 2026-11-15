@@ -122,6 +122,13 @@ class SearchResult(Contract):
             "slow or failing (the UI then says the result isn't saved)."
         ),
     )
+    llm_unavailable: bool = Field(
+        default=False,
+        description=(
+            "True when every LLM provider failed during the run, so the page can say so plainly and offer a retry "
+            "(US-31). False on a result from before 1.9.0"
+        ),
+    )
 
     @model_validator(mode="after")
     def _check(self) -> SearchResult:

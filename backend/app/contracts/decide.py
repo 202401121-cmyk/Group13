@@ -33,6 +33,14 @@ class Contribution(Contract):
     normalized_weight: Fraction
     contribution: float = Field(ge=0, description="score x weight, the share of the final score")
     state: ValueState
+    basis: Literal["opinion", "compared", "estimated"] | None = Field(
+        default=None,
+        description=(
+            "How the score was made: a source's opinion, a stated value compared with the other shown products' "
+            "(P-20), or the peers' average (DR-09). Decide leaves it None where it made no score; None on a result "
+            "from before 1.9.0"
+        ),
+    )
 
 
 class RankedProduct(Contract):

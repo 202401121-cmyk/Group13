@@ -1,0 +1,44 @@
+{
+  "additionalProperties": false,
+  "description": "Who the browser is signed in as. A guest has no id and no name.",
+  "properties": {
+    "signed_in": {
+      "title": "Signed In",
+      "type": "boolean"
+    },
+    "user_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "User Id"
+    },
+    "display_name": {
+      "anyOf": [
+        {
+          "maxLength": 80,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Display Name"
+    }
+  },
+  "required": [
+    "signed_in",
+    "user_id",
+    "display_name"
+  ],
+  "title": "MeResponse",
+  "type": "object"
+}

@@ -248,6 +248,7 @@ describe("main reasons", () => {
           normalized_weight: 0.18,
           contribution: 0,
           state: "unknown",
+          basis: null,
         },
         {
           criterion_key: "cpu_performance",
@@ -255,6 +256,7 @@ describe("main reasons", () => {
           normalized_weight: 0.2,
           contribution: 1.5341,
           state: "known",
+          basis: "opinion",
         },
       ];
     });

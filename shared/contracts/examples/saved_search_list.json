@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "id": "0b8a7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d",
+      "created_at": "2026-10-05T10:00:00Z",
+      "request_text": "Phone with a good camera under 30k",
+      "category": "smartphone",
+      "top_product": null
+    },
+    {
+      "id": "9d8c7b6a-5f4e-4d3c-8b2a-1f0e9d8c7b6a",
+      "created_at": "2026-10-03T10:00:00Z",
+      "request_text": "best laptop for coding under 70k, at least 16 GB RAM, not too heavy, no Zenith",
+      "category": "laptop",
+      "top_product": "Nova Book 14"
+    }
+  ],
+  "next_cursor": null
+}

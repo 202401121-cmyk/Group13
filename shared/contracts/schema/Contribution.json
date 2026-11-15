@@ -46,6 +46,24 @@
     },
     "state": {
       "$ref": "#/$defs/ValueState"
+    },
+    "basis": {
+      "anyOf": [
+        {
+          "enum": [
+            "opinion",
+            "compared",
+            "estimated"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "How the score was made: a source's opinion, a stated value compared with the other shown products' (P-20), or the peers' average (DR-09). Decide leaves it None where it made no score; None on a result from before 1.9.0",
+      "title": "Basis"
     }
   },
   "required": [
@@ -53,7 +71,8 @@
     "score",
     "normalized_weight",
     "contribution",
-    "state"
+    "state",
+    "basis"
   ],
   "title": "Contribution",
   "type": "object"
