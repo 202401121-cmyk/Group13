@@ -1,0 +1,20 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "The Crispo Five's timer is accurate to the second.",
+    "category": "air_fryer",
+    "criteria": [
+      "timer_accuracy"
+    ]
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "Crispo Five",
+        "is_product": true
+      }
+    ],
+    "claims": []
+  }
+}

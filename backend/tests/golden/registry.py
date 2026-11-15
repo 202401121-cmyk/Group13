@@ -171,7 +171,8 @@ def _run_extract(raw: str, given: Given) -> Ran:
     client, log = _client(raw)
     source = _source(given)
     category = str(given.get("category", "laptop"))
-    inp = ExtractInput(source=source, criterion_keys=["battery_life"], category_label=category)
+    keys = [str(key) for key in given.get("criteria", ["battery_life"])]  # a search's own (maybe generated) keys
+    inp = ExtractInput(source=source, criterion_keys=keys, category_label=category)
     stage = GuardedExtractStage(client, now=lambda: NOW)
     if given.get("budget"):  # the search has a budget, so a public page is asked for its price too, as in a search
         stage.ask_for_specs(SEARCH_ID, [], has_budget=True)

@@ -10,7 +10,7 @@ import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs
 
 from app.contracts import Direction
 from app.criteria.fallback import DEFAULT_FALLBACK_PATH, fallback_criteria, load_category_sets, load_fallback_sets
-from app.decide.directions import fixed_keys, load_directions, stated_directions
+from app.decide.directions import direction_of, fixed_keys, load_directions, stated_directions
 from app.intake.lexicon import load_lexicon
 
 HIGHER = {
@@ -23,9 +23,11 @@ HIGHER = {
     "motion_handling",
     "noise_cancellation",
     "phone_compatibility",
+    "power",
     "safety_standards",
     "software_updates",
     "storage_space",
+    "temperature_range",
     "trial_and_warranty",
     "warranty_length",
     "water_resistance",
@@ -93,3 +95,25 @@ def test_each_category_uses_the_same_fixed_set_as_the_criteria_stage() -> None:
     categories = [*load_lexicon().categories, "a_category_nobody_knows"]
     for category in categories:
         assert fixed_keys(category) == {c.key for c in fallback_criteria(category).criteria}, category
+
+
+def test_a_word_matched_generated_criterion_takes_its_stand_ins_direction() -> None:
+    """Decide maps a generated key as extract does (US-14 stand-ins), so its stated values can be scored."""
+    assert direction_of("capacity_litres", "air_fryer") == "higher"
+    assert direction_of("power_watts", "air_fryer") == "higher"
+    assert direction_of("cooking_temperature_range", "air_fryer") == "higher"
+    assert direction_of("timer_accuracy", "air_fryer") is None
+    assert direction_of("capacity_litres", "mixer_grinder") is None  # the family set has no capacity
+
+
+def test_a_bad_synonyms_table_means_none_as_in_extract(tmp_path: Path) -> None:
+    """Extract runs with no table when one entry is bad, so decide reads none either: the two stages still agree."""
+    from app.decide.directions import load_synonyms
+
+    good = tmp_path / "good.yaml"
+    good.write_text("public_synonyms:\n  battery: [battery_life]\n", encoding="utf-8")
+    assert load_synonyms(good) == {"battery": ["battery_life"]}
+    for bad in ("  temp: []\n", "  Battery: [battery_life]\n", "  x: [battery_life]\n"):
+        path = tmp_path / "bad.yaml"
+        path.write_text("public_synonyms:\n  battery: [battery_life]\n" + bad, encoding="utf-8")
+        assert load_synonyms(path) == {}, bad

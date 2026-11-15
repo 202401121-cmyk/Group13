@@ -1,0 +1,30 @@
+{
+  "kind": "specific",
+  "given": {
+    "text": "The Crispo Five holds 5.5 litres of food.",
+    "category": "air_fryer",
+    "criteria": [
+      "capacity_litres"
+    ]
+  },
+  "outcome": "canonical",
+  "object": {
+    "mentions": [
+      {
+        "raw_name": "Crispo Five",
+        "is_product": true
+      }
+    ],
+    "claims": [
+      {
+        "product_mention": "Crispo Five",
+        "criterion_key": "capacity_litres",
+        "value": 5.5,
+        "unit": "l",
+        "quote": "holds 5.5 litres of food",
+        "claim_type": "experience",
+        "polarity": "neutral"
+      }
+    ]
+  }
+}

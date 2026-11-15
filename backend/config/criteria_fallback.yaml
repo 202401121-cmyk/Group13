@@ -823,3 +823,132 @@ categories:
         definition: How much mattress you get for the price you pay, compared with other models at the same budget.
         is_value_for_money: true
         default_weight: 6
+
+  # Kitchen categories whose shoppers compare measured specs (US-14 stand-ins): capacity and power, and for an air
+  # fryer how hot it gets, take the place of the family's least fitting criteria. Other kitchen categories keep the
+  # family set.
+  air_fryer:
+    criteria:
+      - key: cooking_results
+        label: Cooking results
+        definition: How crisp, evenly cooked and tasty the food comes out, from fries and paneer to reheated snacks.
+        default_weight: 9
+      - key: capacity
+        label: Capacity
+        definition: How much food the basket holds, in litres, so you can cook enough for your family in one batch.
+        direction: higher_is_better
+        unit: l
+        default_weight: 7
+      - key: power
+        label: Power
+        definition: How many watts it draws; more power heats the basket faster and keeps cooking quick when it is full.
+        direction: higher_is_better
+        unit: W
+        default_weight: 6
+      - key: temperature_range
+        label: Temperature range
+        definition: How hot it can get and how finely you can set it, so it can crisp, roast, bake and reheat.
+        direction: higher_is_better
+        unit: °C
+        default_weight: 5
+      - key: ease_of_cleaning
+        label: Ease of cleaning
+        definition: How easy the basket and tray are to wash, with a non-stick coating and no greasy hard-to-reach corners.
+        default_weight: 6
+      - key: safety
+        label: Safety
+        definition: How well it protects you, with overload cut-off, auto shut-off, child locks and handles that stay cool.
+        default_weight: 7
+      - key: noise_level
+        label: Noise level
+        definition: How quietly it runs, which matters in small kitchens, early mornings and homes with sleeping babies.
+        direction: lower_is_better
+        unit: dB
+        default_weight: 4
+      - key: value_for_money
+        label: Value for money
+        definition: How much air fryer you get for the price you pay, compared with other models at the same budget.
+        is_value_for_money: true
+        default_weight: 6
+
+  microwave:
+    criteria:
+      - key: cooking_results
+        label: Cooking results
+        definition: How evenly it heats, cooks and defrosts food, without cold centres, dry edges or burnt spots.
+        default_weight: 9
+      - key: capacity
+        label: Capacity
+        definition: How much it holds, in litres, so your plates, bowls and family-sized dishes fit inside and turn freely.
+        direction: higher_is_better
+        unit: l
+        default_weight: 7
+      - key: power
+        label: Power
+        definition: How many watts it uses to heat; more power cooks and reheats faster, which matters on busy mornings.
+        direction: higher_is_better
+        unit: W
+        default_weight: 6
+      - key: ease_of_cleaning
+        label: Ease of cleaning
+        definition: How easy the inside, turntable and door are to wipe clean after spills, splatters and strong smells.
+        default_weight: 6
+      - key: safety
+        label: Safety
+        definition: How well it protects you, with overload cut-off, auto shut-off, child locks and handles that stay cool.
+        default_weight: 7
+      - key: build_durability
+        label: Build durability
+        definition: How well the door, hinges, turntable, buttons and body hold up after years of daily use.
+        default_weight: 6
+      - key: after_sales_service
+        label: After-sales service
+        definition: How easy it is to get repairs, spare parts and service visits from the brand near you.
+        default_weight: 5
+      - key: value_for_money
+        label: Value for money
+        definition: How much microwave you get for the price you pay, compared with other models at the same budget.
+        is_value_for_money: true
+        default_weight: 6
+
+  electric_kettle:
+    criteria:
+      - key: capacity
+        label: Capacity
+        definition: How much water it boils at once, in litres, so it fills enough cups for everyone in one go.
+        direction: higher_is_better
+        unit: l
+        default_weight: 7
+      - key: power
+        label: Power
+        definition: How many watts it draws; more power boils water faster, so your tea or noodles are ready sooner.
+        direction: higher_is_better
+        unit: W
+        default_weight: 7
+      - key: safety
+        label: Safety
+        definition: How well it protects you, with auto shut-off, boil-dry protection, a cool-touch body and a locking lid.
+        default_weight: 8
+      - key: ease_of_cleaning
+        label: Ease of cleaning
+        definition: How easy it is to clean inside and descale, with a wide mouth and no hidden corners for limescale.
+        default_weight: 5
+      - key: noise_level
+        label: Noise level
+        definition: How quietly it runs, which matters in small kitchens, early mornings and homes with sleeping babies.
+        direction: lower_is_better
+        unit: dB
+        default_weight: 4
+      - key: build_durability
+        label: Build durability
+        definition: How well the heating plate, handle, lid and switch hold up after years of boiling water every day.
+        default_weight: 6
+      - key: after_sales_service
+        label: After-sales service
+        definition: How easy it is to get repairs, spare parts and warranty service from the brand near you.
+        default_weight: 5
+      - key: value_for_money
+        label: Value for money
+        definition: How much kettle you get for the price you pay, compared with other models at the same budget.
+        is_value_for_money: true
+        default_weight: 6

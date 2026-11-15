@@ -43,6 +43,9 @@ _UNITS: dict[str, tuple[str, float]] = {
     "kwh": ("energy", 1e3),
     "mah": ("charge", 1.0),
     "ah": ("charge", 1e3),
+    "ml": ("volume", 1e-3),  # so "5.5 litres" and "5500 ml" compare (US-14 stand-ins: an air fryer's capacity)
+    "l": ("volume", 1.0),
+    "celsius": ("temperature", 1.0),  # "200 °C": how hot an air fryer gets
     "inr": ("money_inr", 1.0),
     "usd": ("money_usd", 1.0),
 }
@@ -109,6 +112,18 @@ _ALIASES: dict[str, str] = {
     "rs": "inr",
     "rupee": "inr",
     "rupees": "inr",
+    "litre": "l",
+    "litres": "l",
+    "liter": "l",
+    "liters": "l",
+    "ltr": "l",
+    "ltrs": "l",
+    "millilitre": "ml",
+    "millilitres": "ml",
+    "milliliter": "ml",
+    "milliliters": "ml",
+    "°c": "celsius",
+    "℃": "celsius",
     "$": "usd",
     "dollar": "usd",
     "dollars": "usd",
@@ -128,6 +143,8 @@ _LABELS: dict[str, str] = {
     "wh": "Wh",
     "kwh": "kWh",
     "mah": "mAh",
+    "l": "L",
+    "celsius": "°C",
     "ah": "Ah",
     "inr": "INR",
     "usd": "USD",
@@ -148,7 +165,7 @@ _ONE_NUMBER = re.compile(rf"^(?P<before>.*?){_CURRENCY}?\s*(?P<number>{_NUMBER})
 _ANY_NUMBER = re.compile(_NUMBER)
 # A currency or price word written against its number ("Rs84,990", "MRP84,990") gets a space, so the number is whole.
 _GLUED_PRICE = re.compile(r"(?<![A-Za-z])(₹|rs\.?|inr|mrp|\$|usd)(?=\d)", re.IGNORECASE)
-_UNIT_WORD = re.compile(r'^(?:[A-Za-z]+|"|″|”)')
+_UNIT_WORD = re.compile(r'^(?:[A-Za-z]+|°[A-Za-z]|℃|"|″|”)')  # "°C" and "℃" are units too
 _PAIRS = re.compile(r"(\d)(?=(\d{2})+$)")  # where Indian grouping puts its commas, two digits at a time
 
 # Money (US-17, DR-01): a price is never read smaller than its text means. Text is money when a mark stands next to
