@@ -8,6 +8,9 @@
 # (about Grade 8, 10-25 words): what the criterion measures and why it matters. They are shown to shoppers
 # and reused by the interview (US-05, US-07, US-39), so keep them short and clear.
 # direction: higher_is_better | lower_is_better.  default_weight: 0-10, how much it usually matters.
+# State `direction:` only where a stated number or yes/no means something (hours, GB, kg): decide then scores a stated
+# value by comparing the shown products (US-18, app/decide/directions.py). Leave it out for opinion criteria (comfort,
+# build quality), and give a criterion the same direction in every set it is in.
 
 families:
   computing:
@@ -56,6 +59,7 @@ families:
       - key: battery_life
         label: Battery life
         definition: How many hours of real use you get on one charge, so the phone lasts from morning until night.
+        direction: higher_is_better
         unit: h
         default_weight: 8
       - key: processor_speed
@@ -69,6 +73,7 @@ families:
       - key: software_updates
         label: Software updates
         definition: How many years of Android or iOS updates and security fixes the maker promises, which keeps the phone safe longer.
+        direction: higher_is_better
         unit: years
         default_weight: 5
       - key: charging_speed
@@ -94,6 +99,7 @@ families:
       - key: battery_life
         label: Battery life
         definition: How many hours it plays on one charge, so it lasts through your commute, workout or party.
+        direction: higher_is_better
         unit: h
         default_weight: 6
       - key: connection_stability
@@ -115,6 +121,7 @@ families:
       - key: loudness
         label: Loudness
         definition: How loud it can play while the sound stays clean, without crackling or distortion at high volume.
+        direction: higher_is_better
         default_weight: 4
       - key: value_for_money
         label: Value for money
@@ -127,6 +134,7 @@ families:
       - key: battery_life
         label: Battery life
         definition: How many days it runs before it needs a charge or a new battery, so it is ready when you are.
+        direction: higher_is_better
         unit: days
         default_weight: 7
       - key: tracking_accuracy
@@ -148,11 +156,13 @@ families:
       - key: water_resistance
         label: Water resistance
         definition: How deep and how long it can stay in water safely, such as for swimming, showers or heavy rain.
+        direction: higher_is_better
         unit: m
         default_weight: 4
       - key: phone_compatibility
         label: Phone compatibility
         definition: How well it works with your phone and its app, including notifications, calls and syncing your data.
+        direction: higher_is_better
         default_weight: 5
       - key: value_for_money
         label: Value for money
@@ -205,6 +215,7 @@ families:
       - key: capacity
         label: Capacity
         definition: Whether its size in litres, kilograms or tons suits your family and room, so it is not too small.
+        direction: higher_is_better
         default_weight: 7
       - key: effectiveness
         label: Effectiveness
@@ -227,6 +238,7 @@ families:
       - key: warranty_length
         label: Warranty length
         definition: How many years the maker repairs it for free, especially the costly compressor or motor.
+        direction: higher_is_better
         unit: years
         default_weight: 5
       - key: value_for_money
@@ -325,6 +337,7 @@ families:
       - key: battery_life
         label: Battery life
         definition: How many minutes it runs on one charge, or whether it can also work while plugged in.
+        direction: higher_is_better
         unit: min
         default_weight: 5
       - key: ease_of_use
@@ -342,6 +355,7 @@ families:
       - key: attachments
         label: Attachments included
         definition: How many useful combs, heads or nozzles come in the box for different styles and needs.
+        direction: higher_is_better
         default_weight: 3
       - key: value_for_money
         label: Value for money
@@ -354,6 +368,7 @@ families:
       - key: safety_standards
         label: Safety standards
         definition: Whether it meets recognised child safety standards and has secure harnesses, brakes or locks that protect your baby.
+        direction: higher_is_better
         default_weight: 10
       - key: baby_comfort
         label: Comfort for the baby
@@ -416,6 +431,7 @@ families:
       - key: warranty_length
         label: Warranty length
         definition: How many years the maker covers defects such as sagging foam, broken parts or failed motors.
+        direction: higher_is_better
         unit: years
         default_weight: 5
       - key: value_for_money
@@ -451,6 +467,7 @@ families:
       - key: weather_resistance
         label: Weather resistance
         definition: How well it handles rain, mud and sweat without soaking through or getting damaged.
+        direction: higher_is_better
         default_weight: 4
       - key: value_for_money
         label: Value for money
@@ -505,6 +522,7 @@ categories:
       - key: battery_life
         label: Battery life
         definition: How many hours it runs on one charge during real work, so you can use it away from a plug.
+        direction: higher_is_better
         unit: h
         default_weight: 7
       - key: display_quality
@@ -540,6 +558,7 @@ categories:
       - key: battery_life
         label: Battery life
         definition: How many hours of real use you get on one charge, so the phone lasts from morning until night.
+        direction: higher_is_better
         unit: h
         default_weight: 8
       - key: processor_speed
@@ -553,11 +572,13 @@ categories:
       - key: software_updates
         label: Software updates
         definition: How many years of Android or iOS updates and security fixes the maker promises, keeping the phone safe longer.
+        direction: higher_is_better
         unit: years
         default_weight: 5
       - key: storage_space
         label: Storage space
         definition: How much built-in storage it has for photos, videos and apps, and whether you can add a memory card.
+        direction: higher_is_better
         unit: GB
         default_weight: 5
       - key: build_durability
@@ -579,10 +600,12 @@ categories:
       - key: noise_cancellation
         label: Noise cancellation
         definition: How well the earbuds block traffic, office chatter and other outside noise, so you can listen at a lower volume.
+        direction: higher_is_better
         default_weight: 6
       - key: battery_life
         label: Battery life
         definition: How many hours the earbuds play on one charge, plus the extra charges stored in the case.
+        direction: higher_is_better
         unit: h
         default_weight: 6
       - key: fit_and_comfort
@@ -600,6 +623,7 @@ categories:
       - key: water_resistance
         label: Water resistance
         definition: How well the earbuds survive sweat and rain, shown by their IPX rating, which matters for gym and outdoor use.
+        direction: higher_is_better
         default_weight: 4
       - key: value_for_money
         label: Value for money
@@ -616,6 +640,7 @@ categories:
       - key: noise_cancellation
         label: Noise cancellation
         definition: How well the headphones block outside noise such as traffic, fans or flights, so you hear only your audio.
+        direction: higher_is_better
         default_weight: 7
       - key: comfort
         label: Comfort
@@ -624,6 +649,7 @@ categories:
       - key: battery_life
         label: Battery life
         definition: How many hours the headphones play wirelessly on one charge before you need to plug them in.
+        direction: higher_is_better
         unit: h
         default_weight: 5
       - key: mic_quality
@@ -653,6 +679,7 @@ categories:
       - key: battery_life
         label: Battery life
         definition: How many days the watch runs on one charge with normal use, so you are not charging it every night.
+        direction: higher_is_better
         unit: days
         default_weight: 7
       - key: display_readability
@@ -662,6 +689,7 @@ categories:
       - key: phone_compatibility
         label: Phone compatibility
         definition: How well it works with your phone and its app, including notifications, calls, music control and syncing data.
+        direction: higher_is_better
         default_weight: 6
       - key: gps_accuracy
         label: GPS accuracy
@@ -674,6 +702,7 @@ categories:
       - key: water_resistance
         label: Water resistance
         definition: How safely it handles water, such as rain, showers and swimming, shown by its water-resistance rating.
+        direction: higher_is_better
         unit: m
         default_weight: 4
       - key: value_for_money
@@ -703,6 +732,7 @@ categories:
       - key: motion_handling
         label: Motion handling
         definition: How smoothly fast scenes such as sports and games play without blur or judder, helped by a higher refresh rate.
+        direction: higher_is_better
         default_weight: 5
       - key: connectivity
         label: Ports and connectivity
@@ -735,6 +765,7 @@ categories:
       - key: load_capacity
         label: Load capacity
         definition: How much weight the desk can hold safely, such as monitors, a laptop, books and other equipment.
+        direction: higher_is_better
         unit: kg
         default_weight: 6
       - key: desktop_size
@@ -744,6 +775,7 @@ categories:
       - key: height_presets
         label: Memory presets
         definition: How many saved heights the control panel can store, so switching between sitting and standing takes one touch.
+        direction: higher_is_better
         default_weight: 3
       - key: build_durability
         label: Build durability
@@ -784,6 +816,7 @@ categories:
       - key: trial_and_warranty
         label: Trial and warranty
         definition: How many nights you can try it at home and how many years the maker covers sagging or defects.
+        direction: higher_is_better
         default_weight: 5
       - key: value_for_money
         label: Value for money

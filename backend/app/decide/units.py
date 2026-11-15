@@ -30,6 +30,8 @@ _UNITS: dict[str, tuple[str, float]] = {
     "s": ("time", 1 / 3600),
     "min": ("time", 1 / 60),
     "h": ("time", 1.0),
+    "day": ("time", 24.0),  # exact, so "14 days" compares with "36 hours" anywhere (US-18)
+    "week": ("time", 168.0),
     "hz": ("frequency", 1.0),
     "khz": ("frequency", 1e3),
     "mhz": ("frequency", 1e6),
@@ -93,6 +95,10 @@ _ALIASES: dict[str, str] = {
     "hrs": "h",
     "hour": "h",
     "hours": "h",
+    "days": "day",
+    "weeks": "week",
+    "wk": "week",
+    "wks": "week",
     "hertz": "hz",
     "watt": "w",
     "watts": "w",
@@ -124,6 +130,8 @@ _LABELS: dict[str, str] = {
     "ah": "Ah",
     "inr": "INR",
     "usd": "USD",
+    "day": "days",
+    "week": "weeks",
 }
 
 # Shown in capitals when an attribute's words are written out ("ram_gb" -> "RAM").
@@ -167,10 +175,18 @@ def unit_key(text: str | None) -> str | None:
 
 
 def unit_label(unit: str | None) -> str:
-    """How a unit is written for the shopper: "GB", "kg", "Hz", "inch"."""
+    """How a unit is written for the shopper: "GB", "kg", "Hz", "inch", "days"."""
     if unit is None:
         return ""
     return _LABELS.get(unit, unit)
+
+
+def amount_text(number: float, unit: str | None) -> str:
+    """A number and its unit for the shopper: "8 GB", "14 days", "1 day"."""
+    label = unit_label(unit)
+    if label in ("days", "weeks") and number == 1:
+        label = label[:-1]
+    return f"{number_text(number)} {label}".strip()
 
 
 def attribute_unit(attribute: str) -> str | None:
@@ -237,6 +253,35 @@ def in_base(amount: Quantity, unit: str | None) -> tuple[str, float]:
         dimension, factor = _UNITS[use]
         return dimension, amount.number * factor
     return f"unit:{use}", amount.number
+
+
+# Months and years have no exact length, so they are not in _UNITS: a hard rule, a budget and verify compare them
+# only with themselves, as before US-18, and "1 month" against "at least 30 days" stays Unknown ("can't tell"). Only
+# the comparison that scores stated values (scoring.py) reads them, by their average length, where an hour either way
+# can't pass or fail anything.
+_APPROXIMATE: dict[str, tuple[str, float]] = {
+    "month": ("time", 730.5),  # 365.25 days / 12, in hours
+    "months": ("time", 730.5),
+    "year": ("time", 8766.0),  # 365.25 days, in hours
+    "years": ("time", 8766.0),
+    "yr": ("time", 8766.0),
+    "yrs": ("time", 8766.0),
+}
+
+
+def known_unit_roughly(unit: str | None) -> bool:
+    """A unit we convert, exactly or (months, years) by its average length."""
+    return known_unit(unit) or unit in _APPROXIMATE
+
+
+def in_base_roughly(amount: Quantity, unit: str | None) -> tuple[str, float]:
+    """in_base(), with months and years at their average length. For comparing stated values to score them (US-18)
+    only: never for a hard rule or a budget."""
+    use = amount.unit or unit
+    if use is not None and use not in _UNITS and use in _APPROXIMATE:
+        dimension, factor = _APPROXIMATE[use]
+        return dimension, amount.number * factor
+    return in_base(amount, unit)
 
 
 def number_text(number: float) -> str:
