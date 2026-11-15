@@ -1,0 +1,53 @@
+{
+  "_note": "Serper shopping, POST /shopping {q: 'Acer Swift Go 14', gl: 'in', hl: 'en'}, recorded 15 Nov 2026 (S4-14 live run). Public store listings only: first 6 results, the fields the app reads.",
+  "shopping": [
+    {
+      "title": "Acer Swift Go 14 Evo OLED Intel Core I5 13th Gen 13500h",
+      "source": "Flipkart",
+      "link": "https://www.google.com/search?ibp=oshop&q=Acer+Swift+Go+14&prds=localAnnotatedOfferId:1,catalogid:11169426513011859582,gpcid:8544005815264686394,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+      "price": "₹93,999",
+      "delivery": "",
+      "position": 1
+    },
+    {
+      "title": "Acer Swift Go 14 AI Ready Thin and Light Premium Laptop Qualcomm Snapdragon X Plus X1P-42-100",
+      "source": "Amazon.in",
+      "link": "https://www.google.com/search?ibp=oshop&q=Acer+Swift+Go+14&prds=localAnnotatedOfferId:1,catalogid:9670765605075866310,gpcid:11135807559405783896,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+      "price": "₹89,990",
+      "delivery": "",
+      "position": 2
+    },
+    {
+      "title": "Acer Swift Go 14 Oled Evo Intel Core I7 13th Gen 13700h - 16 Gb/512 Gb Ssd/Windows 11 Home Sfg14-71 Thin And Light Laptop",
+      "source": "Amazon.in",
+      "link": "https://www.google.com/search?ibp=oshop&q=Acer+Swift+Go+14&prds=localAnnotatedOfferId:1,catalogid:17042296618209492052,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+      "price": "₹1,41,999",
+      "delivery": "",
+      "position": 3
+    },
+    {
+      "title": "Acer Swift Go EVO 14-inch Intel Ultra-5-125H/16GB/512GB SSD Laptop",
+      "source": "Vijay Sales",
+      "link": "https://www.google.com/search?ibp=oshop&q=Acer+Swift+Go+14&prds=localAnnotatedOfferId:1,catalogid:7506355534552321797,gpcid:17424032074016140918,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+      "price": "₹80,599",
+      "delivery": "",
+      "position": 4
+    },
+    {
+      "title": "Acer Swift Go 14 Oled AI PC Intel Core Ultra 5 125H",
+      "source": "Gadgets Now",
+      "link": "https://www.google.com/search?ibp=oshop&q=Acer+Swift+Go+14&prds=localAnnotatedOfferId:1,catalogid:16425535657352135917,gpcid:17409806455580621034,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+      "price": "₹81,399",
+      "delivery": "",
+      "position": 5
+    },
+    {
+      "title": "Acer Aspire Go 14 Intel Core Ultra 5 Thin & Light Laptop",
+      "source": "Amazon.in",
+      "link": "https://www.google.com/search?ibp=oshop&q=Acer+Swift+Go+14&prds=localAnnotatedOfferId:1,catalogid:8854525813825421978,gpcid:11642236079545753448,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+      "price": "₹78,990",
+      "delivery": "",
+      "position": 6
+    }
+  ]
+}

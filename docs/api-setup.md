@@ -381,6 +381,34 @@ actually saw. Quotes are copied from the provider's page.
 - **If it fails or runs out:** research carries on with the Reddit archives, and `coverage_note` says web search and
   review sites were unavailable. A query already in the 24-hour cache still answers.
 
+#### Serper shopping (US-24)
+
+- **Used for:** the current price, store and buy link for the top 3 shown products (`app/research/shopping.py`,
+  `app/commerce/`).
+- **The request:** `POST https://google.serper.dev/shopping`, the key in the `X-API-KEY` header, body
+  `{"q": "<brand and model>", "gl": "in", "hl": "en"}`, a 10-second timeout.
+- **Each result** holds `title`, `source` (the store), `link`, `price` (text, such as "₹64,990"), `delivery`,
+  `imageUrl`, `rating`, `ratingCount`, `offers`, `productId` and `position`.
+- **Checked on 15 Nov 2026:** serper.dev's own page shows a shopping answer with these fields, its links on the stores'
+  own sites (a US example). The page doesn't show the request (its playground needs a browser), so the endpoint and
+  header are the ones `/search` has used since US-12. The S4-14 live run confirmed them.
+- **For India the links are Google's** (the live run, 15 Nov 2026): every `link` for `gl: in` was a Google Shopping
+  page for that store's offer (`www.google.com/search?ibp=oshop&...&prds=...`), never the store's own page. A recorded
+  answer is in `backend/tests/fixtures/commerce/serper_shopping_in.json`.
+- **Our limits:** at most 3 queries a search, one for each of the top 3 products, sent in parallel. Each counts one
+  Serper unit in the same 60 a day and 2,400 in total as web search (`usage.json`). An answer is cached with the time
+  it was fetched; the research cache keeps search answers up to 23 h 16 m, so a cached price keeps its true age.
+- **What is kept:** only listings whose title names the product's brand and model, together and in order, with their
+  model codes agreeing (the match stage's own parsing, never fuzzy). Accessories "for" the model and second-hand
+  listings are refused. Prices are read by the same reader as US-17; an unreadable price is no price. A price above the
+  budget is flagged (DR-01), and every price carries its as-of time (DR-04).
+- **Links:** a store's own page is kept as it is, and a Google redirect to one is unwrapped. A Google Shopping offer
+  link (all India gets) is kept, and the store is named "... via Google Shopping", so the page never passes it off as
+  the store's own page. Any other Google link is refused. The app never checks out for anyone.
+- **If it fails or runs out:** each product gets a store search link (a Google Shopping search) instead, and
+  `coverage_note` says the prices step used a simpler fallback, with why (it took too long, the service was busy,
+  refused the request, or could not be reached).
+
 ### Reddit's own API
 
 - **Used for:** nothing yet. Reddit evidence comes from the archives (see "Reddit (US-12)" below), which need no key.
@@ -706,6 +734,7 @@ merged: the higher-scored thread stays, with the others' URLs as the last lines 
 | Provider | Rate limit | Per search | Per day | In total |
 |---|---|---|---|---|
 | Serper | 5 a second | 6 | 60 | 2,400 |
+| Serper shopping (US-24) | shares Serper's | 3 | in Serper's 60 | in Serper's 2,400 |
 | Reddit archives | 1 a second (Arctic Shift), 1 every 2 s (PullPush) | 14 | 500 | |
 | Review sites, robots.txt included | 1 every 2 s per site, or its longer `Crawl-delay` (over 10 s skips the site) | 24 | 200 | |
 
