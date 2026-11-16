@@ -13,15 +13,24 @@ A rule that compares a RAM or storage size, for a product whose names state that
 against every known version (US-09, S4-24; DR-02): each value its claims give, and each value its names state. It passes
 when any version meets it, naming that version, and fails only when every known version fails. A value stated only in a
 name is said to come from that name, never from a spec page. A product whose names state none is checked as above.
+
+Ruling out a brand rules out the sub-brands config/brand_families.yaml sells under it, and the reason says so ("POCO is
+a Xiaomi brand. You ruled out Xiaomi"); ruling out a sub-brand never rules out its parent (US-10, S4-25, P-26).
 """
 
 from __future__ import annotations
 
+import logging
 import math
 import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Literal
+from functools import cache
+from pathlib import Path
+from typing import Any, Literal
+
+import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.contracts import Budget, Exclusion, FilteredProduct, HardRule, Product, ResolvedValue, ValueState
 
@@ -41,6 +50,8 @@ from .units import (
     unit_key,
 )
 from .variants import stated_values
+
+log = logging.getLogger(__name__)
 
 PRICE_KEY = "price_inr"
 BUDGET = "budget"
@@ -495,13 +506,122 @@ def _variant_has(attributes: Mapping[str, str], feature: list[str]) -> bool:
     return False
 
 
+BRAND_FAMILIES_PATH = Path(__file__).resolve().parents[2] / "config" / "brand_families.yaml"
+
+
+@dataclass(frozen=True)
+class BrandFamily:
+    """A parent brand and the sub-brands sold under it, each written as the brand writes itself (P-26)."""
+
+    parent: str
+    sub_brands: tuple[str, ...]
+
+
+class _FamilyFile(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    families: dict[str, list[str]] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _one_parent_each(self) -> _FamilyFile:
+        parents = {tuple(_words(parent)) for parent in self.families}
+        if len(parents) != len(self.families):
+            raise ValueError("each parent brand is listed once")
+        seen: set[tuple[str, ...]] = set()
+        for parent, subs in self.families.items():
+            if not subs or not all(_words(name) for name in (parent, *subs)):
+                raise ValueError("each family needs a parent and at least one sub-brand, every one named")
+            for sub in subs:
+                key = tuple(_words(sub))
+                if key in parents or key in seen:
+                    raise ValueError("a sub-brand belongs to one parent and is never a parent itself")
+                seen.add(key)
+        return self
+
+
+def _no_key_twice(node: Any) -> None:
+    """Refuse a key written twice anywhere in the file: PyYAML would keep the last one, and drop the first quietly."""
+    if isinstance(node, yaml.MappingNode):
+        keys = [key.value for key, _ in node.value]
+        if len(keys) != len(set(keys)):
+            raise ValueError("a key is written twice")
+        for _, value in node.value:
+            _no_key_twice(value)
+    elif isinstance(node, yaml.SequenceNode):
+        for item in node.value:
+            _no_key_twice(item)
+
+
+@cache
+def brand_families(path: Path = BRAND_FAMILIES_PATH) -> tuple[BrandFamily, ...]:
+    """config/brand_families.yaml's families, in its order. Raises if the file is unusable: a broken table never
+    passes quietly. Decide and intake read it through known_brand_families()."""
+    text = path.read_text(encoding="utf-8")
+    _no_key_twice(yaml.compose(text))
+    data = _FamilyFile.model_validate(yaml.safe_load(text))
+    return tuple(BrandFamily(parent, tuple(subs)) for parent, subs in data.families.items())
+
+
+def known_brand_families() -> tuple[BrandFamily, ...]:
+    """brand_families(), or none when the file can't be read: no sub-brand is then ruled out through its parent, and
+    the search goes on (build rule 9). Intake reads it too, for the brands a shopper can rule out in words."""
+    try:
+        return brand_families()
+    except Exception as exc:  # a broken config file must not stop a search (build rule 9). The type only
+        log.warning("brand families not read: %s", type(exc).__name__)
+        return ()
+
+
+def _starts(name: list[str], words: list[str]) -> bool:
+    return bool(words) and name[: len(words)] == words
+
+
+def _parent_of(brand: list[str]) -> list[str] | None:
+    """The parent's words, for a sub-brand's; None for any other brand."""
+    for family in known_brand_families():
+        if any(_words(sub) == brand for sub in family.sub_brands):
+            return _words(family.parent)
+    return None
+
+
+def _own_brand(brand: list[str], product: Product) -> bool:
+    """Is the product the brand's own? Its brand is that brand, or its name starts with it: "Xiaomi 15" is Xiaomi's. A
+    sub-brand's name may follow its parent's: "Xiaomi POCO F6" is a POCO."""
+    name = _words(product.name)
+    if _words(product.brand or "") == brand or _starts(name, brand):
+        return True
+    parent = _parent_of(brand)
+    return parent is not None and _starts(name, parent + brand)
+
+
+def _sub_brand_of(brand: list[str], product: Product) -> tuple[str, str] | None:
+    """For a parent brand: (parent, sub-brand) as the file writes them, when the product is one of its sub-brands'."""
+    for family in known_brand_families():
+        if _words(family.parent) == brand:
+            for sub in family.sub_brands:
+                if _own_brand(_words(sub), product):
+                    return family.parent, sub
+    return None
+
+
+def _ruled_out_because(exclusion: Exclusion, product: Product) -> str:
+    """Why an excluded product is out. Through a sub-brand, the family says so; otherwise the shopper's own words."""
+    if exclusion.kind == "brand":
+        brand = _words(exclusion.value)
+        family = None if _own_brand(brand, product) else _sub_brand_of(brand, product)
+        if family is not None:
+            parent, sub = family
+            article = "an" if parent[:1].casefold() in "aeiou" else "a"
+            return f"{sub} is {article} {parent} brand. You ruled out {parent}"
+    return f"You ruled out {exclusion.value}"
+
+
 def excluded(exclusion: Exclusion, product: Product, values: Values) -> bool:
     target = _words(exclusion.value)
     if not target:
         return False
-    name = _words(product.name)
     if exclusion.kind == "brand":
-        return _words(product.brand or "") == target or name[: len(target)] == target
+        return _own_brand(target, product) or _sub_brand_of(target, product) is not None
     if exclusion.kind == "model":
         return any(_runs_in(target, _words(text)) for text in [product.name, *product.aliases])
     if exclusion.kind == "feature":
@@ -555,7 +675,7 @@ def checks_for(
     ]
     for key, exclusion in exclusions:
         if excluded(exclusion, product, values):
-            checks.append(Check(key, "fail", f"You ruled out {exclusion.value}", exclusion.kind))
+            checks.append(Check(key, "fail", _ruled_out_because(exclusion, product), exclusion.kind))
     return checks
 
 

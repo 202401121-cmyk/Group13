@@ -1,0 +1,13 @@
+# Brand families (US-10, S4-25, P-26): each parent brand, and the sub-brands sold under it. Loaded by
+# app/decide/rules.py (brand_families), which app/intake/exclusions.py reads too. Team's choice, 16 Nov 2026.
+#
+# - Ruling out a parent rules out its sub-brands, and the reason says so: "POCO is a Xiaomi brand. You ruled out
+#   Xiaomi". Ruling out a sub-brand never rules out its parent.
+# - Every name here is a brand the shopper can rule out in words ("no POCO"), as well as the counting brands in
+#   reddit_quality.yaml. Those counting lists don't change.
+# - Write each name as the brand writes itself: the reasons show it so. Matching ignores case.
+# - A sub-brand belongs to one parent and is never a parent itself.
+# - Anything else is added only after Om approves (P-26), and tests/unit/decide/test_brand_families.py changes with it.
+families:
+  Xiaomi: [Redmi, POCO, Mi]
+  vivo: [iQOO]

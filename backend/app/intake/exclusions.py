@@ -3,7 +3,8 @@
 A phrase starts at "no", "not", "without", "except", "avoid", "anything but" or "don't want" and runs to the end of the
 sentence or the next of those words; a list in it ("no Xiaomi or Realme") gives one exclusion each. Each item is:
 - a model, if it has a name with a digit in it ("Galaxy A35", "Pixel 8"). A measure ("1.5 kg", "70k", "16gb") is not;
-- a brand, if it is one of the counting brands in config/reddit_quality.yaml;
+- a brand, if it is one of the counting brands in config/reddit_quality.yaml, or a parent or sub-brand in
+  config/brand_families.yaml ("no POCO"; S4-25). Ruling out a parent rules out its sub-brands in decide;
 - a feature, if config/exclusions.yaml lists it, in any of its forms;
 - otherwise not understood, as typed. Nothing is guessed.
 
@@ -20,6 +21,7 @@ from functools import cache
 
 from app.contracts import Exclusion, ExclusionParseResponse
 from app.decide.features import FEATURES_PATH, feature_key, feature_name, known_feature, load_feature_words
+from app.decide.rules import known_brand_families
 
 # The feature table is app/decide/features.py's, shared with the search and decide (S3-9).
 __all__ = ["FEATURES_PATH", "feature_key", "known_feature", "load_feature_words", "parse_exclusions"]
@@ -91,7 +93,11 @@ def _brands() -> frozenset[str]:
     # loads is a cycle, and `import app.research` alone fails (tests/unit/test_imports.py).
     from app.research.reddit.quality import load_quality_settings
 
-    return frozenset(brand.casefold() for brand in load_quality_settings().counting.brands)
+    counting = {brand.casefold() for brand in load_quality_settings().counting.brands}
+    # Every brand family's parent and sub-brands too (config/brand_families.yaml, S4-25), so "no POCO" is understood.
+    # They join this list only: Reddit counting and matching read the counting lists as before.
+    families = {_plain(name) for family in known_brand_families() for name in (family.parent, *family.sub_brands)}
+    return frozenset(counting | families)
 
 
 def _plain(text: str) -> str:
