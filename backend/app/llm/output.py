@@ -37,9 +37,17 @@ _INSTRUCTION = re.compile(
 _FENCE = re.compile(r"```[A-Za-z]*[ \t]*\n?(.*?)```", re.DOTALL)
 _WHOLE_FENCE = re.compile(r"```[A-Za-z]*[ \t]*\n?(.*)```", re.DOTALL)
 
-# The calls whose prompt holds retrieved text (build rule 3).
+# The calls whose prompt holds retrieved text (build rule 3), or a shopper's reply typed into the interview: text we
+# don't write, carried as data, so the answer must be the object alone (US-39).
 RETRIEVED_TEXT_TASKS: frozenset[LLMTask] = frozenset(
-    {LLMTask.EXTRACT_CLAIMS, LLMTask.DISCOVER_ALIASES, LLMTask.ENRICH_EXTRACT, LLMTask.WRITE_EXPLANATION}
+    {
+        LLMTask.EXTRACT_CLAIMS,
+        LLMTask.DISCOVER_ALIASES,
+        LLMTask.ENRICH_EXTRACT,
+        LLMTask.WRITE_EXPLANATION,
+        LLMTask.CLASSIFY_REPLY,
+        LLMTask.ANSWER_USER_QUESTION,
+    }
 )
 
 

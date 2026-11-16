@@ -1,0 +1,1261 @@
+{
+  "story": "US-39 criterion 10: 70 made-up replies, 10 per type, each through the live classifier once",
+  "runner": "python -m tests.golden.reply_samples --live",
+  "at": "2026-11-16T21:20:59+00:00",
+  "samples_sha256": "2605a965cd737810f52bc10a7ae0dbb6fddb783b488868e481308b451ed76301",
+  "target": 0.9,
+  "samples": 70,
+  "correct": 63,
+  "share": 0.9,
+  "by_type": {
+    "answer": 0.9,
+    "question": 0.9,
+    "answer_with_question": 0.9,
+    "skip": 0.9,
+    "correction": 0.9,
+    "off_topic": 0.8,
+    "unclear": 1.0
+  },
+  "failed": 4,
+  "timed_out": 4,
+  "latency_ms": {
+    "replies": 70,
+    "median": 484.0,
+    "p90": 1688,
+    "max": 4266,
+    "turn_limit": 5000
+  },
+  "misses": [
+    {
+      "id": "answer-01",
+      "read_as": "answer",
+      "by": "failed"
+    },
+    {
+      "id": "question-09",
+      "read_as": "answer",
+      "by": "failed"
+    },
+    {
+      "id": "answer_with_question-05",
+      "read_as": "answer",
+      "by": "failed"
+    },
+    {
+      "id": "skip-06",
+      "read_as": "question",
+      "by": "llm"
+    },
+    {
+      "id": "correction-05",
+      "read_as": "answer",
+      "by": "failed"
+    },
+    {
+      "id": "off_topic-03",
+      "read_as": "question",
+      "by": "llm"
+    },
+    {
+      "id": "off_topic-08",
+      "read_as": "question",
+      "by": "llm"
+    }
+  ],
+  "results": {
+    "answer-01": {
+      "read_as": "answer",
+      "by": "failed",
+      "correct": false,
+      "latency_ms": 4187,
+      "model": null,
+      "timed_out": true,
+      "hedged": true,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-20b",
+          "outcome": "timeout",
+          "ms": 2500
+        },
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "timeout",
+          "ms": 4187
+        }
+      ]
+    },
+    "answer-02": {
+      "read_as": "answer",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 468,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 468
+        }
+      ]
+    },
+    "answer-03": {
+      "read_as": "answer",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 1954,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": true,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 1953
+        },
+        {
+          "model": "groq/openai/gpt-oss-20b",
+          "outcome": "ok",
+          "ms": 718
+        }
+      ]
+    },
+    "answer-04": {
+      "read_as": "answer",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 437,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 436
+        }
+      ]
+    },
+    "answer-05": {
+      "read_as": "answer",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 485,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 485
+        }
+      ]
+    },
+    "answer-06": {
+      "read_as": "answer",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 531,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 530
+        }
+      ]
+    },
+    "answer-07": {
+      "read_as": "answer",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 875,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 875
+        }
+      ]
+    },
+    "answer-08": {
+      "read_as": "answer",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 703,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 703
+        }
+      ]
+    },
+    "answer-09": {
+      "read_as": "answer",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 906,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 906
+        }
+      ]
+    },
+    "answer-10": {
+      "read_as": "answer",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 547,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 547
+        }
+      ]
+    },
+    "question-01": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 484,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 484
+        }
+      ]
+    },
+    "question-02": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 454,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 453
+        }
+      ]
+    },
+    "question-03": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 547,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 530
+        }
+      ]
+    },
+    "question-04": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 375,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 375
+        }
+      ]
+    },
+    "question-05": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 875,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 875
+        }
+      ]
+    },
+    "question-06": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 563,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 563
+        }
+      ]
+    },
+    "question-07": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 547,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 547
+        }
+      ]
+    },
+    "question-08": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 766,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 766
+        }
+      ]
+    },
+    "question-09": {
+      "read_as": "answer",
+      "by": "failed",
+      "correct": false,
+      "latency_ms": 4047,
+      "model": null,
+      "timed_out": true,
+      "hedged": true,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "timeout",
+          "ms": 4000
+        },
+        {
+          "model": "groq/openai/gpt-oss-20b",
+          "outcome": "timeout",
+          "ms": 2531
+        }
+      ]
+    },
+    "question-10": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 468,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 468
+        }
+      ]
+    },
+    "answer_with_question-01": {
+      "read_as": "answer_with_question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 406,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 406
+        }
+      ]
+    },
+    "answer_with_question-02": {
+      "read_as": "answer_with_question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 1125,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 1125
+        }
+      ]
+    },
+    "answer_with_question-03": {
+      "read_as": "answer_with_question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 391,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 375
+        }
+      ]
+    },
+    "answer_with_question-04": {
+      "read_as": "answer_with_question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 469,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 452
+        }
+      ]
+    },
+    "answer_with_question-05": {
+      "read_as": "answer",
+      "by": "failed",
+      "correct": false,
+      "latency_ms": 4266,
+      "model": null,
+      "timed_out": true,
+      "hedged": true,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-20b",
+          "outcome": "timeout",
+          "ms": 2578
+        },
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "timeout",
+          "ms": 4266
+        }
+      ]
+    },
+    "answer_with_question-06": {
+      "read_as": "answer_with_question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 1140,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 1139
+        }
+      ]
+    },
+    "answer_with_question-07": {
+      "read_as": "answer_with_question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 406,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 406
+        }
+      ]
+    },
+    "answer_with_question-08": {
+      "read_as": "answer_with_question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 438,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 422
+        }
+      ]
+    },
+    "answer_with_question-09": {
+      "read_as": "answer_with_question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 406,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 406
+        }
+      ]
+    },
+    "answer_with_question-10": {
+      "read_as": "answer_with_question",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 578,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 578
+        }
+      ]
+    },
+    "skip-01": {
+      "read_as": "skip",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 312,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 311
+        }
+      ]
+    },
+    "skip-02": {
+      "read_as": "skip",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 3563,
+      "model": "groq/openai/gpt-oss-20b",
+      "timed_out": false,
+      "hedged": true,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-20b",
+          "outcome": "ok",
+          "ms": 2046
+        },
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 3938
+        }
+      ]
+    },
+    "skip-03": {
+      "read_as": "skip",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 437,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 436
+        }
+      ]
+    },
+    "skip-04": {
+      "read_as": "skip",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 391,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 375
+        }
+      ]
+    },
+    "skip-05": {
+      "read_as": "skip",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 391,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 391
+        }
+      ]
+    },
+    "skip-06": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": false,
+      "latency_ms": 594,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 594
+        }
+      ]
+    },
+    "skip-07": {
+      "read_as": "skip",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 437,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 436
+        }
+      ]
+    },
+    "skip-08": {
+      "read_as": "skip",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 360,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 360
+        }
+      ]
+    },
+    "skip-09": {
+      "read_as": "skip",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 484,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 484
+        }
+      ]
+    },
+    "skip-10": {
+      "read_as": "skip",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 297,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 296
+        }
+      ]
+    },
+    "correction-01": {
+      "read_as": "correction",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 641,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 640
+        }
+      ]
+    },
+    "correction-02": {
+      "read_as": "correction",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 1688,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": true,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 1688
+        },
+        {
+          "model": "groq/openai/gpt-oss-20b",
+          "outcome": "ok",
+          "ms": 764
+        }
+      ]
+    },
+    "correction-03": {
+      "read_as": "correction",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 625,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 608
+        }
+      ]
+    },
+    "correction-04": {
+      "read_as": "correction",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 422,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 421
+        }
+      ]
+    },
+    "correction-05": {
+      "read_as": "answer",
+      "by": "failed",
+      "correct": false,
+      "latency_ms": 4032,
+      "model": null,
+      "timed_out": true,
+      "hedged": true,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-20b",
+          "outcome": "timeout",
+          "ms": 2500
+        },
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "timeout",
+          "ms": 4031
+        }
+      ]
+    },
+    "correction-06": {
+      "read_as": "correction",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 531,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 530
+        }
+      ]
+    },
+    "correction-07": {
+      "read_as": "correction",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 1391,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 1391
+        }
+      ]
+    },
+    "correction-08": {
+      "read_as": "correction",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 547,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 546
+        }
+      ]
+    },
+    "correction-09": {
+      "read_as": "correction",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 984,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 983
+        }
+      ]
+    },
+    "correction-10": {
+      "read_as": "correction",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 375,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 375
+        }
+      ]
+    },
+    "off_topic-01": {
+      "read_as": "off_topic",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 469,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 468
+        }
+      ]
+    },
+    "off_topic-02": {
+      "read_as": "off_topic",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 344,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 343
+        }
+      ]
+    },
+    "off_topic-03": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": false,
+      "latency_ms": 360,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 360
+        }
+      ]
+    },
+    "off_topic-04": {
+      "read_as": "off_topic",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 500,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 500
+        }
+      ]
+    },
+    "off_topic-05": {
+      "read_as": "off_topic",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 453,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 452
+        }
+      ]
+    },
+    "off_topic-06": {
+      "read_as": "off_topic",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 453,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 453
+        }
+      ]
+    },
+    "off_topic-07": {
+      "read_as": "off_topic",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 578,
+      "model": "groq/openai/gpt-oss-20b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-20b",
+          "outcome": "ok",
+          "ms": 578
+        }
+      ]
+    },
+    "off_topic-08": {
+      "read_as": "question",
+      "by": "llm",
+      "correct": false,
+      "latency_ms": 562,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 561
+        }
+      ]
+    },
+    "off_topic-09": {
+      "read_as": "off_topic",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 593,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 578
+        }
+      ]
+    },
+    "off_topic-10": {
+      "read_as": "off_topic",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 391,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 390
+        }
+      ]
+    },
+    "unclear-01": {
+      "read_as": "unclear",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 516,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 500
+        }
+      ]
+    },
+    "unclear-02": {
+      "read_as": "unclear",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 453,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 453
+        }
+      ]
+    },
+    "unclear-03": {
+      "read_as": "unclear",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 469,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 468
+        }
+      ]
+    },
+    "unclear-04": {
+      "read_as": "unclear",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 484,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 484
+        }
+      ]
+    },
+    "unclear-05": {
+      "read_as": "unclear",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 469,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 453
+        }
+      ]
+    },
+    "unclear-06": {
+      "read_as": "unclear",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 390,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 389
+        }
+      ]
+    },
+    "unclear-07": {
+      "read_as": "unclear",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 390,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 389
+        }
+      ]
+    },
+    "unclear-08": {
+      "read_as": "unclear",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 438,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 421
+        }
+      ]
+    },
+    "unclear-09": {
+      "read_as": "unclear",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 3516,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": true,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 3500
+        },
+        {
+          "model": "groq/openai/gpt-oss-20b",
+          "outcome": "ok",
+          "ms": 2437
+        }
+      ]
+    },
+    "unclear-10": {
+      "read_as": "unclear",
+      "by": "llm",
+      "correct": true,
+      "latency_ms": 422,
+      "model": "groq/openai/gpt-oss-120b",
+      "timed_out": false,
+      "hedged": false,
+      "attempts": [
+        {
+          "model": "groq/openai/gpt-oss-120b",
+          "outcome": "ok",
+          "ms": 421
+        }
+      ]
+    }
+  },
+  "meets_target": true,
+  "pace": {
+    "source": "config/models.yaml pool.members (Groq's rate-limits page, 7 Nov 2026), each model's own limits",
+    "models": [
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b"
+    ],
+    "requests_per_reply_at_most": 2,
+    "requests_per_model_per_reply_at_most": 1,
+    "requests_per_minute": [
+      30,
+      30
+    ],
+    "tokens_per_minute": [
+      8000,
+      8000
+    ],
+    "tokens_booked_per_request": 1298,
+    "seconds_by_requests": 2.0,
+    "seconds_by_tokens": 9.73,
+    "pace_s": 10.7
+  },
+  "budget": 100,
+  "llm_requests_sent": 78,
+  "requests_in_this_run": 78,
+  "pool_holds": 0,
+  "outcomes": {
+    "ok": 70,
+    "timeout": 8
+  },
+  "providers": [
+    "groq/openai/gpt-oss-120b",
+    "groq/openai/gpt-oss-20b"
+  ]
+}

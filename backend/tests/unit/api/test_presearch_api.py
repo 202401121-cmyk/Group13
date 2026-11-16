@@ -16,8 +16,11 @@ from fastapi.testclient import TestClient
 
 from app.api.presearch import EXPIRED, FINISHED, NO_CRITERIA, NO_INTERVIEW, NOT_ANSWERED, NOT_READY, get_session_store
 from app.api.sessions import SESSION_ID_PATTERN, InMemorySessionStore
-from app.contracts import CriteriaSet, Intent, InterviewStep
+from app.contracts import CriteriaSet, Intent, InterviewStep, LLMTask
+from app.interview.parsing import RawReply
+from app.interview.stage import rephrase_message
 from app.main import create_app
+from tests.fakes.llm import FakeLLMClient
 
 LAPTOP = "best laptop for coding under 70k"
 FRONTEND = "http://localhost:3000"
@@ -208,11 +211,16 @@ def test_go_back_and_change_an_answer(client: TestClient) -> None:
     assert unknown == {"detail": NOT_ANSWERED}
 
 
-def test_an_unclear_reply_gets_a_rephrase(client: TestClient) -> None:
+def test_an_unclear_reply_gets_a_rephrase(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     session_id, first = ready_interview(client)
+    # US-39: words code can't place go to the reply classifier; this one reads every such reply as unclear.
+    monkeypatch.setattr(
+        "app.presearch.default_llm",
+        lambda: FakeLLMClient({LLMTask.CLASSIFY_REPLY: RawReply(reply_type="unclear")}),
+    )
     step = post(client, f"{session_id}/interview/reply", {"reply_text": "whatever"})
     assert step["kind"] == "rephrase"
-    assert step["message"] == "Please pick one of the buttons, or type a number from 0 to 10."
+    assert step["message"] == rephrase_message(first["question"]["text"].split(":", 1)[0])
     assert step["question"]["id"] == first["question"]["id"]
 
 

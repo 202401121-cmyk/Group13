@@ -205,6 +205,32 @@ task_settings:
     openai/gpt-oss-120b: {reasoning_effort: low, include_reasoning: false}
     openai/gpt-oss-20b: {reasoning_effort: low, include_reasoning: false}
     qwen/qwen3.8-27b: {reasoning_effort: "none"}
+  # US-39: an interview turn has 5 s for both calls, and each answer is a small object. In US-20's live check, the
+  # same Groq models' own reasoning made an answer invalid twice and too late once.
+  classify_reply:
+    openai/gpt-oss-120b: {reasoning_effort: low, include_reasoning: false}
+    openai/gpt-oss-20b: {reasoning_effort: low, include_reasoning: false}
+    qwen/qwen3.8-27b: {reasoning_effort: "none"}
+  answer_user_question:
+    openai/gpt-oss-120b: {reasoning_effort: low, include_reasoning: false}
+    openai/gpt-oss-20b: {reasoning_effort: low, include_reasoning: false}
+    qwen/qwen3.8-27b: {reasoning_effort: "none"}
+
+# first_attempt_share: the share of a call's time limit one attempt of a task may take. A task not listed keeps the
+# wrapper's 0.6 (ATTEMPT_SHARE), which leaves another model time if the first hangs.
+# US-39: classify_reply's first attempt may use its whole deadline (4 s of the interview's 5 s turn, the turn keeping
+# 1 s back). In its 70-reply live check (17 Nov 2026), all 7 timeouts were cut at the 0.6 share's 3 s, while the
+# slowest answer took 3.1 s, and the 1 s then left was too short to try a second model anyway.
+first_attempt_share:
+  classify_reply: 1.0
+
+# hedge: a task with a shopper waiting may send the same request to a second model when the first hasn't answered by
+# after_s. The first valid answer wins and the other is ignored; both are booked against the per-minute limits and
+# counted. A task not listed never sends a second request at once.
+# US-39: in classify_reply's live checks (17 Nov 2026) the median answer took about 0.55 s, but about 1 call in 10 to
+# gpt-oss-120b took over 4 s. gpt-oss-20b keeps its own low-reasoning task_settings.
+hedge:
+  classify_reply: {after_s: 1.5, model: openai/gpt-oss-20b}
 
 routes:
   private:

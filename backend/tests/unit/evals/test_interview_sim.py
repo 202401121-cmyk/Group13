@@ -109,6 +109,17 @@ def test_the_simulator_never_touches_the_network(monkeypatch: pytest.MonkeyPatch
     assert sim.simulate("fixed", shoppers=1)["summary"]["overall"]["shoppers"] == len(sim.CATEGORIES)
 
 
+def test_the_simulator_never_builds_or_asks_an_llm(monkeypatch: pytest.MonkeyPatch) -> None:
+    """US-39 (DECIDED 5): its answers are rough levels and the word "Skip", read in code, so InterviewStage() with no
+    client never reaches for the shared one."""
+
+    def refuse() -> object:
+        raise AssertionError("the simulator asked for an LLM client")
+
+    monkeypatch.setattr("app.presearch.default_llm", refuse)
+    assert sim.simulate("fixed", shoppers=2)["summary"]["overall"]["shoppers"] == 2 * len(sim.CATEGORIES)
+
+
 # --- the edge cases ---------------------------------------------------------------------------------------------------
 
 

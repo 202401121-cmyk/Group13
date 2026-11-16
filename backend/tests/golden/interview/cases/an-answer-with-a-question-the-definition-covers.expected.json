@@ -1,0 +1,18 @@
+{
+  "kind": "specific",
+  "given": {
+    "reply": "medium, but what is cpu performance?"
+  },
+  "outcome": "canonical",
+  "object": {
+    "kind": "question",
+    "answer_source": null,
+    "status": "answered",
+    "unclear_count": 0,
+    "classification": {
+      "reply_type": "answer_with_question",
+      "weight": 5.0,
+      "user_question": "what is cpu performance?"
+    }
+  }
+}

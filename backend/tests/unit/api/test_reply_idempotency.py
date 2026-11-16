@@ -20,8 +20,10 @@ from fastapi.testclient import TestClient
 from app import presearch as flow
 from app.api.presearch import FINISHED, NO_INTERVIEW, NOT_CURRENT, get_session_store
 from app.api.sessions import InMemorySessionStore
-from app.contracts import InterviewStep, InterviewTurn
+from app.contracts import InterviewStep, InterviewTurn, LLMTask
+from app.interview.parsing import RawReply
 from app.main import create_app
+from tests.fakes.llm import FakeLLMClient
 
 LAPTOP = "best laptop for coding under 70k"
 
@@ -89,8 +91,15 @@ def test_a_reply_naming_the_current_question_is_applied(client: TestClient) -> N
     assert history[0]["classification"]["weight"] == 8.0
 
 
-def test_an_unclear_reply_naming_the_current_question_gets_a_rephrase(client: TestClient) -> None:
+def test_an_unclear_reply_naming_the_current_question_gets_a_rephrase(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
     session_id, first = start(client)
+    # US-39: words code can't place go to the reply classifier; this one reads every such reply as unclear.
+    monkeypatch.setattr(
+        "app.presearch.default_llm",
+        lambda: FakeLLMClient({LLMTask.CLASSIFY_REPLY: RawReply(reply_type="unclear")}),
+    )
     step = answer(client, session_id, first, "whatever")
     assert step["kind"] == "rephrase"
     assert step["question"]["id"] == first["question"]["id"]

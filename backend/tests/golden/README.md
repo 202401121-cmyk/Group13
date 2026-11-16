@@ -36,6 +36,12 @@ A case is two files in `<parser>/cases/`, with the same name:
 | `extract` | `source_dropped` | No claims or mentions, and the coverage note says a source couldn't be read |
 | `research_reddit` | `items_skipped` | Nothing kept, and no error |
 | `exclusions` | `nothing_understood` | No exclusion read from the shopper's words (US-10); anything not placed is listed as not understood |
+| `interview` | `answer_at_default` | The reply counts as an answer at the criterion's default weight, which the shopper can change (US-39, criterion 11) |
+| `interview` | `definition_answer` | The shopper's question is answered with the criterion's saved definition, then the question is asked again (US-39) |
+
+US-39's 70 sample replies (`interview/replies.json`, 10 per type, written for tests) are not cases: they are the
+classifier's own inputs. `reply_samples.py` measures the share it classifies correctly, and `interview/live_record.json`
+holds the one live run, which `test_reply_samples.py` checks is of this very set and meets 90%.
 
 **Write the expectation from what should happen, before you run it.** If a case fails because the parser is wrong, fix
 the parser. Never change a case to match wrong output.

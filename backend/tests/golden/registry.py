@@ -26,6 +26,9 @@ from app.contracts import (
     ExtractionResult,
     IntakeInput,
     Intent,
+    InterviewState,
+    InterviewStep,
+    InterviewTurn,
     Provider,
     Source,
     SourceComment,
@@ -39,6 +42,7 @@ from app.extract import GuardedExtractStage
 from app.intake import IntakeStage
 from app.intake.exclusions import parse_exclusions
 from app.intake.rules import detect_by_rules
+from app.interview import InterviewStage
 from app.llm import InMemoryCallLog, WrapperLLMClient, load_llm_config
 from app.research.reddit.parsing import RawComment, RawPost, parse_items
 from tests.fakes.llm import FakeAdapter
@@ -227,6 +231,56 @@ def _extract_cases_from_p10() -> list[Case]:
     return [*_param_cases(REPLIES_THE_SCHEMA_REFUSES, dropped), *_param_cases(CLAIMS_CODE_REFUSES, nothing_kept)]
 
 
+# --- interview replies (US-39) ---------------------------------------------------------------------------------------
+
+# Free text code can't place, so it goes to the classifier. The first question is CPU performance (default weight 8).
+REPLY = "it is sort of whatever, maybe"
+
+
+def _interview_state() -> InterviewState:
+    return InterviewState(session_id=examples.SESSION_ID, intent=examples.intent(), criteria=examples.criteria())
+
+
+def _run_interview(raw: str, given: Given) -> Ran:
+    """The reply's classification, or, with given "classified", that classification and then `raw` as the answer to
+    the shopper's question."""
+    classified = given.get("classified")
+    replies = (json.dumps(classified), raw) if classified is not None else (raw,)
+    log = InMemoryCallLog()
+    adapters = {provider: FakeAdapter(provider, replies=replies) for provider in Provider}
+    stage = InterviewStage(llm=WrapperLLMClient(load_llm_config(), dict(adapters), log, limiters={}))
+    ctx = StageContext(search_id=SEARCH_ID)
+    start = stage.run(InterviewTurn(state=_interview_state()), ctx)
+    step: InterviewStep = stage.run(InterviewTurn(state=start.state, reply_text=str(given.get("reply", REPLY))), ctx)
+    cpu = next(e for e in step.state.history if e.question.criterion_key == "cpu_performance")
+    view = {
+        "kind": step.kind,
+        "answer_source": step.answer_source,
+        "status": cpu.status,
+        "unclear_count": cpu.unclear_count,
+        "classification": cpu.classification.model_dump(mode="json", exclude_defaults=True)
+        if cpu.classification
+        else None,
+    }
+    return Ran(step, view, _attempts(log))
+
+
+def _is_answer_at_default(ran: Ran, given: Given) -> bool:
+    """Criterion 11: the reply counts as an answer at the criterion's default weight, which the shopper can change."""
+    view = ran.view
+    classification = view["classification"] or {}
+    return bool(
+        view["status"] == "answered"
+        and classification.get("weight") == 8.0
+        and classification.get("classified_by") == "fallback"
+    )
+
+
+def _is_definition_answer(ran: Ran, given: Given) -> bool:
+    """The answer to the shopper's question falls back to the criterion's saved definition, then the question again."""
+    return bool(ran.view["kind"] == "answer_then_repeat" and ran.view["answer_source"] == "definition")
+
+
 # --- exclusions typed in words (US-10) -------------------------------------------------------------------------------
 
 
@@ -305,6 +359,13 @@ PARSERS: dict[str, Parser] = {
             _run_explain,
             {"template": _is_template},
             frozenset({"WRITE_EXPLANATION: RawExplanations"}),
+        ),
+        Parser(
+            "interview",
+            "app.interview.parsing",
+            _run_interview,
+            {"answer_at_default": _is_answer_at_default, "definition_answer": _is_definition_answer},
+            frozenset({"CLASSIFY_REPLY: RawReply", "ANSWER_USER_QUESTION: RawAnswer"}),
         ),
         Parser(
             "exclusions",

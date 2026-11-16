@@ -75,7 +75,10 @@ def place_reply(
         return "current"
     same_words = asked.reply_text is not None and _normal(asked.reply_text) == _normal(reply_text)
     earlier = asked.classification.weight if asked.classification else None
-    same_weight = understand_reply(reply_text, asked.question, level, exact_weight).weight == earlier
+    read = understand_reply(reply_text, asked.question, level, exact_weight)
+    # Typed words code can't place went to the classifier (US-39): the same words again are the same reply.
+    typed = read.reply_type is ReplyType.UNCLEAR and level is None and exact_weight is None
+    same_weight = typed or read.weight == earlier
     return "repeat" if same_words and same_weight else "conflict"
 
 

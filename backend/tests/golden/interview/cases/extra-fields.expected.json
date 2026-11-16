@@ -1,0 +1,11 @@
+{
+  "kind": "extra_fields",
+  "outcome": "canonical",
+  "object": {
+    "kind": "rephrase",
+    "answer_source": null,
+    "status": "pending",
+    "unclear_count": 1,
+    "classification": null
+  }
+}
