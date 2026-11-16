@@ -14,12 +14,14 @@ from app.criteria import CriteriaStage
 from app.decide import DecideStage, WeightedDecideStage
 from app.enrich import EnrichStage
 from app.entities import MatchStage
-from app.explain import ExplainStage
+from app.explain import ExplainStage, TemplateExplainStage
+from app.explain.parsing import RawExplanations
 from app.extract import ExtractStage
 from app.intake import IntakeStage
 from app.interview import InterviewStage
 from app.research import ResearchStage
 from app.verify import TrustVerifyStage, VerifyStage
+from tests.fakes.llm import FakeLLMClient
 
 WEIGHT_KEYS = [w.key for w in ex.rubric().weights]
 
@@ -64,7 +66,13 @@ CASES: list[tuple[Any, BaseModel, type[BaseModel]]] = [
         C.DecideResult,
     ),
     (
-        ExplainStage(),
+        # US-20: the real stage asks the LLM, so it gets a canned answer here (no paragraph: every product's template)
+        ExplainStage(FakeLLMClient({C.LLMTask.WRITE_EXPLANATION: RawExplanations(paragraphs=[])})),
+        C.ExplainInput(ranked=ex.decision().ranked, claims=ex.claims(), user_priorities=WEIGHT_KEYS[:3]),
+        C.ExplainResult,
+    ),
+    (
+        TemplateExplainStage(),
         C.ExplainInput(ranked=ex.decision().ranked, claims=ex.claims(), user_priorities=WEIGHT_KEYS[:3]),
         C.ExplainResult,
     ),

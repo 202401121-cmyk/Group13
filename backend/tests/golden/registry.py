@@ -20,6 +20,8 @@ from pydantic import BaseModel
 from app.contracts import (
     CriteriaInput,
     CriteriaSet,
+    ExplainInput,
+    ExplainResult,
     ExtractInput,
     ExtractionResult,
     IntakeInput,
@@ -28,9 +30,11 @@ from app.contracts import (
     Source,
     SourceComment,
     StageContext,
+    examples,
 )
 from app.criteria import CriteriaStage
 from app.criteria.fallback import fallback_set
+from app.explain import ExplainStage, TemplateExplainStage
 from app.extract import GuardedExtractStage
 from app.intake import IntakeStage
 from app.intake.exclusions import parse_exclusions
@@ -248,6 +252,26 @@ def _is_items_skipped(ran: Ran, given: Given) -> bool:
     return ran.result == []
 
 
+# --- explanations (US-20) --------------------------------------------------------------------------------------------
+
+
+def _explain_input(given: Given) -> ExplainInput:
+    """The example ranking and claims: three made-up laptops whose claims link to them by name."""
+    priorities = [str(key) for key in given.get("priorities", ["cpu_performance", "battery_life", "keyboard_comfort"])]
+    return ExplainInput(ranked=examples.decision().ranked, claims=examples.claims(), user_priorities=priorities)
+
+
+def _run_explain(raw: str, given: Given) -> Ran:
+    client, log = _client(raw)
+    inp, ctx = _explain_input(given), StageContext(search_id=SEARCH_ID)
+    result: ExplainResult = ExplainStage(client).run(inp, ctx)  # no answer it can use: the template, never a raise
+    return Ran(result, result.model_dump(mode="json", exclude_defaults=True), _attempts(log))
+
+
+def _is_template(ran: Ran, given: Given) -> bool:
+    return bool(ran.result == TemplateExplainStage().run(_explain_input(given), StageContext(search_id=SEARCH_ID)))
+
+
 # --- the registry ----------------------------------------------------------------------------------------------------
 
 PARSERS: dict[str, Parser] = {
@@ -274,6 +298,13 @@ PARSERS: dict[str, Parser] = {
             {"source_dropped": _is_source_dropped},
             frozenset({"EXTRACT_CLAIMS: RawExtraction"}),
             reused=_extract_cases_from_p10,
+        ),
+        Parser(
+            "explain",
+            "app.explain.parsing",
+            _run_explain,
+            {"template": _is_template},
+            frozenset({"WRITE_EXPLANATION: RawExplanations"}),
         ),
         Parser(
             "exclusions",

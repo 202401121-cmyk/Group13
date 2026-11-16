@@ -613,6 +613,7 @@ When a provider's terms change, update its flag, `terms_url` and `terms_checked`
 | `app/intake/stage.py` | `detect_intent` | the shopper's request and their reply to our question | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | category label and the shopper's use case | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | only a category label from our lexicon (no use case) | public | short |
+| `app/explain/stage.py` | `write_explanation` | code's facts for the top 3 products (criterion names, scores, points and claim refs) and the shopper's top priorities, never a source's words. Its one rewrite, when a paragraph is too hard to read, adds that paragraph (US-20) | private | medium |
 | `app/extract/stage.py` | `extract_claims` | one fetched source's retrieved text, never a search snippet alone. Criterion keys and the category label from our config in every call; any others, which may hold the shopper's words, in Reddit calls only. A public call may also carry a generated criterion's fixed stand-in, known spec keys from the hard rules and `price_inr` with a budget, always as fixed keys with our own definitions (`config/extract.yaml`, US-14) | reddit for Reddit, otherwise public | long |
 
 `detect_intent`, `classify_reply`, `answer_user_question`, `write_question` and `write_explanation` always carry
