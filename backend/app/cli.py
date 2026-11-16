@@ -27,6 +27,7 @@ import statistics
 import sys
 from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
+from datetime import UTC
 from typing import Any
 
 from app import db
@@ -434,6 +435,7 @@ def render(result: SearchResult) -> str:
     lines = [f"\nResults for: {result.request.raw_query}"]
 
     lines += _ranked_lines(result, names)
+    lines += prices_lines(result, names)
 
     filtered = result.decision.filtered if result.decision else []
     for group, title in (("filtered_out", "Filtered out"), ("cant_tell", "Can't tell")):
@@ -450,6 +452,36 @@ def render(result: SearchResult) -> str:
     if not result.saved:
         lines.append("\nThis search could not be saved.")
     return "\n".join(lines)
+
+
+def prices_lines(result: SearchResult, names: Mapping[str, str]) -> list[str]:
+    """US-24: each ranked product's offers (price, store, as-of time and link), or a store search when none matched.
+
+    A price above the budget says so (DR-01), and one older than 24 hours "may have changed" (DR-04). The link opens
+    the store's own page: nothing is bought here."""
+    commerce = result.commerce
+    ranked = result.decision.ranked if result.decision else []
+    if commerce is None or not ranked:
+        return []
+    lines = ["\nPrices:"]
+    for r in ranked:
+        name = names.get(r.product_id, r.product_id)
+        offers = [o for o in commerce.offers if o.product_id == r.product_id]
+        for offer in offers:
+            price = money(offer.price) if offer.price else "price not shown"
+            notes = [f"as of {offer.as_of.astimezone(UTC):%d %b %H:%M} UTC"]
+            if offer.over_budget:
+                notes.append("above your budget")
+            if offer.availability == "out_of_stock":
+                notes.append("out of stock")
+            if offer.is_stale():
+                notes.append("may have changed")
+            lines.append(f"  - {name}: {price} at {offer.store} ({'; '.join(notes)})")
+            lines.append(f"       {offer.url}")
+        search = commerce.no_offer.get(r.product_id)
+        if not offers and search is not None:
+            lines.append(f"  - {name}: no price found; search the stores: {search}")
+    return lines if len(lines) > 1 else []
 
 
 def _ranked_lines(result: SearchResult, names: Mapping[str, str]) -> list[str]:

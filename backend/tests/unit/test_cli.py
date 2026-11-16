@@ -165,3 +165,31 @@ def test_cli_saves_an_unclear_request_without_an_intent(
     assert main(["watch under 5k"]) == 1
     [row] = store.rows
     assert row.intent is None and row.intent_source == "rules"
+
+
+def test_the_prices_block_shows_each_offer_or_a_store_search() -> None:
+    """US-24: price, store, as-of time and link; "may have changed" past 24 hours; a store search with no offer."""
+    base = ex.search_result()
+    over = base.commerce.offers[1] if base.commerce else None
+    assert over is not None
+    flagged = C.Offer.model_validate({**over.model_dump(), "over_budget": True})
+    commerce = C.CommerceResult.model_validate(
+        {**base.commerce.model_dump(), "offers": [base.commerce.offers[0].model_dump(), flagged.model_dump()]}  # type: ignore[union-attr]
+    )
+    out = render(C.SearchResult.model_validate({**base.model_dump(), "commerce": commerce.model_dump()}))
+    assert "\nPrices:\n" in out
+    assert "  - Nova Book 14: ₹64,990 at Example Store (as of 03 Oct 08:00 UTC; may have changed)" in out
+    assert "       https://store.example.com/nova-book-14-16gb-512gb" in out
+    assert (
+        "Kestrel Slim 15: ₹67,490 at Another Store (as of 02 Oct 04:00 UTC; above your budget; may have changed)" in out
+    )
+    assert (
+        "Orion Play 15: no price found; search the stores: https://www.google.com/search?tbm=shop&q=Orion+Play+15"
+        in out
+    )
+
+
+def test_no_prices_block_without_a_commerce_result() -> None:
+    base = ex.search_result()
+    out = render(C.SearchResult.model_validate({**base.model_dump(), "commerce": None}))
+    assert "Prices:" not in out

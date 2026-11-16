@@ -28,6 +28,7 @@ from pathlib import Path
 
 import pytest
 
+from app.commerce import CommerceStage
 from app.criteria import InMemoryCriteriaStore
 from app.db import NullRequestStore, shared_memory_aliases
 from app.extract import ExtractStage
@@ -74,6 +75,12 @@ def _fresh_reddit_breakers() -> None:
 def _no_live_research(monkeypatch: pytest.MonkeyPatch) -> None:
     """Default stages keep the stub, so no test can search the web. Tests of the live stage give it fakes."""
     monkeypatch.setattr("app.pipeline.default_research_stage", ResearchStage)
+
+
+@pytest.fixture(autouse=True)
+def _no_live_commerce(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Default stages keep the stub, so no test can ask Serper for prices. Tests of the real stage give it fakes."""
+    monkeypatch.setattr("app.pipeline.default_commerce_stage", CommerceStage)
 
 
 @pytest.fixture(autouse=True)

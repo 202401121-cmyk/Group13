@@ -33,7 +33,7 @@ import httpx
 from pydantic import ValidationError
 
 from app import db
-from app.commerce import CommerceStage
+from app.commerce import default_commerce_stage
 from app.contracts import (
     SEARCH_TIME_LIMIT_S,
     STAGE_TIME_LIMITS_S,
@@ -303,7 +303,7 @@ def default_search_stages() -> SearchStages:
         enrich=EnrichStage(),
         decide=WeightedDecideStage(),
         explain=ExplainStage(),
-        commerce=CommerceStage(),
+        commerce=default_commerce_stage(),  # real prices (US-24); the stub is its fallback
     )
 
 
