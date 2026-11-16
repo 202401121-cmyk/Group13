@@ -7,6 +7,9 @@ repaired. They have no field for a claim's type or URL: code sets those from the
 Then code checks each claim against the source. A quote must be in its text or one comment, whatever its case or
 spacing, and not its title, which can be invisible on the page (build rule 4). The product must be named there or in the
 title, and the criterion must be one this call asked about. One that fails is dropped alone, and the log holds counts.
+
+A name that is only a brand and generic words ("Dell", "Lenovo laptops") names no product (US-15, S4-23): it is never
+kept as a mention, and its claims are dropped as "brand_only", so no product is made of it and nothing attaches to one.
 """
 
 from __future__ import annotations
@@ -15,7 +18,7 @@ import hashlib
 import logging
 import re
 from collections import Counter
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import datetime
 from typing import Literal
 
@@ -23,6 +26,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from app.contracts import Claim, ClaimType, ExtractionResult, ProductMention, Source, SourceTier
 from app.decide.rules import PRICE_KEY
+from app.entities.normalise import Vocabulary, load_vocabulary, parse_name, plain_name
 from app.intake.lexicon import load_lexicon
 from app.llm.output import looks_like_instruction
 
@@ -33,6 +37,8 @@ log = logging.getLogger(__name__)
 MAX_MENTIONS = 100
 MAX_CLAIMS = 200
 YES_OR_NO = {"yes", "no"}
+_POSSESSIVE = re.compile("['’]s\\b")  # "Dell's": the recommender count's rule (app/research/reddit/recommenders.py)
+_MARKS = str.maketrans(dict.fromkeys("™®©", " "))  # trademark, registered and copyright signs
 
 
 class _Strict(BaseModel):
@@ -110,6 +116,38 @@ def _category_names(category: str) -> set[str]:
     return {form for name in names for form in (name, f"{name}s", f"{name}es", name.removesuffix("s"))}
 
 
+def brand_only(name: str, vocabulary: Vocabulary | None = None, kinds: Iterable[str] = ()) -> bool:
+    """Is this name nothing but a brand and generic words, such as "Dell", "Lenovo laptops" or "Samsung phone"?
+
+    Such a name is no product you can buy (US-15, S4-23). A series or model word, a model code or a number keeps a name:
+    "MacBook Pro", "Galaxy S25", "IdeaPad Slim 3", "Dell 15 3530". Variant attributes don't: "Dell 16GB RAM" is still
+    only Dell. The counting lists in config/reddit_quality.yaml decide what a brand and a generic word are, never the
+    model's `brand` field: so "Infinix" alone is brand only because the list holds it, and a brand the list doesn't
+    hold, such as "Lava", stays a product. `kinds` are the names of the search's own category, generic words too:
+    "Philips air fryer" in a search for air fryers. A possessive or a trademark sign changes nothing: "Dell's", "Dell™".
+    """
+    text = plain_name(_POSSESSIVE.sub("", name.translate(_MARKS)))
+    for kind in sorted({plain_name(k) for k in kinds} - {""}, key=len, reverse=True):
+        text = re.sub(rf"(?<!\S){re.escape(kind)}(?!\S)", " ", text)
+    parsed = parse_name(text, None, vocabulary or load_vocabulary())
+    return bool(parsed.brands) and parsed.is_vague
+
+
+def _brand_check(category: str) -> Callable[[str], bool]:
+    """brand_only() for one source's names, with its search's category, each name parsed once."""
+    known = load_vocabulary()
+    kinds = _category_names(category)
+    seen: dict[str, bool] = {}
+
+    def check(name: str) -> bool:
+        key = _name_key(name)
+        if key not in seen:
+            seen[key] = brand_only(name, known, kinds)
+        return seen[key]
+
+    return check
+
+
 def _product_types(raw: RawExtraction, category: str) -> set[str]:
     """The names the model called a kind of product anywhere: once is enough to keep one off the product list."""
     from_mentions = {_name_key(m.raw_name) for m in raw.mentions if not m.is_product}
@@ -147,6 +185,7 @@ def to_extraction_result(
     parts = [source.text, *(comment.text for comment in source.comments)]
     lowered = _name_key(" ".join([source.title, *parts]))
     types = _product_types(raw, category)
+    only_brand = _brand_check(category)
     claim_type = claim_type_for(source, domains or {})
     claims: dict[str, Claim] = {}
     dropped: Counter[str] = Counter()
@@ -158,6 +197,8 @@ def to_extraction_result(
             reason = "criterion"
         elif not _names(item.product_mention, lowered) or looks_like_instruction(item.product_mention):
             reason = "product"  # a hostile page can hold the words, so being in the source isn't enough
+        elif only_brand(item.product_mention):
+            reason = "brand_only"  # names no product, so the claim is about none (US-15, S4-23)
         elif quote is None or looks_like_instruction(quote):
             reason = "quote"
         else:
@@ -180,7 +221,9 @@ def to_extraction_result(
         log.info("extract: claims dropped from a %s source: %s", source.type.value, dict(dropped))
     if price_dropped:
         log.info("extract: price claims dropped from a %s source: %s", source.type.value, dict(price_dropped))
-    mentions = _mentions(raw, lowered, types, claims.values())
+    mentions, brand_names = _mentions(raw, lowered, types, claims.values(), only_brand)
+    if brand_names:  # the count only, never a name; shaped as the claims' line, so the live funnel can read it too
+        log.info("extract: names dropped from a %s source: %s", source.type.value, {"brand_only": brand_names})
     return ExtractionResult(source_id=source.id, mentions=mentions, claims=list(claims.values()))
 
 
@@ -212,20 +255,32 @@ def _within_room(
     return {claim.id: claim for claim in [*kept_first, *kept_rest]}
 
 
-def _mentions(raw: RawExtraction, lowered: str, types: set[str], claims: Iterable[Claim]) -> list[ProductMention]:
-    """Each name once, whoever gave it. A claim's product counts too, as code has found its name in the source."""
+def _mentions(
+    raw: RawExtraction, lowered: str, types: set[str], claims: Iterable[Claim], only_brand: Callable[[str], bool]
+) -> tuple[list[ProductMention], int]:
+    """Each name once, whoever gave it. A claim's product counts too, as code has found its name in the source.
+
+    A name that is only a brand is left out, whether the model called it a product or a kind of product. With the
+    mentions comes how many distinct names were left out so (its claims are already gone)."""
     kept: dict[str, ProductMention] = {}
+    brand_names: set[str] = set()
     for item in raw.mentions:
         key = _name_key(item.raw_name)
-        if key not in kept and _names(item.raw_name, lowered) and not looks_like_instruction(item.raw_name):
-            mention = _mention(item.raw_name, key not in types, item.brand, item.recommends)
-            if mention is not None:
-                kept[key] = mention
+        if key in kept or key in brand_names:
+            continue
+        if not _names(item.raw_name, lowered) or looks_like_instruction(item.raw_name):
+            continue
+        if only_brand(item.raw_name):
+            brand_names.add(key)
+            continue
+        mention = _mention(item.raw_name, key not in types, item.brand, item.recommends)
+        if mention is not None:
+            kept[key] = mention
     for claim in claims:
         key = _name_key(claim.product_mention)
         if key not in kept:
             kept[key] = ProductMention(raw_name=claim.product_mention, is_product=not claim.is_product_type)
-    return list(kept.values())[:MAX_MENTIONS]
+    return list(kept.values())[:MAX_MENTIONS], len(brand_names)
 
 
 def _claim(
