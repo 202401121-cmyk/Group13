@@ -28,10 +28,12 @@ from typing import Any
 import httpx
 
 from app.contracts import SourceFailure, SourceType
+from app.llm.retry import RetryClock
 
 from .cache import ResearchCache
 from .cleaning import clean_text
 from .reddit.base import FailureReason
+from .retrying import send_once_more
 from .serper import SerperResult, read_results
 from .usage import SearchUsage
 
@@ -94,9 +96,10 @@ class JinaReader:
 
     name = JINA
 
-    def __init__(self, http: httpx.Client, api_key: str | None) -> None:
+    def __init__(self, http: httpx.Client, api_key: str | None, *, retry: RetryClock | None = None) -> None:
         self.http = http
         self._api_key = api_key
+        self.retry = retry if retry is not None else RetryClock()  # the one retry (US-31)
 
     def __repr__(self) -> str:
         return f"JinaReader(key_set={self._api_key is not None})"
@@ -107,12 +110,17 @@ class JinaReader:
         headers = {"Accept": "text/plain", "X-Return-Format": "markdown"}
         if self._api_key:
             headers["Authorization"] = f"Bearer {self._api_key}"
-        try:
-            response = self.http.get(f"{JINA_URL}{url}", headers=headers, timeout=READER_TIMEOUT_S)
-        except httpx.TimeoutException:
+        response = send_once_more(
+            lambda: self.http.get(f"{JINA_URL}{url}", headers=headers, timeout=READER_TIMEOUT_S),
+            self.retry,
+            READER_TIMEOUT_S,
+            lambda: usage.take("jina"),  # a retry is a page read like any other
+            "Jina",
+        )
+        if isinstance(response, httpx.TimeoutException):
             return "timeout", f"no reply within {READER_TIMEOUT_S:g}s"
-        except httpx.HTTPError as exc:
-            return "error", f"request failed ({type(exc).__name__})"
+        if isinstance(response, httpx.HTTPError):
+            return "error", f"request failed ({type(response).__name__})"
         if response.status_code != 200:
             return _reason(response.status_code), f"HTTP {response.status_code}"
         title, _, body = response.text.partition(_JINA_BODY)
@@ -172,6 +180,19 @@ class FirecrawlGate:
             return self._dead
         return "rate_limited" if self._clock() < self._cool_until else None
 
+    def book_retry(self) -> bool:
+        """A retry inside a running request's slot (US-31): it needs its own place in the minute, and Firecrawl well."""
+        with self._lock:
+            if self._problem() is not None:
+                return False
+            now = self._clock()
+            while self._started and self._started[0] <= now - 60.0:
+                self._started.popleft()
+            if len(self._started) >= self._per_minute:
+                return False
+            self._started.append(now)
+            return True
+
     def _give_back(self, started: float) -> None:
         """A held place in the minute whose request never went out."""
         with self._lock, contextlib.suppress(ValueError):
@@ -204,12 +225,14 @@ class FirecrawlClient:
         cache: ResearchCache,
         gate: FirecrawlGate | None = None,
         now: Callable[[], datetime] = _utc_now,
+        retry: RetryClock | None = None,
     ) -> None:
         self.http = http
         self._api_key = api_key
         self.cache = cache
         self.gate = gate if gate is not None else _SHARED_GATE
         self._now = now
+        self.retry = retry if retry is not None else RetryClock()  # the one retry (US-31)
 
     def __repr__(self) -> str:
         return f"FirecrawlClient(key_set={self._api_key is not None})"
@@ -304,17 +327,32 @@ class FirecrawlClient:
                 return "quota_exhausted", "a cap is reached"
             if not all(usage.take("firecrawl") for _ in range(credits)):
                 return "quota_exhausted", "a cap is reached"
-            try:
-                response = self.http.post(
+
+            def again() -> bool:
+                """A retry costs what the first request did: a place in the minute, its page and its credits (US-31)."""
+                if not self.gate.book_retry():
+                    return False
+                if page and not usage.take("firecrawl_pages"):
+                    return False
+                return all(usage.take("firecrawl") for _ in range(credits))
+
+            response = send_once_more(
+                lambda: self.http.post(
                     url,
                     json=body,
                     headers={"Authorization": f"Bearer {self._api_key or ''}"},
                     timeout=READER_TIMEOUT_S,
-                )
-            except httpx.TimeoutException:
+                ),
+                self.retry,
+                READER_TIMEOUT_S,
+                again,
+                "Firecrawl",
+                rate_limits=False,  # its 429 pauses Firecrawl for the whole process (COOL_S): never retried
+            )
+            if isinstance(response, httpx.TimeoutException):
                 return "timeout", f"no reply within {READER_TIMEOUT_S:g}s"
-            except httpx.HTTPError as exc:
-                return "error", f"request failed ({type(exc).__name__})"
+            if isinstance(response, httpx.HTTPError):
+                return "error", f"request failed ({type(response).__name__})"
             status = response.status_code
             if status != 200:
                 return _reason(status), f"HTTP {status}"

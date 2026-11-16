@@ -172,7 +172,14 @@ def test_a_public_page_goes_to_deepseek_before_groq_when_gemini_and_mistral_fail
     }
     client = _client(adapters)
     _call(client, difficulty=Difficulty.LONG, task=LLMTask.EXTRACT_CLAIMS)
-    assert _sent(client) == [(GEMINI, "error"), (MISTRAL, "error"), (DEEPSEEK, "ok")]
+    # each 503 is tried once more on its own model (US-31) before the next model
+    assert _sent(client) == [
+        (GEMINI, "error"),
+        (GEMINI, "error"),
+        (MISTRAL, "error"),
+        (MISTRAL, "error"),
+        (DEEPSEEK, "ok"),
+    ]
     assert adapters[Provider.GROQ].calls == []
 
 
@@ -264,8 +271,10 @@ def test_failing_slow_and_rate_limited_providers_are_cooled_and_the_next_answers
         assert _call(client, difficulty=Difficulty.MEDIUM).product == "Nova Book 14"
     health = client.health
     assert health.state(Provider.MISTRAL) == "cooling" and health.state(Provider.GEMINI) == "cooling"
-    assert len(adapters[Provider.MISTRAL].calls) == 1 and len(adapters[Provider.GEMINI].calls) == 1
-    assert len(adapters[Provider.DEEPSEEK].calls) == 3  # a slow provider cools after 3 failures in a minute
+    # a 429 with more models after it moves on at once; a 5xx gets its one retry (US-31), then cools
+    assert len(adapters[Provider.MISTRAL].calls) == 1 and len(adapters[Provider.GEMINI].calls) == 2
+    # a slow provider cools after 3 failures in a minute: each timeout counts once its one retry also timed out
+    assert len(adapters[Provider.DEEPSEEK].calls) == 6
     assert health.state(Provider.DEEPSEEK) == "cooling"
     clock.now += 121  # every cool-down is over (60 to 120 s for 429 and 5xx, 90 s after timeouts)
     assert all(health.state(p) == "ok" for p in (Provider.MISTRAL, Provider.GEMINI, Provider.DEEPSEEK))

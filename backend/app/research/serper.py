@@ -25,10 +25,12 @@ from pydantic import ValidationError
 
 from app.contracts import Source, SourceFailure, SourceType
 from app.contracts.research import DEFAULT_TIER, MAX_SOURCE_CHARS
+from app.llm.retry import RetryClock
 
 from .cache import ResearchCache
 from .cleaning import clean_text
 from .reddit.base import FailureReason, IntervalLimiter
+from .retrying import send_once_more
 from .usage import SearchUsage
 
 log = logging.getLogger(__name__)
@@ -106,12 +108,14 @@ class SerperSource:
         cache: ResearchCache,
         limiter: IntervalLimiter = SHARED_LIMITER,
         now: Callable[[], datetime] = _utc_now,
+        retry: RetryClock | None = None,
     ) -> None:
         self.http = http
         self._api_key = api_key
         self.cache = cache
         self.limiter = limiter
         self._now = now
+        self.retry = retry if retry is not None else RetryClock()  # the one retry (US-31)
 
     def __repr__(self) -> str:
         return f"SerperSource(key_set={self._api_key is not None})"  # never the key, not even in a traceback
@@ -129,26 +133,29 @@ class SerperSource:
             return _failure("blocked", "web search: SERPER_API_KEY is not set")
         if not usage.take("serper"):
             return _failure("quota_exhausted", "web search: a Serper cap is reached")
-        result = self._send(text, country)
+        result = self._send(text, country, usage)
         if result.failure is None:
             self.cache.put_sources(key, result.sources)
             self.cache.put_text((*key, "reddit_titles"), _REDDIT_TITLES_SEPARATOR.join(result.reddit_titles))
             self.cache.put_text((*key, "reddit_links"), _REDDIT_TITLES_SEPARATOR.join(result.reddit_links))
         return result
 
-    def _send(self, text: str, country: str) -> SerperResult:
+    def _send(self, text: str, country: str, usage: SearchUsage) -> SerperResult:
         body: dict[str, str | int] = {"q": text, "hl": "en", "num": RESULTS_PER_QUERY}
         if country:
             body["gl"] = country
-        self.limiter.wait()
-        try:
-            response = self.http.post(
-                SERPER_URL, json=body, headers={"X-API-KEY": self._api_key or ""}, timeout=TIMEOUT_S
-            )
-        except httpx.TimeoutException:
+
+        def send() -> httpx.Response:
+            self.limiter.wait()
+            return self.http.post(SERPER_URL, json=body, headers={"X-API-KEY": self._api_key or ""}, timeout=TIMEOUT_S)
+
+        # One retry after a timeout, a 5xx or a connection error, or a 429 that says how long (US-31). It is a query
+        # like any other, so it takes one from the cap.
+        response = send_once_more(send, self.retry, TIMEOUT_S, lambda: usage.take("serper"), "web search")
+        if isinstance(response, httpx.TimeoutException):
             return _failure("timeout", f"web search: no reply within {TIMEOUT_S:g}s")
-        except httpx.HTTPError as exc:
-            return _failure("error", f"web search: request failed ({type(exc).__name__})")
+        if isinstance(response, httpx.HTTPError):
+            return _failure("error", f"web search: request failed ({type(response).__name__})")
         status = response.status_code
         if status in (401, 403):
             return _failure("blocked", f"web search: HTTP {status} (refused)")

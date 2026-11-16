@@ -76,5 +76,9 @@ class ProviderError(ProviderFailure):
     """Any other failure: another HTTP status, a network error or a reply we cannot read."""
 
 
+class ConnectionFailed(ProviderError):
+    """The request never got a reply: the connection failed or broke off (US-31). Retried once, as a 5xx is."""
+
+
 class InvalidOutput(ValueError):
     """The model replied, but not with a JSON object that matches the schema. Never guessed or repaired."""

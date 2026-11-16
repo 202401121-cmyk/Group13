@@ -84,6 +84,7 @@ from app.research import default_research_stage
 from app.research.readers import FIRECRAWL, JINA
 from app.research.reddit.recommenders import count_recommenders
 from app.research.retention import without_reddit_text
+from app.research.sites import SKIPPED_DETAIL, skipped_sentence
 from app.verify import TrustVerifyStage
 
 log = logging.getLogger(__name__)
@@ -204,6 +205,10 @@ _SEVERITY = {
 }
 
 OLDER_ARCHIVE_NOTE = "Reddit results came from an older archive (to May 2025)."
+# Every LLM call the search made failed on every provider (US-31). First in the note: it explains the rest.
+LLM_UNAVAILABLE_NOTE = (
+    "The AI services we use were all unavailable, so no source could be read. Please try again later."
+)
 # A page reader that failed or was capped is named in the note (US-38): its name starts the failure's detail.
 READER_NAMES = (JINA, FIRECRAWL)
 SOURCE_LABELS = {
@@ -615,6 +620,7 @@ class _Search:
         self.claims: list[Claim] = []
         self.mentions: list[ProductMention] = []
         self.extract_note: str | None = None
+        self.llm_unavailable = False  # every LLM call this search made failed on every provider (US-31)
         self.decide_note: str | None = None
         self.recommender_counts: list[
             RecommenderCount
@@ -701,9 +707,16 @@ class _Search:
         if ask_for_specs is not None:
             has_budget = self.rubric.budget is not None
             if _takes(ask_for_specs, "features"):
-                ask_for_specs(self.ctx.search_id, self.rule_keys, has_budget, features=self.features)
+                _hook(
+                    "ask_for_specs",
+                    ask_for_specs,
+                    self.ctx.search_id,
+                    self.rule_keys,
+                    has_budget,
+                    features=self.features,
+                )
             else:
-                ask_for_specs(self.ctx.search_id, self.rule_keys, has_budget)
+                _hook("ask_for_specs", ask_for_specs, self.ctx.search_id, self.rule_keys, has_budget)
 
         def read(source: Source) -> tuple[ExtractionResult | None, StageReport] | None:
             """One source, each under its own time limit. None if it was never started."""
@@ -724,8 +737,13 @@ class _Search:
             if out is not None:
                 self.claims += out.claims
                 self.mentions += out.mentions
-        collect_note = getattr(self.stages.extract, "coverage_note", None)
-        self.extract_note = collect_note(self.ctx.search_id) if collect_note is not None else None
+        # Read before the note: collecting the note clears the stage's counts for this search.
+        counts = _hook("counts_for", getattr(self.stages.extract, "counts_for", None), self.ctx.search_id)
+        # A source whose read ran out of time got no answer either: every provider can hang as well as fail.
+        timed_out = sum(1 for _, report in done if report.status is StageStatus.TIMEOUT)
+        answered = bool(self.claims or self.mentions)  # any claim or product named means a provider answered
+        self.llm_unavailable = not answered and every_llm_call_failed(counts, timed_out)
+        self.extract_note = self._stage_note(self.stages.extract)
         self.recommender_counts = self._counted_recommenders()
         if not done:
             return _skipped(StageName.EXTRACT, "the search stopped before any source was read")
@@ -787,8 +805,7 @@ class _Search:
         # A stage without the method (the stub) has no use for them; one that keeps them is told to forget them once
         # verify is done, run or fallback.
         use_filter_keys = getattr(self.stages.verify, "use_filter_keys", None)
-        if use_filter_keys is not None:
-            use_filter_keys(self.ctx.search_id, list(dict.fromkeys(price + rule_keys)))
+        _hook("use_filter_keys", use_filter_keys, self.ctx.search_id, list(dict.fromkeys(price + rule_keys)))
         inp = VerifyInput(
             match=_require(self.match_out, "match"),
             claims=self.claims[:MAX_CLAIMS],
@@ -922,6 +939,7 @@ class _Search:
             older_archive=older_archive,
             extract_note=self.extract_note,
             decide_note=self.decide_note,
+            llm_unavailable=self.llm_unavailable,
         )
         return SearchResult(
             search_id=self.ctx.search_id,
@@ -937,6 +955,7 @@ class _Search:
             citations=self._citations(products, found),
             stage_reports=self.reports,
             coverage_note=add_sample_label(note) if self.used_placeholder else note,
+            llm_unavailable=self.llm_unavailable,
             saved=True,  # what the stored row must say; the runner returns a saved=False copy if it is not committed
         )
 
@@ -1041,12 +1060,14 @@ def build_coverage_note(
     older_archive: bool = False,
     extract_note: str | None = None,
     decide_note: str | None = None,
+    llm_unavailable: bool = False,
 ) -> str | None:
     """Plain-English summary of everything that did not go to plan. None when everything did.
 
-    The stages' own notes come last: decide's (criteria left out, or nothing ranked), then extract's (sources not
-    read), so a note too long to fit never costs the sentences above."""
-    parts: list[str] = []
+    Every LLM provider failing comes first (US-31): it explains the rest. The stages' own notes come last: decide's
+    (criteria left out, or nothing ranked), then extract's (sources not read), so a note too long to fit never costs
+    the sentences above."""
+    parts: list[str] = [LLM_UNAVAILABLE_NOTE] if llm_unavailable else []
     skipped: dict[str, list[str]] = {}
     for r in reports:
         label = r.stage.value.capitalize()
@@ -1060,8 +1081,13 @@ def build_coverage_note(
         elif r.status is StageStatus.SKIPPED:
             skipped.setdefault(reason, []).append(r.stage.value)
     for f in failures:
+        if f.detail.startswith(SKIPPED_DETAIL):  # sites that kept failing, skipped for 24 hours (US-31)
+            parts.append(skipped_sentence(f.detail))
+            continue
         reader = next((name for name in READER_NAMES if f.detail.startswith(f"{name}:")), None)
-        if reader is not None:
+        if reader is not None and f.source_type is SourceType.WEB_SEARCH:  # Firecrawl as Serper's backup
+            parts.append(f"{reader} search {FAILURE_WORDS[f.reason]}.")
+        elif reader is not None:
             parts.append(f"{reader} {FAILURE_WORDS[f.reason]}, so some hard-to-read pages may be missing.")
         else:
             parts.append(f"{SOURCE_LABELS[f.source_type]} {FAILURE_WORDS[f.reason]}.")
@@ -1078,6 +1104,32 @@ def build_coverage_note(
 
     note = " ".join(parts)
     return _fit(note, MAX_NOTE_CHARS) if note else None
+
+
+def every_llm_call_failed(counts: object, timed_out: int = 0) -> bool:
+    """True when the search sent sources to the LLM and none came back with an answer: no provider could answer,
+    or the source's read ran out of time while they tried (`timed_out`).
+
+    `counts` is the extract stage's counts for the search (`counts_for`), or None. A search that sent nothing to the
+    LLM did not need it, so it never says the LLM was unavailable."""
+    if not isinstance(counts, dict):
+        return False
+    sent, unreadable = counts.get("sent", 0), counts.get("unreadable", 0)
+    if not (isinstance(sent, int) and isinstance(unreadable, int)) or sent <= 0:
+        return False
+    return unreadable + timed_out >= sent
+
+
+def _hook(name: str, hook: Callable[..., object] | None, *args: object, **kwargs: object) -> object:
+    """A stage's helper method, called outside run_stage: if it raises, the search carries on without it (US-31,
+    build rule 9). Only the error's type is logged, never its text."""
+    if hook is None:
+        return None
+    try:
+        return hook(*args, **kwargs)
+    except Exception as exc:
+        log.warning("a stage's %s failed (%s); the search carries on", name, type(exc).__name__)
+        return None
 
 
 def add_sample_label(note: str | None) -> str:

@@ -10,6 +10,7 @@ import httpx
 import pytest
 
 from app.contracts import DataClass, SourceTier, SourceType
+from app.llm.retry import RetryClock
 from app.research.cache import ResearchCache
 from app.research.queries import candidate_names
 from app.research.reddit import IntervalLimiter
@@ -46,6 +47,7 @@ def _serper(
         cache=cache or ResearchCache(folder=None, now=lambda: NOW),
         limiter=IntervalLimiter(0.2, clock=clock, sleep=clock.sleep),
         now=lambda: NOW,
+        retry=RetryClock(sleep=clock.sleep),  # the one retry (US-31) waits on the fake clock
     )
     return source, asked
 
@@ -181,13 +183,15 @@ def test_a_cached_result_expires_after_24_hours() -> None:
 
 
 def test_a_failure_is_never_cached() -> None:
-    answers: list[httpx.Response] = [httpx.Response(500), _ok(result("https://a.example/x"))]
+    # a 500 and its one retry (US-31), then the answer
+    answers: list[httpx.Response] = [httpx.Response(500), httpx.Response(500), _ok(result("https://a.example/x"))]
     source = SerperSource(
         httpx.Client(transport=httpx.MockTransport(lambda _: answers.pop(0))),
         KEY,
         cache=ResearchCache(folder=None, now=lambda: NOW),
         limiter=IntervalLimiter(0),
         now=lambda: NOW,
+        retry=RetryClock(sleep=lambda _: None),
     )
     usage = _usage()
     assert source.search("laptop", "IN", usage).failure is not None
@@ -274,7 +278,7 @@ def test_a_failed_request_still_counts_as_used() -> None:
     source, _ = _serper(httpx.Response(500))
     usage = _usage()
     source.search("laptop", "IN", usage)
-    assert usage.used["serper"] == 1
+    assert usage.used["serper"] == 2  # the query and its one retry (US-31): each request is counted
 
 
 def _recorded() -> list[dict[str, object]]:

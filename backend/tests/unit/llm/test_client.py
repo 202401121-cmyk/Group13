@@ -19,6 +19,7 @@ from app.llm.client import allowed_for_class, check_data_class, route_models, sa
 from app.llm.config import LLMConfig
 from app.llm.errors import (
     AuthFailed,
+    ConnectionFailed,
     NoCredit,
     ProviderError,
     ProviderFailure,
@@ -30,6 +31,7 @@ from app.llm.fitting import estimate_tokens, input_budget_for
 from app.llm.health import ProviderHealth
 from app.llm.limits import DailyTokenBudget, RateLimiter
 from app.llm.output import build_system_prompt
+from app.llm.pool import ModelPool
 from app.llm.providers import Adapter
 from tests.fakes.llm import FakeAdapter, FakeLLMClient
 
@@ -55,13 +57,15 @@ def _client(
     limiters: dict[Provider, RateLimiter] | None = None,
 ) -> WrapperLLMClient:
     typed: dict[Provider, Adapter] = dict(adapters)
+    chosen = config or _config_with()
     return WrapperLLMClient(
-        config or _config_with(),
+        chosen,
         typed,
         InMemoryCallLog(),
         health=health,
         budget=budget,
         limiters=limiters if limiters is not None else {},  # no real waiting in tests
+        pool=ModelPool(chosen.pool, sleep=lambda _: None),  # nor before a retry (US-31)
     )
 
 
@@ -112,7 +116,8 @@ def test_providers_are_tried_in_order() -> None:
     adapters[Provider.MISTRAL] = FakeAdapter(Provider.MISTRAL, journal=journal)
     result = _client(adapters).complete(TASK, SYSTEM, "laptop for coding", Answer, data_class=PUBLIC, difficulty=SHORT)
     assert result.product == "Nova Book 14"
-    assert journal == ORDER
+    # each 5xx is tried once more on the same provider (US-31), then the next provider in the route's order
+    assert journal == [p for p in ORDER[:4] for _ in range(2)] + [Provider.MISTRAL]
 
 
 def test_order_helpers() -> None:
@@ -129,22 +134,23 @@ def test_order_helpers() -> None:
 
 
 @pytest.mark.parametrize(
-    ("error", "outcome"),
+    ("error", "outcome", "sent"),
     [
-        (RateLimited, "rate_limited"),
-        (ProviderTimeout, "timeout"),
-        (ServerError, "error"),
-        (AuthFailed, "error"),
-        (ProviderError, "error"),
+        (RateLimited, "rate_limited", 1),  # not the route's last model: the next one is quicker than any wait
+        (ProviderTimeout, "timeout", 2),  # US-31: one retry after a timeout, a 5xx or a connection error
+        (ServerError, "error", 2),
+        (ConnectionFailed, "error", 2),
+        (AuthFailed, "error", 1),  # never after a 4xx
+        (ProviderError, "error", 1),
     ],
 )
-def test_a_provider_failure_moves_to_the_next_provider(error: type[ProviderFailure], outcome: str) -> None:
+def test_a_provider_failure_moves_to_the_next_provider(error: type[ProviderFailure], outcome: str, sent: int) -> None:
     groq = _failing(Provider.GROQ, error)
     gemini = FakeAdapter(Provider.GEMINI)
     client = _client({Provider.GROQ: groq, Provider.GEMINI: gemini})
     assert client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT).product == "Nova Book 14"
-    assert len(groq.calls) == 1  # failures are not retried on the same provider
-    assert _records(client) == [(Provider.GROQ, outcome, "as_is"), (Provider.GEMINI, "ok", "as_is")]
+    assert len(groq.calls) == sent
+    assert _records(client) == [*[(Provider.GROQ, outcome, "as_is")] * sent, (Provider.GEMINI, "ok", "as_is")]
 
 
 def test_an_unexpected_adapter_error_also_moves_on() -> None:
@@ -180,7 +186,7 @@ def test_every_provider_failing_raises_llm_unavailable() -> None:
     with pytest.raises(LLMUnavailable) as info:
         client.complete(TASK, SYSTEM, "my private words", Answer, data_class=PUBLIC, difficulty=SHORT)
     assert "my private words" not in str(info.value)
-    assert len(_records(client)) == 5
+    assert len(_records(client)) == 10  # each of the 5 answered 5xx twice: its one retry (US-31)
 
 
 def test_a_provider_without_a_key_is_skipped_and_reported_once(caplog: pytest.LogCaptureFixture) -> None:
@@ -373,13 +379,22 @@ def test_three_failures_switch_a_provider_off() -> None:
     assert client.health.state(Provider.GROQ, groq.calls[0].model) == "cooling"
 
 
-def test_a_server_error_switches_a_provider_off_at_once() -> None:
+def test_a_server_error_that_repeats_switches_a_provider_off_at_once() -> None:
     gemini = _failing(Provider.GEMINI, ServerError)
     client = _client({Provider.GEMINI: gemini, Provider.OPENROUTER: FakeAdapter(Provider.OPENROUTER)})
     for _ in range(3):
         client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT)
-    assert len(gemini.calls) == 1
+    assert len(gemini.calls) == 2  # the 5xx and its one retry (US-31); then it cools, so the next calls skip it
     assert client.health.state(Provider.GEMINI) == "cooling"
+
+
+def test_a_server_error_that_passes_on_its_retry_leaves_the_provider_well() -> None:
+    gemini = FakeAdapter(Provider.GEMINI, replies=(ServerError(Provider.GEMINI, "simulated"), OK))
+    openrouter = FakeAdapter(Provider.OPENROUTER)
+    client = _client({Provider.GEMINI: gemini, Provider.OPENROUTER: openrouter})
+    assert client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT).product == "Nova Book 14"
+    assert (len(gemini.calls), len(openrouter.calls)) == (2, 0)
+    assert client.health.state(Provider.GEMINI) == "ok"
 
 
 def test_a_providers_budget_is_held_while_its_call_runs() -> None:
@@ -555,3 +570,30 @@ def test_a_whole_reply_in_one_fence_is_accepted() -> None:
 def test_other_tasks_parse_as_before() -> None:
     adapter = FakeAdapter(Provider.GROQ, replies=(f"Here you go: {OK}",))
     assert _ask(_client({Provider.GROQ: adapter}), LLMTask.GENERATE_CRITERIA).product == "Nova Book 14"
+
+
+def test_a_failure_whose_retry_cannot_go_out_still_cools_the_provider() -> None:
+    """US-31: the 503 is set aside for its retry, but Gemini's last request of the day is spent: it counts after all."""
+    config = _config_with()
+    gemini = FakeAdapter(Provider.GEMINI, replies=(ServerError(Provider.GEMINI, "simulated"), OK))
+    openrouter = FakeAdapter(Provider.OPENROUTER)
+    client = WrapperLLMClient(
+        config,
+        {Provider.GEMINI: gemini, Provider.OPENROUTER: openrouter},
+        InMemoryCallLog(),
+        limiters={},
+        pool=ModelPool(config.pool, sleep=lambda _: None),
+        requests=DailyTokenBudget({Provider.GEMINI: 1}),
+    )
+    assert client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT).product == "Nova Book 14"
+    assert (len(gemini.calls), len(openrouter.calls)) == (1, 1)
+    assert client.health.state(Provider.GEMINI) == "cooling"
+
+
+def test_a_model_gets_one_retry_in_a_call_whatever_the_reason() -> None:
+    """A 503's retry answers with invalid output: no third request to that model (US-31), the next model answers."""
+    gemini = FakeAdapter(Provider.GEMINI, replies=(ServerError(Provider.GEMINI, "simulated"), "not json at all", OK))
+    openrouter = FakeAdapter(Provider.OPENROUTER)
+    client = _client({Provider.GEMINI: gemini, Provider.OPENROUTER: openrouter})
+    assert client.complete(TASK, SYSTEM, "hi", Answer, data_class=PUBLIC, difficulty=SHORT).product == "Nova Book 14"
+    assert (len(gemini.calls), len(openrouter.calls)) == (2, 1)

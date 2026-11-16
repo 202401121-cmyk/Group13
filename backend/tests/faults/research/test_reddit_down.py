@@ -40,8 +40,9 @@ def test_arctic_shift_down_gives_a_clean_failure_then_stops_asking() -> None:
     assert threads.sources == () and threads.failure is not None and threads.failure.reason == "error"
     assert comments.failure is not None  # paused, so not even the thread lookup is sent
     assert later.failure is not None and "paused" in later.failure.detail
-    assert len(archive.requests) == 3  # three failures opened the breaker; nothing more was sent
-    assert budget.used == 3
+    # three failures opened the breaker, each a refused connection and its one retry (US-31); nothing more was sent
+    assert len(archive.requests) == 6
+    assert budget.used == 6
 
 
 def test_both_archives_down_the_search_still_finishes_with_no_reddit_evidence() -> None:

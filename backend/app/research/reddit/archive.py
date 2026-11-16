@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import dataclasses
 import logging
+import random
 import time
 from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
@@ -82,6 +83,7 @@ class ArchiveSource:
         breaker: CircuitBreaker,
         now: Callable[[], datetime] = _utc_now,
         sleep: Callable[[float], None] = time.sleep,
+        rng: random.Random | None = None,
     ) -> None:
         self.salt = salt
         self.cache = cache if cache is not None else RedditCache()
@@ -95,6 +97,7 @@ class ArchiveSource:
             rate_limit_statuses=self.rate_limit_statuses,
             short_wait_statuses=self.short_wait_statuses,
             sleep=sleep,
+            rng=rng,
         )
         self._now = now
         self._threads: dict[str, ThreadInfo] = {}

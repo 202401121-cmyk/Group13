@@ -10,7 +10,9 @@ from pydantic import BaseModel
 from app.contracts import DataClass, Difficulty, LLMTask, LLMUnavailable, Provider
 from app.llm import InMemoryCallLog, WrapperLLMClient, load_llm_config
 from app.llm.errors import ProviderTimeout, RateLimited, ServerError
+from app.llm.pool import ModelPool
 from app.llm.providers import Adapter
+from app.llm.retry import RETRY_JITTER_S
 from tests.fakes.llm import FakeAdapter
 
 
@@ -27,7 +29,9 @@ def test_all_providers_down_raises_llm_unavailable_and_logs_every_attempt() -> N
         Provider.MISTRAL: FakeAdapter(Provider.MISTRAL, replies=(ServerError(Provider.MISTRAL, "HTTP 502"),)),
     }
     log = InMemoryCallLog()
-    client = WrapperLLMClient(load_llm_config(), adapters, log, limiters={})
+    config = load_llm_config()
+    slept: list[float] = []
+    client = WrapperLLMClient(config, adapters, log, limiters={}, pool=ModelPool(config.pool, sleep=slept.append))
 
     started = monotonic()
     with pytest.raises(LLMUnavailable, match="extract_claims"):
@@ -40,14 +44,20 @@ def test_all_providers_down_raises_llm_unavailable_and_logs_every_attempt() -> N
             difficulty=Difficulty.LONG,
         )
     assert monotonic() - started < 1
+    # US-31: the one retry after a 5xx or a timeout waits a short jitter each, and never more than that
+    assert len(slept) == 3 and all(RETRY_JITTER_S[0] <= s <= RETRY_JITTER_S[1] for s in slept)
 
     # Every provider on the public/long route, in route order: Groq's three models as the last resort, then OpenRouter.
-    # Cerebras is not on it.
+    # Cerebras is not on it. A 5xx or a timeout is tried once more on the same model; a 429 with more models after it
+    # is not (the next model is quicker than any wait).
     assert [(r.provider, r.outcome) for r in log.records] == [
         (Provider.GEMINI, "error"),
+        (Provider.GEMINI, "error"),
+        (Provider.MISTRAL, "error"),
         (Provider.MISTRAL, "error"),
         (Provider.GROQ, "rate_limited"),
         (Provider.GROQ, "rate_limited"),
         (Provider.GROQ, "rate_limited"),
+        (Provider.OPENROUTER, "timeout"),
         (Provider.OPENROUTER, "timeout"),
     ]
