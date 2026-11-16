@@ -2,8 +2,10 @@
 
 DecideStage is the Sprint 1 stub, kept as it was (replace, never rewrite: D-20). WeightedDecideStage replaces it: it
 filters on the budget, the active hard rules and the exclusions, then ranks what is shown on the shopper's weights. Its
-fallback hands over to the stub, so a failure gives the example ranking under the sample note. US-19's simulations
-come later, with the weighted score as their fallback.
+fallback hands over to the stub, so a failure gives the example ranking under the sample note. The order, each
+product's chance of being first, its confidence and its ties come from 1,000 seeded simulations (US-19, simulation.py,
+method "monte_carlo"). The plain weighted ranking (scoring.py, method "weighted") stands when nothing has a score or
+the simulations fail.
 
 Its notes (criteria left out, or nothing ranked) reach the coverage note through `coverage_note(search_id)`, which the
 pipeline reads after the stage, as it reads extract's (S3-10b).
@@ -39,7 +41,10 @@ class DecideStage:
 
 
 class WeightedDecideStage:
-    """Filters, then ranks by the weighted score (method "weighted"). The same input always gives the same result."""
+    """Filters, then ranks by 1,000 simulations of the weighted score (method "monte_carlo", else "weighted").
+
+    The same input and seed always give the same result.
+    """
 
     name = StageName.DECIDE
     is_placeholder = False

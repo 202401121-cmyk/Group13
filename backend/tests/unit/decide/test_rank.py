@@ -62,7 +62,7 @@ def test_the_score_is_the_weighted_sum_times_ten() -> None:
         ("battery_life", pytest.approx(0.6), pytest.approx(4.8)),
         ("cpu_performance", pytest.approx(0.4), pytest.approx(2.0)),
     ]
-    assert result.method == "weighted"
+    assert result.method == "monte_carlo"  # ranked by the simulations (US-19); the score stays the weighted sum
 
 
 def test_every_criterion_has_a_contribution_in_the_rubrics_order() -> None:
@@ -188,11 +188,15 @@ def test_labels_and_the_gap_to_the_leader() -> None:
     assert [r.rank for r in result.ranked] == [1, 2, 3]
     assert [r.label for r in result.ranked] == ["best_match", "runner_up", None]
     assert [r.gap_to_leader for r in result.ranked] == [0.0, pytest.approx(12.0), pytest.approx(40.0)]
-    assert all(r.tied_with == [] and r.chance_first is None for r in result.ranked)
+    assert all(r.tied_with == [] for r in result.ranked)  # 12 and 28 points apart: never too close to call
+    assert all(r.chance_first is not None for r in result.ranked)
+    chances = [r.chance_first or 0.0 for r in result.ranked]
+    assert chances == sorted(chances, reverse=True)
 
 
 def _confidence(evidenced: list[bool], scores: list[float], battery: float = 8.0) -> list[str]:
-    """One product per score; product i's battery is Known when evidenced[i], else a verify estimate. The battery's
+    """The plain weighted ranking's own confidence (scoring.py), which stands when the simulations can't run (US-19).
+    One product per score; product i's battery is Known when evidenced[i], else a verify estimate. The battery's
     weight out of 10 is the coverage of an evidenced product."""
     weights = (("battery_life", battery), ("cpu_performance", 10.0 - battery))
     values: list[Any] = []
@@ -200,7 +204,7 @@ def _confidence(evidenced: list[bool], scores: list[float], battery: float = 8.0
     for pid, score, has in zip(pids, scores, evidenced, strict=True):
         values.append(known(pid, "battery_life", score=score) if has else estimated(pid, "battery_life", score))
         values.append(estimated(pid, "cpu_performance", score))
-    result = decide(decide_input(rubric(weights=weights), [product(p) for p in pids], values))
+    result = decide(decide_input(rubric(weights=weights), [product(p) for p in pids], values), weighted_only=True)
     return [r.confidence for r in sorted(result.ranked, key=lambda r: pids.index(r.product_id))]
 
 
@@ -249,14 +253,15 @@ def test_with_nothing_to_score_products_are_listed_unlabelled() -> None:
 
 
 def test_ties_are_broken_by_coverage_then_by_id() -> None:
+    """The plain weighted ranking's order (the simulations' fallback): equal scores go by coverage, then id."""
     values = [
         *_scored(C, 7.0, 7.0),
         *_scored(B, 7.0, 7.0),
         estimated(A, "battery_life", 7.0),
         known(A, "cpu_performance", score=7.0),
     ]
-    result = decide(decide_input(rubric(weights=TWO), [product(A), product(C), product(B)], values))
-    assert shown(result) == [B, C, A]
+    inp = decide_input(rubric(weights=TWO), [product(A), product(C), product(B)], values)
+    assert shown(decide(inp, weighted_only=True)) == [B, C, A]
 
 
 def test_same_inputs_same_output() -> None:
@@ -267,7 +272,15 @@ def test_same_inputs_same_output() -> None:
     inp = decide_input(rb, [product(A), product(B), product(C)], values)
     first = decide(inp)
     assert all(decide(inp) == first for _ in range(5))
-    assert decide(inp.model_validate({**inp.model_dump(), "seed": 7})) == first  # the plain score uses no seed
+    reordered = decide(inp.model_validate({**inp.model_dump(), "products": inp.model_dump()["products"][::-1]}))
+    assert reordered == first  # the products' order in the input changes nothing
+    # another seed draws other simulations, but the weighted scores and what was filtered never depend on it
+    other = decide(inp.model_validate({**inp.model_dump(), "seed": 7}))
+    assert {r.product_id: r.score for r in other.ranked} == {r.product_id: r.score for r in first.ranked}
+    assert other.filtered == first.filtered
+    assert decide(inp, weighted_only=True) == decide(
+        inp.model_validate({**inp.model_dump(), "seed": 7}), weighted_only=True
+    )
 
 
 def test_more_than_fifty_shown_keeps_the_top_fifty() -> None:

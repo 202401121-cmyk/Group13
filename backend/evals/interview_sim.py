@@ -263,7 +263,10 @@ def true_rubric(final: Rubric, true_weights: Mapping[str, float]) -> Rubric:
 
 
 def best_match(rubric: Rubric, brief: Brief) -> str | None:
-    result = decide(DecideInput(rubric=rubric, products=brief.products, values=brief.values))
+    """The best match the rubric's weights give, by the plain weighted ranking. This measures the weights themselves:
+    the simulations (US-19) would also move it with each weight's uncertainty, which the true rubric (manual, 0) and
+    the interview's (0.2 to 0.5) don't share, so the two best matches wouldn't be compared on the same footing."""
+    result = decide(DecideInput(rubric=rubric, products=brief.products, values=brief.values), weighted_only=True)
     return result.ranked[0].product_id if result.ranked else None
 
 
