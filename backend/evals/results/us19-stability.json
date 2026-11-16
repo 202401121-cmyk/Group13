@@ -1,0 +1,45 @@
+{
+  "story": "US-19 (S4-7): the rank order under random 10% weight changes",
+  "runner": "python -m evals.stability (offline)",
+  "briefs": "backend/tests/fixtures/decide (5 made-up briefs)",
+  "counted": "briefs with 2 or more shown products; one with fewer has no order to change",
+  "changes_per_brief": 100,
+  "shift": 0.1,
+  "change_seed": 19,
+  "decide_seed": "each brief's own DecideInput.seed",
+  "target_median": 0.9,
+  "median": 1.0,
+  "lowest": 1.0,
+  "meets_target": true,
+  "note": "No change reordered any brief's shown products: in these briefs they are far apart, so this shows the order holds there, not how close products behave. tests/unit/evals/test_stability.py runs the same check on made-up close products, where it does find changed orders.",
+  "per_brief": {
+    "ereader_8k": {
+      "shown": 0,
+      "counted": false
+    },
+    "headphones_anc_range": {
+      "shown": 3,
+      "counted": true,
+      "median": 1.0,
+      "lowest": 1.0
+    },
+    "laptop_coding_70k": {
+      "shown": 3,
+      "counted": true,
+      "median": 1.0,
+      "lowest": 1.0
+    },
+    "monitor_27_gaming": {
+      "shown": 3,
+      "counted": true,
+      "median": 1.0,
+      "lowest": 1.0
+    },
+    "phone_camera_30k": {
+      "shown": 2,
+      "counted": true,
+      "median": 1.0,
+      "lowest": 1.0
+    }
+  }
+}

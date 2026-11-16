@@ -61,7 +61,8 @@ def test_a_live_run_gives_real_shown_filtered_out_and_cant_tell_products() -> No
         FILTERED_OUT: ("filtered_out", ["₹84,990 is above your ₹70,000 budget"]),
         CANT_TELL: ("cant_tell", ["We couldn't find its price"]),  # only Reddit gave one
     }
-    assert result.decision.method == "weighted"
+    assert result.decision.method == "monte_carlo"  # ranked by 1,000 seeded simulations (US-19)
+    assert all(r.chance_first is not None for r in result.decision.ranked)
 
 
 def test_a_live_run_has_no_sample_product_and_no_sample_note() -> None:

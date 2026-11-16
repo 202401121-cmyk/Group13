@@ -1,5 +1,8 @@
 """The ranking (US-18, DR-09, DR-10): shown products scored on the shopper's own weights. Plain code.
 
+This is the plain weighted ranking (method "weighted"). simulation.py (US-19) reorders it by 1,000 simulations around
+these same scores; this ranking is what stands when nothing has a score or the simulations fail.
+
 - A product's score is the weighted sum of its criterion scores (0 to 10) times 10, so 0 to 100.
 - A criterion score is a source's opinion (ResolvedValue.score). With none, a stated value is scored by comparing
   the shown products (US-18, P-20): a number in one unit, or yes/no, on a criterion with a direction
@@ -105,11 +108,19 @@ def reading(value: object, key: str) -> tuple[str, float] | None:
     return (dimension, base) if math.isfinite(base) else None
 
 
+Reading = tuple[str, float, ValueState]  # (dimension, amount in its base unit, the value's state)
+
+
 def _compared(products: Sequence[Product], key: str, better: Better, values: Values) -> dict[str, Evidence]:
     """The shown products' stated values on one criterion, scored against each other (US-18, P-20). The most common
     unit's values compare (ties go to the dimension's name); a value in a unit that can't be converted to it is left
     out. A disputed value compares on its winning side, verify's value. Fewer than two values: none."""
-    readings: dict[str, tuple[str, float, ValueState]] = {}
+    return _compare_readings(_readings(products, key, values), better)
+
+
+def _readings(products: Sequence[Product], key: str, values: Values) -> dict[str, Reading]:
+    """Each shown product's stated value on one criterion that can be read, in the products' order."""
+    readings: dict[str, Reading] = {}
     for product in products:
         value = values.get((product.id, key))
         if value is None or value.state not in _EVIDENCE or value.value is None:
@@ -117,6 +128,11 @@ def _compared(products: Sequence[Product], key: str, better: Better, values: Val
         read = reading(value.value, key)
         if read is not None:
             readings[product.id] = (read[0], read[1], value.state)
+    return readings
+
+
+def _compare_readings(readings: Mapping[str, Reading], better: Better) -> dict[str, Evidence]:
+    """The readings scored against each other, as _compared scores them."""
     if len(readings) < MIN_TO_COMPARE:
         return {}
     counts = Counter(dimension for dimension, _, _ in readings.values())
