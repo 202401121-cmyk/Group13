@@ -107,38 +107,46 @@ def test_the_table_has_the_agreed_columns_and_a_plain_index_on_session_id(databa
             "and indexdef like '%(session_id)%'"
         ).fetchall()
         foreign_keys = conn.execute(
-            "select count(*) from pg_constraint where conrelid = 'public.searches'::regclass and contype = 'f'"
-        ).fetchone()
+            "select confrelid::regclass::text, array(select attname from pg_attribute "
+            "where attrelid = conrelid and attnum = any(conkey)) from pg_constraint "
+            "where conrelid = 'public.searches'::regclass and contype = 'f'"
+        ).fetchall()
     assert columns == [
         ("id", "uuid", "NO", "gen_random_uuid()"),
         ("session_id", "text", "NO", None),
         ("rubric", "jsonb", "NO", None),
         ("result", "jsonb", "NO", None),
         ("created_at", "timestamp with time zone", "NO", "now()"),
+        ("user_id", "uuid", "YES", None),  # US-30: the signed-in owner; a guest's search leaves it null (D-36)
     ]
     [(definition,)] = index
     assert "UNIQUE" not in definition  # one session can run more than one search
-    assert foreign_keys == (0,)  # a request can fail to save while its search saves later
+    # None to public.requests: a request can fail to save while its search saves later. US-30 adds only the owner's.
+    assert foreign_keys == [("auth.users", ["user_id"])]
 
 
-def test_row_level_security_is_on_with_no_policies(database_url: str) -> None:
+def test_row_level_security_is_on_with_only_the_owners_read_policy(database_url: str) -> None:
     with psycopg.connect(database_url) as conn:
         rls = conn.execute("select relrowsecurity from pg_class where oid = 'public.searches'::regclass").fetchone()
         policies = conn.execute(
-            "select count(*) from pg_policies where schemaname = 'public' and tablename = 'searches'"
-        ).fetchone()
+            "select policyname, cmd, roles::text[] from pg_policies "
+            "where schemaname = 'public' and tablename = 'searches'"
+        ).fetchall()
     assert rls == (True,)
-    assert policies == (0,)
+    assert policies == [("searches_select_own", "SELECT", ["authenticated"])]  # US-30; nothing else, nothing for anon
 
 
-def test_the_data_api_roles_have_no_access(database_url: str) -> None:
+def test_the_data_api_roles_can_at_most_read(database_url: str) -> None:
+    """anon has no access. Since US-30, authenticated may read, through its own-rows policy only; writing stays with
+    the backend."""
     with psycopg.connect(database_url) as conn:
         for role in ROLES:
             for privilege in PRIVILEGES:
                 allowed = conn.execute(
                     "select has_table_privilege(%s, 'public.searches', %s)", (role, privilege)
                 ).fetchone()
-                assert allowed == (False,), (role, privilege)
+                expected = role == "authenticated" and privilege == "select"
+                assert allowed == (expected,), (role, privilege)
 
 
 def test_the_revoke_beats_the_default_grants_supabase_gives_new_tables(database_url: str) -> None:

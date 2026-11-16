@@ -13,8 +13,10 @@ from __future__ import annotations
 
 import os
 import secrets
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from pathlib import Path
+from typing import Any
 
 import psycopg
 import pytest
@@ -36,9 +38,9 @@ def _unavailable(reason: str) -> None:
     pytest.skip(reason)
 
 
-@pytest.fixture(scope="module")
-def database_url() -> Iterator[str]:
-    """A fresh database with every migration applied; dropped afterwards."""
+@contextmanager
+def migrated_database(before: Callable[[psycopg.Connection[Any]], None] | None = None) -> Iterator[str]:
+    """A fresh database with every migration applied; dropped afterwards. `before` runs first, on the new database."""
     server_url = os.environ.get("TEST_DATABASE_URL", "").strip()
     if not server_url:
         _unavailable("TEST_DATABASE_URL is not set (see docs/database.md, 'Tests')")
@@ -61,11 +63,20 @@ def database_url() -> Iterator[str]:
                             "do $$ begin create role {} nologin; exception when duplicate_object then null; end $$"
                         ).format(sql.Identifier(role))
                     )
+                if before is not None:
+                    before(conn)
                 for migration in sorted(MIGRATIONS.glob("*.sql")):
                     conn.execute(migration.read_text(encoding="utf-8").encode("utf-8"))
             yield url
         finally:
             admin.execute(sql.SQL("drop database {} with (force)").format(sql.Identifier(name)))
+
+
+@pytest.fixture(scope="module")
+def database_url() -> Iterator[str]:
+    """A fresh database with every migration applied; dropped afterwards."""
+    with migrated_database() as url:
+        yield url
 
 
 @pytest.fixture
@@ -101,7 +112,9 @@ def test_an_unclear_request_is_saved_without_an_intent(store: PostgresRequestSto
     assert row == (None, unclear.detected_by)
 
 
-def test_row_level_security_is_on_and_the_data_api_roles_have_no_access(database_url: str) -> None:
+def test_row_level_security_is_on_and_the_data_api_roles_can_at_most_read(database_url: str) -> None:
+    """anon has no access. Since US-30, authenticated may read, and its policy shows a user only their own rows
+    (tests/integration/test_user_tables.py); writing stays with the backend."""
     with psycopg.connect(database_url) as conn:
         rls = conn.execute("select relrowsecurity from pg_class where oid = 'public.requests'::regclass").fetchone()
         assert rls == (True,)
@@ -110,7 +123,8 @@ def test_row_level_security_is_on_and_the_data_api_roles_have_no_access(database
                 allowed = conn.execute(
                     "select has_table_privilege(%s, 'public.requests', %s)", (role, privilege)
                 ).fetchone()
-                assert allowed == (False,), (role, privilege)
+                expected = role == "authenticated" and privilege == "select"
+                assert allowed == (expected,), (role, privilege)
 
 
 def test_the_table_enforces_the_length_limit_and_the_session_id_format(database_url: str) -> None:

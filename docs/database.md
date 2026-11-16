@@ -1,9 +1,9 @@
 # The database (Supabase Postgres)
 
 ShopSense saves each shopper request, with its session ID, in a Supabase Postgres database (US-01, #14). It also has
-a table for finished searches (US-52), and one for product aliases kept between searches (US-15). The database is
-**optional**: with no `DATABASE_URL` everything works and
-nothing is saved, and when the database is down, slow or paused a search still finishes (build rule 10).
+a table for finished searches (US-52), one for product aliases kept between searches (US-15), and a profile for each
+signed-in user (US-30). The database is **optional**: with no `DATABASE_URL` everything works and nothing is saved,
+and when the database is down, slow or paused a search still finishes (build rule 10).
 
 ## What is stored, and why
 
@@ -17,15 +17,17 @@ One row per shopper request, in `public.requests`:
 | `intent` | What we understood (category, use, budget, rules), only when it was clear enough to research |
 | `intent_source` | How it was understood: `llm` or `rules` (the keyword rules, when no LLM answered) |
 | `created_at` | When it was saved |
+| `user_id` | The signed-in owner (US-30). Empty for a guest: see "Accounts" below |
 
 - **Why:** to see what people really ask for, to build evaluation sets from real requests, and later to remember
   returning shoppers (US-06).
-- **Not stored:** no IP address, user agent, name, email or login.
+- **Not stored:** no IP address, user agent, name or email. A signed-in shopper's row holds only their user id.
 - **Private:** requests are what people typed and may be personal. Never send stored requests to Gemini's free tier
   or any other model service that may train on its inputs. Never paste rows into chat, Slack or an issue.
 
-Row level security is on with no policies, and the table is revoked from `anon` and `authenticated`. So Supabase's
-Data API (the anon and logged-in browser keys) cannot read or write it. Only the backend's own database login can.
+Row level security is on. `anon` has no access, so the Data API with no one signed in can't read or write it. Since
+US-30, a signed-in user (`authenticated`) may read their own rows and nothing else (see "Accounts"). Only the backend's
+own database login can write.
 
 ### Finished searches
 
@@ -38,13 +40,15 @@ One row per finished search, in `public.searches` (US-52):
 | `rubric` | The rubric the search used (`SearchResult.request.rubric`) |
 | `result` | The whole `SearchResult` as `model_dump(mode="json")` writes it, with Reddit's words taken out (see below) |
 | `created_at` | When it was saved |
+| `user_id` | The signed-in owner (US-30). Empty for a guest: see "Accounts" below |
 
 - **Why:** the pipeline keeps its state in memory and saves once at the end (US-52, build rule 10).
 - **No foreign key to `public.requests`:** saving a request can fail while the search saves later, and that search
-  must still be kept. A row in one table never needs a row in the other.
+  must still be kept. A row in one table never needs a row in the other. The only foreign key is the owner's, to
+  `auth.users`.
 - **More than one per session:** one session can run more than one search, so `session_id` has an index but is not
   unique.
-- **Not stored:** no IP address, user agent, name, email or login.
+- **Not stored:** no IP address, user agent, name or email. A signed-in shopper's row holds only their user id.
 - **Private:** `result` holds the request as typed, so this is private data, like `public.requests`. It stays in our
   database only. Never send it to Gemini's free tier or any other model service that may train on its inputs, and
   never paste rows into chat, Slack or an issue.
@@ -90,10 +94,9 @@ real: product names are kept as names, from any source (Om, 11 Nov 2026), and th
 **For US-29 (Sprint 5):** a reopened search shows Reddit evidence as links, not quotes. Show the marker's meaning in plain
 words, and link to the thread by its URL. The words can only be read on Reddit, as they were never kept.
 
-Row level security is on with no policies, and the table is revoked from `anon` and `authenticated`, the same as
-`public.requests`. So the Data API cannot read or write it. **Who can read it:** the backend through `DATABASE_URL`,
-and project members through the Supabase dashboard. Sprint 4 (#52) adds an owner column and policies for signed-in
-users.
+Row level security is on, the same as `public.requests`: `anon` has no access, and a signed-in user may read their own
+rows only (see "Accounts"). **Who can read it:** the backend through `DATABASE_URL`, project members through the
+Supabase dashboard, and each signed-in user their own searches. Only the backend writes.
 
 ### Product aliases
 
@@ -124,11 +127,49 @@ One row per alias and category, in `public.product_aliases` (US-15, DR-06):
   not: it is logged once, and that backend keeps aliases in memory until it is restarted, even after the migration is
   applied.
 
-Row level security is on with no policies, and the table is revoked from `anon` and `authenticated`, the same as the
-other two. The revoke is guarded, so the migration also runs on a plain Postgres. So the Data API cannot read or write
-it. **Who can read it:** the backend through `DATABASE_URL`, and project members through the Supabase dashboard. The
-Security Advisor shows **RLS Enabled No Policy** (INFO) for this table, as for the other two. That is expected: it is
-the intended design.
+Row level security is on with no policies, and the table is revoked from `anon` and `authenticated`. The revoke is
+guarded, so the migration also runs on a plain Postgres. So the Data API cannot read or write it. **Who can read it:**
+the backend through `DATABASE_URL`, and project members through the Supabase dashboard. The Security Advisor shows
+**RLS Enabled No Policy** (INFO) for this table. That is expected: it is the intended design. Since US-30 it is the only
+table with that finding: the other three have policies.
+
+### Accounts (US-30)
+
+Login uses Supabase Auth with Google sign-in. Supabase keeps the accounts in its own `auth.users` table, with the email
+address; ShopSense never copies it. The migration `20261115141557_add_user_tables` adds:
+
+- **`user_id`** on `public.requests` and `public.searches`: the signed-in owner, a `uuid` that refers to `auth.users`.
+  It has an index. **Deleting a user deletes their requests, searches and profile** (`on delete cascade`).
+- **`public.profiles`**, one row per signed-in user, made by the backend at first sign-in (S4-10):
+
+  | Column | What it holds |
+  |---|---|
+  | `id` | The user's id, the same as in `auth.users` |
+  | `display_name` | The name shown in the app, if any: 1 to 80 characters, with no space at either end |
+  | `created_at` | When it was made |
+
+**Guests (D-36).** A guest's request and search are saved with `user_id` empty. They are never linked to an account
+later and never used to remember preferences. No policy ever shows a row with an empty `user_id`.
+
+**Who can do what through the Data API** (the browser's publishable key, D-32):
+
+| Role | `requests`, `searches` | `profiles` |
+|---|---|---|
+| `anon` (no one signed in) | nothing | nothing |
+| `authenticated` (signed in) | read their own rows | read their own; change their own `display_name` only |
+
+- The policies are `requests_select_own`, `searches_select_own`, `profiles_select_own` and `profiles_update_own`. Each
+  compares the row's owner with `auth.uid()`, the user in the request's sign-in token.
+- Neither `anon` nor `authenticated` can insert or delete anything. Every write stays with the backend, through
+  `DATABASE_URL`. The secret key's `service_role` keeps the access Supabase gives it, as on the other tables; that key
+  never leaves the backend (D-32).
+- Supabase grants every new table to `anon` and `authenticated`, so the migration first revokes everything, then
+  grants only what the table above shows.
+
+**On a plain Postgres** (the tests), there is no `auth` schema. The migration then makes a small stand-in: an `auth`
+schema with `auth.users (id)` and an `auth.uid()` that reads the user from the request's claims, as Supabase's does.
+Each piece is made only when it is missing, so on Supabase nothing in `auth` is touched. The migration is safe to run
+more than once.
 
 ## Setting up the project (once, by hand, in the browser)
 
@@ -147,8 +188,9 @@ the intended design.
    - Don't create `backend/.env`: the backend would find it first and stop reading the root `.env`.
 4. Note the project's Postgres major version (**Settings > Infrastructure**). It is **17**; the tests use the same.
 5. Apply the migrations (next section), then open **Advisors > Security**. It should show only **RLS Enabled No
-   Policy** (INFO), once for each table: `public.requests`, `public.searches` and `public.product_aliases`. That
-   finding is expected for all three: see the live check below.
+   Policy** (INFO) for `public.product_aliases`, which is expected: see the live check below. Before US-30's migration
+   it also shows for `public.requests` and `public.searches`; after it, those two and `public.profiles` have policies
+   (see "Accounts").
 
 `DB_TIMEOUT_SECONDS` (default 2) is how long one save may take before the search carries on without it.
 
@@ -207,6 +249,24 @@ The migration `20261111083610_create_product_aliases` (US-15) was applied after 
 
 Unlike `create_searches`, nothing fails without it: aliases stay in memory, and the missing table is logged once and
 never counted on the circuit breaker.
+
+### `add_user_tables` (after it merges, once, by hand)
+
+The migration `20261115141557_add_user_tables` (US-30) is only a file until someone applies it. Nothing in the backend
+needs it yet: S4-10's sign-in and API do.
+
+1. Vaishvi applies it from a fresh `main` in her own terminal, with `db push` as above. The dry run should list this one
+   migration only. She tells Om.
+2. Om checks it read-only through the Supabase connector:
+   - the migration history lists `20261115141557`;
+   - `public.requests` and `public.searches` have a nullable `user_id` with its foreign key to `auth.users` and its
+     index, and `public.profiles` exists with row level security on;
+   - `pg_policies` lists exactly the four policies in "Accounts", each for `authenticated` only;
+   - `anon` has no privileges on the three tables, and `authenticated` has `select` only, plus `update` of
+     `profiles.display_name`;
+   - the `auth` schema is Supabase's own: `auth.users` has all its usual columns, so the stand-in was not made.
+3. The Security Advisor should show **RLS Enabled No Policy** for `public.product_aliases` only. Anything new, such as a
+   warning about the policies, goes to Vaishvi before S4-10 merges.
 
 ## "off" and "down"
 
@@ -269,7 +329,19 @@ A Free project is paused after 7 days of low activity. A paused project shows as
   own database, applies every migration, checks the tables, row level security and the limits, and drops it. The
   `backend` job in CI runs them on every pull request against `postgres:17`, with `REQUIRE_DB_TESTS=1`.
 - A plain Postgres gives `anon` and `authenticated` nothing, so checking their privileges there proves little. One
-  test in `test_searches_table.py` copies Supabase's default grants first, so a lost `revoke` makes it fail.
+  test in `test_searches_table.py`, and one in `test_user_tables.py`, copy Supabase's default grants first, so a lost
+  `revoke` makes them fail.
+- `test_user_tables.py` checks US-30's migration. Each check acts as the Data API does: it sets the role
+  (`authenticated` or `anon`) and the user's claims, in a transaction that is rolled back.
+  - user A reads only A's requests, searches and profile, and user B can't read A's;
+  - `anon` reads nothing, even carrying a user's claims;
+  - a guest's rows are invisible to every signed-in user, and a session with no user reads nothing;
+  - a user renames only their own profile, can't change its id, and can't insert, update or delete a request or
+    search;
+  - deleting a user deletes their rows, and only theirs;
+  - the columns, foreign keys, indexes, privileges and the four policies, exactly;
+  - running the migration again changes nothing, and on a database that already has Supabase's `auth` schema it leaves
+    `auth.users` and `auth.uid()` as they were.
 - `test_product_aliases_table.py` checks the aliases table:
   - its columns and primary key;
   - row level security with no policies, and no access for `anon` and `authenticated` (on a plain Postgres these roles
