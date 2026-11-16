@@ -20,7 +20,7 @@ from app.criteria import CriteriaStage
 from app.decide import DecideStage, WeightedDecideStage
 from app.enrich import EnrichStage
 from app.entities import FuzzyMatchStage, MatchStage
-from app.explain import ExplainStage
+from app.explain import ExplainStage, TemplateExplainStage
 from app.extract import ExtractStage
 from app.intake import IntakeStage
 from app.interview import InterviewStage
@@ -38,6 +38,9 @@ from app.research import ResearchStage
 from app.verify import TrustVerifyStage, VerifyStage
 
 SEARCH_STAGES = [f.name for f in fields(SearchStages)]
+# US-20 replaced explain's Sprint 1 stub, which gave the example explanations: no stub of it is left. Its baseline, the
+# template, states code's own numbers, so it is real and never labels a result as a sample.
+STUBBED_STAGES = [name for name in SEARCH_STAGES if name != "explain"]
 STUBS = [
     ResearchStage,
     ExtractStage,
@@ -45,10 +48,18 @@ STUBS = [
     VerifyStage,
     EnrichStage,
     DecideStage,
-    ExplainStage,
     CommerceStage,
 ]
-REAL_STAGES = [IntakeStage, CriteriaStage, InterviewStage, FuzzyMatchStage, WeightedDecideStage, TrustVerifyStage]
+REAL_STAGES = [
+    IntakeStage,
+    CriteriaStage,
+    InterviewStage,
+    FuzzyMatchStage,
+    WeightedDecideStage,
+    TrustVerifyStage,
+    ExplainStage,
+    TemplateExplainStage,
+]
 ROOM_FOR_THE_NOTE = MAX_NOTE_CHARS - len(SAMPLE_NOTE) - 1
 
 
@@ -78,7 +89,7 @@ class FakeRealStage:
 
 def stub_stages() -> SearchStages:
     """Every search stage as its Sprint 1 stub, built one by one: the defaults are real now for match (US-15), verify
-    and decide (S3-10b), and the stubs live on as their fallbacks."""
+    and decide (S3-10b), and the stubs live on as their fallbacks. Explain has no stub left (US-20): its template."""
     return SearchStages(
         research=ResearchStage(),
         extract=ExtractStage(),
@@ -86,7 +97,7 @@ def stub_stages() -> SearchStages:
         verify=VerifyStage(),
         enrich=EnrichStage(),
         decide=DecideStage(),
-        explain=ExplainStage(),
+        explain=TemplateExplainStage(),
         commerce=CommerceStage(),
     )
 
@@ -117,7 +128,8 @@ def test_stub_stages_give_only_the_note() -> None:
 
 
 def test_stub_stages_are_every_stub() -> None:
-    assert [type(getattr(stub_stages(), name)) for name in SEARCH_STAGES] == STUBS
+    assert [type(getattr(stub_stages(), name)) for name in STUBBED_STAGES] == STUBS
+    assert type(stub_stages().explain) is TemplateExplainStage
 
 
 def test_the_default_stages_with_stub_research_still_give_the_note() -> None:
@@ -151,7 +163,7 @@ def test_with_one_stub_a_real_failure_comes_before_the_note() -> None:
     assert run(stages).coverage_note == f"YouTube timed out. {SAMPLE_NOTE}"
 
 
-@pytest.mark.parametrize("field", SEARCH_STAGES)
+@pytest.mark.parametrize("field", STUBBED_STAGES)
 def test_one_stub_among_real_stages_is_enough_for_the_note(field: str) -> None:
     stages = all_real()
     setattr(stages, field, getattr(stub_stages(), field))

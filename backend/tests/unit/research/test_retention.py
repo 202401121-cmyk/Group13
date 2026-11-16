@@ -23,6 +23,7 @@ from app.contracts import (
     SEARCH_TIME_LIMIT_S,
     Claim,
     ClaimType,
+    ExplainInput,
     SearchRequest,
     SearchResult,
     Source,
@@ -33,6 +34,7 @@ from app.contracts import (
 )
 from app.contracts import examples as ex
 from app.db import InMemoryRequestStore
+from app.explain import ExplainStage
 from app.pipeline import DatabaseResultStore, InMemoryResultStore, PipelineRunner, default_search_stages
 from app.research.cache import ResearchCache, sweep_expired_files
 from app.research.dedupe import merge_near_duplicates
@@ -188,7 +190,10 @@ WAITS_FOR_COMMUNITY = (
     "holds no Reddit text until US-42 fills CommunitySignal: the real verify leaves community empty, and only the "
     "example's note exists, in fixed words"
 )
-WAITS_FOR_EXPLAIN = "holds no Reddit text until US-20 replaces ExplainStage"
+EXPLAINED_FROM_FACTS = (
+    "written from code's facts only, by the LLM or the template: criterion names, scores and points. No claim's words "
+    "are sent to the LLM (US-20), so no Reddit words can come back"
+)
 DROPPED = "a quote that may be left out: dropped on save unless its source is listed and not Reddit"
 UNIT_DROPPED = (
     "the unit a claim gave an alternative value: dropped (None) on save unless every claim behind the alternative is "
@@ -264,11 +269,11 @@ TEXT_FIELDS = {
     "products[].community.note": WAITS_FOR_COMMUNITY,
     "products[].community.communities[]": ID_OR_LINK,
     "products[].community.product_id": SEARCH_FROM_CODE,
-    "explanations[].product_id": WAITS_FOR_EXPLAIN,
-    "explanations[].sentences[].text": WAITS_FOR_EXPLAIN,
-    "explanations[].sentences[].claim_ids[]": WAITS_FOR_EXPLAIN,
-    "explanations[].trade_off": WAITS_FOR_EXPLAIN,
-    "explanations[].unverified[]": WAITS_FOR_EXPLAIN,
+    "explanations[].product_id": ID_OR_LINK,
+    "explanations[].sentences[].text": EXPLAINED_FROM_FACTS,
+    "explanations[].sentences[].claim_ids[]": ID_OR_LINK,
+    "explanations[].trade_off": EXPLAINED_FROM_FACTS,
+    "explanations[].unverified[]": SEARCH_FROM_CODE,
 }
 
 
@@ -426,7 +431,56 @@ def test_the_stages_that_could_carry_reddit_words_are_placeholders_or_handled() 
     assert verify_fields["products[].values[].value"] == REDDIT_VALUE
     assert verify_fields["products[].values[].alternatives[].value"] == REDDIT_VALUE
     assert verify_fields["products[].values[].alternatives[].unit"] == UNIT_DROPPED
-    assert stages.explain.is_placeholder, f"US-20: {[k for k, v in TEXT_FIELDS.items() if v == WAITS_FOR_EXPLAIN]}"
+    # US-20 made explain real: its words come from code's facts only (EXPLAINED_FROM_FACTS), proved by the test below.
+    assert isinstance(stages.explain, ExplainStage)
+    assert not getattr(stages.explain, "is_placeholder", False)
+    explained = sorted(k for k, v in TEXT_FIELDS.items() if v == EXPLAINED_FROM_FACTS)
+    assert explained == ["explanations[].sentences[].text", "explanations[].trade_off"]
+
+
+def test_explain_sends_the_llm_no_words_from_any_claim() -> None:
+    """A Reddit claim's quote, its value as text and the product's name as written never reach the explain prompt, so
+    the LLM can't copy them into an explanation."""
+    secret_quote, secret_value = "Secret thread words about its keys.", "secret springy keys"
+    name = "Nova Book 14"
+    reddit_source = thread("expl01", text="A made-up post.")
+    claims = [
+        Claim.model_validate(
+            {
+                "id": "clm_" + f"{n:02d}" + "c" * 22,
+                "source_id": reddit_source.id,
+                "source_url": str(reddit_source.url),
+                "product_mention": name,
+                "criterion_key": "keyboard_comfort",
+                "score": None if text_value else 9.0,
+                "value": text_value,
+                "quote": secret_quote,
+                "claim_type": ClaimType.EXPERIENCE,
+                "polarity": "positive",
+                "retrieved_at": NOW,
+                "extracted_at": NOW,
+            }
+        )
+        for n, text_value in enumerate((None, secret_value))
+    ]
+    inp = ExplainInput(ranked=ex.decision().ranked[:1], claims=claims, user_priorities=["keyboard_comfort"])
+    llm = _Recorder()
+    ExplainStage(llm).run(inp, StageContext(search_id="srch_retention02"))
+    assert llm.prompts, "the stage never asked, so this proves nothing"
+    for prompt in llm.prompts:
+        for words in (secret_quote, secret_value, name):
+            assert words not in prompt
+
+
+class _Recorder:
+    """An LLM client that keeps each prompt and answers with no paragraphs."""
+
+    def __init__(self) -> None:
+        self.prompts: list[str] = []
+
+    def complete(self, task: Any, system: str, user: str, schema: Any, **_: Any) -> Any:
+        self.prompts.append(system + "\n" + user)
+        return schema.model_validate({"paragraphs": []})
 
 
 def test_the_real_verify_leaves_community_empty_until_us_42() -> None:

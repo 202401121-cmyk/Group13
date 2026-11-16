@@ -15,6 +15,7 @@ import pytest
 
 import app.contracts as C
 from app.contracts import examples as ex
+from app.explain import TemplateExplainStage
 from app.pipeline import (
     MAX_NOTE_CHARS,
     SAMPLE_NOTE,
@@ -23,7 +24,7 @@ from app.pipeline import (
     SearchStages,
 )
 from app.research import ResearchStage
-from tests.unit.test_sample_label import FakeRealStage, all_real, stub_stages
+from tests.unit.test_sample_label import STUBBED_STAGES, FakeRealStage, all_real, stub_stages
 
 SEARCH_STAGES = [f.name for f in fields(SearchStages)]
 
@@ -50,7 +51,18 @@ class _FailsToItsStub(FakeRealStage):
         return self.baseline.run(inp, ctx)
 
 
-@pytest.mark.parametrize("field", SEARCH_STAGES)
+def test_explain_falling_back_to_its_template_is_real_and_gives_no_sample_note() -> None:
+    """US-20 replaced explain's stub: its baseline states code's numbers, so a fallback to it is not a sample."""
+    stages = all_real()
+    stages.explain = _FailsToItsStub(TemplateExplainStage())
+    result = run(stages)
+    report = next(r for r in result.stage_reports if r.stage is C.StageName.EXPLAIN)
+    assert report.status is C.StageStatus.FALLBACK
+    assert result.coverage_note == "Explain used a simpler fallback: something went wrong."
+    assert all(e.method == "template" for e in result.explanations)
+
+
+@pytest.mark.parametrize("field", STUBBED_STAGES)
 def test_a_real_stage_that_falls_back_to_its_stub_gives_the_note(field: str) -> None:
     stages = all_real()
     setattr(stages, field, _FailsToItsStub(getattr(stub_stages(), field)))

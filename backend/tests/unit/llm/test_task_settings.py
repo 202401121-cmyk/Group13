@@ -1,4 +1,4 @@
-"""Extraction sends its own reasoning settings to each model, and no other task does (US-14).
+"""Extraction (US-14) and explanations (US-20) send their own reasoning settings to each model; no other task does.
 
 Through the real client and adapter, reading the request body that would go out. No real API is called.
 """
@@ -123,7 +123,6 @@ def test_each_extraction_route_sends_its_settings() -> None:
         LLMTask.WRITE_QUESTION,
         LLMTask.DISCOVER_ALIASES,
         LLMTask.ENRICH_EXTRACT,
-        LLMTask.WRITE_EXPLANATION,
     ],
 )
 def test_no_other_task_gets_these_settings(task: LLMTask) -> None:
@@ -137,15 +136,40 @@ def test_no_other_task_gets_these_settings(task: LLMTask) -> None:
     assert "include_reasoning" not in body
 
 
-def test_only_extraction_has_task_settings() -> None:
-    assert set(load_llm_config().task_settings) == {LLMTask.EXTRACT_CLAIMS}
+def test_only_extraction_and_explanations_have_task_settings() -> None:
+    assert set(load_llm_config().task_settings) == {LLMTask.EXTRACT_CLAIMS, LLMTask.WRITE_EXPLANATION}
+
+
+def test_explanations_think_as_little_as_extraction_on_every_groq_model() -> None:
+    """US-20: with each model's own reasoning, the explanation came back invalid or too late in a live check."""
+    config = load_llm_config()
+    for model in (BIG, SMALL, QWEN):
+        assert config.request_fields(LLMTask.WRITE_EXPLANATION, model) == config.request_fields(
+            LLMTask.EXTRACT_CLAIMS, model
+        ), model
+
+
+def test_the_explanation_call_sends_low_reasoning() -> None:
+    wire = _Wire()
+    _client(wire, Provider.GROQ).complete(
+        LLMTask.WRITE_EXPLANATION,
+        "Explain.",
+        "Made-up facts.",
+        Answer,
+        data_class=DataClass.PRIVATE,
+        difficulty=Difficulty.MEDIUM,
+    )
+    (body,) = wire.bodies
+    assert body["model"] == BIG  # a task that isn't bulk work keeps the route's order
+    assert (body["reasoning_effort"], body["include_reasoning"]) == ("low", False)
 
 
 def test_each_model_with_settings_is_on_one_provider() -> None:
     """Settings are found by the model's name, so a name shared with another provider would pass them on."""
     config = load_llm_config()
-    for model in config.task_settings[LLMTask.EXTRACT_CLAIMS]:
-        assert [m.provider for m in config.models if m.model == model] == [Provider.GROQ], model
+    for task, rows in config.task_settings.items():
+        for model in rows:
+            assert [m.provider for m in config.models if m.model == model] == [Provider.GROQ], (task, model)
 
 
 def test_a_retry_sends_the_same_settings() -> None:
