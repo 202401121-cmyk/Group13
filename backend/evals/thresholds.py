@@ -34,10 +34,12 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 from app.contracts import SEARCH_TIME_LIMIT_S, STAGE_TIME_LIMITS_S, StageName
 
+from .interview_sim import FIXED_OUT as SIM_OUT
 from .run_baselines import BACKEND, OFFLINE_OUT, RESULTS_DIR
 
 THRESHOLDS = BACKEND / "evals" / "thresholds.yaml"
 LIVE_OUT = RESULTS_DIR / "sprint-3-live.json"
+RECORDS = (OFFLINE_OUT, LIVE_OUT, SIM_OUT)  # every results record a floor is written from
 RATE_MARGIN = 0.05
 COUNT_MARGIN = 0.10
 
@@ -177,6 +179,9 @@ WHY: dict[str, str] = {
     "live.pages_": "The page readers keep reading pages (US-38).",
     "live.claims_per_source": "Extraction keeps finding claims in what it reads (US-14).",
     "live.quote_found_share": "A claim's quote is its source's own words (build rule 4, US-14).",
+    "interview.fixed.": "The fixed question order (US-05) keeps the accuracy it has now on simulated shoppers: "
+    "their best match is the one their true weights give. US-04's smart interview is held to it with fewer "
+    "questions (S4-3, task #47).",
 }
 
 
@@ -262,7 +267,7 @@ def build(records: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
 def all_measures() -> list[dict[str, Any]]:
     """Every measure in the committed results records, offline and live."""
     out: list[dict[str, Any]] = []
-    for path in (OFFLINE_OUT, LIVE_OUT):
+    for path in RECORDS:
         if path.exists():
             out += json.loads(path.read_text(encoding="utf-8"))["measures"]
     return out
@@ -307,7 +312,7 @@ def main(argv: list[str] | None = None) -> int:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     if args.write:
         records = []
-        for path in (OFFLINE_OUT, LIVE_OUT):
+        for path in RECORDS:
             if path.exists():
                 record = json.loads(path.read_text(encoding="utf-8"))
                 records.append({**record, "file": path.relative_to(BACKEND.parent).as_posix()})

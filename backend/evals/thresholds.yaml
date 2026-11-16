@@ -67,6 +67,20 @@ measures:
     date: '2026-11-14'
     commit: a6148f0
     rule: 'Mentions never buy a rank: the most-mentioned product never wins while it fits worst (US-17, build rule 2).'
+  interview.fixed.accuracy:
+    kind: quality
+    direction: at_least
+    floor: 0.55
+    measured: 0.6
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: backend/evals/results/interview-sim-fixed.json; backend/evals/interview_sim.py (made-up shoppers and briefs),
+      app.interview, app.decide
+    date: '2026-11-15'
+    commit: 132a01b
+    rule: 'The fixed question order (US-05) keeps the accuracy it has now on simulated shoppers: their best match is the one
+      their true weights give. US-04''s smart interview is held to it with fewer questions (S4-3, task #47).'
   live.briefs_finished:
     kind: quality
     direction: at_least
