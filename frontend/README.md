@@ -51,6 +51,12 @@ Both are read at build time and end up in the browser, so neither may ever hold 
 
 `.env.example` lists them. Put your own values in `.env.local`, which git ignores.
 
+Only `src/lib/config.ts` reads them, each by name, from its allow-list `PUBLIC_ENV_KEYS`. So the build puts only these
+values into the browser's code, never another `VITE_` variable set where it runs. A new public setting is added to that
+list and read there, never anywhere else: `src/lib/deploy/deploy-config.test.ts` fails otherwise.
+`vite-env-build.test.ts` builds the app's browser code with a decoy `VITE_` variable set and fails if the decoy is in
+it. (The dev server is not held to this, so `npm run dev` is for your own laptop only.)
+
 ## Scripts
 
 | Script                    | What it does                                                                                                                                                                                   |

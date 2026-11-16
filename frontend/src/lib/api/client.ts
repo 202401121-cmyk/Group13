@@ -8,6 +8,7 @@
  * plain sentence the screen can show as it is: the backend's own `detail` for a 4xx, otherwise ours.
  * Responses come back as `unknown`; the adapters check them against the contract (./schemas.ts) before use.
  */
+import { type PublicEnv, publicEnv } from "@/lib/config";
 import { REQUEST_TIMEOUT_MS } from "@/lib/interview/types";
 import { RESEARCH_TIMEOUT_MS } from "@/lib/results/types";
 
@@ -23,13 +24,11 @@ export const DEFAULT_BASE_URL = "http://localhost:8000";
 /** Time limits, in ms: one interview turn (also intake and criteria), and one whole search. */
 export const TIMEOUTS = { step: REQUEST_TIMEOUT_MS, research: RESEARCH_TIMEOUT_MS } as const;
 
-interface ApiEnv {
-  VITE_API_MODE?: string | undefined;
-  VITE_API_BASE_URL?: string | undefined;
-}
-
-/** Reads the two settings. Anything but "live" means mock, so a typo never calls a backend by accident. */
-export function apiConfig(env: ApiEnv = import.meta.env): ApiConfig {
+/**
+ * Reads the two settings. Anything but "live" means mock, so a typo never calls a backend by accident. They come
+ * from src/lib/config.ts, which reads each public key by name, so a build puts no other VITE_ value in the browser.
+ */
+export function apiConfig(env: PublicEnv = publicEnv()): ApiConfig {
   const mode: ApiMode = env.VITE_API_MODE?.trim().toLowerCase() === "live" ? "live" : "mock";
   const baseUrl = (env.VITE_API_BASE_URL?.trim() || DEFAULT_BASE_URL).replace(/\/+$/, "");
   return { mode, baseUrl };
