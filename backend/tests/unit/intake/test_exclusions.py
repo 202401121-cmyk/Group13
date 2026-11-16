@@ -1,7 +1,8 @@
 """Exclusions typed in words (US-10): "no Xiaomi", "not touchscreen", "no Galaxy A35". Code only, never guessed.
 
-A brand comes from the counting brands (config/reddit_quality.yaml), a feature from config/exclusions.yaml, and a model
-is a name with a digit. Anything else comes back as not understood. "always" is never set here (D-36).
+A brand comes from the counting brands (config/reddit_quality.yaml) or the brand families (config/brand_families.yaml,
+S4-25), a feature from config/exclusions.yaml, and a model is a name with a digit. Anything else comes back as not
+understood. "always" is never set here (D-36).
 """
 
 from __future__ import annotations

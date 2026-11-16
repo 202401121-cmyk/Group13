@@ -324,23 +324,24 @@ def test_a_fail_beats_a_cant_tell_and_keeps_every_fail_in_order() -> None:
 
 
 @pytest.mark.parametrize(
-    ("name", "brand", "expected"),
+    ("name", "brand", "expected", "reason"),
     [
-        ("Mi Notebook 14", "Xiaomi", "filtered_out"),
-        ("Mi Notebook 14", "XIAOMI", "filtered_out"),
-        ("Xiaomi Redmi Book 15", None, "filtered_out"),
-        ("xiaomi-Redmi Book 15", "Redmi", "filtered_out"),
-        ("Redmi Book 15", "Redmi", "shown"),
-        ("Book 15 for Xiaomi fans", None, "shown"),
-        ("Xiaomiplus Book", None, "shown"),
+        ("Mi Notebook 14", "Xiaomi", "filtered_out", "You ruled out Xiaomi"),
+        ("Mi Notebook 14", "XIAOMI", "filtered_out", "You ruled out Xiaomi"),
+        ("Xiaomi Redmi Book 15", None, "filtered_out", "You ruled out Xiaomi"),
+        ("xiaomi-Redmi Book 15", "Redmi", "filtered_out", "You ruled out Xiaomi"),
+        # Redmi is a Xiaomi brand (config/brand_families.yaml, S4-25): "shown" here was S3-19's gap.
+        ("Redmi Book 15", "Redmi", "filtered_out", "Redmi is a Xiaomi brand. You ruled out Xiaomi"),
+        ("Book 15 for Xiaomi fans", None, "shown", None),
+        ("Xiaomiplus Book", None, "shown", None),
     ],
 )
-def test_an_excluded_brand_is_filtered_out(name: str, brand: str | None, expected: str) -> None:
+def test_an_excluded_brand_is_filtered_out(name: str, brand: str | None, expected: str, reason: str | None) -> None:
     rb = rubric(exclusions=[Exclusion(kind="brand", value="Xiaomi")])
     result = decide(decide_input(rb, [product(A, name, brand)], [known(A, "battery_life", score=7.0)]))
     assert group_of(result, A) == expected
     if expected == "filtered_out":
-        assert filtered(result, A) == ("filtered_out", ["You ruled out Xiaomi"], "brand")
+        assert filtered(result, A) == ("filtered_out", [reason], "brand")
 
 
 @pytest.mark.parametrize(
