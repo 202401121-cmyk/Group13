@@ -32,7 +32,8 @@ DEFAULT_ORIGIN = f"http://localhost:{FRONTEND_PORT}"
 LLM_KEYS = ("GROQ_API_KEY", "GEMINI_API_KEY", "OPENROUTER_API_KEY", "CEREBRAS_API_KEY", "MISTRAL_API_KEY")
 OTHER_KEYS = ("SERPER_API_KEY", "YOUTUBE_API_KEY", "JINA_API_KEY", "HF_TOKEN", "REDDIT_USER_SALT")
 MIN_PYTHON = (3, 11)
-MIN_NODE = (20, 19)
+NODE_MAJOR = 24  # P-09 (D-65): members, CI and Vercel all use Node 24 (frontend/package.json engines 24.x)
+MIN_NODE = (20, 19)  # below this the frontend doesn't build at all (Vite's own minimum)
 
 OK, WARN, FAIL = "OK", "WARN", "FAIL"
 
@@ -135,16 +136,23 @@ def check_python(version: tuple[int, int] = (sys.version_info.major, sys.version
     return Result("Python", OK, shown)
 
 
-def check_node(runner: Runner = run) -> Result:
-    if shutil.which("node") is None:
-        return Result("Node", FAIL, "not found", "Install Node 20.19 or later (nodejs.org)")
+def check_node(runner: Runner = run, which: Callable[[str], str | None] = shutil.which) -> Result:
+    """Node 24, as CI and Vercel use (P-09).
+
+    Below Vite's minimum nothing builds, so that fails. Any other version still builds and tests (npm only warns
+    about `engines`), so it warns: install Node 24 to match the project, but nothing is broken yet."""
+    install = f"Install Node {NODE_MAJOR} (nodejs.org): CI and Vercel use {NODE_MAJOR}"
+    if which("node") is None:
+        return Result("Node", FAIL, "not found", install)
     found = re.match(r"v?(\d+)\.(\d+)", runner(["node", "--version"]).stdout.strip())
     if not found:
         return Result("Node", WARN, "version not readable", "Check that `node --version` works")
-    version = (int(found.group(1)), int(found.group(2)))
-    shown = f"{version[0]}.{version[1]}"
-    if version < MIN_NODE:
-        return Result("Node", FAIL, f"{shown} (20.19 or later needed by Vite)", "Install Node 20.19 or later")
+    major, minor = int(found.group(1)), int(found.group(2))
+    shown = f"{major}.{minor}"
+    if (major, minor) < MIN_NODE:
+        return Result("Node", FAIL, f"{shown} (Vite needs 20.19 or later; the project uses {NODE_MAJOR}.x)", install)
+    if major != NODE_MAJOR:
+        return Result("Node", WARN, f"{shown} (the project uses {NODE_MAJOR}.x)", install)
     return Result("Node", OK, shown)
 
 

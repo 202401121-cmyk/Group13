@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import json
+import re
 import subprocess
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 import doctor
+import pytest
 from doctor import FAIL, OK, WARN, Result
 
 SECRET = "sk-fake-DO-NOT-PRINT-42"
@@ -124,3 +128,47 @@ def test_a_missing_backend_install_fails_with_the_fix() -> None:
 def test_render_lists_fixes_only_for_problems() -> None:
     text = doctor.render([Result("A", OK, "fine", "never shown"), Result("B", FAIL, "broken", "do this")])
     assert "do this" in text and "never shown" not in text
+
+
+def _node(version: str) -> Callable[..., subprocess.CompletedProcess[str]]:
+    def runner(*args: object, **kwargs: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(args=["node", "--version"], returncode=0, stdout=version, stderr="")
+
+    return runner
+
+
+def _found(name: str) -> str | None:
+    return f"C:/made-up/{name}.exe"
+
+
+@pytest.mark.parametrize(
+    ("version", "status"),
+    [
+        ("v24.22.3", OK),
+        ("v24.0.0", OK),
+        ("v22.18.0", WARN),  # still builds and tests: install 24 to match the project
+        ("v20.19.0", WARN),
+        ("v20.18.1", FAIL),  # below Vite's minimum: nothing builds
+        ("v26.1.0", WARN),
+    ],
+)
+def test_node_24_is_what_the_project_uses(version: str, status: str) -> None:
+    """P-09 (D-65): members, CI and Vercel all run Node 24. Below Vite's minimum fails; any other version warns."""
+    result = doctor.check_node(_node(version), which=_found)
+    assert result.status == status
+    if status != OK:
+        assert "Install Node 24" in result.fix
+
+
+def test_no_node_fails_and_says_which_to_install() -> None:
+    result = doctor.check_node(_node("v24.0.0"), which=lambda _: None)
+    assert result.status == FAIL and "Install Node 24" in result.fix
+
+
+def test_the_projects_node_version_is_the_same_everywhere() -> None:
+    """One Node major for engines, CI and the doctor (P-09): a change to one is a change to all three."""
+    root = Path(doctor.__file__).resolve().parents[1]
+    engines = json.loads((root / "frontend" / "package.json").read_text(encoding="utf-8"))["engines"]["node"]
+    assert engines == f"{doctor.NODE_MAJOR}.x"
+    workflow = (root / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert re.findall(r'node-version:\s*"(\d+)"', workflow) == [str(doctor.NODE_MAJOR)]

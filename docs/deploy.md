@@ -181,10 +181,12 @@ curl -s -o /dev/null -D - -X OPTIONS https://<service>.onrender.com/api/presearc
    default): the build reads `shared/contracts/` and `scripts/gen-frontend-types.sh`, outside `frontend/`.
 4. The framework shows as **TanStack Start**. Leave the build command, output directory and install command as they
    are: `vercel.json` and the framework set them.
-5. **Node.js version: nothing to set.** `frontend/package.json`'s `"engines": {"node": ">=20.19"}` overrides the
-   project setting ([Node.js versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)). Vercel
-   then builds with its newest major, 26.x today, which meets the TanStack Start guide's "24 or later". It moves to a
-   newer major on its own; pin `engines` if that ever breaks the build.
+5. **Node.js version: nothing to set.** `frontend/package.json`'s `"engines": {"node": "24.x"}` overrides the
+   project setting ([Node.js versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)), so
+   Vercel builds on Node 24, the same as CI and every member (P-09, D-65). That meets the TanStack Start guide's "24 or
+   later", and Vercel no longer moves to a newer major on its own. A change of Node version is a change to `engines`,
+   CI's `node-version`, `scripts/doctor.py`'s `NODE_MAJOR` and `docs/setup.md` together; a test
+   (`backend/tests/unit/stack/test_doctor.py`) checks the first three agree.
 6. **Turn off Vercel's system variables:** Settings > Environment Variables, untick **Enable access to System
    Environment Variables**.
    - With it on, Vercel adds `VITE_`-prefixed copies such as `VITE_VERCEL_GIT_COMMIT_AUTHOR_NAME` and

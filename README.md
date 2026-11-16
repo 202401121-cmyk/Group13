@@ -122,7 +122,7 @@ The full guide, with every setting, the drills and troubleshooting, is [docs/set
 
 ### Prerequisites
 
-- Git, Python 3.11 or newer, and Node 20.19 or newer.
+- Git, Python 3.11 or newer, and Node 24 (CI and Vercel use 24 too).
 - On Windows, use Git Bash or PowerShell, and run `git config core.autocrlf false` after cloning (the repository's
   `.gitattributes` keeps line endings consistent). Keep the clone and its virtual environment in a short path,
   such as `C:\dev\Group13`: installing numpy fails under long paths ([ml/README.md](ml/README.md) has the other fix).
@@ -208,7 +208,7 @@ pip install -e "backend[dev]" -r ml/requirements.txt && python -m pytest ml/test
 | `backend-windows` | Windows, Python 3.13 | tests, contracts up to date |
 | `ml` | Ubuntu, Python 3.11 | lint, strict mypy, tests, the labelling and kappa scripts, no raw data or model files tracked |
 | `secrets` | Ubuntu | TruffleHog scan of the whole history for leaked keys |
-| `frontend` | Ubuntu, Node 20 | install, lint, type check and tests |
+| `frontend` | Ubuntu, Node 24 | install, lint, type check and tests |
 
 The badge at the top shows whether `main` is green. Calls to real services are separate and never run in CI:
 `python -m scripts.smoke_apis` (from `backend/`) checks every configured key, and the live end-to-end test is in

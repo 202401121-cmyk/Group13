@@ -15,7 +15,7 @@ to run them. A CI job would catch a broken screen before it is merged.
 
 ## What the job does
 
-1. Sets up Node 20 (the same as the current `frontend` job; `engines.node` is `>=20.19`).
+1. Sets up Node 24 (the same as the current `frontend` job; `engines.node` is `24.x`).
 2. Runs `npm ci` (this also generates the contract types, as it does now).
 3. Installs Chromium and its system libraries: `npx playwright install --with-deps chromium`.
 4. Runs `npm run test:e2e`. The Playwright config already builds the app (`npm run build`), starts the built
@@ -45,7 +45,7 @@ frontend-e2e:
     - uses: actions/setup-node@v4
       if: steps.has-app.outputs.exists == 'true'
       with:
-        node-version: "20"
+        node-version: "24"
         cache: npm
         cache-dependency-path: frontend/package-lock.json
     - run: npm ci
