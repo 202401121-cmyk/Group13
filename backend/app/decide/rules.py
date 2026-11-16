@@ -8,6 +8,11 @@ A disputed value is checked on every side verify kept (S3-10b): the value and ea
 Every side fails: fail, naming the values. Otherwise: unknown, "Sources disagree: ₹68,990 or ₹74,990". A disputed value
 with no other side kept is unknown, naming the one value we have. A dispute in scores only (every alternative a score)
 leaves the value agreed, so it is checked like a known one.
+
+A rule that compares a RAM or storage size, for a product whose names state that size in words ("8GB RAM"), is checked
+against every known version (US-09, S4-24; DR-02): each value its claims give, and each value its names state. It passes
+when any version meets it, naming that version, and fails only when every known version fails. A value stated only in a
+name is said to come from that name, never from a spec page. A product whose names state none is checked as above.
 """
 
 from __future__ import annotations
@@ -35,12 +40,14 @@ from .units import (
     rupees,
     unit_key,
 )
+from .variants import stated_values
 
 PRICE_KEY = "price_inr"
 BUDGET = "budget"
 MAX_REASONS = 10
 MAX_HINT = 300
 NO_SINGLE_CHANGE = "No single change to your rules would let a product through. Try relaxing more than one."
+FROM_A_NAME = ", going by the name a source gave it, not a spec page"  # a version only a product's name states
 
 Values = Mapping[tuple[str, str], ResolvedValue]
 Verdict = Literal["pass", "fail", "unknown"]
@@ -314,7 +321,11 @@ def compare(rule: HardRule, raw: object) -> bool | None:
     return _at_least(rule, raw, target, op)
 
 
-def check_rule(rule: HardRule, value: ResolvedValue | None) -> Check:
+def check_rule(rule: HardRule, value: ResolvedValue | None, stated: Sequence[str] = ()) -> Check:
+    """One rule against a product's value. `stated`: the versions its names state for a RAM or storage rule
+    (variants.stated_values), each checked too when the rule compares a size. With none, only the value is checked."""
+    if stated and _by_version(rule):
+        return _check_versions(rule, value, stated)
     words, said = attribute_words(rule.attribute), rule.source_text
     if value is None or value.state not in _EVIDENCE or value.value is None:
         return Check(rule.id, "unknown", f"We couldn't find its {words}, so we can't check \"{said}\"", rule.attribute)
@@ -346,6 +357,113 @@ def _rule_sides(rule: HardRule, raws: Sequence[object]) -> Check:
     if all(k is False for k in kept):
         return Check(rule.id, "fail", f'It fails "{rule.source_text}": sources give {named}', rule.attribute)
     return Check(rule.id, "unknown", f"Sources disagree: {named}", rule.attribute)
+
+
+# --- versions (US-09, S4-24) -----------------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class _Version:
+    """One known version of a product for one rule: a value its claims give, or one its names state."""
+
+    text: str  # as the shopper reads it: "8 GB"
+    named: bool  # stated only by a product's name, never by a claim
+    size: float | None  # in the rule's base unit, to order versions; None when it holds no single number
+    kept: bool | None  # does it keep the rule? None when the two can't be compared
+
+
+def _rule_unit(rule: HardRule) -> str | None:
+    """The unit the rule's sizes are in: its own, else the one its attribute's name ends with ("ram_gb")."""
+    return unit_key(rule.unit) or attribute_unit(rule.attribute)
+
+
+def _by_version(rule: HardRule) -> bool:
+    """Does the rule compare a size, in a unit we know ("at least 8 GB RAM")? Only such a rule is checked by version.
+    A "contains" rule, a yes or no rule, or one with no unit is checked as before."""
+    if rule.operator == "contains" or isinstance(rule.value, bool) or not known_unit(_rule_unit(rule)):
+        return False
+    options = rule.value if isinstance(rule.value, list) else [rule.value]
+    return all(_plain(option) for option in options)
+
+
+def _unit_of(rule: HardRule, amount: Quantity) -> str | None:
+    """A value's unit: its own, else the rule's ("8" for "ram" with unit GB is 8 GB)."""
+    return amount.unit or _rule_unit(rule)
+
+
+def _version_text(rule: HardRule, raw: object) -> str:
+    """ "8GB" from a name reads "8 GB", as a claim's 8 does."""
+    amount = quantity(raw)
+    if amount is not None and amount.plain and not isinstance(raw, bool) and known_unit(_unit_of(rule, amount)):
+        return amount_text(amount.number, _unit_of(rule, amount))
+    return _value_text(raw, rule.attribute)
+
+
+def _size(rule: HardRule, raw: object) -> tuple[str, float] | None:
+    """The value's dimension and amount in its base unit: 1TB and 1000 GB are one version."""
+    amount = quantity(raw)
+    if amount is None:
+        return None
+    return in_base(Quantity(amount.number, _unit_of(rule, amount)), None)
+
+
+def _versions(rule: HardRule, claimed: Sequence[object], stated: Sequence[str]) -> list[_Version]:
+    """Every known version once: the claims' values first, so a value both claimed and named counts as claimed."""
+    found: dict[object, _Version] = {}
+    for raw, named in [*((c, False) for c in claimed), *((s, True) for s in stated)]:
+        size = _size(rule, raw)
+        text = _version_text(rule, raw)
+        key = size if size is not None else text.casefold()
+        if key not in found:
+            found[key] = _Version(text, named, None if size is None else size[1], compare(rule, raw))
+    return list(found.values())
+
+
+def _widest(rule: HardRule, meets: Sequence[_Version]) -> _Version:
+    """The version that meets the rule by the widest margin: the largest for "at least", the smallest for "at most"."""
+    sized = [v for v in meets if v.size is not None]
+    if rule.operator == ">=" and sized:
+        return max(sized, key=lambda v: v.size or 0.0)
+    if rule.operator == "<=" and sized:
+        return min(sized, key=lambda v: v.size or 0.0)
+    return meets[0]
+
+
+def _and(texts: Sequence[str]) -> str:
+    return texts[0] if len(texts) == 1 else f"{', '.join(texts[:-1])} and {texts[-1]}"
+
+
+def _claimed(value: ResolvedValue | None) -> list[object]:
+    """The values a product's claims give: its value, or every side of a disputed one. None without evidence."""
+    if value is None or value.state not in _EVIDENCE or value.value is None:
+        return []
+    return sides(value) if value_disputed(value) else [value.value]
+
+
+def _check_versions(rule: HardRule, value: ResolvedValue | None, stated: Sequence[str]) -> Check:
+    """Every known version against the rule: any that meets it passes; it fails only if every one fails."""
+    words, said = attribute_words(rule.attribute), rule.source_text
+    claimed = _claimed(value)
+    versions = _versions(rule, claimed, stated)
+    meets = [v for v in versions if v.kept is True]
+    if meets:
+        best = _widest(rule, meets)
+        note = FROM_A_NAME if best.named else ""
+        return Check(rule.id, "pass", f'It meets "{said}" in its {best.text} version{note}', rule.attribute)
+    unsure = next((v for v in versions if v.kept is None), None)
+    if unsure is not None:
+        reason = f'We couldn\'t compare its {words} ("{unsure.text}") with "{said}"'
+        return Check(rule.id, "unknown", reason, rule.attribute)
+    if value is not None and len(claimed) == 1 and value_disputed(value):
+        # verify kept no other side: a version we can't see may meet the rule, so it is no fail (missing is never one)
+        reason = f"Sources disagree on its {words}: one says {_value_text(claimed[0], rule.attribute)}"
+        return Check(rule.id, "unknown", reason, rule.attribute)
+    if len(versions) == 1:
+        note = FROM_A_NAME if versions[0].named else ""
+        return Check(rule.id, "fail", f'It fails "{said}": it has {versions[0].text}{note}', rule.attribute)
+    ordered = sorted(versions, key=lambda v: math.inf if v.size is None else v.size)
+    reason = f'It fails "{said}" in every version we found: {_and([v.text for v in ordered])}'
+    return Check(rule.id, "fail", reason, rule.attribute)
 
 
 # --- exclusions ------------------------------------------------------------------------------------------------------
@@ -431,7 +549,10 @@ def checks_for(
     checks: list[Check] = []
     if budget is not None:
         checks.append(check_budget(budget, values.get((product.id, PRICE_KEY))))
-    checks += [check_rule(rule, values.get((product.id, rule.attribute))) for rule in rules]
+    checks += [
+        check_rule(rule, values.get((product.id, rule.attribute)), stated_values(product, rule.attribute))
+        for rule in rules
+    ]
     for key, exclusion in exclusions:
         if excluded(exclusion, product, values):
             checks.append(Check(key, "fail", f"You ruled out {exclusion.value}", exclusion.kind))
