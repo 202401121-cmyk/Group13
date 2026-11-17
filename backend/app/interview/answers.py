@@ -27,6 +27,8 @@ SKIP_WORD = "skip"
 
 # A whole number from 0 to 10, optionally written "out of 10" style: "7", "7/10", "10 / 10".
 _NUMBER = re.compile(r"^(\d{1,2})(?:\s*/\s*10)?$")
+# Any number, a decimal too, as the frontend's exact box sends it with exact_weight: "3", "3.0", "7.5", "8/10".
+_ANY_NUMBER = re.compile(r"^\d*\.?\d+(?:\s*/\s*10)?$")
 
 ReplyPlace = Literal["current", "repeat", "conflict"]
 
@@ -80,6 +82,11 @@ def place_reply(
     typed = read.reply_type is ReplyType.UNCLEAR and level is None and exact_weight is None
     same_weight = typed or read.weight == earlier
     return "repeat" if same_words and same_weight else "conflict"
+
+
+def is_number_reply(text: str) -> bool:
+    """Whether the words of a reply are a number, such as "7", "3.0" or "7/10": an exact answer, not a level."""
+    return _ANY_NUMBER.match(_normal(text)) is not None
 
 
 def _normal(text: str) -> str:

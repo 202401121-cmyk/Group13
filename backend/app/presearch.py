@@ -24,7 +24,7 @@ from app.contracts import (
 )
 from app.criteria import CriteriaStage, CriteriaStore, FileCriteriaStore
 from app.intake import IntakeStage, blank_request_intent
-from app.interview import InterviewStage
+from app.interview import AdaptiveInterviewStage
 from app.llm import build_llm_client
 from app.pipeline import run_stage
 
@@ -75,8 +75,8 @@ def make_criteria(intent: Intent, llm: LLMClient | None = None, store: CriteriaS
 
 
 def interview_turn(turn: InterviewTurn) -> InterviewStep:
-    """One interview turn: the user's reply (None on the first turn) in, the next step out (US-05)."""
-    return _run(InterviewStage(), turn)
+    """One interview turn: the user's reply (None on the first turn) in, the next step out (US-05, US-04)."""
+    return _run(AdaptiveInterviewStage(), turn)
 
 
 def interview_back(state: InterviewState, question_id: str) -> InterviewStep:
@@ -84,7 +84,7 @@ def interview_back(state: InterviewState, question_id: str) -> InterviewStep:
 
     Raises ValueError if that question has not been answered yet.
     """
-    return InterviewStage().go_back(state, question_id)
+    return AdaptiveInterviewStage().go_back(state, question_id)
 
 
 def _run(stage: Stage[In, Out], inp: In) -> Out:

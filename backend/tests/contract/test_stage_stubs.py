@@ -18,7 +18,7 @@ from app.explain import ExplainStage, TemplateExplainStage
 from app.explain.parsing import RawExplanations
 from app.extract import ExtractStage
 from app.intake import IntakeStage
-from app.interview import InterviewStage
+from app.interview import AdaptiveInterviewStage, InterviewStage
 from app.research import ResearchStage
 from app.verify import TrustVerifyStage, VerifyStage
 from tests.fakes.llm import FakeLLMClient
@@ -35,6 +35,7 @@ CASES: list[tuple[Any, BaseModel, type[BaseModel]]] = [
     (IntakeStage(), C.IntakeInput(raw_query=ex.QUERY), C.Intent),
     (CriteriaStage(), C.CriteriaInput(category="laptop", category_label="Laptop", use_case="coding"), C.CriteriaSet),
     (InterviewStage(), C.InterviewTurn(state=_state()), C.InterviewStep),
+    (AdaptiveInterviewStage(), C.InterviewTurn(state=_state()), C.InterviewStep),
     (ResearchStage(), C.ResearchInput(rubric=ex.rubric()), C.ResearchResult),
     (
         ExtractStage(),
