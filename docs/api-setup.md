@@ -428,7 +428,29 @@ actually saw. Quotes are copied from the provider's page.
 
 ### YouTube
 
-- **Used for:** video evidence: titles, descriptions and comments (a later sprint).
+- **Used for (US-38, `backend/app/research/youtube.py`):** 3 to 5 review videos a search, each one source: its title,
+  its channel, its description and its top 20 comments by relevance (their text only). No transcript, ever.
+  - **The calls, per search:**
+    - one `search.list` (type video, relevance, `regionCode=IN`, a query built from the rubric's known words, never
+      the shopper's text);
+    - one `videos.list` for the chosen videos;
+    - one `commentThreads.list` for each video.
+    That is 1 search call and 6 units. A repeat search is served from the cache and costs nothing.
+  - **The caps** (`config/research.yaml`), each with room for the one retry a failed call gets (US-31):
+    - `youtube_search` is 2 a search (the call and its retry) and 80 a day: the team's choice, under the 100 allowed;
+    - `youtube` (units) is 8 a search and 9,000 a day.
+    Our day is UTC; YouTube's ends at midnight Pacific.
+  - **Comments are read only while a whole call fits before the stage's deadline.** The videos already read are
+    always returned.
+  - **Comments are viewers' own words,** so a video with comments carries the reddit data class (P-23):
+    - only Groq reads it (build rule 8);
+    - it is cached no longer than Reddit text (under 24 hours);
+    - it is stripped from a saved search (`retention.py`, by data class).
+    Commenters are never named: their names and channels are never read. In a comment, an email or an @handle
+    becomes "a viewer", and a link to any site becomes "a link". A video with comments off is a public source.
+  - **Each video fits the source cap** (`max_source_tokens`): the description takes at most a third, and each comment
+    is its own paragraph.
+  - **Videos with comments take turns with Reddit threads,** because both share extraction's Reddit share and budget.
 - **Sign up:** [Google Cloud console](https://console.cloud.google.com) → enable "YouTube Data API v3" →
   Credentials → API key, restricted to that API. **Env:** `YOUTUBE_API_KEY`.
 - **Free limits** ([quota costs](https://developers.google.com/youtube/v3/determine_quota_cost), 3 Nov 2026):
@@ -443,8 +465,11 @@ actually saw. Quotes are copied from the provider's page.
   or derived data or metrics" needs a careful read before the video story starts.
 - **Verdict: OK with these limits:** titles, descriptions and comments only, **no transcripts**; refresh or delete
   stored YouTube data within 30 days; show YouTube as the source; at most 100 searches a day.
-- **If it fails:** video evidence is skipped and `coverage_note` says so. Search results that link to videos
-  (titles and links only) still work.
+- **If it fails:**
+  - **A failure, a cap or a quota error:** video evidence is skipped and the search goes on, and `coverage_note` says
+    so ("YouTube ran out of quota.", "YouTube timed out." and so on).
+  - **With no `YOUTUBE_API_KEY`:** YouTube is simply left out, with no note, as Firecrawl is.
+  - Search results that link to videos (titles and links only) still work.
 
 ### Jina Reader
 

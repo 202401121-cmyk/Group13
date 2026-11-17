@@ -72,6 +72,11 @@ def _default_caps() -> dict[str, ProviderCap]:
         "jina": ProviderCap(per_search=10, per_day=200),
         "firecrawl_pages": ProviderCap(per_search=4, per_day=30),
         "firecrawl": ProviderCap(per_search=30, per_day=30),
+        # YouTube (US-38): search.list calls (YouTube allows 100 a day; the team's cap is 80), and quota units for
+        # videos.list and commentThreads.list (1 each, from 10,000 a day): one search, one videos call and five
+        # comment reads a search, with room for the one retry a failed call gets (US-31).
+        "youtube_search": ProviderCap(per_search=2, per_day=80),
+        "youtube": ProviderCap(per_search=8, per_day=9000),
     }
 
 
@@ -83,6 +88,8 @@ class ResearchSettings(BaseModel):
     max_reddit_threads: int = Field(default=20, ge=0)
     max_web_results: int = Field(default=20, ge=0)
     max_review_pages: int = Field(default=12, ge=0)
+    max_youtube_videos: int = Field(default=5, ge=0, le=50)  # US-38: 3 to 5 review videos; 0 turns YouTube off
+    youtube_comments_per_video: int = Field(default=20, ge=0, le=100)  # the top comments by relevance
     max_pages_per_domain: int = Field(default=3, ge=0)
     reddit_comment_threads: int = Field(default=8, ge=0)
     min_page_chars: int = Field(default=500, ge=1)
@@ -105,7 +112,7 @@ class ResearchSettings(BaseModel):
 
     @model_validator(mode="after")
     def _check(self) -> ResearchSettings:
-        total = self.max_reddit_threads + self.max_web_results + self.max_review_pages
+        total = self.max_reddit_threads + self.max_web_results + self.max_review_pages + self.max_youtube_videos
         if total > MAX_SOURCES:
             raise ValueError(f"the source caps add up to {total}, over the contract's limit of {MAX_SOURCES}")
         domains = [*self.review_domains, *self.retailer_domains, *(d for ds in self.maker_domains.values() for d in ds)]

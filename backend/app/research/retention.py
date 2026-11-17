@@ -1,5 +1,9 @@
 """Reddit data may be kept at most 24 hours (D-53), but a saved search stays until someone deletes it.
 
+What counts is the data class, never the source type alone (US-38): a YouTube video whose text holds its viewers'
+comments carries the reddit class (P-23), so it is stripped the same way, with its own marker, and so are its quotes
+and the words resting on them. A YouTube video with no comments is public, and is kept.
+
 So Reddit's words never reach the saved row. A Reddit source keeps what says it was read: its URL, community, fetch
 time, archive and counts, and each comment's ID, place in the thread and upvotes. Its title, text and comment bodies
 become the marker, and its author hashes go, as a hash can follow a person from thread to thread. This runs at the save
@@ -32,6 +36,7 @@ from .dedupe import split_merged
 from .reddit.subreddits import load_subreddits
 
 REDDIT_TEXT_NOT_KEPT = "[Reddit text is not kept]"
+VIDEO_TEXT_NOT_KEPT = "[Video text with viewers' comments is not kept]"
 
 
 def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
@@ -43,13 +48,19 @@ def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
         _drop_cited_quotes(saved, set())
         return saved
     others: set[Any] = set()
+    markers: dict[Any, str] = {}  # a stripped source's id -> the marker its words become
     for source in sources:
-        if isinstance(source, dict) and source.get("type") == "reddit":
+        if not isinstance(source, dict):
+            continue
+        if source.get("type") == "reddit":
             _strip_source(source)
-        elif isinstance(source, dict):
+        elif source.get("data_class") == "reddit":  # viewers' words on a video (P-23)
+            _strip_video(source)
+            markers[source.get("id")] = VIDEO_TEXT_NOT_KEPT
+        else:
             others.add(source.get("id"))
-    _strip_values(saved, others)
-    _strip_quotes(saved, others)
+    _strip_values(saved, others, markers)
+    _strip_quotes(saved, others, markers)
     _drop_cited_quotes(saved, others)
     return saved
 
@@ -88,6 +99,16 @@ def _strip_source(source: dict[str, Any]) -> None:
     )
 
 
+def _strip_video(source: dict[str, Any]) -> None:
+    """A video with viewers' comments: its title, description and comments go, its link and dates stay."""
+    source.update(
+        title=VIDEO_TEXT_NOT_KEPT,
+        text=VIDEO_TEXT_NOT_KEPT,
+        text_hash=hashlib.sha256(VIDEO_TEXT_NOT_KEPT.encode()).hexdigest(),
+        author_hash=None,
+    )
+
+
 def _strip_comment(comment: Any) -> Any:
     return {**comment, "text": REDDIT_TEXT_NOT_KEPT, "author_hash": None} if isinstance(comment, dict) else None
 
@@ -104,26 +125,44 @@ def _may_keep(claim_ids: Any, kept: set[Any]) -> bool:
     return isinstance(claim_ids, list) and bool(claim_ids) and all(i in kept for i in claim_ids)
 
 
-def _strip_values(saved: dict[str, Any], others: set[Any]) -> None:
+def _cited_from(saved: dict[str, Any]) -> dict[Any, Any]:
+    """Each claim's source, from SearchResult.citations."""
+    citations = saved.get("citations")
+    if not isinstance(citations, list):
+        return {}
+    return {c.get("claim_id"): c.get("source_id") for c in citations if isinstance(c, dict)}
+
+
+def _marker(claim_ids: Any, kept: set[Any], cited: dict[Any, Any], markers: dict[Any, str]) -> str:
+    """The video marker when every claim that can't be kept is from a video with comments, else Reddit's."""
+    lost = [i for i in claim_ids if i not in kept] if isinstance(claim_ids, list) else []
+    found = {markers.get(cited.get(i), REDDIT_TEXT_NOT_KEPT) for i in lost}
+    return found.pop() if len(found) == 1 else REDDIT_TEXT_NOT_KEPT
+
+
+def _strip_values(saved: dict[str, Any], others: set[Any], markers: dict[Any, str] | None = None) -> None:
     """A resolved value's words, and its alternatives', unless every claim behind them is cited from a source we know
-    isn't Reddit. A number or true/false is not words, so it stays."""
+    isn't Reddit or a video's viewers. A number or true/false is not words, so it stays."""
     products = saved.get("products")
     if not isinstance(products, list):
         return
     kept = _claims_kept(saved, others)
+    cited = _cited_from(saved)
+    markers = markers or {}
     for summary in products:
         values = summary.get("values") if isinstance(summary, dict) else None
         for value in values if isinstance(values, list) else []:
             if not isinstance(value, dict):
                 continue
-            if isinstance(value.get("value"), str) and not _may_keep(value.get("supporting_claim_ids"), kept):
-                value["value"] = REDDIT_TEXT_NOT_KEPT
+            supporting = value.get("supporting_claim_ids")
+            if isinstance(value.get("value"), str) and not _may_keep(supporting, kept):
+                value["value"] = _marker(supporting, kept, cited, markers)
             alternatives = value.get("alternatives")
             for alternative in alternatives if isinstance(alternatives, list) else []:
                 if not isinstance(alternative, dict) or _may_keep(alternative.get("claim_ids"), kept):
                     continue
                 if isinstance(alternative.get("value"), str):
-                    alternative["value"] = REDDIT_TEXT_NOT_KEPT
+                    alternative["value"] = _marker(alternative.get("claim_ids"), kept, cited, markers)
                 if alternative.get("unit") is not None:
                     alternative["unit"] = None  # too short for the marker (16 characters at most)
 
@@ -138,13 +177,15 @@ def _drop_cited_quotes(saved: dict[str, Any], others: set[Any]) -> None:
             citation["quote"] = None
 
 
-def _strip_quotes(node: Any, others: set[Any]) -> None:
-    """Keep a quote only if its source is one we know isn't Reddit: if we can't tell, it can't be kept."""
+def _strip_quotes(node: Any, others: set[Any], markers: dict[Any, str] | None = None) -> None:
+    """Keep a quote only if its source is one we know isn't Reddit or a video's viewers: if we can't tell, it can't
+    be kept."""
+    markers = markers or {}
     if isinstance(node, dict):
         if "quote" in node and node.get("source_id") not in others:
-            node["quote"] = REDDIT_TEXT_NOT_KEPT
+            node["quote"] = markers.get(node.get("source_id"), REDDIT_TEXT_NOT_KEPT)
         for value in node.values():
-            _strip_quotes(value, others)
+            _strip_quotes(value, others, markers)
     elif isinstance(node, list):
         for value in node:
-            _strip_quotes(value, others)
+            _strip_quotes(value, others, markers)

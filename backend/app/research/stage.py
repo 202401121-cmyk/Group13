@@ -1,10 +1,11 @@
-"""The research stage (US-12, US-27): rubric in, sources from Reddit, web search and review sites out.
+"""The research stage (US-12, US-27, US-38): rubric in, sources from Reddit, web search, review sites and YouTube out.
 
 ResearchStage is the US-52 stub. It stays as the baseline: what the live stage's fallback hands over to, and what tests
 use for default stages. LiveResearchStage does the real work, with no LLM call:
 
 1. Queries come from the rubric in code (queries.py).
-2. Reddit and up to 5 Serper queries start at once, on one fixed-size pool (fetching.py).
+2. Reddit, up to 5 Serper queries and one YouTube search are queued at once, on one fixed-size pool (fetching.py).
+   YouTube (US-38) is left out with no note when no key is set, as Firecrawl is: it is an extra source.
 3. When all the first round's replies are in, their results on review sites are queued as pages, best-ranked first, so
    the same answers read the same pages whichever reply arrived first. Then the held Serper slot runs: "X vs Y" if two
    candidates are known, otherwise the sixth query. It waits for Reddit's listing, because those titles name products
@@ -46,7 +47,15 @@ from .capping import cap_source
 from .client import ClientUnavailable, build_research_client
 from .fetching import FetchRun, shared_pool
 from .pages import PageReaders, PageResult, ReviewPages, page_kind, thread_id
-from .queries import SearchQuery, build_queries, comparison_query, first_round, held_query, reddit_query
+from .queries import (
+    SearchQuery,
+    build_queries,
+    comparison_query,
+    first_round,
+    held_query,
+    reddit_query,
+    youtube_query,
+)
 from .readers import FirecrawlClient, JinaReader, SearchWithBackup
 from .reddit.base import FailureReason, RedditSource
 from .reddit.factory import build_reddit_source
@@ -57,14 +66,15 @@ from .settings import ResearchSettings, load_research_settings
 from .sites import skipped_detail
 from .threads import CountingBudget, ThreadProgress, find_threads, read_comments
 from .usage import SearchUsage, UsageBook
+from .youtube import YouTubeResult, YouTubeSource
 
 log = logging.getLogger(__name__)
 
 DEADLINE_MARGIN_S = 3.0  # the search's own limit may be nearer than ours; returning late would lose everything
 HELD_SLOT_WAIT_SHARE = 0.5  # of the deadline: long enough for a normal listing, with time left for the query and pages
 HELD_SLOT_MIN_SHARE = 0.1  # of the deadline: with less left, a reply would not arrive and the credit would be wasted
-REDDIT, WEB, REVIEW = SourceType.REDDIT, SourceType.WEB_SEARCH, SourceType.REVIEW_SITE
-LIVE_TYPES = (REDDIT, WEB, REVIEW)
+REDDIT, WEB, REVIEW, YOUTUBE = SourceType.REDDIT, SourceType.WEB_SEARCH, SourceType.REVIEW_SITE, SourceType.YOUTUBE
+LIVE_TYPES = (REDDIT, WEB, REVIEW, YOUTUBE)
 
 
 class ResearchStage:
@@ -97,6 +107,10 @@ class SerperLike(Protocol):
 
 class PagesLike(Protocol):
     def fetch(self, url: str, usage: SearchUsage) -> PageResult: ...
+
+
+class YouTubeLike(Protocol):
+    def search(self, query: str, usage: SearchUsage) -> YouTubeResult: ...
 
 
 class RedditPagesLike(Protocol):
@@ -143,6 +157,7 @@ class LiveResearchStage:
         reddit: RedditSource | _Unset | None = _UNSET,
         serper: SerperLike | None = None,
         pages: PagesLike | None = None,
+        youtube: YouTubeLike | _Unset | None = _UNSET,
         usage: UsageBook | None = None,
         pool: ThreadPoolExecutor | None = None,
     ) -> None:
@@ -150,6 +165,7 @@ class LiveResearchStage:
         self.reddit = reddit
         self.serper = serper
         self.pages = pages
+        self.youtube = youtube
         self._usage = usage
         self._pool = pool
         self.last_report: ResearchReport | None = None
@@ -181,11 +197,13 @@ class LiveResearchStage:
             sweep_expired_files()
         wiring = _Wiring(serper=self.serper, pages=self.pages)
         client: httpx.Client | None = None
+        no_client = False
         if self.serper is None or self.pages is None:
             try:
                 client = build_research_client()
             except ClientUnavailable:
                 wiring.serper_problem = wiring.pages_problem = "error"
+                no_client = True
         wiring.client = client
         if client is not None:
             cache = ResearchCache(enabled=settings.cache_on)
@@ -203,6 +221,7 @@ class LiveResearchStage:
             if self.pages is None:
                 readers = PageReaders(jina=JinaReader(client, jina_key, retry=retry), firecrawl=firecrawl)
                 wiring.pages = ReviewPages(client, settings, cache=cache, readers=readers, retry=retry)
+        self._wire_youtube(wiring, settings, client, no_client)
         if isinstance(self.reddit, _Unset):
             try:
                 wiring.reddit = build_reddit_source(load_reddit_settings(), http=client)
@@ -217,15 +236,43 @@ class LiveResearchStage:
                 wiring.reddit_problem = "blocked"
         return wiring
 
+    def _wire_youtube(
+        self, wiring: _Wiring, settings: ResearchSettings, client: httpx.Client | None, no_client: bool
+    ) -> None:
+        """YouTube (US-38) when a key is set. With no key it is simply absent, as Firecrawl is: an extra source."""
+        if not isinstance(self.youtube, _Unset):
+            wiring.youtube = self.youtube
+            return
+        if settings.max_youtube_videos == 0:
+            return
+        key = os.environ.get("YOUTUBE_API_KEY", "").strip() or None
+        if key is None:
+            return
+        if client is None:
+            wiring.youtube_problem = "error" if no_client else None  # tests that give Serper and pages leave it out
+            return
+        cache = ResearchCache(enabled=settings.cache_on)
+        wiring.youtube = YouTubeSource(
+            client,
+            key,
+            cache=cache,
+            max_videos=settings.max_youtube_videos,
+            comments_per_video=settings.youtube_comments_per_video,
+            max_tokens=settings.max_source_tokens,
+            retry=wiring.retry,
+        )
+
 
 @dataclass
 class _Wiring:
     serper: SerperLike | None = None
     pages: PagesLike | None = None
     reddit: RedditSource | None = None
+    youtube: YouTubeLike | None = None
     serper_problem: FailureReason | None = None
     pages_problem: FailureReason | None = None
     reddit_problem: FailureReason | None = None
+    youtube_problem: FailureReason | None = None
     client: httpx.Client | None = None  # built for this search, so closed after it
     retry: RetryClock | None = None  # the sources' one retry (US-31): told this search's time left once it starts
 
@@ -274,6 +321,7 @@ class _Job:
         self.kinds_queued: dict[str, int] = {}  # "maker" or "store" -> pages queued (US-38)
         self.reddit_links: list[str] = []  # thread links from search, for one the archive lacks (US-38)
         self.reddit_pages: dict[str, tuple[int, int, Source]] = {}  # threads read through Firecrawl
+        self.videos: list[Source] = []  # YouTube's (US-38), in its order of relevance
         self.reader_failures: list[SourceFailure] = []  # readers that failed or were capped, named in the note
         self.reddit_tried: set[str] = set()  # kept apart from links_tried: they never use the review pages' share
         self.first_round_left = 0
@@ -292,6 +340,7 @@ class _Job:
     def run(self) -> ResearchResult:
         self._start_reddit()
         self._start_serper()
+        self._start_youtube()
         self.fetches.after(self.deadline_s * HELD_SLOT_WAIT_SHARE, self._stop_waiting)
         self.unfinished = self.fetches.wait()
         self.total_seconds = monotonic() - self.started
@@ -341,6 +390,28 @@ class _Job:
         self.timing.mark(REDDIT)
         if not self.threads.finished:
             self._problem(REDDIT, "timeout")
+
+    # --- YouTube (US-38) ------------------------------------------------------------------------
+
+    def _start_youtube(self) -> None:
+        youtube = self.wiring.youtube
+        if youtube is None:
+            if self.wiring.youtube_problem is not None:
+                self._problem(YOUTUBE, self.wiring.youtube_problem)
+            return
+        query = youtube_query(self.rubric, self.settings.known_uses)
+
+        def done(found: YouTubeResult) -> None:
+            self.timing.mark(YOUTUBE)
+            self.videos = list(found.sources[: self.settings.max_youtube_videos])
+            if found.failure is not None:
+                self._problem(YOUTUBE, found.failure.reason)
+
+        def failed(_: Exception) -> None:
+            self.timing.mark(YOUTUBE)
+            self._problem(YOUTUBE, "error")
+
+        self.fetches.submit(YOUTUBE.value, lambda: youtube.search(query, self.usage), done, failed)
 
     # --- Serper ---------------------------------------------------------------------------------
 
@@ -543,6 +614,7 @@ class _Job:
             REDDIT: [*self.problems.get(REDDIT, ()), *self.threads.failures],
             WEB: self.problems.get(WEB, []),
             REVIEW: self._review_problems(),
+            YOUTUBE: self.problems.get(YOUTUBE, []),
         }
         # One line per reader and reason, and Firecrawl as Serper's backup apart from Firecrawl reading pages
         named = {(f.detail.split(":")[0], f.source_type is WEB, f.reason): f for f in self.reader_failures}
@@ -569,8 +641,11 @@ class _Job:
     def _result(self) -> ResearchResult:
         read_through = self._ordered(self.reddit_pages, self.settings.max_reddit_threads)
         threads = [*self.threads.snapshot(), *read_through][: self.settings.max_reddit_threads]
+        # Videos with comments and Reddit threads share extraction's Reddit share and budget (both are reddit class),
+        # so they take turns: listed after them, the videos would never be read (US-38).
+        community = _taking_turns(threads, self.videos[: self.settings.max_youtube_videos])
         sources = (
-            threads
+            community
             + self._ordered(self.web, self.settings.max_web_results)
             + self._ordered(self.review, self.settings.max_review_pages)
         )
@@ -586,6 +661,7 @@ class _Job:
             REDDIT: min(threads, self.settings.max_reddit_threads),
             WEB: min(len(self.web), self.settings.max_web_results),
             REVIEW: min(len(self.review), self.settings.max_review_pages),
+            YOUTUBE: min(len(self.videos), self.settings.max_youtube_videos),
         }
         seconds = {kind: self.timing.finished.get(kind, 0.0) for kind in LIVE_TYPES}
         return ResearchReport(
@@ -597,6 +673,14 @@ class _Job:
             caps={name: cap.per_day for name, cap in book.caps.items()},
             comparison=self.comparison.text if self.comparison is not None else None,
         )
+
+
+def _taking_turns(first: Sequence[Source], second: Sequence[Source]) -> list[Source]:
+    """One from each in turn, then the rest of whichever is longer: a thread, a video, a thread, a video..."""
+    turns: list[Source] = []
+    for index in range(max(len(first), len(second))):
+        turns += [*first[index : index + 1], *second[index : index + 1]]
+    return turns
 
 
 def _log_report(report: ResearchReport) -> None:

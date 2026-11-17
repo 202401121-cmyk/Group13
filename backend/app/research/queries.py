@@ -98,6 +98,13 @@ def reddit_query(rubric: Rubric, known_uses: Sequence[str] = DEFAULT_KNOWN_USES)
     return _join(f"{_category(rubric.category)}{for_use}", "recommendations")
 
 
+def youtube_query(rubric: Rubric, known_uses: Sequence[str] = DEFAULT_KNOWN_USES) -> str:
+    """The one YouTube search (US-38): "best <category> [for <known use>] [budget] review", from the rubric only."""
+    use = known_use(rubric.use_case, known_uses)
+    for_use = f" for {use}" if use else ""
+    return _join("best", f"{_category(rubric.category)}{for_use}", _budget_words(rubric.budget), "review")
+
+
 def comparison_query(known: Sequence[str], titles: Iterable[tuple[str, str]], category: str) -> SearchQuery | None:
     """ "X vs Y" from the names we were given, else from the titles. None without two different names."""
     names = [cleaned for name in known if (cleaned := _clean_name(name))]
