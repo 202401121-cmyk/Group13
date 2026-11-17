@@ -4,7 +4,8 @@ Each turn, in plain code:
 - the beliefs come from the answers so far (beliefs.py), worked out again every time;
 - the fixed plan (plan.py) still says which criteria may be asked, so the topic groups, the budget thresholds and the
   10-question limit all still apply;
-- among those, the largest mean x sd is asked next, ties in the fixed order;
+- among those, the largest mean x sd is asked next, ties in the fixed order, and the question says why it comes now
+  (why.py): the criterion matters and the shopper's view isn't known yet;
 - the interview stops when the 3 criteria with the highest means each have an sd under `settled_sd`, or after 10
   questions. Criteria the interview can't ask (skipped, settled by a topic rule, or premium under a low budget)
   never hold up the stop.
@@ -22,6 +23,7 @@ from collections.abc import Mapping, Sequence
 from app.contracts import (
     MAX_QUESTIONS,
     AskedQuestion,
+    InterviewQuestion,
     InterviewState,
     InterviewStep,
     InterviewTurn,
@@ -35,6 +37,7 @@ from .plan import InterviewRules, default_order, plan_questions
 from .questions import question_for
 from .rubric_builder import build_rubric
 from .stage import InterviewStage, Ordering, _ask, _finished, _pending, _with
+from .why import why_now
 
 log = logging.getLogger(__name__)
 
@@ -105,7 +108,9 @@ class AdaptiveInterviewStage(InterviewStage):
         if following is None or len(state.history) >= MAX_QUESTIONS:
             return _finished(state, build_rubric(state, plan), self.ordering)
         criterion = next(c for c in state.criteria.criteria if c.key == following)
-        question = question_for(criterion)
+        # The question says why it comes now (S4-5); a fixed-order question keeps the definition as its reason.
+        why = why_now(criterion, beliefs[following], self.settings)
+        question = InterviewQuestion.model_validate({**question_for(criterion).model_dump(), "why_asking": why})
         asked = _with(state, AskedQuestion(question=question, status="pending"))
         return _ask("question", question.text, question, asked, self.ordering)
 
