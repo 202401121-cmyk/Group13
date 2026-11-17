@@ -109,6 +109,7 @@ and the file name the same ones.
 | `CEREBRAS_API_KEY` | The team's Cerebras key | **yes** |
 | `MISTRAL_API_KEY` | The team's Mistral key | **yes** |
 | `SERPER_API_KEY` | The team's Serper key | **yes** |
+| `YOUTUBE_API_KEY` | The team's YouTube Data API key, restricted to that API. Empty leaves YouTube out of every search (US-38). | **yes** |
 | `JINA_API_KEY` | Leave empty on staging (section 1). If set, the team's Jina key. | **yes** |
 | `FIRECRAWL_API_KEY` | Leave empty on staging: its 1,000 credits a month are the team's (section 1). | **yes** |
 | `REDDIT_SOURCE` | `archive` | no |

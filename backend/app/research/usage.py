@@ -27,7 +27,7 @@ from .settings import ProviderCap
 log = logging.getLogger(__name__)
 
 DEFAULT_USAGE_PATH = Path(__file__).resolve().parents[2] / ".cache" / "research" / "usage.json"
-PROVIDERS = ("serper", "reddit_archive", "pages")
+PROVIDERS = ("serper", "reddit_archive", "pages", "jina", "firecrawl_pages", "firecrawl", "youtube_search", "youtube")
 _FORMAT = 1
 
 

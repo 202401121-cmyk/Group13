@@ -1095,3 +1095,72 @@ def test_no_filter_reason_of_a_live_shaped_run_holds_a_reddit_claims_words(monke
     reasons = " ".join(reason for held in result.decision.filtered for reason in held.reasons)
     assert "We couldn't find its price" in reasons
     assert "62,990" not in reasons and "62990" not in reasons  # the Reddit post's price
+
+
+# --- YouTube: by data class, never by type alone (US-38, P-23) ----------------------------------------------------
+
+VIEWER_WORDS = "A made-up viewer says the case cracked."
+
+
+def _video(comments: list[str]) -> Source:
+    from app.research.youtube import _Video, video_source
+
+    made = _Video("vid00000001x", "A made-up video title", "Made-up Channel", "A made-up description.", NOW)
+    source = video_source(made, comments, NOW)
+    assert source is not None
+    return source
+
+
+def test_a_video_with_viewers_comments_never_reaches_the_saved_row() -> None:
+    from app.research.retention import VIDEO_TEXT_NOT_KEPT
+
+    video = _video([VIEWER_WORDS])
+    row = _saved_row([video])
+    assert VIEWER_WORDS not in row
+    assert "A made-up video title" not in row and "A made-up description." not in row
+    saved = json.loads(row)["sources"][0]
+    assert saved["title"] == saved["text"] == VIDEO_TEXT_NOT_KEPT
+    assert saved["url"] == "https://www.youtube.com/watch?v=vid00000001x"
+    assert saved["data_class"] == "reddit" and saved["type"] == "youtube"
+
+
+def test_a_video_with_no_comments_is_public_and_saved_whole() -> None:
+    video = _video([])
+    saved = json.loads(_saved_row([video]))["sources"][0]
+    assert saved["title"] == "A made-up video title"
+    assert "A made-up description." in saved["text"]
+
+
+def test_quotes_and_words_resting_on_a_videos_comments_go_with_its_own_marker() -> None:
+    from app.research.retention import VIDEO_TEXT_NOT_KEPT
+
+    video = _video([VIEWER_WORDS])
+    page = web_source("https://web.example/a")
+    result = {
+        "sources": [video.model_dump(mode="json"), page.model_dump(mode="json")],
+        "citations": [
+            {"claim_id": REDDIT_CLAIM, "source_id": video.id, "quote": VIEWER_WORDS},
+            {"claim_id": OTHER_REDDIT_CLAIM, "source_id": page.id, "quote": "A quote from a web page."},
+        ],
+        "products": [
+            {
+                "claims": [{"source_id": video.id, "quote": VIEWER_WORDS}],
+                "values": [
+                    {"value": "case cracked", "supporting_claim_ids": [REDDIT_CLAIM]},
+                    {"value": "case is fine", "supporting_claim_ids": [OTHER_REDDIT_CLAIM]},
+                ],
+            }
+        ],
+    }
+    saved = without_reddit_text(result)
+    assert VIEWER_WORDS not in json.dumps(saved)
+    assert saved["products"][0]["claims"][0]["quote"] == VIDEO_TEXT_NOT_KEPT
+    assert saved["citations"][0]["quote"] is None and saved["citations"][1]["quote"] == "A quote from a web page."
+    assert saved["products"][0]["values"][0]["value"] == VIDEO_TEXT_NOT_KEPT
+    assert saved["products"][0]["values"][1]["value"] == "case is fine"
+
+
+def test_a_reddit_source_still_gets_the_reddit_marker() -> None:
+    saved = json.loads(_saved_row([_reddit_thread(), _video([VIEWER_WORDS])]))["sources"]
+    assert saved[0]["text"] == REDDIT_TEXT_NOT_KEPT
+    assert saved[1]["text"] != REDDIT_TEXT_NOT_KEPT

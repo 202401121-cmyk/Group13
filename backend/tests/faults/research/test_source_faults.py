@@ -518,7 +518,8 @@ def test_the_last_report_says_times_and_counts_per_source_type() -> None:
     _run(stage)
     report = stage.last_report
     assert report is not None
-    assert set(report.seconds) == {SourceType.REDDIT, SourceType.WEB_SEARCH, SourceType.REVIEW_SITE}
+    live = {SourceType.REDDIT, SourceType.WEB_SEARCH, SourceType.REVIEW_SITE, SourceType.YOUTUBE}  # US-38
+    assert set(report.seconds) == live
     assert report.total_seconds >= max(report.seconds.values())
     assert report.counts[SourceType.REDDIT] == 1
     assert report.used["serper"] == 6

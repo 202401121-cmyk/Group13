@@ -5,8 +5,8 @@ Each ends in a result, a clean failure or a clear note, never a crash. The rule 
 after its Retry-After (and, for an LLM, only when no other model is waiting); never after another 4xx; and only when
 a whole attempt still fits before the stage's limit.
 
-Fake transports and fake clocks: no real API is called and nothing waits for real time. YouTube and Serper shopping
-join these tests when their sources land (S4-15, S4-14).
+Fake transports and fake clocks: no real API is called and nothing waits for real time. YouTube joined with its source
+(S4-15); Serper shopping joins when its source does (S4-14).
 """
 
 from __future__ import annotations
@@ -50,6 +50,7 @@ from app.research.serper import SerperSource
 from app.research.settings import ProviderCap, ResearchSettings
 from app.research.sites import SKIPPED_DETAIL
 from app.research.usage import SearchUsage, UsageBook
+from app.research.youtube import YouTubeSource
 from tests.fakes.reddit import NOW, Archive, Clock
 from tests.fakes.research import FakePages, FakeReddit, Web
 from tests.fakes.retry import NoJitter
@@ -182,7 +183,16 @@ FIRECRAWL_SENT = {**SOURCE_SENT, "429": 1}
 def _usage() -> SearchUsage:
     caps = {
         name: ProviderCap(per_search=20, per_day=200)
-        for name in ("serper", "firecrawl", "firecrawl_pages", "jina", "pages", "reddit_archive")
+        for name in (
+            "serper",
+            "firecrawl",
+            "firecrawl_pages",
+            "jina",
+            "pages",
+            "reddit_archive",
+            "youtube_search",
+            "youtube",
+        )
     }
     return UsageBook(caps, path=None).search()
 
@@ -208,6 +218,25 @@ def test_serper(kind: str) -> None:
     assert found.failure is not None and found.failure.reason == REASONS[kind]
     assert len(web.requests) == SOURCE_SENT[kind]
     assert usage.used["serper"] == SOURCE_SENT[kind]  # a retry is a query like any other: it is counted
+
+
+@pytest.mark.parametrize("kind", FAILURES)
+def test_youtube(kind: str) -> None:
+    clock = Clock()
+    web = Counted(_failing(kind))
+    youtube = YouTubeSource(
+        web.client(),
+        "made-up-key",
+        cache=ResearchCache(folder=None, now=lambda: NOW),
+        now=lambda: NOW,
+        retry=_retry(clock),
+    )
+    usage = _usage()
+    found = youtube.search("best earbuds review", usage)
+    assert found.failure is not None and found.failure.reason == REASONS[kind]
+    assert found.sources == ()
+    assert len(web.requests) == SOURCE_SENT[kind]  # search.list failed, so nothing else was asked
+    assert usage.used["youtube_search"] == SOURCE_SENT[kind]  # a retry is a call like any other: it is counted
 
 
 def _firecrawl(web: Counted, clock: Clock) -> FirecrawlClient:

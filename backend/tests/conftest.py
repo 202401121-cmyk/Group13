@@ -75,6 +75,9 @@ def _fresh_reddit_breakers() -> None:
 def _no_live_research(monkeypatch: pytest.MonkeyPatch) -> None:
     """Default stages keep the stub, so no test can search the web. Tests of the live stage give it fakes."""
     monkeypatch.setattr("app.pipeline.default_research_stage", ResearchStage)
+    # No YouTube key, whatever a developer's .env holds (an empty value wins over .env), so a live stage built by
+    # a test leaves YouTube out unless the test gives it a source (US-38).
+    monkeypatch.setenv("YOUTUBE_API_KEY", "")
 
 
 @pytest.fixture(autouse=True)
