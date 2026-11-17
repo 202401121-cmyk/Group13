@@ -76,6 +76,35 @@ export const CRITERIA_FIXTURES: Record<string, Criterion[]> = {
     },
     VFM,
   ],
+  // Nine criteria: the smart interview settles before asking them all (S4-5), so the mock stops early here.
+  Camera: [
+    { id: "sensor", title: "Sensor size", definition: "How much light the sensor gathers." },
+    {
+      id: "low_light",
+      title: "Low-light photos",
+      definition: "How clean photos look in dim light.",
+    },
+    {
+      id: "autofocus",
+      title: "Autofocus",
+      definition: "How fast and sure it focuses on a subject.",
+    },
+    {
+      id: "stabilisation",
+      title: "Stabilisation",
+      definition: "How well it keeps shaky shots sharp.",
+    },
+    { id: "video", title: "Video quality", definition: "How good its videos look and sound." },
+    { id: "battery", title: "Battery life", definition: "How many shots it takes on one charge." },
+    { id: "lenses", title: "Lens choice", definition: "How many lenses fit it, and at what cost." },
+    {
+      id: "weight",
+      title: "Weight",
+      definition: "How heavy it is to carry all day.",
+      lowerIsBetter: true,
+    },
+    { ...VFM, definition: "How much camera you get for the price." },
+  ],
   Earbuds: [
     {
       id: "fit",
@@ -162,11 +191,47 @@ export const TERM_FIXTURES: Record<string, QuestionTerm[]> = {
   ],
 };
 
+/** How much each criterion usually matters, out of 10: the mock's stand-in for the smart interview's beliefs. */
+const MOCK_PRIOR: Record<string, number> = {
+  cpu: 8,
+  memory: 7,
+  battery: 7,
+  camera: 8,
+  sensor: 8,
+  low_light: 7,
+  value: 6,
+  weight: 3,
+};
+const MAX_WHY = 200; // InterviewQuestion.why_asking limit
+
+/**
+ * Why a question comes now, worded as the backend's why_now() writes it (backend/app/interview/why.py, S4-5): how
+ * much it usually matters, that the shopper's view isn't known yet, then the definition when the whole fits.
+ */
+export function whyNow(c: Criterion): string {
+  const level = MOCK_PRIOR[c.id] ?? 5;
+  const matters =
+    level >= 7 ? "usually matters a lot" : level >= 4 ? "usually matters" : "can matter";
+  const view = "we don't know your view yet";
+  const reason = `${c.title}: it ${matters} and ${view}, so we ask now.`;
+  const definition = c.definition.split(/\s+/).join(" ");
+  for (const text of [
+    `${reason} ${definition}`,
+    `${c.title}: it ${matters}, and ${view}. ${definition}`,
+  ]) {
+    if (text.length <= MAX_WHY) return text;
+  }
+  return reason;
+}
+
 /** The mock's question for a criterion, with the words it explains. As live, its message is the question. */
 const askFor = (c: Criterion): Step => {
   const step = questionFor(c, TERM_FIXTURES[c.id] ?? []);
-  return { ...step, note: step.question };
+  return { ...step, note: step.question, why: whyNow(c) };
 };
+
+/** The smart interview stops once it is settled; the mock, with no beliefs, stands in with 6 answers (S4-5). */
+export const SETTLED_AFTER = 6;
 
 /** The backend's own words (backend/app/interview/stage.py), so the mock reads as live does. */
 export const DONE_MESSAGE = "Thanks, that's everything I need.";
@@ -189,7 +254,9 @@ export function criteriaFor(brief: Brief): CriteriaResult {
 
 function nextStep(criteria: Criterion[], answers: Answers): { step: Step; answers: Answers } {
   const next = { ...answers };
+  const answered = Object.values(next).filter((a) => a?.status === "answered").length;
   for (const c of criteria) {
+    if (answered >= SETTLED_AFTER) break;
     if (next[c.id]) continue;
     const memo = MEMORY_FIXTURE[c.id];
     if (memo) {

@@ -9,6 +9,7 @@ import type {
   ExplanationPart,
   Offer,
   ProductResult,
+  SourcedPrice,
   ReasonView,
   SourceRef,
 } from "@/lib/results/types";
@@ -318,6 +319,31 @@ function Explanation({
   );
 }
 
+/**
+ * A price a source gave for a product with no store offer (US-24, S4-30): what it is, where and when it was
+ * seen, and its sources in the drawer. Never a buy link: no store offered it.
+ */
+function SourcedPriceLine({
+  price,
+  onShow,
+}: {
+  price: SourcedPrice;
+  onShow: ((opener: HTMLElement) => void) | null;
+}) {
+  return (
+    <div data-sourced-price className="mt-3 flex flex-wrap items-center justify-between gap-2">
+      <p className="min-w-0 text-sm text-foreground">
+        Price seen in a source: <span className="font-semibold">{price.text}</span> on {price.site}
+        {price.seen && `, ${price.seen}`}
+        {price.state === "disputed" && (
+          <span className="text-muted-foreground"> (sources disagree)</span>
+        )}
+      </p>
+      {onShow && <SourcesButton label="Price" onClick={onShow} />}
+    </div>
+  );
+}
+
 const AVAILABILITY = { in_stock: "In stock", out_of_stock: "Out of stock" } as const;
 
 /** One store's offer (US-24): its price, as of when, whether it may have changed, is over budget, or in stock. */
@@ -370,19 +396,23 @@ export function ResultCard({
   product: p,
   tiedWith,
   featured,
+  ranked = true,
   index,
   onShowSources,
 }: {
   product: ProductResult;
   tiedWith: string[];
   featured?: boolean;
+  /** False on a page where nothing could be scored: no "Best match", "Runner-up" or "#N" (S4-30). */
+  ranked?: boolean;
   index: number;
   /** Opens "Where this comes from". Without it, the card shows no source buttons. */
   onShowSources?: ShowSources | undefined;
 }) {
   const motionRef = useVisualMotion<HTMLElement>();
   const tied = tiedWith.length > 0;
-  const rank = p.rank == null ? null : tied ? `Tied for ${ordinal(p.rank)}` : `#${p.rank}`;
+  const rank =
+    !ranked || p.rank == null ? null : tied ? `Tied for ${ordinal(p.rank)}` : `#${p.rank}`;
   const sorted = [...(p.contributions ?? [])].sort((a, b) => b.points - a.points);
   const reasons = p.reasons ?? [];
   // Without main reasons (an older result), the two strongest criteria stand in for them.
@@ -415,12 +445,12 @@ export function ResultCard({
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          {featured && !tied && (
+          {ranked && featured && !tied && (
             <p className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-primary">
               Best match
             </p>
           )}
-          {!featured && !tied && p.label === "runner_up" && (
+          {ranked && !featured && !tied && p.label === "runner_up" && (
             <p className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
               Runner-up
             </p>
@@ -485,9 +515,12 @@ export function ResultCard({
       </div>
 
       {(p.explanation || reasons.length > 0 || strongest.length > 0) && (
-        <section className="mt-6" aria-label={`Why ${p.name} ranks here`}>
+        <section
+          className="mt-6"
+          aria-label={ranked ? `Why ${p.name} ranks here` : `What we found about ${p.name}`}
+        >
           <h4 className="font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
-            Why it ranks here
+            {ranked ? "Why it ranks here" : "What we found"}
           </h4>
           {p.explanationParts && p.explanationParts.length > 0 ? (
             <Explanation
@@ -581,7 +614,10 @@ export function ResultCard({
           </ul>
         ) : (
           <div className="mt-2 flex flex-wrap items-center gap-3">
-            <StatusBadge variant="no-offer">No price found</StatusBadge>
+            {/* A price a source gave is not a store's offer: "No price found" would not be true then. */}
+            <StatusBadge variant="no-offer">
+              {p.sourcedPrice ? "No store offer" : "No price found"}
+            </StatusBadge>
             {storeSearch && (
               <a
                 href={storeSearch}
@@ -595,6 +631,17 @@ export function ResultCard({
               </a>
             )}
           </div>
+        )}
+        {p.offers.length === 0 && p.sourcedPrice && (
+          <SourcedPriceLine
+            price={p.sourcedPrice}
+            onShow={showFor({
+              criterionId: "price_inr",
+              label: "Price",
+              state: p.sourcedPrice.state,
+              claims: p.sourcedPrice.claims,
+            })}
+          />
         )}
       </section>
 

@@ -638,7 +638,9 @@ function Results({
 }) {
   const h1 = useRef<HTMLHeadingElement>(null);
   const [announce, setAnnounce] = useState("");
-  const best = result.products[0];
+  // With no product scored there is no order: no best match, no runner-up, no #1 (S4-30).
+  const scored = result.products.some((p) => p.score != null);
+  const best = scored ? result.products[0] : undefined;
   const ties = tieGroups(result.products);
   // A tie for first has no single best match, so every tied product stands together at the top.
   const firstTie = ties.find((t) => t.products[0] === best);
@@ -690,7 +692,10 @@ function Results({
   };
 
   useEffect(() => {
-    h1.current?.focus();
+    // The results open at the top, so the sticky header covers neither the heading nor the coverage note below
+    // it, wherever the research screen was scrolled to.
+    window.scrollTo({ top: 0, behavior: "instant" });
+    h1.current?.focus({ preventScroll: true });
     const count = `Results ready. ${result.products.length} options`;
     setAnnounce(
       // The alert says what happened; this only says the search ended, never "No options matched".
@@ -700,7 +705,9 @@ function Results({
           ? `${count}. ${listInWords(leaders.map((p) => p.name))} are too close to call.`
           : best
             ? `${count}, best match ${best.name}.`
-            : "Results ready. No options matched.",
+            : result.products.length > 0
+              ? `${count} found, not ranked.`
+              : "Results ready. No options matched.",
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -793,6 +800,26 @@ function Results({
               </ol>
             </>
           )}
+        </>
+      ) : result.products.length > 0 ? (
+        <>
+          <h2 className="mt-10 font-serif text-2xl text-foreground">Found, not ranked</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            We couldn't score these on what matters to you, so they are in no particular order.
+          </p>
+          <ul className="mt-4 space-y-5" aria-label="Found, not ranked">
+            {result.products.map((p, i) => (
+              <li key={p.id}>
+                <ResultCard
+                  product={p}
+                  tiedWith={[]}
+                  ranked={false}
+                  index={i}
+                  onShowSources={showSources}
+                />
+              </li>
+            ))}
+          </ul>
         </>
       ) : result.llmUnavailable ? null : (
         <p className="mt-10 text-lg text-muted-foreground">

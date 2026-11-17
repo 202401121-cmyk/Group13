@@ -13,7 +13,8 @@ import type {
   ResearchResult,
   RubricItem,
 } from "./types";
-import { WITHHELD, isPriceStale, sourceDateLabel } from "./view";
+import { formatINR } from "@/lib/request/format";
+import { WITHHELD, isPriceStale, newestPriceTime, shortDay, sourceDateLabel } from "./view";
 
 /** The clock for a fixture built with no time given, so the same input always gives the same result. */
 const FIXTURE_NOW = Date.parse("2026-10-27T11:40:00Z");
@@ -204,7 +205,7 @@ export function buildMockResult(
     products,
     leftOut: [],
     couldntCheck: [],
-    pricesCheckedAt: hoursAgo(2, now),
+    pricesCheckedAt: null, // from the priced offers, below
     saved: false,
     source: "mock",
   };
@@ -327,6 +328,51 @@ export function buildMockResult(
       b.offers = b.offers.map((o) => checkedAt(o, hoursAgo(72, now), now));
       c.offers[1] = checkedAt(c.offers[1]!, null, now);
       break;
+    case "not-ranked":
+      // Nothing could be scored, as in S3-19's live walk: no order, no prices, and the note says why.
+      for (const p of products) {
+        Object.assign(p, { score: null, chanceFirst: null, contributions: [], confidence: "low" });
+        Object.assign(p, { dataCoverage: 0, value: null });
+        p.explanation = `We found ${p.name} in the sources, but couldn't check what matters to you.`;
+        p.criteria = p.criteria.map((c) => ({ ...c, state: "unknown", value: null, claims: [] }));
+        p.coverage = { checked: 0, total: p.criteria.length };
+        p.offers = [];
+        p.storeSearchUrl = `https://example.com/store-search?q=${encodeURIComponent(p.name)}`;
+      }
+      res.partial = true;
+      res.coverageNote =
+        "Not ranked: we found no scores for your criteria. 8 sources were not read, to keep the search from " +
+        "running too long. 18 Reddit threads were not read, to leave room for web pages.";
+      break;
+    case "sourced-price": {
+      // No store offered B, but a review gave its price: shown apart from offers, never as a buy link.
+      b.offers = [];
+      b.storeSearchUrl = `https://example.com/store-search?q=${encodeURIComponent(b.name)}`;
+      const price = `₹${formatINR(71990)}`;
+      b.sourcedPrice = {
+        text: price,
+        site: "Sample Review Lab",
+        seen: shortDay(new Date(now - DAY_MS).toISOString()),
+        state: "verified",
+        claims: [
+          mockClaim(
+            `${slug(b.name)}_price`,
+            "supporting",
+            {
+              key: `sample-review-lab_${slug(b.name)}`,
+              name: "Sample Review Lab",
+              typeLabel: "Review site",
+              url: `https://example.com/reviews/sample-review-lab/${slug(b.name)}`,
+              publishedDaysAgo: null,
+            },
+            `${b.name} sells for about ${price}.`,
+            price,
+            now,
+          ),
+        ],
+      };
+      break;
+    }
     case "no-offer":
       b.offers = [];
       b.storeSearchUrl = `https://example.com/store-search?q=${encodeURIComponent(b.name)}`;
@@ -393,7 +439,8 @@ export function buildMockResult(
   const leader = res.products[0]?.score ?? null;
   for (const p of res.products) {
     // The second reason's score was compared with the other products found, as a live one can be (US-18).
-    p.reasons = reasonsOf(p).map((reason, i) => ({
+    // An unscored product has no reasons it ranks (as live: decide's contributions are all unknown then).
+    p.reasons = (p.score == null ? [] : reasonsOf(p)).map((reason, i) => ({
       ...reason,
       basis: i === 1 ? "compared" : "opinion",
     }));
@@ -405,9 +452,13 @@ export function buildMockResult(
     p.explanationParts = p.explanation
       ? [{ text: p.explanation, claims: p.reasons[0]?.claims ?? [] }]
       : [];
-    p.label = p.rank === 1 ? "best_match" : p.rank === 2 ? "runner_up" : null;
+    // Unscored products have no label, as decide gives none.
+    p.label =
+      p.score == null ? null : p.rank === 1 ? "best_match" : p.rank === 2 ? "runner_up" : null;
     p.gapToLeader =
       leader === null || p.score == null ? null : Math.round((leader - p.score) * 10) / 10;
   }
+  // As live: only the shown offers with a price say when prices were checked.
+  res.pricesCheckedAt = newestPriceTime(res.products);
   return res;
 }

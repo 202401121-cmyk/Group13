@@ -47,8 +47,10 @@ import {
   type RubricItem,
   type RunSnapshot,
   type SourceRef,
+  type SourcedPrice,
 } from "./types";
-import { WITHHELD, isPriceStale, sourceDateLabel } from "./view";
+import { formatINR } from "@/lib/request/format";
+import { WITHHELD, isPriceStale, newestPriceTime, shortDay, sourceDateLabel } from "./view";
 
 export const FINISH_FIRST = "Finish the questions first, then start the research.";
 
@@ -130,6 +132,37 @@ function citedClaims(sides: (readonly [string, ClaimView["side"]])[], cited: Cit
       },
     ];
   });
+}
+
+/** decide's key for a product's price (backend/app/decide/rules.py PRICE_KEY). */
+const PRICE_KEY = "price_inr";
+
+/**
+ * A price a source gave, for a product with no store offer (S4-30): its price_inr value, known or disputed, with
+ * at least one supporting claim. A number is shown in rupees; text is shown as the source wrote it, never read
+ * as a price here (decide does that). Anything else is no sourced price.
+ */
+function sourcedPrice(summary: ProductSummary | undefined, cited: Cited): SourcedPrice | null {
+  const v = summary?.values.find((x) => x.criterion_key === PRICE_KEY);
+  if (!v || (v.state !== "known" && v.state !== "disputed")) return null;
+  const text =
+    typeof v.value === "number" && Number.isFinite(v.value) && v.value > 0
+      ? `₹${formatINR(v.value)}`
+      : typeof v.value === "string" && v.value.trim()
+        ? v.value.trim()
+        : null;
+  const claims = claimsFor(v, cited);
+  const first = claims.find((c) => c.side === "supporting");
+  if (!text || !first) return null;
+  const citation = cited.citations.get(first.claimId);
+  const source = citation && cited.sources.get(citation.source_id);
+  return {
+    text,
+    site: first.source.name,
+    seen: shortDay(source?.fetched_at),
+    state: STATES[v.state],
+    claims,
+  };
 }
 
 /** Points a criterion added to the 0-100 score: decide adds up contribution x 10. */
@@ -254,7 +287,8 @@ export function resultFromSearch(
               label: label(c.criterion_key),
               points: pointsOf(c.contribution),
             })),
-      reasons: reasonsFor(r, rows, label),
+      // Unscored, every contribution is unknown (decide's _unranked): there are no reasons it ranks anywhere.
+      reasons: r.score === null ? [] : reasonsFor(r, rows, label),
       label: r.label,
       gapToLeader: r.score === null ? null : r.gap_to_leader,
       criteria: rows,
@@ -270,6 +304,9 @@ export function resultFromSearch(
           overBudget: o.over_budget,
         })),
       storeSearchUrl: result.commerce?.no_offer[r.product_id] ?? null,
+      sourcedPrice: offers.some((o) => o.product_id === r.product_id)
+        ? null
+        : sourcedPrice(summary, cited),
       value: null,
     };
   });
@@ -288,7 +325,6 @@ export function resultFromSearch(
       }));
 
   const hint = result.decision?.relaxation_hint ?? null;
-  const asOf = offers.map((o) => o.as_of).sort();
   return {
     searchId: result.search_id,
     products,
@@ -297,7 +333,8 @@ export function resultFromSearch(
     coverageNote: result.coverage_note,
     partial: result.partial,
     relaxation: hint ? { hint, mustHave: relaxedRule(result) } : null,
-    pricesCheckedAt: asOf.at(-1) ?? null,
+    // Only shown offers with a price say when prices were checked (S4-30).
+    pricesCheckedAt: newestPriceTime(products),
     saved: result.saved,
     llmUnavailable: result.llm_unavailable,
     source: "live",

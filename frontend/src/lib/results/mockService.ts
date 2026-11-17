@@ -32,6 +32,8 @@ export const MOCK_SCENARIOS = [
   { id: "estimated", label: "Estimated values" },
   { id: "stale", label: "Old prices" },
   { id: "no-offer", label: "No store offers" },
+  { id: "sourced-price", label: "A price from a source, no store offer" },
+  { id: "not-ranked", label: "Found, not ranked" },
   { id: "over-budget", label: "An offer above the budget" },
   { id: "offer-24h", label: "A price exactly 24 hours old" },
   { id: "left-out", label: "Products left out" },

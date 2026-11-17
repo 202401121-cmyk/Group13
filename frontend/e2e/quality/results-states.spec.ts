@@ -5,7 +5,7 @@
  */
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import {
   checkRow,
   finishResearch,
@@ -14,7 +14,7 @@ import {
   startScenario,
   type Theme,
 } from "./helpers";
-import { walkFocus } from "./layout";
+import { tabTo as tabToStop, walkFocus } from "./layout";
 
 const SHOTS = process.env["SHOTS_DIR"];
 
@@ -36,6 +36,9 @@ const STATES = [
   "over-budget",
   "offer-24h",
   "llm-unavailable",
+  // S4-30
+  "not-ranked",
+  "sourced-price",
 ];
 
 /** A full-page screenshot in each theme, when SHOTS_DIR is set. */
@@ -151,7 +154,7 @@ test.describe("result states", () => {
   test("at 390 px, focus is never hidden under the sticky header", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const id = await reachBrief(page);
-    for (const scenario of ["tie", "no-offer"]) {
+    for (const scenario of ["tie", "no-offer", "not-ranked", "sourced-price"]) {
       await showScenario(page, id, scenario);
       const stops = [
         ...(await walkFocus(page, "Tab")).stops,
@@ -275,4 +278,80 @@ test.describe("result states", () => {
     await expect(drawer).toBeHidden();
     await expect(sources).toBeFocused();
   });
+
+  for (const size of SIZES) {
+    test(`nothing scored: found, not ranked, and the header covers nothing (${size.width} px)`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(size);
+      const id = await reachBrief(page);
+      await startScenario(page, id, "not-ranked");
+      // The research screen is scrolled down when the results come.
+      await page.clock.runFor(1_500);
+      await page.evaluate(() =>
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "instant" }),
+      );
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+      await finishResearch(page);
+      const note = page.getByText(/^Not ranked: we found no scores/);
+      await expect(note).toBeVisible();
+
+      await expect(page.getByRole("heading", { name: "Found, not ranked" })).toBeVisible();
+      await expect(
+        page.getByRole("list", { name: "Found, not ranked" }).getByRole("article"),
+      ).toHaveCount(3);
+      for (const word of [
+        "Best match",
+        "Runner-up",
+        "Other options",
+        "#1",
+        "Rank 1",
+        "ranks here",
+      ]) {
+        await expect(page.getByText(word)).toHaveCount(0);
+      }
+      await expect(page.getByText(/^Prices checked /)).toHaveCount(0);
+
+      // The coverage note, and every heading scrolled to, sit below the sticky header.
+      await expect.poll(() => belowHeader(page, note)).toBe(true);
+      for (const heading of await page.getByRole("heading").all()) {
+        await heading.evaluate((el) => el.scrollIntoView({ block: "start", behavior: "instant" }));
+        await expect.poll(() => belowHeader(page, heading)).toBe(true);
+      }
+    });
+  }
+
+  test("a price from a source shows apart from offers, with its sources, and no buy link", async ({
+    page,
+  }) => {
+    const id = await reachBrief(page);
+    await showScenario(page, id, "sourced-price");
+    const b = page.getByRole("region", { name: "Store offers for Sample laptop B" });
+    await expect(b).toContainText("No store offer");
+    const line = b.locator("[data-sourced-price]");
+    await expect(line.locator("p")).toHaveText(
+      /^Price seen in a source: ₹71,990 on Sample Review Lab, \d+ \w{3}$/,
+    );
+    await expect(line.getByRole("link")).toHaveCount(0);
+    // Keyboard only: Enter opens the sources, Escape closes them and gives focus back.
+    const sources = line.getByRole("button", { name: "Where this comes from: Price" });
+    await tabToStop(page, (name) => name === 'button "Where this comes from: Price"');
+    await page.keyboard.press("Enter");
+    const drawer = page.getByRole("dialog", { name: "Price: where this comes from" });
+    await expect(drawer).toBeVisible();
+    await expect(drawer).toContainText("Sample Review Lab");
+    await page.keyboard.press("Escape");
+    await expect(drawer).toBeHidden();
+    await expect(sources).toBeFocused();
+    // A and C have priced offers, so the page still says when prices were checked.
+    await expect(page.getByText(/^Prices checked /)).toHaveCount(1);
+  });
 });
+
+/** True when the element's top is at or below the sticky header's bottom, and inside the window. */
+async function belowHeader(page: Page, target: Locator): Promise<boolean> {
+  const header = await page.locator("header").first().boundingBox();
+  const box = await target.boundingBox();
+  const height = page.viewportSize()!.height;
+  return !!header && !!box && box.y >= header.y + header.height - 0.5 && box.y < height;
+}
