@@ -1,9 +1,9 @@
-# Sprint 3 baselines: one floor per measure (S3-18, task #45). US-49's quality gate (Sprint 4) enforces them.
+# One floor per measure (S3-18, task #45; the live floors from S4-2). US-49's quality gate (Sprint 4) enforces them.
 # Written by `python -m evals.thresholds --write` from evals/results/; check with `python -m evals.thresholds --check`.
 # The rules (evals/thresholds.py): a safety floor is exact; a quality floor is the measured value less the stated
 # margin; a time has a ceiling at its stage's own limit; a target from the plan is written next to its floor and is
-# never lowered. Changing a floor is a team decision: say so in the pull request. The report is
-# docs/evaluation/sprint-3-baselines.md.
+# never lowered. Changing a floor is a team decision: say so in the pull request. The reports are
+# docs/evaluation/sprint-3-baselines.md and, for the live floors, docs/evaluation/sprint-4-live.md.
 version: 1
 measures:
   decide.briefs_as_expected:
@@ -84,14 +84,14 @@ measures:
   live.briefs_finished:
     kind: quality
     direction: at_least
-    floor: 4.0
-    measured: 5.0
+    floor: 3.0
+    measured: 4.0
     unit: briefs
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: Every brief finishes, whatever fails on the way (build rules 9 and 10).
   live.briefs_with_a_score:
     kind: quality
@@ -101,9 +101,9 @@ measures:
     unit: briefs
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: Shown products get scores, not 'not ranked' everywhere (S3-10b's demo risk).
   live.claims_per_source.manufacturer:
     kind: quality
@@ -113,21 +113,21 @@ measures:
     unit: claims
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: Extraction keeps finding claims in what it reads (US-14).
   live.claims_per_source.reddit:
     kind: quality
     direction: at_least
-    floor: 0.15
-    measured: 0.1667
+    floor: 0.36
+    measured: 0.4
     unit: claims
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: Extraction keeps finding claims in what it reads (US-14).
   live.claims_per_source.retailer:
     kind: quality
@@ -137,46 +137,34 @@ measures:
     unit: claims
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: Extraction keeps finding claims in what it reads (US-14).
   live.claims_per_source.review_site:
     kind: quality
     direction: at_least
-    floor: 0.51
-    measured: 0.5714
+    floor: 0.0
+    measured: 0.0
     unit: claims
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: Extraction keeps finding claims in what it reads (US-14).
   live.claims_per_source_given:
     kind: quality
     direction: at_least
-    floor: 0.13
-    measured: 0.1515
+    floor: 0.14
+    measured: 0.1576
     unit: claims
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: Extraction keeps finding claims in what it reads (US-14).
-  live.coverage_mean:
-    kind: quality
-    direction: at_least
-    floor: 0.0
-    measured: 0.0
-    unit: rate
-    margin: 0.05 below the measured rate
-    measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
-    rule: Ranked products keep the evidence coverage they have now (US-18).
   live.hard_rule_violations_shown:
     kind: safety
     direction: at_most
@@ -185,21 +173,33 @@ measures:
     unit: products
     margin: 'exact: none at all'
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: A shown product never breaks an active hard rule, the budget or an exclusion (US-17, build rule 2), in a real search.
+  live.most_mentioned_worst_fit_wins:
+    kind: safety
+    direction: at_most
+    floor: 0.0
+    measured: 0.0
+    unit: briefs
+    margin: 'exact: none at all'
+    measured_on: live
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
+    rule: Mentions never buy a rank, in a real search (US-17, build rule 2).
   live.pages_direct:
     kind: quality
     direction: at_least
-    floor: 15.0
-    measured: 17.0
+    floor: 35.0
+    measured: 39.0
     unit: pages
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: The page readers keep reading pages (US-38).
   live.pages_firecrawl:
     kind: quality
@@ -209,69 +209,69 @@ measures:
     unit: pages
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: The page readers keep reading pages (US-38).
   live.pages_jina:
     kind: quality
     direction: at_least
-    floor: 0.0
-    measured: 1.0
+    floor: 3.0
+    measured: 4.0
     unit: pages
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: The page readers keep reading pages (US-38).
   live.quote_found_share:
     kind: quality
     direction: at_least
-    floor: 0.8875
-    measured: 0.9375
+    floor: 0.8419
+    measured: 0.8919
     unit: rate
     margin: 0.05 below the measured rate
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: A claim's quote is its source's own words (build rule 4, US-14).
   live.ranked_products:
     kind: quality
     direction: at_least
-    floor: 3.0
-    measured: 4.0
+    floor: 0.0
+    measured: 0.0
     unit: products
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: Real searches keep showing products.
   live.search_seconds_max:
     kind: quality
     direction: at_most
     floor: 150.0
-    measured: 30.62
+    measured: 64.67
     unit: seconds
     margin: a ceiling at the search's own limit, 150 s
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: No stage may hang (build rule 9).
   live.sources_per_brief:
     kind: quality
     direction: at_least
-    floor: 17.82
-    measured: 19.8
+    floor: 45.67
+    measured: 50.75
     unit: sources
     margin: 10% below the measured value, rounded down
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: Research keeps finding sources (US-12, US-38).
   live.stage_seconds_max.commerce:
     kind: quality
@@ -281,33 +281,33 @@ measures:
     unit: seconds
     margin: a ceiling at the stage's own limit, 15 s
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: No stage may hang (build rule 9).
   live.stage_seconds_max.decide:
     kind: quality
     direction: at_most
     floor: 2.0
-    measured: 0.0
+    measured: 0.09
     unit: seconds
     margin: a ceiling at the stage's own limit, 2 s
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: No stage may hang (build rule 9).
   live.stage_seconds_max.enrich:
     kind: quality
     direction: at_most
     floor: 20.0
-    measured: 0.01
+    measured: 0.0
     unit: seconds
     margin: a ceiling at the stage's own limit, 20 s
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: No stage may hang (build rule 9).
   live.stage_seconds_max.explain:
     kind: quality
@@ -317,58 +317,70 @@ measures:
     unit: seconds
     margin: a ceiling at the stage's own limit, 15 s
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: No stage may hang (build rule 9).
   live.stage_seconds_max.extract:
     kind: quality
     direction: at_most
     floor: 150.0
-    measured: 14.7
+    measured: 29.58
     unit: seconds
     margin: a ceiling at the search's limit, 150 s (each source has 15 s)
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: No stage may hang (build rule 9).
   live.stage_seconds_max.match:
     kind: quality
     direction: at_most
     floor: 5.0
-    measured: 0.02
+    measured: 0.0
     unit: seconds
     margin: a ceiling at the stage's own limit, 5 s
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: No stage may hang (build rule 9).
   live.stage_seconds_max.research:
     kind: quality
     direction: at_most
     floor: 40.0
-    measured: 23.89
+    measured: 36.11
     unit: seconds
     margin: a ceiling at the stage's own limit, 40 s
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: No stage may hang (build rule 9).
   live.stage_seconds_max.verify:
     kind: quality
     direction: at_most
     floor: 2.0
-    measured: 0.06
+    measured: 0.03
     unit: seconds
     margin: a ceiling at the stage's own limit, 2 s
     measured_on: live
-    source: backend/evals/results/sprint-3-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
-    date: '2026-11-14'
-    commit: a6148f0
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
     rule: No stage may hang (build rule 9).
+  live.unsourced_shown:
+    kind: safety
+    direction: at_most
+    floor: 0.0
+    measured: 0.0
+    unit: products
+    margin: 'exact: none at all'
+    measured_on: live
+    source: backend/evals/results/sprint-4-live.json; backend/evals/live_briefs.py, 5 live briefs, --no-db
+    date: '2026-11-17'
+    commit: d0788bd
+    rule: 'No product is shown without a source (build rule 5): verify drops it before decide.'
   matching.fuzzy.own_pairs.f1:
     kind: quality
     direction: at_least

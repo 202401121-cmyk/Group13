@@ -38,7 +38,7 @@ from .interview_sim import FIXED_OUT as SIM_OUT
 from .run_baselines import BACKEND, OFFLINE_OUT, RESULTS_DIR
 
 THRESHOLDS = BACKEND / "evals" / "thresholds.yaml"
-LIVE_OUT = RESULTS_DIR / "sprint-3-live.json"
+LIVE_OUT = RESULTS_DIR / "sprint-4-live.json"  # S4-2: the demo's way, at the normal source cap
 RECORDS = (OFFLINE_OUT, LIVE_OUT, SIM_OUT)  # every results record a floor is written from
 RATE_MARGIN = 0.05
 COUNT_MARGIN = 0.10
@@ -293,12 +293,12 @@ def check(thresholds: Thresholds, measures: Iterable[Mapping[str, Any]]) -> list
 
 
 HEADER = """\
-# Sprint 3 baselines: one floor per measure (S3-18, task #45). US-49's quality gate (Sprint 4) enforces them.
+# One floor per measure (S3-18, task #45; the live floors from S4-2). US-49's quality gate (Sprint 4) enforces them.
 # Written by `python -m evals.thresholds --write` from evals/results/; check with `python -m evals.thresholds --check`.
 # The rules (evals/thresholds.py): a safety floor is exact; a quality floor is the measured value less the stated
 # margin; a time has a ceiling at its stage's own limit; a target from the plan is written next to its floor and is
-# never lowered. Changing a floor is a team decision: say so in the pull request. The report is
-# docs/evaluation/sprint-3-baselines.md.
+# never lowered. Changing a floor is a team decision: say so in the pull request. The reports are
+# docs/evaluation/sprint-3-baselines.md and, for the live floors, docs/evaluation/sprint-4-live.md.
 """
 
 
