@@ -162,8 +162,20 @@ export const TERM_FIXTURES: Record<string, QuestionTerm[]> = {
   ],
 };
 
-/** The mock's question for a criterion, with the words it explains. */
-const askFor = (c: Criterion) => questionFor(c, TERM_FIXTURES[c.id] ?? []);
+/** The mock's question for a criterion, with the words it explains. As live, its message is the question. */
+const askFor = (c: Criterion): Step => {
+  const step = questionFor(c, TERM_FIXTURES[c.id] ?? []);
+  return { ...step, note: step.question };
+};
+
+/** The backend's own words (backend/app/interview/stage.py), so the mock reads as live does. */
+export const DONE_MESSAGE = "Thanks, that's everything I need.";
+export const SKIPPED_NOTE = "Let's skip that one for now. You can answer it later.";
+export const keptNote = (label: string) =>
+  `I couldn't read that, so I kept your earlier answer for ${label}. You can go back and change it.`;
+export const rephraseMessage = (label: string) =>
+  `Let me ask another way: should ${label} be low, medium or high on your list? Pick one of the buttons, or type a number from 0 to 10.`;
+const joined = (first: string, then: string | null) => (then ? `${first} ${then}` : first);
 
 /** Stand-in for the future memory service. */
 export const MEMORY_FIXTURE: Record<string, string> = { weight: "under 1.5 kg" };
@@ -191,7 +203,7 @@ function nextStep(criteria: Criterion[], answers: Answers): { step: Step; answer
       kind: "finished",
       criterionId: null,
       question: null,
-      note: null,
+      note: DONE_MESSAGE,
       why: null,
       replies: [],
       terms: [],
@@ -200,7 +212,7 @@ function nextStep(criteria: Criterion[], answers: Answers): { step: Step; answer
   };
 }
 
-export function runTurn({ criteria, answers, turn }: TurnInput): TurnResult {
+export function runTurn({ criteria, answers, turn, unclear = 0 }: TurnInput): TurnResult {
   let current = { ...answers };
   let laterChanged = false;
 
@@ -211,17 +223,34 @@ export function runTurn({ criteria, answers, turn }: TurnInput): TurnResult {
     const t = turn.text?.trim() ?? null;
     // A button or the exact box is always an answer. Only typed words can be a question or a detour.
     const typed = t !== null && levelOf(t) === null && exactFromAnswer(t) === null;
+    // The second unclear or off-topic reply to one question: skipped and marked, to answer later (as live, US-39).
+    // A question being corrected keeps the answer it had, and says so.
+    const giveUp = (): TurnResult => {
+      const earlier = current[c.id];
+      const kept = earlier?.status === "answered" || earlier?.status === "remembered";
+      if (!kept) current[c.id] = { status: "skipped", value: null };
+      const r = nextStep(criteria, current);
+      return {
+        step: { ...r.step, note: joined(kept ? keptNote(c.title) : SKIPPED_NOTE, r.step.note) },
+        answers: r.answers,
+        laterChanged,
+      };
+    };
 
     if (typed) {
       if (/^test a conflict$/i.test(t)) {
         return { ...nextStep(criteria, current), laterChanged, notice: ALREADY_ANSWERED };
       }
       if (/\b(price|cost|budget|brand|discount)\b/i.test(t)) {
+        if (unclear >= 1) return giveUp();
         return {
           step: {
             ...base,
             kind: "redirect",
-            note: "We'll use the budget from your brief when comparing prices. For now, let's stick to this one.",
+            note: joined(
+              "We'll use the budget from your brief when comparing prices. For now, let's stick to this one.",
+              base.question,
+            ),
           },
           answers: current,
           laterChanged,
@@ -232,20 +261,20 @@ export function runTurn({ criteria, answers, turn }: TurnInput): TurnResult {
           step: {
             ...base,
             kind: "answer_then_repeat",
-            note: `Good question. ${c.definition}${c.tip ? ` ${c.tip}` : ""}`,
+            note: joined(
+              `Good question. ${c.definition}${c.tip ? ` ${c.tip}` : ""}`,
+              base.question,
+            ),
           },
           answers: current,
           laterChanged,
         };
       }
       if (/not sure|don'?t know|what do you mean|unsure/i.test(t)) {
+        if (unclear >= 1) return giveUp();
+        // The same question and buttons, asked in other words (as live: never a guess at what was meant).
         return {
-          step: {
-            ...base,
-            kind: "rephrase",
-            question: `${c.title}: would it bother you if this were worse?`,
-            replies: ["Yes, a lot", "A little", "Not really"],
-          },
+          step: { ...base, kind: "rephrase", note: rephraseMessage(c.title) },
           answers: current,
           laterChanged,
         };
@@ -272,6 +301,10 @@ export function runTurn({ criteria, answers, turn }: TurnInput): TurnResult {
 
 export function createMockInterviewService(latency = 600): InterviewService {
   let failedOnce = false;
+  // As the backend counts them: unclear or off-topic replies to the question being asked now. Going back to
+  // another question, or a new interview, starts again at 0.
+  let unclear = 0;
+  let asking: string | null = null;
   // The rubric editor's mock (US-09, US-10) is mock-only code, so it is its own chunk: live mode never downloads it.
   // It is fetched while the questions are answered, so the brief is ready when they are. A save is shown at once, so
   // a shorter wait than a turn's is enough to look real.
@@ -294,7 +327,19 @@ export function createMockInterviewService(latency = 600): InterviewService {
     async turn(input) {
       void rubric();
       await delay(latency);
-      return runTurn(input);
+      const id = input.turn?.criterionId ?? null;
+      const now = id !== null && id === asking ? unclear : 0;
+      const result = runTurn({ ...input, unclear: now });
+      // A question back leaves the count as it was; an answer, a skip or another question clears it.
+      const kind = result.step.kind;
+      unclear =
+        kind === "rephrase" || kind === "redirect"
+          ? now + 1
+          : kind === "answer_then_repeat"
+            ? now
+            : 0;
+      asking = result.step.criterionId;
+      return result;
     },
   };
 }

@@ -252,7 +252,9 @@ test.describe("feedback", () => {
       await replies.getByRole("button", { name: "Medium" }).click();
       await expect(replies.getByRole("button", { name: "Medium" })).toBeEnabled();
     }
-    await page.getByRole("button", { name: "Why this question?" }).click();
+    // Why it is asked is always shown now; opening the exact box is the last press measured.
+    await page.getByRole("button", { name: "Set an exact value" }).click();
+    await expect(page.getByLabel("Your number, from 0 to 10")).toBeVisible();
     await page.waitForTimeout(300);
     const events = await page.evaluate(
       () => (window as unknown as { __events: { name: string; duration: number }[] }).__events,

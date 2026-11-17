@@ -94,13 +94,17 @@ test.describe("where each result comes from", () => {
     // Every value on the card: none is ever shown as 0 points.
     await expect(reasons.getByText(/^\+0 points$/)).toHaveCount(0);
 
-    // The explanation's sentence links to the source it rests on.
-    const sentenceLink = productA(page).locator("[data-explanation]").getByRole("link").first();
+    // The explanation's sentence opens the sources it rests on, in the drawer (task #59), each a link out.
+    await pressEnterOn(productA(page).getByRole("button", { name: /^Sentence 1 sources: \S/ }));
+    await expect(drawer(page)).toBeVisible();
+    const sentenceLink = drawer(page).getByRole("link").first();
     await expect(sentenceLink).toBeVisible();
     await expect(sentenceLink).toHaveAttribute("target", "_blank");
     await expect(sentenceLink).toHaveAttribute("rel", "noopener noreferrer");
     await expect(sentenceLink).toHaveAccessibleName(/\(opens in a new tab\)$/);
     await expect(sentenceLink).toHaveAttribute("href", /^https:\/\/example\.com\//);
+    await page.keyboard.press("Escape");
+    await expect(drawer(page)).toBeHidden();
   });
 
   test("an answer for a drawer that was closed never shows in the next one", async ({ page }) => {
@@ -249,7 +253,7 @@ test.describe("where each result comes from", () => {
     await showScenario(page, id, "unknown");
     const card = productA(page);
     await pressEnterOn(card.locator("summary", { hasText: "Show all criteria" }));
-    await expect(card.getByText("Not verified")).toBeVisible();
+    await expect(card.getByText("Not verified", { exact: true })).toBeVisible();
     await expect(reasonsOf(card).getByText(/^\+?0 points$/)).toHaveCount(0);
   });
 

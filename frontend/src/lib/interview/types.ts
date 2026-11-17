@@ -60,6 +60,8 @@ export interface TurnInput {
   criteria: Criterion[];
   answers: Answers;
   turn?: Turn | undefined;
+  /** Mock only: how many unclear replies the current question has had, as the backend counts them (US-39). */
+  unclear?: number;
   /** The session the backend keeps this interview in (live mode). */
   sessionId?: string;
 }

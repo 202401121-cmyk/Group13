@@ -175,6 +175,8 @@ describe("SearchResult -> results page", () => {
         checkedAt: "2026-10-03T08:00:00Z",
         stale: false,
         url: "https://store.example.com/nova-book-14-16gb-512gb",
+        availability: "in_stock",
+        overBudget: false,
       },
     ]);
     expect(kestrel!.offers[0]?.stale).toBe(true);
@@ -195,10 +197,15 @@ describe("SearchResult -> results page", () => {
     expect(resultFromSearch(usd, viewRubric, T0).products[0]!.offers[0]?.price).toBeNull();
   });
 
-  it("joins the explanation and the trade-off", () => {
+  it("keeps the explanation's sentences together and the trade-off on its own line", () => {
     expect(r.products[0]!.explanation).toContain("most comfortable of the three");
-    expect(r.products[0]!.explanation).toContain("compiles faster, but it is much heavier");
+    expect(r.products[0]!.explanation).not.toContain("compiles faster");
+    expect(r.products[0]!.tradeOff).toBe(
+      "The Orion Play 15 compiles faster, but it is much heavier.",
+    );
+    expect(r.products[0]!.explanationMethod).toBe(example.explanations[0]!.method);
     expect(r.products[2]!.explanation).toBeNull();
+    expect(r.products[2]!.tradeOff).toBeNull();
   });
 
   it("lists left-out and can't-tell products with their reasons", () => {

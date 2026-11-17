@@ -16,6 +16,13 @@ export interface SourceTarget {
   productId: string;
   productName: string;
   criterion: Pick<CriterionValue, "criterionId" | "label" | "state"> & { claims: ClaimView[] };
+  /** Set when the drawer is for a sentence of the explanation, not a criterion's value. */
+  sentence?: SentenceSources;
+}
+
+/** A sentence of the explanation: whether its sources were found to back it (null when not checked). */
+export interface SentenceSources {
+  supported: boolean | null;
 }
 
 export const DRAWER_TITLE_ID = "source-drawer-title";
@@ -168,9 +175,18 @@ export function SourceDrawer({
             Close
           </button>
         </div>
-        <p>
-          <ValueStateBadge state={state} />
-        </p>
+        {/* A sentence has no value state, so no "Known" badge; one its sources didn't back says so. */}
+        {target.sentence ? (
+          target.sentence.supported === false && (
+            <p className="text-sm text-muted-foreground">
+              These sources don't confirm this sentence.
+            </p>
+          )
+        ) : (
+          <p>
+            <ValueStateBadge state={state} />
+          </p>
+        )}
         {evidence === null ? (
           <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden />

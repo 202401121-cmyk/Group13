@@ -173,6 +173,7 @@ describe("the explanation's sentences", () => {
             source: REDDIT,
           },
         ],
+        supported: true,
       },
       {
         text: "Battery life is strong, so you can work a full day away from a plug.",
@@ -185,10 +186,11 @@ describe("the explanation's sentences", () => {
             source: REVIEW,
           },
         ],
+        supported: true,
       },
-      // The contract gives the trade-off no claim IDs, so it has no sources to show.
-      { text: "The Orion Play 15 compiles faster, but it is much heavier.", claims: [] },
     ]);
+    // The contract gives the trade-off no claim IDs, so it stands on its own line, with no sources.
+    expect(nova.tradeOff).toBe("The Orion Play 15 compiles faster, but it is much heavier.");
     // The joined text stays for anything that still reads it.
     expect(nova.explanation).toBe(nova.explanationParts!.map((p) => p.text).join(" "));
   });

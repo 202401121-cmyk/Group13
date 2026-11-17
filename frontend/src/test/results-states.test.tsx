@@ -9,11 +9,11 @@ import searchExample from "@contracts/examples/search_result.json";
 import { NotSavedNotice } from "@/components/results/primitives";
 import { CouldntCheckItem, ResultCard, TooCloseToCall } from "@/components/results/ResultCard";
 import { resultFromSearch } from "@/lib/results/liveAdapter";
-import { buildMockResult } from "@/lib/results/mockService";
+import { buildMockResult } from "@/lib/results/mockResults";
 import type { Offer, ProductResult, RubricItem } from "@/lib/results/types";
 import {
+  asOfText,
   coverageText,
-  formatCheckTime,
   giveFocusBack,
   isPriceStale,
   ordinal,
@@ -221,22 +221,22 @@ describe("old prices", () => {
   it("a stale offer shows its as-of time and says the price may have changed", () => {
     const checkedAt = ago(3 * 24 * 60);
     const shown = card(withOffer(offer({ checkedAt, stale: isPriceStale(checkedAt, NOW) })));
-    expect(shown).toHaveTextContent(`Price checked ${formatCheckTime(checkedAt)}`);
-    expect(shown).toHaveTextContent("Price may have changed");
+    expect(shown).toHaveTextContent(`Price ${asOfText(checkedAt, Date.now())}`);
+    expect(shown).toHaveTextContent("May have changed");
     expect(shown).not.toHaveTextContent("Old price");
   });
 
   it("a fresh offer shows its as-of time and no warning", () => {
     const shown = card(withOffer(offer({})));
-    expect(shown).toHaveTextContent(`Price checked ${formatCheckTime(ago(60))}`);
-    expect(shown).not.toHaveTextContent("Price may have changed");
+    expect(shown).toHaveTextContent(`Price ${asOfText(ago(60), Date.now())}`);
+    expect(shown).not.toHaveTextContent("May have changed");
   });
 
   it("an offer with no as-of time says so, with no warning and no time", () => {
     const shown = card(withOffer(offer({ checkedAt: null, stale: isPriceStale(null, NOW) })));
     expect(shown).toHaveTextContent("We don't know when this price was checked");
-    expect(shown).not.toHaveTextContent("Price may have changed");
-    expect(shown).not.toHaveTextContent("Price checked");
+    expect(shown).not.toHaveTextContent("May have changed");
+    expect(shown).not.toHaveTextContent("Price as of");
   });
 });
 
@@ -260,7 +260,7 @@ describe("no offer", () => {
 
   it("the card says so and links to the store search in a new tab", () => {
     const shown = card(orion());
-    expect(shown).toHaveTextContent("No price found yet");
+    expect(shown).toHaveTextContent("No price found");
     const search = shown.querySelector<HTMLAnchorElement>(`a[href="${link}"]`);
     expect(search).toHaveTextContent("Search stores");
     expect(search).toHaveTextContent("for Orion Play 15 (opens in a new tab)");
@@ -275,7 +275,7 @@ describe("no offer", () => {
 
   it("with no link for the product, the card shows none and invents none", () => {
     const shown = card({ ...orion(), storeSearchUrl: null });
-    expect(shown).toHaveTextContent("No price found yet");
+    expect(shown).toHaveTextContent("No price found");
     expect(offerLinks(shown)).toHaveLength(0);
     for (const a of shown.querySelectorAll("a")) expect(sourceUrls).toContain(a.href);
   });
@@ -293,14 +293,14 @@ describe("no offer", () => {
       ...resultFromSearch(example, rubric, T0).products[0]!,
       storeSearchUrl: link,
     });
-    expect(shown).not.toHaveTextContent("No price found yet");
+    expect(shown).not.toHaveTextContent("No price found");
     expect(shown.querySelector(`a[href="${link}"]`)).toBeNull();
   });
 
   it("an offer with no price says the same thing", () => {
     const { products } = buildMockResult(mockInput, "success");
     const noPrice = { ...products[0]!.offers[0]!, price: null };
-    expect(card({ ...products[0]!, offers: [noPrice] })).toHaveTextContent("No price found yet");
+    expect(card({ ...products[0]!, offers: [noPrice] })).toHaveTextContent("No price found");
   });
 
   it("the mock's no-offer scenario carries a store search too", () => {

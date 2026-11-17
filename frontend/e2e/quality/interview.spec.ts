@@ -3,8 +3,12 @@
  * up from the session (the adapter test covers that). The mock's "test a conflict" reply ends in the same state,
  * so the page itself can be checked here.
  */
-import { expect, test } from "@playwright/test";
-import { checkRow, reachQuestions } from "./helpers";
+import { mkdirSync } from "node:fs";
+import { join } from "node:path";
+import { expect, test, type Locator, type Page } from "@playwright/test";
+import { answerAll, checkRow, reachQuestions, setTheme, type Theme } from "./helpers";
+
+const SHOTS = process.env["SHOTS_DIR"];
 
 const BOX = "Your number, from 0 to 10";
 const SLIDER = "Or slide to your number";
@@ -188,5 +192,140 @@ for (const width of [390, 1440]) {
     await page.getByRole("button", { name: "Send this number" }).click();
     await expect(page.getByRole("alert")).toBeVisible();
     await checkRow(page, `questions, exact box refusing a value (${width} px)`);
+  });
+}
+
+test("every reply kind reads as the backend writes it, and a skipped question can be answered now", async ({
+  page,
+}) => {
+  await reachQuestions(page);
+  const heading = page.locator("#question-text");
+  const note = page.locator("[data-step-note]");
+  const cpu = "CPU performance: how much does it matter to you?";
+  await expect(heading).toHaveText(cpu);
+  await expect(note).toHaveCount(0);
+  await expect(page.getByText(/^Why this question:/)).toBeVisible();
+
+  const composer = page.getByLabel("Or type your answer");
+  // A question back: the answer above, then the same question.
+  await composer.fill("Is this about compile speed?");
+  await composer.press("Enter");
+  await expect(note).toContainText(/^Good question\./);
+  await expect(heading).toHaveText(cpu);
+
+  // Unclear: asked another way, with the same buttons.
+  await composer.fill("not sure");
+  await composer.press("Enter");
+  await expect(page.getByText("Asked another way")).toBeVisible();
+  await expect(heading).toContainText(
+    "Let me ask another way: should CPU performance be low, medium or high on your list?",
+  );
+  const replies = page.getByRole("group", { name: /Quick replies/ });
+  for (const reply of ["Low", "Medium", "High", "Good enough"]) {
+    await expect(replies.getByRole("button", { name: reply })).toBeVisible();
+  }
+
+  // Unclear again: skipped and marked, and the next question opens with the note.
+  await composer.fill("not sure");
+  await composer.press("Enter");
+  await expect(note).toHaveText("Let's skip that one for now. You can answer it later.");
+  await expect(heading).toHaveText(/^Memory: how much/);
+
+  // Off-topic: one line back to the question.
+  await composer.fill("what about the price");
+  await composer.press("Enter");
+  await expect(note).toContainText("use the budget from your brief");
+  await expect(heading).toHaveText(/^Memory: how much/);
+
+  // Keyboard only: Tab to "Answer now" for the skipped question and press Enter.
+  await tabTo(page, "Answer now");
+  await page.keyboard.press("Enter");
+  await expect(heading).toHaveText(cpu);
+  await replies.getByRole("button", { name: "High" }).click();
+  await expect(page.getByRole("button", { name: "Answer now: CPU performance" })).toHaveCount(0);
+
+  // Skip one with the button, finish, and the finished card lists it with "Answer now".
+  await expect(heading).toHaveText(/^Memory: how much/);
+  await page.getByRole("button", { name: /^Skip/ }).click();
+  await expect(heading).toHaveText(/^Battery life: how much/);
+  await answerAll(page);
+  await expect(page.getByText("Thanks, that's everything I need.", { exact: true })).toBeVisible();
+  const skipped = page.getByRole("region", { name: "Skipped questions" });
+  await expect(skipped).toContainText("Memory");
+  await checkRow(page, "questions, finished with a skipped question");
+  await tabTo(page, "Answer now", skipped);
+  await page.keyboard.press("Enter");
+  await expect(heading).toHaveText(/^Memory: how much/);
+});
+
+/**
+ * Presses Tab until a button with this text has focus (keyboard only), inside `within` when given, failing if it
+ * is never reached.
+ */
+async function tabTo(page: Page, name: string, within?: Locator) {
+  for (let i = 0; i < 80; i++) {
+    await page.keyboard.press("Tab");
+    const focused = await page.evaluate(() => document.activeElement?.textContent?.trim() ?? "");
+    const inside = within
+      ? await within.evaluate((el) => el.contains(document.activeElement))
+      : true;
+    if (focused === name && inside) return;
+  }
+  throw new Error(`Tab never reached "${name}"`);
+}
+
+/** Screenshots of every step kind for the pull request, in each size and theme. Runs only when SHOTS_DIR is set. */
+for (const size of [
+  { width: 390, height: 844 },
+  { width: 1440, height: 900 },
+]) {
+  test(`screenshots of every step kind at ${size.width} px`, async ({ page }) => {
+    test.skip(!SHOTS, "SHOTS_DIR is not set");
+    const dir = SHOTS!;
+    mkdirSync(dir, { recursive: true });
+    const shoot = async (name: string) => {
+      for (const theme of ["light", "dark"] as Theme[]) {
+        await setTheme(page, theme);
+        await page.screenshot({
+          path: join(dir, `${size.width}-${theme}-questions-${name}.png`),
+          fullPage: true,
+          animations: "disabled",
+        });
+      }
+      await setTheme(page, "light");
+    };
+    await page.setViewportSize(size);
+    await reachQuestions(page);
+    const heading = page.locator("#question-text");
+    const note = page.locator("[data-step-note]");
+    const composer = page.getByLabel("Or type your answer");
+    await shoot("question");
+
+    await composer.fill("Is this about compile speed?");
+    await composer.press("Enter");
+    await expect(note).toContainText(/^Good question\./);
+    await shoot("answer-then-repeat");
+
+    await composer.fill("not sure");
+    await composer.press("Enter");
+    await expect(page.getByText("Asked another way")).toBeVisible();
+    await shoot("rephrase");
+
+    await composer.fill("not sure");
+    await composer.press("Enter");
+    await expect(note).toHaveText("Let's skip that one for now. You can answer it later.");
+    if (size.width < 1024) await page.getByRole("button", { name: /Answers so far/ }).click();
+    await expect(page.getByRole("button", { name: "Answer now: CPU performance" })).toBeVisible();
+    await shoot("skipped");
+
+    await composer.fill("what about the price");
+    await composer.press("Enter");
+    await expect(note).toContainText("use the budget from your brief");
+    await expect(heading).toHaveText(/^Memory: how much/);
+    await shoot("redirect");
+
+    await answerAll(page);
+    await expect(page.getByRole("region", { name: "Skipped questions" })).toBeVisible();
+    await shoot("finished-with-skipped");
   });
 }

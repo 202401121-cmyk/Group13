@@ -8,7 +8,13 @@ import { pillButton } from "@/components/shopsense/pill-button";
 import { MissingSession, PageLoading } from "@/components/interview/shared";
 import { BriefSections } from "@/components/results/BriefSections";
 import { ResearchProgress } from "@/components/results/ResearchProgress";
-import { Disclosure, NotSavedNotice, Notice, StatusBadge } from "@/components/results/primitives";
+import {
+  Disclosure,
+  LlmUnavailableNotice,
+  NotSavedNotice,
+  Notice,
+  StatusBadge,
+} from "@/components/results/primitives";
 import {
   CouldntCheckItem,
   ResultCard,
@@ -167,10 +173,12 @@ function ResultsPage({ sessionId }: { sessionId: string }) {
   ]);
 
   // Tab title: this page can be kept in the background, so the tab says how the search is doing.
+  // An LLM outage ends the search with nothing read: a problem, not results.
+  const outage = research.status === "done" && research.result.llmUnavailable === true;
   useEffect(() => {
-    const title = TAB_TITLES[research.status];
+    const title = outage ? TAB_TITLES.error : TAB_TITLES[research.status];
     if (title) document.title = `${title} | ShopSense`;
-  }, [research.status]);
+  }, [research.status, outage]);
 
   // Background stage.
   useEffect(() => {
@@ -307,6 +315,7 @@ function ResultsPage({ sessionId }: { sessionId: string }) {
               category={category}
               sessionId={sessionId}
               stopCameTooLate={research.stopCameTooLate}
+              onRetry={() => retryResearch(sessionId)}
             />
           )}
           {research.status === "briefReady" && !addressSearch && !leaving && (
@@ -618,11 +627,14 @@ function Results({
   category,
   sessionId,
   stopCameTooLate,
+  onRetry,
 }: {
   result: ResearchResult;
   category: string;
   sessionId: string;
   stopCameTooLate: boolean;
+  /** Starts the same search again: for an LLM outage, which a second try may not meet (US-31). */
+  onRetry: () => void;
 }) {
   const h1 = useRef<HTMLHeadingElement>(null);
   const [announce, setAnnounce] = useState("");
@@ -641,13 +653,26 @@ function Results({
     evidence: EvidenceView | null;
   } | null>(null);
   const [answers] = useState(latestOnly);
-  const showSources: ShowSources = (product, criterion, opener) => {
+  const showSources: ShowSources = (product, criterion, opener, sentence) => {
     const token = answers.next();
-    setDrawer({
-      target: { productId: product.id, productName: product.name, criterion },
-      opener,
-      evidence: null,
-    });
+    const target = {
+      productId: product.id,
+      productName: product.name,
+      criterion,
+      ...(sentence ? { sentence } : {}),
+    };
+    if (sentence) {
+      // A sentence of the explanation cites claims the result already carries: nothing more to ask for.
+      const evidence = {
+        state: null,
+        claims: criterion.claims,
+        withheldReason: null,
+        from: "citations",
+      } as const;
+      setDrawer({ target, opener, evidence });
+      return;
+    }
+    setDrawer({ target, opener, evidence: null });
     void sourcesFor(
       result.searchId ?? null,
       product.id,
@@ -668,11 +693,14 @@ function Results({
     h1.current?.focus();
     const count = `Results ready. ${result.products.length} options`;
     setAnnounce(
-      firstTie
-        ? `${count}. ${listInWords(leaders.map((p) => p.name))} are too close to call.`
-        : best
-          ? `${count}, best match ${best.name}.`
-          : "Results ready. No options matched.",
+      // The alert says what happened; this only says the search ended, never "No options matched".
+      result.llmUnavailable
+        ? "The search couldn't finish."
+        : firstTie
+          ? `${count}. ${listInWords(leaders.map((p) => p.name))} are too close to call.`
+          : best
+            ? `${count}, best match ${best.name}.`
+            : "Results ready. No options matched.",
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -694,7 +722,8 @@ function Results({
     );
   };
 
-  const pricesTime = formatCheckTime(result.pricesCheckedAt);
+  // An LLM outage priced nothing, so it says nothing about when prices were checked.
+  const pricesTime = result.llmUnavailable ? null : formatCheckTime(result.pricesCheckedAt);
 
   return (
     <section aria-labelledby="results-title">
@@ -721,6 +750,7 @@ function Results({
             Your search had nearly finished when you stopped it, so here are the results.
           </Notice>
         )}
+        {result.llmUnavailable && <LlmUnavailableNotice onRetry={onRetry} />}
         <NotSavedNotice saved={result.saved} />
         {result.coverageNote ? (
           <Notice tone="warn">{result.coverageNote}</Notice>
@@ -764,7 +794,7 @@ function Results({
             </>
           )}
         </>
-      ) : (
+      ) : result.llmUnavailable ? null : (
         <p className="mt-10 text-lg text-muted-foreground">
           No option matched your brief this time.
         </p>

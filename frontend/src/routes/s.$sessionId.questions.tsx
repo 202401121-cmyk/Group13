@@ -8,7 +8,7 @@ import { AnswersSoFar, Completion, Composer, FocusCard } from "@/components/inte
 import { EXACT_INPUT_ID } from "@/components/interview/ExactValue";
 import { useInterview } from "@/lib/interview/useInterview";
 import { counts } from "@/lib/interview/reducer";
-import { briefCriteria, progressOf } from "@/lib/interview/view";
+import { briefCriteria, progressOf, skippedCriteria, stepDisplay } from "@/lib/interview/view";
 
 export const Route = createFileRoute("/s/$sessionId/questions")({
   head: () => ({
@@ -62,16 +62,26 @@ function QuestionsPage() {
   // Live announcements.
   useEffect(() => {
     if (state.phase === "finished")
-      setAnnounce([state.notice, "Your brief is ready."].filter(Boolean).join(" "));
+      setAnnounce(
+        [
+          state.notice,
+          state.step?.kind === "finished" ? state.step.note : null,
+          "Your brief is ready.",
+        ]
+          .filter(Boolean)
+          .join(" "),
+      );
     else if (state.phase === "error") setAnnounce(state.error ?? "Something went wrong.");
     else if (state.phase === "sending" && thinking) setAnnounce("Thinking about your answer.");
     else if (state.phase === "asking" && state.step) {
+      const shown = stepDisplay(state.step);
       setAnnounce(
         [
           state.notice ?? "",
           state.laterChanged ? "Later questions were updated." : "",
-          state.step.note ?? "",
-          state.step.question ?? "",
+          // A rephrase's own words already say it is asked another way, so the label isn't read twice.
+          shown.note ?? "",
+          shown.heading,
         ]
           .filter(Boolean)
           .join(" "),
@@ -224,12 +234,18 @@ function QuestionsPage() {
           )}
 
           {state.phase === "finished" && (
-            <Completion sessionId={sessionId} counts={counts(state.answers)} />
+            <Completion
+              sessionId={sessionId}
+              counts={counts(state.answers)}
+              message={step?.kind === "finished" ? step.note : null}
+              skipped={skippedCriteria(state)}
+              onAnswer={goBack}
+            />
           )}
 
           {asking && step && step.kind !== "finished" && (
             <FocusCard
-              key={`${step.criterionId}-${step.kind}-${step.question}`}
+              key={`${step.criterionId}-${step.kind}-${step.question}-${step.note ?? ""}`}
               ref={cardRef}
               step={step}
               number={idx + 1}

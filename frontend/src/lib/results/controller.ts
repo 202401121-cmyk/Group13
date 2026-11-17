@@ -199,7 +199,8 @@ export function retryResearch(id: string) {
   }
   const old = searchIdOf(s);
   dispatch(id, { type: "RESET" });
-  if (old) {
+  if (old && s.status !== "done") {
+    // A finished run (an LLM outage's, say) has nothing left to stop.
     // It may still be running, with nobody following it. Its worker is better spent on the new search.
     getResearchService()
       .cancel(old)

@@ -77,7 +77,7 @@ test.describe("screen sizes", () => {
     await expect(page.getByRole("button", { name: /Start the questions/ })).toBeEnabled();
     await checkSizes(page, "criteria");
     await reachQuestions(page);
-    await page.getByRole("button", { name: "Why this question?" }).click();
+    await expect(page.getByText(/^Why this question:/).first()).toBeVisible();
     await checkSizes(page, "questions");
   });
 

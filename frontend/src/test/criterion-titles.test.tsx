@@ -16,7 +16,7 @@ import { runTurn } from "@/lib/interview/mockService";
 import { questionFor } from "@/lib/interview/questions";
 import { initialInterview, interviewReducer } from "@/lib/interview/reducer";
 import type { Criterion } from "@/lib/interview/types";
-import { buildMockResult } from "@/lib/results/mockService";
+import { buildMockResult } from "@/lib/results/mockResults";
 import { weightRows } from "@/lib/results/rubric";
 import { tieGroups } from "@/lib/results/view";
 import { asked, stepOf } from "./helpers/interviewSteps";
@@ -77,10 +77,12 @@ describe.each(titles)("%s", (title) => {
   });
 
   it("stays as given when the question is asked another way", () => {
-    expect(turnWith(title, "not sure").step).toMatchObject({
+    const { step } = turnWith(title, "not sure");
+    expect(step).toMatchObject({
       kind: "rephrase",
-      question: `${title}: would it bother you if this were worse?`,
+      question: `${title}: how much does it matter to you?`,
     });
+    expect(step.note).toContain(`should ${title} be low, medium or high`);
   });
 
   it("stays as given when the question is repeated or the shopper is redirected", () => {
