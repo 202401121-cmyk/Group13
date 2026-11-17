@@ -2,7 +2,8 @@
 
 Each turn takes the whole InterviewState and returns a new copy inside the InterviewStep, so nothing is kept
 between turns here (the API stores the state). At most one question is "pending" at a time; the user's reply
-goes to it. The order comes from plan.py (US-04 replaces it).
+goes to it. The order comes from plan.py. This fixed order is the baseline and the fallback of the smart interview
+(US-04, adaptive.py), which asks the questions in another order through the same turns.
 
 A reply is read in code first (answers.py): a button, a rough level, an exact weight, a whole number or "skip" never
 costs an LLM call. Only other text goes to the classifier (replies.py, US-39), and every rule of the story is here:
@@ -55,6 +56,7 @@ KEPT_NOTE = "I couldn't read that, so I kept your earlier answer for {label}. Yo
 CORRECTED_NOTE = "Done: I changed {label} to {weight} out of 10."
 
 AskKind = Literal["question", "rephrase", "redirect", "answer_then_repeat"]
+Ordering = Literal["information_gain", "fixed_order"]
 
 
 def rephrase_message(label: str) -> str:
@@ -70,6 +72,7 @@ class InterviewStage:
 
     name = StageName.INTERVIEW
     is_placeholder = False
+    ordering: Ordering = "fixed_order"  # what each step says chose its question (US-04's class says information_gain)
 
     def __init__(self, rules: InterviewRules | None = None, llm: LLMClient | None = None) -> None:
         self._rules = rules
@@ -164,7 +167,7 @@ class InterviewStage:
             started,
         )
         message = _joined(answered.text, pending.question.text)
-        return _ask("answer_then_repeat", message, pending.question, state, answer_source=answered.source)
+        return _ask("answer_then_repeat", message, pending.question, state, self.ordering, answered.source)
 
     def _not_an_answer(
         self, state: InterviewState, pending: AskedQuestion, text: str, reply: ReplyClassification
@@ -174,11 +177,10 @@ class InterviewStage:
         if unclear < MAX_UNCLEAR_PER_QUESTION:
             again = _rebuild(pending, unclear_count=unclear)
             if reply.reply_type is ReplyType.OFF_TOPIC:
-                return _ask(
-                    "redirect", _joined(REDIRECT_MESSAGE, pending.question.text), again.question, _with(state, again)
-                )
+                message = _joined(REDIRECT_MESSAGE, pending.question.text)
+                return _ask("redirect", message, again.question, _with(state, again), self.ordering)
             label = criterion_of(state, pending).label
-            return _ask("rephrase", rephrase_message(label), again.question, _with(state, again))
+            return _ask("rephrase", rephrase_message(label), again.question, _with(state, again), self.ordering)
         # The second one: move on rather than ask a third time. A question being corrected keeps its earlier answer.
         note = KEPT_NOTE.format(label=criterion_of(state, pending).label) if _had_answer(pending) else SKIPPED_NOTE
         return _opened(self._next(_with(state, _give_up(pending, text, reply))), note)
@@ -191,7 +193,8 @@ class InterviewStage:
         changed = _rebuild(earlier, status="answered", reply_text=text, classification=reply, unclear_count=0)
         weight = f"{reply.weight:g}" if reply.weight is not None else "?"
         note = CORRECTED_NOTE.format(label=criterion_of(state, earlier).label, weight=weight)
-        return _ask("question", _joined(note, pending.question.text), pending.question, _with(state, changed))
+        message = _joined(note, pending.question.text)
+        return _ask("question", message, pending.question, _with(state, changed), self.ordering)
 
     def go_back(self, state: InterviewState, question_id: str) -> InterviewStep:
         """Ask an earlier question again. The next reply corrects it, and the plan is worked out again after it.
@@ -212,7 +215,7 @@ class InterviewStage:
                 # else: asked but never answered; drop it, the plan will ask it again later
             else:
                 history.append(entry)
-        return _ask("question", target.question.text, target.question, _state(state, history))
+        return _ask("question", target.question.text, target.question, _state(state, history), self.ordering)
 
     def fallback(self, inp: InterviewTurn, ctx: StageContext, error: Exception) -> InterviewStep:
         """The next unasked question in default order, with no topic or budget rules; never raises."""
@@ -235,17 +238,20 @@ class InterviewStage:
             return _finished(inp.state, default_rubric(inp.state))
 
     def _next(self, state: InterviewState) -> InterviewStep:
+        return self._fixed_next(state, self.ordering)
+
+    def _fixed_next(self, state: InterviewState, ordering: Ordering = "fixed_order") -> InterviewStep:
+        """The current question again, or the next one in the fixed order, or the finished rubric."""
         pending = _pending(state.history)
         if pending is not None:
-            return _ask("question", pending.question.text, pending.question, state)
+            return _ask("question", pending.question.text, pending.question, state, ordering)
         plan = plan_questions(state.criteria, state.intent, state.history, self.rules)
         following = next((c for c in state.criteria.criteria if c.key == plan.next_key), None)
         if following is None or len(state.history) >= MAX_QUESTIONS:
-            return _finished(state, build_rubric(state, plan))
+            return _finished(state, build_rubric(state, plan), ordering)
         question = question_for(following)
-        return _ask(
-            "question", question.text, question, _with(state, AskedQuestion(question=question, status="pending"))
-        )
+        asked = _with(state, AskedQuestion(question=question, status="pending"))
+        return _ask("question", question.text, question, asked, ordering)
 
 
 # --- small helpers: every change makes a new, validated copy (contracts are frozen) ----------------
@@ -306,6 +312,7 @@ def _ask(
     message: str,
     question: InterviewQuestion,
     state: InterviewState,
+    ordering: Ordering = "fixed_order",
     answer_source: Literal["definition", "llm"] | None = None,
 ) -> InterviewStep:
     return InterviewStep(
@@ -315,7 +322,7 @@ def _ask(
         answer_source=answer_source,
         state=state,
         questions_asked=len(state.history),
-        ordering="fixed_order",
+        ordering=ordering,
     )
 
 
@@ -335,12 +342,12 @@ def _category(state: InterviewState) -> str:
     return state.intent.category_label or state.criteria.category
 
 
-def _finished(state: InterviewState, rubric: Rubric) -> InterviewStep:
+def _finished(state: InterviewState, rubric: Rubric, ordering: Ordering = "fixed_order") -> InterviewStep:
     return InterviewStep(
         kind="finished",
         message=DONE_MESSAGE,
         rubric=rubric,
         state=state,
         questions_asked=len(state.history),
-        ordering="fixed_order",
+        ordering=ordering,
     )

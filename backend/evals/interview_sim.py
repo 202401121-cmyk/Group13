@@ -17,8 +17,12 @@ simulated shoppers. This measures the fixed order (US-05) now, so US-04's planne
   top 3 criteria match; and whether decide's best match with the final rubric is the one the true weights give.
   Accuracy is the share of shoppers where it is. It is the one measure with a floor (evals/thresholds.yaml).
 
-Planners: PLANNERS maps a name to a class with `run(InterviewTurn, StageContext) -> InterviewStep`. "fixed" is the
-InterviewStage. US-04 adds its class here, and `--planners fixed,<name>` prints both side by side.
+Planners: PLANNERS maps a name to a class with `run(InterviewTurn, StageContext) -> InterviewStep`.
+- "fixed": the InterviewStage, the fixed order.
+- "smart": US-04's AdaptiveInterviewStage, the live interview, with its tuned numbers (evals/interview_tune.py tunes
+  them on another seed).
+- "d69": the same class with D-69's starting numbers, kept as a reference: fewer questions, less accuracy.
+`--planners fixed,smart,d69` prints them side by side.
 """
 
 from __future__ import annotations
@@ -58,7 +62,8 @@ from app.contracts import (
 from app.contracts.rubric import normalize
 from app.criteria import fallback_set
 from app.decide import decide
-from app.interview import InterviewStage
+from app.interview import AdaptiveInterviewStage, InterviewStage
+from app.interview.beliefs import D69_SETTINGS
 
 from .run_baselines import RESULTS_DIR, Measure, measure
 
@@ -84,7 +89,11 @@ class Interviewer(Protocol):
     def run(self, inp: InterviewTurn, ctx: StageContext) -> InterviewStep: ...
 
 
-PLANNERS: dict[str, Callable[[], Interviewer]] = {"fixed": InterviewStage}
+def _d69() -> Interviewer:
+    return AdaptiveInterviewStage(settings=D69_SETTINGS)
+
+
+PLANNERS: dict[str, Callable[[], Interviewer]] = {"fixed": InterviewStage, "smart": AdaptiveInterviewStage, "d69": _d69}
 
 
 def out_path(planner: str, out_dir: Path = RESULTS_DIR) -> Path:
@@ -92,6 +101,8 @@ def out_path(planner: str, out_dir: Path = RESULTS_DIR) -> Path:
 
 
 FIXED_OUT = out_path("fixed")
+SMART_OUT = out_path("smart")
+D69_OUT = out_path("d69")
 
 
 # --- shoppers ---------------------------------------------------------------------------------------------------------
@@ -340,8 +351,12 @@ def simulate(
     seed: int = SEED,
     shoppers: int = SHOPPERS,
     categories: Sequence[str] = CATEGORIES,
+    make: Callable[[], Interviewer] | None = None,
 ) -> dict[str, Any]:
-    """One planner on every shopper: the record without its date, commit and runner. Same seed, same output."""
+    """One planner on every shopper: the record without its date, commit and runner. Same seed, same output.
+
+    `make` builds the interviewer in place of PLANNERS[planner], so the tuning can try other numbers under one name."""
+    build = make or PLANNERS[planner]
     results: list[ShopperResult] = []
     orderings: set[str] = set()
     briefs: dict[str, Any] = {}
@@ -351,7 +366,7 @@ def simulate(
         briefs[category] = {p.name: brief.scores[p.id] for p in brief.products}
         for index in range(shoppers):
             shopper = make_shopper(criteria, index, seed)
-            step = interview(PLANNERS[planner](), criteria, shopper, planner)
+            step = interview(build(), criteria, shopper, planner)
             orderings.add(step.ordering)
             results.append(score(criteria, shopper, step, brief))
     overall = _summary(results)

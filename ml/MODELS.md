@@ -168,6 +168,10 @@ Fuzzy stays the default until a larger labelled test part shows the target.
 | Baseline or fallback | Fixed question order |
 | Target | Same accuracy with 30% fewer questions on the 50 simulated shoppers |
 | Sprint | 4 |
+| Code | `backend/app/interview/beliefs.py` and `adaptive.py`; the live interview since US-04 |
+| Tuned numbers | Prior sd 2.5, exact-answer sd 1.5, settled sd 0.7 (D-69 started at 2.5, 1.5 and 1.2). Tuned by `python -m evals.interview_tune` on seed 4747, accuracy first (Om, 17 Nov 2026): `backend/evals/results/interview-tune.json` |
+| Result | Seed 47, 300 shoppers (`interview-sim-smart.json`): 8.0 questions, accuracy 0.60, weight error 1.02, the same as the fixed order. **Target not met:** no setting kept the accuracy with fewer questions. D-69's own numbers (`interview-sim-d69.json`) ask 4.49 questions (44% fewer) but drop accuracy to 0.49 |
+| Why it matches the fixed order | The beliefs are independent, so an unasked criterion stays at its default with the prior sd, and mean × sd orders them as the fixed order does. Only the stop can differ. At settled sd 0.7 only "good enough" answers settle (sd 0.49), so it stops early only when the 3 highest means are all "good enough" |
 
 ## 4. Ranking with uncertainty
 

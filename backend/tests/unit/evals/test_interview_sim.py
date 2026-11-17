@@ -26,7 +26,7 @@ from app.contracts import (
     RoughLevel,
     StageContext,
 )
-from app.interview import InterviewStage
+from app.interview import AdaptiveInterviewStage, InterviewStage
 from app.interview.rubric_builder import build_rubric
 from evals import interview_sim as sim
 from evals import thresholds
@@ -39,6 +39,12 @@ LOW, GOOD_ENOUGH, MEDIUM, HIGH = RoughLevel.LOW, RoughLevel.GOOD_ENOUGH, RoughLe
 def fixed() -> dict[str, Any]:
     """The fixed order on the full population, at the default seed: run once for the whole module."""
     return sim.simulate("fixed")
+
+
+@pytest.fixture(scope="module")
+def smart() -> dict[str, Any]:
+    """The smart interview (US-04) on the same shoppers: run once for the whole module."""
+    return sim.simulate("smart")
 
 
 def defaults(criteria: CriteriaSet) -> dict[str, float]:
@@ -469,3 +475,53 @@ def test_the_fixed_orders_accuracy_has_a_floor_005_below_it(fixed: dict[str, Any
     assert (floor.kind, floor.direction, floor.measured_on) == ("quality", "at_least", "offline")
     assert "US-04" in floor.rule
     assert "interview.fixed.accuracy" in {m["id"] for m in thresholds.all_measures()}
+
+
+# --- the smart interview (US-04) ----------------------------------------------------------------------------------
+
+
+def test_the_smart_planner_is_the_live_class_and_the_fixed_one_its_baseline() -> None:
+    assert sim.PLANNERS["smart"] is AdaptiveInterviewStage
+    assert sim.PLANNERS["fixed"] is InterviewStage
+
+
+def test_the_committed_smart_record_is_what_the_simulator_gives_now(smart: dict[str, Any]) -> None:
+    committed = json.loads(sim.SMART_OUT.read_text(encoding="utf-8"))
+    assert committed["runner"] == "python -m evals.interview_sim (offline)"
+    assert {k: v for k, v in committed.items() if k not in ("generated", "commit", "runner")} == smart
+
+
+def test_the_smart_planner_meets_the_same_shoppers_and_says_information_gain(
+    fixed: dict[str, Any], smart: dict[str, Any]
+) -> None:
+    assert smart["ordering"] == ["information_gain"]
+    assert smart["measures"][0]["id"] == "interview.smart.accuracy"
+    assert smart["briefs"] == fixed["briefs"]
+    assert [(r["category"], r["index"]) for r in smart["shoppers"]] == [
+        (r["category"], r["index"]) for r in fixed["shoppers"]
+    ]
+
+
+def test_the_tuned_smart_planner_keeps_the_fixed_orders_accuracy(fixed: dict[str, Any], smart: dict[str, Any]) -> None:
+    """Accuracy first (Om, 17 Nov 2026): never less accurate than the fixed order, never more questions."""
+    ours, theirs = smart["summary"]["overall"], fixed["summary"]["overall"]
+    assert ours["accuracy"] >= theirs["accuracy"]
+    assert ours["questions_mean"] <= theirs["questions_mean"]
+
+
+def test_d69s_own_numbers_are_kept_as_a_reference_fewer_questions_less_accuracy(
+    fixed: dict[str, Any], smart: dict[str, Any]
+) -> None:
+    d69 = sim.simulate("d69")
+    committed = json.loads(sim.D69_OUT.read_text(encoding="utf-8"))
+    assert {k: v for k, v in committed.items() if k not in ("generated", "commit", "runner")} == d69
+    ours, theirs = d69["summary"]["overall"], fixed["summary"]["overall"]
+    assert ours["questions_mean"] < theirs["questions_mean"]
+    assert ours["accuracy"] < theirs["accuracy"]  # why the tuning, accuracy first, did not keep them
+    assert d69["ordering"] == smart["ordering"] == ["information_gain"]
+
+
+def test_a_planner_can_be_passed_in_with_its_own_settings() -> None:
+    record = sim.simulate("smart", seed=7, shoppers=1, make=AdaptiveInterviewStage)
+    assert record["planner"] == "smart" and record["ordering"] == ["information_gain"]
+    assert record == sim.simulate("smart", seed=7, shoppers=1)

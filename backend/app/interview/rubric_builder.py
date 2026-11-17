@@ -16,6 +16,7 @@ A rule the shopper switched to a preference stays in the list with active false:
 Exclusions are the intent's, plus the ones the shopper added, less the ones they removed.
 
 A rebuild (a new answer, a step back, a changed intent) applies the stored edits again, so they survive it.
+The interview's beliefs about each weight (US-04) are never changed here: an edit is not an answer.
 """
 
 from __future__ import annotations
@@ -249,4 +250,11 @@ def with_edits_of(old: InterviewState | None, fresh: InterviewState) -> Intervie
     carried = carry_edits(old, fresh.intent, fresh.criteria)
     if carried is None:
         return fresh
-    return InterviewState.model_validate({**carried.model_dump(), "history": [h.model_dump() for h in fresh.history]})
+    # The new interview's own history and beliefs (US-04), with the old state's edits: beliefs come from the answers.
+    return InterviewState.model_validate(
+        {
+            **carried.model_dump(),
+            "history": [h.model_dump() for h in fresh.history],
+            "beliefs": {key: b.model_dump() for key, b in fresh.beliefs.items()},
+        }
+    )
