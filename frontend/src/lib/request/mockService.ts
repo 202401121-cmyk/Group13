@@ -16,6 +16,7 @@ const PRODUCTS: { re: RegExp; name: string }[] = [
   { re: /\b(pram|stroller)s?\b/i, name: "Pram" },
   { re: /\b(smart ?watch|watch)(es)?\b/i, name: "Smartwatch" },
   { re: /\b(phone|smartphone|mobile)s?\b/i, name: "Phone" },
+  { re: /\bcameras?\b/i, name: "Camera" },
   { re: /\b(skincare|skin care|moisturi[sz]er|serum|sunscreen)\b/i, name: "Skincare" },
   { re: /\b(handbag|purse|tote)s?\b/i, name: "Handbag" },
   { re: /\b(health|bp monitor|massager|oximeter)\b/i, name: "Health product" },

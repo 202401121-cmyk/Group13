@@ -172,7 +172,22 @@ export interface ProductResult {
   offers: Offer[];
   /** With no offer: a store search for this product (the contract's commerce.no_offer). */
   storeSearchUrl?: string | null;
+  /** With no offer: a price a source gave for it (its price_inr value with a claim), never a buy link. */
+  sourcedPrice?: SourcedPrice | null;
   value?: { calculated: true; text: string } | { calculated: false; reason?: string | null } | null;
+}
+
+/** A price a source gave (US-24, S4-30): shown apart from store offers, with the claims it rests on. */
+export interface SourcedPrice {
+  /** "₹28,980", or the source's own words when the value isn't a plain number. */
+  text: string;
+  /** The site of the first source that gives it, such as "91mobiles.com". */
+  site: string;
+  /** The day that source was read, such as "15 Nov"; null when unknown. */
+  seen: string | null;
+  /** "verified", or "disputed" when other sources give another price. */
+  state: ValueState;
+  claims: ClaimView[];
 }
 
 export interface ExcludedProduct {

@@ -16,8 +16,11 @@ export function briefCriteria(s: InterviewState) {
   });
 }
 
+/** How far the interview has come. Once it has finished, early or not, every criterion is settled (S4-5). */
 export function progressOf(s: InterviewState) {
-  return { settled: s.criteria.filter((c) => s.answers[c.id]).length, total: s.criteria.length };
+  const total = s.criteria.length;
+  if (s.phase === "finished") return { settled: total, total };
+  return { settled: s.criteria.filter((c) => s.answers[c.id]).length, total };
 }
 
 /** What the question card shows for a step: the backend's own words, where they belong. */

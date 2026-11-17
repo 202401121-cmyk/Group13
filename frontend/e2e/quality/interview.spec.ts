@@ -329,3 +329,39 @@ for (const size of [
     await shoot("finished-with-skipped");
   });
 }
+
+test("the smart order says why it asks, stops once settled, and the bar reaches 100%", async ({
+  page,
+}) => {
+  await reachQuestions(page, "Camera for travel under ₹60,000");
+  await expect(
+    page.getByText(
+      "Sensor size: it usually matters a lot and we don't know your view yet, so we ask now.",
+      { exact: false },
+    ),
+  ).toBeVisible();
+  const bar = page.getByRole("progressbar", { name: "Criteria settled" });
+  await expect(bar).toHaveAttribute("aria-valuemax", "9");
+  const replies = page.getByRole("group", { name: /Quick replies/ });
+  const review = page.getByRole("link", { name: /Review your brief/ });
+  for (let asked = 1; asked <= 6; asked++) {
+    await expect(page.locator("#question-text")).toBeVisible();
+    await replies.getByRole("button", { name: "High" }).click();
+    if (asked < 6) await expect(bar).toHaveAttribute("aria-valuenow", String(asked));
+  }
+  // Six answers settle it: the interview ends with three criteria never asked.
+  await expect(review).toBeVisible();
+  await expect(page.getByText("Thanks, that's everything I need.", { exact: true })).toBeVisible();
+  await expect(bar).toHaveAttribute("aria-valuenow", "9");
+  await checkRow(page, "questions, finished early");
+  if (SHOTS) {
+    for (const theme of ["light", "dark"] as Theme[]) {
+      await setTheme(page, theme);
+      await page.screenshot({
+        path: join(SHOTS, `1280-${theme}-questions-finished-early.png`),
+        fullPage: true,
+      });
+    }
+    await setTheme(page, "light");
+  }
+});

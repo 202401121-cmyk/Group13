@@ -8,6 +8,30 @@ import type { ProductResult, ResearchInput, RubricItem } from "./types";
 export const PRICE_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 
 /**
+ * When prices were checked, for the page's footer: the newest time among the shown products' offers that have a
+ * price. Null when no shown offer has one, so the page never claims a check that found no price (S4-30).
+ */
+export function newestPriceTime(products: ProductResult[]): string | null {
+  let newest: { iso: string; at: number } | null = null;
+  for (const o of products.flatMap((p) => p.offers)) {
+    const at = o.price != null && o.checkedAt ? Date.parse(o.checkedAt) : Number.NaN;
+    if (!Number.isNaN(at) && (newest === null || at > newest.at))
+      newest = { iso: o.checkedAt!, at };
+  }
+  return newest?.iso ?? null;
+}
+
+/**
+ * A day as a card says it, such as "15 Nov"; null with no usable time. In UTC, as the drawer's "Checked 15 Nov
+ * 2026" is, so one source never has two days.
+ */
+export function shortDay(iso: string | null | undefined): string | null {
+  const d = iso ? new Date(iso) : null;
+  if (!d || Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "UTC" });
+}
+
+/**
  * The one staleness rule, the same as the backend's Offer.is_stale(): older than 24 hours is stale, and exactly
  * 24 hours is not. With no usable as-of time the answer is null, because a guess either way would be a claim.
  */
