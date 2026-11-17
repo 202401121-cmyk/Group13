@@ -79,11 +79,19 @@ export interface CriterionValue {
   claims?: ClaimView[];
 }
 
-/** One sentence of a product's explanation, with the claims it rests on (none for the trade-off). */
+/** One sentence of a product's explanation, with the claims it rests on. */
 export interface ExplanationPart {
   text: string;
   claims: ClaimView[];
+  /** Whether a check found the sentence in its sources: false is "not confirmed", null not checked. */
+  supported?: boolean | null;
 }
+
+/** How the explanation was written (US-20): checked or unchecked by the LLM, or code's template when it failed. */
+export type ExplanationMethod = "llm_checked" | "llm_unchecked" | "template";
+
+/** How a criterion's score was made (US-18): a source's opinion, compared with the other products, or estimated. */
+export type ScoreBasis = "opinion" | "compared" | "estimated";
 
 /** One of a product's main reasons: a criterion that added the most points to its score. */
 export interface ReasonView {
@@ -93,6 +101,8 @@ export interface ReasonView {
   /** Points added to the score. Null for an unknown value, which is never shown as 0. */
   points: number | null;
   claims: ClaimView[];
+  /** How its score was made, when the result says. */
+  basis?: ScoreBasis | null;
 }
 
 /** What "Where this comes from" shows for one product and criterion. */
@@ -121,6 +131,10 @@ export interface Offer {
   /** Always from isPriceStale(), never set by hand. Null when the as-of time is missing. */
   stale: boolean | null;
   url: string | null;
+  /** "unknown" says nothing, so the card shows nothing for it. */
+  availability?: "in_stock" | "out_of_stock" | "unknown";
+  /** The price is above the shopper's budget. */
+  overBudget?: boolean;
 }
 
 export type Confidence = "high" | "medium" | "low";
@@ -142,6 +156,11 @@ export interface ProductResult {
   explanation?: string | null;
   /** The explanation sentence by sentence, each with its sources. Its texts joined are `explanation`. */
   explanationParts?: ExplanationPart[];
+  /** The one trade-off, on its own line. */
+  tradeOff?: string | null;
+  /** Criteria the explanation could not verify, by title. */
+  unverified?: string[];
+  explanationMethod?: ExplanationMethod | null;
   contributions?: Contribution[];
   /** The three criteria that added the most points, largest first. */
   reasons?: ReasonView[];
@@ -175,6 +194,8 @@ export interface ResearchResult {
   relaxation?: { hint: string; mustHave: string } | null;
   pricesCheckedAt?: string | null;
   saved: boolean;
+  /** Every LLM provider failed (US-31): the page says so plainly and offers to try again. */
+  llmUnavailable?: boolean;
   /** "mock" results must always be labelled as a preview in the UI. */
   source: "mock" | "live";
 }

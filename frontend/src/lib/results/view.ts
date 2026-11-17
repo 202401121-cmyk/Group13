@@ -17,6 +17,20 @@ export function isPriceStale(asOf: string | null | undefined, now: number): bool
   return now - checked > PRICE_STALE_AFTER_MS;
 }
 
+/**
+ * When a price was checked, as the card says it: "as of 2:15 pm" today, "as of 3 Oct, 2:15 pm" another day.
+ * Null with no usable time, so the card says it doesn't know rather than guess.
+ */
+export function asOfText(iso: string | null | undefined, now: number): string | null {
+  const checked = iso ? new Date(iso) : null;
+  if (!checked || Number.isNaN(checked.getTime())) return null;
+  const time = checked.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
+  const today = new Date(now).toDateString() === checked.toDateString();
+  if (today) return `as of ${time}`;
+  const day = checked.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  return `as of ${day}, ${time}`;
+}
+
 /** A product's data coverage in words. A missing figure is never shown as 0%. */
 export function coverageText(percent: number | null | undefined): string {
   return percent == null || !Number.isFinite(percent)

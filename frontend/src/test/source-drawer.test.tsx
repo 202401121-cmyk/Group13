@@ -190,14 +190,14 @@ describe("main reasons on a card", () => {
     expect(items[0]).toHaveTextContent("Known");
   });
 
-  it("links each explanation sentence to its sources, and leaves the trade-off plain", () => {
+  it("with no drawer, links each explanation sentence to its sources; the trade-off has its own line", () => {
     const nova = r.products.find((p) => p.name === "Nova Book 14")!;
-    const explained = show(<ResultCard product={nova} tiedWith={[]} index={0} />).querySelector(
-      "[data-explanation]",
-    )!;
+    const shown = show(<ResultCard product={nova} tiedWith={[]} index={0} />);
+    const explained = shown.querySelector("[data-explanation]")!;
     expect(explained).toHaveTextContent("Its keyboard is the most comfortable of the three");
-    expect(explained).toHaveTextContent(
-      "The Orion Play 15 compiles faster, but it is much heavier.",
+    expect(explained).not.toHaveTextContent("compiles faster");
+    expect(shown).toHaveTextContent(
+      "One trade-off: The Orion Play 15 compiles faster, but it is much heavier.",
     );
     const links = [...explained.querySelectorAll("a")];
     expect(links.map((a) => [a.textContent, a.getAttribute("href")])).toEqual([

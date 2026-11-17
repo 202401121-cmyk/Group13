@@ -9,8 +9,10 @@ import {
   Tag,
   Ban,
   Calculator,
+  Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { pillButton } from "@/components/shopsense/pill-button";
 import type { Confidence, ValueState } from "@/lib/results/types";
 
 /** Horizontal weight meter. The percentage is always shown as text too. */
@@ -39,6 +41,7 @@ export type BadgeVariant =
   | "unknown"
   | "estimated"
   | "stale"
+  | "over-budget"
   | "no-offer"
   | "no-value"
   | "tie"
@@ -50,6 +53,7 @@ const BADGE: Record<BadgeVariant, { cls: string; icon: typeof Info }> = {
   unknown: { cls: "border border-dashed border-border text-muted-foreground", icon: CircleHelp },
   estimated: { cls: "bg-secondary text-secondary-foreground", icon: Calculator },
   stale: { cls: "bg-champagne text-champagne-foreground", icon: Clock },
+  "over-budget": { cls: "bg-champagne text-champagne-foreground", icon: Wallet },
   "no-offer": { cls: "bg-muted text-muted-foreground", icon: Ban },
   "no-value": { cls: "bg-muted text-muted-foreground", icon: Calculator },
   tie: { cls: "bg-primary-soft text-primary-soft-foreground", icon: Tag },
@@ -136,6 +140,30 @@ export function Disclosure({
       </summary>
       <div className="border-t border-border px-4 py-3">{children}</div>
     </details>
+  );
+}
+
+/** What an LLM outage says (US-31), on screen and to screen readers. */
+export const LLM_UNAVAILABLE_TEXT =
+  "We couldn't reach the AI services that read the sources, so this search found nothing. Please try again.";
+
+/** Every LLM provider failed (US-31): said plainly, with a button that starts the same search again. */
+export function LlmUnavailableNotice({ onRetry }: { onRetry: () => void }) {
+  return (
+    <Notice
+      tone="error"
+      action={
+        <button
+          type="button"
+          onClick={onRetry}
+          className={cn(pillButton({ variant: "primary", size: "sm" }), "min-h-11")}
+        >
+          Try again
+        </button>
+      }
+    >
+      {LLM_UNAVAILABLE_TEXT}
+    </Notice>
   );
 }
 

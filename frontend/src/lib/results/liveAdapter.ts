@@ -153,6 +153,7 @@ function reasonsFor(
       state: STATES[c.state],
       points: c.state === "unknown" ? null : pointsOf(c.contribution),
       claims: rows.find((row) => row.criterionId === c.criterion_key)?.claims ?? [],
+      basis: c.basis,
     }));
 }
 
@@ -210,18 +211,18 @@ export function resultFromSearch(
     const summary = summaries.get(r.product_id);
     const rows = criteriaRows(summary, keys, label, cited);
     const explanation = result.explanations.find((e) => e.product_id === r.product_id);
-    // Each sentence keeps the claims it cites. The contract gives the trade-off no claim IDs, so it has none.
+    // Each sentence keeps the claims it cites. The trade-off has none, so it stands on its own line.
     const parts = explanation
-      ? [
-          ...explanation.sentences.map((s) => ({
+      ? explanation.sentences
+          .map((s) => ({
             text: s.text,
             claims: citedClaims(
               s.claim_ids.map((id) => [id, "supporting"] as const),
               cited,
             ),
-          })),
-          ...(explanation.trade_off ? [{ text: explanation.trade_off, claims: [] }] : []),
-        ].filter((p) => p.text)
+            supported: s.supported,
+          }))
+          .filter((p) => p.text)
       : [];
     const text = parts.map((p) => p.text).join(" ");
     return {
@@ -241,6 +242,9 @@ export function resultFromSearch(
       dataCoverage: Math.round(r.coverage * 100),
       explanation: text || null,
       explanationParts: parts,
+      tradeOff: explanation?.trade_off ?? null,
+      unverified: (explanation?.unverified ?? []).map(label),
+      explanationMethod: explanation?.method ?? null,
       // With no score there are no points to break down: no 0-point bars for criteria nothing was known about.
       contributions:
         r.score === null
@@ -262,6 +266,8 @@ export function resultFromSearch(
           checkedAt: o.as_of,
           stale: isPriceStale(o.as_of, now),
           url: o.url,
+          availability: o.availability,
+          overBudget: o.over_budget,
         })),
       storeSearchUrl: result.commerce?.no_offer[r.product_id] ?? null,
       value: null,
@@ -293,6 +299,7 @@ export function resultFromSearch(
     relaxation: hint ? { hint, mustHave: relaxedRule(result) } : null,
     pricesCheckedAt: asOf.at(-1) ?? null,
     saved: result.saved,
+    llmUnavailable: result.llm_unavailable,
     source: "live",
   };
 }

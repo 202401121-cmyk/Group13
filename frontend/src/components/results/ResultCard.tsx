@@ -6,6 +6,7 @@ import type {
   ClaimView,
   CriterionValue,
   ExcludedProduct,
+  ExplanationPart,
   Offer,
   ProductResult,
   ReasonView,
@@ -13,15 +14,22 @@ import type {
 } from "@/lib/results/types";
 import { cn } from "@/lib/utils";
 import { pillButton } from "@/components/shopsense/pill-button";
-import { coverageText, formatCheckTime, ordinal, type TieGroup } from "@/lib/results/view";
+import { asOfText, coverageText, ordinal, type TieGroup } from "@/lib/results/view";
 import { listInWords } from "@/lib/text";
 import { ConfidenceIndicator, Disclosure, StatusBadge, ValueStateBadge } from "./primitives";
-import type { SourceTarget } from "./SourceDrawer";
+import type { SentenceSources, SourceTarget } from "./SourceDrawer";
 import { useVisualMotion } from "@/hooks/useVisualMotion";
 
 /** A card only ever links to a plain web address. */
 function webAddress(url: string | null | undefined) {
   return url && /^https?:\/\//i.test(url) ? url : null;
+}
+
+/** A sentence as the drawer's title names it: its first words, never cut mid-word. */
+function sentenceLabel(text: string): string {
+  if (text.length <= 60) return text;
+  const cut = text.slice(0, 61).replace(/\s+\S*$/, "");
+  return `${cut || text.slice(0, 60)}…`;
 }
 
 /** One card for a whole tie: it names the products and what separates them, and never picks a winner. */
@@ -48,11 +56,16 @@ export function TooCloseToCall({ tie }: { tie: TieGroup }) {
   );
 }
 
-/** Opens "Where this comes from" for one of a product's values; `opener` gets focus back when it closes. */
+/**
+ * Opens "Where this comes from" for one of a product's values, or for one sentence of its explanation (`sentence`:
+ * the drawer shows the claims the sentence cites, from the result itself). `opener` gets focus back when it closes.
+ */
 export type ShowSources = (
   product: ProductResult,
   criterion: SourceTarget["criterion"],
   opener: HTMLElement,
+  /** Set for a sentence of the explanation: its claims are already on the page, and it has no value state. */
+  sentence?: SentenceSources,
 ) => void;
 
 /** The button that opens the drawer. Its name starts with what it shows, then says which criterion. */
@@ -129,6 +142,11 @@ function ReasonItem({
           ))}
           {onShow && <SourcesButton label={r.label} onClick={onShow} />}
         </div>
+      )}
+      {r.basis === "compared" && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          Compared with the other products found.
+        </p>
       )}
     </li>
   );
@@ -219,57 +237,107 @@ function DisputedSides({ claims }: { claims: ClaimView[] }) {
 }
 
 /**
- * The explanation, sentence by sentence, each followed by small links to the sources it rests on. The links sit
- * inside their sentence (WCAG 2.5.8 lets those be smaller), and each says it is the sentence's source, so it is
- * never mistaken for the same site's link under a main reason.
+ * The explanation, sentence by sentence. With the drawer on the page, each sentence with sources gets a number, and
+ * a row of full-size buttons under the paragraph opens each one's sources in "Where this comes from" (US-20, from
+ * the result's own citations). With no drawer, small links to the sources sit inside their sentence (WCAG 2.5.8 lets
+ * those be smaller). A sentence a check could not find in its sources says so, and a template explanation is shown
+ * just as written.
  */
-function Explanation({ parts }: { parts: { text: string; claims: ClaimView[] }[] }) {
+function Explanation({
+  parts,
+  onShow,
+}: {
+  parts: ExplanationPart[];
+  onShow: ((part: ExplanationPart, opener: HTMLElement) => void) | null;
+}) {
+  const cited = onShow
+    ? parts.flatMap((part, i) => (part.claims.length > 0 ? [{ part, n: i + 1 }] : []))
+    : [];
   return (
-    <p data-explanation className="mt-2 text-foreground">
-      {parts.map((part, i) => {
-        const links = sourceLinks(part.claims);
-        return (
-          <span key={i}>
-            {i > 0 && " "}
-            {part.text}
-            {links.length > 0 && " ("}
-            {links.map((s, k) => (
-              <Fragment key={s.id}>
-                {k > 0 && ", "}
-                <a
-                  href={s.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="break-all text-xs text-foreground underline underline-offset-2 hover:text-primary"
-                >
-                  {s.name}
-                  <span className="sr-only">
-                    , the source for this sentence (opens in a new tab)
-                  </span>
-                </a>
-              </Fragment>
-            ))}
-            {links.length > 0 && ")"}
-          </span>
-        );
-      })}
-    </p>
+    <>
+      <p data-explanation className="mt-2 text-foreground">
+        {parts.map((part, i) => {
+          const links = onShow ? [] : sourceLinks(part.claims);
+          return (
+            <span key={i}>
+              {i > 0 && " "}
+              {part.text}
+              {part.supported === false && (
+                <span className="text-xs text-muted-foreground">
+                  {" "}
+                  (not confirmed by its sources)
+                </span>
+              )}
+              {onShow && part.claims.length > 0 && (
+                <sup aria-hidden className="ml-0.5 text-xs text-muted-foreground">
+                  {i + 1}
+                </sup>
+              )}
+              {links.length > 0 && " ("}
+              {links.map((s, k) => (
+                <Fragment key={s.id}>
+                  {k > 0 && ", "}
+                  <a
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="break-all text-xs text-foreground underline underline-offset-2 hover:text-primary"
+                  >
+                    {s.name}
+                    <span className="sr-only">
+                      , the source for this sentence (opens in a new tab)
+                    </span>
+                  </a>
+                </Fragment>
+              ))}
+              {links.length > 0 && ")"}
+            </span>
+          );
+        })}
+      </p>
+      {onShow && cited.length > 0 && (
+        <div className="mt-1 flex flex-wrap items-center gap-x-1 text-sm text-muted-foreground">
+          <span>Sources:</span>
+          {cited.map(({ part, n }) => (
+            <button
+              key={n}
+              type="button"
+              onClick={(e) => onShow(part, e.currentTarget)}
+              aria-label={`Sentence ${n} sources: ${sentenceLabel(part.text)}`}
+              className={cn(
+                pillButton({ variant: "ghost", size: "sm" }),
+                "min-h-11 underline underline-offset-4",
+              )}
+            >
+              Sentence {n}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 
+const AVAILABILITY = { in_stock: "In stock", out_of_stock: "Out of stock" } as const;
+
+/** One store's offer (US-24): its price, as of when, whether it may have changed, is over budget, or in stock. */
 function OfferRow({ o }: { o: Offer }) {
-  const time = formatCheckTime(o.checkedAt);
+  const time = asOfText(o.checkedAt, Date.now());
   const validUrl = webAddress(o.url);
+  const stock =
+    o.availability && o.availability !== "unknown" ? AVAILABILITY[o.availability] : null;
   return (
     <li className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <p className="text-sm font-medium text-foreground">{o.store}</p>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          {time ? `Price checked ${time}` : "We don't know when this price was checked"}
+          {time ? `Price ${time}` : "We don't know when this price was checked"}
+          {stock && ` · ${stock}`}
         </p>
-        {o.stale && (
-          <p className="mt-1">
-            <StatusBadge variant="stale">Price may have changed</StatusBadge>
+        {(o.stale || o.overBudget) && (
+          <p className="mt-1 flex flex-wrap gap-2">
+            {o.stale && <StatusBadge variant="stale">May have changed</StatusBadge>}
+            {o.overBudget && <StatusBadge variant="over-budget">Above your budget</StatusBadge>}
           </p>
         )}
       </div>
@@ -279,7 +347,7 @@ function OfferRow({ o }: { o: Offer }) {
             ₹{formatINR(o.price)}
           </span>
         ) : (
-          <StatusBadge variant="no-offer">No price found yet</StatusBadge>
+          <StatusBadge variant="no-offer">No price found</StatusBadge>
         )}
         {validUrl && (
           <a
@@ -399,7 +467,7 @@ export function ResultCard({
         {p.confidence && <ConfidenceIndicator level={p.confidence} />}
         {p.chanceFirst != null && (
           <span className="text-xs font-medium text-foreground">
-            Best pick chance {p.chanceFirst}%
+            {p.chanceFirst}% chance of ranking first
           </span>
         )}
         {validCov && (
@@ -422,9 +490,39 @@ export function ResultCard({
             Why it ranks here
           </h4>
           {p.explanationParts && p.explanationParts.length > 0 ? (
-            <Explanation parts={p.explanationParts} />
+            <Explanation
+              parts={p.explanationParts}
+              onShow={
+                onShowSources
+                  ? (part, opener) =>
+                      onShowSources(
+                        p,
+                        {
+                          criterionId: "",
+                          label: sentenceLabel(part.text),
+                          // Not shown for a sentence (the drawer has no badge then): it only lists the claims.
+                          state: "verified",
+                          claims: part.claims,
+                        },
+                        opener,
+                        { supported: part.supported ?? null },
+                      )
+                  : null
+              }
+            />
           ) : (
             p.explanation && <p className="mt-2 text-foreground">{p.explanation}</p>
+          )}
+          {p.tradeOff && (
+            <p className="mt-2 text-sm text-foreground">
+              <span className="font-semibold">One trade-off:</span> {p.tradeOff}
+            </p>
+          )}
+          {p.unverified && p.unverified.length > 0 && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">Not verified:</span>{" "}
+              {listInWords(p.unverified)}.
+            </p>
           )}
           {reasons.length > 0 && (
             <>
@@ -478,12 +576,12 @@ export function ResultCard({
         {p.offers.length ? (
           <ul className="divide-y divide-border">
             {p.offers.map((o) => (
-              <OfferRow key={o.store} o={o} />
+              <OfferRow key={`${o.store} ${o.url ?? ""}`} o={o} />
             ))}
           </ul>
         ) : (
           <div className="mt-2 flex flex-wrap items-center gap-3">
-            <StatusBadge variant="no-offer">No price found yet</StatusBadge>
+            <StatusBadge variant="no-offer">No price found</StatusBadge>
             {storeSearch && (
               <a
                 href={storeSearch}

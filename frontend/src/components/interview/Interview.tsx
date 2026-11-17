@@ -6,7 +6,7 @@ import { pillButton } from "@/components/shopsense/pill-button";
 import { ExactValue } from "./ExactValue";
 import { InlineError, StatusChip } from "./shared";
 import { TermHelp } from "./TermHelp";
-import { noteContainsQuestion } from "@/lib/interview/view";
+import { stepDisplay } from "@/lib/interview/view";
 import { statusOf, type InterviewState } from "@/lib/interview/reducer";
 import { exactFromAnswer, levelOf } from "@/lib/interview/roughLevels";
 import { ANSWER_COUNTER_FROM, MAX_ANSWER_LENGTH, type Step } from "@/lib/interview/types";
@@ -31,7 +31,6 @@ export const FocusCard = forwardRef<
   { step, number, selected, busy, thinking, error, onReply, onSkip, onRetry },
   ref,
 ) {
-  const [whyOpen, setWhyOpen] = useState(false);
   // An earlier number reopens in the box, and anything else on the buttons.
   const earlierNumber = exactFromAnswer(selected);
   const earlierLevel = selected === null ? null : levelOf(selected);
@@ -42,7 +41,7 @@ export const FocusCard = forwardRef<
     if (!exactOpen && backFromExact.current) exactSwitch.current?.focus();
     backFromExact.current = false;
   }, [exactOpen]);
-  const hideQuestion = noteContainsQuestion(step.note, step.question);
+  const shown = stepDisplay(step);
   return (
     <section
       ref={ref}
@@ -51,45 +50,34 @@ export const FocusCard = forwardRef<
       aria-labelledby="question-text"
       className="rounded-2xl border border-border bg-card p-6 shadow-soft outline-hidden focus-visible:ring-2 focus-visible:ring-ring sm:p-8"
     >
-      {step.note && (
-        <p className="mb-5 rounded-2xl bg-primary-soft px-4 py-3 text-sm leading-relaxed text-primary-soft-foreground">
-          {step.note}
+      {shown.note && (
+        <p
+          data-step-note
+          className="mb-5 rounded-2xl bg-primary-soft px-4 py-3 text-sm leading-relaxed text-primary-soft-foreground"
+        >
+          {shown.note}
         </p>
       )}
-      {step.kind === "rephrase" && (
+      {shown.label && (
         <p className="mb-2 font-mono text-xs font-medium uppercase tracking-[0.14em] text-primary">
-          Asked another way
+          {shown.label}
         </p>
       )}
       <h2
         id="question-text"
-        className={cn(
-          "font-serif text-2xl leading-snug text-foreground sm:text-3xl",
-          hideQuestion && "sr-only",
-        )}
+        className="font-serif text-2xl leading-snug text-foreground sm:text-3xl"
       >
-        {step.question}
+        {shown.heading}
+        {shown.question && <span className="sr-only"> ({shown.question})</span>}
       </h2>
+      {step.why && (
+        <p data-why className="mt-2 max-w-prose text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">Why this question: </span>
+          {step.why}
+        </p>
+      )}
 
       <TermHelp key={step.questionId ?? step.criterionId} terms={step.terms} />
-
-      {step.why && (
-        <div className="mt-3">
-          <button
-            type="button"
-            aria-expanded={whyOpen}
-            onClick={() => setWhyOpen(!whyOpen)}
-            className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary"
-          >
-            Why this question?
-            <ChevronDown
-              className={cn("h-4 w-4 transition-transform", whyOpen && "rotate-180")}
-              aria-hidden
-            />
-          </button>
-          {whyOpen && <p className="max-w-prose text-sm text-muted-foreground">{step.why}</p>}
-        </div>
-      )}
 
       {exactOpen ? (
         <ExactValue
@@ -241,10 +229,10 @@ export function AnswersSoFar({
                       type="button"
                       disabled={locked}
                       onClick={() => onChange(c.id)}
-                      aria-label={`${status === "skipped" ? "Answer" : "Change"} ${c.title}`}
+                      aria-label={`${status === "skipped" ? "Answer now:" : "Change"} ${c.title}`}
                       className="min-h-11 rounded-full px-3 text-sm font-medium text-primary hover:bg-primary-soft disabled:opacity-40"
                     >
-                      {status === "skipped" ? "Answer" : "Change"}
+                      {status === "skipped" ? "Answer now" : "Change"}
                     </button>
                   )}
                 </li>
@@ -327,9 +315,17 @@ export const Composer = forwardRef<
 export function Completion({
   sessionId,
   counts,
+  message = null,
+  skipped = [],
+  onAnswer,
 }: {
   sessionId: string;
   counts: { answered: number; skipped: number; remembered: number };
+  /** The backend's last words, as written ("Thanks, that's everything I need.", with any skip note). */
+  message?: string | null;
+  /** Skipped questions, each with "Answer now" (US-39: marked so they can be answered later). */
+  skipped?: { id: string; title: string }[];
+  onAnswer?: (id: string) => void;
 }) {
   return (
     <section
@@ -342,6 +338,7 @@ export function Completion({
       <h2 id="done-title" className="mt-4 font-serif text-3xl text-foreground sm:text-4xl">
         Your brief is ready
       </h2>
+      {message && <p className="mt-3 text-foreground">{message}</p>}
       <dl className="mt-6 grid grid-cols-3 gap-3">
         {(
           [
@@ -358,6 +355,28 @@ export function Completion({
           </div>
         ))}
       </dl>
+      {skipped.length > 0 && onAnswer && (
+        <section aria-labelledby="skipped-title" className="mt-6">
+          <h3 id="skipped-title" className="text-sm font-semibold text-foreground">
+            Skipped questions
+          </h3>
+          <ul className="mt-2 divide-y divide-border">
+            {skipped.map((c) => (
+              <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <span className="min-w-0 text-sm text-foreground">{c.title}</span>
+                <button
+                  type="button"
+                  onClick={() => onAnswer(c.id)}
+                  aria-label={`Answer now: ${c.title}`}
+                  className="min-h-11 rounded-full px-3 text-sm font-medium text-primary hover:bg-primary-soft"
+                >
+                  Answer now
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <Link
         to="/s/$sessionId/brief"
         params={{ sessionId }}

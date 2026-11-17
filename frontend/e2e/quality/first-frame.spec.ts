@@ -221,10 +221,8 @@ for (const size of SIZES) {
 
       test("question page states", async ({ page }) => {
         const id = await reachQuestions(page);
+        await expect(page.getByText(/^Why this question:/).first()).toBeVisible();
         await firstFrame(page, row("questions, first question"));
-
-        await page.getByRole("button", { name: "Why this question?" }).click();
-        await firstFrame(page, row("questions, why this question open"));
 
         const composer = page.getByLabel("Or type your answer");
         await composer.fill("Is this about compile speed?");
@@ -236,6 +234,11 @@ for (const size of SIZES) {
         await composer.press("Enter");
         await expect(page.getByText("Asked another way")).toBeVisible();
         await firstFrame(page, row("questions, asked another way"));
+
+        await composer.fill("not sure");
+        await composer.press("Enter");
+        await expect(page.getByText(/^Let's skip that one for now/).first()).toBeVisible();
+        await firstFrame(page, row("questions, skipped"));
 
         await composer.fill("what about the price");
         await composer.press("Enter");
@@ -254,14 +257,14 @@ for (const size of SIZES) {
         await expect(page.getByText("Thinking about your answer").first()).toBeVisible();
         await heldFrame(page, row("questions, thinking"), theme);
         await page.clock.resume();
-        await expect(page.getByText(/^Memory: how much/).first()).toBeVisible();
-        await replies.getByRole("button", { name: "High" }).click();
         await expect(page.getByText(/^Battery life: how much/).first()).toBeVisible();
+        await replies.getByRole("button", { name: "High" }).click();
+        await expect(page.getByText(/^Display quality: how much/).first()).toBeVisible();
 
-        // Memory depends on CPU and is answered now: changing CPU means memory has to be asked again.
+        // Memory depends on CPU and is answered now: answering the skipped CPU question means memory is asked again.
         if (size.width < 1024) await page.getByRole("button", { name: /Answers so far/ }).click();
         await firstFrame(page, row("questions, answers list"));
-        await page.getByRole("button", { name: "Change CPU performance" }).click();
+        await page.getByRole("button", { name: "Answer now: CPU performance" }).click();
         await replies.getByRole("button", { name: "Low" }).click();
         await expect(page.getByText("Later questions were updated").first()).toBeVisible();
         await firstFrame(page, row("questions, later questions updated"));

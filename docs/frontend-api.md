@@ -479,7 +479,8 @@ Response 200 (`RubricEditResponse`; two of the seven weights left out here):
 - **What else changes:** if the interview has finished, the session's stored `interview_step.rubric` follows the edits,
   so a page reload shows them. After `PUT /intent`, `GET /api/presearch/{session_id}` may show an `interview` whose
   `history` is empty and an `interview_step` of `null`: the edits are waiting for the interview to start again.
-- **Not here yet:** the editor itself is S3-14, and filtering by active rules is S3-10.
+- **Who sends them:** the brief page's rubric editor (S3-14) sends these edits, and decide filters on the active hard
+  rules only (S3-10): a rule switched to a preference no longer removes a product.
 
 ## Reading leave-outs from words (US-10)
 

@@ -10,33 +10,30 @@ import { MESSAGES } from "@/lib/api/client";
 import type {
   CancelOutcome,
   ClaimView,
-  CriterionValue,
   EvidenceView,
   FollowHandlers,
-  Offer,
-  ProductResult,
   ProgressEvent,
   ProgressStatus,
-  ReasonView,
   ResearchInput,
   ResearchResult,
   ResearchService,
-  RubricItem,
   RunSnapshot,
 } from "./types";
 import { ResearchError } from "./types";
-import { WITHHELD, isPriceStale, sourceDateLabel } from "./view";
 
 export const MOCK_SCENARIOS = [
   { id: "success", label: "Ranked products" },
   { id: "tie", label: "Tie between products" },
   { id: "tie-first", label: "Tie for best match" },
+  { id: "tie-three", label: "Three products tied" },
   { id: "disputed", label: "Sources disagree" },
   { id: "disputed-no-sources", label: "Sources disagree, no details" },
   { id: "unknown", label: "Unverified specs" },
   { id: "estimated", label: "Estimated values" },
   { id: "stale", label: "Old prices" },
   { id: "no-offer", label: "No store offers" },
+  { id: "over-budget", label: "An offer above the budget" },
+  { id: "offer-24h", label: "A price exactly 24 hours old" },
   { id: "left-out", label: "Products left out" },
   { id: "couldnt-check", label: "Couldn't check some" },
   { id: "partial", label: "Partial results" },
@@ -51,12 +48,10 @@ export const MOCK_SCENARIOS = [
   { id: "busy", label: "ShopSense is busy" },
   { id: "invalid-event", label: "Unreadable progress" },
   { id: "run-failed", label: "The search fails" },
+  { id: "llm-unavailable", label: "The AI services are down, then retry" },
 ] as const;
 export type MockScenario = (typeof MOCK_SCENARIOS)[number]["id"];
 
-/** The clock for a fixture built with no time given, so the same input always gives the same result. */
-const FIXTURE_NOW = Date.parse("2026-10-27T11:40:00Z");
-const HOUR_MS = 60 * 60 * 1000;
 /** A whole run takes 6.8 s: the start, 8 stages, then the result. */
 const START_MS = 300;
 /** Reading a run takes a moment, as it does live, so "checking" and "picking up" can be seen. */
@@ -65,357 +60,6 @@ const STAGE_MS = 750;
 const RESULT_MS = 500;
 /** How long a stop takes to land: the stage it waits for has to end. */
 const STOP_MS = 400;
-
-/** A mock price checked this many hours before `now`; the 24-hour rule then decides if it is old. */
-const hoursAgo = (hours: number, now: number) => new Date(now - hours * HOUR_MS).toISOString();
-
-function checkedAt(offer: Offer, time: string | null, now: number): Offer {
-  return { ...offer, checkedAt: time, stale: isPriceStale(time, now) };
-}
-
-const DAY_MS = 24 * HOUR_MS;
-
-/** Made-up review sites for the preview. Every link goes to example.com, never a real review. */
-const REVIEW_SITES = [
-  { slug: "sample-tech-reviews", name: "Sample Tech Reviews" },
-  { slug: "sample-review-lab", name: "Sample Review Lab" },
-] as const;
-
-const slug = (text: string) =>
-  text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-
-interface MockSource {
-  key: string;
-  name: string;
-  typeLabel: string;
-  url: string;
-  /** Days before `now` it was published, or null when only the day it was read is known. */
-  publishedDaysAgo: number | null;
-}
-
-function mockClaim(
-  id: string,
-  side: ClaimView["side"],
-  source: MockSource,
-  quote: string | null,
-  valueText: string | null,
-  now: number,
-): ClaimView {
-  const day = (days: number) => new Date(now - days * DAY_MS).toISOString();
-  return {
-    claimId: `clm_mock_${id}`,
-    side,
-    quote,
-    quoteWithheld:
-      quote === null ? (source.typeLabel === "Reddit" ? WITHHELD.reddit : WITHHELD.other) : null,
-    source: {
-      id: `src_mock_${source.key}`,
-      name: source.name,
-      typeLabel: source.typeLabel,
-      url: source.url,
-      dateLabel: sourceDateLabel(
-        source.publishedDaysAgo === null ? null : day(source.publishedDaysAgo),
-        day(1),
-      ),
-    },
-    valueText,
-  };
-}
-
-/** A known value rests on one or two made-up review sites, each quoting the same rating. */
-function reviewClaims(
-  name: string,
-  criterion: RubricItem,
-  rating: number,
-  count: number,
-  now: number,
-): ClaimView[] {
-  return REVIEW_SITES.slice(0, count).map((site, k) =>
-    mockClaim(
-      `${slug(name)}_${slug(criterion.criterionId)}_${k}`,
-      "supporting",
-      {
-        key: `${site.slug}_${slug(name)}`,
-        name: site.name,
-        typeLabel: "Review site",
-        url: `https://example.com/reviews/${site.slug}/${slug(name)}`,
-        publishedDaysAgo: 6 + k * 9,
-      },
-      `${name} scores ${rating} out of 10 for ${criterion.title} in our tests.`,
-      `${rating} / 10`,
-      now,
-    ),
-  );
-}
-
-function values(rubric: RubricItem[], seed: number, name: string, now: number): CriterionValue[] {
-  return rubric.map((r, i) => {
-    const rating = ((seed + i * 3) % 4) + 6;
-    return {
-      criterionId: r.criterionId,
-      label: r.title,
-      state: "verified" as const,
-      value: `Sample rating ${rating} / 10`,
-      claims: reviewClaims(name, r, rating, (seed + i) % 2 === 0 ? 2 : 1, now),
-    };
-  });
-}
-
-/** The three criteria that added the most points, with each one's state and claims, as live results give them. */
-function reasonsOf(p: ProductResult): ReasonView[] {
-  return [...(p.contributions ?? [])]
-    .sort((x, y) => y.points - x.points)
-    .slice(0, 3)
-    .flatMap((c) => {
-      const row = p.criteria.find((r) => r.criterionId === c.criterionId);
-      if (!row) return [];
-      return [
-        {
-          criterionId: c.criterionId,
-          label: c.label,
-          state: row.state,
-          // An unknown value is never shown as 0 points.
-          points: row.state === "unknown" ? null : c.points,
-          claims: row.claims ?? [],
-        },
-      ];
-    });
-}
-
-function product(
-  letter: string,
-  category: string,
-  rank: number,
-  score: number,
-  rubric: RubricItem[],
-  now: number,
-): ProductResult {
-  const criteria = values(rubric, rank, `Sample ${category} ${letter}`, now);
-  const contributions = criteria.map((c, i) => ({
-    criterionId: c.criterionId,
-    label: c.label,
-    points: Math.max(2, 24 - i * 4 - rank),
-  }));
-  return {
-    id: `mock-${letter}`,
-    name: `Sample ${category} ${letter}`,
-    rank,
-    score,
-    confidence: rank === 1 ? "high" : rank === 2 ? "medium" : "low",
-    chanceFirst: rank === 1 ? 62 : rank === 2 ? 27 : 11,
-    coverage: { checked: criteria.length, total: criteria.length },
-    dataCoverage: rank === 1 ? 92 : rank === 2 ? 84 : 76,
-    explanation: `Sample explanation: ${letter} scores well on the criteria you weighted most, within your must-haves.`,
-    contributions,
-    criteria,
-    offers: [
-      {
-        store: "Sample Store One",
-        price: 64990 + rank * 3500,
-        url: rank === 1 ? "https://example.com/sample-product" : null,
-      },
-      { store: "Sample Store Two", price: 66490 + rank * 3500, url: null },
-    ].map((o) => checkedAt({ ...o, checkedAt: null, stale: null }, hoursAgo(2, now), now)),
-    value: { calculated: true, text: rank === 1 ? "Good value" : "Fair value" },
-  };
-}
-
-export function buildMockResult(
-  input: ResearchInput,
-  scenario: string,
-  now: number = FIXTURE_NOW,
-): ResearchResult {
-  const cat = input.category;
-  const r = input.rubric;
-  const products = [
-    product("A", cat, 1, 86, r, now),
-    product("B", cat, 2, 79, r, now),
-    product("C", cat, 3, 71, r, now),
-  ];
-  const res: ResearchResult = {
-    products,
-    leftOut: [],
-    couldntCheck: [],
-    pricesCheckedAt: hoursAgo(2, now),
-    saved: false,
-    source: "mock",
-  };
-  const a = products[0]!;
-  const b = products[1]!;
-  const c = products[2]!;
-  const tie = (x: ProductResult, y: ProductResult, rank: number, score: number) => {
-    x.rank = y.rank = rank;
-    x.score = y.score = score;
-    x.separatingCriterion = y.separatingCriterion = r[0]?.title ?? null;
-  };
-  /** A's second value is disputed: with both sides' sources, or (as a result with no citations) with none. */
-  const dispute = (withSources: boolean) => {
-    const row = a.criteria[1];
-    if (row) {
-      const id = `${slug(a.name)}_${slug(row.criterionId)}`;
-      a.criteria[1] = {
-        ...row,
-        state: "disputed",
-        value: null,
-        ...(withSources
-          ? {
-              sources: [
-                { source: "Sample Store One listing", value: "16 GB" },
-                { source: "Sample maker spec sheet", value: "8 GB" },
-              ],
-              claims: [
-                mockClaim(
-                  `${id}_store`,
-                  "supporting",
-                  {
-                    key: "sample-store-one",
-                    name: "Sample Store One listing",
-                    typeLabel: "Store",
-                    url: "https://example.com/sample-store-one/listing",
-                    publishedDaysAgo: null,
-                  },
-                  "Comes with 16 GB of memory.",
-                  "16 GB",
-                  now,
-                ),
-                mockClaim(
-                  `${id}_maker`,
-                  "conflicting",
-                  {
-                    key: "sample-maker",
-                    name: "Sample maker spec sheet",
-                    typeLabel: "Maker's site",
-                    url: "https://example.com/sample-maker/spec-sheet",
-                    publishedDaysAgo: 30,
-                  },
-                  "Memory: 8 GB, which can be upgraded later.",
-                  "8 GB",
-                  now,
-                ),
-              ],
-            }
-          : { claims: [] }),
-      };
-    }
-    a.confidence = "medium";
-  };
-  switch (scenario) {
-    case "tie":
-      tie(b, c, 2, 79);
-      break;
-    case "tie-first":
-      tie(a, b, 1, 84);
-      break;
-    case "disputed":
-      dispute(true);
-      break;
-    case "disputed-no-sources":
-      // A result that carries the state but no citations: there are no claims to show.
-      dispute(false);
-      break;
-    case "unknown":
-      for (const p of products) {
-        const last = p.criteria.at(-1);
-        if (last) Object.assign(last, { state: "unknown", value: null, claims: [] });
-        if (p.coverage) p.coverage = { ...p.coverage, checked: p.coverage.total - 1 };
-      }
-      break;
-    case "estimated":
-      for (const p of [a, b]) {
-        if (p.criteria[2])
-          Object.assign(p.criteria[2], {
-            state: "estimated",
-            value: "About 9 hours (sample estimate)",
-            claims: [],
-          });
-      }
-      a.dataCoverage = 62;
-      b.dataCoverage = null; // a result with no figure: the screen must say so, never show 0%
-      break;
-    case "stale":
-      a.offers[1] = checkedAt(a.offers[1]!, hoursAgo(72, now), now);
-      b.offers = b.offers.map((o) => checkedAt(o, hoursAgo(72, now), now));
-      c.offers[1] = checkedAt(c.offers[1]!, null, now);
-      break;
-    case "no-offer":
-      b.offers = [];
-      b.storeSearchUrl = `https://example.com/store-search?q=${encodeURIComponent(b.name)}`;
-      b.value = { calculated: false, reason: "No price was found, so value can't be worked out." };
-      break;
-    case "left-out":
-      res.leftOut = [
-        { name: `Sample ${cat} D`, reason: "Over your budget at every store checked." },
-        { name: `Sample ${cat} E`, reason: "Matches something you asked to leave out." },
-      ];
-      break;
-    case "couldnt-check":
-      res.couldntCheck = [
-        {
-          name: `Sample ${cat} F`,
-          reason: "Store pages didn't list its specs.",
-          criterion: r[0]?.title ?? null,
-        },
-      ];
-      break;
-    case "partial":
-      res.partial = true;
-      res.coverageNote =
-        "Sample note: only two of the stores could be checked, so some options may be missing.";
-      res.products = [a, b];
-      break;
-    case "relaxation":
-    case "empty":
-      res.products = [];
-      res.leftOut = [{ name: `Sample ${cat} D`, reason: "Doesn't meet a must-have." }];
-      if (scenario === "relaxation") {
-        res.relaxation = {
-          hint: "Sample hint: no option met every must-have. Loosening one may help.",
-          mustHave: input.mustHaves[0] ?? "Your budget",
-        };
-      }
-      break;
-    case "withheld-quote": {
-      // A Reddit thread backs A's top value too, but Reddit's words aren't kept in saved results (D-53).
-      const row = a.criteria[0];
-      if (row) {
-        row.claims = [
-          ...(row.claims ?? []),
-          mockClaim(
-            `${slug(a.name)}_${slug(row.criterionId)}_reddit`,
-            "supporting",
-            {
-              key: "reddit-sample-shoppers",
-              name: "r/SampleShoppers",
-              typeLabel: "Reddit",
-              url: "https://www.reddit.com/r/SampleShoppers/comments/sample1/",
-              publishedDaysAgo: 12,
-            },
-            null,
-            null,
-            now,
-          ),
-        ];
-      }
-      break;
-    }
-  }
-  // As a live result names them: the top product's lead, and each product's main reasons.
-  const leader = res.products[0]?.score ?? null;
-  for (const p of res.products) {
-    p.reasons = reasonsOf(p);
-    // The sample explanation rests on the same claims as the product's top reason.
-    p.explanationParts = p.explanation
-      ? [{ text: p.explanation, claims: p.reasons[0]?.claims ?? [] }]
-      : [];
-    p.label = p.rank === 1 ? "best_match" : p.rank === 2 ? "runner_up" : null;
-    p.gapToLeader =
-      leader === null || p.score == null ? null : Math.round((leader - p.score) * 10) / 10;
-  }
-  return res;
-}
 
 /** The backend's own stages, in order, with the sort of thing it says about each. */
 const STAGES = [
@@ -549,6 +193,12 @@ function newSearchId(): string {
   return `srch_${[...bytes].map((b) => b.toString(16).padStart(2, "0")).join("")}`;
 }
 
+type Results = typeof import("./mockResults");
+let results: Results | null = null;
+let loading: Promise<Results> | null = null;
+/** The result fixtures, a chunk of their own: fetched when a search starts, so they are there when it ends. */
+const loadResults = () => (loading ??= import("./mockResults").then((m) => (results = m)));
+
 function snapshotOf(
   searchId: string,
   run: MockRun,
@@ -572,14 +222,18 @@ function snapshotOf(
   }
   if (script.ending === "failed") return { ...base, status: "failed", result: null };
   const scenario = run.scenario === "stage-failed" ? "partial" : run.scenario;
-  const result = { ...buildMockResult(input, scenario, now), searchId };
+  if (!results) throw new Error("The mock results are not loaded yet.");
+  const result = { ...results.buildMockResult(input, scenario, now), searchId };
   // The evidence answers come from this same result, as the live route answers from the saved run.
-  results.set(searchId, result);
+  finished.set(searchId, result);
   return { ...base, status: "done", result };
 }
 
+/** Sessions whose preview already showed an LLM outage, so trying again succeeds. Kept only while the tab is open. */
+const outages = new Set<string>();
+
 /** Finished results, by search ID, for "Where this comes from". Kept only while the tab is open. */
-const results = new Map<string, ResearchResult>();
+const finished = new Map<string, ResearchResult>();
 /** Reading a value's evidence takes a moment, as it does live, so the loading state can be seen. */
 const EVIDENCE_MS = 250;
 
@@ -591,7 +245,7 @@ async function mockEvidence(
 ): Promise<EvidenceView> {
   await new Promise((resolve) => setTimeout(resolve, EVIDENCE_MS));
   const row = searchId
-    ? results
+    ? finished
         .get(searchId)
         ?.products.find((p) => p.id === productId)
         ?.criteria.find((c) => c.criterionId === criterionId)
@@ -622,8 +276,13 @@ export function createMockResearchService(): ResearchService {
     isMock: true,
 
     async start(input) {
+      void loadResults();
       await new Promise((resolve) => setTimeout(resolve, START_MS));
-      const scenario = input.scenario ?? "success";
+      // An LLM outage's "Try again" meets working services, as a live retry usually would. The search after that
+      // has the outage again, so the scenario can be seen more than once in a tab.
+      const outageSeen = input.scenario === "llm-unavailable" && outages.delete(input.sessionId);
+      const scenario = outageSeen ? "success" : (input.scenario ?? "success");
+      if (input.scenario === "llm-unavailable" && !outageSeen) outages.add(input.sessionId);
       if (scenario === "busy") throw new ResearchError("busy", BUSY);
       const searchId = newSearchId();
       saveRun(searchId, { scenario, broken: false, startedAt: Date.now(), stoppedAt: null });
@@ -634,6 +293,7 @@ export function createMockResearchService(): ResearchService {
       await new Promise((resolve) => setTimeout(resolve, READ_MS));
       const run = loadRun(searchId);
       if (!run) throw notFound();
+      await loadResults();
       return snapshotOf(searchId, run, input, Date.now());
     },
 
@@ -655,7 +315,11 @@ export function createMockResearchService(): ResearchService {
       };
       const end = () => {
         close();
-        handlers.onEnd(snapshotOf(searchId, loadRun(searchId) ?? run, input, Date.now()));
+        const deliver = () =>
+          handlers.onEnd(snapshotOf(searchId, loadRun(searchId) ?? run, input, Date.now()));
+        // Fetched when the search started, so normally here already; after a reload, it comes first.
+        if (results) deliver();
+        else void loadResults().then(deliver);
       };
       const endAfterStop = () => {
         const stoppedAt = loadRun(searchId)?.stoppedAt ?? Date.now();

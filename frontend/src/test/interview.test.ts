@@ -9,7 +9,6 @@ import {
 } from "@/lib/interview/reducer";
 import { criteriaFor, runTurn } from "@/lib/interview/mockService";
 import { ALREADY_ANSWERED } from "@/lib/interview/questions";
-import { noteContainsQuestion } from "@/lib/interview/view";
 import type { Brief } from "@/lib/request/types";
 
 const brief = (product: string | null): Brief => ({
@@ -76,7 +75,7 @@ describe("full interview scenario", () => {
     expect(s.step?.kind).toBe("redirect");
     expect(s.step?.criterionId).toBe("memory");
 
-    s = send(s, "Yes, a lot");
+    s = send(s, "High"); // a rephrase keeps the same buttons
     expect(s.step?.criterionId).toBe("battery");
 
     s = send(s, null); // skip battery
@@ -199,14 +198,5 @@ describe("sending rules", () => {
   it("caps typed answers at 500 characters", () => {
     const s = interviewReducer(started(), { type: "SEND", text: "a".repeat(600) });
     expect(s.pending?.text).toHaveLength(500);
-  });
-  it("does not repeat a question already in the note", () => {
-    expect(
-      noteContainsQuestion(
-        "Sure. How important is weight to you?",
-        "How important is weight to you?",
-      ),
-    ).toBe(true);
-    expect(noteContainsQuestion("A note.", "How important is weight to you?")).toBe(false);
   });
 });

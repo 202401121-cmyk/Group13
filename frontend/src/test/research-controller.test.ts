@@ -438,6 +438,19 @@ describe("a reload", () => {
     expect(s.start).toHaveBeenCalledTimes(2);
   });
 
+  it("Try again after an LLM outage starts the same search again, and stops nothing that had finished", async () => {
+    const s = service();
+    startResearch(input);
+    await vi.waitFor(() => expect(getResearchState(id).status).toBe("researching"));
+    const outage = { ...RESULT, llmUnavailable: true } as ResearchResult;
+    stream().onEnd(run({ status: "done", result: outage }));
+    await vi.waitFor(() => expect(getResearchState(id).status).toBe("done"));
+    retryResearch(id);
+    await vi.waitFor(() => expect(s.start).toHaveBeenCalledTimes(2));
+    expect(s.start).toHaveBeenLastCalledWith(input); // the same brief, the same search
+    expect(s.cancel).not.toHaveBeenCalled(); // a finished run has nothing left to stop
+  });
+
   it("a retry before there was any run starts one", async () => {
     const s = service({
       start: vi

@@ -158,10 +158,9 @@ test.describe("audit matrix: axe in light and dark mode", () => {
 
   test("question page states", async ({ page }) => {
     const id = await reachQuestions(page);
+    // Why it is asked shows under the question, with no toggle (US-39).
+    await expect(page.getByText(/^Why this question:/).first()).toBeVisible();
     await checkRow(page, "questions, first question");
-
-    await page.getByRole("button", { name: "Why this question?" }).click();
-    await checkRow(page, "questions, why this question open");
 
     const composer = page.getByLabel("Or type your answer");
     await composer.fill("Is this about compile speed?");
@@ -174,6 +173,13 @@ test.describe("audit matrix: axe in light and dark mode", () => {
     await expect(page.getByText("Asked another way")).toBeVisible();
     await checkRow(page, "questions, asked another way");
 
+    // A second unclear reply skips the question and marks it, as live does.
+    await composer.fill("not sure");
+    await composer.press("Enter");
+    await expect(page.getByText(/^Let's skip that one for now/).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "Answer now: CPU performance" })).toBeVisible();
+    await checkRow(page, "questions, skipped");
+
     await composer.fill("what about the price");
     await composer.press("Enter");
     await expect(page.getByText(/use the budget from your brief/).first()).toBeVisible();
@@ -183,8 +189,8 @@ test.describe("audit matrix: axe in light and dark mode", () => {
     // runs, so it is checked in light mode on one answer and in dark mode on the next.
     const replies = page.getByRole("group", { name: /Quick replies/ });
     for (const [theme, next] of [
-      ["light", /Memory: how much does it matter to you/],
-      ["dark", /Battery life: how much does it matter to you/],
+      ["light", /Battery life: how much does it matter to you/],
+      ["dark", /Display quality: how much does it matter to you/],
     ] as const) {
       await pauseClock(page);
       await replies.getByRole("button", { name: "High" }).click();
@@ -194,8 +200,8 @@ test.describe("audit matrix: axe in light and dark mode", () => {
       await page.clock.resume();
       await expect(page.getByText(next).first()).toBeVisible();
     }
-    // Memory depends on CPU and is answered now: changing CPU means memory has to be asked again.
-    await page.getByRole("button", { name: "Change CPU performance" }).click();
+    // Memory depends on CPU and is answered now: answering the skipped CPU question means memory is asked again.
+    await page.getByRole("button", { name: "Answer now: CPU performance" }).click();
     await replies.getByRole("button", { name: "Low" }).click();
     await expect(page.getByText("Later questions were updated").first()).toBeVisible();
     await checkRow(page, "questions, later questions updated");

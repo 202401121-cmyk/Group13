@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import table from "@contracts/examples/rough_levels.json";
 import { normalizePercents, rubricFromInterview, weightRows } from "@/lib/results/rubric";
 import { initialResearch, researchReducer } from "@/lib/results/machine";
-import { buildMockResult } from "@/lib/results/mockService";
+import { buildMockResult } from "@/lib/results/mockResults";
 
 describe("weights", () => {
   it("largest remainder sums to exactly 100", () => {
