@@ -79,6 +79,7 @@ from app.enrich import EnrichStage
 from app.entities import ModelMatchStage, alias_keys
 from app.explain import ExplainStage
 from app.extract import default_extract_stage
+from app.extract.schedule import SendWindow, read_in_lanes
 from app.llm.errors import AuthFailed, InvalidOutput, ProviderTimeout, RateLimited, ServerError
 from app.research import default_research_stage
 from app.research.readers import FIRECRAWL, JINA
@@ -718,21 +719,54 @@ class _Search:
             else:
                 _hook("ask_for_specs", ask_for_specs, self.ctx.search_id, self.rule_keys, has_budget)
 
+        label = self.rubric.category[:MAX_CATEGORY_LABEL]
+
+        def input_for(source: Source) -> ExtractInput:
+            return ExtractInput(source=source, criterion_keys=self.weight_keys, category_label=label)
+
+        def halted() -> bool:
+            """A fallback failed too, or the shopper cancelled: what is left is not "not reached" for time."""
+            return failed.is_set() or (self.cancel is not None and self.cancel.requested)
+
+        def stopped() -> bool:
+            return halted() or self.out_of_time or self.ctx.seconds_left <= 0
+
         def read(source: Source) -> tuple[ExtractionResult | None, StageReport] | None:
-            """One source, each under its own time limit. None if it was never started."""
-            cancelled = self.cancel is not None and self.cancel.requested
-            if failed.is_set() or self.out_of_time or cancelled or self.ctx.seconds_left <= 0:
+            """One source, each under its own time limit from when it is sent. None if it was never started."""
+            if stopped():
                 return None  # a fallback failed too, the search is out of time, or the shopper cancelled it
-            label = self.rubric.category[:MAX_CATEGORY_LABEL]
-            inp = ExtractInput(source=source, criterion_keys=self.weight_keys, category_label=label)
-            out, report = self._run(self.stages.extract, inp)
+            out, report = self._run(self.stages.extract, input_for(source))
             if out is None:
                 failed.set()  # merge() reports FAILED and the runner stops
             return out, report
 
+        # A public page is sent when a public provider has room, maker, store and review pages first, and only while
+        # the time left covers its own limit and every later stage's, which keep their time (US-46, S4-29).
+        window = SendWindow(
+            seconds_left=lambda: self.ctx.seconds_left,
+            later_stages_s=self._later_stages_s(),
+            source_s=self.limits[StageName.EXTRACT],
+        )
+        stage = self.stages.extract
+        open_window = getattr(stage, "open_window", None)
+        if open_window is not None:
+            _hook("open_window", open_window, self.ctx.search_id, monotonic() + window.seconds_open())
+        room_for = getattr(stage, "room_for", None)
+
+        def room(source: Source, within_s: float) -> bool | None:
+            # None (can't tell, or the check raised) sends the page at once, as before: the call keeps every limit.
+            verdict = _hook("room_for", room_for, self.ctx.search_id, input_for(source), within_s)
+            return verdict if isinstance(verdict, bool) else None
+
         workers = min(self.extract_workers, len(sources))
-        with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="extract-source") as pool:
-            done = [item for item in pool.map(read, sources) if item is not None]  # in the sources' order
+        checks_room = room_for is not None
+        sent = read_in_lanes(
+            sources, read, workers=workers, window=window, room=room if checks_room else None, stop=halted
+        )
+        done = sent.results  # in the sources' order
+        count_not_reached = getattr(stage, "count_not_reached", None)
+        if count_not_reached is not None:
+            _hook("count_not_reached", count_not_reached, self.ctx.search_id, sent.not_reached)
         for out, _ in done:
             if out is not None:
                 self.claims += out.claims
@@ -748,6 +782,11 @@ class _Search:
         if not done:
             return _skipped(StageName.EXTRACT, "the search stopped before any source was read")
         return _merge(StageName.EXTRACT, [report for _, report in done], int((monotonic() - started) * 1000))
+
+    def _later_stages_s(self) -> float:
+        """Every stage after extraction, at its own limit: what the send window leaves them (build rule 9)."""
+        names = [name for name, _ in self.steps()]
+        return sum(self.limits[name] for name in names[names.index(StageName.EXTRACT) + 1 :])
 
     def _counted_recommenders(self) -> list[RecommenderCount]:
         """How many people name each product the run found, by code alone (US-13). Sample sources keep their own."""
