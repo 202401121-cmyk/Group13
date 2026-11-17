@@ -1,0 +1,1517 @@
+{
+  "generated": "2026-11-17",
+  "commit": "d0788bd",
+  "runner": "python -m evals.live_briefs (live)",
+  "budget_note": "limits {'llm': 200, 'serper': 30, 'reddit': 50, 'jina': 30, 'firecrawl': 10}, EXTRACT_MAX_SOURCES=40, MATCHER=fuzzy",
+  "calls_used": {
+    "llm": 63,
+    "serper": 18,
+    "reddit": 45,
+    "jina": 6,
+    "firecrawl": 1
+  },
+  "measures": [
+    {
+      "id": "live.briefs_finished",
+      "value": 4.0,
+      "unit": "briefs",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "of 5"
+    },
+    {
+      "id": "live.briefs_with_a_score",
+      "value": 0.0,
+      "unit": "briefs",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "briefs where at least one shown product has a score (S3-10b's 'not ranked' risk)"
+    },
+    {
+      "id": "live.claims_per_source.manufacturer",
+      "value": 0.0,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "0 claims from 3 manufacturer sources given to extract"
+    },
+    {
+      "id": "live.claims_per_source.reddit",
+      "value": 0.4,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "32 claims from 80 reddit sources given to extract"
+    },
+    {
+      "id": "live.claims_per_source.retailer",
+      "value": 0.0,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "0 claims from 11 retailer sources given to extract"
+    },
+    {
+      "id": "live.claims_per_source.review_site",
+      "value": 0.0,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "0 claims from 29 review_site sources given to extract"
+    },
+    {
+      "id": "live.claims_per_source_given",
+      "value": 0.1576,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "32 claims kept from 203 sources given to extract. Search snippets and sources past the 40-source cap count too: extract passes them over without a model call"
+    },
+    {
+      "id": "live.coverage_mean",
+      "value": null,
+      "unit": "rate",
+      "status": "missing",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "mean coverage over 0 ranked products"
+    },
+    {
+      "id": "live.hard_rule_violations_shown",
+      "value": 0.0,
+      "unit": "products",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "shown products breaking a rule, by evals/checks.py's own reading of the rubric"
+    },
+    {
+      "id": "live.most_mentioned_worst_fit_wins",
+      "value": 0.0,
+      "unit": "briefs",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "briefs where the most-mentioned product ranks first while it fits worst (fit: weights times each value's own score)"
+    },
+    {
+      "id": "live.pages_direct",
+      "value": 39.0,
+      "unit": "pages",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "pages read by a plain fetch"
+    },
+    {
+      "id": "live.pages_firecrawl",
+      "value": 0.0,
+      "unit": "pages",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "pages read through Firecrawl"
+    },
+    {
+      "id": "live.pages_jina",
+      "value": 4.0,
+      "unit": "pages",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "pages read through Jina Reader"
+    },
+    {
+      "id": "live.quote_found_share",
+      "value": 0.8919,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "claims whose quote is in their source, of 37 the parser checked (4 dropped). Kept claims are counted after duplicates go; a claim dropped because the answer passed its room counts as found; a quote found but refused as an instruction counts as not found"
+    },
+    {
+      "id": "live.ranked_products",
+      "value": 0.0,
+      "unit": "products",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "shown"
+    },
+    {
+      "id": "live.search_seconds_max",
+      "value": 64.67,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest search"
+    },
+    {
+      "id": "live.sources_per_brief",
+      "value": 50.75,
+      "unit": "sources",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "sources the search kept, mean per brief"
+    },
+    {
+      "id": "live.stage_seconds_max.commerce",
+      "value": 0.0,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest commerce stage"
+    },
+    {
+      "id": "live.stage_seconds_max.decide",
+      "value": 0.09,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest decide stage"
+    },
+    {
+      "id": "live.stage_seconds_max.enrich",
+      "value": 0.0,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest enrich stage"
+    },
+    {
+      "id": "live.stage_seconds_max.explain",
+      "value": 0.0,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest explain stage"
+    },
+    {
+      "id": "live.stage_seconds_max.extract",
+      "value": 29.58,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest extract stage"
+    },
+    {
+      "id": "live.stage_seconds_max.match",
+      "value": 0.0,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest match stage"
+    },
+    {
+      "id": "live.stage_seconds_max.research",
+      "value": 36.11,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest research stage"
+    },
+    {
+      "id": "live.stage_seconds_max.verify",
+      "value": 0.03,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "the longest verify stage"
+    },
+    {
+      "id": "live.unsourced_shown",
+      "value": 0.0,
+      "unit": "products",
+      "status": "measured",
+      "source": "backend/evals/live_briefs.py, 5 live briefs, --no-db",
+      "detail": "shown products named in no source and citing no claim from one"
+    }
+  ],
+  "briefs": [
+    {
+      "category": "smartphone",
+      "finished": false,
+      "why": "needs a clarification",
+      "presearch_seconds": {
+        "intake": 1.81
+      },
+      "calls": {
+        "llm": 1,
+        "serper": 0,
+        "reddit": 0,
+        "jina": 0,
+        "firecrawl": 0
+      }
+    },
+    {
+      "category": "laptop",
+      "finished": true,
+      "search_seconds": 53.37,
+      "stages": {
+        "research": {
+          "status": "ok",
+          "seconds": 23.69
+        },
+        "extract": {
+          "status": "timeout",
+          "seconds": 29.58
+        },
+        "match": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "verify": {
+          "status": "ok",
+          "seconds": 0.01
+        },
+        "enrich": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "decide": {
+          "status": "ok",
+          "seconds": 0.09
+        },
+        "explain": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "commerce": {
+          "status": "skipped",
+          "seconds": 0.0
+        }
+      },
+      "methods": {
+        "match": "fuzzy",
+        "trust": "learned",
+        "decide": "weighted"
+      },
+      "products": {
+        "ranked": 0,
+        "with_a_score": 0,
+        "not_ranked": 0,
+        "filtered_out": 0,
+        "cant_tell": 10,
+        "coverage": []
+      },
+      "checks": {
+        "rule_check": "independent",
+        "hard_rule_violations_shown": 0,
+        "shown_with_unknown_rule": 0,
+        "unsourced_recheck": 0,
+        "dropped_unsourced": 0,
+        "popularity_by_fit": false
+      },
+      "research": {
+        "sources": 52,
+        "sources_by_type": {
+          "manufacturer": 2,
+          "reddit": 20,
+          "retailer": 3,
+          "review_site": 7,
+          "web_search": 20
+        },
+        "pages_by_via": {
+          "api": 20,
+          "direct": 10,
+          "jina": 2,
+          "search_snippet": 20
+        }
+      },
+      "extraction": {
+        "sources_given": 52,
+        "sources_given_by_type": {
+          "manufacturer": 2,
+          "reddit": 20,
+          "retailer": 3,
+          "review_site": 7,
+          "web_search": 20
+        },
+        "claims_kept": 9,
+        "claims_by_source_type": {
+          "reddit": 9
+        },
+        "dropped_by_reason": {
+          "contract": 1
+        },
+        "quote_found_share": 1.0
+      },
+      "funnel": {
+        "sources": {
+          "found": 52,
+          "by_type": {
+            "manufacturer": 2,
+            "reddit": 20,
+            "retailer": 3,
+            "review_site": 7,
+            "web_search": 20
+          },
+          "by_via": {
+            "api": 20,
+            "direct": 10,
+            "jina": 2,
+            "search_snippet": 20
+          }
+        },
+        "extract": {
+          "reached_the_stage": 52,
+          "not_started_time_limit": 0,
+          "search_snippet": 20,
+          "over_source_cap": 0,
+          "over_reddit_budget": 0,
+          "over_reddit_share": 0,
+          "sent": 32,
+          "sent_with_no_criteria": 0,
+          "no_valid_answer": 26,
+          "no_answer_by_reason": {
+            "failed": 2,
+            "gave_up": 6,
+            "no_room": 14,
+            "timed_out": 4
+          },
+          "timed_out": 6,
+          "failed": 0
+        },
+        "llm": {
+          "calls": 114,
+          "by_provider": {
+            "deepseek": {
+              "public": 6
+            },
+            "gemini": {
+              "public": 8
+            },
+            "groq": {
+              "public": 30,
+              "reddit": 48
+            },
+            "mistral": {
+              "public": 12
+            },
+            "openrouter": {
+              "public": 10
+            }
+          },
+          "by_outcome": {
+            "error": 6,
+            "ok": 6,
+            "rate_limited": 82,
+            "timeout": 20
+          },
+          "failed": 108,
+          "cut_off": 0,
+          "no_room": 82
+        },
+        "claims": {
+          "returned": 10,
+          "dropped_by_reason": {
+            "contract": 1
+          },
+          "kept": 9,
+          "kept_by_kind": {
+            "score": 1,
+            "value": 8
+          },
+          "kept_by_key": {
+            "rubric": 9,
+            "spec": 0,
+            "neither": 0
+          },
+          "kept_by_source_type": {
+            "reddit": 9
+          },
+          "scorable": 1
+        },
+        "match": {
+          "claims_matching_a_product": 9,
+          "claims_matching_nothing": 0,
+          "nothing_by_reason": {}
+        },
+        "shown": {
+          "products": 0,
+          "with_a_score": 0,
+          "states": {
+            "disputed": 0,
+            "estimated": 0,
+            "known": 0,
+            "unknown": 0
+          },
+          "per_product": [],
+          "by_criterion": [
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            }
+          ]
+        },
+        "held_back": {
+          "filtered_out": 0,
+          "cant_tell": 10,
+          "cant_tell_for_price": 10
+        },
+        "price": {
+          "asked": true,
+          "returned": 0,
+          "dropped_by_reason": {},
+          "kept": 0,
+          "kept_unusable_by_reason": {},
+          "attached": 0,
+          "products_with_a_price": 0,
+          "shown_with_a_price": 0,
+          "cant_tell_for_price": 10,
+          "filtered_for_price": 0,
+          "by_source": {
+            "manufacturer.maker": {
+              "reached": 2,
+              "sent": 2,
+              "gave_up": 0,
+              "price_asked": 2,
+              "price_returned": 0
+            },
+            "reddit.thread": {
+              "reached": 20,
+              "sent": 20,
+              "gave_up": 0,
+              "price_asked": 0,
+              "price_returned": 0
+            },
+            "retailer.store": {
+              "reached": 3,
+              "sent": 2,
+              "gave_up": 1,
+              "price_asked": 2,
+              "price_returned": 0
+            },
+            "review_site.list": {
+              "reached": 6,
+              "sent": 2,
+              "gave_up": 4,
+              "price_asked": 2,
+              "price_returned": 0
+            },
+            "review_site.review": {
+              "reached": 1,
+              "sent": 0,
+              "gave_up": 1,
+              "price_asked": 0,
+              "price_returned": 0
+            },
+            "web_search.snippet": {
+              "reached": 20,
+              "sent": 0,
+              "gave_up": 0,
+              "price_asked": 0,
+              "price_returned": 0
+            }
+          }
+        },
+        "public_prompt": {
+          "criteria": 6,
+          "of_criteria": 10,
+          "spec_keys": 2,
+          "price_asked": true,
+          "rules_asked": 1,
+          "rules": 1
+        }
+      },
+      "presearch_seconds": {
+        "intake": 1.34,
+        "criteria": 0.02,
+        "interview": 0.03
+      },
+      "calls": {
+        "llm": 33,
+        "serper": 2,
+        "reddit": 10,
+        "jina": 2,
+        "firecrawl": 0
+      }
+    },
+    {
+      "category": "earbuds",
+      "finished": true,
+      "search_seconds": 45.45,
+      "stages": {
+        "research": {
+          "status": "ok",
+          "seconds": 27.03
+        },
+        "extract": {
+          "status": "ok",
+          "seconds": 18.39
+        },
+        "match": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "verify": {
+          "status": "ok",
+          "seconds": 0.02
+        },
+        "enrich": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "decide": {
+          "status": "ok",
+          "seconds": 0.01
+        },
+        "explain": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "commerce": {
+          "status": "skipped",
+          "seconds": 0.0
+        }
+      },
+      "methods": {
+        "match": "fuzzy",
+        "trust": "learned",
+        "decide": "weighted"
+      },
+      "products": {
+        "ranked": 0,
+        "with_a_score": 0,
+        "not_ranked": 0,
+        "filtered_out": 0,
+        "cant_tell": 22,
+        "coverage": []
+      },
+      "checks": {
+        "rule_check": "independent",
+        "hard_rule_violations_shown": 0,
+        "shown_with_unknown_rule": 0,
+        "unsourced_recheck": 0,
+        "dropped_unsourced": 0,
+        "popularity_by_fit": false
+      },
+      "research": {
+        "sources": 51,
+        "sources_by_type": {
+          "manufacturer": 1,
+          "reddit": 20,
+          "retailer": 3,
+          "review_site": 7,
+          "web_search": 20
+        },
+        "pages_by_via": {
+          "api": 20,
+          "direct": 10,
+          "jina": 1,
+          "search_snippet": 20
+        }
+      },
+      "extraction": {
+        "sources_given": 51,
+        "sources_given_by_type": {
+          "manufacturer": 1,
+          "reddit": 20,
+          "retailer": 3,
+          "review_site": 7,
+          "web_search": 20
+        },
+        "claims_kept": 17,
+        "claims_by_source_type": {
+          "reddit": 17
+        },
+        "dropped_by_reason": {
+          "quote": 3
+        },
+        "quote_found_share": 0.85
+      },
+      "funnel": {
+        "sources": {
+          "found": 51,
+          "by_type": {
+            "manufacturer": 1,
+            "reddit": 20,
+            "retailer": 3,
+            "review_site": 7,
+            "web_search": 20
+          },
+          "by_via": {
+            "api": 20,
+            "direct": 10,
+            "jina": 1,
+            "search_snippet": 20
+          }
+        },
+        "extract": {
+          "reached_the_stage": 51,
+          "not_started_time_limit": 0,
+          "search_snippet": 20,
+          "over_source_cap": 0,
+          "over_reddit_budget": 3,
+          "over_reddit_share": 0,
+          "sent": 28,
+          "sent_with_no_criteria": 0,
+          "no_valid_answer": 23,
+          "no_answer_by_reason": {
+            "no_room": 21,
+            "timed_out": 2
+          },
+          "timed_out": 0,
+          "failed": 0
+        },
+        "llm": {
+          "calls": 63,
+          "by_provider": {
+            "groq": {
+              "public": 22,
+              "reddit": 30
+            },
+            "mistral": {
+              "public": 11
+            }
+          },
+          "by_outcome": {
+            "ok": 5,
+            "rate_limited": 56,
+            "timeout": 2
+          },
+          "failed": 58,
+          "cut_off": 0,
+          "no_room": 56
+        },
+        "claims": {
+          "returned": 20,
+          "dropped_by_reason": {
+            "quote": 3
+          },
+          "kept": 17,
+          "kept_by_kind": {
+            "value": 17
+          },
+          "kept_by_key": {
+            "rubric": 17,
+            "spec": 0,
+            "neither": 0
+          },
+          "kept_by_source_type": {
+            "reddit": 17
+          },
+          "scorable": 0
+        },
+        "match": {
+          "claims_matching_a_product": 17,
+          "claims_matching_nothing": 0,
+          "nothing_by_reason": {}
+        },
+        "shown": {
+          "products": 0,
+          "with_a_score": 0,
+          "states": {
+            "disputed": 0,
+            "estimated": 0,
+            "known": 0,
+            "unknown": 0
+          },
+          "per_product": [],
+          "by_criterion": [
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            }
+          ]
+        },
+        "held_back": {
+          "filtered_out": 0,
+          "cant_tell": 22,
+          "cant_tell_for_price": 22
+        },
+        "price": {
+          "asked": true,
+          "returned": 0,
+          "dropped_by_reason": {},
+          "kept": 0,
+          "kept_unusable_by_reason": {},
+          "attached": 0,
+          "products_with_a_price": 0,
+          "shown_with_a_price": 0,
+          "cant_tell_for_price": 22,
+          "filtered_for_price": 0,
+          "by_source": {
+            "manufacturer.maker": {
+              "reached": 1,
+              "sent": 1,
+              "gave_up": 0,
+              "price_asked": 1,
+              "price_returned": 0
+            },
+            "reddit.thread": {
+              "reached": 20,
+              "sent": 17,
+              "gave_up": 0,
+              "price_asked": 0,
+              "price_returned": 0
+            },
+            "retailer.store": {
+              "reached": 3,
+              "sent": 3,
+              "gave_up": 0,
+              "price_asked": 3,
+              "price_returned": 0
+            },
+            "review_site.list": {
+              "reached": 6,
+              "sent": 6,
+              "gave_up": 0,
+              "price_asked": 6,
+              "price_returned": 0
+            },
+            "review_site.review": {
+              "reached": 1,
+              "sent": 1,
+              "gave_up": 0,
+              "price_asked": 1,
+              "price_returned": 0
+            },
+            "web_search.snippet": {
+              "reached": 20,
+              "sent": 0,
+              "gave_up": 0,
+              "price_asked": 0,
+              "price_returned": 0
+            }
+          }
+        },
+        "public_prompt": {
+          "criteria": 1,
+          "of_criteria": 8,
+          "spec_keys": 1,
+          "price_asked": true,
+          "rules_asked": 0,
+          "rules": 0
+        }
+      },
+      "presearch_seconds": {
+        "intake": 1.88,
+        "criteria": 0.0,
+        "interview": 0.02
+      },
+      "calls": {
+        "llm": 9,
+        "serper": 6,
+        "reddit": 12,
+        "jina": 1,
+        "firecrawl": 0
+      }
+    },
+    {
+      "category": "air_fryer",
+      "finished": true,
+      "search_seconds": 64.67,
+      "stages": {
+        "research": {
+          "status": "ok",
+          "seconds": 35.8
+        },
+        "extract": {
+          "status": "timeout",
+          "seconds": 28.86
+        },
+        "match": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "verify": {
+          "status": "ok",
+          "seconds": 0.01
+        },
+        "enrich": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "decide": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "explain": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "commerce": {
+          "status": "skipped",
+          "seconds": 0.0
+        }
+      },
+      "methods": {
+        "match": "fuzzy",
+        "trust": "learned",
+        "decide": "weighted"
+      },
+      "products": {
+        "ranked": 0,
+        "with_a_score": 0,
+        "not_ranked": 0,
+        "filtered_out": 0,
+        "cant_tell": 3,
+        "coverage": []
+      },
+      "checks": {
+        "rule_check": "independent",
+        "hard_rule_violations_shown": 0,
+        "shown_with_unknown_rule": 0,
+        "unsourced_recheck": 0,
+        "dropped_unsourced": 0,
+        "popularity_by_fit": false
+      },
+      "research": {
+        "sources": 51,
+        "sources_by_type": {
+          "reddit": 20,
+          "retailer": 3,
+          "review_site": 8,
+          "web_search": 20
+        },
+        "pages_by_via": {
+          "api": 20,
+          "direct": 10,
+          "jina": 1,
+          "search_snippet": 20
+        }
+      },
+      "extraction": {
+        "sources_given": 51,
+        "sources_given_by_type": {
+          "reddit": 20,
+          "retailer": 3,
+          "review_site": 8,
+          "web_search": 20
+        },
+        "claims_kept": 0,
+        "claims_by_source_type": {},
+        "dropped_by_reason": {
+          "quote": 1
+        },
+        "quote_found_share": 0.0
+      },
+      "funnel": {
+        "sources": {
+          "found": 51,
+          "by_type": {
+            "reddit": 20,
+            "retailer": 3,
+            "review_site": 8,
+            "web_search": 20
+          },
+          "by_via": {
+            "api": 20,
+            "direct": 10,
+            "jina": 1,
+            "search_snippet": 20
+          }
+        },
+        "extract": {
+          "reached_the_stage": 51,
+          "not_started_time_limit": 0,
+          "search_snippet": 20,
+          "over_source_cap": 0,
+          "over_reddit_budget": 7,
+          "over_reddit_share": 0,
+          "sent": 24,
+          "sent_with_no_criteria": 0,
+          "no_valid_answer": 17,
+          "no_answer_by_reason": {
+            "gave_up": 1,
+            "no_room": 15,
+            "timed_out": 2
+          },
+          "timed_out": 1,
+          "failed": 0
+        },
+        "llm": {
+          "calls": 48,
+          "by_provider": {
+            "gemini": {
+              "public": 1
+            },
+            "groq": {
+              "public": 16,
+              "reddit": 21
+            },
+            "mistral": {
+              "public": 9
+            },
+            "openrouter": {
+              "public": 1
+            }
+          },
+          "by_outcome": {
+            "ok": 6,
+            "rate_limited": 40,
+            "timeout": 2
+          },
+          "failed": 42,
+          "cut_off": 0,
+          "no_room": 40
+        },
+        "claims": {
+          "returned": 1,
+          "dropped_by_reason": {
+            "quote": 1
+          },
+          "kept": 0,
+          "kept_by_kind": {},
+          "kept_by_key": {
+            "rubric": 0,
+            "spec": 0,
+            "neither": 0
+          },
+          "kept_by_source_type": {},
+          "scorable": 0
+        },
+        "match": {
+          "claims_matching_a_product": 0,
+          "claims_matching_nothing": 0,
+          "nothing_by_reason": {}
+        },
+        "shown": {
+          "products": 0,
+          "with_a_score": 0,
+          "states": {
+            "disputed": 0,
+            "estimated": 0,
+            "known": 0,
+            "unknown": 0
+          },
+          "per_product": [],
+          "by_criterion": [
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            }
+          ]
+        },
+        "held_back": {
+          "filtered_out": 0,
+          "cant_tell": 3,
+          "cant_tell_for_price": 3
+        },
+        "price": {
+          "asked": true,
+          "returned": 0,
+          "dropped_by_reason": {},
+          "kept": 0,
+          "kept_unusable_by_reason": {},
+          "attached": 0,
+          "products_with_a_price": 0,
+          "shown_with_a_price": 0,
+          "cant_tell_for_price": 3,
+          "filtered_for_price": 0,
+          "by_source": {
+            "reddit.thread": {
+              "reached": 20,
+              "sent": 13,
+              "gave_up": 0,
+              "price_asked": 0,
+              "price_returned": 0
+            },
+            "retailer.store": {
+              "reached": 3,
+              "sent": 2,
+              "gave_up": 1,
+              "price_asked": 2,
+              "price_returned": 0
+            },
+            "review_site.list": {
+              "reached": 5,
+              "sent": 5,
+              "gave_up": 0,
+              "price_asked": 5,
+              "price_returned": 0
+            },
+            "review_site.review": {
+              "reached": 3,
+              "sent": 3,
+              "gave_up": 0,
+              "price_asked": 3,
+              "price_returned": 0
+            },
+            "web_search.snippet": {
+              "reached": 20,
+              "sent": 0,
+              "gave_up": 0,
+              "price_asked": 0,
+              "price_returned": 0
+            }
+          }
+        },
+        "public_prompt": {
+          "criteria": 5,
+          "of_criteria": 8,
+          "spec_keys": 1,
+          "price_asked": true,
+          "rules_asked": 0,
+          "rules": 0
+        }
+      },
+      "presearch_seconds": {
+        "intake": 2.45,
+        "criteria": 0.02,
+        "interview": 0.0
+      },
+      "calls": {
+        "llm": 10,
+        "serper": 5,
+        "reddit": 11,
+        "jina": 1,
+        "firecrawl": 0
+      }
+    },
+    {
+      "category": "smartwatch",
+      "finished": true,
+      "search_seconds": 58.56,
+      "stages": {
+        "research": {
+          "status": "ok",
+          "seconds": 36.11
+        },
+        "extract": {
+          "status": "ok",
+          "seconds": 22.42
+        },
+        "match": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "verify": {
+          "status": "ok",
+          "seconds": 0.03
+        },
+        "enrich": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "decide": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "explain": {
+          "status": "ok",
+          "seconds": 0.0
+        },
+        "commerce": {
+          "status": "skipped",
+          "seconds": 0.0
+        }
+      },
+      "methods": {
+        "match": "fuzzy",
+        "trust": "learned",
+        "decide": "weighted"
+      },
+      "products": {
+        "ranked": 0,
+        "with_a_score": 0,
+        "not_ranked": 0,
+        "filtered_out": 0,
+        "cant_tell": 14,
+        "coverage": []
+      },
+      "checks": {
+        "rule_check": "independent",
+        "hard_rule_violations_shown": 0,
+        "shown_with_unknown_rule": 0,
+        "unsourced_recheck": 0,
+        "dropped_unsourced": 0,
+        "popularity_by_fit": false
+      },
+      "research": {
+        "sources": 49,
+        "sources_by_type": {
+          "reddit": 20,
+          "retailer": 2,
+          "review_site": 7,
+          "web_search": 20
+        },
+        "pages_by_via": {
+          "api": 20,
+          "direct": 9,
+          "search_snippet": 20
+        }
+      },
+      "extraction": {
+        "sources_given": 49,
+        "sources_given_by_type": {
+          "reddit": 20,
+          "retailer": 2,
+          "review_site": 7,
+          "web_search": 20
+        },
+        "claims_kept": 6,
+        "claims_by_source_type": {
+          "reddit": 6
+        },
+        "dropped_by_reason": {
+          "criterion": 6,
+          "product": 3
+        },
+        "quote_found_share": 1.0
+      },
+      "funnel": {
+        "sources": {
+          "found": 49,
+          "by_type": {
+            "reddit": 20,
+            "retailer": 2,
+            "review_site": 7,
+            "web_search": 20
+          },
+          "by_via": {
+            "api": 20,
+            "direct": 9,
+            "search_snippet": 20
+          }
+        },
+        "extract": {
+          "reached_the_stage": 49,
+          "not_started_time_limit": 0,
+          "search_snippet": 20,
+          "over_source_cap": 0,
+          "over_reddit_budget": 3,
+          "over_reddit_share": 0,
+          "sent": 26,
+          "sent_with_no_criteria": 0,
+          "no_valid_answer": 19,
+          "no_answer_by_reason": {
+            "no_room": 19
+          },
+          "timed_out": 0,
+          "failed": 0
+        },
+        "llm": {
+          "calls": 62,
+          "by_provider": {
+            "groq": {
+              "public": 27,
+              "reddit": 33
+            },
+            "mistral": {
+              "public": 2
+            }
+          },
+          "by_outcome": {
+            "ok": 7,
+            "rate_limited": 55
+          },
+          "failed": 55,
+          "cut_off": 0,
+          "no_room": 55
+        },
+        "claims": {
+          "returned": 15,
+          "dropped_by_reason": {
+            "criterion": 6,
+            "product": 3
+          },
+          "kept": 6,
+          "kept_by_kind": {
+            "score": 1,
+            "value": 5
+          },
+          "kept_by_key": {
+            "rubric": 6,
+            "spec": 0,
+            "neither": 0
+          },
+          "kept_by_source_type": {
+            "reddit": 6
+          },
+          "scorable": 1
+        },
+        "match": {
+          "claims_matching_a_product": 6,
+          "claims_matching_nothing": 0,
+          "nothing_by_reason": {}
+        },
+        "shown": {
+          "products": 0,
+          "with_a_score": 0,
+          "states": {
+            "disputed": 0,
+            "estimated": 0,
+            "known": 0,
+            "unknown": 0
+          },
+          "per_product": [],
+          "by_criterion": [
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            },
+            {
+              "disputed": 0,
+              "estimated": 0,
+              "known": 0,
+              "unknown": 0
+            }
+          ]
+        },
+        "held_back": {
+          "filtered_out": 0,
+          "cant_tell": 14,
+          "cant_tell_for_price": 14
+        },
+        "price": {
+          "asked": true,
+          "returned": 0,
+          "dropped_by_reason": {},
+          "kept": 0,
+          "kept_unusable_by_reason": {},
+          "attached": 0,
+          "products_with_a_price": 0,
+          "shown_with_a_price": 0,
+          "cant_tell_for_price": 14,
+          "filtered_for_price": 0,
+          "by_source": {
+            "reddit.thread": {
+              "reached": 20,
+              "sent": 17,
+              "gave_up": 0,
+              "price_asked": 0,
+              "price_returned": 0
+            },
+            "retailer.store": {
+              "reached": 2,
+              "sent": 2,
+              "gave_up": 0,
+              "price_asked": 2,
+              "price_returned": 0
+            },
+            "review_site.list": {
+              "reached": 5,
+              "sent": 5,
+              "gave_up": 0,
+              "price_asked": 5,
+              "price_returned": 0
+            },
+            "review_site.review": {
+              "reached": 2,
+              "sent": 2,
+              "gave_up": 0,
+              "price_asked": 2,
+              "price_returned": 0
+            },
+            "web_search.snippet": {
+              "reached": 20,
+              "sent": 0,
+              "gave_up": 0,
+              "price_asked": 0,
+              "price_returned": 0
+            }
+          }
+        },
+        "public_prompt": {
+          "criteria": 3,
+          "of_criteria": 10,
+          "spec_keys": 1,
+          "price_asked": true,
+          "rules_asked": 0,
+          "rules": 1
+        }
+      },
+      "presearch_seconds": {
+        "intake": 2.28,
+        "criteria": 0.0,
+        "interview": 0.02
+      },
+      "calls": {
+        "llm": 10,
+        "serper": 5,
+        "reddit": 12,
+        "jina": 2,
+        "firecrawl": 1
+      }
+    }
+  ]
+}
