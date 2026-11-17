@@ -117,6 +117,34 @@ def test_llm_calls_are_grouped_by_provider_data_class_and_outcome() -> None:
     assert (llm["failed"], llm["cut_off"], llm["no_room"]) == (4, 1, 2)
 
 
+def test_llm_attempts_are_counted_by_provider_and_outcome() -> None:
+    """Per provider, how each attempt ended (US-46, S4-29): our own pacing, which sent nothing, is "held"; a 429 a
+    provider really sent back stays "rate_limited". Counts only."""
+    held = _call(Provider.MISTRAL, DataClass.PUBLIC, "rate_limited", out=0)
+    held = LLMCallRecord.model_validate({**held.model_dump(), "input_tokens": 0})
+    calls = [
+        held,
+        held,
+        _call(Provider.MISTRAL, DataClass.PUBLIC, "ok"),
+        _call(Provider.GEMINI, DataClass.PUBLIC, "rate_limited", out=0),  # sent: a real 429
+        _call(Provider.GROQ, DataClass.REDDIT, "ok"),
+        _call(Provider.GROQ, DataClass.PUBLIC, "timeout", out=0),
+    ]
+    llm = _funnel(calls=calls)["llm"]
+    assert llm["by_provider_outcome"] == {
+        "gemini": {"rate_limited": 1},
+        "groq": {"ok": 1, "timeout": 1},
+        "mistral": {"held": 2, "ok": 1},
+    }
+    assert llm["no_room"] == 3  # unchanged: every rate_limited, held or not
+
+
+def test_sources_not_reached_are_counted() -> None:
+    counts = {"sent": 1, "unreadable": 0, "not_reached": 4}
+    assert _funnel(extractions=_extractions()[:1], stage_counts=counts)["extract"]["not_reached"] == 4
+    assert _funnel(extractions=_extractions()[:1], stage_counts={"sent": 1})["extract"]["not_reached"] == 0
+
+
 def test_products_held_back_for_price_are_counted() -> None:
     result = examples.search_result()
     assert result.decision is not None
@@ -174,6 +202,7 @@ def test_the_funnel_counts_sources_and_where_each_stopped() -> None:
     assert funnel["extract"] == {
         "reached_the_stage": 2,
         "not_started_time_limit": 1,
+        "not_reached": 0,
         "search_snippet": 0,
         "over_source_cap": 0,
         "over_reddit_budget": 1,

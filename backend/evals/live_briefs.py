@@ -534,6 +534,13 @@ def _sorted(counts: Mapping[str, int]) -> dict[str, int]:
     return dict(sorted((k, v) for k, v in counts.items() if v))
 
 
+def _outcome_kind(call: LLMCallRecord) -> str:
+    """An attempt's outcome, with our own pacing ("held": nothing sent) told apart from a provider's real 429."""
+    if call.outcome == "rate_limited" and call.input_tokens == 0:
+        return "held"
+    return call.outcome
+
+
 def funnel(
     result: SearchResult,
     extractions: Sequence[ExtractionResult],
@@ -588,8 +595,10 @@ def funnel(
     own = [c for c in calls if c.search_id == result.search_id]
     outcomes = Counter[str](c.outcome for c in own)
     by_provider: dict[str, Counter[str]] = {}
+    by_provider_outcome: dict[str, Counter[str]] = {}
     for call in own:
         by_provider.setdefault(call.provider.value, Counter())[call.data_class.value] += 1
+        by_provider_outcome.setdefault(call.provider.value, Counter())[_outcome_kind(call)] += 1
     cut_off = sum(1 for c in own if _cut_off(c, reserve, last_resort or {}))
 
     ranked = result.decision.ranked if result.decision is not None else []
@@ -640,6 +649,8 @@ def funnel(
         "extract": {
             "reached_the_stage": len(reached),
             "not_started_time_limit": sum(1 for s in sources if s.id not in reached),
+            # never sent: the search had no time left to send it and still give the later stages theirs (US-46)
+            "not_reached": counts.get("not_reached", 0),
             "search_snippet": sum(1 for s in sources if s.via == SEARCH_SNIPPET and s.id in reached),
             "over_source_cap": counts.get("over_source_cap", 0),
             "over_reddit_budget": counts.get("over_reddit_budget", 0),
@@ -657,6 +668,9 @@ def funnel(
             "calls": len(own),
             "by_provider": {p: _sorted(c) for p, c in sorted(by_provider.items())},
             "by_outcome": _sorted(outcomes),
+            # per provider, how each attempt ended: counts only (US-46, S4-29). "held" is our own pacing, with nothing
+            # sent; "rate_limited" is a provider's real 429.
+            "by_provider_outcome": {p: _sorted(c) for p, c in sorted(by_provider_outcome.items())},
             "failed": len(own) - outcomes.get("ok", 0),
             "cut_off": cut_off,
             "no_room": outcomes.get("skipped_budget", 0) + outcomes.get("rate_limited", 0),

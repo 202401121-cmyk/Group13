@@ -108,7 +108,13 @@ def to_intent(raw: RawIntent, text: str, raw_query: str, lexicon: Lexicon | None
     if category is None and word is None and scan.category:
         category = (scan.category, lexicon.label(scan.category))  # the LLM missed a product word code can see
 
-    if raw.ambiguous or category is None:
+    # The LLM's "ambiguous" asks only when the shopper's own words name no category the lexicon knows (US-02, S4-29):
+    # "phone with a good camera … 8 GB RAM" names a phone, so it is a smartphone, whatever features it lists. A word
+    # that could mean different products ("watch") is never a lexicon category, so it still asks.
+    unsure = raw.ambiguous and scan.category is None
+    if raw.ambiguous and scan.category:
+        category = (scan.category, lexicon.label(scan.category))  # the shopper's own first product word wins
+    if unsure or category is None:
         question, options = _question(raw, word or scan.ambiguous, lexicon)
         asking = clarifying_intent(raw_query, question, options, budget, region, "llm")
         return Intent.model_validate(

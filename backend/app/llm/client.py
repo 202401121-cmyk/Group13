@@ -57,6 +57,7 @@ from .pool import ATTEMPT_SHARE, BULK_TASKS, CALL_MARGIN_S, RUNNING_CALL_LOOK_S,
 from .providers import Adapter, OpenAICompatibleAdapter, build_http_client, note_no_client
 from .retry import Kind, retry_after_of, retry_wait
 from .usage import record_use, time_already_spent
+from .window import window_until
 
 log = logging.getLogger(__name__)
 
@@ -183,6 +184,9 @@ class _Plan:
         return len(self.fitted.texts)
 
 
+ROOM_LOOK_AGAIN_S = 1.0  # a provider cooling down is looked at again this soon by the public room check
+
+
 class WrapperLLMClient:
     """Routing by data class, the model pool, fallback, health, budgets, context fitting, one retry, a call log."""
 
@@ -236,6 +240,70 @@ class WrapperLLMClient:
         turns = [m for m in models if self._takes_turns(m, task, data_class)]
         rest = [m for m in models if not self._takes_turns(m, task, data_class)]
         return [*self.pool.order(turns, data_class, rotate=True), *rest]
+
+    def wait_for_public_room(self, task: LLMTask, input_tokens: int, max_output_tokens: int, within_s: float) -> bool:
+        """Wait, up to `within_s`, until a provider on the public route has room for a call of this size (US-46).
+
+        True when one has room now, or when none ever could (every model switched off, spent for the day or too
+        small): waiting can't help then, and the call may go and say so. False when the time ran out first. It only
+        looks: the call itself books its slot, so no per-minute or daily limit can be passed.
+        """
+        until = self.pool.now() + max(0.0, within_s)
+        while True:
+            wait = self.public_room_in(task, input_tokens, max_output_tokens)
+            if wait is None or wait <= 0:
+                return True
+            left = until - self.pool.now()
+            if left <= 0:
+                return False
+            self.pool.pause(min(wait, left))
+
+    def public_room_in(self, task: LLMTask, input_tokens: int, max_output_tokens: int) -> float | None:
+        """Seconds until a model on the public route could take a call of this size (0: now), booking nothing.
+
+        None when none ever could. A model cooling down after a failure may come back, so it is looked at again soon
+        rather than counted out. Groq's models, the last resort for a public page, must leave the shoppers' reserve
+        free, keep to the public share of their day, and take the page whole at the pool's public answer size.
+        """
+        keep_free = self.pool.keep_free(task)
+        soonest: float | None = None
+        for model in self.candidates(DataClass.PUBLIC, Difficulty.LONG):
+            wait = self._room_in(model, task, input_tokens, max_output_tokens, keep_free)
+            if wait is not None and (soonest is None or wait < soonest):
+                soonest = wait
+        return soonest
+
+    def _room_in(
+        self, model: ModelLimits, task: LLMTask, input_tokens: int, max_output_tokens: int, keep_free: int
+    ) -> float | None:
+        provider, member = model.provider, self._member(model)
+        health = self.health.state(provider, member)
+        if health == "dead":
+            return None
+        reserve = reserve_output(model, max_output_tokens)
+        if self._last_resort(model, task, DataClass.PUBLIC) and self.config.pool.public_output_tokens is not None:
+            reserve = min(reserve, self.config.pool.public_output_tokens)
+        try:
+            if input_tokens > model.input_budget(reserve_output=reserve):
+                return None
+        except ValueError:
+            return None
+        planned = input_tokens + reserve
+        if not self.budget.allows(provider, planned) or not self.requests.allows(provider, 1):
+            return None
+        if self.pool.has(model):
+            ceiling = self.pool.token_ceiling(model, keep_free)
+            today = self.pool.tokens_left_today(model)
+            public = self.pool.public_tokens_left_today(model)
+            if any(left is not None and planned > left for left in (ceiling, today, public)):
+                return None
+            wait = self.pool.seconds_until_room(model, planned, keep_free)
+        else:
+            limiter = self.limiters.get(provider)
+            wait = 0.0 if limiter is None else limiter.seconds_until_room(planned)
+        if wait is None:
+            return None
+        return max(wait, ROOM_LOOK_AGAIN_S) if health == "cooling" else max(0.0, wait)
 
     def _rotates(self, model: ModelLimits) -> bool:
         return self.config.provider(model.provider).rotates
@@ -405,16 +473,29 @@ class WrapperLLMClient:
                 return None, "no"
             retries[name] = retries.get(name, 0) + 1
 
+    def _in_send_window(self) -> bool:
+        until = window_until()
+        return until is not None and self.pool.now() < until
+
     def _wait_for_room(self, call: _Call[T], busy: Sequence[_Plan]) -> bool:
-        """Sleep until the soonest slot opens. False if nothing can open in time for a call to run."""
+        """Sleep until the soonest slot opens. False if nothing can open in time for a call to run.
+
+        A public page waiting for its last resort waits no later than its send window's end (US-46)."""
+        latest = call.latest_start
+        until = window_until()
+        last_resorts = [p for p in busy if self._last_resort(p.model, call.task, call.data_class)]
+        if until is not None and last_resorts:
+            # As _wait_for_pace: it must still leave a full attempt's time, or the call would start only to time out.
+            full = max(self._full_timeout_s(call, p.model) for p in last_resorts)
+            latest = min(latest, until, call.stage_ends_at - full - CALL_MARGIN_S)
         waits = [self.pool.seconds_until_room(p.model, p.planned, call.keep_free) for p in busy]
         soonest = min((w for w in waits if w is not None), default=None)
         if soonest is not None and self._a_running_call_may_free_room(call, busy):
             look = min(soonest, RUNNING_CALL_LOOK_S)
-            if self.pool.now() + look <= call.latest_start:
+            if self.pool.now() + look <= latest:
                 self.pool.pause(look)
                 return True
-        if soonest is None or self.pool.now() + soonest > call.latest_start:
+        if soonest is None or self.pool.now() + soonest > latest:
             for plan in busy:
                 log.info("llm %s skipped: no room before the time limit", plan.model.model)
                 self._record(call, plan, "rate_limited")
@@ -519,10 +600,11 @@ class WrapperLLMClient:
             booking = self.pool.try_take(model, plan.planned, call.keep_free)  # keep_free: the shopper's reserve
             if booking is not None:
                 return "go", booking
-            if self._last_resort(model, call.task, call.data_class):
+            if self._last_resort(model, call.task, call.data_class) and not self._in_send_window():
                 log.info("llm %s skipped: no room right now, and a public page never waits for it", model.model)
                 self._record(call, plan, "rate_limited")
                 return "no", None
+            # Inside extraction's send window a public page may wait for its last resort, until the window ends.
             return "busy", None
         limiter = self.limiters.get(model.provider)
         if limiter is None:

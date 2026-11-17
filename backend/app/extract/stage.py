@@ -39,6 +39,7 @@ from app.llm.fitting import estimate_tokens
 from app.llm.output import build_system_prompt
 from app.llm.pool import ATTEMPT_SHARE, CALL_MARGIN_S, time_limit_s
 from app.llm.usage import TokenMeter
+from app.llm.window import send_window
 
 from .parsing import RawExtraction, to_extraction_result
 from .prompts import (
@@ -97,6 +98,7 @@ class _Counts:
     over_source_cap: int = 0
     unreadable: int = 0
     no_criteria: int = 0  # sent with no criteria: it can name products, but every claim it gives is dropped
+    not_reached: int = 0  # never sent: the search had no time left to send it and still finish (US-46)
 
     def snapshot(self) -> dict[str, int]:
         """The counts the live briefs' funnel reads (US-14): sources sent and not sent, by reason."""
@@ -107,6 +109,7 @@ class _Counts:
             "over_source_cap": self.over_source_cap,
             "unreadable": self.unreadable,
             "no_criteria": self.no_criteria,
+            "not_reached": self.not_reached,
         }
 
 
@@ -125,6 +128,9 @@ def _note(counts: _Counts) -> str | None:
     if counts.over_reddit_share:  # only under a small cap: under the usual one Reddit never reaches its share
         threads = _plural(counts.over_reddit_share, "Reddit thread was", "Reddit threads were")
         parts.append(f"{threads} not read, to leave room for web pages.")
+    if counts.not_reached:
+        sources = _plural(counts.not_reached, "source was", "sources were")
+        parts.append(f"{sources} not read, because the search ran out of time to send them.")
     if counts.unreadable:
         sources = _plural(counts.unreadable, "source", "sources")
         parts.append(
@@ -153,6 +159,7 @@ class GuardedExtractStage:
         self._settled = threading.Condition(self._lock)  # wakes a thread waiting for the Reddit budget
         self._counts: OrderedDict[str, _Counts] = OrderedDict()
         self._asks: OrderedDict[str, SpecAsk] = OrderedDict()  # keys only: no words of the shopper's
+        self._windows: OrderedDict[str, float] = OrderedDict()  # when each search's send window ends (US-46)
 
     def run(self, inp: ExtractInput, ctx: StageContext) -> ExtractionResult:
         started = time.monotonic()
@@ -170,7 +177,8 @@ class GuardedExtractStage:
         meter = TokenMeter(already_spent_s=time.monotonic() - started)  # the runner's limit started with this run
         failed = False
         try:
-            with meter.counting():
+            window = self._window_for(ctx.search_id) if source.data_class is DataClass.PUBLIC else None
+            with meter.counting(), send_window(window):
                 raw = self.llm.complete(
                     LLMTask.EXTRACT_CLAIMS,
                     criteria.system,  # SYSTEM_PROMPT, or its price-first variant for a public page (S4-1)
@@ -228,8 +236,33 @@ class GuardedExtractStage:
         """What this search skipped or could not read, in plain words. Asked once, at the end: its counts then go."""
         with self._lock:
             self._asks.pop(search_id, None)
+            self._windows.pop(search_id, None)
             counts = self._counts.pop(search_id, None)
         return _note(counts) if counts is not None else None
+
+    def open_window(self, search_id: str, until: float) -> None:
+        """This search sends new sources until `until` (time.monotonic): a public call may wait inside it (US-46)."""
+        with self._lock:
+            self._windows[search_id] = until
+            while len(self._windows) > MAX_TRACKED_SEARCHES:
+                self._windows.popitem(last=False)
+
+    def count_not_reached(self, search_id: str, count: int) -> None:
+        """Sources this search never sent, for its coverage note and the funnel."""
+        if count > 0:
+            with self._lock:
+                self._for(search_id).not_reached += count
+
+    def room_for(self, search_id: str, inp: ExtractInput, within_s: float) -> bool | None:
+        """Wait, up to `within_s`, until a public provider has room for this page (US-46). True at once for a client
+        that can't say: None, so it is sent at once, as before. Only looks: the call books its own slot."""
+        wait = getattr(self.llm, "wait_for_public_room", None)
+        if wait is None:
+            return None
+        data_class = inp.source.data_class
+        criteria = allowed_criteria(inp, data_class, self._ask_for(search_id), self.settings)
+        sent_in = _FULL_SYSTEM_TOKENS + estimate_tokens(user_message(inp.source, criteria))
+        return bool(wait(LLMTask.EXTRACT_CLAIMS, sent_in, self.settings.output_tokens(data_class), within_s))
 
     def counts_for(self, search_id: str) -> dict[str, int] | None:
         """A copy of this search's counts so far, or None. Unlike coverage_note, reading them clears nothing."""
@@ -242,6 +275,10 @@ class GuardedExtractStage:
         data_class = inp.source.data_class
         criteria = allowed_criteria(inp, data_class, settings=self.settings)
         return self._booking(user_message(inp.source, criteria), data_class)
+
+    def _window_for(self, search_id: str) -> float | None:
+        with self._lock:
+            return self._windows.get(search_id)
 
     def _ask_for(self, search_id: str) -> SpecAsk | None:
         with self._lock:

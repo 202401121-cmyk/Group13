@@ -347,13 +347,43 @@ def test_no_source_starts_once_the_search_is_marked_out_of_time() -> None:
 
 
 def test_a_search_out_of_time_starts_no_more_sources() -> None:
+    """With less time than one source's limit and the later stages', nothing is sent at all (US-46, S4-29)."""
+
     def behave(_: Source) -> None:
         time.sleep(0.3)
 
     extract = ClaimsPerSource(behave)
     result, _ = _search(extract, *[_web(f"s{i}") for i in range(6)], search_time_limit_s=0.15, extract_workers=1)
-    assert extract.read == 1
-    assert result.partial is True
+    assert extract.read == 0
+    report = _report(result)
+    assert report.status is C.StageStatus.SKIPPED
+    assert report.fallback_reason == "the search stopped before any source was read"
+
+
+LATER = (
+    C.StageName.MATCH,
+    C.StageName.VERIFY,
+    C.StageName.ENRICH,
+    C.StageName.DECIDE,
+    C.StageName.EXPLAIN,
+    C.StageName.COMMERCE,
+)
+
+
+def test_later_stages_keep_their_time_after_extraction() -> None:
+    """Sources stop being sent while the time left still covers one source's limit and every later stage's."""
+
+    def behave(_: Source) -> None:
+        time.sleep(0.4)
+
+    extract = ClaimsPerSource(behave)
+    limits = {C.StageName.EXTRACT: 0.5, **{name: 0.25 for name in LATER}}  # 0.5 + 6 x 0.25: the window ends at 2 s left
+    result, spy = _search(
+        extract, *[_page(f"p{i}") for i in range(6)], search_time_limit_s=3.0, extract_workers=1, time_limits=limits
+    )
+    assert extract.read == 3  # sent with about 3.0, 2.6 and 2.2 s left; at 1.8 s the window had closed
+    assert len(spy.claims) == 3  # verify still ran, with its time
+    assert not result.partial
 
 
 def test_the_saved_row_keeps_no_reddit_quote() -> None:
@@ -405,3 +435,21 @@ def test_the_default_stage_shares_the_client_intake_uses(monkeypatch: pytest.Mon
 
 def test_tests_stay_offline_on_the_stub() -> None:
     assert isinstance(default_search_stages().extract, ExtractStage)
+
+
+class CountsNotReached(ClaimsPerSource):
+    def __init__(self, behave: Any = None) -> None:
+        super().__init__(behave)
+        self.not_reached: list[int] = []
+
+    def count_not_reached(self, search_id: str, count: int) -> None:
+        self.not_reached.append(count)
+
+
+def test_the_stage_is_told_how_many_sources_were_not_reached() -> None:
+    extract = CountsNotReached(lambda _: time.sleep(0.4))
+    limits = {C.StageName.EXTRACT: 0.5, **{name: 0.25 for name in LATER}}
+    _search(
+        extract, *[_page(f"p{i}") for i in range(6)], search_time_limit_s=3.0, extract_workers=1, time_limits=limits
+    )
+    assert extract.not_reached == [6 - extract.read]  # every page the window closed on, counted once
