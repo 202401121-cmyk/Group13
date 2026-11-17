@@ -566,7 +566,11 @@ Each Groq text model is a member of the pool with its own limits. Read from
 - **Time limit:** `complete()` has no time-limit argument, so the limit comes from the task's stage and is counted from
   each `complete()`. A stage that calls it twice gets the limit twice, but `run_stage` still stops waiting on time and
   uses the fallback. One attempt gets a timeout of at most 60% of the limit, so another member has time to answer if it
-  hangs. httpx applies a timeout to each phase of a request, and a provider that keeps sending keep-alive bytes resets
+  hangs. A task may set its own share in `models.yaml` (`first_attempt_share`). Only `classify_reply` does: 1.0, so its
+  first attempt may use its whole deadline (4 s of the interview's 5 s turn). Its `hedge` sends the same request to
+  `openai/gpt-oss-20b` if `openai/gpt-oss-120b` hasn't answered by 1.5 s: the first valid answer wins and the other is
+  ignored, both booked and counted. No other task hedges. If neither answers by the deadline, the reply counts as an
+  answer (US-39). httpx applies a timeout to each phase of a request, and a provider that keeps sending keep-alive bytes resets
   its read timer: in P18's drill an OpenRouter attempt allowed 9 s ran 27.6 s. So the adapter reads the reply as it
   arrives and cuts the attempt off at the first chunk past its timeout (F-6). The bound is that timeout plus one gap
   between chunks, since httpx's read timeout still ends a silence; a connection that sends nothing at all is ended by
@@ -614,6 +618,8 @@ When a provider's terms change, update its flag, `terms_url` and `terms_checked`
 | `app/criteria/stage.py` | `generate_criteria` | category label and the shopper's use case | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | only a category label from our lexicon (no use case) | public | short |
 | `app/explain/stage.py` | `write_explanation` | code's facts for the top 3 products (criterion names, scores, points and claim refs) and the shopper's top priorities, never a source's words. Its one rewrite, when a paragraph is too hard to read, adds that paragraph (US-20) | private | medium |
+| `app/interview/replies.py` | `classify_reply` | the shopper's reply to an interview question, as data, with the question, its criterion's definition and the earlier questions (US-39) | private | short |
+| `app/interview/replies.py` | `answer_user_question` | the shopper's question, as data, with the criterion's name and definition, when the definition doesn't cover it (US-39) | private | short |
 | `app/extract/stage.py` | `extract_claims` | one fetched source's retrieved text, never a search snippet alone. Criterion keys and the category label from our config in every call; any others, which may hold the shopper's words, in Reddit calls only. A public call may also carry a generated criterion's fixed stand-in, known spec keys from the hard rules and `price_inr` with a budget, always as fixed keys with our own definitions (`config/extract.yaml`, US-14) | reddit for Reddit, otherwise public | long |
 
 `detect_intent`, `classify_reply`, `answer_user_question`, `write_question` and `write_explanation` always carry

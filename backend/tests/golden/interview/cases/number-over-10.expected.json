@@ -1,0 +1,8 @@
+{
+  "kind": "out_of_range",
+  "given": {
+    "reply": "15 out of 10, it is huge"
+  },
+  "outcome": "fallback",
+  "fallback": "answer_at_default"
+}

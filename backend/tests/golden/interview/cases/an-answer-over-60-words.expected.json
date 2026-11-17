@@ -1,0 +1,12 @@
+{
+  "kind": "specific",
+  "given": {
+    "classified": {
+      "reply_type": "question",
+      "user_question": "does it matter for gaming?"
+    },
+    "reply": "does it matter for gaming?"
+  },
+  "outcome": "fallback",
+  "fallback": "definition_answer"
+}

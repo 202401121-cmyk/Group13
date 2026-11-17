@@ -38,4 +38,6 @@ def test_the_known_call_sites() -> None:
         "app/explain/stage.py",  # and their one rewrite when too hard to read
         "app/extract/stage.py",
         "app/intake/stage.py",
+        "app/interview/replies.py",  # US-39: what kind of reply this is
+        "app/interview/replies.py",  # and the answer to the shopper's question
     ]

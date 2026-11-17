@@ -20,13 +20,13 @@ from app.cli import run
 from app.contracts import Intent
 from app.db import InMemoryRequestStore
 from app.intake.rules import NO_CATEGORY_QUESTION
+from app.interview.stage import rephrase_message
 from app.main import create_app
 from app.presearch import start_request
 from tests.fakes.llm import FakeLLMClient
 
 BLANK = ["   ", "\t\t", "\n\n", " \t\r\n ", " " * 1000]
 LAPTOP = "best laptop for coding under 70k"
-REPHRASE = "Please pick one of the buttons, or type a number from 0 to 10."
 
 
 @pytest.fixture
@@ -259,7 +259,9 @@ def test_a_reply_of_only_spaces_gets_a_rephrase(client: TestClient, reply: str) 
     session_id = start_interview(client)
     response = client.post(f"/api/presearch/{session_id}/interview/reply", json={"reply_text": reply})
     assert response.status_code == 200
-    assert (response.json()["kind"], response.json()["message"]) == ("rephrase", REPHRASE)
+    body = response.json()
+    label = body["question"]["text"].split(":", 1)[0]
+    assert (body["kind"], body["message"]) == ("rephrase", rephrase_message(label))  # read in code: no LLM call
 
 
 def test_two_replies_of_only_spaces_move_on_to_the_next_question(client: TestClient) -> None:

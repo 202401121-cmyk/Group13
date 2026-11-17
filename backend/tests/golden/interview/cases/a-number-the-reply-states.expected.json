@@ -1,0 +1,17 @@
+{
+  "kind": "specific",
+  "given": {
+    "reply": "I'd say 7"
+  },
+  "outcome": "canonical",
+  "object": {
+    "kind": "question",
+    "answer_source": null,
+    "status": "answered",
+    "unclear_count": 0,
+    "classification": {
+      "reply_type": "answer",
+      "weight": 7.0
+    }
+  }
+}

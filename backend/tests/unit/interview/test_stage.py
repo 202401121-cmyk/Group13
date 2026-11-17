@@ -16,6 +16,7 @@ from app.contracts import (
     InterviewState,
     InterviewStep,
     InterviewTurn,
+    LLMTask,
     ReplyType,
     RoughLevel,
     StageContext,
@@ -23,10 +24,14 @@ from app.contracts import (
 from app.contracts import examples as ex
 from app.criteria import fallback_set
 from app.interview import InterviewStage
-from app.interview.stage import DONE_MESSAGE, REPHRASE_MESSAGE
+from app.interview.parsing import RawReply
+from app.interview.stage import DONE_MESSAGE, rephrase_message
+from tests.fakes.llm import FakeLLMClient
 
 CTX = StageContext(search_id="srch_interview01")
 STAGE = InterviewStage()
+# US-39: words code can't place go to the classifier; this one reads every such reply as unclear.
+UNCLEAR_STAGE = InterviewStage(llm=FakeLLMClient({LLMTask.CLASSIFY_REPLY: RawReply(reply_type="unclear")}))
 
 
 def state_for(criteria: CriteriaSet | None = None) -> InterviewState:
@@ -108,14 +113,14 @@ def test_skip_moves_on() -> None:
 
 def test_unclear_rephrases_then_gives_up_after_two() -> None:
     first = start()
-    again = reply(first, "hmm not sure")
+    again = UNCLEAR_STAGE.run(InterviewTurn(state=first.state, reply_text="hmm not sure"), CTX)
     assert again.kind == "rephrase"
-    assert again.message == REPHRASE_MESSAGE
+    assert again.message == rephrase_message("CPU performance")
     assert again.question == first.question
     assert again.state.history[0].unclear_count == 1
     assert again.state.history[0].status == "pending"
 
-    moved_on = reply(again, "whatever you think")
+    moved_on = UNCLEAR_STAGE.run(InterviewTurn(state=again.state, reply_text="whatever you think"), CTX)
     gave_up = moved_on.state.history[0]
     assert (gave_up.status, gave_up.unclear_count) == ("skipped", MAX_UNCLEAR_PER_QUESTION)
     assert moved_on.kind == "question"
@@ -205,7 +210,8 @@ def test_going_back_drops_the_unanswered_question_and_it_returns_later() -> None
 def test_two_unclear_replies_while_correcting_keep_the_old_answer() -> None:
     step = reply(start(), "High")
     back = STAGE.go_back(step.state, "q_cpu_performance")
-    kept = reply(reply(back, "???"), "no idea")
+    once = UNCLEAR_STAGE.run(InterviewTurn(state=back.state, reply_text="???"), CTX)
+    kept = UNCLEAR_STAGE.run(InterviewTurn(state=once.state, reply_text="no idea"), CTX)
     cpu = entry(kept, "cpu_performance")
     assert cpu.status == "answered"  # type: ignore[attr-defined]
     assert cpu.classification.weight == 8.0  # type: ignore[attr-defined]
@@ -374,8 +380,8 @@ def test_an_exact_0_is_an_answer_and_survives_a_failed_correction() -> None:
     assert entry(step, "cpu_performance").status == "answered"  # type: ignore[attr-defined]
 
     back = STAGE.go_back(step.state, "q_cpu_performance")
-    for _ in range(MAX_UNCLEAR_PER_QUESTION):
-        back = reply(back, "what?")
+    for _ in range(MAX_UNCLEAR_PER_QUESTION):  # two unclear replies (US-39: read so by the classifier)
+        back = UNCLEAR_STAGE.run(InterviewTurn(state=back.state, reply_text="what?"), CTX)
 
     kept = entry(back, "cpu_performance")
     assert kept.status == "answered"  # type: ignore[attr-defined]

@@ -1,0 +1,5 @@
+{
+  "kind": "cut_off",
+  "outcome": "fallback",
+  "fallback": "answer_at_default"
+}

@@ -6,10 +6,14 @@ import pytest
 
 import app.contracts as C
 from app.cli import main, render
+from app.contracts import LLMTask
 from app.contracts import examples as ex
 from app.db import InMemoryRequestStore
+from app.interview.parsing import RawReply
+from app.interview.stage import rephrase_message
 from app.pipeline import InMemoryResultStore, PipelineRunner
 from tests.fakes.live_run import use_live_shaped_run
+from tests.fakes.llm import FakeLLMClient
 from tests.unit.test_pipeline_live_decide import _OnlyRam, live_stages
 
 
@@ -111,9 +115,14 @@ def test_cli_interactive_reads_answers(capsys: pytest.CaptureFixture[str], monke
             raise EOFError from None  # out of answers: the CLI treats the rest as skips
 
     monkeypatch.setattr("builtins.input", fake_input)
+    # US-39: words code can't place go to the reply classifier; this one reads every such reply as unclear.
+    monkeypatch.setattr(
+        "app.presearch.default_llm",
+        lambda: FakeLLMClient({LLMTask.CLASSIFY_REPLY: RawReply(reply_type="unclear")}),
+    )
     assert main(["best laptop for coding under 70k", "--interactive"]) == 0
     out = capsys.readouterr().out
-    assert "Please pick one of the buttons, or type a number from 0 to 10." in out
+    assert rephrase_message("RAM and storage") in out  # "not sure": the question once more, in other words
     assert "  - Processor speed: 8/10, " in out and "(answered)" in out
     assert "  - RAM and storage: 3/10, " in out
 

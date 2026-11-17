@@ -1,0 +1,13 @@
+{
+  "kind": "huge",
+  "outcome": "canonical",
+  "object": {
+    "kind": "question",
+    "answer_source": null,
+    "status": "skipped",
+    "unclear_count": 0,
+    "classification": {
+      "reply_type": "skip"
+    }
+  }
+}

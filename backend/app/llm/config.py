@@ -129,6 +129,16 @@ class ModelRequestSettings(BaseModel):
     include_reasoning: bool | None = None
 
 
+class HedgeSettings(BaseModel):
+    """A second request for a task with a shopper waiting (US-39): sent to `model` when the first model hasn't answered
+    by `after_s`. The first valid answer wins; the other is left to finish and ignored. Both are booked and counted."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    after_s: float = Field(gt=0, description="Seconds after the first request when the second goes out")
+    model: str = Field(min_length=1, description="The model the second request goes to")
+
+
 # Which providers a call may use, in order, by what its prompt carries and how big the job is (US-46).
 Routes = dict[DataClass, dict[Difficulty, list[Provider]]]
 
@@ -144,6 +154,16 @@ class LLMConfig(BaseModel):
     pool: PoolSettings
     force_ipv4: bool = Field(default=True, description="Connect to every provider over IPv4 only (docs/api-setup.md)")
     task_settings: dict[LLMTask, dict[str, ModelRequestSettings]] = Field(default_factory=dict)
+    hedge: dict[LLMTask, HedgeSettings] = Field(
+        default_factory=dict, description="A task's second request to another model when the first is slow (US-39)"
+    )
+    first_attempt_share: dict[LLMTask, float] = Field(
+        default_factory=dict,
+        description=(
+            "The share of a call's time limit one attempt of this task may take. A task not listed keeps the "
+            "wrapper's ATTEMPT_SHARE (0.6), which leaves another model time if the first hangs (US-39)"
+        ),
+    )
 
     @model_validator(mode="after")
     def _check(self) -> LLMConfig:
@@ -176,6 +196,8 @@ class LLMConfig(BaseModel):
         self._check_routes(trains)
         self._check_pool(set(pairs))
         self._check_task_settings({model for _, model in pairs})
+        self._check_first_attempt_share()
+        self._check_hedge({model for _, model in pairs})
         return self
 
     def _check_routes(self, trains: dict[Provider, bool]) -> None:
@@ -213,6 +235,16 @@ class LLMConfig(BaseModel):
             raise ValueError("extract_reserve_tokens_per_minute must leave every pool member room for bulk work")
         if self.pool.reddit_tokens_per_search > sum(m.tokens_per_minute - reserve for m in self.pool.members):
             raise ValueError("reddit_tokens_per_search must fit in the pool's minute above the reserve")
+
+    def _check_hedge(self, known_models: set[str]) -> None:
+        unknown = sorted({h.model for h in self.hedge.values()} - known_models)
+        if unknown:
+            raise ValueError(f"hedge names no such model: {unknown}")
+
+    def _check_first_attempt_share(self) -> None:
+        wrong = sorted(task.value for task, share in self.first_attempt_share.items() if not 0 < share <= 1)
+        if wrong:
+            raise ValueError(f"first_attempt_share must be above 0 and at most 1: {wrong}")
 
     def _check_task_settings(self, known_models: set[str]) -> None:
         unknown = sorted({model for rows in self.task_settings.values() for model in rows} - known_models)
@@ -290,6 +322,8 @@ def with_env_overrides(config: LLMConfig, env: Mapping[str, str]) -> LLMConfig:
                 "routes": config.routes,
                 "pool": config.pool,
                 "task_settings": config.task_settings,
+                "first_attempt_share": config.first_attempt_share,
+                "hedge": config.hedge,
                 "force_ipv4": config.force_ipv4,
             }
         )

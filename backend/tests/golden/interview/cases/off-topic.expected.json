@@ -1,0 +1,11 @@
+{
+  "kind": "specific",
+  "outcome": "canonical",
+  "object": {
+    "kind": "redirect",
+    "answer_source": null,
+    "status": "pending",
+    "unclear_count": 1,
+    "classification": null
+  }
+}

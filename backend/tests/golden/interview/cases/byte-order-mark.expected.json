@@ -1,0 +1,5 @@
+{
+  "kind": "bom",
+  "outcome": "fallback",
+  "fallback": "answer_at_default"
+}

@@ -12,10 +12,12 @@ never invents an answer: the calling stage's fallback decides what happens next.
 
 from __future__ import annotations
 
+import contextvars
 import logging
 import os
 import random
 from collections.abc import Mapping, Sequence
+from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -267,6 +269,14 @@ class WrapperLLMClient:
             task, data_class, full_system, schema, search_id, limit_s, ends_at, first, self.pool.keep_free(task)
         )
         pending = [plan for model in order if (plan := self._plan(call, model, user, max_output_tokens))]
+        hedge = self.config.hedge.get(task) if task not in BULK_TASKS else None
+        second = next((p for p in pending[1:] if hedge and p.model.model == hedge.model), None)
+        if hedge is not None and second is not None:
+            result = self._hedged(call, pending[0], second, hedge.after_s)
+            if result is not None:
+                return result
+            # Both failed: whatever time is left goes to the rest of the route (Groq's other model, for private text).
+            pending = [p for p in pending if p is not pending[0] and p is not second]
         retries: dict[str, int] = {}  # per model, for the whole call: coming back to a busy model is not a new retry
         failure_retries: dict[str, int] = {}  # the same, for the one retry after a failure (US-31)
         while pending:
@@ -282,6 +292,54 @@ class WrapperLLMClient:
                 break
             pending = busy
         raise LLMUnavailable(f"no LLM provider could complete the {task.value} task")
+
+    def _hedged(self, call: _Call[T], first: _Plan, second: _Plan, after_s: float) -> T | None:
+        """The first model, and the second as well if the first hasn't answered by `after_s` (US-39, config `hedge`).
+
+        The first valid answer wins. The other attempt is left to finish within the call's deadline, its answer
+        ignored; both are booked in the pool and recorded, so both count against the budget and the per-minute limits.
+        A first model that fails before `after_s` hands over to the second at once. Each model gets one attempt, no
+        retry: one request a model, as the pacing counts. Every finished attempt is read, whenever it finished, and the
+        wait ends at the call's deadline, never later. None when neither answered by then.
+        """
+        workers = ThreadPoolExecutor(max_workers=2, thread_name_prefix=f"llm-hedge-{call.task.value}")
+
+        def start(plan: _Plan) -> Future[tuple[T | None, ModelState]]:
+            context = contextvars.copy_context()  # the caller's TokenMeter, in the worker too
+            no_retry = {plan.model.model: MAX_FAILURE_RETRIES}  # one attempt on this model
+            return workers.submit(context.run, self._try_model, call, plan, no_retry, {}, False)
+
+        try:
+            unread = [start(first)]
+            wait(unread, timeout=after_s)
+            if unread[0].done():
+                answer = self._answer_of(unread.pop())
+                if answer is not None:
+                    return answer
+            unread.append(start(second))
+            while unread:
+                for future in [f for f in unread if f.done()]:  # in start order: the first model first
+                    unread.remove(future)
+                    if (answer := self._answer_of(future)) is not None:
+                        return answer
+                if not unread:
+                    return None
+                left = call.stage_ends_at - self.pool.now()
+                if left <= 0:
+                    return None
+                wait(unread, timeout=left, return_when=FIRST_COMPLETED)
+            return None
+        finally:
+            workers.shutdown(wait=False, cancel_futures=True)
+
+    @staticmethod
+    def _answer_of(future: Future[tuple[T | None, ModelState]]) -> T | None:
+        try:
+            result, _state = future.result()
+        except Exception as exc:  # an attempt that raised is an attempt that gave no answer (build rule 9)
+            log.warning("llm hedge: an attempt raised %s", type(exc).__name__)
+            return None
+        return result
 
     def _plan(self, call: _Call[T], model: ModelLimits, user: str, max_output_tokens: int) -> _Plan | None:
         """Fit the input to this model, or None if it can't take it. Each model is fitted again, as limits differ.
@@ -497,7 +555,15 @@ class WrapperLLMClient:
         return True
 
     def _full_timeout_s(self, call: _Call[T], model: ModelLimits) -> float:
-        """The longest one attempt may take, which leaves another model time to answer if this one hangs."""
+        """The longest one attempt may take, which leaves another model time to answer if this one hangs.
+
+        A task may set its own share (config `first_attempt_share`); every other task keeps ATTEMPT_SHARE. At 1.0 the
+        first attempt may use the whole deadline, so no second model is tried: a timeout then ends the call, and the
+        task's own fallback answers (US-39)."""
+        share = self.config.first_attempt_share.get(call.task, ATTEMPT_SHARE)
+        return min(self.config.provider(model.provider).request_timeout_s, call.limit_s * share)
+
+    def _default_timeout_s(self, model: ModelLimits, call: _Call[T]) -> float:
         return min(self.config.provider(model.provider).request_timeout_s, call.limit_s * ATTEMPT_SHARE)
 
     def _timeout_s(self, call: _Call[T], model: ModelLimits) -> float:
@@ -551,7 +617,9 @@ class WrapperLLMClient:
         except Exception as exc:  # an adapter bug must not crash the search (build rule 9)
             log.warning("llm %s raised %s; trying the next model", provider.value, type(exc).__name__)
             outcome, error = "error", exc
-        cut_short = timeout_s < self._full_timeout_s(call, model)
+        # Cut short: less time than an attempt normally gets. A task with its own longer share (first_attempt_share) is
+        # still judged by the default share's time, so a full-length timeout counts against the model's health.
+        cut_short = timeout_s < min(self._full_timeout_s(call, model), self._default_timeout_s(model, call))
         wait = self._retry_wait(call, plan, error, cut_short, last) if may_retry and error is not None else None
         if error is None:
             self.health.record_success(provider, member)
