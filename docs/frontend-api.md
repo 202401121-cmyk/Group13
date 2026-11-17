@@ -32,9 +32,9 @@ The brief page's rubric editor (S3-14) calls `POST /api/presearch/{session_id}/r
 | `POST /api/presearch/intake` | Reads the shopper's request; starts a session | `text` (up to 1,000 characters; blank text gets a follow-up question); `session_id` (optional) | `session_id`, `intent`, `ready_for_research` | 404, 422 | [presearch.md](api/presearch.md#post-apipresearchintake) |
 | `PUT /api/presearch/{session_id}/intent` | Changes what we understood (the use, budget or region) | `changes` (the `Intent` fields to change; a new product, must-have or leave-out is refused with 422) | the session's new `Intent` | 404, 409, 422 | [presearch.md](api/presearch.md#put-apipresearchsession_idintent) |
 | `POST /api/presearch/{session_id}/criteria` | The criteria to compare | none | `CriteriaSet` | 404, 409 | [presearch.md](api/presearch.md#post-apipresearchsession_idcriteria) |
-| `POST /api/presearch/{session_id}/interview/start` | The first question | none | `InterviewStep` | 404, 409 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewstart) |
-| `POST /api/presearch/{session_id}/interview/reply` | Answers the current question | `reply_text` (1 to 500 characters); `question_id` (optional: makes a repeated reply safe); `level` or `exact_weight` (optional, never both: [rough answers](#rough-answers-us-08)) | `InterviewStep` (next question, rephrase, or finished with the rubric) | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewreply) |
-| `POST /api/presearch/{session_id}/interview/back` | Asks an earlier question again | `question_id` (1 to 64 characters) | `InterviewStep` | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewback) |
+| `POST /api/presearch/{session_id}/interview/start` | The first question, in the [smart order](#the-interviews-order-us-04) | none | `InterviewStep` | 404, 409 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewstart) |
+| `POST /api/presearch/{session_id}/interview/reply` | Answers the current question | `reply_text` (1 to 500 characters); `question_id` (optional: makes a repeated reply safe); `level` or `exact_weight` (optional, never both: [rough answers](#rough-answers-us-08)) | `InterviewStep` (next question, rephrase, or finished with the rubric; it may finish before 10 questions) | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewreply) |
+| `POST /api/presearch/{session_id}/interview/back` | Asks an earlier question again; the reply re-plans the rest | `question_id` (1 to 64 characters) | `InterviewStep` | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewback) |
 | `POST /api/presearch/{session_id}/rubric` | The shopper's rubric edits: switch a must-have, add or remove a leave-out, set a weight | `RubricEditRequest` | `RubricEditResponse` (the rebuilt `Rubric`) | 404, 409, 422 | [editing the rubric](#editing-the-rubric-us-09) |
 | `POST /api/presearch/exclusions/parse` | Reads leave-outs from the shopper's words ("no Xiaomi"); needs no session | `text` (1 to 200 characters) | `ExclusionParseResponse` | 422 | [reading leave-outs](#reading-leave-outs-from-words-us-10) |
 | `GET /api/presearch/{session_id}` | Everything about the session, for a page reload | none | the session | 404 | [presearch.md](api/presearch.md#get-apipresearchsession_id) |
@@ -378,6 +378,31 @@ Every error is `{"detail": "<one plain sentence>"}`. Show `detail`, or fall back
 | 404 | The claims behind the value were not kept, so there is nothing valid to show | `The sources for this value are no longer kept.` |
 | 409 | The run is still `queued` or `running` | `This search hasn't finished yet.` |
 | 422 | `product_id` or `criterion_key` is missing | Names the parameter, such as `Please check: query.criterion_key - Field required.` |
+
+## The interview's order (US-04)
+
+The interview asks one question at a time, and it works the order out again after every answer (US-04). Each
+question is about the criterion that matters most and that the app is least sure of. With today's tuned numbers
+(D-75), every criterion not asked yet is equally unsure, so this follows the category's usual order. The topic and
+budget rules can still leave a question out, and going back or correcting an answer re-plans the rest.
+
+- **At most 10 questions.** It may finish sooner: once the 3 criteria that matter most are settled, the next step is
+  `finished` with the rubric. With today's numbers that happens only when those 3 were all answered "good
+  enough". Treat `questions_asked` as the count so far, never as a fixed total.
+- **`ordering`** on every step says how its question was chosen: `information_gain` normally; `fixed_order` for a
+  turn where the smart order failed and the usual order was used instead. The next turn tries the smart order again.
+- **`state.beliefs`** holds what the app believes about each weight: a `mean` (0 to 10) and an `sd` (how unsure). It
+  is worked out again from the answers on every turn, so going back or correcting an answer keeps it right. It is
+  empty (`{}`) on a `fixed_order` turn. Screens don't need to show it.
+- **`question.why_asking`** says in plain words why the question comes now: the criterion usually matters and the
+  shopper's view isn't known yet. The criterion's definition follows when it fits in 200 characters. Show it under
+  "Why this question?". A question asked in the usual order (on a `fixed_order` turn) gives the definition alone.
+- **Going back** (`interview/back`) or a correction re-plans what follows. A finished interview can open again this
+  way, and one that had stopped early can ask more.
+- **Rubric edits** (`POST /rubric`, below) never change the beliefs, because an edit is not an answer. They stay
+  applied whatever the interview asks next, and they survive starting the interview again.
+
+Every step keeps the `InterviewStep` shape described in [api/presearch.md](api/presearch.md).
 
 ## Editing the rubric (US-09)
 
