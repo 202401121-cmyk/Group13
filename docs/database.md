@@ -151,6 +151,23 @@ address; ShopSense never copies it. The migration `20261115141557_add_user_table
 **Guests (D-36).** A guest's request and search are saved with `user_id` empty. They are never linked to an account
 later and never used to remember preferences. No policy ever shows a row with an empty `user_id`.
 
+**An owner never changes (D-72, S4-27).** The migration `20261118104917_keep_owner_fixed` makes the database refuse any
+update that changes `user_id` on `public.requests` or `public.searches`:
+
+- a guest's row can never be given a `user_id`, so it is never linked to an account later;
+- a user's row can never move to another user, or back to empty.
+
+It is a `before update of user_id` trigger on each table (`requests_user_id_fixed`, `searches_user_id_fixed`), which
+calls `public.keep_user_id_fixed()`. The refusal is a `check_violation` error. Saving a row with its owner still works,
+other columns still update, and deleting a user still deletes their rows (the cascade deletes, it never updates).
+The function has a fixed, empty `search_path`. `public`, `anon` and `authenticated` have no `execute` on it (and a
+trigger function can't be called directly anyway). A trigger fires anyway, because Postgres checks `execute` only
+when the trigger is made. Only the tables' owner could get round the rule, by switching triggers off on purpose
+(for example `session_replication_role = replica`). The Data API's roles can't, and the backend never does.
+
+The rule covers updates only. That a guest's search is never saved again under an account (for example a copy, or a
+row inserted with a `user_id` under a guest's session ID) is for the sign-in code to keep (S4-10).
+
 **Who can do what through the Data API** (the browser's publishable key, D-32):
 
 | Role | `requests`, `searches` | `profiles` |
@@ -250,13 +267,14 @@ The migration `20261111083610_create_product_aliases` (US-15) was applied after 
 Unlike `create_searches`, nothing fails without it: aliases stay in memory, and the missing table is logged once and
 never counted on the circuit breaker.
 
-### `add_user_tables` (after it merges, once, by hand)
+### `add_user_tables` and `keep_owner_fixed` (after both merge, once, by hand, in one push)
 
-The migration `20261115141557_add_user_tables` (US-30) is only a file until someone applies it. Nothing in the backend
-needs it yet: S4-10's sign-in and API do.
+The migrations `20261115141557_add_user_tables` (US-30) and `20261118104917_keep_owner_fixed` (S4-27, D-72) are only
+files until someone applies them. They ship together, in the same `db push`, so the user tables never exist without
+the rule that an owner never changes. Nothing in the backend needs them yet: S4-10's sign-in and API do.
 
-1. Vaishvi applies it from a fresh `main` in her own terminal, with `db push` as above. The dry run should list this one
-   migration only. She tells Om.
+1. Vaishvi applies them from a fresh `main` in her own terminal, with `db push` as above. The dry run should list
+   these two migrations only, `add_user_tables` first. She tells Om.
 2. Om checks it read-only through the Supabase connector:
    - the migration history lists `20261115141557`;
    - `public.requests` and `public.searches` have a nullable `user_id` with its foreign key to `auth.users` and its
@@ -264,7 +282,10 @@ needs it yet: S4-10's sign-in and API do.
    - `pg_policies` lists exactly the four policies in "Accounts", each for `authenticated` only;
    - `anon` has no privileges on the three tables, and `authenticated` has `select` only, plus `update` of
      `profiles.display_name`;
-   - the `auth` schema is Supabase's own: `auth.users` has all its usual columns, so the stand-in was not made.
+   - the `auth` schema is Supabase's own: `auth.users` has all its usual columns, so the stand-in was not made;
+   - the migration history lists `20261118104917`, `pg_trigger` shows `requests_user_id_fixed` and
+     `searches_user_id_fixed` (`before update of user_id`), and `has_function_privilege` is false for `anon` and
+     `authenticated` on `public.keep_user_id_fixed()`.
 3. The Security Advisor should show **RLS Enabled No Policy** for `public.product_aliases` only. Anything new, such as a
    warning about the policies, goes to Vaishvi before S4-10 merges.
 
@@ -342,6 +363,13 @@ A Free project is paused after 7 days of low activity. A paused project shows as
   - the columns, foreign keys, indexes, privileges and the four policies, exactly;
   - running the migration again changes nothing, and on a database that already has Supabase's `auth` schema it leaves
     `auth.users` and `auth.uid()` as they were.
+- `test_owner_fixed.py` checks that an owner never changes (S4-27):
+  - a guest's row can't be given a `user_id`, and a user's row can't move to another user or back to empty;
+  - other columns still update, setting the same owner again is no change, a row is still saved with its owner,
+    and deleting a user still deletes their rows;
+  - the triggers' shape, the function's fixed `search_path`, and no `execute` for `public`, `anon` and
+    `authenticated`, also after copying Supabase's default grants on new functions;
+  - running the migration again changes nothing, and it runs with no `anon` or `authenticated` role.
 - `test_product_aliases_table.py` checks the aliases table:
   - its columns and primary key;
   - row level security with no policies, and no access for `anon` and `authenticated` (on a plain Postgres these roles
