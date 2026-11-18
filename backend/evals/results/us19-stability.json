@@ -1,4 +1,6 @@
 {
+  "generated": "2026-11-18",
+  "commit": "b2eac63",
   "story": "US-19 (S4-7): the rank order under random 10% weight changes",
   "runner": "python -m evals.stability (offline)",
   "briefs": "backend/tests/fixtures/decide (5 made-up briefs)",
@@ -11,7 +13,7 @@
   "median": 1.0,
   "lowest": 1.0,
   "meets_target": true,
-  "note": "No change reordered any brief's shown products: in these briefs they are far apart, so this shows the order holds there, not how close products behave. tests/unit/evals/test_stability.py runs the same check on made-up close products, where it does find changed orders.",
+  "note": "No change reordered any of the five briefs' shown products: in them they are far apart, so this shows the order holds there, not how close products behave. The close brief beside them (`close`, D-74) is the check that can fail: there, changes do reorder the shown products.",
   "per_brief": {
     "ereader_8k": {
       "shown": 0,
@@ -41,5 +43,25 @@
       "median": 1.0,
       "lowest": 1.0
     }
-  }
+  },
+  "close": {
+    "brief": "backend/tests/fixtures/decide/stability/close_earbuds.json",
+    "shown": 7,
+    "median": 0.8929,
+    "lowest": 0.7143,
+    "target_median": 0.9,
+    "meets_target": false,
+    "top3_reordered": 87,
+    "note": "The median Spearman, 0.8929, is below US-19's target of 0.9: on close products a 10% change of the weights reorders the shown products often enough to miss it. Reported as it is, never tuned to pass."
+  },
+  "measures": [
+    {
+      "id": "decide.stability.close_median",
+      "value": 0.8929,
+      "unit": "rho",
+      "status": "measured",
+      "source": "backend/tests/fixtures/decide/stability/close_earbuds.json (made up), 100 weight changes of up to 10%, seed 19, app.decide",
+      "detail": "The close brief's median Spearman between its shown order and each changed one."
+    }
+  ]
 }

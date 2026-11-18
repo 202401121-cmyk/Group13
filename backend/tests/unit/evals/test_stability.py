@@ -25,7 +25,9 @@ def test_the_target_is_0_9_and_never_lowered() -> None:
 
 def test_the_committed_record_is_what_the_check_gives_now() -> None:
     committed = json.loads(stability.STABILITY_OUT.read_text(encoding="utf-8"))
+    when = {key: committed.pop(key) for key in ("generated", "commit")}  # when and where it ran, for its floor (S4-28)
     assert committed == stability.measure()
+    assert len(when["commit"]) >= 7 and when["generated"] >= "2026-11-18"
 
 
 def test_the_rank_order_meets_the_target() -> None:

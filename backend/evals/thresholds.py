@@ -36,10 +36,12 @@ from app.contracts import SEARCH_TIME_LIMIT_S, STAGE_TIME_LIMITS_S, StageName
 
 from .interview_sim import FIXED_OUT as SIM_OUT
 from .run_baselines import BACKEND, OFFLINE_OUT, RESULTS_DIR
+from .stability import STABILITY_OUT
 
 THRESHOLDS = BACKEND / "evals" / "thresholds.yaml"
 LIVE_OUT = RESULTS_DIR / "sprint-4-live.json"  # S4-2: the demo's way, at the normal source cap
-RECORDS = (OFFLINE_OUT, LIVE_OUT, SIM_OUT)  # every results record a floor is written from
+RECORDS = (OFFLINE_OUT, LIVE_OUT, SIM_OUT, STABILITY_OUT)  # every results record a floor is written from
+RHO_MARGIN = 0.05  # a Spearman median's floor: the measured value less this (D-74)
 RATE_MARGIN = 0.05
 COUNT_MARGIN = 0.10
 
@@ -66,6 +68,10 @@ PLAN_TARGETS: dict[str, tuple[float, str]] = {
     "trust.learned_minus_majority": (
         1,
         "ml/MODELS.md card 2: more seeded conflicts resolved correctly than majority vote",
+    ),
+    "decide.stability.close_median": (
+        0.9,
+        "US-19 criterion 4: rank order stable under random 10% weight changes, Spearman 0.9 or better",
     ),
 }
 
@@ -170,6 +176,8 @@ WHY: dict[str, str] = {
     "trust.": "Learned trust (US-16) must keep resolving the seeded conflicts it resolves now, and beat majority vote.",
     "decide.briefs_as_expected": "Every made-up brief gives its hand-written groups (US-17, US-18).",
     "decide.coverage_": "Ranked products keep the evidence coverage they have now (US-18).",
+    "decide.stability.": "On close products, the rank order keeps the stability it has now under random 10% weight "
+    "changes (US-19, D-74).",
     "research.recorded.": "Reading the recorded web searches finds the sources it finds now (US-12).",
     "live.briefs_finished": "Every brief finishes, whatever fails on the way (build rules 9 and 10).",
     "live.ranked_products": "Real searches keep showing products.",
@@ -204,6 +212,8 @@ def rule_for(measure: Mapping[str, Any]) -> Rule:
     if unit == "rate":
         side = "above" if direction == "at_most" else "below"
         return Rule("quality", direction, f"{RATE_MARGIN} {side} the measured rate", why)
+    if unit == "rho":
+        return Rule("quality", direction, f"{RHO_MARGIN} below the measured median", why)
     if unit == "conflicts" and measure_id.endswith("_minus_majority"):
         return Rule("quality", direction, "one conflict below the measured difference (5 conflicts)", why)
     if unit == "conflicts":
@@ -218,6 +228,8 @@ def floor_for(rule: Rule, measured: float) -> float:
         return float(rule.limit)
     if rule.margin.startswith("none"):
         return measured
+    if rule.margin.endswith("below the measured median"):  # a Spearman rho: -1 to 1
+        return round(min(1.0, max(-1.0, measured - RHO_MARGIN)), 4)
     if rule.margin.startswith(str(RATE_MARGIN)):
         bound = measured + RATE_MARGIN if rule.direction == "at_most" else measured - RATE_MARGIN
         return round(min(1.0, max(0.0, bound)), 4)

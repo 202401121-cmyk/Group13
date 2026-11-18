@@ -1,0 +1,690 @@
+{
+  "about": "Made-up products and a made-up request (synthetic), for testing the decide stage's rank stability only (US-19, D-74). Not real facts.",
+  "request": "earbuds for the gym under 3000 rupees",
+  "input": {
+    "rubric": {
+      "category": "earbuds",
+      "use_case": "gym",
+      "region": "IN",
+      "budget": {
+        "min": null,
+        "max": {
+          "amount": 3000.0,
+          "currency": "INR"
+        }
+      },
+      "hard_rules": [],
+      "exclusions": [],
+      "weights": [
+        {
+          "key": "sound_quality",
+          "weight": 8.0,
+          "normalized": 0.25,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "battery_life",
+          "weight": 6.0,
+          "normalized": 0.1875,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "fit_and_comfort",
+          "weight": 7.0,
+          "normalized": 0.21875,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "noise_cancellation",
+          "weight": 6.0,
+          "normalized": 0.1875,
+          "origin": "default",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "call_quality",
+          "weight": 5.0,
+          "normalized": 0.15625,
+          "origin": "default",
+          "uncertainty": 0.5
+        }
+      ]
+    },
+    "products": [
+      {
+        "id": "prd_wren_buds_2",
+        "name": "Wren Buds 2",
+        "brand": "Wren",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_pike_air",
+        "name": "Pike Air",
+        "brand": "Pike",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_lark_fit",
+        "name": "Lark Fit",
+        "brand": "Lark",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_moss_quiet",
+        "name": "Moss Quiet",
+        "brand": "Moss",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_fern_talk",
+        "name": "Fern Talk",
+        "brand": "Fern",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_kite_lite",
+        "name": "Kite Lite",
+        "brand": "Kite",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      },
+      {
+        "id": "prd_opal_mini",
+        "name": "Opal Mini",
+        "brand": "Opal",
+        "kind": "product",
+        "aliases": [],
+        "variants": [],
+        "recommender_count": 0,
+        "weighted_mentions": 0.0
+      }
+    ],
+    "values": [
+      {
+        "product_id": "prd_wren_buds_2",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 2799.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1d263d0ccbae"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_wren_buds_2",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_106f278fdf0a"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_wren_buds_2",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_4765851e09a2"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_wren_buds_2",
+        "criterion_key": "fit_and_comfort",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_755750378247"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_wren_buds_2",
+        "criterion_key": "noise_cancellation",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_65e0d1008841"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_wren_buds_2",
+        "criterion_key": "call_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_ed85c8d7903a"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_pike_air",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 2899.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_458701e9f2a6"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_pike_air",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a3803c2de46b"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_pike_air",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_12730959cc9f"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_pike_air",
+        "criterion_key": "fit_and_comfort",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b0c489e68fd3"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_pike_air",
+        "criterion_key": "noise_cancellation",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_c53d20e7fa44"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_pike_air",
+        "criterion_key": "call_quality",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_96aceee80e88"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_lark_fit",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 2699.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0b17bece1f9d"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_lark_fit",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_0ced7790c0e5"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_lark_fit",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_eff3270f8c66"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_lark_fit",
+        "criterion_key": "fit_and_comfort",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_78fd1543d604"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_lark_fit",
+        "criterion_key": "noise_cancellation",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_dfae68b6560c"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_lark_fit",
+        "criterion_key": "call_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_83961a2e9078"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_moss_quiet",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 2999.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_ac8a8bd5dc50"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_moss_quiet",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_665d5f525024"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_moss_quiet",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f8163365e37d"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_moss_quiet",
+        "criterion_key": "fit_and_comfort",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5bbb958b624a"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_moss_quiet",
+        "criterion_key": "noise_cancellation",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a3dd2fa493c6"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_moss_quiet",
+        "criterion_key": "call_quality",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_dd1d471cc5cb"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_fern_talk",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 2499.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2c5f49e806d6"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_fern_talk",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2f505d7d545c"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_fern_talk",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_e3d15938a6aa"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_fern_talk",
+        "criterion_key": "fit_and_comfort",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5e7db7666ad2"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_fern_talk",
+        "criterion_key": "noise_cancellation",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_00e757c1d091"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_fern_talk",
+        "criterion_key": "call_quality",
+        "state": "known",
+        "score": 9.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_2f60c0e3de29"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_kite_lite",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 1999.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b68c350029b6"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_kite_lite",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 5.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_d0bfd4cee617"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_kite_lite",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 8.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_5c5d4f0e1109"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_kite_lite",
+        "criterion_key": "fit_and_comfort",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_452b807bd06a"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_kite_lite",
+        "criterion_key": "noise_cancellation",
+        "state": "known",
+        "score": 5.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_16f831772f27"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_kite_lite",
+        "criterion_key": "call_quality",
+        "state": "known",
+        "score": 5.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_99fe78e2e2fd"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_opal_mini",
+        "criterion_key": "price_inr",
+        "state": "known",
+        "score": null,
+        "value": 1799.0,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_edcadf481cb1"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_opal_mini",
+        "criterion_key": "sound_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_a2d33361d45e"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_opal_mini",
+        "criterion_key": "battery_life",
+        "state": "known",
+        "score": 5.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_b9ec87b78393"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_opal_mini",
+        "criterion_key": "fit_and_comfort",
+        "state": "known",
+        "score": 5.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_fa0573f665d1"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_opal_mini",
+        "criterion_key": "noise_cancellation",
+        "state": "known",
+        "score": 7.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_1933acf4df4a"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      },
+      {
+        "product_id": "prd_opal_mini",
+        "criterion_key": "call_quality",
+        "state": "known",
+        "score": 6.0,
+        "value": null,
+        "confidence": 0.8,
+        "supporting_claim_ids": [
+          "clm_f0b10b544c2e"
+        ],
+        "conflicting_claim_ids": [],
+        "alternatives": []
+      }
+    ],
+    "community": [],
+    "seed": 42
+  },
+  "expect": {
+    "shown": [
+      "Pike Air",
+      "Wren Buds 2",
+      "Lark Fit",
+      "Moss Quiet",
+      "Fern Talk",
+      "Kite Lite",
+      "Opal Mini"
+    ]
+  }
+}

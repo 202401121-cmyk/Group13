@@ -67,6 +67,23 @@ measures:
     date: '2026-11-14'
     commit: a6148f0
     rule: 'Mentions never buy a rank: the most-mentioned product never wins while it fits worst (US-17, build rule 2).'
+  decide.stability.close_median:
+    kind: quality
+    direction: at_least
+    floor: 0.8429
+    measured: 0.8929
+    unit: rho
+    margin: 0.05 below the measured median
+    measured_on: offline
+    source: backend/evals/results/us19-stability.json; backend/tests/fixtures/decide/stability/close_earbuds.json (made up),
+      100 weight changes of up to 10%, seed 19, app.decide
+    date: '2026-11-18'
+    commit: b2eac63
+    rule: On close products, the rank order keeps the stability it has now under random 10% weight changes (US-19, D-74).
+    target:
+      value: 0.9
+      source: 'US-19 criterion 4: rank order stable under random 10% weight changes, Spearman 0.9 or better'
+      note: not met
   interview.fixed.accuracy:
     kind: quality
     direction: at_least
