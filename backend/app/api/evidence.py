@@ -80,6 +80,12 @@ class ClaimRecorder:
         with self._lock:
             return dict(self._claims)
 
+    def keep_claims(self, claims: Sequence[Claim]) -> None:
+        """Claims made after extract, such as enrich's prices from store listings (US-41): their sources open too."""
+        with self._lock:
+            for claim in claims:
+                self._claims[claim.id] = claim
+
     def _keep(self, result: ExtractionResult) -> ExtractionResult:
         with self._lock:
             for claim in result.claims:

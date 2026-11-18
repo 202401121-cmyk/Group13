@@ -31,6 +31,7 @@ import pytest
 from app.commerce import CommerceStage
 from app.criteria import InMemoryCriteriaStore
 from app.db import NullRequestStore, shared_memory_aliases
+from app.enrich import EnrichStage
 from app.extract import ExtractStage
 from app.research import ResearchStage
 from app.research.reddit.factory import shared_breakers
@@ -84,6 +85,13 @@ def _no_live_research(monkeypatch: pytest.MonkeyPatch) -> None:
 def _no_live_commerce(monkeypatch: pytest.MonkeyPatch) -> None:
     """Default stages keep the stub, so no test can ask Serper for prices. Tests of the real stage give it fakes."""
     monkeypatch.setattr("app.pipeline.default_commerce_stage", CommerceStage)
+
+
+@pytest.fixture(autouse=True)
+def _no_live_enrich(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Default stages keep the stub, so no test can ask Serper for prices (US-41). Tests of the real stage give it
+    fakes."""
+    monkeypatch.setattr("app.pipeline.default_enrich_stage", EnrichStage)
 
 
 @pytest.fixture(autouse=True)
