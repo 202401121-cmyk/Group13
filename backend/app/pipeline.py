@@ -45,6 +45,7 @@ from app.contracts import (
     DecideResult,
     EnrichInput,
     EnrichResult,
+    EnrichTarget,
     ExplainInput,
     ExplainResult,
     ExtractInput,
@@ -75,7 +76,9 @@ from app.contracts import (
 from app.decide import PRICE_KEY, WeightedDecideStage
 from app.decide.features import feature_key, known_feature
 from app.decide.rules import NO_SINGLE_CHANGE
-from app.enrich import EnrichStage
+from app.enrich import default_enrich_stage, price_targets
+from app.enrich.stage import prices_note
+from app.enrich.targets import readable_price
 from app.entities import ModelMatchStage, alias_keys
 from app.explain import ExplainStage
 from app.extract import default_extract_stage
@@ -301,7 +304,7 @@ def default_search_stages() -> SearchStages:
         extract=default_extract_stage(),
         match=ModelMatchStage(),  # the trained matcher, with fuzzy matching as its baseline (US-15, S3-15)
         verify=TrustVerifyStage(),
-        enrich=EnrichStage(),
+        enrich=default_enrich_stage(),  # prices from store listings (US-41); the stub is its fallback
         decide=WeightedDecideStage(),
         explain=ExplainStage(),
         commerce=default_commerce_stage(),  # real prices (US-24); the stub is its fallback
@@ -628,12 +631,15 @@ class _Search:
         self.extract_note: str | None = None
         self.llm_unavailable = False  # every LLM call this search made failed on every provider (US-31)
         self.decide_note: str | None = None
+        self.enrich_note: str | None = None  # how many prices came from store listings (US-41)
+        self.enrich_sources: list[Source] = []  # the listings enrich's claims came from, once verify took them
         self.commerce_note: str | None = None  # how many products couldn't be priced (US-24, S4-26)
         self.recommender_counts: list[
             RecommenderCount
         ] = []  # counted after extract, from the products it found (US-13)
         self.match_out: MatchResult | None = None
         self.verify_out: VerifyResult | None = None
+        self.verify_ok = False  # verify ran and finished OK: only then are its values looked past (US-41)
         self.enrich_out: EnrichResult | None = None
         self.decide_out: DecideResult | None = None
         self.explain_out: ExplainResult | None = None
@@ -842,6 +848,17 @@ class _Search:
 
     def verify(self) -> StageReport:
         research = _require(self.research_out, "research")
+        inp = self._verify_input(self.claims, research.sources)
+        try:
+            self.verify_out, report = self._run(self.stages.verify, inp)
+            self.verify_ok = report.status is StageStatus.OK
+            report = self._with_report_notes(self.stages.verify, report)  # before forget, which clears them
+        finally:
+            self._forget_filter_keys()
+        return report
+
+    def _verify_input(self, claims: Sequence[Claim], sources: Sequence[Source]) -> VerifyInput:
+        """Verify's input for these claims and sources. Its filter keys are handed to the stage first."""
         rule_keys = self.rule_keys + self.feature_keys  # a ruled-out feature is checked as a rule is (S3-9)
         price = [PRICE_KEY] if self.rubric.budget else []  # decide checks the budget on it (US-17), before the rules
         keys = list(dict.fromkeys(self.weight_keys + price + rule_keys))[:MAX_VERIFY_KEYS]
@@ -851,19 +868,13 @@ class _Search:
         # verify is done, run or fallback.
         use_filter_keys = getattr(self.stages.verify, "use_filter_keys", None)
         _hook("use_filter_keys", use_filter_keys, self.ctx.search_id, list(dict.fromkeys(price + rule_keys)))
-        inp = VerifyInput(
+        return VerifyInput(
             match=_require(self.match_out, "match"),
-            claims=self.claims[:MAX_CLAIMS],
-            sources=research.sources,
+            claims=list(claims[:MAX_CLAIMS]),
+            sources=list(sources),
             criterion_keys=keys,
             category=self.rubric.category,
         )
-        try:
-            self.verify_out, report = self._run(self.stages.verify, inp)
-            report = self._with_report_notes(self.stages.verify, report)  # before forget, which clears them
-        finally:
-            self._forget_filter_keys()
-        return report
 
     def _with_report_notes(self, stage: object, report: StageReport) -> StageReport:
         """The report, with the stage's own notes for this search (`report_notes(search_id)`), such as how many
@@ -900,9 +911,77 @@ class _Search:
         return [p for p in (self.match_out.products if self.match_out else []) if p.id not in dropped]
 
     def enrich(self) -> StageReport:
-        # Choosing enrichment targets is US-41; until then nothing is looked up.
-        self.enrich_out, report = self._run(self.stages.enrich, EnrichInput(targets=[]))
+        """Prices from store listings for the kept products whose price is unknown (US-41, P-34). The targets are
+        picked here, in code. New claims go through verify again, so decide sees them; any failure changes nothing."""
+        stage = self.stages.enrich
+        products = self._kept_products()
+        targets = self._enrich_targets(products)
+        _hook("use_products", getattr(stage, "use_products", None), self.ctx.search_id, products)
+        self.enrich_out, report = self._run(stage, EnrichInput(targets=targets))
+        found = _hook("sources_for", getattr(stage, "sources_for", None), self.ctx.search_id)
+        sources = [s for s in found if isinstance(s, Source)] if isinstance(found, list) else []
+        claims = self.enrich_out.new_claims if self.enrich_out is not None else []
+        taken = self._reverified(claims, sources)
+        if taken:  # the prices verify took, never those only found: else it would say what didn't happen
+            self.enrich_note = prices_note(taken)
         return report
+
+    def _enrich_targets(self, products: list[Product]) -> list[EnrichTarget]:
+        """None unless verify finished OK with values of its own. A stub's are examples, which a price can't change;
+        after a fallback, verify run again would give values its report says it didn't."""
+        stub = bool(getattr(self.stages.verify, "is_placeholder", False))
+        if self.verify_out is None or self.match_out is None or stub or not self.verify_ok:
+            return []
+        source_of = {claim.id: claim.source_id for claim in self.claims}
+        return price_targets(self.rubric, products, self.verify_out.values, self.match_out.alias_map, source_of)
+
+    def _reverified(self, claims: Sequence[Claim], sources: Sequence[Source]) -> int:
+        """Verify again with enrich's claims (US-41, P-34 item 4). How many products now have a price from them.
+
+        Only a claim whose source enrich handed back is used, and only a source research didn't find. Verify's own
+        limit holds. A run that doesn't finish OK, or in which no listing's price is taken, keeps the first values, and
+        its report is never added: the search goes on as if enrich had found nothing. A product the first run dropped
+        as unsourced stays dropped: a listing for another product can't bring it back.
+        """
+        research = self.research_out
+        first = self.verify_out
+        have = {source.id for source in research.sources} if research is not None else set()
+        known = {source.id: source for source in sources if source.id not in have}
+        new = [claim for claim in claims if claim.source_id in known]
+        if research is None or not new or first is None:
+            return 0
+        added = list(known.values())
+        all_claims = [*self.claims[: MAX_CLAIMS - len(new)], *new]  # the new ones always reach verify
+        try:
+            inp = self._verify_input(all_claims, [*research.sources, *added])
+            limit = min(self.limits[StageName.VERIFY], self.ctx.seconds_left)
+            out, report = run_stage(self.stages.verify, inp, self.ctx, limit)
+            self._with_report_notes(self.stages.verify, report)  # read, so none is kept for this search
+        except Exception as exc:  # build rule 9: the first values stand
+            log.warning("verify with enrich's prices did not run: %s", type(exc).__name__)
+            return False
+        finally:
+            self._forget_filter_keys()
+        if out is None or report.status is not StageStatus.OK:
+            log.info("search %s: enrich's prices left out, as verify did not finish again", self.ctx.search_id)
+            return 0
+        out = _still_dropped(out, first.dropped_unsourced)
+        ids = {claim.id for claim in new}
+        taken = sum(
+            1
+            for value in out.values
+            if value.criterion_key == PRICE_KEY
+            and readable_price(value)
+            and ids.intersection(value.supporting_claim_ids)
+        )
+        if not taken:
+            log.info("search %s: verify took none of enrich's prices", self.ctx.search_id)
+            return 0
+        self.verify_out = out
+        self.claims = [*self.claims, *new]
+        self.enrich_sources = added
+        _hook("keep_claims", getattr(self.stages.extract, "keep_claims", None), new)  # so the source drawer has them
+        return taken
 
     def decide(self) -> StageReport:
         verified = _require(self.verify_out, "verify")
@@ -976,7 +1055,7 @@ class _Search:
             for p in [*self._kept_products(), *self._sample_products()]
         ]
         failures = self.research_out.failures if self.research_out else []
-        found = self.research_out.sources if self.research_out else []
+        found = [*(self.research_out.sources if self.research_out else []), *self.enrich_sources]
         older_archive = any(s.source_detail == "pullpush" for s in found)
         note = build_coverage_note(
             self.reports,
@@ -985,6 +1064,7 @@ class _Search:
             older_archive=older_archive,
             extract_note=self.extract_note,
             decide_note=self.decide_note,
+            enrich_note=self.enrich_note,
             commerce_note=self.commerce_note,
             llm_unavailable=self.llm_unavailable,
         )
@@ -1030,6 +1110,19 @@ class _Search:
                 log.warning("search %s: citations left out, as a cited claim is not the run's", self.ctx.search_id)
             return []
         return [Citation(claim_id=c.id, source_id=c.source_id, quote=c.quote) for c in found if c is not None]
+
+
+def _still_dropped(out: VerifyResult, dropped: Sequence[str]) -> VerifyResult:
+    """Verify's result with the products dropped before as unsourced dropped again: their values and community
+    left out, and their ids listed. The same object when it names none of them."""
+    gone = set(dropped)
+    if not gone or (gone <= set(out.dropped_unsourced) and not any(v.product_id in gone for v in out.values)):
+        return out
+    data = out.model_dump()
+    data["values"] = [v for v in data["values"] if v["product_id"] not in gone]
+    data["community"] = [c for c in data["community"] if c["product_id"] not in gone]
+    data["dropped_unsourced"] = sorted(gone | set(out.dropped_unsourced))
+    return VerifyResult.model_validate(data)
 
 
 def _label_at(position: int) -> Literal["best_match", "runner_up"] | None:
@@ -1107,6 +1200,7 @@ def build_coverage_note(
     older_archive: bool = False,
     extract_note: str | None = None,
     decide_note: str | None = None,
+    enrich_note: str | None = None,
     commerce_note: str | None = None,
     llm_unavailable: bool = False,
 ) -> str | None:
@@ -1147,6 +1241,8 @@ def build_coverage_note(
         parts.append("These results are partial.")
     if decide_note:
         parts.append(decide_note)
+    if enrich_note:  # how many prices came from store listings (US-41)
+        parts.append(enrich_note)
     if commerce_note:
         parts.append(commerce_note)
     if extract_note:  # last, so a note too long to fit never costs the sentences above

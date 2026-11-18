@@ -73,6 +73,7 @@ PLACEHOLDER_RULE: dict[str, tuple[bool, bool | None, str]] = {
     "app.decide.stage.DecideStage": (True, True, "run and fallback: the example ranking"),
     "app.commerce.stage.CommerceStage": (True, False, "run: the two example offers; fallback: store search links"),
     "app.enrich.stage.EnrichStage": (False, False, "run and fallback: an empty EnrichResult: it adds nothing"),
+    "app.enrich.stage.PriceLookupStage": (False, None, "prices from real store listings, or nothing"),
     "app.explain.stage.TemplateExplainStage": (False, None, "states code's own numbers in fixed words"),
     "app.intake.stage.IntakeStage": (False, None, "the shopper's request read by the LLM or the keyword rules"),
     "app.criteria.stage.CriteriaStage": (False, None, "generated, saved or the fixed sets: no example data"),
