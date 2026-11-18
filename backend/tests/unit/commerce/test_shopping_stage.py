@@ -9,16 +9,26 @@ import pytest
 
 from app import contracts as C
 from app.commerce import CommerceStage, ShoppingCommerceStage, default_commerce_stage
-from app.commerce.stage import MAX_LOOKUPS, PricesUnavailable
+from app.commerce import stage as stage_module
+from app.commerce.stage import LOOKUP_DEADLINE_S, MARGIN_S, MAX_LOOKUPS, STAGE_LIMIT_S, PricesUnavailable
 from app.contracts import Budget, CommerceInput, CommerceResult, Money, Product, StageContext, Variant
 from app.contracts import examples as ex
+from app.llm.retry import RetryClock
 from app.pipeline import as_clause, build_coverage_note, plain_reason, run_stage
-from app.research.settings import ProviderCap
-from app.research.shopping import Listing, ShoppingResult
+from app.research.serper import SerperSource
+from app.research.settings import ProviderCap, ResearchSettings
+from app.research.shopping import Listing, SerperShopping, ShoppingResult
 from app.research.usage import SearchUsage, UsageBook
 
 FETCHED = datetime(2026, 11, 15, 9, 30, tzinfo=UTC)
-CTX = StageContext(search_id="srch_commerce01")
+SEARCH_ID = "srch_commerce01"
+
+
+def ctx() -> StageContext:
+    """A fresh context each run: its 150 s start now, so a long test run never leaves a stage without time."""
+    return StageContext(search_id=SEARCH_ID)
+
+
 VIVOBOOK = Product(
     id="prd_asus_vivobook_15_x1504va",
     name="ASUS Vivobook 15 X1504VA",
@@ -70,7 +80,7 @@ def _usage() -> UsageBook:
 
 def _run(shopping: FakeShopping, products: list[Product], budget: Budget | None = BUDGET) -> CommerceResult:
     stage = ShoppingCommerceStage(shopping, usage=_usage())
-    return stage.run(CommerceInput(products=products, budget=budget), CTX)
+    return stage.run(CommerceInput(products=products, budget=budget), ctx())
 
 
 VIVOBOOK_TITLE = "ASUS Vivobook 15 X1504VA Intel Core i5 (16GB RAM/512GB SSD) Laptop"
@@ -189,16 +199,96 @@ def test_no_accepted_offer_gives_the_store_search() -> None:
     assert str(result.no_offer[VICTUS.id]) == "https://www.google.com/search?tbm=shop&q=HP+Victus+15"
 
 
-def test_one_failed_look_up_leaves_the_others_priced() -> None:
+def test_one_failed_look_up_leaves_the_others_priced_and_is_named() -> None:
     shopping = FakeShopping(
         {
             "ASUS Vivobook 15 X1504VA": _failed("timeout"),
             "HP Victus 15": _answer(_listing("HP Victus 15 Laptop", "₹60,000")),
         }
     )
-    result = _run(shopping, [VIVOBOOK, VICTUS])
+    stage = ShoppingCommerceStage(shopping, usage=_usage())
+    result = stage.run(CommerceInput(products=[VIVOBOOK, VICTUS], budget=BUDGET), ctx())
     assert [o.product_id for o in result.offers] == [VICTUS.id]
     assert VIVOBOOK.id in result.no_offer
+    assert stage.coverage_note(SEARCH_ID) == (
+        "We couldn't check prices for 1 of the top 2 products, because the price search failed."
+    )
+    assert stage.coverage_note(SEARCH_ID) is None  # read once
+
+
+def test_two_failed_look_ups_are_named() -> None:
+    shopping = FakeShopping(
+        {
+            "ASUS Vivobook 15 X1504VA": _failed("error"),
+            "HP Victus 15": _failed("rate_limited"),
+            "Lenovo IdeaPad Slim 3 15IAH8": _answer(),  # answered, with nothing that matched: not a failure
+        }
+    )
+    stage = ShoppingCommerceStage(shopping, usage=_usage())
+    stage.run(CommerceInput(products=[VIVOBOOK, VICTUS, IDEAPAD], budget=BUDGET), ctx())
+    assert stage.coverage_note(SEARCH_ID) == (
+        "We couldn't check prices for 2 of the top 3 products, because the price search failed."
+    )
+
+
+def test_no_note_when_every_look_up_answered() -> None:
+    stage = ShoppingCommerceStage(FakeShopping({}), usage=_usage())  # every look-up answers, with nothing found
+    stage.run(CommerceInput(products=[VIVOBOOK, VICTUS], budget=BUDGET), ctx())
+    assert stage.coverage_note(SEARCH_ID) is None
+
+
+def test_a_late_look_up_is_counted_in_the_note(monkeypatch: pytest.MonkeyPatch) -> None:
+    release = threading.Event()
+
+    class SlowForOne(FakeShopping):
+        def search(self, query: str, usage: SearchUsage) -> ShoppingResult:
+            if query == "HP Victus 15":
+                release.wait(5)
+            return super().search(query, usage)
+
+    monkeypatch.setattr(stage_module, "LOOKUP_DEADLINE_S", 0.3)
+    stage = ShoppingCommerceStage(SlowForOne({VIVOBOOK.name: _answer(_listing(VIVOBOOK_TITLE, "₹55,000"))}),
+                                  usage=_usage())  # fmt: skip
+    try:
+        result = stage.run(CommerceInput(products=[VIVOBOOK, VICTUS], budget=BUDGET), ctx())
+    finally:
+        release.set()
+    assert [o.product_id for o in result.offers] == [VIVOBOOK.id]
+    assert stage.coverage_note(SEARCH_ID) == (
+        "We couldn't check prices for 1 of the top 2 products, because the price search failed."
+    )
+
+
+def test_a_shopping_retry_stops_at_the_look_up_deadline_and_a_store_page_retry_at_the_stages() -> None:
+    clocks: list[RetryClock] = []
+    stage = ShoppingCommerceStage(usage=_usage())
+
+    def wire(shopping_retry: RetryClock, web_retry: RetryClock) -> tuple[FakeShopping, None, None]:
+        clocks.extend([shopping_retry, web_retry])
+        return FakeShopping({}), None, None
+
+    stage._wire = wire  # type: ignore[method-assign]
+    stage.run(CommerceInput(products=[VICTUS], budget=BUDGET), ctx())
+    shopping_left, web_left = (clock.time_left() for clock in clocks)
+    assert shopping_left <= LOOKUP_DEADLINE_S < web_left <= STAGE_LIMIT_S - MARGIN_S
+
+
+def test_the_stages_clocks_reach_both_serper_clients(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(stage_module, "load_dotenv", lambda: None)  # never the real .env
+    monkeypatch.setenv("SERPER_API_KEY", "made-up-key")
+    shopping_retry, web_retry = RetryClock(time_left=lambda: 1.0), RetryClock(time_left=lambda: 2.0)
+    shopping, web, client = ShoppingCommerceStage(settings=ResearchSettings())._wire(shopping_retry, web_retry)
+    try:
+        assert isinstance(shopping, SerperShopping) and shopping.retry is shopping_retry
+        assert isinstance(web, SerperSource) and web.retry is web_retry
+    finally:
+        assert client is not None
+        client.close()
+
+
+def test_the_commerce_note_reaches_the_coverage_note() -> None:
+    note = "We couldn't check prices for 1 of the top 3 products, because the price search failed."
+    assert note in (build_coverage_note([], [], partial=False, commerce_note=note) or "")
 
 
 @pytest.mark.parametrize(
@@ -217,7 +307,7 @@ def test_serper_down_gives_store_searches_for_all_and_a_coverage_note(reason: st
     stage = ShoppingCommerceStage(shopping, usage=_usage())
     inp = CommerceInput(products=[VIVOBOOK, VICTUS, IDEAPAD, FOURTH], budget=BUDGET)  # the 4th is never looked up
     with pytest.raises(PricesUnavailable) as raised:
-        stage.run(inp, CTX)
+        stage.run(inp, ctx())
     assert plain_reason(raised.value) == words
     fresh = StageContext(search_id="srch_commerce03")  # its own 150 s: a module-level one runs out in a long run
     out, report = run_stage(stage, inp, fresh, 15)
@@ -246,5 +336,5 @@ def test_the_live_stage_is_the_default_and_is_real() -> None:
 
 def test_the_stubs_fallback_gives_store_searches_and_no_offers() -> None:
     inp = CommerceInput(products=[VIVOBOOK, VICTUS], budget=BUDGET)
-    out = CommerceStage().fallback(inp, CTX, RuntimeError("a made-up failure"))
+    out = CommerceStage().fallback(inp, ctx(), RuntimeError("a made-up failure"))
     assert out.offers == [] and set(out.no_offer) == {VIVOBOOK.id, VICTUS.id}

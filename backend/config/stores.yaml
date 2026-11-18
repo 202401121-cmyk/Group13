@@ -1,0 +1,24 @@
+# Each store's own website (US-24, D-67). Serper shopping gives only Google Shopping links for India; for an offer at
+# one of these stores, commerce asks Serper web search for the product on the store's own site, and a page that names
+# the same model replaces the Google link. A store not listed here keeps its Google link. Team's choice; add a store
+# here, with its own domain, to search it too.
+#
+# product_path: how the store's own product pages look (a regular expression on the page's path). Anything else on the
+# site (a search, a list of products, a blog, a brand page) is never taken for the product's page. A wrong pattern only
+# keeps Google's link. Flipkart's and Amazon's were seen live (S4-14, S4-26); the others are the stores' usual form.
+stores:
+  - name: Flipkart
+    domain: flipkart.com
+    product_path: "/p/itm[0-9a-z]+"
+  - name: Amazon
+    domain: amazon.in
+    product_path: "/(?:dp|gp/product)/[0-9A-Z]{10}(?:[/?]|$)"
+  - name: Croma
+    domain: croma.com
+    product_path: "/p/[0-9]+(?:[/?]|$)"
+  - name: Reliance Digital
+    domain: reliancedigital.in
+    product_path: "/p/[0-9]+(?:[/?]|$)"
+  - name: Vijay Sales
+    domain: vijaysales.com
+    product_path: "/p/"

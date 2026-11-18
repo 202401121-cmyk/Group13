@@ -48,6 +48,7 @@ from app.research.reddit.cache import RedditCache
 from app.research.reddit.pullpush import PullPushSource
 from app.research.serper import SerperSource
 from app.research.settings import ProviderCap, ResearchSettings
+from app.research.shopping import SerperShopping
 from app.research.sites import SKIPPED_DETAIL
 from app.research.usage import SearchUsage, UsageBook
 from app.research.youtube import YouTubeSource
@@ -218,6 +219,26 @@ def test_serper(kind: str) -> None:
     assert found.failure is not None and found.failure.reason == REASONS[kind]
     assert len(web.requests) == SOURCE_SENT[kind]
     assert usage.used["serper"] == SOURCE_SENT[kind]  # a retry is a query like any other: it is counted
+
+
+@pytest.mark.parametrize("kind", FAILURES)
+def test_serper_shopping(kind: str) -> None:
+    """S4-26: Serper shopping keeps the same one-retry rule as web search."""
+    clock = Clock()
+    shop = Counted(_failing(kind))
+    shopping = SerperShopping(
+        shop.client(),
+        "made-up-key",
+        cache=ResearchCache(folder=None, now=lambda: NOW),
+        limiter=IntervalLimiter(0.0, clock=clock, sleep=clock.sleep),
+        now=lambda: NOW,
+        retry=_retry(clock),
+    )
+    usage = _usage()
+    found = shopping.search("Acer Swift Go 14", usage)
+    assert found.failure == REASONS[kind]
+    assert len(shop.requests) == SOURCE_SENT[kind]
+    assert usage.used["serper"] == SOURCE_SENT[kind]  # a retry is a request like any other: it is counted
 
 
 @pytest.mark.parametrize("kind", FAILURES)

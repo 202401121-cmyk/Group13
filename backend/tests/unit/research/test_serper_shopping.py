@@ -1,4 +1,5 @@
-"""US-24: the Serper shopping client. A fake transport: no real API is called."""
+"""US-24: the Serper shopping client, with S4-12's one-retry rule (S4-26). A fake transport and a fake clock: no
+real API is called and nothing waits for real time."""
 
 from __future__ import annotations
 
@@ -9,11 +10,13 @@ from datetime import UTC, datetime, timedelta
 import httpx
 import pytest
 
+from app.llm.retry import RetryClock
 from app.research.cache import ResearchCache
 from app.research.reddit import IntervalLimiter
 from app.research.settings import ProviderCap
 from app.research.shopping import SHOPPING_URL, Listing, SerperShopping, read_listings
 from app.research.usage import SearchUsage, UsageBook
+from tests.fakes.retry import NoJitter
 
 KEY = "made-up-serper-key"
 FETCHED = datetime(2026, 11, 15, 9, 30, tzinfo=UTC)
@@ -39,20 +42,39 @@ def _usage(per_search: int = 6) -> SearchUsage:
     return UsageBook({"serper": ProviderCap(per_search=per_search, per_day=60)}, path=None).search()
 
 
+class Waits:
+    """A fake sleep, and the time the commerce stage still has (S4-26: a retry goes only within it)."""
+
+    def __init__(self, left: float = 15.0) -> None:
+        self.left = left
+        self.slept: list[float] = []
+
+    def sleep(self, seconds: float) -> None:
+        self.slept.append(seconds)
+        self.left -= seconds
+
+    def clock(self) -> RetryClock:
+        return RetryClock(time_left=lambda: self.left, sleep=self.sleep, rng=NoJitter())
+
+
 def _shopping(
-    answer: httpx.Response | Exception,
+    answer: httpx.Response | Exception | list[httpx.Response | Exception],
     *,
     key: str | None = KEY,
     cache: ResearchCache | None = None,
     now: Now | None = None,
+    waits: Waits | None = None,
 ) -> tuple[SerperShopping, list[httpx.Request]]:
+    """A client whose requests get `answer`, or each answer of a list in turn (the last one repeats)."""
     asked: list[httpx.Request] = []
+    answers = list(answer) if isinstance(answer, list) else [answer]
 
     def handle(request: httpx.Request) -> httpx.Response:
         asked.append(request)
-        if isinstance(answer, Exception):
-            raise answer
-        return answer
+        reply = answers.pop(0) if len(answers) > 1 else answers[0]
+        if isinstance(reply, Exception):
+            raise reply
+        return reply
 
     clock = now or Now()
     client = SerperShopping(
@@ -61,6 +83,7 @@ def _shopping(
         cache=cache or ResearchCache(folder=None, now=clock),
         limiter=IntervalLimiter(0),
         now=clock,
+        retry=(waits or Waits()).clock(),
     )
     return client, asked
 
@@ -143,11 +166,60 @@ def test_a_used_up_cap_sends_nothing() -> None:
     assert asked == []
 
 
-def test_each_request_counts_one_serper_unit() -> None:
-    client, _ = _shopping(httpx.Response(503))
+def test_each_request_sent_counts_one_serper_unit() -> None:
+    client, asked = _shopping(httpx.Response(503))
     usage = _usage()
     client.search("a laptop", usage)
-    assert usage.used["serper"] == 1  # a failed request was still sent
+    assert len(asked) == 2 and usage.used["serper"] == 2  # the 503 and its one retry: both were sent
+
+
+def test_a_timeout_is_retried_once_and_counts_two_units() -> None:
+    waits = Waits()
+    client, asked = _shopping([httpx.ReadTimeout("slow"), _ok(ITEM)], waits=waits)
+    usage = _usage()
+    found = client.search("ASUS Vivobook 15 X1504VA", usage)
+    assert found.failure is None and found.listings[0].title == ITEM["title"]
+    assert len(asked) == 2 and usage.used["serper"] == 2
+    assert len(waits.slept) == 1  # one short wait before the retry
+
+
+@pytest.mark.parametrize("first", [httpx.Response(500), httpx.Response(503), httpx.ConnectError("refused")])
+def test_a_5xx_or_broken_connection_is_retried_once(first: httpx.Response | Exception) -> None:
+    client, asked = _shopping([first, first, _ok(ITEM)])
+    assert client.search("a laptop", _usage()).failure is not None  # failed twice: no third try
+    assert len(asked) == 2
+
+
+@pytest.mark.parametrize("status", [400, 401, 402, 403, 404])
+def test_a_403_is_never_retried(status: int) -> None:
+    client, asked = _shopping([httpx.Response(status), _ok(ITEM)])
+    usage = _usage()
+    assert client.search("a laptop", usage).failure is not None
+    assert len(asked) == 1 and usage.used["serper"] == 1
+
+
+def test_a_429_waits_its_stated_time_once() -> None:
+    waits = Waits()
+    client, asked = _shopping([httpx.Response(429, headers={"Retry-After": "2"}), _ok(ITEM)], waits=waits)
+    assert client.search("a laptop", _usage()).failure is None
+    assert len(asked) == 2 and waits.slept == [pytest.approx(2.0)]
+
+    unsaid, asked_once = _shopping([httpx.Response(429), _ok(ITEM)])  # no stated wait: never retried
+    assert unsaid.search("a laptop", _usage()).failure == "rate_limited"
+    assert len(asked_once) == 1
+
+
+def test_no_retry_past_the_stages_time() -> None:
+    client, asked = _shopping([httpx.ReadTimeout("slow"), _ok(ITEM)], waits=Waits(left=5.0))
+    assert client.search("a laptop", _usage()).failure == "timeout"  # a retry wouldn't finish in time
+    assert len(asked) == 1
+
+
+def test_a_retry_needs_a_unit_of_the_cap() -> None:
+    client, asked = _shopping([httpx.Response(503), _ok(ITEM)])
+    usage = _usage(per_search=1)
+    assert client.search("a laptop", usage).failure == "error"
+    assert len(asked) == 1  # the cap's last unit went to the first request
 
 
 def test_a_cache_hit_makes_no_call_and_keeps_its_first_time(tmp_path: object) -> None:
@@ -167,7 +239,7 @@ def test_a_cache_hit_makes_no_call_and_keeps_its_first_time(tmp_path: object) ->
 
 def test_a_failure_is_never_cached(tmp_path: object) -> None:
     now = Now()
-    answers = [httpx.Response(503), _ok(ITEM)]
+    answers = [httpx.Response(503), httpx.Response(503), _ok(ITEM)]  # the first search fails twice
     cache = ResearchCache(folder=tmp_path, now=now)  # type: ignore[arg-type]
     client = SerperShopping(
         httpx.Client(transport=httpx.MockTransport(lambda _: answers.pop(0))),
@@ -175,6 +247,7 @@ def test_a_failure_is_never_cached(tmp_path: object) -> None:
         cache=cache,
         limiter=IntervalLimiter(0),
         now=now,
+        retry=Waits().clock(),
     )
     usage = _usage()
     assert client.search("a laptop", usage).failure == "error"

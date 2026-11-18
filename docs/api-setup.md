@@ -395,19 +395,50 @@ actually saw. Quotes are copied from the provider's page.
 - **For India the links are Google's** (the live run, 15 Nov 2026): every `link` for `gl: in` was a Google Shopping
   page for that store's offer (`www.google.com/search?ibp=oshop&...&prds=...`), never the store's own page. A recorded
   answer is in `backend/tests/fixtures/commerce/serper_shopping_in.json`.
-- **Our limits:** at most 3 queries a search, one for each of the top 3 products, sent in parallel. Each counts one
-  Serper unit in the same 60 a day and 2,400 in total as web search (`usage.json`). An answer is cached with the time
-  it was fetched; the research cache keeps search answers up to 23 h 16 m, so a cached price keeps its true age.
+- **Our limits:**
+  - at most 3 shopping queries a search, one for each of the top 3 products, sent in parallel;
+  - then at most 3 web searches, one for each priced product, for the stores' own pages (below);
+  - each request counts one Serper unit in the same 60 a day and 2,400 in total as web search (`usage.json`), and a
+    retry counts too;
+  - commerce's own cap is 6 a search (`research.yaml`);
+  - an answer is cached with the time it was fetched; the research cache keeps search answers up to 23 h 16 m, so a
+    cached price keeps its true age.
+- **Retries (S4-12's rule):**
+  - a timeout, a 5xx or a broken connection is tried once more;
+  - a 429 only after the wait it states;
+  - never another 4xx;
+  - only while the answer can still be used: a shopping look-up's until the look-ups' 12 seconds are up, a store-page
+    search's until commerce's 15 seconds are.
 - **What is kept:** only listings whose title names the product's brand and model, together and in order, with their
   model codes agreeing (the match stage's own parsing, never fuzzy). Accessories "for" the model and second-hand
   listings are refused. Prices are read by the same reader as US-17; an unreadable price is no price. A price above the
   budget is flagged (DR-01), and every price carries its as-of time (DR-04).
-- **Links:** a store's own page is kept as it is, and a Google redirect to one is unwrapped. A Google Shopping offer
-  link (all India gets) is kept, and the store is named "... via Google Shopping", so the page never passes it off as
-  the store's own page. Any other Google link is refused. The app never checks out for anyone.
-- **If it fails or runs out:** each product gets a store search link (a Google Shopping search) instead, and
-  `coverage_note` says the prices step used a simpler fallback, with why (it took too long, the service was busy,
-  refused the request, or could not be reached).
+- **Links (S4-26, D-67):**
+  - **Already the store's:** a store's own page is kept as it is, and a Google redirect to one is unwrapped.
+  - **The store-page search:** for a Google Shopping offer link (all India gets) at a store in
+    `backend/config/stores.yaml`, one Serper web search a product asks for its name on those stores' own sites, such as
+    `HP Victus 15 (site:flipkart.com OR site:amazon.in)`, through the web search client, with its cap and cache.
+  - **The swap:** a result replaces that store's Google link only when it is on the store's own site (the domain,
+    `www.` or `m.`), its path has the store's product-page form (`product_path` in the map, such as Flipkart's `/p/itm…`
+    or Amazon's `/dp/…`), and its title names the same model (the same check as listings). A search page, a list of
+    products or a brand page is never taken.
+  - **What stays:** the price and its time are still the shopping result's.
+  - **The map:** Flipkart, Amazon (`amazon.in`), Croma, Reliance Digital and Vijay Sales (team's choice; add a store
+    there to search it too). Flipkart's and Amazon's page forms were seen live; the others are the stores' usual form,
+    and a wrong one only keeps the Google link.
+  - **One offer a store:** a store's own page and its Google Shopping link count as one store.
+  - **No match:** the Google link stays, and the store is named "... via Google Shopping", so the page never passes it
+    off as the store's own page.
+  - **Refused:** any other Google link.
+  - **Never:** the app never checks out for anyone.
+- **If it fails or runs out:**
+  - **Every look-up fails:** each product gets a store search link (a Google Shopping search) instead, and
+    `coverage_note` says the prices step used a simpler fallback, with why (it took too long, the service was busy,
+    refused the request, or could not be reached).
+  - **1 or 2 of the 3 fail:** the others keep their prices, and `coverage_note` says how many couldn't be priced
+    ("We couldn't check prices for 1 of the top 3 products, because the price search failed.").
+  - **A store-page search fails, errs or is late:** that product's Google links stay; the other products keep the pages
+    found. With under 3 seconds of commerce's time left, none is sent.
 
 ### Reddit's own API
 
@@ -766,7 +797,7 @@ merged: the higher-scored thread stays, with the others' URLs as the last lines 
 | Provider | Rate limit | Per search | Per day | In total |
 |---|---|---|---|---|
 | Serper | 5 a second | 6 | 60 | 2,400 |
-| Serper shopping (US-24) | shares Serper's | 3 | in Serper's 60 | in Serper's 2,400 |
+| Serper shopping (US-24) | shares Serper's | 3, plus up to 3 store-page searches (6 with retries) | in Serper's 60 | in Serper's 2,400 |
 | Reddit archives | 1 a second (Arctic Shift), 1 every 2 s (PullPush) | 14 | 500 | |
 | Review sites, robots.txt included | 1 every 2 s per site, or its longer `Crawl-delay` (over 10 s skips the site) | 24 | 200 | |
 
