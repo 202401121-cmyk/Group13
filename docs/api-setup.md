@@ -673,6 +673,7 @@ When a provider's terms change, update its flag, `terms_url` and `terms_checked`
 | `app/intake/stage.py` | `detect_intent` | the shopper's request and their reply to our question | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | category label and the shopper's use case | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | only a category label from our lexicon (no use case) | public | short |
+| `app/criteria/stage.py` | `generate_criteria` | its one plain-words re-ask (S4-22): the same brief, plus the generated criteria whose definitions are not plain, with the words to avoid, as data. It takes the first call's class, so the same route | as the first call | short |
 | `app/explain/stage.py` | `write_explanation` | code's facts for the top 3 products (criterion names, scores, points and claim refs) and the shopper's top priorities, never a source's words. Its one rewrite, when a paragraph is too hard to read, adds that paragraph (US-20) | private | medium |
 | `app/interview/replies.py` | `classify_reply` | the shopper's reply to an interview question, as data, with the question, its criterion's definition and the earlier questions (US-39) | private | short |
 | `app/interview/replies.py` | `answer_user_question` | the shopper's question, as data, with the criterion's name and definition, when the definition doesn't cover it (US-39) | private | short |

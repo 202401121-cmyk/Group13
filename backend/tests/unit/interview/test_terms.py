@@ -17,7 +17,7 @@ def criterion(key: str, label: str, definition: str) -> Criterion:
 REFRESH = criterion(
     "refresh_rate",
     "Refresh rate",
-    "How many times a second the screen redraws, in hertz; a higher rate makes scrolling and games look smoother.",
+    "How many times a second the screen redraws; a higher rate makes scrolling and games look smoother.",
 )
 
 
@@ -40,7 +40,8 @@ def test_a_plain_criterion_gets_none() -> None:
 
 def test_whole_words_only() -> None:
     program = criterion("programming_tools", "Programming tools", "Which coding tools it runs well, for your work.")
-    assert question_for(program).terms == []  # "ram" inside "programming" is not the word RAM
+    [term] = question_for(program).terms  # technical by default since S4-22: neither word is a plain word
+    assert term.explanation == program.definition  # and "ram" inside "programming" is not the word RAM
 
 
 def test_case_and_spellings_do_not_matter() -> None:
@@ -60,7 +61,9 @@ def test_a_41_word_definition_falls_back_to_its_first_sentence() -> None:
 
 def test_no_short_sentence_means_no_term() -> None:
     long = " ".join(["word"] * 45) + "."
-    assert question_for(criterion("gpu_power", "GPU power", long)).terms == []
+    # Since S4-22 a listed word's reviewed plain explanation stands in (test_terms_plain.py); a label with no
+    # listed word and no short sentence still gets no link.
+    assert question_for(criterion("motion_handling", "Motion handling", long)).terms == []
 
 
 def test_the_term_is_at_most_40_characters_and_never_cut_mid_word() -> None:
@@ -86,7 +89,7 @@ def test_a_unit_glued_to_a_number_is_found() -> None:
 def test_an_abbreviation_does_not_end_the_first_sentence() -> None:
     first = "Measured in mAh, e.g. a bigger number lasts longer through a busy day."
     long = first + " " + " ".join(["Extra"] * 30) + "."  # over 40 words, inside the 300-character limit
-    [term] = question_for(criterion("battery_mah", "Battery size", long)).terms
+    [term] = question_for(criterion("battery_mah", "Battery size (mAh)", long)).terms  # mAh is the label's own
     assert term.explanation == first
 
 

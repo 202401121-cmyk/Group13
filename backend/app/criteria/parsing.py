@@ -11,12 +11,14 @@ from __future__ import annotations
 import logging
 import math
 import re
+from collections.abc import Sequence
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from app.contracts import CriteriaInput, CriteriaSet, Criterion, Direction
 from app.contracts.criteria import VAGUE_CRITERIA
+from app.interview.terms import is_plain, label_terms
 from app.llm.output import looks_like_instruction
 
 from .fallback import fallback_criteria
@@ -144,6 +146,47 @@ def clean_criteria(raw: RawCriteria, family_value_for_money: Criterion) -> list[
             head = [*[c for c in kept if not c.is_value_for_money][: MAX_CRITERIA - 1], value]
         kept = head
     return kept
+
+
+def plainer_definitions(raw: RawCriteria, asked: Sequence[Criterion]) -> dict[str, str]:
+    """The re-ask's new definitions (S4-22), by key, for the criteria asked about only. A new definition is taken only
+    when it would pass as a definition here and is plain (app/interview/terms.py); otherwise the original stays."""
+    wanted = {c.key: c for c in asked}
+    taken: dict[str, str] = {}
+    for item in raw.criteria:
+        key = slugify(item.key or "")
+        criterion = wanted.get(key)
+        definition = item.definition or ""
+        if criterion is None or key in taken:
+            continue
+        if len(definition.split()) < MIN_DEFINITION_WORDS or len(definition) > MAX_DEFINITION_CHARS:
+            log.info("criteria: kept %s's definition: the rewrite was missing, too short or too long", key)
+        elif looks_like_instruction(definition):
+            log.info("criteria: kept %s's definition: the rewrite reads like an instruction", key)
+        elif not is_plain(definition, label_terms(criterion)):
+            log.info("criteria: kept %s's definition: the rewrite is still not plain", key)
+        elif not _valid_definition(criterion, definition):
+            log.info("criteria: kept %s's definition: the rewrite is not a valid definition", key)
+        else:
+            taken[key] = definition
+    return taken
+
+
+def _valid_definition(criterion: Criterion, definition: str) -> bool:
+    try:
+        Criterion.model_validate({**criterion.model_dump(), "definition": definition})
+    except ValidationError:
+        return False
+    return True
+
+
+def with_definitions(criteria_set: CriteriaSet, new: dict[str, str]) -> CriteriaSet:
+    """The set with the given definitions in place, validated again (never model_copy)."""
+    criteria = [
+        Criterion.model_validate({**c.model_dump(), "definition": new[c.key]}) if c.key in new else c
+        for c in criteria_set.criteria
+    ]
+    return CriteriaSet.model_validate({**criteria_set.model_dump(), "criteria": [c.model_dump() for c in criteria]})
 
 
 def slugify(text: str) -> str:

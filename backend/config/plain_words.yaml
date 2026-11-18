@@ -1,0 +1,43 @@
+# Everyday words (US-07; S4-22, P-25 item 1). A criterion's question gets "What does this mean?" unless every word of
+# its label is in this list (and no word from technical_terms.yaml is in its label or key): technical by default.
+# Loaded by app/interview/terms.py. Lowercase. Team's choice; Manu Pardhan reviews it. A number alone is never a word.
+# Added to P-25's starting list (S4-22): "battery" and "life", so "Battery life" gets no link, as P-25's edge cases say;
+# and the names of the products themselves, so "Laptop Weight" is as plain as "Weight" (live, 18 Nov 2026).
+words:
+  - price
+  - budget
+  - value
+  - money
+  - brand
+  - colour
+  - color
+  - design
+  - look
+  - looks
+  - size
+  - weight
+  - warranty
+  - service
+  - comfort
+  - durability
+  - reliability
+  - build
+  - quality
+  - ease
+  - use
+  - of
+  - for
+  - and
+  - the
+  - battery
+  - life
+  - laptop
+  - phone
+  - smartphone
+  - tablet
+  - tv
+  - television
+  - watch
+  - smartwatch
+  - earbuds
+  - headphones

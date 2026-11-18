@@ -22,7 +22,7 @@ from app.contracts import CriteriaSet
 log = logging.getLogger(__name__)
 
 DEFAULT_CACHE_DIR = Path(__file__).resolve().parents[2] / ".cache" / "criteria"
-_FORMAT = 1
+_FORMAT = 2  # 2 since S4-22: definitions checked for plain words; a set saved before it is made again
 
 StoreKey = tuple[str, str | None]
 

@@ -11,9 +11,10 @@ import json
 import re
 from functools import cache
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
 
 import pytest
+from pydantic import BaseModel
 
 from app.contracts import (
     CriteriaInput,
@@ -21,12 +22,15 @@ from app.contracts import (
     DecideResult,
     IntakeInput,
     InterviewState,
+    LLMTask,
+    LLMUnavailable,
     Provider,
     ResolvedValue,
     StageContext,
     ValueState,
 )
 from app.criteria import CriteriaStage, InMemoryCriteriaStore
+from app.criteria.prompts import PLAIN_PROMPT
 from app.decide import WeightedDecideStage, decide
 from app.decide.notes import left_out
 from app.intake import IntakeStage
@@ -181,6 +185,23 @@ def test_no_shown_product_breaks_a_rule_in_any_brief(name: str) -> None:
 # --- a recorded run, replayed through the stage ----------------------------------------------------------------------
 
 
+T = TypeVar("T", bound=BaseModel)
+
+
+class _BeforePlainWords:
+    """The recording predates S4-22's plain-words re-ask, and its definitions are the jargon S3-F4 found, so the
+    stage asks again. The recording has no answer for that call, so it finds no provider here and the recorded
+    definitions stay. Keys, weights and the rubric are unchanged by it."""
+
+    def __init__(self, llm: WrapperLLMClient) -> None:
+        self.llm = llm
+
+    def complete(self, task: LLMTask, system: str, user: str, schema: type[T], **options: Any) -> T:
+        if system == PLAIN_PROMPT:
+            raise LLMUnavailable("the recording has no plain-words re-ask")
+        return self.llm.complete(task, system, user, schema, **options)
+
+
 def _recorded_rubric() -> Any:
     """The rubric from the real intake and criteria replies recorded for "best laptop for coding under 70k"."""
     recording = load_recording("laptop_coding_70k")
@@ -188,7 +209,7 @@ def _recorded_rubric() -> Any:
     llm = WrapperLLMClient(load_llm_config(), adapters, InMemoryCallLog(), limiters={})
     intent = IntakeStage(llm).run(IntakeInput(raw_query=recording.request), CTX)
     assert intent.category is not None and intent.category_label is not None
-    criteria = CriteriaStage(llm, InMemoryCriteriaStore()).run(
+    criteria = CriteriaStage(_BeforePlainWords(llm), InMemoryCriteriaStore()).run(
         CriteriaInput(category=intent.category, category_label=intent.category_label, use_case=intent.use_case), CTX
     )
     return default_rubric(InterviewState(session_id="sess_replay0001", intent=intent, criteria=criteria))
