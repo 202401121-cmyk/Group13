@@ -362,6 +362,7 @@ class CommerceStage:
 
     name = StageName.COMMERCE
     is_placeholder = True
+    fallback_is_example = False  # a store search link for each product, no offers (S4-35)
 
     def run(self, inp: CommerceInput, ctx: StageContext) -> CommerceResult:
         return examples.commerce()

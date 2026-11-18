@@ -10,6 +10,7 @@ class EnrichStage:
 
     name = StageName.ENRICH
     is_placeholder = False  # it adds nothing, so it can't make a result a sample (S4-34)
+    fallback_is_example = False  # an empty result (S4-35)
 
     def run(self, inp: EnrichInput, ctx: StageContext) -> EnrichResult:
         return EnrichResult()

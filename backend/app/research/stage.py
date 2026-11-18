@@ -85,6 +85,7 @@ class ResearchStage:
 
     name = StageName.RESEARCH
     is_placeholder = True
+    fallback_is_example = False  # one query and no sources: nothing from the examples (S4-35)
 
     def __init__(self, fail: bool = False) -> None:
         self.fail = fail

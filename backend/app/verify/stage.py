@@ -34,6 +34,7 @@ class VerifyStage:
 
     name = StageName.VERIFY
     is_placeholder = True
+    fallback_is_example = True  # the example values again (S4-35)
 
     def run(self, inp: VerifyInput, ctx: StageContext) -> VerifyResult:
         return examples.verify()

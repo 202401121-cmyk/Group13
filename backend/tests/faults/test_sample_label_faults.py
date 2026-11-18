@@ -1,6 +1,7 @@
 """Fault tests (US-52, known gap 3): when a stage fails, the label follows the class that really made the output.
 
-A real stage that fails and falls back to its stub puts made-up data in the result, so the label must appear. A real
+A real stage that fails and falls back to its stub's fallback() is labelled only when that fallback is example data
+(match, verify, decide); a fallback that returns nothing (research, extract, commerce) is not a sample (S4-35). A real
 stage with a real fallback must not be called a sample. And however long the failures make the note, the result stays
 valid and the label stays whole.
 """
@@ -15,6 +16,7 @@ import pytest
 
 import app.contracts as C
 from app.contracts import examples as ex
+from app.decide import DecideStage
 from app.explain import TemplateExplainStage
 from app.pipeline import (
     MAX_NOTE_CHARS,
@@ -38,7 +40,8 @@ def run(stages: SearchStages, **options: Any) -> C.SearchResult:
 
 
 class _FailsToItsStub(FakeRealStage):
-    """The shape D-20 asks for: a real class that fails, and whose fallback hands over to the stub it replaced."""
+    """The shape D-20 asks for: a real class that fails, and whose fallback hands over to the stub it replaced: to the
+    stub's fallback(), as every live stage in app/ does (test_sample_label.py holds them to it)."""
 
     def __init__(self, stub: Any) -> None:
         super().__init__(stub)
@@ -48,7 +51,13 @@ class _FailsToItsStub(FakeRealStage):
         raise RuntimeError("the real stage crashed")
 
     def fallback(self, inp: Any, ctx: C.StageContext, error: Exception) -> Any:
-        return self.baseline.run(inp, ctx)
+        return self.baseline.fallback(inp, ctx, error)
+
+
+# S4-35: a stub's fallback is example data for match, verify and decide; for research, extract and commerce it
+# returns nothing (no sources, no claims, store search links), so falling back to it is not a sample.
+FALLBACK_IS_EXAMPLE = ["match", "verify", "decide"]
+FALLBACK_IS_EMPTY = ["research", "extract", "commerce"]
 
 
 def test_explain_falling_back_to_its_template_is_real_and_gives_no_sample_note() -> None:
@@ -72,7 +81,23 @@ def test_enrich_falling_back_to_its_empty_stub_gives_no_sample_note() -> None:
     assert result.coverage_note == "Enrich used a simpler fallback: something went wrong."
 
 
-@pytest.mark.parametrize("field", EXAMPLE_STUBBED_STAGES)
+def test_every_example_stub_is_sorted_by_what_its_fallback_gives() -> None:
+    assert sorted(FALLBACK_IS_EXAMPLE + FALLBACK_IS_EMPTY) == sorted(EXAMPLE_STUBBED_STAGES)
+
+
+@pytest.mark.parametrize("field", FALLBACK_IS_EMPTY)
+def test_a_real_stage_that_falls_back_to_an_empty_stub_fallback_gives_no_label(field: str) -> None:
+    stages = all_real()
+    setattr(stages, field, _FailsToItsStub(getattr(stub_stages(), field)))
+    result = run(stages)
+    report = next(r for r in result.stage_reports if r.stage is C.StageName(field))
+    assert report.status is C.StageStatus.FALLBACK
+    assert result.coverage_note is not None
+    assert "used a simpler fallback: something went wrong." in result.coverage_note  # the fallback is still said
+    assert SAMPLE_NOTE not in result.coverage_note
+
+
+@pytest.mark.parametrize("field", FALLBACK_IS_EXAMPLE)
 def test_a_real_stage_that_falls_back_to_its_stub_gives_the_note(field: str) -> None:
     stages = all_real()
     setattr(stages, field, _FailsToItsStub(getattr(stub_stages(), field)))
@@ -138,9 +163,24 @@ def test_a_real_stage_with_its_own_fallback_gives_no_label() -> None:
     assert SAMPLE_NOTE not in result.coverage_note
 
 
-def test_a_stub_whose_own_run_fails_still_gives_the_note() -> None:
+def test_a_stub_whose_own_run_fails_to_an_empty_fallback_gives_no_label() -> None:
+    """S4-35: research's stub falls back to one query and no sources: no example data reached the result."""
     stages = all_real()
     stages.research = ResearchStage(fail=True)
+    result = run(stages)
+    assert result.coverage_note is not None
+    assert "Research used a simpler fallback" in result.coverage_note  # the fallback is still said
+    assert SAMPLE_NOTE not in result.coverage_note
+
+
+class _DecideStubThatFails(DecideStage):
+    def run(self, inp: C.DecideInput, ctx: C.StageContext) -> C.DecideResult:
+        raise RuntimeError("the stub crashed")
+
+
+def test_a_stub_whose_own_run_fails_to_its_example_fallback_still_gives_the_note() -> None:
+    stages = all_real()
+    stages.decide = _DecideStubThatFails()  # its fallback is the example ranking
     result = run(stages)
     assert result.coverage_note is not None and result.coverage_note.endswith(SAMPLE_NOTE)
 

@@ -95,11 +95,12 @@ to cancel it, start a [search run](#search-runs-with-live-progress-us-12) instea
 | `coverage_note` | Plain words about what was missing (for example a source that was unavailable). Always set when `partial` is true or a stage did not finish normally. It also carries the sample label (below). Show it. |
 | `saved` | `true` only when the result's row was committed to the database (`public.searches`). `false` when the database is off, down, slow or failing: show "This result isn't saved." The rest of the result is the same either way. |
 
-**Sample label:** while any part of a result comes from a placeholder stage, `coverage_note` ends with "These are
-sample results while live research is being built. They are not real recommendations." The label follows the code
-that actually ran: a real stage gives no label, and a placeholder running as a real stage's fallback does. If the
-note would pass 400 characters, the earlier text is cut, never this sentence. Show the note as it is; don't match
-on the sentence.
+**Sample label:** when example data reached a result, `coverage_note` ends with "These are sample results while live
+research is being built. They are not real recommendations." The label follows the code that actually ran: a real
+stage gives no label; a stub's own output does; and a fallback does only when it returns a stub's example data (in a
+live search today, only decide's example ranking). The enrich stub, which adds nothing, and a stub fallback that
+returns nothing, such as research's one query and no sources, never label it (S4-34, S4-35). If the note would pass
+400 characters, the earlier text is cut, never this sentence. Show the note as it is; don't match on the sentence.
 
 **Time:** the search stops itself after 150 seconds (`SEARCH_TIME_LIMIT_S`), and that includes saving the result: the
 stages stop early enough to leave the save its time (`DB_TIMEOUT_SECONDS`, 2 seconds by default). Each stage also
@@ -604,7 +605,7 @@ inventing data.
 
 | Gap | Today | When it is planned |
 |---|---|---|
-| Real search results | `POST /api/search` and search runs now run live research, extract, match, verify and decide, so the products, values and ranking are real. Enrich, explain and commerce are still samples, so `coverage_note` carries the sample sentence. | US-41 (enrich), US-20 and US-22 (explain), US-24 (commerce) |
+| Real search results | `POST /api/search` and search runs now run live research, extract, match, verify, decide, explain and commerce, so the products, values, ranking, explanations and prices are real. A result is labelled a sample (the sample sentence in `coverage_note`) only when example data reached it: a stub's own output, or a fallback that returns a stub's example data (in a live search today, only decide's example ranking). The enrich stub, which adds nothing, and a stub fallback that returns nothing, such as research's one query and no sources, never label it (S4-34, S4-35). | US-41 (enrich), US-22 (checked explanations) |
 | Every source of a disputed value | Done: the [evidence route](#sources-behind-a-value-us-21) gives both sides of a value, with each claim's quote and source, while the run is kept. After that, only the result's `citations` remain, without Reddit's words. | Done (US-21, S3-11) |
 | Typed edits to must-haves and leave-outs | `PUT /intent` still refuses them with a plain 422; the rubric route switches a must-have, adds or removes a leave-out and sets a weight ([editing the rubric](#editing-the-rubric-us-09)). Leave-outs read from typed words come with US-10. | US-10 and the rubric editor (S3-14), Sprint 3 |
 | Sessions live in the server's memory | A backend restart in the middle of a search shows "session expired". | Not planned yet: raised for Sprint 2 planning |
