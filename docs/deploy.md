@@ -72,11 +72,13 @@ These shape how staging behaves. Check them again before the demo: free plans ch
     - give staging its own Serper key if you can;
     - leave `JINA_API_KEY` and `FIRECRAWL_API_KEY` empty on staging (plain page reads still work);
     - suspend the service from its Settings page when nobody is checking it;
-    - share the address only within the team.
+    - share the address only within the team until login exists (D-65, US-30).
 - **512 MB is shared by every search running at once**, so staging runs one search at a time (`SEARCH_RUN_WORKERS=1`).
   A second search gets the app's "busy, try again" answer.
-- **Every search is saved** (D-36), and staging saves into the team's Supabase. A stranger's search would save the
-  request they typed, which is private data (D-51). Keep the address within the team (section 6).
+- **Every search is saved** (D-36), and staging saves into the team's Supabase: **staging keeps `DATABASE_URL`**
+  (D-65, 14 Nov 2026), so saving is proved on the real database. A stranger's search would save the request they
+  typed, which is private data (D-51). So the address stays within the team until login (US-30), and every session
+  the team's own checks create is listed in section 6 and deleted afterwards.
 
 ## 2. Backend on Render (Pal)
 
@@ -189,12 +191,14 @@ curl -s -o /dev/null -D - -X OPTIONS https://<service>.onrender.com/api/presearc
    CI's `node-version`, `scripts/doctor.py`'s `NODE_MAJOR` and `docs/setup.md` together; a test
    (`backend/tests/unit/stack/test_doctor.py`) checks the first three agree.
 6. **Turn off Vercel's system variables:** Settings > Environment Variables, untick **Enable access to System
-   Environment Variables**.
+   Environment Variables**. This is a second guard.
    - With it on, Vercel adds `VITE_`-prefixed copies such as `VITE_VERCEL_GIT_COMMIT_AUTHOR_NAME` and
      `VITE_VERCEL_GIT_COMMIT_MESSAGE` to the build
      ([framework variables](https://vercel.com/docs/environment-variables/framework-environment-variables)).
-   - `src/lib/api/client.ts` reads `import.meta.env` whole, so the build would copy all of them into every visitor's
-     JavaScript.
+   - The first guard is in the code (S4-19): the frontend reads only the allow-listed keys, each by its name, in one
+     place, `frontend/src/lib/config.ts` (`PUBLIC_ENV_KEYS` and `publicEnv()`). A build copies into the browser only
+     the values the code reads by name, so other `VITE_` variables stay out of every visitor's JavaScript even if one
+     is set. Keep the setting off anyway, in case a later change reads the env whole.
 7. Add the variables below, then deploy.
 
 ### The variables
@@ -203,10 +207,14 @@ curl -s -o /dev/null -D - -X OPTIONS https://<service>.onrender.com/api/presearc
 | `VITE_API_MODE` | `live` | `mock` | no |
 | `VITE_API_BASE_URL` | The Render address, such as `https://<service>.onrender.com`, with no slash at the end | not needed | no |
 
-- **Only public values, and only these two.** A `VITE_` variable is copied into the JavaScript every visitor
-  downloads, so it must never hold a key. The build copies *every* `VITE_` variable set on the project, not just the
-  ones the code names. So add no other `VITE_` variable, and keep step 6's setting off.
-  `frontend/src/lib/deploy/deploy-config.test.ts` checks that the source names only these two.
+- **Only public values, and only these two.** A `VITE_` variable the code reads is copied into the JavaScript every
+  visitor downloads, so it must never hold a key. The frontend reads only the keys in `PUBLIC_ENV_KEYS`
+  (`frontend/src/lib/config.ts`): these two. A new public key is added there and to this table, never read anywhere
+  else. Add no other `VITE_` variable on the project, and keep step 6's setting off.
+  - `frontend/src/lib/deploy/deploy-config.test.ts` checks that the source names exactly these keys and never
+    reads the env whole.
+  - `vite-env-build.test.ts` builds the app with a decoy `VITE_` variable set, and checks that it stays out of the
+    build.
 - **Previews run in mock mode.** Each preview deployment has its own address, which is not in `FRONTEND_ORIGINS`, so
   the backend would refuse its calls. Mock mode shows the sample data and calls nothing.
 - **A changed variable needs a redeploy:** the values are built into the code. **Deployments > … > Redeploy** does it.
@@ -249,38 +257,60 @@ commit's CI checks pass, and deploys only commits that change `backend/`. Two th
   is green again.
 
 ## 5. Smoke check (DECIDED 5)
-Run after both parts are deployed. DEP-1's budget is 12 LLM calls, 6 Serper calls and 10 Reddit archive calls, for one
-search.
-- **Serper and LLM fit.** `research.yaml` caps a search at 6 Serper queries, and `EXTRACT_MAX_SOURCES=5` keeps the LLM
-  calls near 10.
-- **Reddit doesn't.** A search may use up to 14 Reddit archive requests (4 listings, 8 comment reads, 2 retries), more
-  than the budget. So for the smoke search set `REDDIT_SOURCE=off` on Render, unless Om raises the Reddit budget to 14,
-  and put it back afterwards.
+Run after both parts are deployed. The budget is D-65's (14 Nov 2026), for one search with **Reddit on**
+(`REDDIT_SOURCE=archive`): 12 LLM calls, 6 Serper, 14 Reddit archive, 4 Jina and 2 Firecrawl.
+- `research.yaml` caps a search at 6 Serper queries and 14 Reddit archive requests (4 listings, 8 comment reads, 2
+  retries).
+- `EXTRACT_MAX_SOURCES=5` keeps the LLM calls near 10.
+- Jina and Firecrawl are empty on staging (section 1), so they use nothing.
 
 The steps:
 1. **Health, timed:** `curl -s -w "\n%{time_total} s\n" https://<service>.onrender.com/api/health` should show
    `"database": "ok"`.
-2. **One live search** from the deployed page, from the request through the interview to the results. Note:
+2. **CORS:** the preflight in section 2, twice.
+   - From the Vercel address, the answer is 200 and names that address in `access-control-allow-origin`.
+   - From any other origin (a made-up `https://not-shopsense.example`), it is refused (400) and names no origin.
+3. **One live search** from the deployed page, from the request through the interview to the results. Note:
    - the session ID (`sess_…`) and when it ran;
    - whether results came back and were saved;
    - which matcher ran, from Render's logs:
      - **the model:** no match line;
      - **fuzzy, past the share:** `match: fuzzy matching ran instead of the model: …`;
      - **fuzzy, past the stage's limit:** `stage match: TimeoutError; using its fallback`.
-3. **Memory:** the backend's peak memory during that search, from the service's **Metrics > Memory** graph.
-4. **A first request after a spin-down:** after 15 or more idle minutes, time the health call again.
+4. **Memory:** Render's free plan doesn't show memory (Application Metrics are for paid plans; only the 512 MB limit
+   is shown). Instead, check the service's **Events** and **Logs** for that search's minutes: no "out of memory"
+   restart or crash should appear.
+5. **A first request after a spin-down:** after 15 or more idle minutes, time the health call again.
+
+**The record.** Run on 18 Nov 2026 (19 Nov in India) against Pal's Render service and Yashkumar's Vercel project.
+The repository is public, so their addresses are not written here (D-65): `<service>` and `<project>` stand for
+them. Times are UTC.
 
 | Date | Check | Result |
 |---|---|---|
-| — | Not run yet: the staging services were not created on 14 Nov 2026. | — |
+| 18 Nov 2026, 18:36 | Health, the first call after the service had been idle | HTTP 200 in **28.8 s**, `"database": "ok"`, schema 1.9.0. Most likely the service starting again; how long it had been idle wasn't measured. |
+| 18 Nov 2026, 18:37 | Health, warm | HTTP 200 in 0.53 s |
+| 18 Nov 2026, 18:37 | CORS from the Vercel address | Preflight 200, `access-control-allow-origin: https://<project>.vercel.app`. A GET carries the same header. |
+| 18 Nov 2026, 18:37 | CORS from another origin | Preflight **400**, no `access-control-allow-origin`. A plain GET still answers 200, but with no allow header, so a browser on that origin can't read it. |
+| 18 Nov 2026, 18:37–18:39 | The live search's request, criteria and interview, from the deployed page | A made-up request ("wireless earbuds for the gym under 3000 rupees"). <ul><li>**Intake:** the keyword rules (`detected_by: rules`): the page said "Our backup reader filled this in".</li><li>**Criteria:** generated, 10 of them.</li><li>**Interview:** 10 answers.</li><li>**The request:** saved (`request_saved: saved`).</li></ul> |
+| 18 Nov 2026, 18:39:14–18:39:56 | The live search (`srch_a53470eeb7c65908a51da418`) | Finished in **41.7 s**, not partial, **saved** (`saved: true`). <ul><li>**Stages:**<ul><li>research OK (24.2 s, 54 sources: 20 Reddit, 20 search snippets, 6 review sites, 5 YouTube, 3 stores);</li><li>extract reported a time-out (16.6 s): at least 2 sources ran out of time and used the fallback;</li><li>match, verify, enrich, decide and explain OK;</li><li>commerce skipped (nothing ranked).</li></ul></li><li>**`llm_unavailable: true`:** no source sent to the AI services got an answer: each failed on every provider or ran out of time. So no claim was read and nothing was ranked. The page showed "We couldn't reach the AI services that read the sources" and the coverage note.</li><li>**Pending from Pal:** Render's logs for 18:37–18:40, to show why intake fell back and why the extraction calls failed, and whether the matcher model loaded. If there is no `match: fuzzy matching ran instead of the model` line, it loaded.</li></ul> |
+| 18 Nov 2026, 18:37–18:40 | Calls used against the budget | Not countable: staging's counts and the providers' calls are not visible from outside. <ul><li>**Serper and Reddit:** bounded by `research.yaml`'s per-search caps, 6 and 14, the budget's numbers.</li><li>**LLM:** unknown. A failed read may try several providers, so the 12 can't be confirmed.</li><li>**Jina and Firecrawl:** use nothing if their keys are empty on the service, as section 1 asks; not checked from here.</li></ul> |
+| 18 Nov 2026, 18:36–18:42 | Memory | Not measurable on the free plan (only the 512 MB limit is shown). Whether Events or Logs show an out-of-memory restart in these minutes: pending from Pal. The search finished, which a restart during it would have stopped. Match had no names to score (it took 0 ms), so this search tested at most the matcher model loading, not its scoring on 0.1 CPU (P-10). |
+| 18 Nov 2026, 19:12 | Health after 31 minutes without our calls | HTTP 200 in 0.59 s: the service had not spun down. The first call above (28.8 s) is the start-up time we saw. |
 
 ## 6. Staging data to delete
 Every session the team's own checks save on staging is listed here, so Om can delete it from Supabase.
 
 Staging can't list the searches of anyone else who has the address: those are saved too, with the request they typed.
-That is why the address stays within the team. **Open for Om (D-51, D-36):** whether staging should save into its own
-database instead, and how rows from outside the team would be found and deleted.
+**D-65 (14 Nov 2026) settled this:**
+- staging keeps the team's database (`DATABASE_URL`);
+- the address stays within the team until login (US-30);
+- the sessions the team's own checks create are listed here and deleted afterwards.
 
-| Session ID | Created | Deleted |
-|---|---|---|
-| — | — | — |
+| Session ID | Created | What it holds | Deleted |
+|---|---|---|---|
+| `sess_fe23922a88fbcae0d852262d` | 18 Nov 2026, 18:37 UTC (the smoke check, section 5) | One request (18:37) and one search, `srch_a53470eeb7c65908a51da418` (18:39); no user linked | 18 Nov 2026, by Om, after listing them read-only. None are left for this session. |
+
+**Not yet accounted for:** 11 requests and 5 searches created since 17 Nov 2026, 18:06 UTC (23:36 IST), that no
+hand-over lists. They are probably the team's own searches, on staging or from a laptop. Rows are deleted only by exact
+session ID, so they stay until their owners are known: anyone who wants theirs deleted sends Om the session IDs.
