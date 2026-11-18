@@ -27,9 +27,9 @@ max_crawl_delay_s: 10 # a site that asks for more is skipped
 # What each provider may use. Only requests really sent count; a cache hit is free. A capped provider is skipped, and the
 # coverage note says so. Counts live in the git-ignored backend/.cache/research/usage.json, and survive a restart.
 caps:
-  serper:
+  serper: # research's 6 a search; enrich has its own 6 (D-78, US-41) and commerce its own; the day is shared
     per_search: 6
-    per_day: 60
+    per_day: 80 # D-78 (18 Nov 2026): never above 80
     total: 2400 # the free plan is 2,500 queries once, never renewed, so a daily cap alone can't protect it
   reddit_archive: # up to 4 listings, 8 comment reads and 2 retries
     per_search: 14

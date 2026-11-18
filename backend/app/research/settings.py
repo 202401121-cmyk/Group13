@@ -64,7 +64,7 @@ class ProviderCap(BaseModel):
 
 def _default_caps() -> dict[str, ProviderCap]:
     return {
-        "serper": ProviderCap(per_search=6, per_day=60, total=2400),
+        "serper": ProviderCap(per_search=6, per_day=80, total=2400),  # D-78: never above 80 a day
         "reddit_archive": ProviderCap(per_search=14, per_day=500),
         "pages": ProviderCap(per_search=24, per_day=200),
         # The page readers (US-38, team's choice): Jina pages, Firecrawl pages, and Firecrawl credits (a page is 1, a

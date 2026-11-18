@@ -3,8 +3,9 @@
 PriceLookupStage is the real stage (P-34, first slice). The pipeline picks the targets in code (targets.py) and hands
 the stage the kept products first (`use_products`), as only a Product has the brand matching needs. Each target is
 looked up in Serper shopping, one query each, in parallel, within the stage's 20 seconds. The query is the same one
-commerce sends (brand and name), cached in the research cache as commerce's are, and counted against Serper's per-search
-and daily caps: a cached answer or a capped search sends nothing.
+commerce sends (brand and name), cached in the research cache as commerce's are. Enrich has its own room of
+MAX_ENRICH_SEARCHES Serper calls a search, apart from research's (D-78); the day and the total are shared. A cached
+answer or a capped search sends nothing, and a look-up whose time is up never takes a unit.
 
 A listing counts only when its title names the product's brand and model (commerce's `accepts`) and its price is read
 by US-17's reader: an EMI, a range or any unreadable price is no price. The lowest accepted price becomes one claim on
@@ -167,11 +168,11 @@ class PriceLookupStage:
         lookups_end = started + room
         retry = RetryClock(time_left=lambda: lookups_end - monotonic())  # a retry goes only while it can be used
         shopping, client = self._wire(retry)
-        usage = (self._usage or _shared_book()).search()
+        usage = (self._usage or _shared_book()).search(per_search={"serper": MAX_ENRICH_SEARCHES})  # its own room
         pool = ThreadPoolExecutor(max_workers=len(pairs), thread_name_prefix="enrich")
         pending: list[Future[Any]] = []
         try:
-            futures = [pool.submit(shopping.search, query_for(product), usage) for _, product in pairs]
+            futures = [pool.submit(look_up, shopping, query_for(product), usage, lookups_end) for _, product in pairs]
             done, _ = wait(futures, timeout=max(0.0, lookups_end - monotonic()))
             pending += [future for future in futures if future not in done]
             late = ShoppingResult(failure="timeout", detail="shopping: no answer in time")
@@ -224,6 +225,13 @@ class PriceLookupStage:
         cache = ResearchCache(enabled=settings.cache_on)
         limiter = shared_limiter(settings.serper_interval_s)
         return SerperShopping(client, key, cache=cache, limiter=limiter, retry=retry), client
+
+
+def look_up(shopping: ShoppingLike, query: str, usage: SearchUsage, ends: float) -> ShoppingResult:
+    """One look-up, unless its time is already up: then nothing is asked, so no Serper unit is taken (D-78)."""
+    if monotonic() >= ends:
+        return ShoppingResult(failure="timeout", detail="shopping: no time left to ask")
+    return shopping.search(query, usage)
 
 
 def prices_note(count: int) -> str:

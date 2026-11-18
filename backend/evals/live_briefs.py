@@ -53,6 +53,7 @@ from app.contracts import (
     ValueState,
 )
 from app.extract.settings import ExtractSettings
+from app.research import usage
 from scripts.find_conflicts import QUERIES, Budget, OverBudget, service_of
 
 from . import checks
@@ -61,6 +62,13 @@ from .run_baselines import BACKEND, RESULTS_DIR, measure
 LIVE_OUT = RESULTS_DIR / "sprint-3-live.json"
 CATEGORIES = ("smartphone", "air_fryer", "laptop", "smartwatch", "earbuds")  # most rows in listings.csv, in order
 BUDGET = {"llm": 60, "serper": 30, "reddit": 30, "jina": 30, "firecrawl": 10}
+# The run budget's services, and what the app counts for each call (D-78): a refused call gives those units back.
+APP_COUNTED: dict[str, tuple[str, ...]] = {
+    "serper": ("serper",),
+    "jina": ("jina",),
+    "firecrawl": ("firecrawl", "firecrawl_pages"),  # a page's credit or a search's 2, and the page itself
+    "reddit": ("reddit_archive",),
+}
 MAX_SOURCES = 8
 NOT_FINISHED = ("needs a clarification", "the interview did not finish")
 SOURCE = "backend/evals/live_briefs.py, 5 live briefs, --no-db"
@@ -106,7 +114,10 @@ __all__ = ["BUDGET", "CATEGORIES", "LIVE_OUT", "LiveBudget", "OverBudget", "funn
 
 
 class LiveBudget(Budget):
-    """find_conflicts' guard, with Reddit's archives counted against their share instead of always refused."""
+    """find_conflicts' guard, with Reddit's archives counted against their share instead of always refused.
+
+    A call it refuses never leaves the machine, so it counts nothing against the app's own caps either (D-78): the unit
+    the app took for it goes back (app/research/usage.py, APP_COUNTED)."""
 
     def admit(self, request: httpx.Request) -> None:
         service, cost = service_of(request.url)
@@ -118,8 +129,12 @@ class LiveBudget(Budget):
             if spent > cap:
                 if service == "llm":  # so the funnel can tell the run's own share from a provider with no room
                     _CURRENT.refused = getattr(_CURRENT, "refused", 0) + 1
+                for provider in APP_COUNTED.get(service, ()):
+                    usage.not_sent(provider)
                 raise OverBudget(f"the {service} budget is spent", request=request)
             self.used[service] = spent
+        for provider in APP_COUNTED.get(service, ()):
+            usage.sent(provider)
 
 
 class _Keep:
