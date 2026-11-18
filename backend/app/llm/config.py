@@ -110,6 +110,13 @@ class PoolSettings(BaseModel):
         le=1,
         description="The share of each member's day public pages may use; private and Reddit work keep the rest",
     )
+    reddit_minute_share: float = Field(
+        default=0.5,
+        gt=0,
+        le=1,
+        description="The share of each member's tokens a minute Reddit-class calls may use (D-76), so public pages"
+        " always find room",
+    )
     members: list[PoolMember] = Field(min_length=1)
 
     @property

@@ -160,6 +160,18 @@ class RateLimiter:
         with self._lock:
             return self._wait_needed(self._clock(), tokens + keep_free)
 
+    def book_now(self, tokens: int) -> Booking:
+        """Count a call that was already admitted elsewhere, whatever its size (a lane's count, S4-31)."""
+        with self._lock:
+            return self._take(self._clock(), tokens)
+
+    def seconds_until_empty(self) -> float:
+        """Seconds until every call now in the last minute's count has left it."""
+        with self._lock:
+            now = self._clock()
+            self._forget_old_calls(now)
+            return max(0.0, self._window[-1].started + WINDOW_S - now) if self._window else 0.0
+
     def tokens_this_minute(self) -> int:
         with self._lock:
             self._forget_old_calls(self._clock())

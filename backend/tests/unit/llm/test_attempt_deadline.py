@@ -16,12 +16,21 @@ import pytest
 from pydantic import BaseModel
 
 from app.contracts import DataClass, Difficulty, LLMTask, LLMUnavailable, Provider
-from app.llm import InMemoryCallLog, WrapperLLMClient, load_llm_config
+from app.llm import InMemoryCallLog, WrapperLLMClient
+from app.llm import load_llm_config as decided_llm_config
+from app.llm.config import LLMConfig
 from app.llm.errors import ProviderTimeout, RateLimited
 from app.llm.health import COOLDOWN_MAX_S, COOLDOWN_MIN_S, ProviderHealth
 from app.llm.pool import ModelPool, time_limit_s
 from app.llm.providers import OpenAICompatibleAdapter
-from tests.fakes.llm import FakeAdapter
+from tests.fakes.llm import FakeAdapter, with_lane_share, with_public_route
+
+
+def load_llm_config() -> LLMConfig:
+    """S4-31: these tests predate D-76. They check rules that didn't change, on the public route DeepSeek and
+    OpenRouter were on, with the Reddit lane at a whole minute (test_reddit_lane.py and test_routing.py cover D-76)."""
+    return with_lane_share(with_public_route(decided_llm_config()))
+
 
 OK = '{"product": "Nova Book 14"}'
 BODY = json.dumps({"choices": [{"message": {"content": OK}}], "usage": {"prompt_tokens": 40, "completion_tokens": 9}})

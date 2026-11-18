@@ -118,6 +118,7 @@ def _config(**limits: int) -> LLMConfig:
     pool = base.pool.model_dump()
     pool["extract_reserve_tokens_per_minute"] = 0  # test_pool_reserve.py covers the reserve
     pool["book_real_use"] = False  # test_real_use_booking.py covers real-use booking
+    pool["reddit_minute_share"] = 1.0  # test_reddit_lane.py covers the Reddit lane (D-76)
     if limits:
         pool["members"] = [{**m, **limits} for m in pool["members"]]
         pool["reddit_tokens_per_search"] = 1

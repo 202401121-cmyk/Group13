@@ -23,10 +23,10 @@ its terms, then update this page.
 |---|---|---|---|---|
 | [Groq](#groq) | LLM for private, Reddit and public text | `GROQ_API_KEY` | OK with limits | ok |
 | [Gemini](#gemini) | LLM for public text only | `GEMINI_API_KEY` | OK as planned | ok |
-| [OpenRouter](#openrouter) | LLM for public text only, last choice | `OPENROUTER_API_KEY` | OK as planned | ok |
+| [OpenRouter](#openrouter) | Nothing: on no route since D-76 (no free model answered a page in time) | `OPENROUTER_API_KEY` | OK as planned | see [OpenRouter](#openrouter) |
 | [Cerebras](#cerebras) | Nothing while it answers 402: skipped with no call | `CEREBRAS_API_KEY` | **Not OK**: no free tier | failed (HTTP 402) |
 | [Mistral](#mistral) | LLM for public text only | `MISTRAL_API_KEY` (+ 4 settings) | OK as planned | ok |
-| [DeepSeek](#deepseek) | LLM for public text only, the fallback after Gemini and Mistral | `DEEPSEEK_API_KEY` | OK with limits: public text only, granted balance only (D-63, D-11) | see [DeepSeek](#deepseek) |
+| [DeepSeek](#deepseek) | Nothing: on no route since D-76 (needs a paid balance) | `DEEPSEEK_API_KEY` | OK with limits: public text only, granted balance only (D-63, D-11) | see [DeepSeek](#deepseek) |
 | [Serper](#serper) | Web search results with links | `SERPER_API_KEY` | OK with limits | ok |
 | [Reddit](#reddits-own-api) | Community evidence | archives: none; own API: `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT` | Own API: **not OK** (closed to us); archives in use | skipped (no keys) |
 | [YouTube](#youtube) | Video titles, descriptions, comments | `YOUTUBE_API_KEY` | OK with limits (no transcripts) | ok |
@@ -134,7 +134,7 @@ for it. With a laptop's 8 criteria in the prompt:
 | Source | Planned | Per member | Pool, per minute | In 18,000 |
 |---|---|---|---|---|
 | Full size (3,000 tokens) | 5,697 | 1 | **3** | 3.2 |
-| Short thread (250 tokens, with its title) | about 2,960 | 2 | 6 | 6 |
+| Short thread (250 tokens, with its title) | about 2,960 | 2 (1 since D-76's Reddit lane) | 6 (3 since D-76) | 6 |
 
 A smaller output request can't lift the full-size number. Two calls would need 3,000 each, and the input estimate alone
 is about 4,500. While the Reddit budget counted what calls hold, a search read 3 full threads or about 6 short ones, of
@@ -264,10 +264,17 @@ actually saw. Quotes are copied from the provider's page.
 
 - **Used for:** LLM calls with public text only. It is first for long public inputs (1M-token window).
 - **Sign up:** [aistudio.google.com](https://aistudio.google.com) → Get API key. **Env:** `GEMINI_API_KEY`.
-- **Model:** `gemini-3.5-flash-lite`, first for a long public call a shopper waits on, then Mistral, then Groq, then
-  OpenRouter. Public bulk work takes turns between Gemini and Mistral; Groq is the last resort after both, then
-  OpenRouter (F-6).
-- **Free limits** (read 9 Nov 2026): Google's [public page](https://aistudio.google.com/docs/rate-limits) lists no
+- **Model:** `gemini-3.5-flash-lite`, first for a long public call a shopper waits on, then Mistral, then Groq. Public
+  bulk work takes turns between Gemini and Mistral; Groq is the last resort after both (F-6, D-76).
+- **Free limits now in use (D-76, 18 Nov 2026), to confirm in AI Studio by the key's owner:** Gemini 3.5 Flash Lite at
+  10 requests a minute, 250,000 tokens a minute and 500 requests a day. The source is scriptbyai.com's "Gemini API Free
+  Tier Limits" (modified 13 Nov 2026), a third-party page: Google's own rate-limit page (updated 28 Oct 2026)
+  publishes no free-tier numbers and points to AI Studio. The 500 a day is now counted (`requests_per_day`). The same
+  page lists Gemini 3.8 Flash as free at 5 requests a minute, 250,000 tokens a minute and 20 a day. It is not added:
+  outside Groq's pool, the app paces a provider's models together by the provider's limits, so 3.8 Flash would share
+  Flash Lite's 10 a minute and 500 a day, and nothing would hold it to its own 5 and 20. Adding it needs per-model
+  limits for providers outside the pool, in `app/llm`.
+- **Free limits read earlier** (9 Nov 2026): Google's [public page](https://aistudio.google.com/docs/rate-limits) lists no
   numbers for this tier. [AI Studio's page](https://aistudio.google.com/rate-limit), signed in, lists Gemini 3.5 Flash Lite
   at **15 requests a minute, 250,000 input tokens a minute and 500 requests a day**. Other Flash models there have 5, 250,000
   and 20. Daily quotas reset at midnight Pacific time. Gemini sends no rate-limit headers.
@@ -288,7 +295,19 @@ actually saw. Quotes are copied from the provider's page.
 
 ### OpenRouter
 
-- **Used for:** LLM calls with public text only, always last: the fallback after Gemini, Mistral and Groq, for a shopper's
+- **On no route since 18 Nov 2026 (D-76, approved 17 Nov; S4-31).** No `:free` model answered a short public page as extraction sends it
+  within extraction's 15 seconds. The check sent one made-up review page, at 15:48 UTC (21:18 IST), with the app's own
+  extraction prompt and a 2,000-token answer, and nothing else:
+
+  | Model | Result |
+  |---|---|
+  | `nvidia/nemotron-3.5-lightning:free` (the model we used) | no full reply in 15 s |
+  | `google/gemma-4-31b-it:free` | HTTP 429, after 0.6 s |
+  | `inclusionai/ling-3.2-flash:free` | no full reply in 15 s |
+  | `baidu/ernie-5.5-flash-preview:free` | a reply with no message text, after 10.3 s |
+
+  The entry stays in `models.yaml`, unused, so it can come back by a team decision after a new check.
+- **Used for, until then:** LLM calls with public text only, always last: the fallback after Gemini, Mistral and Groq, for a shopper's
   call and for public bulk work alike (`rotates: false`). It takes no turn in the rotation, because its free models
   allow 50 requests a day and answer slowly. Paced at 20 requests a minute, and its 50 requests a day are counted
   (`requests_per_day`), so a call past them is skipped instead of earning a 429.
@@ -341,8 +360,10 @@ actually saw. Quotes are copied from the provider's page.
 
 ### DeepSeek
 
-- **Used for:** LLM calls with public text only (US-46, D-63): the public fallback after Gemini and Mistral, before
-  Groq. It takes no turn in bulk work's rotation (`rotates: false`), to protect its balance.
+- **On no route since 18 Nov 2026 (D-76, approved 17 Nov; S4-31):** free tiers only, and DeepSeek has none; it needs a paid balance,
+  and S4-29's live run found none (HTTP 402 on every call). The entry stays in `models.yaml`, unused.
+- **Used for, until then:** LLM calls with public text only (US-46, D-63): the public fallback after Gemini and Mistral,
+  before Groq. It takes no turn in bulk work's rotation (`rotates: false`), to protect its balance.
 - **Base URL and model** (from [DeepSeek's API docs](https://api-docs.deepseek.com), 11 Nov 2026):
   `https://api.deepseek.com` and `deepseek-flash`. **Env:** `DEEPSEEK_API_KEY`, and `DEEPSEEK_DAILY_TOKENS` to
   change the daily budget.
@@ -582,11 +603,12 @@ fine-tune any model of ours either.
 |---|---|---|---|
 | private | groq | groq | groq |
 | reddit | groq | groq | groq |
-| public | mistral, deepseek, groq | mistral, gemini, deepseek, groq, openrouter | gemini, mistral, deepseek, groq, openrouter |
+| public | mistral, groq | mistral, gemini, groq | gemini, mistral, groq |
 
-Groq's free tier has a small daily token allowance, so public work goes to Mistral and Gemini first, then DeepSeek
-(US-46, 13 Nov 2026), and Groq is kept for private and Reddit text. Public bulk work reaches Groq only as the last
-resort (F-6, 10 Nov 2026): when neither Gemini, Mistral nor DeepSeek answers, only if a Groq model has room right now,
+Free capacity only (D-76, approved 17 Nov 2026): DeepSeek and OpenRouter are on no route (see their sections). Groq's free tier
+has a small daily token allowance, so public work goes to Mistral and Gemini first, and Groq is kept for private and
+Reddit text. Public bulk work reaches Groq only as the last resort (F-6, 10 Nov 2026): when neither Gemini nor Mistral
+answers, only if a Groq model has room right now,
 outside the shopper's reserve, and only within its public share (below). Such
 a page asks for a 1,200-token answer (`public_output_tokens` in `pool:`) so that a page at the 3,000-token cap goes
 whole, and a page that still can't go whole is skipped, never trimmed. Long public inputs start on Gemini for its 1M-token window. Groq in a route means all of its
@@ -606,12 +628,10 @@ Each Groq text model is a member of the pool with its own limits. Read from
 
 - **Rotation:** bulk work (`extract_claims`, `enrich_extract`) goes round every model its route allows, in turn (F-3,
   10 Nov 2026): Groq's three models for private and Reddit text (D-51), and for public text Gemini and Mistral.
-  For public text the rest follow in the route's order, taking no turn and moving no rotation: DeepSeek
-  (`rotates: false`, to protect its balance), then Groq's models as the last resort, in their fixed order, never
-  waited for, then OpenRouter (`rotates: false`) as the fallback, used only when none has room, and its 50 requests a
-  day are counted. Each is paced by its own limits: these members by the table above,
-  Gemini at 15 requests a minute, Mistral at 2 a minute and 40,000 tokens a minute (its headers, 10 Nov 2026),
-  OpenRouter at 20 a minute. A model whose window can't hold the prompt and its answer is
+  For public text Groq's models follow as the last resort, in their fixed order, taking no turn and never waited
+  for (DeepSeek and OpenRouter are on no route since D-76). Each is paced by its own limits: these members by the
+  table above, Gemini at 15 requests a minute, Mistral at 2 a minute and 40,000 tokens a minute (its headers,
+  10 Nov 2026). A model whose window can't hold the prompt and its answer is
   skipped, and the next one takes the turn; a longer input still fits by being split into chunks, as before (public
   pages are capped at 3,000 tokens, so this is rare). Calls a shopper waits on keep the route's order, with the rest
   as backups.
@@ -644,6 +664,14 @@ Each Groq text model is a member of the pool with its own limits. Read from
 - **Public share (US-46, team's choice, 13 Nov 2026):** public pages may use at most `public_daily_share` (25%) of each
   Groq model's day, 50,000 of its 200,000 tokens. Past it, a public page skips Groq, and private and Reddit work keep
   the rest. A public call counts against both the share and the day; a private or Reddit call only against the day.
+- **The Reddit lane (D-76, approved 17 Nov 2026):** Reddit-class calls (Reddit threads and YouTube comments) may use at most
+  `reddit_minute_share` (a quarter, Om's choice on 18 Nov 2026) of each Groq model's tokens a minute: 2,000 of its
+  8,000. With the shopper's 2,000 kept free, public pages, whose last resort is Groq, have 4,000 of the minute. The
+  lane counts like the member: a call's whole request while it runs, then its real use. Every Reddit call is bigger
+  than the lane alone (a short thread holds about 2,960, a full one about 5,700), so one may go when the lane has
+  nothing in its minute (Om, 18 Nov 2026), and the lane then waits for that minute to pass: about one Reddit source a
+  minute per model, three for the pool. While a full source runs, a page still finds no room on that model. The
+  shopper's own calls are never held by it.
 - **Room for shoppers:** bulk work never takes a member below `extract_reserve_tokens_per_minute` (2,000) of its current
   minute, so intake and reply parsing, which plan about 1,700, always find room. Extraction waits inside its 15-second
   limit, or skips the source with a coverage note. A call a shopper waits on may use the reserve.
@@ -987,7 +1015,7 @@ changes it.
 |---|---|---|---|---|---|
 | Groq | yes, 3 models (7 Nov) | per model: 1,000 requests a day, 8,000 tokens a minute (headers) | 131,072 | yes: does not train or keep inputs | `openai/gpt-oss-120b` reasons before it answers |
 | Gemini | yes | not sent; see AI Studio | 1,048,576 | public text only: the free tier trains on inputs | sometimes HTTP 503 when busy |
-| OpenRouter | yes | 20 a minute, 50 a day (provider page) | 1,000,000 | public text only: training depends on the host | slowest, about 4 s |
+| OpenRouter | yes on 3 Nov; on 18 Nov no free model answered a page in 15 s (see [OpenRouter](#openrouter)) | 20 a minute, 50 a day (provider page) | 1,000,000 | public text only: training depends on the host | on no route since D-76 |
 | Cerebras | no: HTTP 402 | none: no free tier any more | 65,536 (unverified) | yes: does not train or keep inputs | needs a plan or credits; team decision |
 | Mistral | yes | 188 requests and 625,000 tokens a minute (headers) | 262,144 | public text only: the free plan trains on inputs | `mistral-small-latest` gave 429 with a 0 a minute limit |
 | Serper | yes | 2,500 queries in total; 1 used by the smoke test | — | yes, with limits | 9 results for one search |

@@ -2,6 +2,7 @@
 
 - FakeLLMClient: stands in for the whole wrapper when testing a stage (returns canned answers by task).
 - FakeAdapter: stands in for one provider when testing the wrapper itself (scripted replies or failures).
+- with_public_route / with_lane_share: the real config, changed for a test of something else (S4-31).
 """
 
 from __future__ import annotations
@@ -13,11 +14,38 @@ from typing import TypeVar
 from pydantic import BaseModel
 
 from app.contracts import DataClass, Difficulty, LLMTask, LLMUnavailable, Provider
+from app.llm.config import LLMConfig
 from app.llm.errors import ProviderError
 from app.llm.fitting import estimate_tokens
 from app.llm.providers import RawCompletion
 
 T = TypeVar("T", bound=BaseModel)
+
+# The public route before D-76 (18 Nov 2026), when DeepSeek and OpenRouter were on it. The code that handles them is
+# unchanged, so tests of their own behaviour (402, a daily request cap, retries) still run on this route.
+PRE_D76_PUBLIC_ROUTE: dict[Difficulty, list[Provider]] = {
+    Difficulty.SHORT: [Provider.MISTRAL, Provider.DEEPSEEK, Provider.GROQ],
+    Difficulty.MEDIUM: [Provider.MISTRAL, Provider.GEMINI, Provider.DEEPSEEK, Provider.GROQ, Provider.OPENROUTER],
+    Difficulty.LONG: [Provider.GEMINI, Provider.MISTRAL, Provider.DEEPSEEK, Provider.GROQ, Provider.OPENROUTER],
+}
+
+
+def with_public_route(
+    config: LLMConfig, route: Mapping[Difficulty, list[Provider]] = PRE_D76_PUBLIC_ROUTE
+) -> LLMConfig:
+    """The config with another public route, checked again by its loader's rules."""
+    data = config.model_dump()
+    data["routes"] = {**data["routes"], DataClass.PUBLIC: dict(route)}
+    return LLMConfig.model_validate(data)
+
+
+def with_lane_share(config: LLMConfig, share: float = 1.0) -> LLMConfig:
+    """The config with another Reddit lane share. 1.0 lets Reddit-class calls use a whole minute, for tests of other
+    rules (tests/unit/llm/test_reddit_lane.py covers the lane, D-76)."""
+    data = config.model_dump()
+    data["pool"] = {**data["pool"], "reddit_minute_share": share}
+    return LLMConfig.model_validate(data)
+
 
 # One scripted reply: the text to return, an exception to raise, or a function of the user text.
 Reply = str | Exception | Callable[[str], str]
