@@ -1,40 +1,190 @@
 # Technical words (US-07). A question about a criterion whose label or key holds one of these, as a whole word and in any
-# case, gets a "What does this mean?" explanation, taken from the criterion's own saved definition (no LLM is asked).
-# Loaded by app/interview/questions.py. Team's choice, 13 Nov 2026. Lowercase; a phrase is matched word for word.
+# case, gets a "What does this mean?" explanation. So does any label with a word not in plain_words.yaml (S4-22, P-25).
+# Loaded by app/interview/terms.py. Team's choice, 13 Nov 2026; S3-19's words added 18 Nov 2026. Lowercase; a phrase
+# is matched word for word.
+#
+# An explanation is plain when its Flesch-Kincaid grade is 9 or under and it uses none of these words except the
+# term's own: a definition that explains "RAM" with "volatile memory" is not plain.
 #
 # word: the word or phrase. also: other ways it is written.
+# plain: a people-reviewed explanation, at most 40 words and plain by the rule above, saying why the word matters. It is
+#   shown when the criterion's own saved definition is not plain. Written in S4-22; Manu Pardhan reviews each one.
 words:
   - word: anc
     also: [active noise cancellation]
+    plain: >-
+      ANC uses tiny microphones to block outside sound like traffic or fans. It matters on buses, trains or in busy
+      offices, because you can keep the volume low and still hear clearly.
   - word: noise cancellation
     also: [noise cancelling, noise canceling]
+    plain: >-
+      This blocks outside sound, such as traffic, fans or people talking. It matters on trips and in busy places,
+      because you hear music and calls clearly without turning the volume up.
   - word: ois
     also: [optical image stabilisation, optical image stabilization]
+    plain: >-
+      OIS keeps the camera steady when your hand shakes. It matters for photos at night and for videos while you walk,
+      because pictures come out sharp instead of blurry.
   - word: refresh rate
+    plain: >-
+      How many times each second the screen redraws the picture. A higher rate makes scrolling, games and fast videos
+      look smooth instead of jumpy, and you notice it every day.
   - word: hz
-    also: [hertz]
+    also: [hertz, khz, mhz]
+    plain: >-
+      Hz counts how many times something happens each second. On a screen, a higher number means smoother scrolling
+      and games, which you notice every day.
   - word: nits
     also: [brightness nits]
+    plain: >-
+      Nits measure how bright a screen can get. More nits make the screen easier to read in bright sun, so it matters
+      if you use it outside a lot.
   - word: mah
+    plain: >-
+      mAh tells you how much charge the battery holds. A bigger number usually means it lasts longer between charges,
+      which matters if you are out all day.
   - word: ip rating
-    also: [ip68, ip67, ip54]
+    also: [ip68, ip67, ip66, ip65, ip54, ip53]
+    plain: >-
+      An IP rating tells you how well it keeps out dust and water. A higher number means it can survive rain, spills
+      or a dip in water, so it lasts longer.
   - word: water resistance
+    plain: >-
+      How well it survives water, such as rain, sweat or a splash. It matters if you use it outdoors, at the gym or
+      near a sink, so a little water does not break it.
   - word: codec
     also: [codecs, aptx, ldac]
+    plain: >-
+      A codec is the way sound is packed and sent from your phone to your earbuds. A better one keeps music clear,
+      which matters if you care how songs sound.
   - word: latency
+    plain: >-
+      Latency is the delay between something happening and you seeing or hearing it. A short delay matters for games,
+      video calls and films, so sound and picture stay in step.
   - word: gpu
     also: [graphics card]
+    plain: >-
+      The GPU is the part that draws pictures, games and video. A stronger one runs games and video editing smoothly,
+      so it matters if you play or make videos.
   - word: cpu
+    plain: >-
+      The CPU is the brain that does the work for every app. A faster one opens apps, builds code and handles many
+      tasks without making you wait.
   - word: processor
+    plain: >-
+      The processor is the brain that does the work for every app. A faster one opens apps and handles many tasks at
+      once without making you wait.
   - word: ram
+    plain: >-
+      RAM is the short-term memory a device uses for the apps open right now. More of it lets you keep many apps and
+      tabs open without things slowing down.
   - word: ssd
+    plain: >-
+      An SSD is fast storage for your files and apps. It makes the device start, open apps and load files quickly, so
+      you spend less time waiting.
   - word: hdr
+    plain: >-
+      HDR shows more detail in very bright and very dark parts of a picture. It matters for films and photos, because
+      scenes look closer to real life.
   - word: oled
     also: [amoled]
+    plain: >-
+      OLED is a kind of screen where each tiny dot makes its own light. It shows deep blacks and rich colours, so
+      films and photos look better.
   - word: ppi
     also: [pixel density]
+    plain: >-
+      PPI counts how many tiny dots fit in one inch of the screen. More dots make text and photos look sharp instead
+      of grainy, which matters when you read a lot.
   - word: bitrate
+    plain: >-
+      Bitrate is how much detail is kept in each second of sound or video. A higher rate means clearer music and
+      video, which matters if you notice sound quality.
   - word: dpi
+    plain: >-
+      DPI tells you how far the pointer moves when you move the mouse. A higher number lets you cross the screen
+      faster, which matters for games and design work.
   - word: tdp
+    plain: >-
+      TDP tells you how much heat the chip makes under heavy work. Less heat means a cooler, quieter device, which
+      matters if you work on it for long hours.
   - word: wattage
     also: [watts]
+    plain: >-
+      Wattage tells you how much power it uses or gives. For a charger it means faster charging; for a home appliance
+      it shows how strong it is and what it costs to run.
+  # S3-19 (S3-F1): camera, display, audio and laptop words that had no link.
+  - word: sensor
+    plain: >-
+      The sensor is the part of the camera that catches light. A bigger one takes clearer photos, mostly at night or
+      indoors, which matters if you take a lot of photos.
+  - word: aperture
+    also: [f stop, f number]
+    plain: >-
+      The aperture is the opening that lets light into the camera. A wider opening lets in more light, so photos at
+      night and indoors come out brighter and clearer.
+  - word: snr
+    also: [signal to noise, signal to noise ratio]
+    plain: >-
+      SNR compares the real picture or sound with unwanted grain or hiss. A higher number means cleaner photos in dim
+      light and clearer sound, so it matters at night.
+  - word: dynamic range
+    plain: >-
+      Dynamic range is how well a camera or screen shows bright and dark parts at once. A wide range keeps a bright
+      sky and dark shadows both clear in one photo.
+  - word: megapixels
+    also: [megapixel, mp]
+    plain: >-
+      Megapixels count the tiny dots that make up a photo. More dots let you print bigger or zoom in later, but past
+      about 12 the rest of the camera matters more.
+  - word: focal length
+    plain: >-
+      Focal length tells you how much of the scene the camera takes in. A small number fits a wide view, like a group
+      or a room; a big number brings far things closer.
+  - word: keyboard travel
+    also: [key travel]
+    plain: >-
+      Keyboard travel is how far each key moves down when you press it. Deeper keys feel firm and cause fewer typing
+      mistakes, which matters if you type for hours, such as when coding.
+  - word: contrast ratio
+    plain: >-
+      Contrast ratio compares the brightest white a screen can show with its darkest black. A higher ratio makes films
+      and dark scenes look deep and clear instead of grey.
+  - word: colour gamut
+    also: [color gamut, srgb]
+    plain: >-
+      Colour gamut is the range of colours a screen can show. A wider range makes photos and videos look true to life,
+      which matters for photo editing and design.
+  - word: thermal throttling
+    also: [throttling]
+    plain: >-
+      Thermal throttling is when a device slows itself down because it gets too hot. Less of it means games and heavy
+      work stay fast for longer instead of lagging.
+  - word: ipx
+    plain: >-
+      IPX tells you how well it keeps out water. A higher number means it can handle sweat, rain or a splash, which
+      matters for workouts and outdoor use.
+  # S3-19 (S3-F4): jargon found in definitions. Listed so a definition that uses it is not plain.
+  - word: volatile memory
+    plain: >-
+      This is short-term memory that forgets what it holds when the power goes off. More of it lets you keep many apps
+      open at once without slowing down.
+  - word: throughput
+    plain: >-
+      Throughput is how much data moves each second. A higher number means files copy and load faster, so you spend
+      less time waiting.
+  - word: clock frequency
+    also: [clock speed]
+    plain: >-
+      Clock speed tells you how many steps the chip can take each second. A higher speed usually means apps and tasks
+      finish faster, so you wait less.
+  - word: ghz
+    also: [gigahertz]
+    plain: >-
+      GHz counts billions of steps each second. On a chip, a higher number usually means faster work; on Wi-Fi, it
+      shows which band is used, which changes speed and range.
+  - word: sequential read
+    also: [sequential write]
+    plain: >-
+      This is how fast big files are read from storage in one go. Faster reads mean big files, games and videos open
+      sooner, which matters if you work with large files.

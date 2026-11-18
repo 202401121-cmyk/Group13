@@ -1,72 +1,47 @@
-"""The words of each interview question (US-05), with unfamiliar terms explained on request (US-07)."""
+"""The words of each interview question (US-05), with technical terms explained in plain words on request (US-07).
+
+Which criteria count as technical, and what is plain, live in terms.py (S4-22, P-25)."""
 
 from __future__ import annotations
 
+import logging
 import re
-from functools import cache
-from pathlib import Path
 
-import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs
-from pydantic import BaseModel, ConfigDict, Field
-
-from app.contracts import MAX_EXPLANATION_WORDS, Criterion, InterviewQuestion, TermExplanation
+from app.contracts import Criterion, InterviewQuestion, TermExplanation
 
 from .answers import QUICK_REPLIES
+from .terms import TERMS_PATH, is_plain, is_technical, label_terms, plain_for, short_enough, technical_words
+
+log = logging.getLogger(__name__)
+__all__ = ["TERMS_PATH", "is_technical", "question_for", "question_id", "technical_words", "term_for"]
 
 MAX_ID_KEY = 40  # InterviewQuestion.id is "q_" plus at most 40 lowercase letters, digits or underscores
 MAX_WHY = 200  # InterviewQuestion.why_asking limit
 MAX_TERM_CHARS = 40  # TermExplanation.term limit
-TERMS_PATH = Path(__file__).resolve().parents[2] / "config" / "technical_terms.yaml"
 # A sentence ends at ".", "!" or "?" before a capital letter, so "e.g. a phone" is not an end.
 _SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[A-Z])")
 
 
-class _Word(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    word: str = Field(min_length=1, max_length=40)
-    also: list[str] = Field(default_factory=list)
-
-
-class _WordFile(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    words: list[_Word] = Field(min_length=1)
-
-
-@cache
-def technical_words(path: Path = TERMS_PATH) -> frozenset[str]:
-    """Every technical word and phrase in config/technical_terms.yaml, in lowercase, each written out in full."""
-    data = _WordFile.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
-    return frozenset(" ".join(form.casefold().split()) for w in data.words for form in (w.word, *w.also))
-
-
-def _words(text: str) -> list[str]:
-    """Letters and digits apart, so a unit glued to a number is found: "5000mAh" is "5000 mah", "IP68" is "ip 68"."""
-    return re.findall(r"[a-z]+|[0-9]+", text.casefold())
-
-
-def is_technical(criterion: Criterion) -> bool:
-    """Its label or key holds a listed word or phrase as whole words ("ram" is not found in "programming")."""
-    for text in (criterion.label, criterion.key.replace("_", " ")):
-        padded = f" {' '.join(_words(text))} "
-        if any(f" {' '.join(_words(word))} " in padded for word in technical_words()):
-            return True
-    return False
-
-
-def _short_enough(text: str) -> bool:
-    return 0 < len(text.split()) <= MAX_EXPLANATION_WORDS
-
-
 def term_for(criterion: Criterion) -> TermExplanation | None:
-    """The criterion's label, explained by its saved definition (US-03), or that definition's first sentence when the
-    whole is over 40 words. None for a plain criterion, or when no short enough explanation exists. No LLM is asked."""
+    """The criterion's label, explained in plain words (P-25 item 4), at most 40 words. None for a plain criterion,
+    or when no short enough explanation exists. No LLM is asked: the text comes from the saved criterion or the
+    reviewed word list.
+
+    The order (P-25 item 4): the saved definition when it is plain (its first sentence when the whole is over 40
+    words); else the reviewed plain explanation of the first listed word the label names, then the key; else the
+    definition's first sentence, logged as not plain.
+    """
     if not is_technical(criterion):
         return None
     definition = " ".join(criterion.definition.split())
     first = _SENTENCE.split(definition, maxsplit=1)[0]
-    explanation = next((text for text in (definition, first) if _short_enough(text)), None)
+    shown = definition if short_enough(definition) else first  # never a plain fragment of a short definition
+    explanation = shown if short_enough(shown) and is_plain(shown, label_terms(criterion)) else None
+    if explanation is None:
+        explanation = plain_for(criterion)
+    if explanation is None and short_enough(first):
+        log.info("interview: %s has no plain explanation; its definition's first sentence is not plain", criterion.key)
+        explanation = first
     if explanation is None:
         return None
     term = _whole_words(criterion.label, MAX_TERM_CHARS)
