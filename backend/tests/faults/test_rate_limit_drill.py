@@ -26,15 +26,24 @@ import httpx
 from app import contracts as C
 from app.contracts import Provider, Source
 from app.extract import GuardedExtractStage
-from app.llm import InMemoryCallLog, WrapperLLMClient, load_llm_config
+from app.llm import InMemoryCallLog, WrapperLLMClient
+from app.llm import load_llm_config as decided_llm_config
 from app.llm.config import LLMConfig
 from app.llm.health import ProviderHealth
 from app.llm.limits import RateLimiter
 from app.llm.pool import ModelPool
 from app.llm.providers import OpenAICompatibleAdapter
 from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
+from tests.fakes.llm import with_lane_share, with_public_route
 from tests.fakes.reddit import NOW
 from tests.fakes.research import review_source, rubric
+
+
+def load_llm_config() -> LLMConfig:
+    """S4-31: these tests predate D-76. They check rules that didn't change, on the public route DeepSeek and
+    OpenRouter were on, with the Reddit lane at a whole minute (test_reddit_lane.py and test_routing.py cover D-76)."""
+    return with_lane_share(with_public_route(decided_llm_config()))
+
 
 QUOTE = "Nova Book 14 lasts nine hours."
 EXTRACTION = {

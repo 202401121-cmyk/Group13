@@ -40,10 +40,11 @@ EXPECTED_ROUTES = {
     DataClass.PRIVATE: {Difficulty.SHORT: [G], Difficulty.MEDIUM: [G], Difficulty.LONG: [G]},
     DataClass.REDDIT: {Difficulty.SHORT: [G], Difficulty.MEDIUM: [G], Difficulty.LONG: [G]},
     DataClass.PUBLIC: {
-        Difficulty.SHORT: [M, DS, G],
-        Difficulty.MEDIUM: [M, GE, DS, G, OR],
-        # DeepSeek is the public fallback (US-46); Groq the last resort for public pages after it (F-6, 10 Nov 2026)
-        Difficulty.LONG: [GE, M, DS, G, OR],
+        # D-76 (18 Nov 2026): free capacity only. DeepSeek (needs a paid balance) and OpenRouter (no free model answered
+        # a page in time) left; Groq is the last resort for public pages (F-6), with room kept by the Reddit lane.
+        Difficulty.SHORT: [M, G],
+        Difficulty.MEDIUM: [M, GE, G],
+        Difficulty.LONG: [GE, M, G],
     },
 }
 OK = '{"product": "Nova Book 14"}'

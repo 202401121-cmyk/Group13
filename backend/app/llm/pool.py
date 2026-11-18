@@ -86,6 +86,18 @@ class ModelPool:
             )
             for m in settings.members
         }
+        # The Reddit lane (D-76): Reddit-class calls (Reddit and YouTube comments) may use at most this share of a
+        # member's minute, so public pages, whose last resort is Groq, always find room. Counted like the member.
+        share = settings.reddit_minute_share
+        self._lanes = {
+            (m.provider, m.model): RateLimiter(
+                tokens_per_minute=int(m.tokens_per_minute * share), clock=clock, sleep=sleep
+            )
+            for m in settings.members
+            if m.tokens_per_minute is not None
+        }
+        self._lane_bookings: dict[int, Booking] = {}  # a member's booking -> its place in the lane's count
+        self._lane_rebooks = settings.book_real_use  # without real-use booking nothing is rebooked, so keep none
         self._budget = DailyTokenBudget({(m.provider, m.model): m.tokens_per_day for m in settings.members}, today)
         # Public pages may use only this share of a member's day (US-46), so private and Reddit work keep the rest.
         share = settings.public_daily_share
@@ -130,19 +142,65 @@ class ModelPool:
         with self._lock:
             self._last_served[data_class] = _key(model)
 
-    def try_take(self, model: ModelLimits, tokens: int, keep_free: int = 0) -> Booking | None:
-        """Take a slot now if there is room. Only for a member of the pool."""
-        return self._pacers[_key(model)].try_book(tokens, keep_free)
+    def try_take(
+        self, model: ModelLimits, tokens: int, keep_free: int = 0, *, data_class: DataClass | None = None
+    ) -> Booking | None:
+        """Take a slot now if there is room. Only for a member of the pool. A Reddit-class call fits its lane too."""
+        key = _key(model)
+        lane = self._lanes.get(key) if data_class is DataClass.REDDIT else None
+        if lane is None:
+            return self._pacers[key].try_book(tokens, keep_free)
+        with self._lock:  # the lane's check and its booking go together
+            if self._lane_wait(lane, tokens) != 0:
+                return None
+            booking = self._pacers[key].try_book(tokens, keep_free)
+            if booking is not None:
+                in_lane = lane.book_now(tokens)
+                if self._lane_rebooks:
+                    self._lane_bookings[id(booking)] = in_lane
+            return booking
 
     def book_real_use(self, model: ModelLimits, booking: Booking, tokens: int | None) -> None:
         """A slot's call is over, and used this many tokens. None keeps what was held for it."""
-        self._pacers[_key(model)].rebook(booking, tokens)
+        key = _key(model)
+        self._pacers[key].rebook(booking, tokens)
+        with self._lock:
+            in_lane = self._lane_bookings.pop(id(booking), None)
+        if in_lane is not None:
+            self._lanes[key].rebook(in_lane, tokens)
 
-    def running_calls_may_free_room(self, model: ModelLimits, tokens: int, keep_free: int = 0) -> bool:
-        return self._pacers[_key(model)].running_calls_may_free_room(tokens, keep_free)
+    def running_calls_may_free_room(
+        self, model: ModelLimits, tokens: int, keep_free: int = 0, *, data_class: DataClass | None = None
+    ) -> bool:
+        key = _key(model)
+        member = self._pacers[key]
+        lane = self._lanes.get(key) if data_class is DataClass.REDDIT else None
+        if lane is None:
+            return member.running_calls_may_free_room(tokens, keep_free)
+        member_wait, lane_wait = member.seconds_until_room(tokens, keep_free), self._lane_wait(lane, tokens)
+        member_may = member_wait == 0 or member.running_calls_may_free_room(tokens, keep_free)
+        lane_may = lane_wait == 0 or lane.running_calls_may_free_room(tokens)
+        return (member_wait != 0 or lane_wait != 0) and member_may and lane_may
 
-    def seconds_until_room(self, model: ModelLimits, tokens: int, keep_free: int = 0) -> float | None:
-        return self._pacers[_key(model)].seconds_until_room(tokens, keep_free)
+    def seconds_until_room(
+        self, model: ModelLimits, tokens: int, keep_free: int = 0, *, data_class: DataClass | None = None
+    ) -> float | None:
+        key = _key(model)
+        member_wait = self._pacers[key].seconds_until_room(tokens, keep_free)
+        lane = self._lanes.get(key) if data_class is DataClass.REDDIT else None
+        if lane is None or member_wait is None:
+            return member_wait
+        lane_wait = self._lane_wait(lane, tokens)
+        return None if lane_wait is None else max(member_wait, lane_wait)
+
+    @staticmethod
+    def _lane_wait(lane: RateLimiter, tokens: int) -> float | None:
+        """Seconds until a Reddit-class call of `tokens` fits its lane. One bigger than the lane's whole share (a full
+        source can be) may go only when the lane has nothing in its minute, or no Reddit source could ever be read."""
+        ceiling = lane.tokens_per_minute
+        if ceiling is not None and tokens > ceiling:
+            return lane.seconds_until_empty()
+        return lane.seconds_until_room(tokens)
 
     def pause(self, seconds: float) -> None:
         self._sleep(max(seconds, MIN_PAUSE_S))

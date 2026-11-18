@@ -488,7 +488,9 @@ class WrapperLLMClient:
             # As _wait_for_pace: it must still leave a full attempt's time, or the call would start only to time out.
             full = max(self._full_timeout_s(call, p.model) for p in last_resorts)
             latest = min(latest, until, call.stage_ends_at - full - CALL_MARGIN_S)
-        waits = [self.pool.seconds_until_room(p.model, p.planned, call.keep_free) for p in busy]
+        waits = [
+            self.pool.seconds_until_room(p.model, p.planned, call.keep_free, data_class=call.data_class) for p in busy
+        ]
         soonest = min((w for w in waits if w is not None), default=None)
         if soonest is not None and self._a_running_call_may_free_room(call, busy):
             look = min(soonest, RUNNING_CALL_LOOK_S)
@@ -510,7 +512,10 @@ class WrapperLLMClient:
         """
         if not self.config.pool.book_real_use or call.task not in BULK_TASKS:
             return False
-        return any(self.pool.running_calls_may_free_room(p.model, p.planned, call.keep_free) for p in busy)
+        return any(
+            self.pool.running_calls_may_free_room(p.model, p.planned, call.keep_free, data_class=call.data_class)
+            for p in busy
+        )
 
     def _with_keys(self, models: Sequence[ModelLimits]) -> list[ModelLimits]:
         """Drop models whose provider has no API key, saying so once (the variable name, never a value)."""
@@ -597,7 +602,8 @@ class WrapperLLMClient:
     def _take_slot(self, call: _Call[T], plan: _Plan) -> tuple[ModelState, Booking | None]:
         model = plan.model
         if self.pool.has(model):
-            booking = self.pool.try_take(model, plan.planned, call.keep_free)  # keep_free: the shopper's reserve
+            # keep_free: the shopper's reserve. A Reddit-class call must also fit its lane (D-76).
+            booking = self.pool.try_take(model, plan.planned, call.keep_free, data_class=call.data_class)
             if booking is not None:
                 return "go", booking
             if self._last_resort(model, call.task, call.data_class) and not self._in_send_window():

@@ -15,13 +15,21 @@ import yaml  # type: ignore[import-untyped]
 from pydantic import BaseModel
 
 from app.contracts import PERSONAL_TASKS, DataClass, Difficulty, LLMTask, LLMUnavailable, ModelLimits, Provider
-from app.llm import InMemoryCallLog, WrapperLLMClient, load_llm_config
+from app.llm import InMemoryCallLog, WrapperLLMClient
+from app.llm import load_llm_config as decided_llm_config
 from app.llm.config import DEFAULT_CONFIG_PATH, LLMConfig, LLMConfigError
 from app.llm.errors import NoCredit, ProviderTimeout, RateLimited, ServerError
 from app.llm.health import ProviderHealth
 from app.llm.limits import DailyTokenBudget
 from app.llm.pool import ModelPool
-from tests.fakes.llm import FakeAdapter
+from tests.fakes.llm import FakeAdapter, with_lane_share, with_public_route
+
+
+def load_llm_config() -> LLMConfig:
+    """S4-31: these tests predate D-76. They check rules that didn't change, on the public route DeepSeek and
+    OpenRouter were on, with the Reddit lane at a whole minute (test_reddit_lane.py and test_routing.py cover D-76)."""
+    return with_lane_share(with_public_route(decided_llm_config()))
+
 
 OK = '{"product": "Nova Book 14"}'
 SYSTEM = "Read the page."
@@ -101,13 +109,15 @@ def test_deepseek_is_switched_on_for_public_text_only() -> None:
 
 
 def test_the_routes_are_the_decided_ones() -> None:
-    config = load_llm_config()
+    """D-76 (18 Nov 2026): DeepSeek is on no route, as it needs a paid balance; its entry stays, unused."""
+    config = decided_llm_config()
     p = Provider
-    assert config.chain(DataClass.PUBLIC, Difficulty.SHORT) == [p.MISTRAL, p.DEEPSEEK, p.GROQ]
-    assert config.chain(DataClass.PUBLIC, Difficulty.MEDIUM) == [p.MISTRAL, p.GEMINI, p.DEEPSEEK, p.GROQ, p.OPENROUTER]
-    assert config.chain(DataClass.PUBLIC, Difficulty.LONG) == [p.GEMINI, p.MISTRAL, p.DEEPSEEK, p.GROQ, p.OPENROUTER]
+    assert config.chain(DataClass.PUBLIC, Difficulty.SHORT) == [p.MISTRAL, p.GROQ]
+    assert config.chain(DataClass.PUBLIC, Difficulty.MEDIUM) == [p.MISTRAL, p.GEMINI, p.GROQ]
+    assert config.chain(DataClass.PUBLIC, Difficulty.LONG) == [p.GEMINI, p.MISTRAL, p.GROQ]
     for data_class in (DataClass.PRIVATE, DataClass.REDDIT):
         assert all(config.chain(data_class, d) == [p.GROQ] for d in Difficulty)
+    assert config.provider(p.DEEPSEEK).base_url == "https://api.deepseek.com"  # kept for a team decision
 
 
 @pytest.mark.parametrize("data_class", ["private", "reddit"])
@@ -117,7 +127,7 @@ def test_config_refuses_deepseek_in_a_private_or_reddit_route(tmp_path: Path, da
     path = tmp_path / "models.yaml"
     path.write_text(yaml.safe_dump(data), encoding="utf-8")
     with pytest.raises(LLMConfigError, match="train on inputs"):
-        load_llm_config(path)
+        decided_llm_config(path)
 
 
 # --- who may see what ------------------------------------------------------------------------------------------------

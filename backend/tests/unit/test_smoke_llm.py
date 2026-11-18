@@ -77,7 +77,7 @@ def test_our_limits_lists_openrouters_requests_a_day() -> None:
 
 
 def test_our_limits_lists_geminis_requests_a_minute() -> None:
-    assert any(line.startswith("  gemini: ") and "15 requests/min" in line for line in our_limits(load_llm_config()))
+    assert any(line.startswith("  gemini: ") and "10 requests/min" in line for line in our_limits(load_llm_config()))
 
 
 def test_check_sends_the_settings_it_is_given() -> None:

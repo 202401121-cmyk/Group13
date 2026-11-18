@@ -14,13 +14,22 @@ import pytest
 from pydantic import BaseModel
 
 from app.contracts import DataClass, Difficulty, LLMTask, LLMUnavailable, Provider
-from app.llm import InMemoryCallLog, WrapperLLMClient, load_llm_config
+from app.llm import InMemoryCallLog, WrapperLLMClient
+from app.llm import load_llm_config as decided_llm_config
 from app.llm.client import default_limiters
+from app.llm.config import LLMConfig
 from app.llm.errors import RateLimited, ServerError
 from app.llm.health import ProviderHealth
 from app.llm.limits import RateLimiter
 from app.llm.pool import ModelPool
-from tests.fakes.llm import FakeAdapter
+from tests.fakes.llm import FakeAdapter, with_lane_share, with_public_route
+
+
+def load_llm_config() -> LLMConfig:
+    """S4-31: these tests predate D-76. They check rules that didn't change, on the public route DeepSeek and
+    OpenRouter were on, with the Reddit lane at a whole minute (test_reddit_lane.py and test_routing.py cover D-76)."""
+    return with_lane_share(with_public_route(decided_llm_config()))
+
 
 REPLY = '{"product": "Nova Book 14"}'
 
@@ -79,13 +88,14 @@ def _public(client: WrapperLLMClient, task: LLMTask = LLMTask.EXTRACT_CLAIMS) ->
 
 def test_geminis_limits_are_in_the_config_with_their_date() -> None:
     gemini = load_llm_config().provider(Provider.GEMINI)
-    assert (gemini.requests_per_minute, gemini.tokens_per_minute) == (15, 250_000)
-    assert gemini.limits_checked == date(2026, 11, 9)
+    # D-76 (18 Nov 2026), from a third-party page, to confirm in AI Studio by the key's owner (docs/api-setup.md)
+    assert (gemini.requests_per_minute, gemini.tokens_per_minute, gemini.requests_per_day) == (10, 250_000, 500)
+    assert gemini.limits_checked == date(2026, 11, 18)
 
 
 def test_the_real_client_paces_gemini() -> None:
     limiter = default_limiters(load_llm_config())[Provider.GEMINI]
-    assert (limiter.requests_per_minute, limiter.tokens_per_minute) == (15, 250_000)
+    assert (limiter.requests_per_minute, limiter.tokens_per_minute) == (10, 250_000)
     assert limiter.requests_per_second is None
 
 
@@ -109,6 +119,26 @@ def test_public_extraction_goes_flash_lite_then_mistral_then_deepseek_then_groq_
     assert every[Provider.GEMINI].calls[0].model == "gemini-3.5-flash-lite"
 
 
+def test_public_extraction_on_the_decided_route_goes_flash_lite_then_mistral_then_groq() -> None:
+    """D-76: DeepSeek and OpenRouter are on no route, so a page that every provider refuses is asked of these only."""
+    config = decided_llm_config()
+    journal: list[Provider] = []
+
+    class Busy(FakeAdapter):
+        def call(self, *args: Any, **kwargs: Any) -> Any:
+            super().call(*args, **kwargs)
+            raise ServerError(self.provider, "HTTP 503")
+
+    every = {name: Busy(name, journal=journal) for name in Provider}
+    no_wait = ModelPool(config.pool, sleep=lambda _: None)
+    client = WrapperLLMClient(config, dict(every), InMemoryCallLog(), limiters={}, pool=no_wait)
+    with pytest.raises(LLMUnavailable):
+        _public(client)
+    in_order = [Provider.GEMINI, Provider.MISTRAL, *[Provider.GROQ] * 3]
+    assert journal == [p for p in in_order for _ in range(2)]  # each 503 is tried once more on its model (US-31)
+    assert every[Provider.GEMINI].calls[0].model == "gemini-3.5-flash-lite"
+
+
 def test_flash_lite_is_the_only_gemini_model_and_public_text_only() -> None:
     config = load_llm_config()
     assert [m.model for m in config.models if m.provider is Provider.GEMINI] == ["gemini-3.5-flash-lite"]
@@ -119,11 +149,11 @@ def test_flash_lite_is_the_only_gemini_model_and_public_text_only() -> None:
 
 
 def test_each_paced_provider_gets_its_own_limit_a_minute() -> None:
-    """Each from the provider's own numbers: Gemini 15 (9 Nov 2026), OpenRouter's free models 20 (3 Nov 2026), and
+    """Each from the provider's numbers: Gemini 10 (D-76, 18 Nov 2026), OpenRouter's free models 20 (3 Nov 2026), and
     Mistral 2, from its replies' rate-limit headers (10 Nov 2026)."""
     limiters = default_limiters(load_llm_config())
     assert {name: limiter.requests_per_minute for name, limiter in limiters.items() if limiter.requests_per_minute} == {
-        Provider.GEMINI: 15,
+        Provider.GEMINI: 10,
         Provider.OPENROUTER: 20,
         Provider.MISTRAL: 2,
     }

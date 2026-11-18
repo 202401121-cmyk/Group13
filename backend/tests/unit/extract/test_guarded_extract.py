@@ -25,16 +25,25 @@ from app.criteria.fallback import fallback_criteria
 from app.extract import ExtractStage, GuardedExtractStage
 from app.extract.parsing import RawClaim, RawExtraction, RawMention, to_extraction_result
 from app.extract.prompts import MAX_TITLE_CHARS, allowed_criteria, source_text
-from app.llm import InMemoryCallLog, WrapperLLMClient, load_llm_config
+from app.llm import InMemoryCallLog, WrapperLLMClient
+from app.llm import load_llm_config as decided_llm_config
+from app.llm.config import LLMConfig
 from app.llm.data_block import outside_data
 from app.llm.errors import ProviderError
 from app.pipeline import made_by_placeholder
 from app.research.reddit.archive import add_comments
-from tests.fakes.llm import FakeAdapter, FakeLLMClient
+from tests.fakes.llm import FakeAdapter, FakeLLMClient, with_lane_share, with_public_route
 from tests.fakes.obedient import ObedientAdapter
 from tests.fakes.prompt_checks import assert_only_in_data_block
 from tests.fakes.reddit import NOW
 from tests.fakes.research import review_source, thread
+
+
+def load_llm_config() -> LLMConfig:
+    """S4-31: these tests predate D-76. They check rules that didn't change, on the public route DeepSeek and
+    OpenRouter were on, with the Reddit lane at a whole minute (test_reddit_lane.py and test_routing.py cover D-76)."""
+    return with_lane_share(with_public_route(decided_llm_config()))
+
 
 CTX = StageContext(search_id="srch_test")
 QUOTE = "Nova Book 14 scored 8 out of 10 for battery_life in our tests."

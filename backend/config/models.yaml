@@ -35,15 +35,18 @@ providers:
   # Unpaid services: prompts may be used to improve Google's products and machine learning, and people may read them.
   # Thinking as low as it goes: it counts against the output limit. On gemini-3.5-flash, on a public page in a live check
   # (9 Nov 2026) with a limit of 1,200, thinking used 1,245 tokens, and the reply was cut off at 43.
-  # Free-tier limits of Gemini 3.5 Flash Lite, read from aistudio.google.com/rate-limit on 9 Nov 2026: Google's public
-  # rate-limits page lists no numbers for this tier. 15 requests a minute, 250,000 input tokens a minute and 500 requests
-  # a day. The 500 a day isn't paced: see docs/api-setup.md. Google publishes no daily token limit, so the daily budget
-  # is the team's choice (F-4): 500 requests x 5,000 tokens, the wrapper's planned size for a full source.
+  # Free-tier limits of Gemini 3.5 Flash Lite (D-76, 18 Nov 2026): 10 requests a minute, 250,000 tokens a minute and 500
+  # requests a day, from scriptbyai.com "Gemini API Free Tier Limits" (modified 13 Nov 2026), a third-party page.
+  # Google's own rate-limits page (updated 28 Oct 2026) publishes no free-tier numbers and points to AI Studio. TO
+  # CONFIRM in aistudio.google.com/rate-limit by the key's owner. The 500 a day is counted (requests_per_day), so a call
+  # past it is skipped instead of earning a 429. Google publishes no daily token limit, so the daily budget is the
+  # team's choice (F-4): 500 requests x 5,000 tokens, the wrapper's planned size for a full source.
   - name: gemini
-    requests_per_minute: 15
+    requests_per_minute: 10
     tokens_per_minute: 250000
+    requests_per_day: 500
     daily_tokens: 2500000
-    limits_checked: 2026-11-09
+    limits_checked: 2026-11-18
     reasoning_effort: minimal  # its lowest: Flash Lite has no "none", and answered HTTP 400 to it on 9 Nov 2026
     base_url: https://generativelanguage.googleapis.com/v1beta/openai
     api_key_env: GEMINI_API_KEY
@@ -51,6 +54,9 @@ providers:
     trains_on_inputs: true
     terms_url: https://aistudio.google.com/docs/terms
     terms_checked: 2026-11-03
+  # On no route since 18 Nov 2026 (D-76, S4-31): no :free model answered a short public page in extraction's 15 s
+  # (nemotron-3.5-lightning and ling-3.2-flash: no full reply; gemma-4-31b-it: HTTP 429; ernie-5.5-flash-preview: no
+  # message text; docs/api-setup.md). The entry stays, unused, so it can come back by a team decision.
   # Whether a :free model's host trains on prompts depends on that host, and we cannot confirm it for ours.
   # Treated as training until someone can show otherwise.
   # Free models: 20 requests a minute, and 50 a day until the account has bought 10 credits
@@ -104,7 +110,9 @@ providers:
     tokens_per_minute: 40000
     limits_checked: 2026-11-10
     daily_tokens: 1000000
-  # DeepSeek (D-63): a public-text fallback (US-46). Its privacy policy (last updated 10 Feb 2026, read 11 Nov 2026) says
+  # DeepSeek: on no route since 18 Nov 2026 (D-76, S4-31). Free tiers only, and it needs a paid balance: S4-29's live
+  # run found none (HTTP 402 on every call). The entry stays, unused, so it can come back by a team decision.
+  # Before D-76 (D-63): a public-text fallback (US-46). Its privacy policy (last updated 10 Feb 2026, read 11 Nov 2026) says
   # it uses personal data to train its models and stores data in the PRC, so it gets public text only. The pricing page
   # (api-docs.deepseek.com/quick_start/pricing, 11 Nov 2026) describes no free tier: it runs only on a granted balance,
   # and no payment method is ever added (D-11). HTTP 402 (no balance) switches it off for the run, with no retry. The
@@ -241,15 +249,17 @@ routes:
     short: [groq]
     medium: [groq]
     long: [groq]
-  # Public bulk work takes turns between the providers that rotate and are not Groq (Gemini and Mistral); everything
-  # else follows in the order written. DeepSeek is the public fallback after them (US-46, D-63). Groq's models are the
-  # private and Reddit pool, so a public page goes to them only after DeepSeek, only if a Groq model has room right now,
-  # outside the shopper's reserve (F-6, 10 Nov 2026), and only within pool.public_daily_share. OpenRouter comes last.
-  # A task that isn't bulk work keeps the route's order as written; only extraction uses public long today.
+  # Public bulk work takes turns between the providers that rotate and are not Groq (Gemini and Mistral). Groq's models
+  # are the private and Reddit pool, so a public page goes to them last: only if a Groq model has room right now, outside
+  # the shopper's reserve (F-6, 10 Nov 2026), and only within pool.public_daily_share. Groq always keeps room for it,
+  # because Reddit-class extraction may use only pool.reddit_minute_share of a member's minute (D-76).
+  # DeepSeek and OpenRouter left every route on 18 Nov 2026 (D-76, approved 17 Nov): DeepSeek needs a paid balance, and no OpenRouter
+  # free model answered a public page in time. A task that isn't bulk work keeps the route's order as written; only
+  # extraction uses public long today.
   public:
-    short: [mistral, deepseek, groq]
-    medium: [mistral, gemini, deepseek, groq, openrouter]
-    long: [gemini, mistral, deepseek, groq, openrouter]
+    short: [mistral, groq]
+    medium: [mistral, gemini, groq]
+    long: [gemini, mistral, groq]
 
 # Each member paces itself to its own limits, so a call waits for a slot instead of earning a 429. The token count is
 # the input the wrapper measures plus the requested output, so one call can never be bigger than tokens_per_minute.
@@ -275,6 +285,13 @@ pool:
   # public_daily_share: the share of each member's daily tokens public pages may use (US-46, team's choice, 13 Nov 2026):
   # 25% of 200,000 is 50,000 a model. Past it, a public page skips Groq; private and Reddit work keep the rest.
   public_daily_share: 0.25
+  # reddit_minute_share: the share of each member's tokens a minute that Reddit-class calls (Reddit and YouTube
+  # comments) may use (D-76, approved 17 Nov 2026; a quarter, Om's choice on 18 Nov), so public pages, whose last
+  # resort is Groq, find room: 8,000 - 2,000 for Reddit - the shopper's 2,000 leaves 4,000. A Reddit call is bigger
+  # than the lane alone (a short thread holds about 2,960, a full one about 5,700), so one may go when the lane has
+  # nothing in its minute (Om, 18 Nov); then the lane waits for that minute to pass. While a full source runs, a page
+  # still finds no room on that member. The shopper's own calls are never held by it.
+  reddit_minute_share: 0.25
   # A call holds its input and whole requested output while it runs, then books what it really used. A failed call books
   # nothing unless its reply reports a use. Groq doesn't charge the requested output in full: on 9 Nov 2026, two calls asking
   # for 1,200 each, with a prompt and reply of 95, moved x-ratelimit-remaining-tokens by 334 and 49 (docs/api-setup.md). Set
