@@ -1,0 +1,1108 @@
+{
+ "_note": "criteria_fallback.yaml on main b737044 (S4-32), every field but the definition. Update only with a deliberate change to a set.",
+ "families": {
+  "computing": [
+   {
+    "key": "processing_speed",
+    "label": "Processing speed",
+    "default_weight": 8
+   },
+   {
+    "key": "reliability",
+    "label": "Reliability",
+    "default_weight": 7
+   },
+   {
+    "key": "ease_of_use",
+    "label": "Ease of use",
+    "default_weight": 6
+   },
+   {
+    "key": "connectivity",
+    "label": "Ports and connectivity",
+    "default_weight": 5
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 5
+   },
+   {
+    "key": "size_and_weight",
+    "label": "Size and weight",
+    "direction": "lower_is_better",
+    "default_weight": 4
+   },
+   {
+    "key": "after_sales_support",
+    "label": "After-sales support",
+    "default_weight": 4
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "phone": [
+   {
+    "key": "camera_quality",
+    "label": "Camera quality",
+    "default_weight": 7
+   },
+   {
+    "key": "battery_life",
+    "label": "Battery life",
+    "direction": "higher_is_better",
+    "unit": "h",
+    "default_weight": 8
+   },
+   {
+    "key": "processor_speed",
+    "label": "Processor speed",
+    "default_weight": 7
+   },
+   {
+    "key": "display_quality",
+    "label": "Display quality",
+    "default_weight": 6
+   },
+   {
+    "key": "software_updates",
+    "label": "Software updates",
+    "direction": "higher_is_better",
+    "unit": "years",
+    "default_weight": 5
+   },
+   {
+    "key": "charging_speed",
+    "label": "Charging speed",
+    "default_weight": 4
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 7
+   }
+  ],
+  "audio": [
+   {
+    "key": "sound_quality",
+    "label": "Sound quality",
+    "default_weight": 9
+   },
+   {
+    "key": "battery_life",
+    "label": "Battery life",
+    "direction": "higher_is_better",
+    "unit": "h",
+    "default_weight": 6
+   },
+   {
+    "key": "connection_stability",
+    "label": "Connection stability",
+    "default_weight": 6
+   },
+   {
+    "key": "mic_quality",
+    "label": "Microphone quality",
+    "default_weight": 5
+   },
+   {
+    "key": "comfort_and_portability",
+    "label": "Comfort and portability",
+    "default_weight": 6
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 5
+   },
+   {
+    "key": "loudness",
+    "label": "Loudness",
+    "direction": "higher_is_better",
+    "default_weight": 4
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "wearable": [
+   {
+    "key": "battery_life",
+    "label": "Battery life",
+    "direction": "higher_is_better",
+    "unit": "days",
+    "default_weight": 7
+   },
+   {
+    "key": "tracking_accuracy",
+    "label": "Tracking accuracy",
+    "default_weight": 7
+   },
+   {
+    "key": "display_readability",
+    "label": "Display readability",
+    "default_weight": 6
+   },
+   {
+    "key": "comfort_and_fit",
+    "label": "Comfort and fit",
+    "default_weight": 6
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 5
+   },
+   {
+    "key": "water_resistance",
+    "label": "Water resistance",
+    "direction": "higher_is_better",
+    "unit": "m",
+    "default_weight": 4
+   },
+   {
+    "key": "phone_compatibility",
+    "label": "Phone compatibility",
+    "direction": "higher_is_better",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "tv_and_camera": [
+   {
+    "key": "picture_quality",
+    "label": "Picture quality",
+    "default_weight": 9
+   },
+   {
+    "key": "low_light_performance",
+    "label": "Low-light performance",
+    "default_weight": 6
+   },
+   {
+    "key": "sound_quality",
+    "label": "Sound quality",
+    "default_weight": 5
+   },
+   {
+    "key": "software_and_apps",
+    "label": "Software and apps",
+    "default_weight": 5
+   },
+   {
+    "key": "connectivity",
+    "label": "Ports and connectivity",
+    "default_weight": 4
+   },
+   {
+    "key": "ease_of_use",
+    "label": "Ease of use",
+    "default_weight": 5
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 4
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 7
+   }
+  ],
+  "large_appliance": [
+   {
+    "key": "energy_efficiency",
+    "label": "Energy efficiency",
+    "default_weight": 8
+   },
+   {
+    "key": "capacity",
+    "label": "Capacity",
+    "direction": "higher_is_better",
+    "default_weight": 7
+   },
+   {
+    "key": "effectiveness",
+    "label": "Effectiveness",
+    "default_weight": 8
+   },
+   {
+    "key": "noise_level",
+    "label": "Noise level",
+    "direction": "lower_is_better",
+    "unit": "dB",
+    "default_weight": 4
+   },
+   {
+    "key": "reliability",
+    "label": "Reliability",
+    "default_weight": 7
+   },
+   {
+    "key": "after_sales_service",
+    "label": "After-sales service",
+    "default_weight": 6
+   },
+   {
+    "key": "warranty_length",
+    "label": "Warranty length",
+    "direction": "higher_is_better",
+    "unit": "years",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "kitchen_appliance": [
+   {
+    "key": "cooking_results",
+    "label": "Cooking results",
+    "default_weight": 9
+   },
+   {
+    "key": "speed",
+    "label": "Speed",
+    "default_weight": 6
+   },
+   {
+    "key": "ease_of_cleaning",
+    "label": "Ease of cleaning",
+    "default_weight": 6
+   },
+   {
+    "key": "safety",
+    "label": "Safety",
+    "default_weight": 7
+   },
+   {
+    "key": "noise_level",
+    "label": "Noise level",
+    "direction": "lower_is_better",
+    "unit": "dB",
+    "default_weight": 4
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 6
+   },
+   {
+    "key": "after_sales_service",
+    "label": "After-sales service",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "home_comfort": [
+   {
+    "key": "effectiveness",
+    "label": "Effectiveness",
+    "default_weight": 9
+   },
+   {
+    "key": "energy_efficiency",
+    "label": "Energy efficiency",
+    "default_weight": 6
+   },
+   {
+    "key": "noise_level",
+    "label": "Noise level",
+    "direction": "lower_is_better",
+    "unit": "dB",
+    "default_weight": 6
+   },
+   {
+    "key": "ease_of_use",
+    "label": "Ease of use",
+    "default_weight": 5
+   },
+   {
+    "key": "running_cost",
+    "label": "Running cost",
+    "direction": "lower_is_better",
+    "default_weight": 5
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 5
+   },
+   {
+    "key": "after_sales_service",
+    "label": "After-sales service",
+    "default_weight": 4
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "personal_care": [
+   {
+    "key": "effectiveness",
+    "label": "Effectiveness",
+    "default_weight": 9
+   },
+   {
+    "key": "gentleness",
+    "label": "Gentleness on skin and hair",
+    "default_weight": 7
+   },
+   {
+    "key": "battery_life",
+    "label": "Battery life",
+    "direction": "higher_is_better",
+    "unit": "min",
+    "default_weight": 5
+   },
+   {
+    "key": "ease_of_use",
+    "label": "Ease of use",
+    "default_weight": 6
+   },
+   {
+    "key": "ease_of_cleaning",
+    "label": "Ease of cleaning",
+    "default_weight": 4
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 5
+   },
+   {
+    "key": "attachments",
+    "label": "Attachments included",
+    "direction": "higher_is_better",
+    "default_weight": 3
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "baby": [
+   {
+    "key": "safety_standards",
+    "label": "Safety standards",
+    "direction": "higher_is_better",
+    "default_weight": 10
+   },
+   {
+    "key": "baby_comfort",
+    "label": "Comfort for the baby",
+    "default_weight": 8
+   },
+   {
+    "key": "ease_of_use",
+    "label": "Ease of use",
+    "default_weight": 7
+   },
+   {
+    "key": "weight",
+    "label": "Weight",
+    "direction": "lower_is_better",
+    "unit": "kg",
+    "default_weight": 5
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 6
+   },
+   {
+    "key": "ease_of_cleaning",
+    "label": "Ease of cleaning",
+    "default_weight": 5
+   },
+   {
+    "key": "adjustability",
+    "label": "Adjustability",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 5
+   }
+  ],
+  "furniture": [
+   {
+    "key": "ergonomic_support",
+    "label": "Ergonomic support",
+    "default_weight": 9
+   },
+   {
+    "key": "comfort",
+    "label": "Comfort",
+    "default_weight": 8
+   },
+   {
+    "key": "adjustability",
+    "label": "Adjustability",
+    "default_weight": 6
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 7
+   },
+   {
+    "key": "breathability",
+    "label": "Breathability",
+    "default_weight": 4
+   },
+   {
+    "key": "ease_of_assembly",
+    "label": "Ease of assembly",
+    "default_weight": 3
+   },
+   {
+    "key": "warranty_length",
+    "label": "Warranty length",
+    "direction": "higher_is_better",
+    "unit": "years",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "footwear_and_bags": [
+   {
+    "key": "comfort_and_fit",
+    "label": "Comfort and fit",
+    "default_weight": 9
+   },
+   {
+    "key": "support",
+    "label": "Support",
+    "default_weight": 8
+   },
+   {
+    "key": "weight",
+    "label": "Weight",
+    "direction": "lower_is_better",
+    "unit": "g",
+    "default_weight": 5
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 7
+   },
+   {
+    "key": "breathability",
+    "label": "Breathability",
+    "default_weight": 5
+   },
+   {
+    "key": "weather_resistance",
+    "label": "Weather resistance",
+    "direction": "higher_is_better",
+    "default_weight": 4
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "generic": [
+   {
+    "key": "effectiveness",
+    "label": "Effectiveness",
+    "default_weight": 9
+   },
+   {
+    "key": "reliability",
+    "label": "Reliability",
+    "default_weight": 7
+   },
+   {
+    "key": "ease_of_use",
+    "label": "Ease of use",
+    "default_weight": 6
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 6
+   },
+   {
+    "key": "safety",
+    "label": "Safety",
+    "default_weight": 6
+   },
+   {
+    "key": "after_sales_service",
+    "label": "After-sales service",
+    "default_weight": 4
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ]
+ },
+ "categories": {
+  "laptop": [
+   {
+    "key": "processor_speed",
+    "label": "Processor speed",
+    "default_weight": 9
+   },
+   {
+    "key": "memory_and_storage",
+    "label": "RAM and storage",
+    "default_weight": 7
+   },
+   {
+    "key": "battery_life",
+    "label": "Battery life",
+    "direction": "higher_is_better",
+    "unit": "h",
+    "default_weight": 7
+   },
+   {
+    "key": "display_quality",
+    "label": "Display quality",
+    "default_weight": 6
+   },
+   {
+    "key": "keyboard_comfort",
+    "label": "Keyboard comfort",
+    "default_weight": 6
+   },
+   {
+    "key": "weight",
+    "label": "Weight",
+    "direction": "lower_is_better",
+    "unit": "kg",
+    "default_weight": 5
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "smartphone": [
+   {
+    "key": "camera_quality",
+    "label": "Camera quality",
+    "default_weight": 7
+   },
+   {
+    "key": "battery_life",
+    "label": "Battery life",
+    "direction": "higher_is_better",
+    "unit": "h",
+    "default_weight": 8
+   },
+   {
+    "key": "processor_speed",
+    "label": "Processor speed",
+    "default_weight": 7
+   },
+   {
+    "key": "display_quality",
+    "label": "Display quality",
+    "default_weight": 6
+   },
+   {
+    "key": "software_updates",
+    "label": "Software updates",
+    "direction": "higher_is_better",
+    "unit": "years",
+    "default_weight": 5
+   },
+   {
+    "key": "storage_space",
+    "label": "Storage space",
+    "direction": "higher_is_better",
+    "unit": "GB",
+    "default_weight": 5
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 7
+   }
+  ],
+  "earbuds": [
+   {
+    "key": "sound_quality",
+    "label": "Sound quality",
+    "default_weight": 8
+   },
+   {
+    "key": "noise_cancellation",
+    "label": "Noise cancellation",
+    "direction": "higher_is_better",
+    "default_weight": 6
+   },
+   {
+    "key": "battery_life",
+    "label": "Battery life",
+    "direction": "higher_is_better",
+    "unit": "h",
+    "default_weight": 6
+   },
+   {
+    "key": "fit_and_comfort",
+    "label": "Fit and comfort",
+    "default_weight": 7
+   },
+   {
+    "key": "call_quality",
+    "label": "Call quality",
+    "default_weight": 5
+   },
+   {
+    "key": "connection_stability",
+    "label": "Connection stability",
+    "default_weight": 5
+   },
+   {
+    "key": "water_resistance",
+    "label": "Water resistance",
+    "direction": "higher_is_better",
+    "default_weight": 4
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "headphones": [
+   {
+    "key": "sound_quality",
+    "label": "Sound quality",
+    "default_weight": 9
+   },
+   {
+    "key": "noise_cancellation",
+    "label": "Noise cancellation",
+    "direction": "higher_is_better",
+    "default_weight": 7
+   },
+   {
+    "key": "comfort",
+    "label": "Comfort",
+    "default_weight": 7
+   },
+   {
+    "key": "battery_life",
+    "label": "Battery life",
+    "direction": "higher_is_better",
+    "unit": "h",
+    "default_weight": 5
+   },
+   {
+    "key": "mic_quality",
+    "label": "Microphone quality",
+    "default_weight": 5
+   },
+   {
+    "key": "connection_stability",
+    "label": "Connection stability",
+    "default_weight": 4
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "smartwatch": [
+   {
+    "key": "health_tracking_accuracy",
+    "label": "Health tracking accuracy",
+    "default_weight": 8
+   },
+   {
+    "key": "battery_life",
+    "label": "Battery life",
+    "direction": "higher_is_better",
+    "unit": "days",
+    "default_weight": 7
+   },
+   {
+    "key": "display_readability",
+    "label": "Display readability",
+    "default_weight": 6
+   },
+   {
+    "key": "phone_compatibility",
+    "label": "Phone compatibility",
+    "direction": "higher_is_better",
+    "default_weight": 6
+   },
+   {
+    "key": "gps_accuracy",
+    "label": "GPS accuracy",
+    "default_weight": 5
+   },
+   {
+    "key": "comfort_and_fit",
+    "label": "Comfort and fit",
+    "default_weight": 5
+   },
+   {
+    "key": "water_resistance",
+    "label": "Water resistance",
+    "direction": "higher_is_better",
+    "unit": "m",
+    "default_weight": 4
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "television": [
+   {
+    "key": "picture_quality",
+    "label": "Picture quality",
+    "default_weight": 9
+   },
+   {
+    "key": "screen_size_fit",
+    "label": "Screen size for your room",
+    "default_weight": 6
+   },
+   {
+    "key": "sound_quality",
+    "label": "Sound quality",
+    "default_weight": 6
+   },
+   {
+    "key": "smart_tv_software",
+    "label": "Smart TV software",
+    "default_weight": 5
+   },
+   {
+    "key": "motion_handling",
+    "label": "Motion handling",
+    "direction": "higher_is_better",
+    "default_weight": 5
+   },
+   {
+    "key": "connectivity",
+    "label": "Ports and connectivity",
+    "default_weight": 4
+   },
+   {
+    "key": "reliability",
+    "label": "Reliability",
+    "default_weight": 6
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 7
+   }
+  ],
+  "standing_desk": [
+   {
+    "key": "height_range",
+    "label": "Height range",
+    "default_weight": 8
+   },
+   {
+    "key": "stability",
+    "label": "Stability",
+    "default_weight": 9
+   },
+   {
+    "key": "lift_motor",
+    "label": "Motor speed and noise",
+    "default_weight": 5
+   },
+   {
+    "key": "load_capacity",
+    "label": "Load capacity",
+    "direction": "higher_is_better",
+    "unit": "kg",
+    "default_weight": 6
+   },
+   {
+    "key": "desktop_size",
+    "label": "Desktop size",
+    "default_weight": 6
+   },
+   {
+    "key": "height_presets",
+    "label": "Memory presets",
+    "direction": "higher_is_better",
+    "default_weight": 3
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 6
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "mattress": [
+   {
+    "key": "firmness_support",
+    "label": "Support and firmness",
+    "default_weight": 9
+   },
+   {
+    "key": "pressure_relief",
+    "label": "Pressure relief",
+    "default_weight": 8
+   },
+   {
+    "key": "cooling",
+    "label": "Temperature control",
+    "default_weight": 6
+   },
+   {
+    "key": "motion_isolation",
+    "label": "Motion isolation",
+    "default_weight": 5
+   },
+   {
+    "key": "edge_support",
+    "label": "Edge support",
+    "default_weight": 4
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 7
+   },
+   {
+    "key": "trial_and_warranty",
+    "label": "Trial and warranty",
+    "direction": "higher_is_better",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "air_fryer": [
+   {
+    "key": "cooking_results",
+    "label": "Cooking results",
+    "default_weight": 9
+   },
+   {
+    "key": "capacity",
+    "label": "Capacity",
+    "direction": "higher_is_better",
+    "unit": "l",
+    "default_weight": 7
+   },
+   {
+    "key": "power",
+    "label": "Power",
+    "direction": "higher_is_better",
+    "unit": "W",
+    "default_weight": 6
+   },
+   {
+    "key": "temperature_range",
+    "label": "Temperature range",
+    "direction": "higher_is_better",
+    "unit": "°C",
+    "default_weight": 5
+   },
+   {
+    "key": "ease_of_cleaning",
+    "label": "Ease of cleaning",
+    "default_weight": 6
+   },
+   {
+    "key": "safety",
+    "label": "Safety",
+    "default_weight": 7
+   },
+   {
+    "key": "noise_level",
+    "label": "Noise level",
+    "direction": "lower_is_better",
+    "unit": "dB",
+    "default_weight": 4
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "microwave": [
+   {
+    "key": "cooking_results",
+    "label": "Cooking results",
+    "default_weight": 9
+   },
+   {
+    "key": "capacity",
+    "label": "Capacity",
+    "direction": "higher_is_better",
+    "unit": "l",
+    "default_weight": 7
+   },
+   {
+    "key": "power",
+    "label": "Power",
+    "direction": "higher_is_better",
+    "unit": "W",
+    "default_weight": 6
+   },
+   {
+    "key": "ease_of_cleaning",
+    "label": "Ease of cleaning",
+    "default_weight": 6
+   },
+   {
+    "key": "safety",
+    "label": "Safety",
+    "default_weight": 7
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 6
+   },
+   {
+    "key": "after_sales_service",
+    "label": "After-sales service",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ],
+  "electric_kettle": [
+   {
+    "key": "capacity",
+    "label": "Capacity",
+    "direction": "higher_is_better",
+    "unit": "l",
+    "default_weight": 7
+   },
+   {
+    "key": "power",
+    "label": "Power",
+    "direction": "higher_is_better",
+    "unit": "W",
+    "default_weight": 7
+   },
+   {
+    "key": "safety",
+    "label": "Safety",
+    "default_weight": 8
+   },
+   {
+    "key": "ease_of_cleaning",
+    "label": "Ease of cleaning",
+    "default_weight": 5
+   },
+   {
+    "key": "noise_level",
+    "label": "Noise level",
+    "direction": "lower_is_better",
+    "unit": "dB",
+    "default_weight": 4
+   },
+   {
+    "key": "build_durability",
+    "label": "Build durability",
+    "default_weight": 6
+   },
+   {
+    "key": "after_sales_service",
+    "label": "After-sales service",
+    "default_weight": 5
+   },
+   {
+    "key": "value_for_money",
+    "label": "Value for money",
+    "is_value_for_money": true,
+    "default_weight": 6
+   }
+  ]
+ }
+}

@@ -17,23 +17,23 @@ families:
     criteria:
       - key: processing_speed
         label: Processing speed
-        definition: How quickly it handles your work, such as opening apps, loading pages or printing, without lag or waiting.
+        definition: How fast it does your work, like opening apps, loading pages or printing, so you are not kept waiting.
         default_weight: 8
       - key: reliability
         label: Reliability
-        definition: How rarely it freezes, crashes or drops its connection in daily use, based on what owners report.
+        definition: How rarely it freezes, crashes or loses its link in daily use, so it works when you need it.
         default_weight: 7
       - key: ease_of_use
         label: Ease of use
-        definition: How simple it is to set up and use every day, without confusing menus, drivers or extra steps.
+        definition: How easy it is to set up and use each day, with no hard menus, drivers or extra steps to slow you down.
         default_weight: 6
       - key: connectivity
         label: Ports and connectivity
-        definition: Which ports and wireless links it has, so it works with your other devices without extra adapters.
+        definition: Which ports and wireless links it has, so it connects to your other gear without extra plugs or dongles.
         default_weight: 5
       - key: build_durability
         label: Build durability
-        definition: How well the body, keys, buttons and hinges hold up to daily handling and travel over several years.
+        definition: How well the body, keys, buttons and hinges hold up to daily use and travel, so it lasts for years.
         default_weight: 5
       - key: size_and_weight
         label: Size and weight
@@ -72,7 +72,7 @@ families:
         default_weight: 6
       - key: software_updates
         label: Software updates
-        definition: How many years of Android or iOS updates and security fixes the maker promises, which keeps the phone safe longer.
+        definition: How many years the maker will send Android or iOS updates and fixes against hackers, so the phone stays safe longer.
         direction: higher_is_better
         unit: years
         default_weight: 5
@@ -82,7 +82,7 @@ families:
         default_weight: 4
       - key: build_durability
         label: Build durability
-        definition: How well the phone survives drops, scratches, dust and water, including its glass and water-resistance rating.
+        definition: How well its glass and seals handle drops, scratches, dust and water, so the phone lasts without costly repairs.
         default_weight: 5
       - key: value_for_money
         label: Value for money
@@ -104,7 +104,7 @@ families:
         default_weight: 6
       - key: connection_stability
         label: Connection stability
-        definition: How reliably the Bluetooth or wired link stays connected without drops, delays or trouble pairing with your phone.
+        definition: How well the Bluetooth or wired link holds, with no drops, delays or pairing trouble, so calls never cut out.
         default_weight: 6
       - key: mic_quality
         label: Microphone quality
@@ -116,7 +116,7 @@ families:
         default_weight: 6
       - key: build_durability
         label: Build durability
-        definition: How well it survives sweat, rain, drops and daily handling, including its water-resistance rating.
+        definition: How well it survives sweat, rain, drops and daily handling and keeps water out, so it lasts for years.
         default_weight: 5
       - key: loudness
         label: Loudness
@@ -182,11 +182,11 @@ families:
         default_weight: 6
       - key: sound_quality
         label: Sound quality
-        definition: How clear and full the built-in speakers or microphone sound, without needing extra audio equipment.
+        definition: How clear and full the built-in speakers or microphone sound, without buying extra sound gear.
         default_weight: 5
       - key: software_and_apps
         label: Software and apps
-        definition: How smooth and complete the built-in software is, including apps, menus and regular updates from the maker.
+        definition: How smooth and full the built-in software is, with good apps, easy menus and regular updates, so it stays useful.
         default_weight: 5
       - key: connectivity
         label: Ports and connectivity
@@ -237,7 +237,7 @@ families:
         default_weight: 6
       - key: warranty_length
         label: Warranty length
-        definition: How many years the maker repairs it for free, especially the costly compressor or motor.
+        definition: How many years the maker fixes it for free, including its costly main parts, so a big repair does not cost you.
         direction: higher_is_better
         unit: years
         default_weight: 5
@@ -255,7 +255,7 @@ families:
         default_weight: 9
       - key: speed
         label: Speed
-        definition: How quickly it finishes a typical task, such as grinding chutney, boiling water or reheating a meal.
+        definition: How fast it gets a usual job done, like grinding chutney, boiling water or warming up a meal, so you wait less.
         default_weight: 6
       - key: ease_of_cleaning
         label: Ease of cleaning
@@ -367,12 +367,12 @@ families:
     criteria:
       - key: safety_standards
         label: Safety standards
-        definition: Whether it meets recognised child safety standards and has secure harnesses, brakes or locks that protect your baby.
+        definition: Whether it meets official child safety standards and has secure straps, brakes or locks that keep your baby safe.
         direction: higher_is_better
         default_weight: 10
       - key: baby_comfort
         label: Comfort for the baby
-        definition: How well the seat, padding and recline keep your baby comfortable and supported for long periods.
+        definition: How well the seat, padding and recline keep your baby comfy and well held for long stretches, so trips stay calm.
         default_weight: 8
       - key: ease_of_use
         label: Ease of use
@@ -394,7 +394,7 @@ families:
         default_weight: 5
       - key: adjustability
         label: Adjustability
-        definition: How well it adjusts as your baby grows, such as recline positions, harness heights or camera angles.
+        definition: How well it changes as your baby grows, such as seat tilt, strap height or camera angle.
         default_weight: 5
       - key: value_for_money
         label: Value for money
@@ -513,11 +513,11 @@ categories:
     criteria:
       - key: processor_speed
         label: Processor speed
-        definition: How fast the processor handles heavy work such as coding, video editing or many open apps without slowing down.
+        definition: How fast the processor gets through heavy work like code, video edits or lots of open apps, with no lag.
         default_weight: 9
       - key: memory_and_storage
         label: RAM and storage
-        definition: How much RAM and SSD space it has, so many apps stay open and your files fit without running out of room.
+        definition: How much RAM and storage space it has, so many apps stay open and your files fit without running out of room.
         default_weight: 7
       - key: battery_life
         label: Battery life
@@ -531,17 +531,17 @@ categories:
         default_weight: 6
       - key: keyboard_comfort
         label: Keyboard comfort
-        definition: How pleasant and accurate the keys feel during long typing sessions, including a backlight for dim rooms.
+        definition: How pleasant and accurate the keys feel when you type for hours, with a backlight for dim rooms.
         default_weight: 6
       - key: weight
         label: Weight
-        definition: How heavy it is to carry every day in a bag; a lighter laptop is easier for travel and college.
+        definition: How heavy it is to carry each day in a bag; a lighter laptop is easier for travel and college.
         direction: lower_is_better
         unit: kg
         default_weight: 5
       - key: build_durability
         label: Build durability
-        definition: How well the body, hinge and ports hold up to daily carrying, opening and closing over several years.
+        definition: How well the body, hinge and ports hold up to daily carrying, opening and closing, so it lasts for years.
         default_weight: 5
       - key: value_for_money
         label: Value for money
@@ -571,7 +571,7 @@ categories:
         default_weight: 6
       - key: software_updates
         label: Software updates
-        definition: How many years of Android or iOS updates and security fixes the maker promises, keeping the phone safe longer.
+        definition: How many years the maker will send Android or iOS updates and fixes against hackers, so the phone stays safe longer.
         direction: higher_is_better
         unit: years
         default_weight: 5
@@ -583,7 +583,7 @@ categories:
         default_weight: 5
       - key: build_durability
         label: Build durability
-        definition: How well the phone survives drops, scratches, dust and water, based on its glass and water-resistance rating.
+        definition: How well its glass and seals handle drops, scratches, dust and water, so the phone lasts without costly repairs.
         default_weight: 5
       - key: value_for_money
         label: Value for money
@@ -599,7 +599,7 @@ categories:
         default_weight: 8
       - key: noise_cancellation
         label: Noise cancellation
-        definition: How well the earbuds block traffic, office chatter and other outside noise, so you can listen at a lower volume.
+        definition: How well the earbuds block traffic, office chatter and other outside noise, so you can keep the sound low.
         direction: higher_is_better
         default_weight: 6
       - key: battery_life
@@ -610,7 +610,7 @@ categories:
         default_weight: 6
       - key: fit_and_comfort
         label: Fit and comfort
-        definition: How securely and comfortably the earbuds sit in your ears for hours, even while walking or working out.
+        definition: How firmly and comfortably the earbuds sit in your ears for hours, even while you walk or work out.
         default_weight: 7
       - key: call_quality
         label: Call quality
@@ -618,11 +618,11 @@ categories:
         default_weight: 5
       - key: connection_stability
         label: Connection stability
-        definition: How reliably the earbuds stay connected to your phone without drops, delays or trouble pairing.
+        definition: How well the earbuds stay linked to your phone without drops, delays or trouble pairing, so calls do not cut out.
         default_weight: 5
       - key: water_resistance
         label: Water resistance
-        definition: How well the earbuds survive sweat and rain, shown by their IPX rating, which matters for gym and outdoor use.
+        definition: How well the earbuds survive sweat and rain, shown by their water-resistance rating, for the gym or outdoors.
         direction: higher_is_better
         default_weight: 4
       - key: value_for_money
@@ -644,7 +644,7 @@ categories:
         default_weight: 7
       - key: comfort
         label: Comfort
-        definition: How comfortable the ear cups and headband feel during long hours, without pressing, heating up or causing headaches.
+        definition: How good the ear cups and headband feel for long hours, without pressing, getting hot or giving you a headache.
         default_weight: 7
       - key: battery_life
         label: Battery life
@@ -658,7 +658,7 @@ categories:
         default_weight: 5
       - key: connection_stability
         label: Connection stability
-        definition: How reliably the Bluetooth link stays steady without drops, and how easily it switches between your devices.
+        definition: How steady the Bluetooth link is, and how easily it moves between your gadgets, so music and calls do not drop.
         default_weight: 4
       - key: build_durability
         label: Build durability
@@ -688,7 +688,7 @@ categories:
         default_weight: 6
       - key: phone_compatibility
         label: Phone compatibility
-        definition: How well it works with your phone and its app, including notifications, calls, music control and syncing data.
+        definition: How well it works with your phone and its app, so alerts, calls, music control and your data all stay in sync.
         direction: higher_is_better
         default_weight: 6
       - key: gps_accuracy
@@ -701,7 +701,7 @@ categories:
         default_weight: 5
       - key: water_resistance
         label: Water resistance
-        definition: How safely it handles water, such as rain, showers and swimming, shown by its water-resistance rating.
+        definition: How well it copes with water, such as rain, showers and swimming, as shown by its water-resistance rating.
         direction: higher_is_better
         unit: m
         default_weight: 4
@@ -715,7 +715,7 @@ categories:
     criteria:
       - key: picture_quality
         label: Picture quality
-        definition: How sharp, bright and lifelike the picture looks, including colours, contrast and detail in dark movie scenes.
+        definition: How sharp, bright and lifelike the picture looks, with rich colours and good contrast, so dark film scenes stay clear.
         default_weight: 9
       - key: screen_size_fit
         label: Screen size for your room
@@ -723,7 +723,7 @@ categories:
         default_weight: 6
       - key: sound_quality
         label: Sound quality
-        definition: How clear and full the built-in speakers sound for dialogue and music, without needing a separate soundbar.
+        definition: How clear and full the built-in speakers sound for speech and music, so you do not need a separate soundbar.
         default_weight: 6
       - key: smart_tv_software
         label: Smart TV software
@@ -731,7 +731,7 @@ categories:
         default_weight: 5
       - key: motion_handling
         label: Motion handling
-        definition: How smoothly fast scenes such as sports and games play without blur or judder, helped by a higher refresh rate.
+        definition: How smoothly sports and games play without blur, as the screen redraws more often, so action is easy to follow.
         direction: higher_is_better
         default_weight: 5
       - key: connectivity
@@ -841,7 +841,7 @@ categories:
         default_weight: 7
       - key: power
         label: Power
-        definition: How many watts it draws; more power heats the basket faster and keeps cooking quick when it is full.
+        definition: How much power it draws; more power heats the basket faster and keeps cooking quick when it is full.
         direction: higher_is_better
         unit: W
         default_weight: 6
@@ -885,7 +885,7 @@ categories:
         default_weight: 7
       - key: power
         label: Power
-        definition: How many watts it uses to heat; more power cooks and reheats faster, which matters on busy mornings.
+        definition: How much power it uses to heat; more power cooks and reheats faster, which matters on busy mornings.
         direction: higher_is_better
         unit: W
         default_weight: 6
@@ -921,7 +921,7 @@ categories:
         default_weight: 7
       - key: power
         label: Power
-        definition: How many watts it draws; more power boils water faster, so your tea or noodles are ready sooner.
+        definition: How much power it draws; more power boils water faster, so your tea or noodles are ready sooner.
         direction: higher_is_better
         unit: W
         default_weight: 7
@@ -931,7 +931,7 @@ categories:
         default_weight: 8
       - key: ease_of_cleaning
         label: Ease of cleaning
-        definition: How easy it is to clean inside and descale, with a wide mouth and no hidden corners for limescale.
+        definition: How easy it is to clean inside and remove scale, with a wide mouth and no hidden corners where scale builds up.
         default_weight: 5
       - key: noise_level
         label: Noise level
