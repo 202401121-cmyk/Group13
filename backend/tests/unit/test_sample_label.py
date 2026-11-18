@@ -6,12 +6,16 @@ the real class that replaces it (D-20). tests/faults/test_sample_label_faults.py
 
 from __future__ import annotations
 
+import importlib
+import inspect
+import pkgutil
 from dataclasses import fields
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
 
+import app
 import app.contracts as C
 from app.cli import main as cli_main
 from app.commerce import CommerceStage
@@ -50,6 +54,52 @@ STUBS = [
     DecideStage,
     CommerceStage,
 ]
+# The rule (S4-34): a stage class whose output can carry example data says it is a placeholder, so the result is
+# labelled a sample; one that returns only empty, researched or code-made output does not. Every stage class in app/
+# is named here with its reason, so a new one (a stub above all) can't go unnoticed.
+PLACEHOLDER_RULE: dict[str, tuple[bool, str]] = {
+    "app.research.stage.ResearchStage": (True, "returns the three example sources"),
+    "app.extract.stage.ExtractStage": (True, "returns the example claims and mentions"),
+    "app.entities.stage.MatchStage": (True, "returns the five example products"),
+    "app.verify.stage.VerifyStage": (True, "returns the example resolved values"),
+    "app.decide.stage.DecideStage": (True, "returns the example ranking"),
+    "app.commerce.stage.CommerceStage": (True, "returns the two example offers"),
+    "app.enrich.stage.EnrichStage": (False, "returns an empty EnrichResult: it adds nothing to the result"),
+    "app.explain.stage.TemplateExplainStage": (False, "states code's own numbers in fixed words"),
+    "app.intake.stage.IntakeStage": (False, "the shopper's request read by the LLM or the keyword rules"),
+    "app.criteria.stage.CriteriaStage": (False, "generated, saved or the fixed sets: no example data"),
+    "app.interview.stage.InterviewStage": (False, "the shopper's own answers"),
+    "app.interview.adaptive.AdaptiveInterviewStage": (False, "the shopper's own answers, in another order"),
+    "app.research.stage.LiveResearchStage": (False, "real searches"),
+    "app.extract.stage.GuardedExtractStage": (False, "claims read from the real sources"),
+    "app.entities.stage.FuzzyMatchStage": (False, "matches the names research really found"),
+    "app.entities.stage.ModelMatchStage": (False, "matches the names research really found"),
+    "app.verify.stage.TrustVerifyStage": (False, "values settled from the real claims"),
+    "app.decide.stage.WeightedDecideStage": (False, "ranks the real values in code"),
+    "app.explain.stage.ExplainStage": (False, "explains code's own numbers"),
+    "app.commerce.stage.ShoppingCommerceStage": (False, "real prices, or store search links"),
+}
+# Wrappers take the flag of the stage they wrap, per instance, so they are not stages of their own here.
+WRAPPERS = {
+    "app.cli._SeesCounts": "wraps match for the command-line tool's counts",
+    "app.extract.recorder.RecordingStage": "wraps extract to record what each source gave",
+}
+
+
+def _stage_classes() -> dict[str, type]:
+    """Every class in app/ with a stage name and a run(): what the runner could be given."""
+    found: dict[str, type] = {}
+    for module in pkgutil.walk_packages(app.__path__, "app."):
+        loaded = importlib.import_module(module.name)
+        for _, cls in inspect.getmembers(loaded, inspect.isclass):
+            ours = cls.__module__ == loaded.__name__
+            if ours and isinstance(getattr(cls, "name", None), C.StageName) and callable(getattr(cls, "run", None)):
+                found[f"{cls.__module__}.{cls.__qualname__}"] = cls
+    return found
+
+
+# The stubs that put example data into a result: one of them alone among real stages is enough for the note.
+EXAMPLE_STUBBED_STAGES = [name for name in STUBBED_STAGES if name != "enrich"]
 REAL_STAGES = [
     IntakeStage,
     CriteriaStage,
@@ -110,9 +160,31 @@ def all_real() -> SearchStages:
 # --- which classes are placeholders --------------------------------------------------------------
 
 
-@pytest.mark.parametrize("stage", STUBS)
-def test_every_stub_says_it_is_a_placeholder(stage: type) -> None:
-    assert vars(stage)["is_placeholder"] is True
+def test_a_stage_is_a_placeholder_only_when_its_output_can_carry_example_data() -> None:
+    """Every stage class in app/, by name, with why it is or isn't a placeholder (S4-34)."""
+    classes = _stage_classes()
+    assert set(classes) == set(PLACEHOLDER_RULE) | set(WRAPPERS)  # a new stage class must be named above
+    unset = [
+        name for name in PLACEHOLDER_RULE if not any("is_placeholder" in vars(k) for k in classes[name].__mro__[:-1])
+    ]
+    assert unset == []  # each says it, never left to the runner's default
+    wrong = {
+        name: reason
+        for name, (placeholder, reason) in PLACEHOLDER_RULE.items()
+        if classes[name].is_placeholder is not placeholder
+    }
+    assert wrong == {}
+    assert {name for name, (placeholder, _) in PLACEHOLDER_RULE.items() if placeholder} == {
+        f"{stub.__module__}.{stub.__qualname__}" for stub in STUBS if stub is not EnrichStage
+    }
+
+
+def test_the_enrich_stub_gives_an_empty_result() -> None:
+    """Why it isn't a placeholder: run and fallback both add nothing, so no example data can come from it."""
+    context = C.StageContext(search_id="srch_test")
+    inp = C.EnrichInput(targets=[])
+    assert EnrichStage().run(inp, context) == C.EnrichResult()
+    assert EnrichStage().fallback(inp, context, RuntimeError("made up")) == C.EnrichResult()
 
 
 @pytest.mark.parametrize("stage", REAL_STAGES)
@@ -163,10 +235,26 @@ def test_with_one_stub_a_real_failure_comes_before_the_note() -> None:
     assert run(stages).coverage_note == f"YouTube timed out. {SAMPLE_NOTE}"
 
 
-@pytest.mark.parametrize("field", STUBBED_STAGES)
+@pytest.mark.parametrize("field", EXAMPLE_STUBBED_STAGES)
 def test_one_stub_among_real_stages_is_enough_for_the_note(field: str) -> None:
     stages = all_real()
     setattr(stages, field, getattr(stub_stages(), field))
+    note = run(stages).coverage_note
+    assert note is not None and note.endswith(SAMPLE_NOTE)
+
+
+def test_real_stages_with_the_enrich_stub_give_no_label() -> None:
+    """S4-34: every other stage real, enrich still the stub (US-41 is to come): the result is not a sample."""
+    stages = all_real()
+    stages.enrich = EnrichStage()
+    result = run(stages)
+    assert SAMPLE_NOTE not in (result.coverage_note or "")
+
+
+def test_the_same_run_with_the_decide_stub_is_still_labelled() -> None:
+    stages = all_real()
+    stages.enrich = EnrichStage()
+    stages.decide = DecideStage()  # the example ranking: a sample
     note = run(stages).coverage_note
     assert note is not None and note.endswith(SAMPLE_NOTE)
 
