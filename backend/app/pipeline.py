@@ -623,6 +623,7 @@ class _Search:
         self.extract_note: str | None = None
         self.llm_unavailable = False  # every LLM call this search made failed on every provider (US-31)
         self.decide_note: str | None = None
+        self.commerce_note: str | None = None  # how many products couldn't be priced (US-24, S4-26)
         self.recommender_counts: list[
             RecommenderCount
         ] = []  # counted after extract, from the products it found (US-13)
@@ -947,6 +948,7 @@ class _Search:
             return _skipped(StageName.COMMERCE, "no product was ranked, so there was nothing to price")
         inp = CommerceInput(products=products, budget=self.rubric.budget)
         self.commerce_out, report = self._run(self.stages.commerce, inp)
+        self.commerce_note = self._stage_note(self.stages.commerce)
         return report
 
     # Assembling the result.
@@ -978,6 +980,7 @@ class _Search:
             older_archive=older_archive,
             extract_note=self.extract_note,
             decide_note=self.decide_note,
+            commerce_note=self.commerce_note,
             llm_unavailable=self.llm_unavailable,
         )
         return SearchResult(
@@ -1099,6 +1102,7 @@ def build_coverage_note(
     older_archive: bool = False,
     extract_note: str | None = None,
     decide_note: str | None = None,
+    commerce_note: str | None = None,
     llm_unavailable: bool = False,
 ) -> str | None:
     """Plain-English summary of everything that did not go to plan. None when everything did.
@@ -1138,6 +1142,8 @@ def build_coverage_note(
         parts.append("These results are partial.")
     if decide_note:
         parts.append(decide_note)
+    if commerce_note:
+        parts.append(commerce_note)
     if extract_note:  # last, so a note too long to fit never costs the sentences above
         parts.append(extract_note)
 

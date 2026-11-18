@@ -1,12 +1,15 @@
 """Serper shopping (US-24): store listings for one product, with title, store, link and price.
 
 POST https://google.serper.dev/shopping, as /search: the key in X-API-KEY, a JSON body with the query, country India
-("gl": "in") and English. Each result carries title, source (the store), link (the store's own page), price (text,
-such as "₹64,990"), delivery and rating (serper.dev, read 15 Nov 2026; docs/api-setup.md).
+("gl": "in") and English. Each result carries title, source (the store), link, price (text, such as "₹64,990"),
+delivery and rating (serper.dev, read 15 Nov 2026; docs/api-setup.md). For India the link is a Google Shopping page
+for the offer, never the store's own (S4-14's live run): commerce looks the store's own page up separately (links.py).
 
 Like web search, every request sent counts one Serper unit against the daily and total caps (research.yaml); a
-capped search sends nothing. An answer is kept in the research cache with the time it was fetched, so a cached price
-keeps its true age (DR-04). Nothing here raises: a failure comes back as a reason, as serper.py reads them. Only
+capped search sends nothing. A timeout, a 5xx or a broken connection is tried once more, and a 429 only after the wait
+it states; no other 4xx is (S4-12's rule). A retry is a request like any other, so it takes a unit too, and it goes
+only if the caller's time allows. An answer is kept in the research cache with the time it was fetched, so a cached
+price keeps its true age (DR-04). Nothing here raises: a failure comes back as a reason, as serper.py reads them. Only
 listings are kept: no page text, nothing from Reddit, and nothing the shopper typed beyond the product's name.
 """
 
@@ -21,8 +24,11 @@ from typing import Any
 
 import httpx
 
+from app.llm.retry import RetryClock
+
 from .cache import ResearchCache
 from .reddit.base import FailureReason, IntervalLimiter
+from .retrying import send_once_more
 from .serper import SHARED_LIMITER, TIMEOUT_S, host_of
 from .usage import SearchUsage
 
@@ -73,12 +79,14 @@ class SerperShopping:
         cache: ResearchCache,
         limiter: IntervalLimiter = SHARED_LIMITER,
         now: Callable[[], datetime] = _utc_now,
+        retry: RetryClock | None = None,
     ) -> None:
         self.http = http
         self._api_key = api_key
         self.cache = cache
         self.limiter = limiter
         self._now = now
+        self.retry = retry if retry is not None else RetryClock()  # the one retry (S4-12)
 
     def __repr__(self) -> str:
         return f"SerperShopping(key_set={self._api_key is not None})"  # never the key, not even in a traceback
@@ -93,22 +101,27 @@ class SerperShopping:
             return _failure("blocked", "SERPER_API_KEY is not set")
         if not usage.take("serper"):
             return _failure("quota_exhausted", "a Serper cap is reached")
-        result = self._send(query)
+        result = self._send(query, usage)
         if result.failure is None:
             self.cache.put_text(key, _to_text(result))
         return result
 
-    def _send(self, query: str) -> ShoppingResult:
-        self.limiter.wait()
+    def _send(self, query: str, usage: SearchUsage) -> ShoppingResult:
         body = {"q": query, "gl": COUNTRY, "hl": "en"}
-        try:
-            response = self.http.post(
+
+        def send() -> httpx.Response:
+            self.limiter.wait()  # inside, so the retry keeps to Serper's pace too
+            return self.http.post(
                 SHOPPING_URL, json=body, headers={"X-API-KEY": self._api_key or ""}, timeout=TIMEOUT_S
             )
-        except httpx.TimeoutException:
+
+        # One retry after a timeout, a 5xx or a broken connection, or a 429 that says how long (S4-12). It is a
+        # request like any other, so it takes one from the cap; with none left, or no time, it doesn't go.
+        response = send_once_more(send, self.retry, TIMEOUT_S, lambda: usage.take("serper"), "shopping")
+        if isinstance(response, httpx.TimeoutException):
             return _failure("timeout", f"no reply within {TIMEOUT_S:g}s")
-        except httpx.HTTPError as exc:
-            return _failure("error", f"request failed ({type(exc).__name__})")
+        if isinstance(response, httpx.HTTPError):
+            return _failure("error", f"request failed ({type(response).__name__})")
         status = response.status_code
         if status in (401, 403):
             return _failure("blocked", f"HTTP {status} (refused)")
