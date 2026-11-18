@@ -32,6 +32,7 @@ class DecideStage:
 
     name = StageName.DECIDE
     is_placeholder = True
+    fallback_is_example = True  # the example ranking again (S4-35)
 
     def run(self, inp: DecideInput, ctx: StageContext) -> DecideResult:
         return examples.decision()

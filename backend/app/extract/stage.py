@@ -72,6 +72,7 @@ class ExtractStage:
 
     name = StageName.EXTRACT
     is_placeholder = True
+    fallback_is_example = False  # an empty result for the source (S4-35)
 
     def run(self, inp: ExtractInput, ctx: StageContext) -> ExtractionResult:
         return ExtractionResult(

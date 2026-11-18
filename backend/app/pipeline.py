@@ -351,13 +351,18 @@ def run_stage(stage: Stage[In, Out], inp: In, ctx: StageContext, limit_s: float)
 
 
 def made_by_placeholder(stage: Stage[In, Out], report: StageReport) -> bool:
-    """Did a stub make this output? Follows the class that ran, never the stage's name (D-20).
+    """Did example data reach this output? Follows the class that ran, never the stage's name (D-20).
 
     The stage's own class speaks for run(). A fallback may hand over to the class it replaced, kept in `baseline`.
-    A class that does not say is real.
+    A live stage whose baseline is a stub hands over to the stub's fallback() (tests/unit/test_sample_label.py holds
+    every such class to it), so its output is a sample only when the stub says its fallback gives example data
+    (`fallback_is_example`, S4-35): research's one query and no sources is not; decide's example ranking is. A class
+    that does not say is real; a placeholder that does not say gives example data.
     """
-    maker = stage if report.status is StageStatus.OK else getattr(stage, "baseline", stage)
-    return bool(getattr(maker, "is_placeholder", False))
+    if report.status is StageStatus.OK:
+        return bool(getattr(stage, "is_placeholder", False))
+    maker = getattr(stage, "baseline", stage)
+    return bool(getattr(maker, "is_placeholder", False)) and bool(getattr(maker, "fallback_is_example", True))
 
 
 def plain_reason(error: BaseException) -> str:

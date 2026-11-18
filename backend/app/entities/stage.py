@@ -131,6 +131,7 @@ class MatchStage:
 
     name = StageName.MATCH
     is_placeholder = True
+    fallback_is_example = True  # the five example products again (S4-35)
 
     def run(self, inp: MatchInput, ctx: StageContext) -> MatchResult:
         return examples.match()

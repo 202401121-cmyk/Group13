@@ -9,6 +9,7 @@ from __future__ import annotations
 import importlib
 import inspect
 import pkgutil
+import time
 from dataclasses import fields
 from typing import Any
 
@@ -39,6 +40,7 @@ from app.pipeline import (
     default_search_stages,
 )
 from app.research import ResearchStage
+from app.research.stage import LiveResearchStage
 from app.verify import TrustVerifyStage, VerifyStage
 
 SEARCH_STAGES = [f.name for f in fields(SearchStages)]
@@ -57,27 +59,33 @@ STUBS = [
 # The rule (S4-34): a stage class whose output can carry example data says it is a placeholder, so the result is
 # labelled a sample; one that returns only empty, researched or code-made output does not. Every stage class in app/
 # is named here with its reason, so a new one (a stub above all) can't go unnoticed.
-PLACEHOLDER_RULE: dict[str, tuple[bool, str]] = {
-    "app.research.stage.ResearchStage": (True, "returns the three example sources"),
-    "app.extract.stage.ExtractStage": (True, "returns the example claims and mentions"),
-    "app.entities.stage.MatchStage": (True, "returns the five example products"),
-    "app.verify.stage.VerifyStage": (True, "returns the example resolved values"),
-    "app.decide.stage.DecideStage": (True, "returns the example ranking"),
-    "app.commerce.stage.CommerceStage": (True, "returns the two example offers"),
-    "app.enrich.stage.EnrichStage": (False, "returns an empty EnrichResult: it adds nothing to the result"),
-    "app.explain.stage.TemplateExplainStage": (False, "states code's own numbers in fixed words"),
-    "app.intake.stage.IntakeStage": (False, "the shopper's request read by the LLM or the keyword rules"),
-    "app.criteria.stage.CriteriaStage": (False, "generated, saved or the fixed sets: no example data"),
-    "app.interview.stage.InterviewStage": (False, "the shopper's own answers"),
-    "app.interview.adaptive.AdaptiveInterviewStage": (False, "the shopper's own answers, in another order"),
-    "app.research.stage.LiveResearchStage": (False, "real searches"),
-    "app.extract.stage.GuardedExtractStage": (False, "claims read from the real sources"),
-    "app.entities.stage.FuzzyMatchStage": (False, "matches the names research really found"),
-    "app.entities.stage.ModelMatchStage": (False, "matches the names research really found"),
-    "app.verify.stage.TrustVerifyStage": (False, "values settled from the real claims"),
-    "app.decide.stage.WeightedDecideStage": (False, "ranks the real values in code"),
-    "app.explain.stage.ExplainStage": (False, "explains code's own numbers"),
-    "app.commerce.stage.ShoppingCommerceStage": (False, "real prices, or store search links"),
+PLACEHOLDER_RULE: dict[str, tuple[bool, bool | None, str]] = {
+    # class: (is_placeholder, fallback_is_example, why). fallback_is_example (S4-35) is said by each stub only: whether
+    # its fallback() output is example data. A real class never says it; the runner reads it only on a placeholder.
+    "app.research.stage.ResearchStage": (
+        True,
+        False,
+        "run: the three example sources; fallback: one query, no sources",
+    ),
+    "app.extract.stage.ExtractStage": (True, False, "run: the example claims and mentions; fallback: nothing"),
+    "app.entities.stage.MatchStage": (True, True, "run and fallback: the five example products"),
+    "app.verify.stage.VerifyStage": (True, True, "run and fallback: the example resolved values"),
+    "app.decide.stage.DecideStage": (True, True, "run and fallback: the example ranking"),
+    "app.commerce.stage.CommerceStage": (True, False, "run: the two example offers; fallback: store search links"),
+    "app.enrich.stage.EnrichStage": (False, False, "run and fallback: an empty EnrichResult: it adds nothing"),
+    "app.explain.stage.TemplateExplainStage": (False, None, "states code's own numbers in fixed words"),
+    "app.intake.stage.IntakeStage": (False, None, "the shopper's request read by the LLM or the keyword rules"),
+    "app.criteria.stage.CriteriaStage": (False, None, "generated, saved or the fixed sets: no example data"),
+    "app.interview.stage.InterviewStage": (False, None, "the shopper's own answers"),
+    "app.interview.adaptive.AdaptiveInterviewStage": (False, None, "the shopper's own answers, in another order"),
+    "app.research.stage.LiveResearchStage": (False, None, "real searches"),
+    "app.extract.stage.GuardedExtractStage": (False, None, "claims read from the real sources"),
+    "app.entities.stage.FuzzyMatchStage": (False, None, "matches the names research really found"),
+    "app.entities.stage.ModelMatchStage": (False, None, "matches the names research really found"),
+    "app.verify.stage.TrustVerifyStage": (False, None, "values settled from the real claims"),
+    "app.decide.stage.WeightedDecideStage": (False, None, "ranks the real values in code"),
+    "app.explain.stage.ExplainStage": (False, None, "explains code's own numbers"),
+    "app.commerce.stage.ShoppingCommerceStage": (False, None, "real prices, or store search links"),
 }
 # Wrappers take the flag of the stage they wrap, per instance, so they are not stages of their own here.
 WRAPPERS = {
@@ -170,13 +178,50 @@ def test_a_stage_is_a_placeholder_only_when_its_output_can_carry_example_data() 
     assert unset == []  # each says it, never left to the runner's default
     wrong = {
         name: reason
-        for name, (placeholder, reason) in PLACEHOLDER_RULE.items()
+        for name, (placeholder, fallback_example, reason) in PLACEHOLDER_RULE.items()
         if classes[name].is_placeholder is not placeholder
+        or vars(classes[name]).get("fallback_is_example") is not fallback_example
     }
     assert wrong == {}
-    assert {name for name, (placeholder, _) in PLACEHOLDER_RULE.items() if placeholder} == {
+    assert {name for name, (placeholder, _, _) in PLACEHOLDER_RULE.items() if placeholder} == {
         f"{stub.__module__}.{stub.__qualname__}" for stub in STUBS if stub is not EnrichStage
     }
+
+
+def test_a_live_stage_hands_its_fallback_to_its_stubs_fallback() -> None:
+    """The runner reads the stub's fallback_is_example, so a live stage with a stub as its baseline must return
+    that stub's fallback() output, never its run() output (S4-35). Every such class in app/ is held to it here."""
+    context = C.StageContext(search_id="srch_test")
+    error = RuntimeError("made up")
+    research_input = C.ResearchInput(rubric=ex.rubric())
+    decide_input = C.DecideInput(rubric=ex.rubric(), products=[], values=[])
+    live_research = _LiveResearchWithNoClients()
+    live_decide = WeightedDecideStage()
+    with_a_stub: set[str] = set()
+    cannot_build: set[str] = set()
+    for name, cls in _stage_classes().items():
+        if name in WRAPPERS:
+            continue
+        try:
+            stage = cls()  # a baseline may be set per instance, as decide's is
+        except TypeError:
+            cannot_build.add(name)
+            stage = cls
+        if getattr(getattr(stage, "baseline", None), "is_placeholder", False):
+            with_a_stub.add(name)
+    assert with_a_stub == {"app.research.stage.LiveResearchStage", "app.decide.stage.WeightedDecideStage"}
+    assert cannot_build == {"app.extract.stage.GuardedExtractStage"}  # keeps its stub in `stub`, never as baseline
+    assert live_research.fallback(research_input, context, error) == ResearchStage().fallback(
+        research_input, context, error
+    )
+    assert live_decide.fallback(decide_input, context, error) == DecideStage().fallback(decide_input, context, error)
+
+
+class _LiveResearchWithNoClients(LiveResearchStage):
+    """The live research stage without its clients: its fallback needs none."""
+
+    def __init__(self) -> None:
+        pass
 
 
 def test_the_enrich_stub_gives_an_empty_result() -> None:
@@ -249,6 +294,40 @@ def test_real_stages_with_the_enrich_stub_give_no_label() -> None:
     stages.enrich = EnrichStage()
     result = run(stages)
     assert SAMPLE_NOTE not in (result.coverage_note or "")
+
+
+class _SlowLiveResearch(_LiveResearchWithNoClients):
+    """The live research stage, timing out: its own fallback then hands over to the stub's fallback()."""
+
+    def run(self, inp: C.ResearchInput, ctx: C.StageContext) -> C.ResearchResult:
+        time.sleep(0.5)  # in a background thread: the runner only waits for the limit below
+        return ResearchStage().run(inp, ctx)
+
+
+def test_live_research_timing_out_is_not_a_sample_and_still_says_it_fell_back() -> None:
+    """S4-35: research's fallback is one query and no sources, not example data, so no sample label."""
+    stages = all_real()
+    stages.research = _SlowLiveResearch()
+    result = PipelineRunner(stages, InMemoryResultStore(), time_limits={C.StageName.RESEARCH: 0.05}).run(request())
+    report = next(r for r in result.stage_reports if r.stage is C.StageName.RESEARCH)
+    assert report.status is C.StageStatus.TIMEOUT
+    assert result.coverage_note is not None
+    assert "Research took too long" in result.coverage_note  # the fallback is still said
+    assert SAMPLE_NOTE not in result.coverage_note
+
+
+class _CrashingLiveDecide(WeightedDecideStage):
+    def run(self, inp: C.DecideInput, ctx: C.StageContext) -> C.DecideResult:
+        raise RuntimeError("the real stage crashed")
+
+
+def test_live_decide_falling_back_to_its_example_ranking_is_still_labelled() -> None:
+    stages = all_real()
+    stages.decide = _CrashingLiveDecide()
+    result = run(stages)
+    report = next(r for r in result.stage_reports if r.stage is C.StageName.DECIDE)
+    assert report.status is C.StageStatus.FALLBACK
+    assert result.coverage_note is not None and result.coverage_note.endswith(SAMPLE_NOTE)
 
 
 def test_the_same_run_with_the_decide_stub_is_still_labelled() -> None:
