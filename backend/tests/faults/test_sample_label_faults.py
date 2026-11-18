@@ -24,7 +24,7 @@ from app.pipeline import (
     SearchStages,
 )
 from app.research import ResearchStage
-from tests.unit.test_sample_label import STUBBED_STAGES, FakeRealStage, all_real, stub_stages
+from tests.unit.test_sample_label import EXAMPLE_STUBBED_STAGES, FakeRealStage, all_real, stub_stages
 
 SEARCH_STAGES = [f.name for f in fields(SearchStages)]
 
@@ -62,7 +62,17 @@ def test_explain_falling_back_to_its_template_is_real_and_gives_no_sample_note()
     assert all(e.method == "template" for e in result.explanations)
 
 
-@pytest.mark.parametrize("field", STUBBED_STAGES)
+def test_enrich_falling_back_to_its_empty_stub_gives_no_sample_note() -> None:
+    """S4-34: enrich's stub adds nothing, so a fallback to it is not a sample; the fallback itself is still said."""
+    stages = all_real()
+    stages.enrich = _FailsToItsStub(stub_stages().enrich)
+    result = run(stages)
+    report = next(r for r in result.stage_reports if r.stage is C.StageName.ENRICH)
+    assert report.status is C.StageStatus.FALLBACK
+    assert result.coverage_note == "Enrich used a simpler fallback: something went wrong."
+
+
+@pytest.mark.parametrize("field", EXAMPLE_STUBBED_STAGES)
 def test_a_real_stage_that_falls_back_to_its_stub_gives_the_note(field: str) -> None:
     stages = all_real()
     setattr(stages, field, _FailsToItsStub(getattr(stub_stages(), field)))
