@@ -410,3 +410,23 @@ def test_the_stub_stays_as_the_fallback() -> None:
     inp = EnrichInput(targets=[_target(VELA)])
     assert stage.fallback(inp, ctx(), RuntimeError("made up")) == EnrichStage().fallback(inp, ctx(), RuntimeError())
     assert stage.is_placeholder is False
+
+
+def test_enrich_has_its_own_6_whatever_researchs_per_search() -> None:
+    """D-78: research's per-search room can't use up enrich's. Here research's is 2 and enrich still sends 6."""
+    products = [_product(n) for n in range(6)]
+    shopping = FakeShopping({})
+    out = _run(_stage(shopping, _usage(per_search=2)), products)
+    assert len(shopping.asked) == 6 and out.searches_used == 6
+
+
+def test_a_look_up_whose_time_is_up_takes_no_unit() -> None:
+    from time import monotonic
+
+    from app.enrich.stage import look_up
+
+    shopping = FakeShopping({"Vela Pro 14": _answer(_listing(VELA_TITLE, "₹62,490"))})
+    usage = _usage().search()
+    late = look_up(shopping, "Vela Pro 14", usage, monotonic() - 1)
+    assert late.failure == "timeout" and shopping.asked == [] and usage.used["serper"] == 0
+    assert look_up(shopping, "Vela Pro 14", usage, monotonic() + 5).listings  # in time it asks

@@ -261,3 +261,47 @@ def test_a_brief_is_held_to_its_share_though_the_total_has_room() -> None:
 def test_a_name_in_a_key_is_caught_too() -> None:
     assert live_briefs.text_in({"coverage": {"Nova Book 14": 0.5}}) == ["Nova Book 14"]
     assert live_briefs.text_in({"stages": {"research": {"status": "ok"}}}) == []
+
+
+def test_a_call_the_live_guard_refuses_counts_nothing_against_the_apps_caps() -> None:
+    """D-78: a refused call never left, so the unit the app took for it goes back. An admitted one stays counted."""
+    from app.research.settings import ProviderCap
+    from app.research.usage import UsageBook
+
+    book = UsageBook({"serper": ProviderCap(per_search=6, per_day=80)}, path=None)
+    usage = book.search()
+    budget = live_briefs.LiveBudget({"llm": 0, "serper": 1, "reddit": 0, "jina": 0, "firecrawl": 0})
+    serper = httpx.Request("POST", "https://google.serper.dev/shopping")
+    assert usage.take("serper")
+    budget.admit(serper)  # sent: it stays counted
+    assert usage.take("serper")
+    with pytest.raises(live_briefs.OverBudget):
+        budget.admit(serper)  # refused before it left
+    assert book.today()["serper"] == 1 and usage.used["serper"] == 1
+
+
+def test_a_real_request_the_guard_refuses_leaves_the_apps_count_alone(monkeypatch: pytest.MonkeyPatch) -> None:
+    """End to end: Serper shopping sends through httpx, the guard refuses it inside the transport on the same thread,
+    and the unit the app took for it goes back. Nothing reaches the network: the transport answers by itself."""
+    from app.research.cache import ResearchCache
+    from app.research.reddit.base import IntervalLimiter
+    from app.research.settings import ProviderCap
+    from app.research.shopping import SerperShopping
+    from app.research.usage import UsageBook
+
+    def answer(transport: httpx.HTTPTransport, request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"shopping": []}, request=request)
+
+    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", answer)
+    book = UsageBook({"serper": ProviderCap(per_search=6, per_day=80)}, path=None)
+    budget = live_briefs.LiveBudget({"llm": 0, "serper": 1, "reddit": 0, "jina": 0, "firecrawl": 0})
+    shopping = SerperShopping(
+        httpx.Client(), "made-up-test-key", cache=ResearchCache(folder=None), limiter=IntervalLimiter(0)
+    )
+    with budget.guarding():
+        usage = book.search()
+        first = shopping.search("Made Up Phone 1", usage)
+        second = shopping.search("Made Up Phone 2", usage)
+    assert first.failure is None and second.failure == "error"  # the second was refused before it left
+    assert budget.used["serper"] == 1
+    assert book.today()["serper"] == 1 and usage.used["serper"] == 1
