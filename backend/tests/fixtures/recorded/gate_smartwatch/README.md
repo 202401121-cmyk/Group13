@@ -1,0 +1,1 @@
+- `gate_smartwatch`: real replies to "smartwatch for running with GPS under 15000 rupees" (1 run; calls gemini: 6, groq: 6, mistral: 2, pages: 13, serper: 7). Recorded 2026-11-19 by Harsh Kodavala. Some calls failed or were refused: see manifest.json.

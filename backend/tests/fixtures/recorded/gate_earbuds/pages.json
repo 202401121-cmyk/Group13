@@ -1,0 +1,246 @@
+[
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.amazon.in/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 9320 bytes]",
+    "elapsed_ms": 552
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 3553 bytes]",
+    "elapsed_ms": 278
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "49",
+      "x-ratelimit-reset": "1795063210"
+    },
+    "response_body": "[page body not stored: 1837 bytes]",
+    "elapsed_ms": 260
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.rtings.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 159 bytes]",
+    "elapsed_ms": 3444
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/list-of-earbuds/earbuds-under-3000-in-india",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 308914 bytes]",
+    "elapsed_ms": 414
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.amazon.in/best-anc-earbuds-under-3000/s?k=[redacted]",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html;charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 1471484 bytes]",
+    "elapsed_ms": 1105
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/mobile_headphones/best-earbuds-under-3000-list",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "49",
+      "x-ratelimit-reset": "1795067667"
+    },
+    "response_body": "[page body not stored: 127002 bytes]",
+    "elapsed_ms": 207
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.croma.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 987 bytes]",
+    "elapsed_ms": 373
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.rtings.com/headphones/reviews/best/earbuds-for-working-out",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 319873 bytes]",
+    "elapsed_ms": 896
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.amazon.in/Earbuds-Buying-Guide-Indian-Consumers/dp/B0DYZ625PF",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html;charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 905131 bytes]",
+    "elapsed_ms": 1704
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/list-of-earbuds/best-earbuds-in-india",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 354939 bytes]",
+    "elapsed_ms": 687
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.lg.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain, text/plain; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 8054 bytes]",
+    "elapsed_ms": 1366
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.croma.com/unboxed/buying-guides/headphones-earphones?srsltid=[redacted]",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 88343 bytes]",
+    "elapsed_ms": 272
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.gadgets360.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 403,
+    "response_headers": {
+      "content-type": "text/html"
+    },
+    "response_body": "[page body not stored: 386 bytes]",
+    "elapsed_ms": 304
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.rtings.com/headphones/reviews/best/wireless-earbuds",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 353385 bytes]",
+    "elapsed_ms": 866
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.lg.com/in/magazine/heres-everything-you-need-to-know-before-buying-headphones/?srsltid=[redacted]",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 652399 bytes]",
+    "elapsed_ms": 2422
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.rtings.com/headphones/reviews/best/over-ear-headphones-working-out",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 358410 bytes]",
+    "elapsed_ms": 1005
+  }
+]

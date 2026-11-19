@@ -309,7 +309,9 @@ def decide_briefs(paths: Paths) -> tuple[list[Measure], dict[str, Any]]:
 def research_recorded(paths: Paths) -> tuple[list[Measure], dict[str, Any]]:
     from app.research.serper import read_results
 
-    files = sorted(paths.recordings.glob("*/serper.json"))
+    # US-49's gate recordings (those with a pipeline.json) are the gate's, re-recorded twice a sprint: never this
+    # baseline's, which stays on the recordings it was measured on.
+    files = sorted(f for f in paths.recordings.glob("*/serper.json") if not (f.parent / "pipeline.json").exists())
     source = f"{_rel(paths.recordings)}: {', '.join(f.parent.name for f in files) or 'none'}"
     if not files:
         why = f"no recorded web search in {_rel(paths.recordings)}"

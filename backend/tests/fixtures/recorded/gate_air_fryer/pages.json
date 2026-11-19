@@ -1,0 +1,210 @@
+[
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.amazon.in/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 9320 bytes]",
+    "elapsed_ms": 6840
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.flipkart.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 3224 bytes]",
+    "elapsed_ms": 6515
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "49",
+      "x-ratelimit-reset": "1795063210"
+    },
+    "response_body": "[page body not stored: 1837 bytes]",
+    "elapsed_ms": 227
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.rtings.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 159 bytes]",
+    "elapsed_ms": 399
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/air_fryers/price-below_7000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "49",
+      "x-ratelimit-reset": "1795067317"
+    },
+    "response_body": "[page body not stored: 118384 bytes]",
+    "elapsed_ms": 144
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.rtings.com/air-fryer/reviews/best/air-fryers",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 355151 bytes]",
+    "elapsed_ms": 786
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.reliancedigital.in/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 1022 bytes]",
+    "elapsed_ms": 3888
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/bytes/philips-just-made-the-air-fryer-youd-actually-want-on-your-counter/",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "48",
+      "x-ratelimit-reset": "1795067317"
+    },
+    "response_body": "[page body not stored: 101717 bytes]",
+    "elapsed_ms": 108
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.rtings.com/air-fryer/reviews/best/large",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 334018 bytes]",
+    "elapsed_ms": 825
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.gadgets360.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 403,
+    "response_headers": {
+      "content-type": "text/html"
+    },
+    "response_body": "[page body not stored: 386 bytes]",
+    "elapsed_ms": 3265
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/air_fryers/prestige-brand/price-5000_to_10000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "47",
+      "x-ratelimit-reset": "1795067317"
+    },
+    "response_body": "[page body not stored: 85592 bytes]",
+    "elapsed_ms": 109
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.reliancedigital.in/c/resource-center/hs/buying-guide-how-to-choose-an-air-fryer",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html"
+    },
+    "response_body": "[page body not stored: 573939 bytes]",
+    "elapsed_ms": 280
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.flipkart.com/air-fryers/pr?sid=[redacted]",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 909680 bytes]",
+    "elapsed_ms": 453
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.amazon.in/Air-Fryers/b?ie=[redacted]&node=[redacted]",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html;charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 1273931 bytes]",
+    "elapsed_ms": 1234
+  }
+]

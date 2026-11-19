@@ -1,0 +1,1328 @@
+[
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "best wireless earbuds for gym under 3000 rupees India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "1795067605"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "best wireless earbuds for gym under 3000 rupees India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Best Earbuds Under 3000 in India 2026: Top Picks",
+          "link": "https://www.geekman.in/best-earbuds-under-3000-india/",
+          "displayedLink": "https://www.geekman.in › best-earbuds-under-3000-india",
+          "snippet": "Best earbuds under 3000 in India: Realme Buds T500 Pro — the best all-rounder (powerful bass, Hi-Res LHDC, 50 dB ANC); CMF Buds 2 Plus ...",
+          "date": "18 Oct 2026",
+          "position": 1
+        },
+        {
+          "title": "Best Anc Earbuds Under 3000",
+          "link": "https://www.amazon.in/best-anc-earbuds-under-3000/s?k=best+anc+earbuds+under+3000",
+          "displayedLink": "https://www.amazon.in › best-anc-earbuds-under-3000 › s",
+          "snippet": "Varnientar TWS Wireless Earbuds with Bluetooth with 48dB ANC, Long Playtime, Deep Bass, 6-Mic HD Calls, Type-C Fast Charging.",
+          "position": 2
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "snippet": "[reddit text not stored]",
+          "sitelinks": [
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            }
+          ],
+          "position": 3
+        },
+        {
+          "title": "Earbuds Under 3000 in India (Nov 2026)",
+          "link": "https://www.91mobiles.com/list-of-earbuds/earbuds-under-3000-in-india",
+          "displayedLink": "https://www.91mobiles.com › list-of-earbuds › earbuds-under-3000-in-india",
+          "snippet": "Top 5 Earbuds Under 3,000 with Prices & Specs ; realme Buds T200, In ear canalphone, Wireless, With Mic, 50 Hours Talk time, 2 Hours Charging time, 5.4 Bluetooth ...",
+          "position": 4
+        },
+        {
+          "title": "Best TWS Under 2500 & 3000 in Amazon Flipkart Sale",
+          "link": "https://www.youtube.com/watch?v=ub0xGVh9IUw",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Should've added Realme air 7 also. Got at 2699. Best balanced sound tws under 3k. I've used both oneplus and CMF one, but imo air 7 easily ...",
+          "position": 5
+        },
+        {
+          "title": "Earbuds Under 3000",
+          "link": "https://www.boat-lifestyle.com/collections/earbuds-under-3000?srsltid=AYCX9vJlagsgpVu8Y8njeGSHSiXjyjjPNOwpSk3nR1uYn87XSm17VPlC",
+          "displayedLink": "https://www.boat-lifestyle.com › collections › earbuds-under-3000",
+          "snippet": "Buy latest earbuds under 3000 from boAt Lifestyle. Enjoy powerful sound, long battery life & sleek design at a budget price. Perfect for music & calls!",
+          "position": 6
+        },
+        {
+          "title": "Best Earbuds Under 3000 in India (Nov 2026)",
+          "link": "https://www.smartprix.com/mobile_headphones/best-earbuds-under-3000-list",
+          "displayedLink": "https://www.smartprix.com › mobile_headphones › best-earbuds-under-3000-list",
+          "snippet": "Best Earbuds Under 3000 in India ; Realme Buds T310 True Wireless Earbuds, ₹2,399, Aug, 2024 ; OnePlus Nord Buds 3 Pro, ₹3,099, Jul, 2024 ; JBL Wave Beam True ...",
+          "position": 7
+        },
+        {
+          "title": "Best TWS Earbuds From ₹1000 - ₹3000 * Don't Buy Wrong!",
+          "link": "https://www.youtube.com/watch?v=ba78TFhC8h0",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Soundcore R50i: https://amzn.to/4bYe884 ; Soundcore K20i: https://amzn.to/41ldefK ; OPPO Enco Buds 3 Pro: https://fkrtt.it/c_WzD... ; Realme Buds ...",
+          "position": 8
+        },
+        {
+          "title": "earbuds under 3000",
+          "link": "https://www.myntra.com/earbuds-under-3000",
+          "displayedLink": "https://www.myntra.com › earbuds-under-3000",
+          "snippet": "PunnkFunnk. Wireless Bluetooth Headphones · ₹827 ; Portronics. Wireless In Ear Earphones · ₹661 ; Portronics. Conch Theta C, Orange · ₹323 ; OnePlus. Nord Buds 3r ...",
+          "sitelinks": [
+            {
+              "title": "Message",
+              "link": "https://rbm.goog/message?bot-id=myntra_brgpf1gp_agent@rbm.goog&body=Hi&ctx=gctx-c%3DAcGZgoeABBe5MoiN2xznWRgs4Bgy93ZxRQ2qiDBFEukORqkqr5pUoHeqpDFgYSN192e-UC-cyjduq21a6XFtD-2FxFgc2SPA8RGaPn4PWpfLeISAFOEX7ck7HMqZexQNTB8-i110QkjyGJA%3D;gctx-s%3DAcGZgocpyQqIilLJ9G0QHPQHH-UVye-Wi88zae1F92lcuaeit_vMUi0JE_lzkkwnkaQCo0Rc52a1qLfZk37Jz-2gyEwOHQxmkUiLS7kY4ErXyhEAA0nolbAIpxFYOph-bZ5ydVVNVse5LbzRblJ0TTpzxttZoc8xML5GjQU%3D"
+            }
+          ],
+          "position": 9
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "sitelinks": [
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            }
+          ],
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 9050
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "wireless earbuds for gym review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "20",
+      "x-ratelimit-reset": "1795067605"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "wireless earbuds for gym review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "The 5 Best Earbuds For Working Out - Black Friday 2026",
+          "link": "https://www.rtings.com/headphones/reviews/best/earbuds-for-working-out",
+          "displayedLink": "https://www.rtings.com › Headphones › Best",
+          "snippet": "The Beats Powerbeats Pro 2 are the best workout earbuds we've tested. These lightweight, sport-centric buds are a solid choice if you prioritize ...",
+          "date": "Oct 14, 2026",
+          "position": 1
+        },
+        {
+          "title": "The 6 Best Wireless Earbuds - Black Friday 2026",
+          "link": "https://www.rtings.com/headphones/reviews/best/wireless-earbuds",
+          "displayedLink": "https://www.rtings.com › Headphones › Best",
+          "snippet": "The best wireless earbuds we've tested are the Sony WF-1000XM6. These top-of-the-line buds are an especially good choice if you want top-tier ...",
+          "date": "Oct 7, 2026",
+          "position": 2
+        },
+        {
+          "title": "The 5 Best Over-Ear Headphones For Working Out",
+          "link": "https://www.rtings.com/headphones/reviews/best/over-ear-headphones-working-out",
+          "displayedLink": "https://www.rtings.com › Headphones › Best",
+          "snippet": "The Bose QuietComfort Headphones Wireless are the best over-ear headphones for working out we've tested. They offer amazing comfort for long ...",
+          "date": "Oct 14, 2026",
+          "position": 3
+        },
+        {
+          "title": "The 6 Best In-Ear Headphones - Black Friday 2026",
+          "link": "https://www.google.com/goto?url=CAESggEBxCJF18dj4Byc483Y8kx5GiWeMgRYq8eymDVoZx6-NyE9XWjyUFEiiAsepqlt944lIdhYt0skrJa_G7vb3otihSJTyD4fOBOJLUPWA96-hfUNnI1iFI_3wlqfH3u13xkkdgfos1ng-G7caAAHNEXs4eHDvWmy79BjZDQEROhtdT6w&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+          "displayedLink": "https://www.rtings.com › Headphones › Best",
+          "snippet": "The best in-ear headphones we've tested are the Sony WF-1000XM6. They provide good sound and top-tier noise isolation performance.",
+          "date": "Oct 2, 2026",
+          "position": 4
+        },
+        {
+          "title": "The 5 Best Earbuds For iPhones - Black Friday 2026",
+          "link": "https://www.google.com/goto?url=CAESgwEBxCJF1zJxd3c-aYKlBFkLKO9HAv5Uvw1UcbbVHJ_0wBEoLM6d5CbVMFbd534NKFsJydg5sHDMymE3d83Ol4w9MNpe8yQ1sgP90QRdmpt-CxvbsmMbgSxIrD6h9c9v1Iuab4rAkZr9UWIhY0H7BiSbC4VHIe0djvKlQLBSr7DW50BPTA&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+          "displayedLink": "https://www.rtings.com › Headphones › Best",
+          "snippet": "The Beats Powerbeats Pro 2 have large ear hooks, making them the best iPhone earbuds for sports that we've tested. While they're about as stable ...",
+          "date": "Oct 14, 2026",
+          "position": 5
+        },
+        {
+          "title": "The 5 Best Bone Conduction And Open-Ear Headphones",
+          "link": "https://www.google.com/goto?url=CAEShAEBxCJF1-rkmIk6V9mp_7fZLOvdqOkQWhnhyNoRfRMSx-u6BX-46y77bH97xXsu94ujkXc47LeQYLtk3dEOlk_dYYqFddt7WQALS1NHfrLaSgqm92_z3XdQjEiH6Wu6ZBNvtSHHutc0e_gt0yHVPL86lAr0XPcK8Br_85-UHWfvk52DUSs&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+          "displayedLink": "https://www.rtings.com › Headphones › Best",
+          "snippet": "The Shokz OpenFit Pro are flagship open-ear buds. They sport a comfortable, lightweight ear hook design and come with a rudimentary ANC feature, ...",
+          "date": "Nov 4, 2026",
+          "position": 6
+        },
+        {
+          "title": "Earbuds Under 2000 in India (Nov 2026)",
+          "link": "https://www.google.com/goto?url=CAESggEBxCJF1_QZH316g_Gk0o1O369dk8eUszKEfoc1hY1HmlNZtx1xh_XoBTHSSLoOiZJO3GDnqRaNobf2XWh2tSNDM-F5sgGKjuH2oB2fSmDxL36lraOwz7c-fZW3mqmR9xfavEhTTJafFMLSTR3IZylaOiMvEgcO4aLXifvqJNFWkgBK&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+          "displayedLink": "https://www.91mobiles.com › list-of-earbuds › earbuds-u...",
+          "snippet": "In ear canalphone, Wireless, With Mic · 65 Hours Talk time, 1.5 Hours Charging time · 5.4 Bluetooth Version, 10 meter Range · Noise cancellation · 13 mm Driver Size.",
+          "position": 7
+        },
+        {
+          "title": "The 4 Best Neckband Headphones - Black Friday 2026",
+          "link": "https://www.google.com/goto?url=CAESdAHEIkXXxopI8SgZNNo1LrgyIxyUEP-meDU1b_gK5_Di0uXVlbwDjbqvyYOusmBSDSk8Q0tisRhH4Bint_1sTRMY93HAjfqCwpnBeM08O7yVTKxydBI2ksobr1TpYY1PqTxcfB5sGG77W8gGepJ6b34DcEVH&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+          "displayedLink": "https://www.rtings.com › Headphones › Best",
+          "snippet": "The best neckband headphones we've tested are the Sony WI-1000XM2 Wireless. These headphones offer intuitive controls and a comfortable, ...",
+          "date": "Aug 7, 2026",
+          "position": 8
+        },
+        {
+          "title": "The 5 Best Earbuds For Gaming - Black Friday 2026",
+          "link": "https://www.google.com/goto?url=CAESegHEIkXX4jJL7j9jacL9qlYPYWVOzIguhTRRsgiH5OhbIH2T1AzaLt571c2u0zC1z892GxB45cugNfVm03Mkr3ykX0oIL7vLEUAso-YnLqOXk9lJTBII3mne0B12U5gVSMxIGZ3BJFwHYerlVbLOD9TwSb0XU-iggDxc&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+          "displayedLink": "https://www.rtings.com › Headphones › Best",
+          "snippet": "The SteelSeries Arctis GameBuds are the best gaming earbuds we've tested. These in-ears have a wireless USB-C dongle for a low-latency ...",
+          "date": "Aug 24, 2026",
+          "position": 9
+        },
+        {
+          "title": "The 5 Best JBL Earbuds And Headphones - Black Friday ...",
+          "link": "https://www.google.com/goto?url=CAESagHEIkXXqnplcILTDq-EIZYA9q10wPuXJG5Blj8I_kdqyGBDvaS_udXtXhGvM9yaadeaCUi0JWq7EI4VOb2tUYd4HU1cXebddmTOUuju2nHXUMxY0oV_rQ2VSArEnSggpk1vy4YL-D8XxqU&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+          "displayedLink": "https://www.rtings.com › Headphones › Reviews",
+          "snippet": "Their fit isn't as secure as the JBL Endurance Peak 4 above either, so they're not the right choice for runs or harder gym sessions. However, ...",
+          "date": "Oct 6, 2026",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 9092
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "wireless earbuds buying guide India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "23",
+      "x-ratelimit-reset": "1795067605"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "wireless earbuds buying guide India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "The Ultimate TWS Earphones Buying Guide 2025  2025",
+          "link": "https://www.youtube.com/watch?v=baMPlZXVsTY",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "5 Popular Brand TWS Earbuds Test - Around 2,000/- Price ! Don't Buy Wireless Earphone before Watching this Video! *Big Comparison 2025*",
+          "position": 1
+        },
+        {
+          "title": "TWS Earbuds Buying Guide For Indian Consumers: Everything You Need to ...",
+          "link": "https://www.amazon.in/Earbuds-Buying-Guide-Indian-Consumers/dp/B0DYZ625PF",
+          "displayedLink": "https://www.amazon.in › Earbuds-Buying-Guide-Indian... › dp › B0DYZ625PF",
+          "snippet": "This comprehensive guide is designed specifically for Indian consumers, offering you invaluable insights into the world of TWS earbuds. Learn about sound ...",
+          "position": 2
+        },
+        {
+          "title": "Headphones & Earphones Buying Guide | How to Choose the Best ...",
+          "link": "https://www.croma.com/unboxed/buying-guides/headphones-earphones?srsltid=AYCX9vL2GlJm7QPmgO9ctxZxtgRVc1lcsdv0n5UzfTRUtQkecsCmaeew",
+          "displayedLink": "https://www.croma.com › unboxed › buying-guides › headphones-earphones",
+          "snippet": "Ensure your Earbuds are compatible with your Smartphone OS, Android, or iOS. Some features may be OS or brand specific, so be sure to check before you buy.",
+          "position": 3
+        },
+        {
+          "title": "TWS Earbuds Buying Guide – How to Choose the Best Earbuds",
+          "link": "https://www.snapup.life/blogs/snapup-news-updates-stories-product-knowledge/tws-earbuds-buying-guide?srsltid=AYCX9vInDEwcM2_mlpjLmxR_nQMlDNszE6ytOz_-wwmfMJXpAKhFi0tX",
+          "displayedLink": "https://www.snapup.life › blogs › snapup-news-updates-stories... › tws-earbuds-buying-guide",
+          "snippet": "Learn how to choose the best TWS earbuds with this complete guide covering Bluetooth versions, battery life, drivers, ENC vs ANC, ...",
+          "date": "31 Mar 2026",
+          "position": 4
+        },
+        {
+          "title": "Truly Wireless Earbuds: How To Choose the Right Pair",
+          "link": "https://www.vijaysales.com/blog-listing/how-to-choose-right-wireless-earbuds",
+          "displayedLink": "https://www.vijaysales.com › blog-listing › how-to-choose-right-wireles...",
+          "snippet": "Look for sound quality, comfort, battery life, Bluetooth stability, and extra features like ANC or water resistance. Always match the earbuds to ...",
+          "date": "14 May 2026",
+          "position": 5
+        },
+        {
+          "title": "earbuds in India with Price 19th November, 2026",
+          "link": "https://www.91mobiles.com/list-of-earbuds/best-earbuds-in-india",
+          "displayedLink": "https://www.91mobiles.com › list-of-earbuds › best-earbuds-in-india",
+          "snippet": "Price list of Best Earbuds with brands, specification and features in India. Checkout top 20 Earbuds available in India across different online stores.",
+          "position": 6
+        },
+        {
+          "title": "Here's Everything You Need to Know Before Buying Headphones",
+          "link": "https://www.lg.com/in/magazine/heres-everything-you-need-to-know-before-buying-headphones/?srsltid=AYCX9vJVV1y8XSA1lhBAneEUWcS7h1zKgmbrzMPdVZdr-Yx23oHTOSXF",
+          "displayedLink": "https://www.lg.com › in › magazine › heres-everything-you-need-t...",
+          "snippet": "This blog will talk about the features and advantages of LG's TONE-FREE Wireless Earbuds, highlighting how it helps customers experience high-quality immersive ...",
+          "sitelinks": [
+            {
+              "title": "Message",
+              "link": "https://rbm.goog/message?bot-id=lg_electronics_bot_cgfdvjms_agent@rbm.goog&body=I+need+help&ctx=gctx-c%3DAcGZgoc_YldkmnX_vbefjp7oh_L8E5VVItBCKaHwOY-BVHpF4sgHMO8ga6eSwxZdRe9Pv2uRxOlu85B22FYRczinlEGNCGvKkv2fUfZk7a4DJZE_Nis08kLbyg8sBmuScL6gtze0FWLvxCU%3D;gctx-s%3DAcGZgodj6ts6T78fmGCpbmSHt6NG4cP0pdWTIyMJrOk47FjgJE3lDkztX6n_2Q50fzsscc2EkUFGM29afHF-WfuwQEA6ORL5ykzoleUOPUCHV8usbDjH_iIy-WSr5-GLaBQ0EPH18h0adKSpxgma4HmyXV30bb6aqb4I7A%3D%3D"
+            }
+          ],
+          "position": 7
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "snippet": "[reddit text not stored]",
+          "sitelinks": [
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            }
+          ],
+          "position": 8
+        },
+        {
+          "title": "Earbuds Buying Guide 2026: How to Choose the Best Wireless Earbuds for",
+          "link": "https://elver.in/blogs/audio-tips/earbuds-buying-guide-2026-how-to-choose-the-best-wireless-earbuds-for-music-lovers?srsltid=AYCX9vImE2N9eMKQ2ULy1kp9OKgYm4XBDrg9juIJKIPxyhAIQPnONJ35",
+          "displayedLink": "https://elver.in › blogs › audio-tips › earbuds-buying-guide-2026-h...",
+          "snippet": "Earbuds Buying Guide 2026: How to Choose the Best Wireless Earbuds for Music Lovers · 1. Sound Quality · 2. Comfort and fit are very important · 3.",
+          "date": "6 Jan 2026",
+          "position": 9
+        },
+        {
+          "title": "Earphones Buying Guide - Everything You Need To Know",
+          "link": "https://www.boat-lifestyle.com/blogs/blog/earphones-buying-guide-everything-you-need-to-know-before-buying-the-right-pair?srsltid=AYCX9vKO19xXV4lJhdGLjm6VlZc3xdrQI2jRKVb8fs-eiCjCJb2KN28U",
+          "displayedLink": "https://www.boat-lifestyle.com › blogs › blog › earphones-buying-guide-ever...",
+          "snippet": "The best thing about wireless earbuds is that they often come with a carry cum charging case that provide additional hours of charge. So always ...",
+          "date": "26 Mar 2021",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 8246
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "wireless earbuds for gym recommendations",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "22",
+      "x-ratelimit-reset": "1795067605"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "wireless earbuds for gym recommendations",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "The 5 Best Earbuds For Working Out - Black Friday 2026",
+          "link": "https://www.rtings.com/headphones/reviews/best/earbuds-for-working-out",
+          "displayedLink": "https://www.rtings.com › headphones › ... › earbuds-for-working-out",
+          "snippet": "The Beats Powerbeats Pro 2 are the best earbuds for working out we've tested. These lightweight, sport-centric buds are a solid choice if ...",
+          "date": "14 Oct 2026",
+          "position": 1
+        },
+        {
+          "title": "I've tested dozens of workout earbuds, and these are the best in 2026",
+          "link": "https://www.soundguys.com/best-workout-earbuds-2719/",
+          "displayedLink": "https://www.soundguys.com › best-workout-earbuds-2719",
+          "snippet": "Beats Powerbeats Pro 2 are our top recommendation. Their adjustable ear hooks do an excellent job of keeping everything in place, even during ...",
+          "date": "16 Oct 2026",
+          "position": 2
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "sitelinks": [
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.quora.com/[reddit text not stored]-1"
+            }
+          ],
+          "position": 3
+        },
+        {
+          "title": "[reddit text not stored]?",
+          "link": "https://www.quora.com/[reddit text not stored]-1",
+          "displayedLink": "https://www.quora.com › [reddit text not stored]-wire...",
+          "position": 4
+        },
+        {
+          "title": "The Best Earbuds for Working Out | Reviews by Wirecutter",
+          "link": "https://www.nytimes.com/wirecutter/reviews/best-workout-headphones/",
+          "displayedLink": "https://www.nytimes.com › wirecutter › reviews › best-workout-headphones",
+          "snippet": "The Beats Powerbeats Pro 2 offers everything we want in a set of workout earbuds: good battery life, clear sound, water/sweat resistance, ...",
+          "date": "18 Aug 2026",
+          "position": 5
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "snippet": "[reddit text not stored]",
+          "sitelinks": [
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            }
+          ],
+          "position": 6
+        },
+        {
+          "title": "Earbuds For Sports Workout",
+          "link": "https://www.amazon.in/earbuds-for-sports-workout/s?k=earbuds+for+sports+workout",
+          "displayedLink": "https://www.amazon.in › earbuds-for-sports-workout › s",
+          "snippet": "HAMMER KO2 Sports TWS Earbuds for Running & Gym Workout - Secure Ear Hooks, Active Noise Cancellation, 80 Hours Battery, Bluetooth 6.0, Type-C Fast Charging ( ...",
+          "position": 7
+        },
+        {
+          "title": "As a Fitness Expert, These Are the Earbuds I Use for All My Workouts",
+          "link": "https://www.cnet.com/tech/mobile/as-a-fitness-expert-these-are-the-earbuds-i-use-for-all-my-workouts/",
+          "displayedLink": "https://www.cnet.com › tech › mobile › as-a-fitness-expert-these-a...",
+          "snippet": "My go-to wireless earbuds for over a year now are the Beats Powerbeats Pro 2. They're great whether I'm running or lifting weights. They're also ...",
+          "date": "4 Aug 2026",
+          "position": 8
+        },
+        {
+          "title": "Workout Earphones & Headphones",
+          "link": "https://www.theaudiostore.in/collections/workout-earphones-headphones?srsltid=AYCX9vKJon24b5wB9YCAODOCGKOXx0nEnHHgZRqlYRodnt8InhK6Hwtk",
+          "displayedLink": "https://www.theaudiostore.in › collections › workout-earphones-headphones",
+          "snippet": "Browse Bluetooth and wireless workout earphones that deliver stable connectivity and rich sound. Choose from bone conduction and open-ear. ...",
+          "position": 9
+        },
+        {
+          "title": "The [reddit text not stored] in 2026 - What I'd Buy For Running & ...",
+          "link": "https://www.youtube.com/watch?v=qw6vYUmBi2k",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Links to the [reddit text not stored] we listed in this video: JLab Go Air Sport+. Bose QuietComfort Ultra Earbuds (2nd gen) JBL Endurance Peak 3. ...",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 9178
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "wireless earbuds under 3000 rupees review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "21",
+      "x-ratelimit-reset": "1795067605"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "wireless earbuds under 3000 rupees review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Earbuds Under 3000 in India (Nov 2026)",
+          "link": "https://www.91mobiles.com/list-of-earbuds/earbuds-under-3000-in-india",
+          "displayedLink": "https://www.91mobiles.com › list-of-earbuds › earbuds-u...",
+          "snippet": "Top 5 Earbuds Under 3,000 with Prices & Specs ; realme Buds T200, In ear canalphone, Wireless, With Mic, 50 Hours Talk time, 2 Hours Charging time ; realme Buds ...",
+          "position": 1
+        },
+        {
+          "title": "Best Earbuds Under 3000 in India (Nov 2026)",
+          "link": "https://www.smartprix.com/mobile_headphones/best-earbuds-under-3000-list",
+          "displayedLink": "https://www.smartprix.com › mobile_headphones › best...",
+          "snippet": "Best Earbuds Under 3000 in India ; Motorola Moto Buds 2 Fusion. ₹2,19915% ; Realme Buds T310 True Wireless Earbuds. ₹2,39920% ; OnePlus Nord Buds 3 Pro. ₹3,099 ...",
+          "position": 2
+        },
+        {
+          "title": "Best Earbuds Under Rs 3000 in India: Oppo Enco Buds 3 ...",
+          "link": "https://www.gadgets360.com/audio/features/best-earbuds-under-rs-3000-in-india-oppo-skullcandy-redmi-oneplus-boat-10743116",
+          "displayedLink": "https://www.gadgets360.com › Audio › Audio Features",
+          "snippet": "Best Earbuds Under Rs 3,000 in India: Oppo Enco Buds 3 Pro+, Redmi Buds 6 and More · Skullcandy Jib True 2 includes Tile tracking and solo bud ...",
+          "date": "Jan 13, 2026",
+          "position": 3
+        },
+        {
+          "title": "Best True Wireless Earphones You Can Buy in India",
+          "link": "https://www.google.com/goto?url=CAESjAEBxCJF1zCCrJJhR8dD_WPJ-rQrEcHeYgDnNsGDxpX2RwzVPfupBiTStIXy7JzgsrkahVlxD2_aABTEBLPB-Bl5dvEpBHWQbEameQz31F5_jrDytD2cmMZhOFhEaOzAd7GMvedD41JsfRJHsZ0Wf2ld1YJOFIz0z1NiE1g2fv4XtU3GO7-tBTEclG4ahg&gsessionid=o_oGfllaRLhwua_R-9_YBasQJFOsNnJUSmzw2HZuXV7unXQ0LIjXkA",
+          "displayedLink": "https://www.gadgets360.com › audio › guide › best-tru...",
+          "snippet": "AirPods Pro is the best truly wireless earphone you can buy right now · Samsung and Jabra offer excellent alternatives at decent prices · You don' ...",
+          "date": "Feb 22, 2022",
+          "position": 4
+        },
+        {
+          "title": "BEST EARBUDS? - UNDER RS.3000-RS.3500",
+          "link": "https://www.google.com/goto?url=CAES0QEBxCJF18_gshZ4C5KwKs7CU9k8f9vuqmBJoQeyx2otV0mq72HgQR8ubXyziSI9O0xdlVVPnEOgeX2ByYxskkAs7S2XKxt1t-9ikMXZB3u80hfzdLt9l80Vg2lxKBUeRLGLGhmHFGXoZyknRpwCvEJXIwvgaCPCVBRVqNCdntVhazYa0jiJ3RaXTY52frpTtxgm92zgco6GuVumGRRvqhe05-cBSaweWEIxAyOBSts46Xg1fZVFsSiohHB1d16ADsVLO3btpj8J7mhd1FydYkwSlw&gsessionid=o_oGfllaRLhwua_R-9_YBasQJFOsNnJUSmzw2HZuXV7unXQ0LIjXkA",
+          "displayedLink": "https://geek.digit.in › ... › Buying Advice",
+          "snippet": "I need to purchase Bluetooth Earbuds, Please suggest me some good one with good Sound Quality and Battery life, my budget is Rs.3000 - Rs.3500.",
+          "date": "Aug 3, 2019",
+          "position": 5
+        },
+        {
+          "title": "Audio Products in India | Headphones, Earbuds & ...",
+          "link": "https://www.google.com/goto?url=CAESXAHEIkXXMdftZcF5Zi9P9TflVkABoTBQYqI1wnZMfSFQscn4bl3IiPd37vUbQDqPachqXW78AfwHnJvj5oKfAxw9RbD-KlputkloiCfEJ3_vpwV8M01VCP8mQuH-&gsessionid=o_oGfllaRLhwua_R-9_YBasQJFOsNnJUSmzw2HZuXV7unXQ0LIjXkA",
+          "displayedLink": "https://www.91mobiles.com › audio",
+          "snippet": "Best Earbuds By Price. View All · Best Earbuds Under₹1000 Best Earbuds Under₹1500 Best Earbuds Under₹2000 Best Earbuds Under₹3000 Best Earbuds Under₹5000 ...",
+          "position": 6
+        },
+        {
+          "title": "Best premium budget earbuds in India: 5 options ranked for ...",
+          "link": "https://www.google.com/goto?url=CAESzwEBxCJF1wujjdb1EyJEW0VlvHFfQu7PETDya77cUhHPO90cSjiVx7yIGhH4_s4T4ANnlz3K9paPjHwgGYTUBHAxUJ1bsZFQbPKzgHfwRBZNzeCTNrT4k7c9nt2plkUFkT5WUq9ZkGnF7fBhIIJb0cClWamlTOPM-Hjb35AzsL36tIsGeP2lrMHyVxdIslSW_rYPE5hvARv2m6hrAAeSRMUjZwa9FXe8VsGRSkF0rKND6QBVUQZuSHxzgeQL9INdb9agNVnvDWgDk95GswXDgBs&gsessionid=o_oGfllaRLhwua_R-9_YBasQJFOsNnJUSmzw2HZuXV7unXQ0LIjXkA",
+          "displayedLink": "https://www.digit.in › Feature Story › Audio Video",
+          "snippet": "For buyers searching for spatial audio earbuds under 3000 with strong bass, boAt Nirvana Crown is the most balanced pick in this list because it ...",
+          "date": "Apr 25, 2026",
+          "position": 7
+        },
+        {
+          "title": "Earbuds Under 5000 in India (Nov 2026)",
+          "link": "https://www.google.com/goto?url=CAESggEBxCJF1z---QeZx8X_vanNjQq18MatnDPmCAnb8_vrmD8lxZOpHpVhN6HvtOn8Vl-I6W3XLKPrU5BZ7zUOaZer32rGfq_rru7cHLNKxAj7e8fPIQZibCiPWOvGenxLMCRCccIebTznZ4XUnznELg2LVYHk0Ew4rVmSQPKgH0ZTDi2F&gsessionid=o_oGfllaRLhwua_R-9_YBasQJFOsNnJUSmzw2HZuXV7unXQ0LIjXkA",
+          "displayedLink": "https://www.91mobiles.com › list-of-earbuds › earbuds-u...",
+          "snippet": "Top 5 Earbuds Under 5,000 with Prices & Specs ; CMF Buds 2 Plus, In ear canalphone, Wireless, With Mic, 61.5 Hours Talk time, 95 Minute Charging time ; Boat ...",
+          "position": 8
+        },
+        {
+          "title": "Earphones Under 3000 in India",
+          "link": "https://www.google.com/goto?url=CAEShgEBxCJF18g9ge7a8vod6bob1klyWjbEdlent_2JeUChThF4nGm_tC0MPj1cMfQMnxrBBVMVrlxy465muzk0VYsm7YsyJyy-hMxfCcm3ko7ySO4Nyg_1GDj1X81oRpNKoK_b9RyrrRP7ATnNNF4rHvFVfW-gcwEqJOqDR1qaY0-doUK9fjiXPw&gsessionid=o_oGfllaRLhwua_R-9_YBasQJFOsNnJUSmzw2HZuXV7unXQ0LIjXkA",
+          "displayedLink": "https://www.91mobiles.com › list-of-earphones › earpho...",
+          "snippet": "Top 5 Earphones Under 3,000 with Prices & Specs ; OnePlus Bullets Wireless Z3, In ear canalphone, Wireless, With Mic, 36 Hours Talk time ; Boat Rockerz 301, In ...",
+          "position": 9
+        },
+        {
+          "title": "Best TWS [reddit text not stored] under 5000",
+          "link": "https://www.google.com/goto?url=CAESiQEBxCJF1wwgXo-71rUu9ka7MLWirb_UlZYCS0TfW_kdbyrYEyzL0Ny1YAO4WYXpqg_Fy6VY2qwp8QvQnOZP7lwyXbfxRfTwwFpi5TIm7PcziW_nZhSGOK0OtTRAkwFjfrMExdEoMDEm6AlbsJw37FH4BO96IKPTQQR6azdmqgByYHW9rQ-4IucLfw&gsessionid=o_oGfllaRLhwua_R-9_YBasQJFOsNnJUSmzw2HZuXV7unXQ0LIjXkA",
+          "displayedLink": "https://www.smartprix.com › News › News",
+          "snippet": "So these are some best TWS Earbuds available in India for under Rs. 5000 ... [Review] truly wireless earbuds in June starting from Rs 9,990.",
+          "date": "May 12, 2023",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 8248
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "wireless earbuds for gym comparison India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "1795067610"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "wireless earbuds for gym comparison India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "The 5 Best Earbuds For Working Out - Black Friday 2026",
+          "link": "https://www.rtings.com/headphones/reviews/best/earbuds-for-working-out",
+          "displayedLink": "https://www.rtings.com › headphones › ... › earbuds-for-working-out",
+          "snippet": "The Beats Powerbeats Pro 2 are the best workout earbuds we've tested. These lightweight, sport-centric buds are a solid choice. Wireless are ...",
+          "date": "14 Oct 2026",
+          "position": 1
+        },
+        {
+          "title": "The Best Earbuds for Working Out | Reviews by Wirecutter",
+          "link": "https://www.nytimes.com/wirecutter/reviews/best-workout-headphones/",
+          "displayedLink": "https://www.nytimes.com › wirecutter › reviews › best-workout-headphones",
+          "snippet": "The Beats Powerbeats Pro 2 offers everything we want in a set of workout earbuds: good battery life, clear sound, water/sweat resistance, ...",
+          "date": "18 Aug 2026",
+          "position": 2
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "snippet": "[reddit text not stored]",
+          "sitelinks": [
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            }
+          ],
+          "position": 3
+        },
+        {
+          "title": "Earbuds For Sports Workout",
+          "link": "https://www.amazon.in/earbuds-for-sports-workout/s?k=earbuds+for+sports+workout",
+          "displayedLink": "https://www.amazon.in › earbuds-for-sports-workout › s",
+          "snippet": "Discover waterproof and sweatproof earbuds designed for active lifestyles. Find secure-fit options with long battery life for running, gym sessions, ...",
+          "position": 4
+        },
+        {
+          "title": "I've tested dozens of workout earbuds, and these are the best in 2026",
+          "link": "https://www.soundguys.com/best-workout-earbuds-2719/",
+          "displayedLink": "https://www.soundguys.com › best-workout-earbuds-2719",
+          "snippet": "We tested dozens of earbuds at the gym and in our SoundGuys testing lab to determine which workout earbuds are worth buying.",
+          "date": "16 Oct 2026",
+          "position": 5
+        },
+        {
+          "title": "BEST Wireless Earbuds for Gym 2025 - Did I Just Find My New Favorite?",
+          "link": "https://www.youtube.com/watch?v=rOrJtPTDeA4",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Links to the best wireless earbuds for gym we listed in this video: Apple AirPods Pro 2. Jabra Elite 8 Active ... Jabra Elite 8 Active Gen 2. ...",
+          "position": 6
+        },
+        {
+          "title": "Workout Earphones & Headphones",
+          "link": "https://www.theaudiostore.in/collections/workout-earphones-headphones?srsltid=AYCX9vJ8olQ35IunS3AM--4Gxfz19mJr9uuM3mE_GTfpcbq0vgSkOIa6",
+          "displayedLink": "https://www.theaudiostore.in › collections › workout-earphones-headphones",
+          "snippet": "Browse Bluetooth and wireless workout earphones that deliver stable connectivity and rich sound. Choose from bone conduction and open-ear. ...",
+          "position": 7
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "sitelinks": [
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            }
+          ],
+          "position": 8
+        },
+        {
+          "title": "Which are the cheapest yet best earbuds for the gym under 1000 INR?",
+          "link": "https://www.quora.com/Which-are-the-cheapest-yet-best-earbuds-for-the-gym-under-1-000-INR",
+          "displayedLink": "https://www.quora.com › Which-are-the-cheapest-yet-...",
+          "position": 9
+        },
+        {
+          "title": "Which is the best set of wireless and sweat-proof earphones for gym purpose under Rs 3000?",
+          "link": "https://www.quora.com/Which-is-the-best-set-of-wireless-and-sweat-proof-earphones-for-gym-purpose-under-Rs-3000",
+          "displayedLink": "https://www.quora.com › Which-is-the-best-set-of-wi...",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2104
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "air-conditioners",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "1795067635"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "air-conditioners",
+        "gl": "in",
+        "hl": "en",
+        "type": "shopping",
+        "num": 40,
+        "page": 1,
+        "engine": "google"
+      },
+      "shopping": [
+        {
+          "title": "MiNi Ac FoR RoOm CoOlInG MiNi Ac AiR CoOlEr PoRtAbLe AiR CoNdItIoNeRs FoR HoMe OfFiCe ArTiC CoOlEr 3 In 1 CoNdItIoNeR MiNi AiR CoOlEr MiNi Ac (B5)",
+          "source": "Amazon.in",
+          "price": "₹1,989",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTupMQRySFUfMR_8pQjLuBY1zvcqiDwlA0V5p7aN0N3Y9gZlR_C7M1f6e63aMiyCXZ7RbR-aMvlBlEq1HaAwNGfWpUx5UeKTmUcMFHiD3KmLhzvg8XcVz-49Q",
+          "productId": "7238084103759543989",
+          "position": 1
+        },
+        {
+          "title": "Lloyd Stellar Art 1.5 Ton 5 Star Wi-fi Inverter Split AC",
+          "source": "Havells",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:9932446776010317157,gpcid:11602359424475899070,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹65,990",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRFIbgon57pBjcFXI2J1a14cEjr2ptMrJHsJjxO6W_zLUKNncKvpwntl4VdccwWdlv7cDcrYEjfEtCi_KZY-hbtFWkALrurtRB_wrd6Y_RLGaUBQRy-EHbFig",
+          "productId": "9932446776010317157",
+          "position": 2
+        },
+        {
+          "title": "Wybor Portable AC 0.8 Ton | 100% Copper, Silent, Smart Cooling",
+          "source": "Neverowned India",
+          "price": "₹25,900",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSQh4BdGznXFEcdEyszmrPvHO7Rf3-V5CvjqEaupnHoDh5jlKTd-0prk-rErCJ3mf0tdkAV_mNTCa4a5sj7eqBEsThNz2G7bdWv2w9p5DpwNs2SDtPAr941",
+          "productId": "917512543666475288",
+          "position": 3
+        },
+        {
+          "title": "Daikin 1.5 Ton 5 Star Inverter Split AC",
+          "source": "BazarGPT",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:12016441295745003607,gpcid:18301879886419140697,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹36,900",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSJ9OGBMigYzyqWo4nGXIni2rfVovG754hKKvGnJzwfJoJHWFpvO-ztbyYPRvEFwVqtSmMR8hWVMmbKehJOLMvbiwk75vNapRS4owWE7ImYgKz37ztrt75g",
+          "productId": "12016441295745003607",
+          "position": 4
+        },
+        {
+          "title": "Samsung 1.5 Ton 3 star Split AC AR50F18D1LH by IGP",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:10008285414139909927,gpcid:13369788153340721037,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹37,490",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRkxqfOPpFyT2EOCdrOUOq2sqAK0zo-jYF4XQ-KHwOHM7GA1rQCYS-tMHrOHbcLJbxUFH60LE2WwLJ2oC_2oK2GS5pUdo9N4o70iAGS_4p-lbxb6oZqWpk9",
+          "productId": "10008285414139909927",
+          "position": 5
+        },
+        {
+          "title": "Godrej 2026 Model 1.5 Ton 5 Star Split Inverter AC",
+          "source": "JioMart Electronics",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:11471561873570061039,gpcid:8438018350537043279,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹37,490",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSBU5OdAShnRhF813tJMxwpXJBCEDSI57OxNWmGWUKNpHJQCRjgttS01dVssf-nOgL37bSdRUs6YfARlWF5A2-9EjQMb-r793QN3_lp9OkP3QPYUvYKGSb1",
+          "productId": "11471561873570061039",
+          "position": 6
+        },
+        {
+          "title": "Croma 7 in 1 Convertible 1.5 Ton 3 Star Inverter Split Smart AC with Wi-Fi Enabled",
+          "source": "Croma",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:10408079309981835837,gpcid:8041067930775042775,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹35,994",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTxbGZMx2ailRWkBfoq75Y6Mkem2_v0azqPsHhkADnn_qytdMfQd6yt-AkLgwxRSUOFTjk_MZjpbXVxRJFvuTRe0cOIKmFClTK-wnAxn6SYNVZsHPAwOLe9",
+          "rating": 5,
+          "ratingCount": 3,
+          "productId": "10408079309981835837",
+          "position": 7
+        },
+        {
+          "title": "Acerpure Chill Neo 1.5 Ton 3 star",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:13546268998370817916,gpcid:6962507878864758197,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹35,290",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcR5aGFjwaCzy_eutEvc1ypTXaMODx97n5NTqLMcC1u0gF27N9UwaxCaEN7E_32dfjfH6TQEUxC5jAtWovE__k03cdnxrOO2sifA0Cw-jYeX3USGu28QczywPQ",
+          "productId": "13546268998370817916",
+          "position": 8
+        },
+        {
+          "title": "Voltas 1.5 Ton 5 Star 185V Vectra Elite Adjustable Inverter Split AC",
+          "source": "BazarGPT",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:15477168838328747337,gpcid:15700181231504010947,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹30,900",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSV9MMYrDBycnFQ36K72AC3iZfCOZPRp8Z_Lwoo07CtxT6YzBhSgLECepRFDJOuwL1osILpRtWcP3cpepo7mwSA-fbUKKfCW7KboBIN1Tu9rNeEHV7MZ_bRFQ",
+          "rating": 5,
+          "ratingCount": 5,
+          "productId": "15477168838328747337",
+          "position": 9
+        },
+        {
+          "title": "Panasonic 1.5 Ton 5 Star Premium Wi-Fi Inverter Smart Split AC",
+          "source": "Reliance Digital",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:12622270099365466902,gpcid:12645147215240903963,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹49,990",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRS7gjPbx4kCUpvqft1eQrwAsf0njXIE9IYF6kEe-cxiyt29EtKD13s8-HS0jcgcpyxnc47xOi6L81QR8Sb-4I20Qg4riZEtCN82QpDyW4wUT-pQQB2iB3V",
+          "productId": "12622270099365466902",
+          "position": 10
+        },
+        {
+          "title": "Sharp 0.95 Ton 3 star",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:6838330968581336606,gpcid:12757077751430562652,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹29,990",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTwlaEHVnFKtil-L7YB46ONgVZB16SW4opaDRqMOrIE8X7v-GSaakOipRrU63CexvtKQPBLAEsgGGYc-il7ih7mL25wKhMlPhXBb0DFHAXVRaKgirswoMUyNw",
+          "productId": "6838330968581336606",
+          "position": 11
+        },
+        {
+          "title": "Blue Star 1 Ton 3 Star 5 in 1 Convertible Inverter Split AC",
+          "source": "JioMart Electronic",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:4767590255416095855,gpcid:13035058339702857777,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹32,490",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQYzEyblFERtnWTFDawA34dVh5Y00yW_-hY12thed-NRESCJ-gh_Qhm4qUJQ93276bxNMrPYBNbGHwt9CCOvXxhqrFHmsWevqvWh-bS5rtnYYbrauBps_wM",
+          "rating": 4.7,
+          "ratingCount": 7,
+          "productId": "4767590255416095855",
+          "position": 12
+        },
+        {
+          "title": "O General Advance Hyper Tropical 1.5 Ton 3 Star Inverter Split AC",
+          "source": "BazarGPT",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:6650583090267700037,gpcid:7692921135881553678,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹42,900",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTQRdIkvQhfDaGCQaC8jOwc1sSJ9nb16wQZif_Qwkv5-lVEaWdh1aDqoXGPa1_CcQgfIr0g7anDGLZx_lweT5xSl-HGJV8fltH7QUuu-IruA2xbKYzp7B9uOw",
+          "productId": "6650583090267700037",
+          "position": 13
+        },
+        {
+          "title": "Optimist 2026 Model 1.39 Ton 5 Star Split Inverter With Wi-fi Ac",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:3300572240422164742,gpcid:11560760798875202474,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹42,990",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRng0p08WHiJRj5h22ZPEn75NKLDiaKM6bazhgFIewbTW3yUC8YALzApXnMbO532KXAvL4Wh15gn-Gfqua0AFsjQ-4JH4whVFuxT8cBuzq95CPo-KG2_mvz",
+          "productId": "3300572240422164742",
+          "position": 14
+        },
+        {
+          "title": "Lloyd 1.5 Ton 5 Star Inverter Split Ac",
+          "source": "Havells",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:10126272676467152040,gpcid:8282604727438810594,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹46,990",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTPQCNdjMmwrd50-FNqdAbnZMbo4FmQ-DXbfwO6ZqdmlSkEcLMw4OKMUUTW2yXIuETSkO_kOjraN5yi1kGkLEIiMqdCV_Y8yDigZcu_qfjwhML8Rs38aR8gfw",
+          "productId": "10126272676467152040",
+          "position": 15
+        },
+        {
+          "title": "Haier Clean Cool Plus Convertible 1 Ton 3 Star Inverter Split AC with 4 Way Swing",
+          "source": "Croma",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:10126634414758768520,gpcid:2653036796983434065,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹34,490",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSqHGuKgRNHFBpezhyeiNP3WgHGiQ9c9i-QimHl0QkQYkRMoey8AeJX19ruaVJMlfGy2ExTsY8MnTCycJUe31tmflJl5K4DeVWyC22Q0H7jWMn40dy4jZU8",
+          "rating": 5,
+          "ratingCount": 2,
+          "productId": "10126634414758768520",
+          "position": 16
+        },
+        {
+          "title": "Midea 1.5 Ton 3 Star Inverter Split Ac 6-in-1 MAI18SD3R36F1",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:8613237782122751707,gpcid:3920204422492843765,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹32,490",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSbOuf-pl-Fxaz4oXQaa6XMKkuq1UOqkomAO1etSaQTbL43EaBYOUWt64aeGiKcc3R2An6FPLmDuTsI70MG2mhljYZiRBjye2aST2YWl-rgxcfOlExgyxce4A",
+          "productId": "8613237782122751707",
+          "position": 17
+        },
+        {
+          "title": "Godrej 1.5 Ton 3 Star TR HIC 18Y3TG WA Inverter Split AC",
+          "source": "Moglix",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:4797336064185536976,gpcid:17612242349962791447,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹34,439",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS32bg2RoQi83K12e-BHX1K4WjrzfT4lN9U84XprJqzx9MhgolPmRoxNr89KnLEjnvSY0vWh433o1Ahc6wsEfZmpDd0PWzlVh_GRJnQLDx9LKRAmJWqIp8SUA",
+          "rating": 4.5,
+          "ratingCount": 2,
+          "productId": "4797336064185536976",
+          "position": 18
+        },
+        {
+          "title": "Hitachi KAZE+ 1.5 Ton 3 Star Window AC",
+          "source": "BazarGPT",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:11023223512306674816,gpcid:13130505979017651203,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹21,900",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRdXQHiL73D9vzYosR0JTvh0ooRLxnmBMU5YLhpnU27KKEGxer0dFDmaTPI0b3cS-jDhGE2K0ysBCKaAx1kDvCVPY2Oa-BYn6oXu1lAXVQcLyWCINgaZjhHoA",
+          "rating": 5,
+          "ratingCount": 2,
+          "productId": "11023223512306674816",
+          "position": 19
+        },
+        {
+          "title": "Carrier 1.5 Ton 5 Star,Flexicool Inverter Split AC",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:3977944388195818404,gpcid:11697867636329657217,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹45,990",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQTUVgHSFQzTG6yaLnigegKcL2UR703cc9dMTuUcx-luaqrtGM5uIUIQQNQS3QFLRYLwFYExy6JVNpPJUod2CYOtiQYBBgm9cDwS9UkZP1Tyap0k6aN1MG8Zw",
+          "productId": "3977944388195818404",
+          "position": 20
+        },
+        {
+          "title": "Voltas 1.5 Ton 5 Star Inverter Split Air Conditioner",
+          "source": "JioMart Electronics",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:8225869921319077110,gpcid:4980616980433649136,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹41,990",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQJjILdGu1xGl0qowtxMOr9JEbw_NjfiudQlaHodRqsiD5w52G4r1jjS0RUOu5lsL4kfyAKJ5mVXsqstcVH_JfLe_3yXAHbIdpy1AlrLVS4bTscu2SJXBj6",
+          "productId": "8225869921319077110",
+          "position": 21
+        },
+        {
+          "title": "Samsung 1.5 Ton Star Bespoke AI WindFree Inverter Smart Split AC",
+          "source": "Reliance Digital",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:7153731655717999810,gpcid:8543888943620999405,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹41,990",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRhQkZXpwXLZ4CK1zuCBidX-6TcqZm54qiL4ewfl10XdUCDjuep7vy4KXbszh-HH4LpsXXyFH2eoZ7QZG2GmEs3xaeA-bp8eEwBGNFVRRygCCOyUFRW65EG",
+          "productId": "7153731655717999810",
+          "position": 22
+        },
+        {
+          "title": "Acerpure Chill Neo 1 Ton 3 star",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:17944304068222331678,gpcid:4760008091016156268,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹32,290",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTdZrGFCURXpMeE9VrEDY5RAHT6dYew1dAR0ZuikLlRbjn7tOOfqfKG1DOpzU6jCmc3Ty-ztVIqN-2ppwqL27LXyQsPGKP2WPYkQ8wUmG8xT4tJafmgJFK0",
+          "productId": "17944304068222331678",
+          "position": 23
+        },
+        {
+          "title": "Daikin 0.8 Ton 2 Star Split AC",
+          "source": "Chilling Mart",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:16835853909843318427,gpcid:14525195896491912632,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹26,490",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTDvSZk-jhxvsdkyq0z-O68G4fIScmGnDvp8QLoiUoblDfYE0JymySGem8_FmNRfdIAdbYMa0zcOQYGEBGlXbFLSLUNHUs-cayY3gEYnaXouerwCx0BglLQ",
+          "rating": 5,
+          "ratingCount": 3,
+          "productId": "16835853909843318427",
+          "position": 24
+        },
+        {
+          "title": "Whirlpool Magicool Xpand Star Inverter Split Air Conditioner",
+          "source": "BazarGPT",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:10662619941016772225,gpcid:345942479423007790,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹27,000",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRp87BM9KrflxEPFS0fHPZqI9swYNOUIhPCmI3VBVd-hds2eH-K3fP9R507lXVOAl6PMN06v8QAdxR0xhu-VAttZ8EVtZXWEZYydPzPwMzA",
+          "productId": "10662619941016772225",
+          "position": 25
+        },
+        {
+          "title": "LG 6 in 1 Convertible 1 Ton 3 Star Inverter Split AC with Monsoon Comfort Feature",
+          "source": "Croma",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:16841982335408709883,gpcid:5264761878640226986,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹40,490",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRf_8zbaF1Pd14MAHnKvQj5anVadZl-rcVEwXnl-W79Z9QHM_vJHXsnS6q5AD1dmHN6ZIZ1PUHm-sD7XJsSS3Yevkgqm6RQL_j0lA_Rdpb9NbSAORkkfox37g",
+          "rating": 5,
+          "ratingCount": 1,
+          "productId": "16841982335408709883",
+          "position": 26
+        },
+        {
+          "title": "Godrej 2026 Model 1.5 Ton Star Split Inverter With 5-in-1 Convertible",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:1605542904499043983,gpcid:12706011554717990949,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹34,990",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQo5Ds1aCdGv_ELFETZHl2UZCqeHCenvcJp7m_o_dh9QTWeT6H2fGs-IIqZqU6n1tXD21LXxIkbAqoFN8HtiD-eEiYLR0hMKPyjS0juq7CvOFHn_6V6MZHE",
+          "productId": "1605542904499043983",
+          "position": 27
+        },
+        {
+          "title": "Kelvinator 2025 Model 1.5 Ton 3 Star Split Inverter Ac",
+          "source": "JioMart Electronics",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:3859722196976824471,gpcid:15298121048318239944,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹27,990",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRoxqr2pnc4C2IomHdhBHITB7IhZaGdX--70ScDPKjA5bETbViNC53ckHX7b2Dp2eRFDXh_jGb0B8Bx5T6cL4CKrdPHY-KU1m5NW1tSar2IuQAVFi3n8Q28",
+          "productId": "3859722196976824471",
+          "position": 28
+        },
+        {
+          "title": "Lloyd 1.5 Ton 5 Star GLS18I5ASERR Bliss Series Inverter Split AC",
+          "source": "Havells",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:2841114751402643729,gpcid:13921102541684192137,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹46,490",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcS4PeRwciVoIjkpZ8oNnz9cKjzgE00xzCIm35mf52biB73_aQFzkNizq_3dkD6pXSWGlUfXZ2ELIJB04wPqrlnbGk82M-sfacytz15rCTnoW2Xfkm2L3UFB",
+          "productId": "2841114751402643729",
+          "position": 29
+        },
+        {
+          "title": "Cruise 2 Ton 5 Star Heavy Duty Inverter Split AC (CWCVBJ-VU5F245) | Fast Cooling at 55 °C, 100% Copper, Convertible 4-in-1, 4-Way Swing, Long Air",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:1217253565632195691,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹47,090",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSbYDYhB0bZzkV3LFZGUmzu2av2aWFBqQ3n8GWreY6S03Xa3yKoX7le8iocn7wC4fNQvw0lU0n9VRBMkuYdMHczRVWQZujYQYAeRx_Vpjeyb2fBYeFDU8TCGA",
+          "productId": "1217253565632195691",
+          "position": 30
+        },
+        {
+          "title": "Panasonic 1 Ton 5 Star Premium Wi-Fi Inverter Smart Split AC",
+          "source": "Reliance Digital",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:3002444914399294092,gpcid:13530861211097114401,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹43,990",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSB8Ya7dpZapjAABHVPPIfzMrk-t57XzsNcT2FogiYg2GPNqPN6grhCaWMWi9l2_ALi2muMsrZOZBi1Ip_20pZMeuJcDmZjBgMjXuIxE9PzXWpHuyDaQYHq",
+          "productId": "3002444914399294092",
+          "position": 31
+        },
+        {
+          "title": "Voltas Adjustable Inverter Split AC",
+          "source": "BazarGPT",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:17361056776742620580,gpcid:14878922640406784979,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹37,900",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQd5VDEVZSjNFQlDglA6KdQp-ASKvI1s_1cqjHi6drbAAjbHj9XrBTrp-IJQpF245cJ1iE65S6YK1Vvc92WegEd83hfN5zq5_YmiY1Wis6rAEIPkar0V6pi6g",
+          "productId": "17361056776742620580",
+          "position": 32
+        },
+        {
+          "title": "IFB 0.95 Ton 3 Star 2026 AI Powered Inverter Split AC with Hybrid Mode, 8-in-1 Flexi Mode, Heavy Duty Compressor, Long Air flow, Self Clean, Copper",
+          "source": "Amazon.in",
+          "price": "₹31,890",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTm4EaQMUEGMJWkZJmgWB14cZdz3v_fxo_eWwzcCxjPxS71IREGwiDctjmPWDTrF5pod1NCyrmCqxzCE4I98WGZi7zVVTC6KKHSfZDSPz1RkF1yQhx7CYS1",
+          "productId": "1096808571702125883",
+          "position": 33
+        },
+        {
+          "title": "Godrej Q Series Convertible 1.5 Ton 3 Star Inverter Split AC with I-Sense Technology",
+          "source": "Croma",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:9408134286218184102,gpcid:11780821320612921960,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹32,490",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSvzzPW-i3OBsiVMEWQ-KNXqIi1lcQEy25jMfY3VyMckKkPBcRc6xNPGk0zswrj0ZV7IZu7U7ClvfmyMsFnMqh5SEOgweAt51rZ5fitrOLnmfr69qNAr0SW",
+          "rating": 4.8,
+          "ratingCount": 5,
+          "productId": "9408134286218184102",
+          "position": 34
+        },
+        {
+          "title": "Blue Star 1.5 Ton 2 Star Fixed Speed Split AC",
+          "source": "Moglix",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:9447927040463126618,gpcid:8253200067889806036,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹40,549",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQwx9olquqBEbyL3LzEFaTNDXnGy6dSWlU1IWNPTVn51O1aNLWsAuIqZB9ttMvmwRWwMlFSwqdHo7Pv42CPGtdXSIfgsC8mrRqkqtYXOtJiWFXE2_pEDyJN",
+          "productId": "9447927040463126618",
+          "position": 35
+        },
+        {
+          "title": "Lloyd Stunnair 1.5 Ton 5 Star Wi-Fi Inverter Split AC",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:6802872511761237881,gpcid:7260242678279503921,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹69,990",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRGzIh3O15HgoNxrsZf9Jq9UYA9p_hUR4VUdaLb9-v5ZM5juDXSZoQ8bZt79UKk3Di63t5snaTxjmh5FR7BEULtocWwhYJU3FO475ve-1ujC-AUP-fneYqI",
+          "productId": "6802872511761237881",
+          "position": 36
+        },
+        {
+          "title": "Lloyd 1.5 Ton 5 Star Inverter Split AC gls18i5agcgr",
+          "source": "Havells",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:7423893224788080617,gpcid:2248891558439506967,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹45,490",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTkwO6_bDolSAeEjRIcgt94qwJ_dtIwFyQcAl4tdPKI0h8vBkEb15v1ozo1oXcBTAS41GhIJb3I7eopxdcX5AVFu0BlhViuakLaNdE_db16pWhLpf0vpLFj",
+          "productId": "7423893224788080617",
+          "position": 37
+        },
+        {
+          "title": "Indoor Split Air Conditioner",
+          "source": "BazarGPT",
+          "price": "₹11,900",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ4jzoWZwDR8QcDIyM4Ac6O8HQF0MVa3k5czhWZIQhvkkGDOaycYW_LKg_pb8eABIe94jL3F6HA2uKYI5XEu2zvl_9kPoRZv8xs-ENYqy2rnYo_0P0lxXeOjg",
+          "productId": "9936463089811473996",
+          "position": 38
+        },
+        {
+          "title": "Daikin 1.42 Ton 3 Star Inverter Split Ac",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:10456504154818675774,gpcid:8460941915810454360,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹39,490",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcS2YKynS-ywW61HxyiZ2mDMtXQYSpfnAM-CCKDuz2xW9iNoTetOKCDwAIEpPUgg4Bpa8u_lTOG65-WCf8MfNvE8wumicMUIkVMRgFg_n9UMJ2B_zKY3w5MT",
+          "productId": "10456504154818675774",
+          "position": 39
+        },
+        {
+          "title": "Croma 7 in 1 Convertible 3 Star Inverter Split AC with 4 Way Auto Swing",
+          "source": "Croma",
+          "link": "https://www.google.com/search?ibp=oshop&q=air-conditioners+*+*+*+*+*&prds=localAnnotatedOfferId:1,catalogid:3833083320311720577,gpcid:3777705016209654079,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹43,990",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQ7aBwwzeGw_MDcJmqfZHOoRw5FG3TdL62Q2xR1UaS8KCxUD1amM1C9wgzvegKqlFz18hpXykByHMUuKrIi198-UGxn7lHaa2nX3UW5zfU1ZD7tMI5FEizI",
+          "rating": 4.6,
+          "ratingCount": 32,
+          "productId": "3833083320311720577",
+          "position": 40
+        }
+      ],
+      "credits": 2
+    },
+    "elapsed_ms": 3306
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "air purifiers",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Anker Soundcore Liberty 5 Pro",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Anker Soundcore P31i",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Anker Soundcore Space A40 Truly Wireless",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Anker Soundcore Space Q45 Wireless",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "OnePlus Nord Buds 3r",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "realme Buds T200",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "realme Buds T200x",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  }
+]

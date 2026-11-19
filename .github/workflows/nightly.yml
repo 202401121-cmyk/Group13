@@ -1,0 +1,44 @@
+# US-49: the full offline evaluation every night, its records uploaded as an artifact. It calls no live API: every
+# evaluation here replays fixtures or simulates. The fast gate runs on every pull request in ci.yml (quality-gate).
+name: Nightly evaluation
+
+on:
+  schedule:
+    - cron: "30 21 * * *" # 03:00 in India
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Baselines (offline)
+        run: python -m evals.run_baselines
+      - name: Interview simulator
+        run: python -m evals.interview_sim
+      - name: Rank stability
+        run: python -m evals.stability
+      - name: Replay gate
+        run: python -m evals.gate --write
+      - name: Every floor
+        run: python -m evals.thresholds --check
+      - name: Upload the records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-${{ github.run_id }}
+          path: backend/evals/results/

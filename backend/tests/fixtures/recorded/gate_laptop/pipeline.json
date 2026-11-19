@@ -1,0 +1,1685 @@
+[
+  {
+    "run": 1,
+    "rubric": {
+      "category": "laptop",
+      "use_case": null,
+      "region": "IN",
+      "budget": {
+        "min": null,
+        "max": {
+          "amount": 70000.0,
+          "currency": "INR"
+        }
+      },
+      "hard_rules": [],
+      "exclusions": [],
+      "weights": [
+        {
+          "key": "processor_speed",
+          "weight": 9.0,
+          "normalized": 0.17647058823529405,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "memory_and_storage",
+          "weight": 7.0,
+          "normalized": 0.13725490196078433,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "battery_life",
+          "weight": 7.0,
+          "normalized": 0.13725490196078433,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "display_quality",
+          "weight": 6.0,
+          "normalized": 0.11764705882352941,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "keyboard_comfort",
+          "weight": 6.0,
+          "normalized": 0.11764705882352941,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "weight",
+          "weight": 5.0,
+          "normalized": 0.09803921568627451,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "build_durability",
+          "weight": 5.0,
+          "normalized": 0.09803921568627451,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "value_for_money",
+          "weight": 6.0,
+          "normalized": 0.11764705882352941,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        }
+      ]
+    },
+    "sources": [
+      {
+        "id": "src_763149ea3e2a5cf7",
+        "url": "https://www.youtube.com/watch?v=qdyWJZWWh9Y",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best Laptop under 70000 TOP 5 Best Laptops to Buy in Flipkart Diwali Sale ...",
+        "text": "Best Laptop under 70000 TOP 5 Best Laptops to Buy in Flipkart Diwali Sale ...",
+        "text_hash": "28fdfb897fda1bda02bb0db52b66101ebb6886c28f0eb97f7820a4c86b17876e",
+        "fetched_at": "2026-11-19T05:49:27.713915Z",
+        "published_at": null,
+        "community": null,
+        "site": "youtube.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_801decd68090d5ce",
+        "url": "https://www.mysmartprice.com/computer/pricelist/laptops-under-70000-price-list-in-india.html",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best Laptops Under 70000 In India (Nov 2026)",
+        "text": "Lenovo IdeaPad Slim 3 14IAH8 (83EQ0074IN) Laptop (14 Inch | Core i5 12th Gen | 16 GB | Windows 11 | 512 GB SSD) · Acer Aspire 3 A325-53 (UN. · Lenovo IdeaPad Slim ...",
+        "text_hash": "ee29f87799d0f46fadfa653effdf2c7619f1b6d5940f60ed783282b17afa2f25",
+        "fetched_at": "2026-11-19T05:49:27.713915Z",
+        "published_at": null,
+        "community": null,
+        "site": "mysmartprice.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_24bc45e6fd69f102",
+        "url": "https://gadgetsnow.indiatimes.com/laptops/filters/price/60001-to-70000-laptops-in-india",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Laptops under 70000 Online in India",
+        "text": "Laptops under 70000 · Asus Vivobook 16 (2026) Snapdragon X X1 26 100 Processor 8 GB 256 GB SSD Windows 11 Home · HP Professional 15 (2026) Intel (i5 14th Gen) ...",
+        "text_hash": "9f09721c38a8d87e78cea4b475a5ed0c77d2a0769b16c0bd321a110933d3ff6d",
+        "fetched_at": "2026-11-19T05:49:27.713915Z",
+        "published_at": null,
+        "community": null,
+        "site": "gadgetsnow.indiatimes.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_7e6c29cb4aabb448",
+        "url": "https://www.facebook.com/thinkdigit/videos/top-5-windows-laptops-under-rs-70000looking-for-the-best-laptops-under-rs-70000-/2056439571581893/",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Top 5 Windows Laptops under Rs 70000 Looking for the best ...",
+        "text": "Top 5 Windows Laptops under Rs 70000 Looking for the best ...",
+        "text_hash": "a53b5e0a1140d92230143edb1d0c1ca1261d0ba8f93762a80d902f10dad568a7",
+        "fetched_at": "2026-11-19T05:49:27.714933Z",
+        "published_at": null,
+        "community": null,
+        "site": "facebook.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_f75894d598c890b7",
+        "url": "https://www.bajajfinserv.in/best-hp-laptop-under-70000-price-in-india",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best HP Laptops under Rs. 70000 in India (2026)",
+        "text": "Best HP Laptops under Rs. 70,000 - Price in India, Features, and Specifications · 1. HP Victus 15-fa1351TX · 2. HP Pavilion 15-eh1137AU · 3. HP Victus 15- ...",
+        "text_hash": "17f3fbb37be97f585fd6d6881d6d6440aa509ec9155d206ac5fa180af83be7c1",
+        "fetched_at": "2026-11-19T05:49:27.714933Z",
+        "published_at": null,
+        "community": null,
+        "site": "bajajfinserv.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_dd3440073a4aef3d",
+        "url": "https://www.youtube.com/watch?v=8KgGpvafZxk",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best Laptop Under 70000 in 2026 TOP 5 Laptops for Gaming, Coding ...",
+        "text": "Best Laptop Under 70000 in 2026 TOP 5 Laptops for Gaming, Coding ...",
+        "text_hash": "72fd15270d27e0899a6d3294ea8d20173a3ada99b5ed154e257697f4e03b7241",
+        "fetched_at": "2026-11-19T05:49:27.714933Z",
+        "published_at": null,
+        "community": null,
+        "site": "youtube.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_92505250bcbecf04",
+        "url": "https://www.google.com/goto?url=CAESbQHEIkXXGUK7Pt2agYGolJo17wGgSUE4mOtr8WGLqoAtQnQsYOU5xBrUDJfb2HWrTi6JqRsRXlSyS1Zy_fur9lrzq6hNJpQaMxZspuj9Hd4vxHSiKUYqzXuYiKa_86MTC_QrHzj7UGx5nhJE8Ug&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Laptop Finder",
+        "text": "Find here the latest laptops launched in 2026 in India and Worldwide. These include Acer, Asus, Dell, Lenovo, and Apple. There are 41 brands in total to choose ...",
+        "text_hash": "fe5a1c0ba61171488e5e130b2d23b33e901c019d8faa56048c904d30b68e114c",
+        "fetched_at": "2026-11-19T05:49:28.405457Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_d297ff6978bddf26",
+        "url": "https://www.google.com/goto?url=CAESZwHEIkXXZvhROaB2SZqq6dAepb68FoHMFf8eSiCnpu6A1JOQUbqbOCytdfleackFFcUsgIgGR-D2P8AGbsk6FwwPDLfwvL3P7EQRQgyhlYhfVnqt8B6D8IeD0yOb9NAGpm4SYybkqm4&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Latest Laptops, Desktop, PC, Notebooks Reviews",
+        "text": "Laptop Reviews: Latest reviews on Laptops, PC, Notebooks, Desktop from top brands like dell, microsoft, infinix, apple, samsung and others. India's Festive",
+        "text_hash": "03a8b95007d0e0e70207b82bd116142f34a934cfbc1ec8233ebcfe72a3a610de",
+        "fetched_at": "2026-11-19T05:49:28.405457Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_4e7862072bffc1aa",
+        "url": "https://www.google.com/goto?url=CAESXgHEIkXXu1DLBq3HXbqL_s8kzPbDsGHuIIJNyAGOXgmy2gqyHHTK4rTOBqNoLad8CoytZJjQqHi1Li-GqzCaLAbmnL9JXs4xNNvTtn1jwZuVLcU-_JrJdDnWmTCs9BE&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Laptops Price List in India (Nov 2026)",
+        "text": "Find the latest laptop prices & deals in India. Smartprix's powerful Laptop Finder. Instantly compare specifications like processor, RAM, SSD, screen size, ...",
+        "text_hash": "d8aef0a08fe6e5c98483350ea0ba31163aab4feeaf02cb788db5856552cced0f",
+        "fetched_at": "2026-11-19T05:49:28.405457Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_ce68bbd61139eeec",
+        "url": "https://www.google.com/goto?url=CAESpAEBxCJF10SLNSZomg-hBGpxa2VHm4fuAJnNrctau1_x0oMnRReWWsqpzoCX6ZbCz2Y_NtX8zOQHanRrcfr6RBTWt2jn_hOJyNJ0x9-_lgxWHq0wfslgDO2joNQ8BmFroOyrjPPiLVms6PrTdUjk35Dkg78DvYJqFcTXV11tZT9RyDYDnh0WaM5BiGO229NX7iW482_tmmCTRbhfSjBqNOf1M2QyPA&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best Laptops in India Across Price Ranges (Tested and ...",
+        "text": "Discover the best laptops in India across price ranges, based on hands-on testing. From budget picks to premium gaming and productivity ...",
+        "text_hash": "c8be2a17d6fda70f77198dd1187a1439fecefe3c91460471515f6ef3b191e352",
+        "fetched_at": "2026-11-19T05:49:28.405457Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_67adef52938d2541",
+        "url": "https://www.google.com/goto?url=CAESjwEBxCJF1-iaVsFZ0jl51kVliGGhKIzCvIN3WZ5o-Q66jv-Al0PYQWhgpwi1yCvWjkrh6bD_6Ixyez8NJliQCPdT9pEkwMOu_03lcv199RApBg0NBCMazT9iq51aqyioxsb-9ql0glP53hPmN1MYYGO2o9oboIrHgRVY0CrMsw-f_-b7sUPpd7H8sGhQulOSxQ&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best Laptops for Students in India (2026): Tested Picks ...",
+        "text": "Acer Aspire 15 AS15-42 (review) is our best overall student laptop because it delivers genuine Ryzen 7 multi-core performance",
+        "text_hash": "cfdfdbb115c084a0f6f66188a28639806ac6b9da703a38dff2c47c004de16531",
+        "fetched_at": "2026-11-19T05:49:28.406471Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_dd0d1a9a52c6b765",
+        "url": "https://www.google.com/goto?url=CAEScQHEIkXXbZVnaTurJoEJGd97IUoaDq9XeKQk2Q4j5zhbfN59V0wWaJMDbWpbcJmP699k5edj7U2u_G0csQ-yEV_1GKsW79i1v64VH_gm-w-6uLEPxD0MtwNWMrio4IVNT7EoRqm-BWz3wWtScGo15FBy&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Compare Laptops in India",
+        "text": "Compare laptops and notebooks in India with updated prices, full specifications, processor details, performance benchmarks, expert reviews, ...",
+        "text_hash": "cfaeaffbeba364cad92ae856a675e5821ef3ada2c9312d98d2144d9aa3619cc1",
+        "fetched_at": "2026-11-19T05:49:28.406471Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_7a7150da5184771a",
+        "url": "https://www.google.com/goto?url=CAESfgHEIkXXAJUTXpbQZ92PkwooQMOLReKBF3XSqfhcWzt92Xv4h_srXOUqc-kKPIzPHqgseBB5qMbA7ldbifGKZbgVtgLeKiC6j-MvCc1g2HnsZbnB9XILS9XLgmOwqgkN3tlIb2YTcID3DXR8JfnihXLkq1FSrDtyKRYwRMDNKw&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "AI Laptops Under 1,00000 Price List In India (Nov 2026)",
+        "text": "Check Out the List of AI Laptops Under 1,00,000 in India with Prices, Full Specs, Reviews, Images, and Many More at 91mobiles.",
+        "text_hash": "5ece9e18acc8a563bab42bbb6d5a45f7ef7dd453224458a5e791a5d3bfbbc780",
+        "fetched_at": "2026-11-19T05:49:28.406471Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_be27e1aec4b341bf",
+        "url": "https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vLm6aW7vM1RUilWGnzmfOwX5EIgYTB7Js9x6nnCRW0nFJ6AOcnB",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Laptop Buying Guide: How to Choose",
+        "text": "Use this laptop buying guide to compare processor, RAM, storage, display, battery and budget, and learn how to choose the right laptop for your needs in India.",
+        "text_hash": "032f60ad4f7ac54383a61717480326173f694ea5666526f2dbd708f36d847ec6",
+        "fetched_at": "2026-11-19T05:49:28.288076Z",
+        "published_at": null,
+        "community": null,
+        "site": "lenovo.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_f97414f5949a9300",
+        "url": "https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vLmfUIzatYj4otTtiJP00jcthJhPV_QveS0OVFl5j-EEhE-Mu4W",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Laptop Buying Guide | How to Choose the Best Laptop | Croma Unboxed",
+        "text": "What are the Factors to Consider Before Buying a Laptop? Usage; Operating System; Processors; RAM; Storage; Graphic; Screen Size; Resolution; Form Factor ...",
+        "text_hash": "47827c6f3c6d3e33ac770252637154b20623ef0b117dcb72109971714c38090b",
+        "fetched_at": "2026-11-19T05:49:28.289076Z",
+        "published_at": null,
+        "community": null,
+        "site": "croma.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_246c6a6d1e2d3b57",
+        "url": "https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/",
+        "type": "web_search",
+        "tier": 3,
+        "title": "How to Choose the Right Laptop: A Step-by-Step Guide",
+        "text": "I recommend buying a 15-inch or 16-inch laptop with at least this resolution, while 1920 x 1200 is good enough for more budget-minded 13-inch or ...",
+        "text_hash": "2b21e37b54de871496babc9baf03b3ad895d9efae40264b3f58e3b0311545f02",
+        "fetched_at": "2026-11-19T05:49:28.289076Z",
+        "published_at": null,
+        "community": null,
+        "site": "wired.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_b7b90cba6f988897",
+        "url": "https://www.youtube.com/watch?v=p5Jp18DBNqM",
+        "type": "web_search",
+        "tier": 3,
+        "title": "The ONLY Laptop Buying Guide You Need in 2026!",
+        "text": "The ONLY Laptop Buying Guide You Need in 2026!",
+        "text_hash": "c3118f774a96b0aa5c7af2a21fd2be7ade8fbadde0910a60e6639a3e4c4ab22f",
+        "fetched_at": "2026-11-19T05:49:28.290076Z",
+        "published_at": null,
+        "community": null,
+        "site": "youtube.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_3ccad5d68522aed0",
+        "url": "https://edify.club/blog/laptop-buying-checklist-india-2026/",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Complete Laptop Buying Guide 2026: India Checklist",
+        "text": "A comprehensive laptop buying checklist India includes defining usage and budget, evaluating processor performance, checking minimum 8GB RAM, ...",
+        "text_hash": "51dfe3750e6084ef126d86e8c6fd20ce9953d97c925d4cbe79bdd45657e24d68",
+        "fetched_at": "2026-11-19T05:49:28.290076Z",
+        "published_at": null,
+        "community": null,
+        "site": "edify.club",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_6784816c2971fc87",
+        "url": "https://www.reliancedigital.in/c/resource-center/bg/laptop-buying-guide",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Laptop Buying Guide in India: Brands, Specs & Best Deals",
+        "text": "Quick Overview. - This laptop buying guide covers all the essentials an Indian customer should know before investing in a laptop.",
+        "text_hash": "07770936ad9fea2ea4ee4313d74d9086650ec2a09ee6d0de41cb23b8455a602f",
+        "fetched_at": "2026-11-19T05:49:28.291076Z",
+        "published_at": null,
+        "community": null,
+        "site": "reliancedigital.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_21c1bb1c49b78ee9",
+        "url": "https://www.pcmag.com/picks/the-best-laptops",
+        "type": "web_search",
+        "tier": 3,
+        "title": "The Best Laptops We've Tested (November 2026)",
+        "text": "Our Top Tested Picks · HP OmniBook 5 14 · Apple MacBook Air 13-Inch (2026, M5) · Dell XPS 13 (2026) · Apple MacBook Neo · Lenovo ThinkPad X1 Carbon ...",
+        "text_hash": "64aaa59499ce7bdcc8a4ceb1d6458802602ed35a48d499b09547ea4aafeaacd9",
+        "fetched_at": "2026-11-19T05:49:27.898984Z",
+        "published_at": null,
+        "community": null,
+        "site": "pcmag.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_d07f314face95c23",
+        "url": "https://www.91mobiles.com/list-of-laptops/best-laptops-under-75000",
+        "type": "review_site",
+        "tier": 3,
+        "title": "Laptops Under Rs. 75000 In India (Updated on Nov 2026) | 91mobiles.com",
+        "text": "Laptops Under Rs. 75,000 In India (Nov 2026)\n\nBelow is the list of the Popular Laptops Under 75000 In India. This list features detailed specifications, high-quality images and spec scores.\n\nTop 5 Laptops Under Rs. 75,000 with Prices & Specs\n\nProduct Name\n\nDisplay\n\nProcessor\n\nRAM\n\nGraphics Memory\n\nBattery\n\nSpecs Score\n\nPrices\n\nDell Inspiron 15 3530 (OIN353034011RINB1M) Laptop\n\n15.6\" (39.62 cm), 1920 x 1080 px, IPS LCD Display\n\nIntel Core i5-1334U, 4.6 GHz, Deca-Core\n\n8 GB DDR4 RAM, 512 GB SSD\n\nIntel Iris Xe Graphics G7 80EUs GPU\n\n41 WHrs Battery Capacity\n\n75%\n\n₹67,990\n\nApple MacBook Neo (MHFA4HN/A) Laptop\n\n13\" (33.02 cm), 2408 x 1506 px, IPS LCD Display\n\nApple A18 Pro, 4.05 GHz, Hexa-Core\n\n8 GB LPDDR5X RAM, 256 GB SSD\n\nApple A18 Pro GPU\n\n16 Hrs Battery Life, Li-Ion\n\n79%\n\n₹71,890\n\nApple Macbook Neo (A18 Pro/8 GB/256 GB SSD/MAC) Laptop\n\n13\" (33.02 cm), 2408 x 1506 px, Liquid Retina Display\n\nApple A18 Pro, 4.2 GHz, Hexa-Core\n\n8 GB Unified Memory RAM, 256 GB SSD\n\nApple A18 Pro GPU\n\n16 Hrs Battery Life, Li-Ion\n\n75%\n\n₹71,890\n\nDell Inspiron 15 3530 (OIN353034011RINS1M) Laptop\n\n15.6\" (39.62 cm), 1920 x 1080 px, IPS LCD Display\n\nIntel Core i5-1334U, 4.6 GHz, Deca-Core\n\n8 GB DDR4 RAM, 512 GB SSD\n\nIntel Iris Xe Graphics G7 80EUs GPU\n\n41 WHrs Battery Capacity\n\n75%\n\n₹69,490\n\nDell Inspiron 15 3530 (OIN353034071RINS1M) Laptop\n\n15.6\" (39.62 cm), 1920 x 1080 px, IPS LCD Display\n\nIntel Core i5-1334U, 4.6 GHz, Deca-Core\n\n16 GB DDR4 RAM, 512 GB SSD\n\nIntel Integrated GPU\n\n41 WHrs Battery Capacity, Li-Ion\n\n77%\n\n₹71,990\n\n... read more\n\nCompare",
+        "text_hash": "41c94e350dc76af65d36f060ab53152339649b2f46b16073d2fb7b373a2f71a2",
+        "fetched_at": "2026-11-19T05:49:31.743505Z",
+        "published_at": null,
+        "community": null,
+        "site": "91mobiles.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_665db939771f6b59",
+        "url": "https://www.flipkart.com/laptops/~laptops-under-rs70000/pr?sid=6bo,b5g",
+        "type": "retailer",
+        "tier": 5,
+        "title": "Laptops Under Rs 70000 Online at India's Best Online Shopping Store | Flipkart.com",
+        "text": "Explore Plus\n\nLogin\n\nBecome a Seller\n\nMore\n\nCart\n\nFilters\n\nCATEGORIES\n\nComputers\n\nLaptops\n\nBrand\n\nProcessor\n\nCore i5\n\nCore i3\n\nCore i7\n\nRyzen 5 Quad Core\n\nRyzen 5 Hexa Core\n\nRyzen 7 Octa Core\n\n26 MORE\n\nRAM Capacity\n\nScreen Size\n\nType\n\nProcessor Generation\n\nSSD Capacity\n\nGraphic Processor Name\n\nProcessor Brand\n\nOperating System\n\nWeight\n\nFeatures\n\nStorage Type\n\nUsage\n\nUsage\n\nPrice\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\nMin₹20000₹40000₹50000₹60000₹75000\n\nto\n\n₹20000₹40000₹50000₹60000₹75000₹75000+\n\nDiscount\n\nRAM Capacity\n\nDedicated Graphics Memory\n\nCustomer Ratings\n\n4★ & above\n\n3★ & above\n\n2★ & above\n\n1★ & above\n\nRam Type\n\n?\n\nTouch Screen\n\nGraphics Memory Type\n\nOffers\n\nBuy More, Save More\n\nSpecial Price\n\nCountry Of Origin\n\nHard Disk Capacity\n\nNew Arrivals\n\nAvailability\n\nGST Invoice Available\n\nNeed help?\n\nHelp me decide\n\nHome\n\nComputers\n\nLaptops\n\nLaptops are a vital tool for people of different ages. You can buy the best laptop under Rs. 70,000 with unique features. This gadget offers multiple benefits, from portability to enhanced productivity. Whether you work in the IT sector or are a student who needs to attend classes online frequently, a laptop can make your life easy. Brands that sell this portable computer under Rs. 70,000 online are HP, Lenovo, Dell, MSI, Avita, and others. These laptops offer versatility to meet your needs. From basic email composing to complex graphic design, find a gadget that can perform various tasks with ease. They can also be used for entertainment purposes, such as watching movies and listening to various tracks. You can also search for graphic design laptops in this range. They come with components like powerful processors and storage solutions. These components allow the laptops to run games at higher resolutions. Search for options that are lightweight and easy to carry around so you can play games wherever you go. Swipe and select the best laptop under Rs. 70,000 that suits your requirements and buy it online. Before adding this device to your cart, consider the laptop's price and unique features to get the desired product.\n\nLaptops Under Rs.70,000\n\n(Showing 1 – 24 products of 595 products)\n\nSort By\n\nPopularity\n\nPrice -- Low to High\n\nPrice -- High to Low\n\nNewest First\n\nComing Soon\n\nAdd to Compare\n\nSamsung Galaxy Book4 Metal Intel Core i3 13th Gen 1315U - (8 GB/512 GB SSD/Windows 11 Home) NP750XGJ-L...\n\n4.4\n\n11,236 Ratings & 1,341 Reviews\n\nIntel Core i3 Processor (13th Gen)\n8 GB LPDDR4X RAM\n64 bit Windows 11 Operating System\n512 GB SSD\n39.62 cm (15.6 Inch) Display\n1 Year Onsite Warranty\n\n₹57,490\n\n₹57,499\n\nAdd to Compare\n\nNeopticon AI Smartbook Intel Celeron Dual Core N4500 - (8 GB/256 GB SSD/Windows 11 Home) BBN45825614iP...\n\nIntel Celeron Dual Core Processor\n8 GB LPDDR4 RAM\nWindows 11 Operating System\n256 GB SSD\n35.81 cm (14.1 inch) Display\n1 Year Onsite Service\n\n₹28,990\n\n₹50,000\n\n42% off\n\nBank Offer\n\nAdd to Compare\n\nSamsung Galaxy Book4 Metal Intel Core i5 13th Gen 1335U - (16 GB/512 GB SSD/Windows 11 Home) NP750XGJ ...\n\n4.4\n\n22,555 Ratings & 2,331 Reviews\n\nIntel Core i5 Processor (13th Gen)\n16 GB LPDDR4X RAM\n64 bit Windows 11 Operating System\n512 GB SSD\n39.62 cm (15.6 Inch) Display\n1 Year Manufacturer Warranty for Laptop and 6 Months for In-Box Accessories\n\n₹69,990\n\n₹78,189\n\n10% off\n\nOnly few left\n\nUpto\n\n₹48,400\n\nOff on Exchange\n\nAdd to Compare\n\nDELL 15 (2026) AMD Ryzen 5 Hexa Core 7530U - (16 GB/512 GB SSD/Windows 11 Home) DC15255 Thin and Light...\n\n4.2\n\n3,988 Ratings & 346 Reviews\n\nAMD Ryzen 5 Hexa Core Processor\n16 GB DDR4 RAM\nWindows 11 Operating System\n512 GB SSD\n39.62 cm (15.6 inch) Display\n1 Year Onsite Warranty\n\n₹67,990\n\n₹79,070\n\n14% off\n\nUpto\n\n₹48,400\n\nOff on Exchange\n\nBank Offer\n\nAdd to Compare\n\nLenovo Chromebook 11IJL9 Intel Celeron Dual Core N4500 - (4 GB/64 GB EMMC Storage/Chrome OS) Chromeboo...\n\n3.8\n\n602 Ratings & 72 Reviews\n\nIntel Celeron Dual Core Processor\n4 GB LPDDR4X RAM\nChrome Operating System\n29.46 cm (11.6 Inch) Display\n1 Year Onsite Warranty\n\n₹16,990\n\n₹36,502\n\n53% off\n\nUpto\n\n₹13,350\n\nOff on Exchange\n\nBank Offer\n\nAdd to Compare\n\nAcer Chromebook MediaTek Kompanio 540 - (4 GB/128 GB EMMC Storage/Chrome OS) CB315-8H Chromebook\n\n3.2\n\n5 Ratings & 0 Reviews\n\nMediaTek MediaTek Kompanio 540 Processor\n4 GB LPDDR5X RAM\n64 bit Chrome Operating System\n39.62 cm (15.6 inch) Display\n1 Year Onsite Service\n\n₹36,990\n\n₹52,999\n\n30% off\n\nUpto\n\n₹30,450\n\nOff on Exchange\n\nBank Offer\n\nAdd to Compare\n\nAcer Aspire AMD Ryzen 3 3200U - (8 GB/256 GB SSD/Windows 11 Home) AS15-39 Notebook\n\n4.3\n\n38 Ratings & 0 Reviews\n\nAMD Ryzen 3 Processor\n8 GB DDR4 RAM\n64 bit Windows 11 Home Operating System\n256 GB SSD\n39.62 cm (15.6 inch) Display\n1 Year Onsite Service\n\n₹39,990\n\n₹84,999\n\n52% off\n\nBank Offer\n\nAdd to Compare\n\nHP Omnibook 3 Next Gen AI PC Snapdragon X - (8 GB/512 GB SSD/Windows 11 Home) 14-hz0056QU Laptop\n\n4.3\n\n902 Ratings & 75 Reviews\n\nSnapdragon X Processor\n8 GB LPDDR5X RAM\n64 bit Windows 11 Home Operating System\n512 GB SSD\n35.56 cm (14 inch) Display\nMS Office Home 2024, 1 year Microsoft 365 Basic Free, 100 GB Dropbox 3 months, Xbox Game Pass 2M\n1 Year Onsite Service\n\n₹68,900\n\n₹1,45,699\n\n52% off\n\nOnly 5 left\n\nBank Offer\n\nAdd to Compare\n\nAcer Aspire AMD Ryzen 5 3500U - (8 GB/512 GB SSD/Windows 11 Home) A115-39 Notebook\n\n3.9\n\n70 Ratings & 0 Reviews\n\nAMD Ryzen 5 Processor\n8 GB DDR4 RAM\n64 bit Windows 11 Home Operating System\n512 GB SSD\n39.62 cm (15.6 inch) Display\n1 Year Onsite Service\n\n₹46,990\n\n₹59,999\n\n21% off\n\nBank Offer\n\nAdd to Compare\n\nASUS Chromebook CX14 Intel Celeron Dual Core N50 - (4 GB/128 GB EMMC Storage/Chrome OS) CX1405CTA-S606...\n\n3.9\n\n1,124 Ratings & 121 Reviews\n\nIntel Celeron Dual Core Processor\n4 GB LPDDR5 RAM\nChrome Operating System\n35.56 cm (14 inch) Display\nMyASUS\n1 Year Onsite Warranty\n\n₹32,807\n\n₹34,999\n\n6% off\n\nOnly 2 left\n\nBank Offer\n\nAdd to Compare\n\nPrimebook 2 Pro (2026) in-Built AI MediaTek Helio G99 (MT8781) - (8 GB/128 GB/Android 15) PBG9914128#4...\n\n4.3\n\n2,221 Ratings & 727 Reviews\n\nMediaTek Helio G99 (MT8781) Processor\n8 GB LPDDR4X RAM\n64 bit Android Operating System\n35.81 cm (14.1 Inch) Display\n1 Year Onsite Warranty\n\n₹28,990\n\n₹39,990\n\n27% off\n\nOnly few left\n\nUpto\n\n₹22,425\n\nOff on Exchange\n\nAdd to Compare\n\nWarnerCann Hi5 pro Intel Core i5 12th Gen - (8 GB/256 GB SSD/Windows 11 Pro) Hi5 Pro Business Laptop B...\n\n2.2\n\n5 Ratings & 1 Reviews\n\nIntel Core i5 Processor (12th Gen)\n8 GB DDR4 RAM\nWindows 11 Operating System\n256 GB SSD\n35.56 cm (14 Inch) Display\nDOMESTIC\n\n₹35,442\n\n₹56,000\n\n36% off\n\nOnly few left\n\nBank Offer\n\nAdd to Compare\n\nPrittec Intel Celeron Dual Core N4200 - (8 GB/256 GB SSD/Windows 11 Home) N140P01 Laptop\n\n3.7\n\n60 Ratings & 12 Reviews\n\nIntel Celeron Dual Core Processor\n8 GB DDR4 RAM\nWindows 11 Operating System\n256 GB SSD\n35.56 cm (14 Inch) Display\n1 Year Manufacturer Warranty\n\n₹25,799\n\n₹30,990\n\n16% off\n\nOnly 5 left\n\nBank Offer\n\nAdd to Compare\n\nUltimus Apex Pro Intel Pentium Quad Core N4200 - (4 GB/128 GB SSD/128 GB EMMC Storage/Windows 11 Home)...\n\n3.4\n\n30 Ratings & 11 Reviews\n\nIntel Pentium Quad Core Processor\n4 GB DDR3 RAM\nWindows 11 Home Operating System\n128 GB SSD\n35.81 cm (14.1 inch) Display\n1 Year Domestic Warranty\n\n₹20,490\n\n₹27,990\n\n26% off\n\nHot Deal\n\nOnly few left\n\nAdd to Compare\n\nHP Laptop Intel Core i3 13th Gen 1315U - (8 GB/512 GB SSD/Windows 11 Home) 15-fd0129TU / 15-fd0568TU T...\n\n4.2\n\n3,506 Ratings & 245 Reviews\n\nIntel Core i3 Processor (13th Gen)\n8 GB DDR4 RAM\nWindows 11 Home Operating System\n512 GB SSD\n39.62 cm (15.6 Inch) Display\n1 Year Carry-in Warranty\n\n₹53,890\n\n₹59,999\n\n10% off\n\nBank Offer\n\nAdd to Compare\n\nDELL 15 (Previously Inspiron) (2025) Microsoft Office Home 2024 AMD Ryzen 5 Hexa Core 7530U - (16 GB/5...\n\n4.2\n\n3,988 Ratings & 346 Reviews\n\nAMD Ryzen 5 Hexa Core Processor\n16 GB DDR4 RAM\nWindows 11 Operating System\n512 GB SSD\n39.62 cm (15.6 Inch) Display\nMicrosoft Office Home 2024 | Dell Support Assist\n1 Year Onsite Warranty\n\n₹56,990\n\n₹58,488\n\n2% off\n\nUpto\n\n₹42,100\n\nOff on Exchange\n\nBank Offer\n\nAdd to Compare\n\nAcer Aspire 3 Intel Celeron Dual Core - (8 GB/256 GB SSD/Windows 11 Home) A311-45 Thin and Light Lapto...\n\n3.7\n\n7,784 Ratings & 761 Reviews\n\nIntel Celeron Dual Core Processor\n8 GB DDR4 RAM\n64 bit Windows 11 Home Operating System\n256 GB SSD\n29.46 cm (11.6 Inch) Display\n1 Year Warranty\n\n₹31,990\n\n₹41,990\n\n23% off\n\nOnly few left\n\nBank Offer\n\nAdd to Compare\n\nLenovo V 15 (2026) DDR5 5600Mhz Intel Core i3 13th Gen 1315U - (8 GB/512 GB SSD/Windows 11 Pro) V 15 -...\n\nIntel Core i3 Processor (13th Gen)\n8 GB DDR5 RAM\n64 bit Windows 11 Operating System\n512 GB SSD\n39.62 cm (15.6 inch) Display\nMicrosoft Office 2024, Windows 11 Pro\n1 Year Domestic Warranty\n\n₹51,490\n\n₹94,990\n\n45% off\n\nHot Deal\n\nOnly 1 left\n\nAdd to Compare\n\nHP 15 AMD Ryzen 5 Quad Core 7520U - (8 GB/512 GB SSD/Windows 11 Home) 15-fc0805AU Thin and Light Lapto...\n\n4.2\n\n622 Ratings & 52 Reviews",
+        "text_hash": "c8348e2d47b23caffc1185ec80c8277c589d0da5a7687f11600e5142843388a4",
+        "fetched_at": "2026-11-19T05:49:32.108695Z",
+        "published_at": null,
+        "community": null,
+        "site": "flipkart.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_cd44fdfc0d2bb757",
+        "url": "https://www.reliancedigital.in/collection/laptops-under-rs-70000",
+        "type": "retailer",
+        "tier": 5,
+        "title": "Laptops Under Rs 70000 | Online Electronic Shopping Store in India - Reliance Digital | www.reliancedigital.in",
+        "text": "Orders\n\nContact us\n\nResource Center\n\nFind a store\n\nCart\n\nWishlist\n\nFilters\n\nAvailable\n\nIn Stock\n\nOut of Stock\n\nScreen Size\n\n15 inch - 15.9 inch\n\n14 inch - 14.9 inch\n\n11.1 inch - 12.9 inch\n\nPrice\n\n₹\n\n₹\n\n₹0\n\n₹6,69,900\n\nDiscount\n\n1%\n\n48%\n\nBrand\n\nDell\n\nAsus\n\nAcer\n\nHP\n\nLenovo\n\nJIO\n\nScreen Size (Diagonal)\n\n39.6 cm - 15.6 inch\n\n39.62 cm - 15.6 inch\n\n35.56 cm - 14 inch\n\n29.46 cm - 11.6 inch\n\n30.38 cm - 12 inch\n\n35.56 cm\n\n35.6 cm - 14 inch\n\n38.86 cm - 15.3 inch\n\n39.62 cm (15.6 inch)\n\n40.64 cm - 16 inch\n\nMemory (RAM)\n\n8 GB\n\n16 GB\n\n4 GB\n\nModel\n\nDC 15250\n\nDC15255\n\n12-M0005QU\n\n15 FD0623TU\n\n15-FC0552AU\n\n15-FC0704AU\n\n15-fc0953AU\n\n15-FD1299TU\n\n5430\n\n82X700HLIN\n\n82XQ00MCIN\n\n82XQ01VWIN\n\n83ER00KRIN\n\n83N3002QIN\n\nAG14-71M NX.JF5SI.001\n\nCX1505CTA-S70293\n\nDC14250\n\nE1404FA-EB1224WS\n\nE1504FA-BQ2114WS\n\nE1504FA-BQ5709WS\n\nE1504FA-IN5294WS\n\nHP Laptop 15-fd0624TU\n\nHP OmniBook 3 Laptop 14-hy0034AU\n\nLenovo 82RK00VVIN\n\nNB1112MM\n\nNX.D7USI.001\n\nUN.31ZSI.06P\n\nUN.31ZSI.06U\n\nUN.31ZSI.06V\n\nUN.344SI.013\n\nUN.347SI.01G\n\nUN.34ESI.02E\n\nX1504MA-BQ424WS\n\nX1504VAP-BQ1321WS\n\nX1504VAP-IN006WS\n\nX1605VA-MB1627WS\n\nProcessor\n\nAMD Ryzen 5 7520U\n\nIntel Core 3 100U\n\nIntel Core 3 100U Processor\n\nIntel Core 3-100u\n\n13th Gen Intel Core i3-1315U\n\n13th Generation Intel Core i3 Processor\n\nAMD\n\nAMD R3 5400U\n\nAMD R3 7330U\n\nAMD Ryzen 3 30 (4C / 8T, 2.4 / 4.1GHz, 2MB L2 / 4MB L3)\n\nAMD Ryzen 3 30 Processor\n\nAMD Ryzen 3 30 Processor 2.4GHz (6MB Cache, up to 4.1GHz, 4 cores, 8 Threads)\n\nAMD Ryzen 3 5400U Processor\n\nAMD Ryzen 3 7320U\n\nAMD Ryzen 3 7320U Quad-Core with Turbo Frequency (Up to 4.1 GHz)\n\nAMD Ryzen 5 7530U\n\nAMD Ryzen R5 40\n\nAMD Ryzen3 30\n\ni5-1335U\n\nIntel C3 100U\n\nIntel Core 3 100U Processor (Max Turbo 4.6 Ghz)\n\nIntel Core 3 304\n\nIntel Core 3 Processor 100U 1.2 GHz (10MB Cache, up to 4.7 GHz, 6 cores, 8 Threads)\n\nIntel Core 5 210H\n\nIntel Core Celeron N4500\n\nIntel Core i3-1215U\n\nIntel Core i3-1305U Processor, 5C (1P + 4E) / 6T, P-core 1.6 / 4.5Ghz, E-core 1.2 / 3.3Ghz, 10MB\n\nIntel Core i5-12450H\n\nIntel Core i5-1334U\n\nIntel Core i5-1334U Processor\n\nIntel Core i5-13420H Processor 2.1 GHz (12MB Cache\n\nIntel Core i5-13500H\n\nIntel Core3-100u Processor\n\nIntel Processor N50 1.0 GHz (6 MB Cache, up to 3.4 GHz, 2 cores, 2 Threads)\n\nIntel Ultra 5 processor 125H (Up to 4.5 GHz)\n\nMediaTek MT8788 2.0 GHz Octa-Core Processor\n\nSnapdragon SM6475Q (up to 2.40 GHz, 6 cores)\n\nSnapdragon X X1-26-100\n\nOperating System Type\n\nWindows\n\nAndroid OS\n\nChrome OS\n\nJioOS\n\nDisplay Type\n\nFull HD\n\nWUXGA\n\nFHD+\n\nHD\n\nColour\n\nArctic Grey\n\nSilver\n\nCool Silver\n\nGrey\n\nNatural Silver\n\nCarbon Black\n\nPlatinum Silver\n\nMixed Black\n\nNatural silver\n\nBlack\n\nDenim Blue\n\nGlacier Silver Aluminum Cover And Base\n\nJio Blue\n\nLuna Grey\n\nPure Grey\n\nQuiet Blue\n\nSteel Gray\n\nTerra Cotta\n\nLaptop Type\n\nWindows Laptop\n\nStandard Laptop\n\nAI Laptop\n\nChromeBook\n\nConvertible\n\nNotebook\n\nThin & Light\n\nProcessor Brand\n\nIntel\n\nAMD\n\nQualcomm\n\nNo. of USB Ports\n\n3\n\n4\n\n2\n\nGraphics Card - Brand\n\nIntel\n\nAMD\n\nQualcomm\n\nGraphics Card Model\n\nIntel UHD Graphics\n\nAMD Radeon Graphics\n\nIntegrated\n\nIntegrated Intel UHD Graphics\n\nIntel integrated SoC\n\nAMD integrated SoC\n\nAMD\n\nIntegrated AMD Radeon™ 610M Graphics\n\nIntegrated Qualcomm Adreno GPU\n\nIntel\n\nIntel Integrated Graphics\n\nIntel Integrated UHD Graphics\n\nQualcomm Adreno GPU\n\nSeries\n\nHP 15\n\nDC 15250\n\nVivobook 15\n\nAL15-41\n\nInspiron\n\n14 Series\n\n15s\n\nA325-45\n\nAL15-52H\n\nAL15-53\n\nAspire Go 14\n\nChromeBook 15\n\nE1404FA-EB1224WS\n\nIdeaPad Slim 3\n\nIdeaPad Slim 3 15AMN8\n\nIdeaPad Slim 3 15IAH8\n\nIdeaPad Slim 3 15IRU8\n\nIdeaPad Slim 3 15Q8X10\n\nIdeapad3\n\nInspiron 14\n\nOmniPad 12\n\nVivoBook 15\n\nVivobook 16\n\nVivobook Go 15\n\nHDMI\n\nYes\n\n1x HDMI 1.4\n\nHDMI 2.1\n\n1x HDMI 1.4b\n\nHDMI 1.4\n\nStorage Type Capacity\n\n512 GB\n\n512 GB SSD, PCIe NVMe, M.2\n\n512 GB, PCIe Gen4, 16 Gb/s, NVMe\n\n128 GB\n\n512 GB, PCIe Gen3, 16 Gb/s, NVMe\n\n512GB SSD M.2 2242 PCIe® 4.0x4 NVMe®\n\n256 GB, PCIe Gen4, 16 Gb/s, NVMe\n\n256GB, PCIe Gen3 NVMe Support up to 1 TB\n\n512 GB M.2 NVMe PCIe 3.0 SSD\n\n512 GB PCIe Gen4 NVMe M.2 SSD\n\n512 GB SSD\n\n512GB M.2 NVMe PCIe 4.0 SSD\n\nWi Fi\n\nYes\n\nCountry of Origin\n\nChina\n\nIndia\n\nDepartment\n\nElectronics\n\nStorage Capacity\n\n512 GB\n\nBattery Type\n\nLithium-ion (Li-Ion)\n\nLithium Ion (Li-Ion)\n\nLithium Ion\n\nLithium Polymer (Li-Poly)\n\nLaptops Under Rs 70000\n\n(43)\n\nSort\n\nAcer Aspire 3 A325-45 UN.344SI.013 Standard Laptop (Intel Core Celeron N4500/8 GB/256 GB/Intel UHD Graphics/Windows 11 Home/HD), 39.6 cm - 15.6 inch, Silver\n\n₹39,999.00\n\n41% OFF\n\nMRP\n\n₹67,999.00\n\nwith all applicable Offers\n\nCompare\n\nLoading cart\n\nLIMITED_TIME_OFFER\n\nAcer AL15-52H UN.347SI.01G Standard Laptop (Intel Core 5 210H/16 GB/512 GB/Intel UHD Graphics/Windows 11 Home/Full HD), 39.6 cm - 15.6 inch, Silver\n\n₹56,490.00\n\n29% OFF\n\nMRP\n\n₹79,999.00\n\nwith all applicable Offers\n\nCompare\n\nLoading cart\n\nLenovo IdeaPad Slim3 83ER00KRIN Standard Laptop (Intel Core i5-12450H/16 GB/512 GB SSD/Intel UHD Graphics/Windows 11 Home/MSOffice/Full HD), 39.6 cm (15.6 Inch), Arctic Grey\n\n₹59,499.00\n\n24% OFF\n\nMRP\n\n₹78,290.00\n\nwith all applicable Offers\n\nCompare\n\nLoading cart\n\nJioBook 11 with Lifetime Office/Android 4G Laptop Mediatek 8788 (JioOS)/Octa-core/4GB RAM/64 eMMC Storage/Thin and Light Laptop (11.6 inch, 990 grams)/Dual band WiFi + SIM/Blue\n\n₹12,999.00\n\n48% OFF\n\nMRP\n\n₹25,000.00\n\nCurrently unavailable online. Visit nearest store.\n\nCompare\n\nStore Locator\n\nLIMITED_TIME_OFFER\n\nHP OmniPad 12 12-M0005QU Convertible Laptop (Snapdragon SM6475Q/8 GB/128 GB UFC/Qualcomm Adreno GPU/Android 16), 30.38 cm - 12 inch, Denim Blue\n\n₹47,990.00\n\n35% OFF\n\nMRP\n\n₹73,999.00\n\nwith all applicable Offers\n\nCompare\n\nLoading cart\n\nLIMITED_TIME_OFFER\n\nAsus VivoBook 15 X1504VAP-BQ1321WS Standard Laptop (Intel Core 3 Processor 100U/8 GB/512 GB SSD/Intel UHD Graphics/Windows 11 Home/Microsoft Office Home 2024/WUXGA), 39.6 cm - 15.6 inch, Cool Silver\n\n₹56,990.00\n\n32% OFF\n\nMRP\n\n₹83,999.00\n\nwith all applicable Offers\n\nCompare\n\nLoading cart\n\nLenovo Ideapad Slim 3 Laptop (Intel Core i3 -1215U, 8 GB / 512 GB / / 3.3GHz/ Windows 11 Home /39.62 cm (15.6 inch) /FHD (1920x1080) /Smart Feature/Anti-glare)\n\n₹45,999.00\n\n24% OFF\n\nMRP\n\n₹60,890.00\n\nwith all applicable Offers\n\nCompare\n\nLoading cart\n\nAcer AL15-53 UN.34ESI.02E Standard Laptop (Intel C3 100U/8 GB/512 GB/Intel UHD Graphics/Windows 11 Home/Full HD), 39.6 cm - 15.6 inch, Grey\n\n₹56,499.00\n\n25% OFF\n\nMRP\n\n₹74,999.00\n\nwith all applicable Offers\n\nCompare\n\nLoading cart\n\nLIMITED_TIME_OFFER\n\nAsus Vivobook 15 X1504MA-BQ424WS Standard Laptop (Intel Core 3 304/8 GB/512 GB /Integrated Graphics/Windows 11 Home/Microsoft Office Home 2024/Full HD), 39.6 cm - 15.6 inch, Terra Cotta\n\n₹62,990.00\n\n48% OFF\n\nMRP\n\n₹1,19,990.00\n\nwith all applicable Offers\n\nCompare\n\nLoading cart\n\nLIMITED_TIME_OFFER\n\nHP 15s 15 FD0623TU Standard Laptop (13th Generation Intel Core i3 Processor/8 GB/512 GB SSD/Intel integrated SoC/Windows 11 Home/MS Office Home 2024 + 1 year M365 Basic/Full HD), 39.62 cm - 15.6 inch, Natural Silver\n\n₹60,490.00\n\n13% OFF\n\nMRP\n\n₹69,458.00\n\nwith all applicable Offers\n\nCompare\n\nLoading cart\n\nLIMITED_TIME_OFFER\n\nAsus Vivobook 16 X1605VA-MB1627WS Standard Laptop (Intel Core i5-13420H/16 GB/512 GB SSD/Intel UHD Graphics/Windows 11/MSOffice/WUXGA), 40.64 cm - 16 inch, Cool Silver\n\n₹68,990.00\n\nMRP\n\n₹72,990.00\n\nCurrently unavailable online. Visit nearest store.\n\nCompare\n\nStore Locator\n\nNEWLY_LAUNCHED\n\nAcer AL14-71P NX.D7USI.001 Standard Laptop (Intel Core i5-13500H/16 GB/512 GB/UHD Graphics/Windows 11 Home/WUXGA), 35.6 cm - 14 inch, Silver\n\n₹64,990.00\n\n41% OFF\n\nMRP\n\n₹1,09,990.00\n\nwith all applicable Offers\n\nCompare\n\nLoading cart\n\nLaptops Under Rs 70000 Price List\n\nS.no\n\nProducts - Laptops Under Rs 70000\n\nPrice\n\n1\n\nAcer Aspire 3 A325-45 UN.344SI.013 Standard Laptop (Intel Core Celeron N4500/8 GB/256 GB/Intel UHD Graphics/Windows 11 Home/HD), 39.6 cm - 15.6 inch, Silver\n\n₹39,999.00\n\n2\n\nAcer AL15-52H UN.347SI.01G Standard Laptop (Intel Core 5 210H/16 GB/512 GB/Intel UHD Graphics/Windows 11 Home/Full HD), 39.6 cm - 15.6 inch, Silver\n\n₹56,490.00\n\n3\n\nLenovo IdeaPad Slim3 83ER00KRIN Standard Laptop (Intel Core i5-12450H/16 GB/512 GB SSD/Intel UHD Graphics/Windows 11 Home/MSOffice/Full HD), 39.6 cm (15.6 Inch), Arctic Grey\n\n₹59,499.00\n\n4\n\nJioBook 11 with Lifetime Office/Android 4G Laptop Mediatek 8788 (JioOS)/Octa-core/4GB RAM/64 eMMC Storage/Thin and Light Laptop (11.6 inch, 990 grams)/Dual band WiFi + SIM/Blue\n\n₹12,999.00\n\n5\n\nHP OmniPad 12 12-M0005QU Convertible Laptop (Snapdragon SM6475Q/8 GB/128 GB UFC/Qualcomm Adreno GPU/Android 16), 30.38 cm - 12 inch, Denim Blue\n\n₹47,990.00\n\n6\n\nAsus VivoBook 15 X1504VAP-BQ1321WS Standard Laptop (Intel Core 3 Processor 100U/8 GB/512 GB SSD/Intel UHD Graphics/Windows 11 Home/Microsoft Office Home 2024/WUXGA), 39.6 cm - 15.6 inch, Cool Silver\n\n₹56,990.00\n\n7\n\nLenovo Ideapad Slim 3 Laptop (Intel Core i3 -1215U, 8 GB / 512 GB / / 3.3GHz/ Windows 11 Home /39.62 cm (15.6 inch) /FHD (1920x1080) /Smart Feature/Anti-glare)\n\n₹45,999.00\n\n8",
+        "text_hash": "677b731f12d4a55da104f88f25cd7dff481708edfe8d096db76eb4faa5fa5f6f",
+        "fetched_at": "2026-11-19T05:49:33.688325Z",
+        "published_at": null,
+        "community": null,
+        "site": "reliancedigital.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_528dd8a1c6bb4e00",
+        "url": "https://www.smartprix.com/laptops/price-below_70000",
+        "type": "review_site",
+        "tier": 3,
+        "title": "Laptops Under 70000 Price List in India 2026 | Smartprix",
+        "text": "Laptops Under ₹70,000\n\nIf you are looking for a best laptop under 70000 in India, you might feel overwhelmed by the number of choices available online. Laptops are versatile devices that can perform various tasks, such as gaming, editing, browsing, etc. However, not all laptops are equally good. That's why you need to consider several factors, such as performance, battery life, display quality, design, and portability, before making a purchase.\n\nTo help you find the best laptop under 70000 for your needs and budget, we have compiled a list of the top laptops from different brands, such as HP, Dell, Lenovo, Acer, Asus, MSI, and more. These laptops have excellent features and specifications that can meet your expectations. Moreover, you can compare the prices and reviews of these laptops across different online stores in India and get the best deal for yourself.\n\nHere are the details of the laptops under 70000 that we have selected for you. You can choose from a variety of options from well-known brands and find the perfect laptop for your requirements. Make sure to check user reviews, ratings, and features of all the products carefully before buying online. This price list was last updated on November 19, 2026.\n\nLaptops Under ₹70,000 Price List\n\nLaptop\nPrice\nAvailable From\n\nHP 15 250R G10 Laptop (Intel Core 3 100U/ 16GB/ 512GB SSD/ Win11)\n₹48,600\nNov, 2025\n\nAsus Vivobook 15 X1504VAP-BQ1543WS Laptop (Intel Core 5 120U/ 16GB/ 512GB SSD/ Win11)\n₹56,140\nApr, 2026\n\nLenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop (11th Gen Core i3/ 8GB/ 512GB SSD/ Win11)\n₹37,890\nAug, 2023\n\nAsus CX9406 Googlebook Laptop (Intel Core Ultra 5 325/ 32GB/ ChromeOS)\n₹34,999\nUpcoming\n\nLenovo IdeaPad Slim 1 82R400BGIN Laptop (AMD Ryzen 5 5500U/ 8GB/ 512GB SSD/ Win11 Home)\n₹37,990\nDec, 2023\n\nLenovo IdeaPad Slim 3 82RK0085IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11)\n₹59,499\nJul, 2022\n\nLenovo Ideapad Slim 3i 81WQ00NXIN Laptop (Intel Celeron N4020/ 8GB/ 256GB SSD/ Win11)\n₹27,990\nAug, 2022\n\nAcer Travel Lite TL14-42M 14 Laptop (AMD Ryzen 7 7730U/ 32GB/ 1TB SSD/ Win11)\n₹69,990\nMay, 2025\n\nAcer Aspire Pro AP14-55 UN.37SSI.003 Laptop (Intel Core Ultra 5 125H/ 16GB/ 512GB SSD/ Win11 Home)\n₹69,990\nNov, 2026\n\nLenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home)\n₹64,899\nApr, 2025\n\nRead More\n\nLike\nComment\nShare\n\n10,783 Laptops\n\nSort By\n\nRelevancePopularityPrice Low To HighPrice High To LowDateSpec ScorePrice DropCPU SpeedRAMHard DiskSSDDisplay SizeDisplay ResolutionDisplay PPIDedicated GraphicsRatingBattery Backup\n\nHP 15 250R G10 Laptop (Intel Core 3 100U/ 16GB/ 512GB SSD/ Win11)\n\n₹48,600\n\nIntel Core 3 100U\nHexa Core (2P + 4E), 8 Threads\n16 GB DDR4 RAM\n512 GB SSD\nIntel Integrated UHD Graphics\n15.6 inches, 1920 x 1080 pixels\nWindows 11 OS\n1 Year Warranty\n\n43Spec Score\n\nCompareLikeView →\n\nAsus Vivobook 15 X1504VAP-BQ1543WS Laptop (Intel Core 5 120U/ 16GB/ 512GB SSD/ Win11)\n\n₹56,1405%\n\nIntel Core 5 120U\n10 Cores (2P + 8E), 12 Threads\n16 GB DDR5 RAM\n512 GB SSD\nIntel Graphics Intel\n15.6 inches, 1920 x 1080 pixels\nWindows 11 OS\n1 Year Warranty\n\n40Spec Score\n\nCompareLikeView →\n\nLenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop (11th Gen Core i3/ 8GB/ 512GB SSD/ Win11)\n\n₹37,890\n\n11th Gen Intel Core i3 1115G4\nDual Core, 4 Threads\n8 GB DDR4 RAM\n512 GB SSD\nIntel Iris Xe Graphics\n15.6 inches, 1920 x 1080 pixels\nWindows 11 OS\n1 Year Warranty\n\n47Spec Score\n\nCompareLikeView →\n\nAsus CX9406 Googlebook Laptop (Intel Core Ultra 5 325/ 32GB/ ChromeOS)\n\n₹34,999\n\nIntel Core Ultra 5 325\nOcta Core (4P + 4LP-E), 8 Threads\n32 GB LPDDR5X RAM\n14 inches, Touch Screen\nChrome OS\n\n46Spec Score\n\nCompareLikeSearch →\n\nUPCOMING\n\nLenovo IdeaPad Slim 1 82R400BGIN Laptop (AMD Ryzen 5 5500U/ 8GB/ 512GB SSD/ Win11 Home)\n\n₹37,99019%\n\n5th Gen AMD Ryzen 5 5500U\nHexa Core, 12 Threads\n8 GB DDR4 RAM\n512 GB SSD\nAMD Radeon Graphics\n15.6 inches, 1920 x 1080 pixels\nWindows 11 OS\n1 Year Warranty\n\n44Spec Score\n\nCompareLikeView →\n\nLenovo IdeaPad Slim 3 82RK0085IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11)\n\n₹59,4998%\n\n12th Gen Intel Core i5 1235U\n10 Cores (2P + 8E), 12 Threads\n16 GB RAM\n512 GB SSD\nIntel Iris Xe Graphics\n15.6 inches, 1920 x 1080 pixels\nWindows 11 OS\nBacklit Keyboard\n\n48Spec Score\n\nCompareLikeView →\n\nLenovo Ideapad Slim 3i 81WQ00NXIN Laptop (Intel Celeron N4020/ 8GB/ 256GB SSD/ Win11)\n\n₹27,990\n\nIntel Celeron N4020\nDual Core, 2 Threads\n8 GB DDR4 RAM\n256 GB SSD\nIntel Integrated UHD\n15.6 inches, 1366 x 768 pixels\nWindows 11 OS\n1 Year Warranty\n\n35Spec Score\n\nCompareLikeView →\n\nAcer Travel Lite TL14-42M 14 Laptop (AMD Ryzen 7 7730U/ 32GB/ 1TB SSD/ Win11)\n\n₹69,99016%\n\n7th Gen AMD Ryzen 7 7730U\nOcta Core, 16 Threads\n32 GB RAM\n1 TB SSD\nAMD Radeon Graphics\n14 inches, 1920 x 1080 pixels\nWindows 11 OS\n1 Year Warranty\n\n59Spec Score\n\nCompareLikeView →\n\nAcer Aspire Pro AP14-55 UN.37SSI.003 Laptop (Intel Core Ultra 5 125H/ 16GB/ 512GB SSD/ Win11 Home)\n\n₹69,9903%\n\nIntel Core Ultra 5 125H\n14 Cores (4P + 8E + 2LP-E), 18 Threads\n16 GB DDR5 RAM\n512 GB SSD\nIntel Graphics UHD\n14 inches, 1920 x 1200 pixels\nWindows 11 OS\nBacklit Keyboard\n\n51Spec Score\n\nCompareLikeView →\n\nLenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home)\n\n₹64,899\n\n12th Gen Intel Core i5 12450H\nOcta Core (4P + 4E), 12 Threads\n16 GB LPDDR5 RAM\n512 GB SSD\nIntel Integrated UHD Graphics\n14 inches, 1920 x 1080 pixels\nWindows 11 OS\n1 Year Warranty\n\n55Spec Score\n\nCompareLikeView →\n\nUltimus APEX Pro NU14U8INB43SN-CS Laptop (Celeron N4020/ 4GB/ 128GB EMMC/ Win11 Home)\n\n₹19,9901%\n\n12th Gen Intel Celeron Quad Core N4200\nQuad Core, 4 Threads\n4 GB DDR4 RAM\n128 GB SSD\nIntel Integrated\n14.1 inches, 1366 x 768 pixels\nWindows 11 OS\n1 Year Warranty\n\n32Spec Score\n\nCompareLikeView →\n\nDell Pro 15 Essential Laptop (AMD Ryzen 5 7520U /8GB/ 512GB SSD/ Win11)\n\n₹49,9002%\n\n7th Gen AMD Ryzen 5 7520U\nQuad Core, 8 Threads\n8 GB RAM\n512 GB SSD\nAMD Radeon Radeon 610M\n15.6 inches, 1920 x 1080 pixels\nWindows 11 OS\n1 Year Warranty\n\n48Spec Score\n\nCompareLikeView →\n\nAcer Aspire 5 A514-56M 2023 Gaming Laptop (13th Gen Core i5/ 8GB/ 512GB SSD/ Win11 Home)\n\n₹59,962\n\n13th Gen Intel Core i5 1335U\n10 Cores (2P + 8E), 12 Threads\n8 GB LPDDR5 RAM\n512 GB SSD\nIntel Iris Xe Graphics\n14 inches, 1920 x 1200 pixels\nWindows 11 OS\n1 Year Warranty\n\n46Spec Score\n\nCompareLikeView →\n\nMSI Modern 15 B13M-289IN Laptop (13th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home)\n\n₹51,990\n\n13th Gen Intel Core i5 1335U\n10 Cores (2P + 8E), 12 Threads\n16 GB DDR4 RAM\n512 GB SSD\nIntel Integrated Iris Xe\n15.6 inches, 1920 x 1080 pixels\nWindows 11 OS\n1 Year Warranty\n\n47Spec Score\n\nCompareLikeView →\n\nHonor MagicBook X14 Pro 2024 FRI-G56 Laptop (13th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home)\n\n₹42,999\n\n13th Gen Intel Core i5 13420H\nOcta Core (4P + 4E), 12 Threads\n16 GB LPDDRx4 RAM\n512 GB SSD\nIntel UHD Graphics\n14 inches, 1920 x 1200 pixels\nWindows 11 OS\n1 Year Warranty\n\n47Spec Score\n\nCompareLikeSearch →\n\nUPCOMING\n\nLenovo V15 G4 83CQ0006IN Laptop (AMD Ryzen 3 7320U/ 8GB/ 512GB SSD/ Win11 Home)\n\n₹48,4611%\n\n7th Gen AMD Ryzen 3 7320U\nQuad Core, 8 Threads\n8 GB LPDDR5 RAM\n512 GB SSD\nIntegrated AMD Radeon 610M\n15.6 inches, 1920 x 1080 pixels\nWindows 11 OS\n1 Year Warranty\n\n50Spec Score\n\nCompareLikeView →\n\nJio JioBook NB1112MM BLU 2023 Netbook Laptop (Octa Core/ 4GB/ 64GB eMMC/ JioOS)\n\n₹10,9901%\n\nMediatek MT8788\nOcta Core\n4 GB LPDDR4 RAM\n64 GB Hard Disk\nArm Mali-G72 MP3\n11.6 inches, 1366 x 768 pixels\n1 Year Warranty\n\n18Spec Score\n\nCompareLikeView →\n\nHP 255R G10 2025 Laptop (AMD Ryzen 5 7535U/ 8GB/ 512GB SSD/ Win11)\n\n₹54,8001%\n\n7th Gen AMD Ryzen 5 7535U\nHexa Core, 12 Threads\n8 GB DDR5 RAM\n512 GB SSD\nAMD Radeon Radeon 660M\n15.6 inches, 1920 x 1080 pixels\nWindows 11 OS\n1 Year Warranty\n\n50Spec Score\n\nCompareLikeView →\n\nSamsung Galaxy Book 4 np750xgj-kg2in Laptop (13th Gen Intel Core i5-1335U/ 16GB/ 512GB SSD/ Win11)\n\n₹67,100\n\n13th Gen Intel Core i5 1335U\n10 Cores (2P + 8E), 12 Threads\n16 GB LPDDR4x RAM\n512 GB SSD\nIntel Iris Xe Graphics\n15.6 inches, 1920 x 1080 pixels\nWindows 11 OS\n1 Year Warranty\n\n48Spec Score\n\nCompareLikeView →\n\nAcer Aspire One A115-39 UN.38CSI.001 Laptop (AMD Ryzen 5 3500U/ 8GB/ 512GB SSD/ Win11)\n\n₹44,99010%\n\n3rd Gen AMD Ryzen 5 3500U\nQuad Core, 8 Threads\n8 GB DDR4 RAM\n512 GB SSD\nAMD Radeon Vega\n15.6 inches, 1920 x 1080 pixels\nWindows 11 OS\n2 USB 3.0 Ports\n\n43Spec Score\n\nCompareLikeView →\n\nLoad More\n\nDiscuss\n\nBe the first to leave a comment.\n\nRelated News\n\nSnapdragon X2 Plus Meets Its Match: 15 Days. One Lenovo Laptop. Zero Apologies\n\nMy cousin and I almost never agree on tech. He thinks I’m stuck in the past. I think he chases every new chip He claimed his Lenovo Yoga Slim 7x with the Snapdragon X2 Plus could handle anything I threw at it…\n\nASUS Diwali Sale 2026: The Vivobook, Zenbook and TUF Laptop Deals Actually Worth Buying",
+        "text_hash": "7f587c6aef4d8bda5b646d5ba868d88629572d09c8ab735b8b33129e0f11a798",
+        "fetched_at": "2026-11-19T05:49:31.712667Z",
+        "published_at": null,
+        "community": null,
+        "site": "smartprix.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_f9429fe52602244a",
+        "url": "https://www.digit.in/reviews/laptops/",
+        "type": "review_site",
+        "tier": 3,
+        "title": "Laptops Reviews",
+        "text": "HomeReviewsLaptops\n\nLaptops Reviews\n\nVyom Ramani30-Aug-2026\n\nHyperX Omen 16 Valorant Edition review: 240Hz glory with a Valorant tax\n\nDivyanshi Sharma28-Aug-2026\n\nAlienware 16X Aurora 2026 review: Powerful and gorgeous, but at what cost\n\nAman Rashid17-Aug-2026\n\nAsus Chromebook CM32 Detachable review: A surprisingly good laptop-tablet hybrid with one big catch\n\nMithun Mohandas16-Jul-2026\n\nHP HyperX OMEN 15-ga0028TX review: strong foundations, but pricey\n\nDivyanshi Sharma25-Jun-2026\n\nHP EliteBook X G2i 14 review: Small size, serious performance\n\nDivyanshi Sharma18-Jun-2026\n\nAsus ExpertBook Ultra review: Built for business, not attention\n\nMithun Mohandas14-Jun-2026\n\nLenovo IdeaPad Slim 3i Gen 11 review: Debuting with Intel Pather Lake\n\nVyom Ramani07-Jun-2026\n\nHP Omnibook 5 review: Light as a feather, lasts like a brick\n\nAman Rashid23-May-2026\n\nSamsung Galaxy Book 6 Ultra review: The Jack of all trades\n\nDivyanshi Sharma18-May-2026\n\nDell XPS 14 review: Bold and beautiful but at a cost\n\nDivyanshi Sharma17-Apr-2026\n\nRazer Blade 18 review: The best of both worlds at a premium price\n\nDivyanshi Sharma24-Mar-2026\n\nApple MacBook Neo review: A gift for Apple fans\n\nAman Rashid15-Mar-2026\n\nAsus Zenbook Duo 2026 review: Panther Lake makes this the best multitasking laptop I’ve used\n\nMithun Mohandas18-Feb-2026\n\nDell Pro 14 Premium PA14250 Review\n\nDivyanshi Sharma12-Feb-2026\n\nAsus Zenbook 14 review: Your next work bestie\n\nLoad More\n\nLatest Trending Reviews\n\nTelecom16-Nov-2026\n\nAirtel Insider offers free subscriptions, movie tickets and other benefits worth Rs 30,000: How to claim\n\nGeneral16-Nov-2026\n\nIndia, US and 8 other countries join hands to secure AI supply chain amid China's growing influence: Check details\n\nGeneral16-Nov-2026\n\nNvidia without the leather jacket: Why Silicon Valley wants Jensen Huang back\n\nGeneral16-Nov-2026\n\nIndia's new DPDP Rules to boost demand for cybersecurity professionals, here is why\n\nGaming16-Nov-2026\n\nPlayStation Black Friday Deals 2026: GTA V to RDR 2, 5 Sony PS5 games that you should grab ahead of GTA 6 launch",
+        "text_hash": "9ea96a2965bdc7b20e579dfab347a98974a2f949f3df1269a79f97d0035dc56f",
+        "fetched_at": "2026-11-19T05:49:32.027302Z",
+        "published_at": null,
+        "community": null,
+        "site": "digit.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_1041f0d68bf7c71d",
+        "url": "https://www.rtings.com/laptop/reviews/best/laptop",
+        "type": "review_site",
+        "tier": 3,
+        "title": "The 8 Best Laptops - Black Friday 2026",
+        "text": "Best\n\nLaptops\n\nGaming\n\nBudget And Cheap Gaming\n\nBudget And Cheap\n\nCollege\n\nBusiness\n\nWindows\n\nChromebooks\n\nBrands\n\nVideo Editing\n\nWorking From Home\n\nApple\n\nUnder $500\n\nPhoto Editing\n\n2-In-1\n\nMusic Production\n\nHP\n\nStudent Chromebooks\n\nProgramming\n\nDell\n\nTools\n\nCompare\n\nResults Table Tool\n\nReview List\n\nReview Index\n\nGraph\n\nReview Pipeline\n\nVote\n\nCustom Ratings\n\nPopular\n\nDell XPS 13 (2026)\n\nHP OmniBook 3 14 (2025)\n\nLenovo ThinkPad X9 Aura Edition (2025)\n\nApple MacBook Pro 16 (M5, 2026)\n\nApple MacBook Air 13 (M5, 2026)\n\nHP OmniBook 5 16 (2026)\n\nApple MacBook Neo (A18 Pro, 2026)\n\nLenovo ThinkPad X1 Carbon Gen 14 Aura Edition (2026)\n\nHP OMEN MAX 16 (2025)\n\nMicrosoft Surface Pro 13 12th Edition (2026)\n\nApple MacBook Pro 14 (M5, 2025)\n\nMicrosoft Surface Laptop 8th Edition (2026)\n\nAcer Swift Go 14 (2024)\n\nLenovo Legion Pro 7i Gen 10 16 (2026)\n\nDell XPS 14 (2026)\n\nLenovo ThinkPad P1 Gen 7 (2024)\n\nASUS Chromebook CX15 (2026)\n\nApple MacBook Pro 14 (M4, 2024)\n\nASUS Vivobook 16 M1605 (2023)\n\nASUS TUF Gaming A16 Advantage Edition (2023)\n\n189\nLaptops bought and tested\n\nSupported by you via\n\nmembership, and when you purchase through links on our site, we may earn an affiliate commission.\n\nHome\n\nLaptop\n\nBest\n\nLaptops",
+        "text_hash": "612bf705c813592e9fc22be870dd7cc8eee4939739de3b1f685849e42d32e0ff",
+        "fetched_at": "2026-11-19T05:49:33.782522Z",
+        "published_at": null,
+        "community": null,
+        "site": "rtings.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_91151f85e64d4473",
+        "url": "https://www.91mobiles.com/laptops",
+        "type": "review_site",
+        "tier": 3,
+        "title": "Laptops in India (2026) | Prices, Reviews, Specifications & Best Deals | 91mobiles.com",
+        "text": "Operating System\n\nWindows Laptops\n\nDOS Laptops\n\nMac OS Laptops\n\nPopular Searches\n\nBest Laptops\n\nUpcoming Laptops\n\nNew Laptops\n\nLaptop Finder\n\nLaptop Price List\n\nGaming Laptops\n\nMini Laptops\n\ni3 Laptops\n\ni5 Laptops\n\ni7 Laptops\n\nRyzen 5 Laptops\n\nRyzen 7 Laptops\n\nRyzen 9 Laptops\n\nSSD Laptops\n\nBudget Laptops\n\n16GB RAM Laptops\n\nLaptop\nFinder\n\nPrice\n\n₹\nto\n₹\n\nBest of Laptops\n\nBest Laptops\nBest Gaming Laptops\n\nBest Laptops Under ₹40,000\nBest Laptops Under ₹50,000\nBest Laptops Under ₹60,000\nBest Laptops Under ₹70,000\nBest Laptops Under ₹80,000\nBest Laptops Under ₹1,00,000\nBest Laptops Under ₹1,50,000\nBest Gaming Laptops Under ₹1,00,000\n\nLaptops By Popular Brands\n\nView All\n\nLaptops By Popular Features\n\n16GB & Above RAM\n\nConvertible Laptops\n\nTouchscreen Laptops\n\nAI Laptops\n\nLaptops with OLED screens\n\nSnapdragon-powered laptops\n\nLaptops with discrete GPUs\n\n1TB & Above SSD\n\nLaptops By Screen Size\n\n13 INCH LAPTOPS\n\n14 INCH LAPTOPS\n\n15 INCH LAPTOPS\n\n16 INCH LAPTOPS\n\n17 INCH LAPTOPS\n\nMost Popular Laptops\n\nApple MacBook Air (MDH84HN/A) Laptop (M5/16 GB/1 TB SSD/MAC)\n\n₹172,490\n\n83%\n\nApple MacBook Air (MDHJ4HN/A) Laptop (M5/16 GB/1 TB SSD/MAC)\n\n₹167,290\n\n83%\n\nApple MacBook Air (MDH94HN/A) Laptop (M5/24 GB/1 TB SSD/MAC)\n\n₹195,490\n\n84%\n\nApple MacBook Air (MDHA4HN/A) Laptop (M5/16 GB/512 GB SSD)\n\n₹134,240\n\n81%\n\nDell Inspiron 15 3530 (OIN353034011RINB1M) Laptop (Core i5 13th Gen/8 GB/512 GB SSD/Windows 11)\n\n₹67,990\n\n75%\n\nAsus TUF Gaming A15 FA566NFR-HN259W Laptop (AMD Octa Core Ryzen 7/16 GB/512 GB SSD/Windows 11/4 GB)\n\n₹95,647\n\n81%\n\nHP 14-ep1181TU (CJ9E0PA) Laptop (Core Ultra 7/24 GB/1 TB SSD/Windows 11)\n\n₹95,990\n\n79%\n\nHP 14-ep1152TU (C72QJPA) Laptop (Core Ultra 7/16 GB/1 TB SSD/Windows 11)\n\n₹89,990\n\n78%\n\nHP 14-gr1036TU (C33RKPA) Laptop (Core Ultra 7/16 GB/512 GB SSD/Windows 11)\n\n₹79,990\n\n81%\n\nMotorola Motobook 60 14IRH10R (83J7000CIN) Laptop (Core 5 Series 2 /16 GB/512 GB SSD/Windows 11)\n\n₹84,990\n\n77%\n\nRecent Laptops\n\nSamsung Galaxy Book 5 Pro NP940XHA-LG1IN Laptop (Core Ultra 5/16 GB/512 GB SSD/Windows 11/8 GB)\n\n₹153,588\n\n81%\n\nHP OmniBook Ultra Flip 14-fh0029TU (B13YZPA) Laptop (Core Ultra 7/32 GB/1 TB SSD/Windows 11)\n\n₹211,000\n\n91%\n\nHP OmniBook 5 14-mh0017TU(E70D6PA) Laptop (320/8 GB/512 GB SSD/Windows 11)\n\n₹107,799\n\n81%\n\nHP OmniBook 5 14-mh0067TU(E77PBPA) Laptop (320/8 GB/512 GB SSD/Windows 11)\n\n₹107,799\n\n81%\n\nAsus ProArt P16 OLED H7606GM-SR021WS Laptop (Ryzen AI 9 465/16 GB/1 TB SSD/Windows 11/8 GB)\n\n₹289,990\n\n91%\n\nHP OmniBook 5 14-mh0061TU(E70FZPA) Laptop (Core 5/8 GB/512 GB SSD/Windows 11)\n\n₹107,799\n\n81%\n\nAsus Zenbook 14 OLED UX3480KA-U2084WS Laptop (AMD Ryzen AI 7 345/16 GB/512 GB SSD/Windows 11)\n\n₹150,990\n\n80%\n\nLenovo ThinkPad P14s 21QT0029US Laptop (Core Ultra 7/32 GB/1 TB SSD/Windows 11/6 GB)\n\n₹329,990\n\n92%\n\nAsus Zenbook 14 UX3480AA-SU592WS Laptop (Intel Core Ultra 9 386H/16 GB/512 GB SSD/Windows 11)\n\n₹193,990\n\n86%\n\nLenovo ThinkPad P14s 21QT002RUS Laptop (255H/32 GB/512 GB SSD/Windows 11)\n\n₹289,990\n\n85%\n\nAsus ExpertBook P1 P1503CVAYB-S73384WS Laptop (100U/8 GB/512 GB SSD/Windows 11)\n\n₹54,490\n\n74%\n\nAsus ProArt P14 H7407BA-SU302WS Laptop (N1X/24 GB/1 TB SSD/Windows 11)\n\n₹319,990\n\n79%\n\nAsus Zenbook 14 UX3480QA-U1035WS Laptop (X1 26 100/16 GB/512 GB SSD/Windows 11)\n\n₹131,990\n\n79%\n\nApple MacBook Pro MHWT4HN/A Ultrabook (M6/16 GB/1 TB SSD/MAC)\n\n₹239,900\n\n78%\n\nAsus ExpertBook P1 P1503CVAI-S70005WS Laptop (Intel Core 3 100U/8 GB/512 GB SSD/Windows 11)\n\n₹61,990\n\n74%\n\nLenovo Legion 7 16IAX10 (83KY001JSB) Ultrabook (Intel Core Ultra 9 275HX/32 GB/1 TB SSD/Windows 11/8 GB)\n\n₹274,490\n\n94%\n\nLenovo ThinkPad P16s 21K90012US Laptop (7840U/64 GB/1 TB SSD/Windows 11)\n\n₹399,990\n\n84%\n\nLenovo ThinkBook 14 21V0A01VIG Laptop (250/16 GB/1 TB SSD/Windows 11)\n\n₹105,990\n\n82%\n\nLenovo ThinkBook 14 21UYA04WIG Ultrabook (210H/16 GB/512 GB SSD/Windows 11)\n\n₹230,000\n\n77%\n\nLenovo ThinkBook 14x 22BGA028IG Laptop (226V/16 GB/512 GB SSD/Windows 11)\n\n₹114,849\n\n81%\n\nPopular Comparisons\n\nAsus TUF Gaming F16 FX608JMR-RV049WS Laptop\n\nVS\n\nAsus ROG Strix G16 G614PH-RV033WS Laptop\n\nDell Inspiron 14 5440\n\nVS\n\nMSI Modern 15 H C13M-218IN Laptop\n\nAsus Vivobook S16 S3607CA-RP090WS Laptop\n\nVS\n\nHP 14-ep1181TU\n\nLenovo IdeaPad Gaming 3 15IHU6\n\nVS\n\nLenovo IdeaPad Gaming 3 15ARH7\n\nSamsung Galaxy Book 4 Edge NP750XQB-KA1IN Laptop\n\nVS\n\nApple MacBook Pro\n\nLenovo LOQ 15IRX9\n\nVS\n\nAsus Gaming V16 V3607VU-RP550WS Laptop\n\nHP Pavilion 15-eh3102AU\n\nVS\n\nHP 15s- fr5011TU\n\nMSI Cyborg 15 A12UDX-1049IN Laptop\n\nVS\n\nAsus TUF Gaming A15 FA566NFR-HN045WS Laptop\n\nAsus VivoBook 15 X1504VA-NJ2325WS Laptop\n\nVS\n\nHP 15-fd0668TU\n\nLenovo LOQ 15IRX9\n\nVS\n\nHP Victus 15-fb2117AX\n\nLenovo LOQ 15IRX9\n\nVS\n\nHP Victus 15-fa2382TX\n\nAcer Swift Neo OLED AI PC SFN14-54H\n\nVS\n\nAsus ExpertBook P1 P1503CVA-S70611WS Laptop\n\nAsus ROG Strix G16 G614PH-RV033WS Laptop\n\nVS\n\nAsus TUF Gaming F16 FX688JPR-QT043WS Laptop\n\nAsus VivoBook 15 X1504VA-NJ2325WS Laptop\n\nVS\n\nHP 255 G10\n\nAsus VivoBook 15 X1504VA-NJ2325WS Laptop\n\nVS\n\nAcer Aspire 15 AS15-42\n\nAsus Vivobook S 14 Flip TP3402VAO-LZ619WS Laptop\n\nVS\n\nAsus VivoBook S14 S3407VA-LY039WS Laptop\n\nAsus Vivobook S 14 Flip TP3402VAO-LZ619WS Laptop\n\nVS\n\nAsus VivoBook S14 S3407VA-LY040WS Laptop\n\nAsus VivoBook 15 X1504VA-NJ2325WS Laptop\n\nVS\n\nAcer Aspire Lite AL15-41\n\nAcer Aspire Lite AL15-41\n\nVS\n\nInfinix INBook Air Pro Plus XL434\n\nDell Inspiron 14 5440\n\nVS\n\nHP 15-fd0111TU\n\nHP Victus 15-fb2114AX\n\nVS\n\nAsus TUF Gaming A15 FA507NVR-LP104WS Laptop\n\nSee All Comparisons\n\nLatest Laptops News\n\nView All\n\nASUS adds TUF Gaming F16, a Made in India TUF Gaming A15 and the new TUF Gaming T700 Mini desktop, with prices from Rs 1,32,990\n\nASUS Zenbook 14 launched in India with Intel, AMD, and Snapdragon processor variants\n\nHP OmniBook 5, ProBook 4 G2iS laptops launched in India with OLED displays: check price, specifications\n\nASUS ProArt P16 and P14 launched in India with NVIDIA RTX Spark chipsets: check price, specifications\n\nDell 14S launched in India with Intel Core Series 3 processsors and four lively colours\n\nApple finally brings touchscreen to MacBook Pro after years of resistance; India price starts at Rs 3.5 lakh\n\nLatest Laptops Reviews\n\nView All\n\nDell XPS 13 Review: A premium ultraportable with one frustrating limitation\n\nPrimebook 3 Max review: an incremental refesh or more than that?\n\nASUS ExpertBook P3 (P3406CCAP) Review: All business, no unnecessary drama\n\nNVIDIA RTX Spark changed how I use my PC, and I think that’s the point\n\nAcer Aspire Pro AP14-55 review: Best in the market under Rs 70,000?\n\nASUS TUF Gaming 16 (2026) review: TUF luck beating the competition?",
+        "text_hash": "51948c059f29a5109209c0bd790f0e400468a458a65b4d9d52f6b61f60049b46",
+        "fetched_at": "2026-11-19T05:49:33.647761Z",
+        "published_at": null,
+        "community": null,
+        "site": "91mobiles.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_e96510f1c4ca0ef3",
+        "url": "https://www.amazon.in/b?ie=UTF8&node=16092374031",
+        "type": "retailer",
+        "tier": 5,
+        "title": "Amazon.in: Laptop buying guide: Computers & Accessories",
+        "text": "Category\n\nLaptop buying guide\n\nExplore the processor series\n\nShop by memory size\n\nShop by storage type\n\nShop by capacity\n\nCheck out the other sections\n\nDisplay >\n\nOperating system >\n\nPorts & Connectivity >\n\nDesign >\n\nBack to top\n\nGet to Know Us\n\nAbout Amazon\n\nCareers\n\nPress Releases\n\nAmazon Science\n\nConnect with Us\n\nFacebook\n\nTwitter\n\nInstagram\n\nMake Money with Us\n\nSell on Amazon\n\nSell under Amazon Accelerator\n\nProtect and Build Your Brand\n\nAmazon Global Selling\n\nSupply to Amazon\n\nBecome an Affiliate\n\nFulfilment by Amazon\n\nAdvertise Your Products\n\nAmazon Pay on Merchants\n\nLet Us Help You\n\nYour Account\n\nReturns Centre\n\nRecalls and Product Safety Alerts\n\n100% Purchase Protection\n\nAmazon App Download\n\nHelp\n\nEnglish\n\nIndia\n\nAbeBooks\n\nBooks, art\n& collectibles\n\nAmazon Web Services\n\nScalable Cloud\nComputing Services\n\nAudible\n\nDownload\nAudio Books\n\nIMDb\n\nMovies, TV\n& Celebrities\n\nShopbop\n\nDesigner\nFashion Brands\n\nAmazon Business\n\nEverything For\nYour Business\n\nAmazon Music\n\nStream millions of songs\n\nConditions of Use & Sale\nPrivacy Notice\nInterest-Based Ads\n\n© 1996-2026, Amazon.com, Inc. or its affiliates",
+        "text_hash": "38d23745b9c1429197dab807d99ffac959095c06404a3c888f180f6085d41c53",
+        "fetched_at": "2026-11-19T05:49:35.144139Z",
+        "published_at": null,
+        "community": null,
+        "site": "amazon.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_035fac3d42c31091",
+        "url": "https://www.91mobiles.com/laptopfinder.php",
+        "type": "review_site",
+        "tier": 3,
+        "title": "Best Laptop Finder in India | Compare & Find the Right Laptop | 91mobiles.com",
+        "text": "Laptop Finder\n\nFind the best Laptop for your needs with the 91mobiles Laptop Finder. Compare top Laptops in India based on price, specifications, features, ratings, and preferences to discover the right device easily.\n\nTop 5 Laptops with Prices & Specs\n\nProduct Name\n\nDisplay\n\nProcessor\n\nRAM\n\nGraphics Memory\n\nBattery\n\nSpecs Score\n\nPrices\n\nApple MacBook Air (MDH84HN/A) Laptop\n\n13.60\" (34.54 cm), 2560 x 1664 px, Liquid Retina Display\n\nApple M5 (10 cores), 4.61 GHz, Deca-Core\n\n16 GB Unified Memory RAM, 1 TB SSD\n\n10-core GPU GPU\n\n18 Hrs Battery Life, Fast Charging Support\n\n83%\n\n₹172,490\n\nApple MacBook Air (MDHJ4HN/A) Laptop\n\n13.60\" (34.54 cm), 2560 x 1664 px, Liquid Retina Display\n\nApple M5 (10 cores), 4.61 GHz, Deca-Core\n\n16 GB Unified Memory RAM, 1 TB SSD\n\nApple M5 10-core GPU\n\n18 Hrs Battery Life, Fast Charging Support\n\n83%\n\n₹167,290\n\nApple MacBook Air (MDH94HN/A) Laptop\n\n13.60\" (34.54 cm), 2560 x 1664 px, Liquid Retina Display\n\nApple M5 (10 cores), 4.61 GHz, Deca-Core\n\n24 GB Unified Memory RAM, 1 TB SSD\n\nApple M5 10-core GPU\n\n18 Hrs Battery Life, Fast Charging Support\n\n84%\n\n₹195,490\n\nApple MacBook Air (MDHA4HN/A) Laptop\n\n13.60\" (34.54 cm), 2560 x 1664 px, Liquid Retina Display\n\nApple M5 (10 cores), 4.61 GHz, Deca-Core\n\n16 GB Unified Memory RAM, 512 GB SSD\n\nApple M5 8-core GPU\n\n18 Hrs Battery Life, Fast Charging Support\n\n81%\n\n₹134,240\n\nDell Inspiron 15 3530 (OIN353034011RINB1M) Laptop\n\n15.6\" (39.62 cm), 1920 x 1080 px, IPS LCD Display\n\nIntel Core i5-1334U, 4.6 GHz, Deca-Core\n\n8 GB DDR4 RAM, 512 GB SSD\n\nIntel Iris Xe Graphics G7 80EUs GPU\n\n41 WHrs Battery Capacity\n\n75%\n\n₹67,990\n\n... read more\n\nCompare",
+        "text_hash": "c85df9fd017209983340c293f3a8a82549f122b60d7e3747d5be3f3f5e0314b3",
+        "fetched_at": "2026-11-19T05:49:35.578700Z",
+        "published_at": null,
+        "community": null,
+        "site": "91mobiles.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_1990e9de1fe3f209",
+        "url": "https://www.hp.com/in-en/tech-takes/laptops/guide/which-laptop-is-right-for-me-buyers-guide.html",
+        "type": "manufacturer",
+        "tier": 1,
+        "title": "Which Laptop is Right for Me? A Buyer's Guide",
+        "text": "Skip to Content\n\nSkip to Footer\n\nSkip to Country Selector\n\nYour Cart is Empty\n\nHP Tech Takes\n\nHP Tech Takes\n\nHP Tech Takes\n\nHP Tech Takes\n\nHP Tech Takes\n\nHP Tech Takes\n\n30 November 2022\n\nWhich Laptop is Right for Me? A Buyer's Guide\n\nIn the market for a new HP laptop but unsure which one to pick? Not to worry, we have removed all the tedious guesswork for you by providing an easy-to-follow decision tree to help you find the best HP laptop model to meet your demanding computing requirements and busy lifestyle.\n\nView our laptop buyer's guide infographic below to get the quickest answer to that age-old question: Which is the right laptop for me?\n\nChoosing a new laptop is a big decision. Not only can it have a big impact on your wallet but your laptop will likely be your companion throughout much of the day. So what do you need to know before making your choice? We’ve designed a guide based on several factors that should help you find the perfect laptop for you.\n\nWhen trying to decide which laptop is right for you, one of your most important considerations should be whether you plan to use your laptop at home or on-the-go. You’ll also want to think about what you’re going to be using it for.\n\nIs just for leisurely streaming your favorite shows and optimal online shopping or do you need it to be your office away from home? These factors will determine which specs you should prioritize when you’re evaluating your options.\n\nFortunately, with laptops by HP®, you won’t have to sacrifice performance, aesthetics, or user-friendly operation. Whichever route you choose to go, you can rest assured that you’ve selected an industry-leading laptop that you can rely on. So, let’s get started.\n\nAt-home laptop users\n\nIf you’re only going to be using your new laptop at home, you have the greatest flexibility when deciding on a new device. But there are still a few important factors should be considered when making your decision, like stability, ventilation, and screen design.\n\nFOR THE STATIONARY HOME USER\n\nSHOP HP ENVY X360 LAPTOPS NOW\n\nFor at-home laptops users whose setup is limited to their living room or home office, we recommend the HP ENVY x360 15-inch laptop. This heavy-duty laptop has the processing power needed to tackle any task.\n\nYou’ll enjoy using this laptop at home with its innovative hinge that allows for better ventilation and more stability, as well as the high-quality graphics for ideal streaming and scrolling. Add to that an impressive battery life so you don’t have to worry about sitting next to an outlet and you’ve got a winning device.\n\nFOR THE HOME USER WHO LIKES A CHANGE OF VIEW\n\nSHOP HP SPECTRE X360 LAPTOPS NOW\n\nIf you’re going to be carrying your laptop from room to room to your favorite work-from-home spots (the comfy couch in your living room, the dining room table when you’re in a serious time crunch, or your bedroom when you’re winding down for the day), the HP SPECTRE x360 convertible laptop is probably a better option for you. This touch laptop has a sleek, razor-thin design, including a 90% screen-to-body ratio, and smart technology you’ll love.\n\nOn-the-go laptop users\n\nIf, on the other hand, you’ll be regularly taking your laptop with you, flexibility and portability will be your top priorities. If you’re going to be transporting your laptop all over the place, you should also think about what type of carrier it needs to fit in and what you’ll use it for.\n\nIf your laptop will be tagging along inside your backpack, it’s likely that you’ll need something that’s portable without sacrificing functionality.\n\nFOR STUDENTS\n\nIf you need your laptop to be your study companion when it’s time to hit the books at the school library or even in the cafeteria, you’ll be happy to have the HP Stream notebook by your side.\n\nIt’s a scholar’s dream laptop because it’s flexible, portable, and budget-friendly. And, the industry-leading processors will ensure that you have enough power so you’re never left in a crunch when trying to complete assignments, research, or even that last-minute essay.\n\nFOR THE GAMER ON-THE-GO\n\nSHOP HP OMEN GAMING LAPTOPS NOW\n\nGaming during your downtime between classes or on the train on the way home from work? If you’re a leaderboard legend, you’re going to want to go with the HP OMEN 15-inch gaming laptop. With next-level graphics, optimized ventilation, and diverse storage options, the HP OMEN laptop can help you take your gaming to new heights with its legendary hardware.\n\nSHOP HP PAVILION GAMING LAPTOPS NOW\n\nBut, if you’re more of a casual gamer, the HP Pavilion 15-inch gaming laptop is probably a better match for your needs without exceeding your budget. From the stunning micro-edge display to optimized performance, the new HP Pavilion gaming laptop is designed for smooth gameplay that you won’t be able to get enough of.\n\nFOR THE EVERYDAY USER\n\nSHOP PAVILION X360 LAPTOPS NOW\n\nIf your laptop doesn’t need to pull heavy duty and you need to stick to a budget, the HP Pavilion x360 is a great choice. This budget-friendly laptop can adapt to your needs, whatever they may be. The thin, light design and 360 degree hinge make it easy to use your laptop in any position you need for optimal usability and comfort. And, you can use it as a tablet, too.\n\nFor those looking to splurge a bit on their everyday laptop, the HP ENVY x360 is a high-performing laptop you can count on for an enjoyable user experience. The HP ENVY 360 has the specs you want like crystal-clear Full HD resolution, 3-sided micro-edge display, and audio by Bang & Olufsen, without sacrificing essentials like processing power or battery life.\n\nFOR THE DESIGN PROFESSIONAL\n\nSHOP ZBOOK STUDIO MOBILE WORKSTATIONS NOW\n\nIf your job requires high-resolution photos, video editing, animation, or illustration you can’t afford to settle for anything but the HP ZBook Studio mobile workstation. With incredible graphics and large memory configurations, this impressive piece of tech can help you bring your most creative ideas to fruition. And, it weighs less than five pounds.\n\nFOR THE TRAVELING PROFESSIONAL\n\nSHOP HP ELITEBOOK LAPTOPS NOW\n\nTraveling with a laptop can be burdensome if it’s too heavy or difficult to use. For those who travel frequently and need a reliable laptop that will help them stay connected and on deadline, the HP EliteBook series is perfect. With our thin, secure business workstation, you can make the world your office.\n\nFOR THE STATIONARY PROFESSIONAL\n\nSHOP HP ZBOOK WORKSTATIONS NOW\n\nIf you stay put during your workday, the HP ZBook 15 mobile workstation will be the best workplace companion. With this 15-inch mobile workstation designed for powerful performance, you’ll be able to tackle any task. The HP ZBook 15 is secure, high-performing, and designed for a seamless workflow.\n\nTakeaways: your perfect fit\n\nNow that you’ve found the perfect laptop, it’s time to get back to doing what you do best. You can start working, searching, streaming, or gaming with the peace of mind that you’re backed by the power and performance of an HP laptop.\n\nInfographic transcription:\n\nSTATIONARY AT-HOME\n\n1. Will you use your laptop at home, or take it with you? At home.\n\n2. Will you keep your laptop in one room, or carry it from room-to-room? One room.\n\n• HP ENVY 17-inch notebook: This heavy-duty laptop has the processing power needed to tackle any task.\n\nMOBILE AT-HOME\n\n1. Will you use your laptop at home, or take it with you? At home.\n\n2. Will you keep your laptop in one room, or carry it from room-to-room? Room-to-room.\n\n• HP Spectre x360 convertible laptop: Sleek design and smart technology combine in a razor thin laptop.\n\nSTUDENT\n\n1. Will you use your laptop at home, or take it with you? Take it with me.\n\n2. What do you use to carry around your laptop? My backpack.\n\n3. Do you spend your days hitting the books? Yes.\n\n• HP Stream 11-inch notebook: Flexible, portable, and budget-friendly - a scholar’s dream laptop.\n\nCASUAL GAMER\n\n1. Will you use your laptop at home, or take it with you? Take it with me.\n\n2. What do you use to carry around your laptop? My backpack.\n\n3. Do you spend your days hitting the books? No.\n\n4. Do you want a laptop for gaming or everyday use? Gaming.\n\n5. Are you a casual gamer or leaderboard legend? Casual gamer.\n\n• HP Pavilion 15-inch gaming laptop: Crush the competition with this budget-friendly gaming laptop.\n\nLEADERBOARD LEGEND (SERIOUS GAMER)\n\n1. Will you use your laptop at home, or take it with you? Take it with me.\n\n2. What do you use to carry around your laptop? My backpack.\n\n3. Do you spend your days hitting the books? No.\n\n4. Do you want a laptop for gaming or everyday use? Gaming.\n\n5. Are you a casual gamer or leaderboard legend? Leaderboard legend.\n\n• HP OMEN X 17-inch gaming laptop: Take your gaming to new heights with legendary hardware.\n\nEVERYDAY USER (ON A BUDGET)",
+        "text_hash": "561d63686cb0cc3fa4ee7f831f3c1854b9ccb96ff89cc19c425d0b3e74fabca7",
+        "fetched_at": "2026-11-19T05:49:37.264607Z",
+        "published_at": null,
+        "community": null,
+        "site": "hp.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      }
+    ],
+    "shown": [
+      "Lenovo IdeaPad Slim 1 82R400BGIN Laptop (AMD Ryzen 5 5500U/ 8GB/ 512GB SSD/ Win11 Home)",
+      "Dell Inspiron 15 3530 (OIN353034011RINS1M) Laptop",
+      "HP 15s 15 FD0623TU Standard Laptop",
+      "Acer Travel Lite TL14-42M 14 Laptop (AMD Ryzen 7 7730U/ 32GB/ 1TB SSD/ Win11)",
+      "Acer Aspire 3 A325-45 UN.344SI.013 Standard Laptop",
+      "Asus Vivobook 15 X1504MA-BQ424WS Standard Laptop",
+      "Asus VivoBook 15 X1504VAP-BQ1321WS Standard Laptop",
+      "Dell Inspiron 15 3530 (OIN353034011RINB1M) Laptop",
+      "JioBook 11 with Lifetime Office/Android 4G Laptop Mediatek 8788 (JioOS)/Octa-core/4GB RAM/64 eMMC Storage/Thin and Light Laptop",
+      "Lenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop (11th Gen Core i3/ 8GB/ 512GB SSD/ Win11)",
+      "HP OmniPad 12 12-M0005QU Convertible Laptop",
+      "Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home)",
+      "Lenovo IdeaPad Slim3 83ER00KRIN Standard Laptop",
+      "Acer AL15-53 UN.34ESI.02E Standard Laptop",
+      "Lenovo IdeaPad Slim 3 82RK0085IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11)",
+      "Lenovo Ideapad Slim 3 Laptop",
+      "Lenovo Ideapad Slim 3i 81WQ00NXIN Laptop (Intel Celeron N4020/ 8GB/ 256GB SSD/ Win11)",
+      "Acer AL15-52H UN.347SI.01G Standard Laptop",
+      "Asus CX9406 Googlebook Laptop (Intel Core Ultra 5 325/ 32GB/ ChromeOS)",
+      "Asus Vivobook 15 X1504VAP-BQ1543WS Laptop (Intel Core 5 120U/ 16GB/ 512GB SSD/ Win11)",
+      "Acer Aspire Pro AP14-55 UN.37SSI.003 Laptop (Intel Core Ultra 5 125H/ 16GB/ 512GB SSD/ Win11 Home)",
+      "HP 15 250R G10 Laptop (Intel Core 3 100U/ 16GB/ 512GB SSD/ Win11)",
+      "HP Pavilion x360"
+    ],
+    "filtered_out": [
+      "Apple MacBook Neo (A18 Pro, 2026)",
+      "Apple MacBook Neo (MHFA4HN/A) Laptop"
+    ],
+    "cant_tell": [
+      "Acer AL14-71P NX.D7USI.001 Standard Laptop",
+      "Acer Swift Go 14 (2024)",
+      "Alienware 16X Aurora 2026",
+      "Apple MacBook Air 13 (M5, 2026)",
+      "Apple MacBook Neo",
+      "Apple MacBook Pro 14 (M5, 2025)",
+      "Apple MacBook Pro 16 (M5, 2026)",
+      "Asus Chromebook CM32 Detachable",
+      "Asus ExpertBook Ultra",
+      "Asus Vivobook 16 X1605VA-MB1627WS Standard Laptop",
+      "Asus Zenbook 14",
+      "Asus Zenbook Duo 2026",
+      "Dell Inspiron 15 3530 (OIN353034071RINS1M) Laptop",
+      "Dell Pro 14 Premium PA14250",
+      "Dell XPS 13 (2026)",
+      "Dell XPS 14",
+      "Dell XPS 14 (2026)",
+      "HP EliteBook series",
+      "HP EliteBook X G2i 14",
+      "HP ENVY x360 15-inch laptop",
+      "HP HyperX OMEN 15-ga0028TX",
+      "HP OMEN MAX 16 (2025)",
+      "HP OMEN X 17-inch gaming laptop",
+      "HP OmniBook 3 14 (2025)",
+      "HP Omnibook 5",
+      "HP OmniBook 5 16 (2026)",
+      "HP Pavilion 15-inch gaming laptop",
+      "HP SPECTRE x360 convertible laptop",
+      "HP Stream 11-inch notebook",
+      "HP Stream notebook",
+      "HP ZBook 15 mobile workstation",
+      "HP ZBook Studio mobile workstation",
+      "HyperX Omen 16 Valorant Edition",
+      "Lenovo IdeaPad Slim 3i Gen 11",
+      "Lenovo Legion Pro 7i Gen 10 16 (2026)",
+      "Lenovo ThinkPad X1 Carbon Gen 14 Aura Edition (2026)",
+      "Lenovo ThinkPad X9 Aura Edition (2025)",
+      "Microsoft Surface Laptop 8th Edition (2026)",
+      "Microsoft Surface Pro 13 12th Edition (2026)",
+      "Razer Blade 18",
+      "Samsung Galaxy Book 6 Ultra"
+    ],
+    "citations": 41,
+    "llm_replies": [
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "21895f631a48dea562cd7df90ab7d5b0d319bd78ad384ac0f9810069c3f18ac9",
+        "data_sha256": "40fed24a033fdd1032822db5d194c430b3445512367954086c8db564de99c8bd",
+        "reply": {
+          "mentions": [],
+          "claims": []
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "c86035553f22db4808901a0d5f6bb5612cf0a9717fb720e519e5798284f838e0",
+        "data_sha256": "00fccb3170ab9cb3f5db350572c0fc78bc9d5f71c5c4f99d7c3a4ecf045a6b1c",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "HyperX Omen 16 Valorant Edition",
+              "is_product": true,
+              "brand": "HyperX",
+              "recommends": null
+            },
+            {
+              "raw_name": "Alienware 16X Aurora 2026",
+              "is_product": true,
+              "brand": "Alienware",
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus Chromebook CM32 Detachable",
+              "is_product": true,
+              "brand": "Asus",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP HyperX OMEN 15-ga0028TX",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP EliteBook X G2i 14",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus ExpertBook Ultra",
+              "is_product": true,
+              "brand": "Asus",
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo IdeaPad Slim 3i Gen 11",
+              "is_product": true,
+              "brand": "Lenovo",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP Omnibook 5",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy Book 6 Ultra",
+              "is_product": true,
+              "brand": "Samsung",
+              "recommends": null
+            },
+            {
+              "raw_name": "Dell XPS 14",
+              "is_product": true,
+              "brand": "Dell",
+              "recommends": null
+            },
+            {
+              "raw_name": "Razer Blade 18",
+              "is_product": true,
+              "brand": "Razer",
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Neo",
+              "is_product": true,
+              "brand": "Apple",
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus Zenbook Duo 2026",
+              "is_product": true,
+              "brand": "Asus",
+              "recommends": null
+            },
+            {
+              "raw_name": "Dell Pro 14 Premium PA14250",
+              "is_product": true,
+              "brand": "Dell",
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus Zenbook 14",
+              "is_product": true,
+              "brand": "Asus",
+              "recommends": null
+            }
+          ],
+          "claims": []
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "40875910a1fcfc39c90ae0dd01d7897020268730b1269475c594f68d243934ac",
+        "data_sha256": "3d9ddcf4099bd7f76c5ac495864a03f0e09346032a9d3a4726702c8c215214bc",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "HP ENVY x360 15-inch laptop",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP SPECTRE x360 convertible laptop",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP Stream notebook",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP OMEN 15-inch gaming laptop",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP Pavilion 15-inch gaming laptop",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP Pavilion x360",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP ENVY x360",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP ZBook Studio mobile workstation",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP EliteBook series",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP ZBook 15 mobile workstation",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP ENVY 17-inch notebook",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP Spectre x360 convertible laptop",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP Stream 11-inch notebook",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP OMEN X 17-inch gaming laptop",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "HP ENVY x360 15-inch laptop",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "This heavy-duty laptop has the processing power needed to tackle any task.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "HP ENVY x360 15-inch laptop",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "high-quality graphics for ideal streaming and scrolling.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "HP ENVY x360 15-inch laptop",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "Add to that an impressive battery life so you don’t have to worry about sitting next to an outlet and you’ve got a winning device.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "HP SPECTRE x360 convertible laptop",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "This touch laptop has a sleek, razor-thin design, including a 90% screen-to-body ratio",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "HP Stream notebook",
+              "is_product_type": false,
+              "criterion_key": "value_for_money",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "It’s a scholar’s dream laptop because it’s flexible, portable, and budget-friendly.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "HP Stream notebook",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": 8.0,
+              "quote": "industry-leading processors will ensure that you have enough power so you’re never left in a crunch",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "HP Pavilion x360",
+              "is_product_type": false,
+              "criterion_key": "value_for_money",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "This budget-friendly laptop can adapt to your needs",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "HP Pavilion x360",
+              "is_product_type": false,
+              "criterion_key": "weight",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "The thin, light design and 360 degree hinge make it easy to use your laptop in any position",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "HP ENVY x360",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "crystal-clear Full HD resolution, 3-sided micro-edge display",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "HP ZBook Studio mobile workstation",
+              "is_product_type": false,
+              "criterion_key": "weight",
+              "value": "< 5 pounds",
+              "unit": null,
+              "score": null,
+              "quote": "it weighs less than five pounds.",
+              "polarity": "positive"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "2e4fb853d71add643cecd439a33c484a014e4436f48d197af8d82c937bae8e79",
+        "data_sha256": "7ca7cb08fa7f7c9a232db550eadf7e02f75a06e3e9606209965ba27f54295862",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Dell XPS 13 (2026)",
+              "is_product": true,
+              "brand": "Dell",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP OmniBook 3 14 (2025)",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo ThinkPad X9 Aura Edition (2025)",
+              "is_product": true,
+              "brand": "Lenovo",
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Pro 16 (M5, 2026)",
+              "is_product": true,
+              "brand": "Apple",
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Air 13 (M5, 2026)",
+              "is_product": true,
+              "brand": "Apple",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP OmniBook 5 16 (2026)",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Neo (A18 Pro, 2026)",
+              "is_product": true,
+              "brand": "Apple",
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo ThinkPad X1 Carbon Gen 14 Aura Edition (2026)",
+              "is_product": true,
+              "brand": "Lenovo",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP OMEN MAX 16 (2025)",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "Microsoft Surface Pro 13 12th Edition (2026)",
+              "is_product": true,
+              "brand": "Microsoft",
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Pro 14 (M5, 2025)",
+              "is_product": true,
+              "brand": "Apple",
+              "recommends": null
+            },
+            {
+              "raw_name": "Microsoft Surface Laptop 8th Edition (2026)",
+              "is_product": true,
+              "brand": "Microsoft",
+              "recommends": null
+            },
+            {
+              "raw_name": "Acer Swift Go 14 (2024)",
+              "is_product": true,
+              "brand": "Acer",
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo Legion Pro 7i Gen 10 16 (2026)",
+              "is_product": true,
+              "brand": "Lenovo",
+              "recommends": null
+            },
+            {
+              "raw_name": "Dell XPS 14 (2026)",
+              "is_product": true,
+              "brand": "Dell",
+              "recommends": null
+            }
+          ],
+          "claims": []
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "20654b1695ebfd60b479b815a19f26a66a64b7c723d1af48ee85dff028956fd9",
+        "data_sha256": "c5ba11d98a729e8fa687007ed925a97d0b9d86e05e8523ced8cf4af951a09133",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Acer Aspire 3 A325-45 UN.344SI.013 Standard Laptop",
+              "is_product": true,
+              "brand": "Acer",
+              "recommends": null
+            },
+            {
+              "raw_name": "Acer AL15-52H UN.347SI.01G Standard Laptop",
+              "is_product": true,
+              "brand": "Acer",
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo IdeaPad Slim3 83ER00KRIN Standard Laptop",
+              "is_product": true,
+              "brand": "Lenovo",
+              "recommends": null
+            },
+            {
+              "raw_name": "JioBook 11 with Lifetime Office/Android 4G Laptop Mediatek 8788 (JioOS)/Octa-core/4GB RAM/64 eMMC Storage/Thin and Light Laptop",
+              "is_product": true,
+              "brand": "JIO",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP OmniPad 12 12-M0005QU Convertible Laptop",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus VivoBook 15 X1504VAP-BQ1321WS Standard Laptop",
+              "is_product": true,
+              "brand": "Asus",
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo Ideapad Slim 3 Laptop",
+              "is_product": true,
+              "brand": "Lenovo",
+              "recommends": null
+            },
+            {
+              "raw_name": "Acer AL15-53 UN.34ESI.02E Standard Laptop",
+              "is_product": true,
+              "brand": "Acer",
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus Vivobook 15 X1504MA-BQ424WS Standard Laptop",
+              "is_product": true,
+              "brand": "Asus",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP 15s 15 FD0623TU Standard Laptop",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus Vivobook 16 X1605VA-MB1627WS Standard Laptop",
+              "is_product": true,
+              "brand": "Asus",
+              "recommends": null
+            },
+            {
+              "raw_name": "Acer AL14-71P NX.D7USI.001 Standard Laptop",
+              "is_product": true,
+              "brand": "Acer",
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Acer Aspire 3 A325-45 UN.344SI.013 Standard Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 39999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹39,999.00",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Acer AL15-52H UN.347SI.01G Standard Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 56490.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹56,490.00",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Lenovo IdeaPad Slim3 83ER00KRIN Standard Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 59499.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹59,499.00",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "JioBook 11 with Lifetime Office/Android 4G Laptop Mediatek 8788 (JioOS)/Octa-core/4GB RAM/64 eMMC Storage/Thin and Light Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 12999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹12,999.00",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "HP OmniPad 12 12-M0005QU Convertible Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 47990.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹47,990.00",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Asus VivoBook 15 X1504VAP-BQ1321WS Standard Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 56990.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹56,990.00",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Lenovo Ideapad Slim 3 Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 45999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹45,999.00",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Acer AL15-53 UN.34ESI.02E Standard Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 56499.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹56,499.00",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Asus Vivobook 15 X1504MA-BQ424WS Standard Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 62990.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹62,990.00",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "HP 15s 15 FD0623TU Standard Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 60490.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹60,490.00",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "1fe8b6b6e0dd8b86f0343607ed7d75a230230fcfecdc12d658aeab291cd84e09",
+        "data_sha256": "c33f09e8011edaf66f7e9db2d473b11d6632e72fd8002fb4daeafd2700f7fc68",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Dell Inspiron 15 3530 (OIN353034011RINB1M) Laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Neo (MHFA4HN/A) Laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple Macbook Neo (A18 Pro/8 GB/256 GB SSD/MAC) Laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Dell Inspiron 15 3530 (OIN353034011RINS1M) Laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Dell Inspiron 15 3530 (OIN353034071RINS1M) Laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Dell Inspiron 15 3530 (OIN353034011RINB1M) Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 67990.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹67,990",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Dell Inspiron 15 3530 (OIN353034011RINB1M) Laptop",
+              "is_product_type": false,
+              "criterion_key": "memory_and_storage",
+              "value": "8 GB DDR4 RAM, 512 GB SSD",
+              "unit": null,
+              "score": null,
+              "quote": "8 GB DDR4 RAM, 512 GB SSD",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Dell Inspiron 15 3530 (OIN353034011RINB1M) Laptop",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": "41 WHrs",
+              "unit": null,
+              "score": null,
+              "quote": "41 WHrs Battery Capacity",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Apple MacBook Neo (MHFA4HN/A) Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 71890.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹71,890",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Apple MacBook Neo (MHFA4HN/A) Laptop",
+              "is_product_type": false,
+              "criterion_key": "memory_and_storage",
+              "value": "8 GB LPDDR5X RAM, 256 GB SSD",
+              "unit": null,
+              "score": null,
+              "quote": "8 GB LPDDR5X RAM, 256 GB SSD",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Apple MacBook Neo (MHFA4HN/A) Laptop",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": "16 Hrs",
+              "unit": null,
+              "score": null,
+              "quote": "16 Hrs Battery Life, Li-Ion",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Apple Macbook Neo (A18 Pro/8 GB/256 GB SSD/MAC) Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 71890.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹71,890",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Apple Macbook Neo (A18 Pro/8 GB/256 GB SSD/MAC) Laptop",
+              "is_product_type": false,
+              "criterion_key": "memory_and_storage",
+              "value": "8 GB Unified Memory RAM, 256 GB SSD",
+              "unit": null,
+              "score": null,
+              "quote": "8 GB Unified Memory RAM, 256 GB SSD",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Apple Macbook Neo (A18 Pro/8 GB/256 GB SSD/MAC) Laptop",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": "16 Hrs",
+              "unit": null,
+              "score": null,
+              "quote": "16 Hrs Battery Life, Li-Ion",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Dell Inspiron 15 3530 (OIN353034011RINS1M) Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 69490.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹69,490",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "d1b9b019a4c72a44ed93fade60616f50c3e82cb272696edc76d082a7119fa42d",
+        "data_sha256": "740e1849ce319af96f722841c5e13885e82ad7db8b7ff5749865228f171e3730",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "HP 15 250R G10 Laptop (Intel Core 3 100U/ 16GB/ 512GB SSD/ Win11)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus Vivobook 15 X1504VAP-BQ1543WS Laptop (Intel Core 5 120U/ 16GB/ 512GB SSD/ Win11)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop (11th Gen Core i3/ 8GB/ 512GB SSD/ Win11)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus CX9406 Googlebook Laptop (Intel Core Ultra 5 325/ 32GB/ ChromeOS)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo IdeaPad Slim 1 82R400BGIN Laptop (AMD Ryzen 5 5500U/ 8GB/ 512GB SSD/ Win11 Home)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo IdeaPad Slim 3 82RK0085IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo Ideapad Slim 3i 81WQ00NXIN Laptop (Intel Celeron N4020/ 8GB/ 256GB SSD/ Win11)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Acer Travel Lite TL14-42M 14 Laptop (AMD Ryzen 7 7730U/ 32GB/ 1TB SSD/ Win11)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Acer Aspire Pro AP14-55 UN.37SSI.003 Laptop (Intel Core Ultra 5 125H/ 16GB/ 512GB SSD/ Win11 Home)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "HP 15 250R G10 Laptop (Intel Core 3 100U/ 16GB/ 512GB SSD/ Win11)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 48600.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹48,600",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Asus Vivobook 15 X1504VAP-BQ1543WS Laptop (Intel Core 5 120U/ 16GB/ 512GB SSD/ Win11)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 56140.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹56,140",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Lenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop (11th Gen Core i3/ 8GB/ 512GB SSD/ Win11)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 37890.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹37,890",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Asus CX9406 Googlebook Laptop (Intel Core Ultra 5 325/ 32GB/ ChromeOS)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 34999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹34,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Lenovo IdeaPad Slim 1 82R400BGIN Laptop (AMD Ryzen 5 5500U/ 8GB/ 512GB SSD/ Win11 Home)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 37990.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹37,990",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Lenovo IdeaPad Slim 3 82RK0085IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 59499.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹59,499",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Lenovo Ideapad Slim 3i 81WQ00NXIN Laptop (Intel Celeron N4020/ 8GB/ 256GB SSD/ Win11)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 27990.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹27,990",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Acer Travel Lite TL14-42M 14 Laptop (AMD Ryzen 7 7730U/ 32GB/ 1TB SSD/ Win11)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 69990.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹69,990",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Acer Aspire Pro AP14-55 UN.37SSI.003 Laptop (Intel Core Ultra 5 125H/ 16GB/ 512GB SSD/ Win11 Home)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 69990.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹69,990",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 64899.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹64,899",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      }
+    ],
+    "reddit_sources_left_out": 0,
+    "changed_sources_left_out": 0
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "current_sprint": 4,
+  "sessions": [
+    {
+      "sprint": 4,
+      "date": "2026-11-19",
+      "by": "Harsh Kodavala",
+      "recordings": [
+        "gate_air_fryer",
+        "gate_earbuds",
+        "gate_laptop",
+        "gate_smartphone",
+        "gate_smartwatch"
+      ]
+    }
+  ]
+}

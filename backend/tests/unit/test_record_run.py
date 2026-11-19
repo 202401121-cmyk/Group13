@@ -1284,3 +1284,215 @@ def test_a_saved_criteria_set_cannot_hide_a_call(monkeypatch: pytest.MonkeyPatch
     assert isinstance(stores[0], InMemoryCriteriaStore)
     assert stores[0] is not stores[1]
     assert app.presearch.default_criteria_store is before
+
+
+# --- pages, pipeline.json and the recordings log (US-49) -------------------------------------------------------------
+
+REVIEW_PAGE = "https://www.91mobiles.com/made-up-best-phones-page"
+PAGE_HTML = "<html><body><p>Made-up review page text about the Nova Phone 7.</p></body></html>"
+
+
+def fetch_page(query: str) -> None:
+    with shared_client() as http:
+        for url in ("https://www.91mobiles.com/robots.txt", REVIEW_PAGE, "https://made-up-unknown-host.example/page"):
+            with contextlib.suppress(httpx.TransportError):  # a refusal, as the app meets it: the last isn't a site
+                http.get(url)
+
+
+def answer_page(request: httpx.Request) -> httpx.Response:
+    if request.url.path == "/robots.txt":
+        return httpx.Response(200, text="User-agent: *\nAllow: /\n")
+    return httpx.Response(200, text=PAGE_HTML, headers={"content-type": "text/html"})
+
+
+def test_a_research_page_and_its_robots_go_through_as_pages_and_are_capped(tmp_path: Path) -> None:
+    assert run(tmp_path, "--budget", "pages=1", "--keep-failures", runner=fetch_page, send=answer_page) == 0
+    rows = calls(tmp_path, "pages")
+    assert [(row["url"], row["status"], row.get("error")) for row in rows] == [
+        ("https://www.91mobiles.com/robots.txt", 200, None),
+        (REVIEW_PAGE, None, "Refused"),  # the pages budget of 1 is spent
+    ]
+    manifest = json.loads((tmp_path / "demo" / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["calls"] == {"pages": 1}
+    assert any("not a known service" in reason for reason in manifest["refused"])  # the unknown host
+
+
+def test_pages_are_never_called_without_a_budget(tmp_path: Path) -> None:
+    sent: list[httpx.Request] = []
+
+    def send(request: httpx.Request) -> httpx.Response:
+        sent.append(request)
+        return answer_page(request)
+
+    run(tmp_path, "--keep-failures", runner=fetch_page, send=send)
+    assert sent == []
+
+
+def test_a_page_body_is_never_written(tmp_path: Path) -> None:
+    assert run(tmp_path, "--budget", "pages=2", "--keep-failures", runner=fetch_page, send=answer_page) == 0
+    page = calls(tmp_path, "pages")[1]
+    assert page["response_body"] == f"[page body not stored: {len(PAGE_HTML)} bytes]"
+    assert "Nova Phone 7" not in written(tmp_path)
+
+
+def test_reddit_is_never_a_page(tmp_path: Path) -> None:
+    def runner(query: str) -> None:
+        with contextlib.suppress(httpx.TransportError), shared_client() as http:
+            http.get("https://www.reddit.com/r/made_up/comments/1abc/made_up/")
+
+    sent: list[httpx.Request] = []
+    run(tmp_path, "--budget", "pages=5", "--keep-failures", runner=runner, send=counted(sent))
+    assert sent == []
+
+
+def _source(
+    url: str, kind: str = "review_site", text: str = "Made-up page text.", data_class: str = "public"
+) -> dict[str, Any]:
+    return {"id": "src_" + "a" * 16, "url": url, "type": kind, "text": text, "data_class": data_class}
+
+
+def test_pipeline_json_keeps_research_sources_but_never_a_reddit_one(tmp_path: Path) -> None:
+    def runner(query: str) -> None:
+        ask_llm(query)
+        record_run.PIPELINE_RUNS.append(
+            {
+                "rubric": {"category": "phones"},
+                "sources": [
+                    _source(REVIEW_PAGE),
+                    _source("https://www.reddit.com/r/made_up/comments/1abc/", kind="reddit"),
+                    _source("https://www.youtube.com/watch?v=made_up", kind="youtube", data_class="reddit"),
+                ],
+                "shown": ["Nova Phone 7"],
+                "filtered_out": [],
+                "cant_tell": [],
+                "citations": 1,
+            }
+        )
+
+    assert run(tmp_path, runner=runner) == 0
+    (kept,) = json.loads((tmp_path / "demo" / "pipeline.json").read_text(encoding="utf-8"))
+    assert [source["url"] for source in kept["sources"]] == [REVIEW_PAGE]
+    assert kept["reddit_sources_left_out"] == 2
+    assert kept["run"] == 1
+
+
+def test_pipeline_json_is_held_to_the_secret_check(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    def runner(query: str) -> None:
+        ask_llm(query)
+        leak = _source(REVIEW_PAGE, text=f"a page that somehow holds {ENV['PLAIN_SETTING']} in it")
+        record_run.PIPELINE_RUNS.append({"rubric": {}, "sources": [leak], "shown": [], "filtered_out": [],
+                                         "cant_tell": [], "citations": 0})  # fmt: skip
+
+    assert run(tmp_path, runner=runner) == 0
+    text = (tmp_path / "demo" / "pipeline.json").read_text(encoding="utf-8")
+    assert ENV["PLAIN_SETTING"] not in text
+    (kept,) = json.loads(text)
+    assert (kept["sources"], kept["changed_sources_left_out"]) == ([], 1)  # left out whole, never rewritten
+
+
+def test_a_page_the_reddit_cleaning_would_change_is_left_out_whole(tmp_path: Path) -> None:
+    """The gate finds a page's reply by its prompt's hash, so a page is kept as research read it or not at all."""
+
+    def runner(query: str) -> None:
+        ask_llm(query)
+        changed = _source(REVIEW_PAGE, text="See https://www.reddit.com/r/made_up/comments/1abc/ for owners' views.")
+        kept = _source("https://www.91mobiles.com/another-made-up-page", text="Made-up page text, nothing else.")
+        record_run.PIPELINE_RUNS.append({"rubric": {}, "sources": [changed, kept], "shown": [], "filtered_out": [],
+                                         "cant_tell": [], "citations": 0})  # fmt: skip
+
+    assert run(tmp_path, runner=runner) == 0
+    (run_record,) = json.loads((tmp_path / "demo" / "pipeline.json").read_text(encoding="utf-8"))
+    assert [s["url"] for s in run_record["sources"]] == ["https://www.91mobiles.com/another-made-up-page"]
+    assert run_record["changed_sources_left_out"] == 1
+
+
+def test_a_recording_without_a_pipeline_writes_no_pipeline_json(tmp_path: Path) -> None:
+    assert run(tmp_path) == 0
+    assert not (tmp_path / "demo" / "pipeline.json").exists()
+
+
+def _log(path: Path, *dates: str, sprint: int = 4) -> Path:
+    sessions = [{"sprint": sprint, "date": d, "by": "Test Person", "recordings": ["older"]} for d in dates]
+    path.write_text(json.dumps({"current_sprint": sprint, "sessions": sessions}), encoding="utf-8")
+    return path
+
+
+def _run_logged(root: Path, log: Path, *args: str, name: str = "demo") -> int:
+    argv = ["a made-up request", "--name", name, "--by", "Test Person", *args]
+    return main(argv, env=ENV, send=answer_chat, runner=ask_llm, root=root, log_path=log)
+
+
+def test_a_third_session_in_a_sprint_is_refused_before_any_call(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    log = _log(tmp_path / "log.json", "2026-11-01", "2026-11-02")
+    sent: list[httpx.Request] = []
+    argv = ["a made-up request", "--name", "demo", "--by", "Test Person"]
+    assert main(argv, env=ENV, send=counted(sent), runner=ask_llm, root=tmp_path / "rec", log_path=log) == 1
+    assert sent == []
+    assert "already has 2 recording sessions" in capsys.readouterr().out
+    assert not (tmp_path / "rec").exists()
+
+
+def test_a_second_recording_on_a_session_day_is_allowed_and_logged(tmp_path: Path) -> None:
+    today = record_run.datetime.now(record_run.UTC).date().isoformat()
+    log = _log(tmp_path / "log.json", "2026-11-01", today)
+    assert _run_logged(tmp_path / "rec", log, name="second") == 0
+    sessions = json.loads(log.read_text(encoding="utf-8"))["sessions"]
+    assert len(sessions) == 2
+    assert next(s for s in sessions if s["date"] == today)["recordings"] == ["older", "second"]
+
+
+def test_a_second_session_is_allowed_and_a_new_sprint_starts_afresh(tmp_path: Path) -> None:
+    log = _log(tmp_path / "log.json", "2026-11-01")
+    assert _run_logged(tmp_path / "rec", log, name="one") == 0
+    assert len(json.loads(log.read_text(encoding="utf-8"))["sessions"]) == 2
+    full = _log(tmp_path / "full.json", "2026-11-01", "2026-11-02")
+    data = json.loads(full.read_text(encoding="utf-8"))
+    full.write_text(json.dumps({**data, "current_sprint": 5}), encoding="utf-8")  # set at the sprint's start
+    assert _run_logged(tmp_path / "rec2", full, name="two") == 0
+
+
+def test_the_real_log_holds_at_most_two_sessions_a_sprint() -> None:
+    log = record_run.read_log(record_run.RECORDINGS_LOG)
+    per_sprint: dict[int, set[str]] = {}
+    for session in log["sessions"]:
+        per_sprint.setdefault(session["sprint"], set()).add(session["date"])
+    assert all(len(dates) <= record_run.MAX_SESSIONS for dates in per_sprint.values())
+
+
+def test_a_call_the_recorder_refuses_counts_nothing_against_the_apps_caps(tmp_path: Path) -> None:
+    """D-78: a refused call was never sent, so the unit the app took for it goes back; a sent one stays counted."""
+    from app.research.settings import ProviderCap
+    from app.research.usage import UsageBook
+
+    book = UsageBook({"serper": ProviderCap(per_search=6, per_day=80)}, path=None)
+
+    def runner(query: str) -> None:
+        usage = book.search()
+        for _ in range(3):
+            if usage.take("serper"):
+                with contextlib.suppress(httpx.TransportError), shared_client() as http:
+                    http.post("https://google.serper.dev/search", json={"q": query})
+
+    def answer(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"organic": []})
+
+    assert run(tmp_path, "--budget", "serper=1", "--keep-failures", runner=runner, send=answer) == 0
+    assert book.today()["serper"] == 1  # one sent; the two the recorder refused gave their units back
+
+
+def test_the_reply_the_client_accepted_for_an_extraction_prompt_is_kept() -> None:
+    """US-49: the gate replays what the live run used, whichever provider or retry gave it, by the prompt's hash."""
+    record_run.ACCEPTED.clear()
+    prompt = "Category: phones\nCriteria:\n- camera\n\n<data>made-up page text</data>"
+    record_run.keep_accepted(
+        (LLMTask.EXTRACT_CLAIMS, "system", prompt, Answer), {}, DataClass.PUBLIC, Answer(quote="kept words")
+    )
+    other = (LLMTask.DETECT_INTENT, "s", "made-up request", Answer)
+    record_run.keep_accepted(other, {}, DataClass.PRIVATE, Answer(quote="x"))
+    record_run.keep_accepted((LLMTask.EXTRACT_CLAIMS, "s", prompt, Answer), {}, DataClass.REDDIT, Answer(quote="x"))
+    (kept,) = record_run.ACCEPTED
+    assert kept["reply"] == {"quote": "kept words"}
+    assert kept == {"task": "extract_claims", **record_run.prompt_hashes(prompt), "reply": {"quote": "kept words"}}
+    record_run.ACCEPTED.clear()

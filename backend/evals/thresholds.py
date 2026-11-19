@@ -34,13 +34,14 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 from app.contracts import SEARCH_TIME_LIMIT_S, STAGE_TIME_LIMITS_S, StageName
 
+from .gate import GATE_OUT
 from .interview_sim import FIXED_OUT as SIM_OUT
 from .run_baselines import BACKEND, OFFLINE_OUT, RESULTS_DIR
 from .stability import STABILITY_OUT
 
 THRESHOLDS = BACKEND / "evals" / "thresholds.yaml"
 LIVE_OUT = RESULTS_DIR / "sprint-4-live.json"  # S4-2: the demo's way, at the normal source cap
-RECORDS = (OFFLINE_OUT, LIVE_OUT, SIM_OUT, STABILITY_OUT)  # every results record a floor is written from
+RECORDS = (OFFLINE_OUT, LIVE_OUT, SIM_OUT, STABILITY_OUT, GATE_OUT)  # every results record a floor is written from
 RHO_MARGIN = 0.05  # a Spearman median's floor: the measured value less this (D-74)
 RATE_MARGIN = 0.05
 COUNT_MARGIN = 0.10
@@ -57,6 +58,10 @@ SAFETY: dict[str, str] = {
     "(US-17, build rule 2), in a real search.",
     "live.most_mentioned_worst_fit_wins": "Mentions never buy a rank, in a real search (US-17, build rule 2).",
     "live.unsourced_shown": "No product is shown without a source (build rule 5): verify drops it before decide.",
+    "gate.claims_without_quote": "Every claim in the recorded runs quotes its source's own words (build rule 4, "
+    "US-49).",
+    "gate.shown_without_source": "No shown product in the recorded runs lacks a source (build rule 5, US-49).",
+    "gate.label_disagreements": "Every decide brief's hand-labelled winner is the one the scoring code gives (US-49).",
 }
 AT_MOST = {"matching.stage.different_merged"}  # a rate where lower is better
 EXACT = {"decide.briefs_as_expected"}  # hand-written expectations: right or wrong, so no margin
@@ -68,6 +73,10 @@ PLAN_TARGETS: dict[str, tuple[float, str]] = {
     "trust.learned_minus_majority": (
         1,
         "ml/MODELS.md card 2: more seeded conflicts resolved correctly than majority vote",
+    ),
+    "gate.expected_survival": (
+        0.9,
+        "US-49: at least 90% of the expected products survive extraction in the recorded runs",
     ),
     "decide.stability.close_median": (
         0.9,
@@ -176,6 +185,8 @@ WHY: dict[str, str] = {
     "trust.": "Learned trust (US-16) must keep resolving the seeded conflicts it resolves now, and beat majority vote.",
     "decide.briefs_as_expected": "Every made-up brief gives its hand-written groups (US-17, US-18).",
     "decide.coverage_": "Ranked products keep the evidence coverage they have now (US-18).",
+    "gate.expected_survival": "Extraction keeps finding the products the recorded runs' sources name (US-49).",
+    "gate.claims_kept": "Extraction keeps the claims it keeps now from the recorded runs (US-49).",
     "decide.stability.": "On close products, the rank order keeps the stability it has now under random 10% weight "
     "changes (US-19, D-74).",
     "research.recorded.": "Reading the recorded web searches finds the sources it finds now (US-12).",

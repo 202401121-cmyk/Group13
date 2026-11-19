@@ -7,6 +7,12 @@ This spends real quota. It is capped, and it refuses rather than risks a leak:
 - a call budget per service, printed before the first call and enforced on every call. Only Groq has one unless you
   add --budget mistral=2. A call over budget is never sent: it fails like a network error, so the stage's fallback
   answers. A host that is not a known service is refused the same way;
+- review, maker and store pages (US-49): a page on a site research reads (config/research.yaml's site lists, through
+  research's own page_kind) and that site's robots.txt are the `pages` service, 0 unless you add --budget pages=N.
+  A page fetched directly is never written: research's cleaned, capped text of it is, in pipeline.json. (A Jina reader
+  reply is written as before, with Reddit links hidden: keep --budget jina at 0 for a gate recording.);
+- at most two recording sessions a sprint (US-49): evals/recordings_log.json lists each session, one UTC date, and a
+  recording on a third date in the same sprint is refused before any call;
 - a stage that times out leaves its thread running, so the recorder stays in place until that thread has ended,
   and refuses anything new once the app has finished, a late retry included;
 - a Reddit budget above 0 is refused, and so is a reddit.com, old.reddit.com or redd.it URL, or a Reddit archive's,
@@ -19,7 +25,12 @@ This spends real quota. It is capped, and it refuses rather than risks a leak:
 
 It wraps httpx's transport, which every other call in the app goes through, then runs app.cli with --no-db and an
 in-memory criteria store, so no database is touched and no saved criteria can hide a call. The Reddit cache is not
-read either, because a hit would hide a call and bring in text this script could not recognise.
+read either, because a hit would hide a call and bring in text this script could not recognise, and the research
+cache is off (RESEARCH_CACHE=off), so every search and page is really fetched.
+
+Besides the calls, a run keeps what the pipeline made of them (US-49), in pipeline.json: the rubric searched, research's
+sources (never a Reddit one), the extraction replies the client accepted (by their prompt's hash), and the result's
+products. evals/gate.py replays extraction from it with no network.
 
 Nothing reaches the disk until the run has ended and every call has been cleaned:
 - headers: only content-type, x-ratelimit-* and retry-after survive. Query strings keep their names, never values;
@@ -42,6 +53,7 @@ Tests that need Reddit text use small synthetic threads written for the test.
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import os
 import re
@@ -66,11 +78,15 @@ import app.presearch
 from app.contracts import DataClass
 from app.criteria import InMemoryCriteriaStore
 from app.llm import WrapperLLMClient
+from app.research import usage
 from app.research.reddit.cache import RedditCache
 
 RECORDINGS = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "recorded"
+RECORDINGS_LOG = Path(__file__).resolve().parents[1] / "evals" / "recordings_log.json"
 MANIFEST = "manifest.json"
 README = "README.md"
+PIPELINE = "pipeline.json"
+MAX_SESSIONS = 2  # recording sessions a sprint (US-49): each one UTC date
 MARKER = "[reddit text not stored]"
 LINK_MARKER = "[reddit link not stored]"
 REDACTED = "[redacted]"
@@ -78,7 +94,15 @@ MAX_RUNS = 5
 WAIT_FOR_CALLS_S = 60.0  # longer than any provider's request_timeout_s in config/models.yaml
 
 LLM_SERVICES = ("groq", "gemini", "mistral", "openrouter", "cerebras")
-DEFAULT_BUDGET = {"groq": 6, **dict.fromkeys(LLM_SERVICES[1:], 0), "serper": 0, "youtube": 0, "reddit": 0, "jina": 0}
+DEFAULT_BUDGET = {
+    "groq": 6,
+    **dict.fromkeys(LLM_SERVICES[1:], 0),
+    "serper": 0,
+    "youtube": 0,
+    "reddit": 0,
+    "jina": 0,
+    "pages": 0,  # review, maker and store pages and their robots.txt (US-49)
+}
 HOSTS = {
     "api.groq.com": "groq",
     "generativelanguage.googleapis.com": "gemini",
@@ -136,6 +160,39 @@ Send = Callable[[httpx.Request], httpx.Response]
 Runner = Callable[[str], int | None]
 
 DECLARED_CLASS: ContextVar[DataClass | None] = ContextVar("declared_class", default=None)
+
+
+# What the app's own caps (app/research/usage.py) count for a call to each service. A call the recorder refuses was
+# never sent, so its units go back, as the live run budget gives them back (D-78); one it sends stays counted.
+APP_UNITS: dict[str, tuple[str, ...]] = {
+    "serper": ("serper",),
+    "jina": ("jina",),
+    "pages": ("pages",),
+    "youtube": ("youtube_search", "youtube"),
+    "reddit": ("reddit_archive",),
+}
+APP_UNITS_BY_HOST: dict[str, tuple[str, ...]] = {"api.firecrawl.dev": ("firecrawl", "firecrawl_pages")}
+
+
+def app_units(request: httpx.Request, service: str | None) -> tuple[str, ...]:
+    """What the app counted for this request: by its host first (Firecrawl, even reading a Reddit page), then a
+    robots.txt (research's pages unit, Reddit's own robots file too), then the service."""
+    host = request.url.host
+    if host in APP_UNITS_BY_HOST:
+        return APP_UNITS_BY_HOST[host]
+    if request.url.path == "/robots.txt":
+        return ("pages",)
+    return APP_UNITS.get(service or "", ())
+
+
+def sent(providers: tuple[str, ...]) -> None:
+    for provider in providers:
+        usage.sent(provider)
+
+
+def not_sent(providers: tuple[str, ...]) -> None:
+    for provider in providers:
+        usage.not_sent(provider)
 
 
 class Refused(httpx.TransportError):
@@ -199,12 +256,13 @@ class Recorder:
     def admit(self, request: httpx.Request) -> Call:
         """Check and count under one lock, so two threads can't both take the last call of a budget."""
         host = request.url.host
-        service = HOSTS.get(host)
+        service = HOSTS.get(host) or ("pages" if is_research_page(str(request.url)) else None)
         targets_reddit = fetches_reddit(request, service)
         if targets_reddit and service is None:
             service = "reddit"  # old.reddit.com and redd.it: refused for what they are, not as unknown hosts
         with self.lock:
             if service is None:
+                not_sent(app_units(request, None))
                 raise self.refuse(f"{host} is not a known service")
             call = Call(
                 self.run,
@@ -220,7 +278,9 @@ class Recorder:
             reason = self.why_refused(call)
             if reason is not None:
                 call.error = Refused.__name__
+                not_sent(app_units(request, service))  # never sent, so the app's own caps don't count it (D-78)
                 raise self.refuse(reason)
+            sent(app_units(request, service))
             self.used[service] += 1
             self.in_flight += 1
             return call
@@ -286,9 +346,11 @@ class Recorder:
         def complete(client: WrapperLLMClient, *args: Any, data_class: DataClass, **kwargs: Any) -> Any:
             token = DECLARED_CLASS.set(data_class)  # the call goes out on this thread
             try:
-                return real_complete(client, *args, data_class=data_class, **kwargs)
+                answer = real_complete(client, *args, data_class=data_class, **kwargs)
             finally:
                 DECLARED_CLASS.reset(token)
+            keep_accepted(args, kwargs, data_class, answer)
+            return answer
 
         httpx.HTTPTransport.handle_request = handle_request  # type: ignore[method-assign, assignment]
         WrapperLLMClient.complete = complete  # type: ignore[method-assign, assignment]
@@ -301,6 +363,21 @@ class Recorder:
                 httpx.HTTPTransport.handle_request = real_send  # type: ignore[method-assign]
                 WrapperLLMClient.complete = real_complete  # type: ignore[method-assign]
                 RedditCache.get = real_cache_get  # type: ignore[method-assign]
+
+
+def is_research_page(url: str) -> bool:
+    """A page on a site research reads, or that site's robots.txt: research's own page_kind decides, never a list here.
+    Reddit, YouTube, social sites and logged-in pages are never one."""
+    from app.research.pages import page_kind  # here: the research package is only needed while recording
+
+    return page_kind(url, research_sites()) is not None
+
+
+@functools.cache
+def research_sites() -> Any:
+    from app.research.settings import load_research_settings
+
+    return load_research_settings()
 
 
 # --- headers, URLs and the environment -------------------------------------------------------------
@@ -570,12 +647,17 @@ def parsed(content: bytes) -> Any:
         return text
 
 
-def clean(calls: list[Call], shopper_text: str) -> tuple[list[dict[str, Any]], int]:
+def page_body_note(content: bytes) -> str:
+    return f"[page body not stored: {len(content)} bytes]"
+
+
+def clean(calls: list[Call], shopper_text: str, memory: RedditMemory | None = None) -> tuple[list[dict[str, Any]], int]:
     """The calls as they may be written, with Reddit text gone, and how many LLM calls were replaced whole.
 
-    Secrets are handled last, on the finished files.
+    Secrets are handled last, on the finished files. Pass `memory` to keep what it learnt about Reddit text, so the
+    pipeline's record can be cleaned of it too.
     """
-    memory = RedditMemory(shopper_text)
+    memory = memory if memory is not None else RedditMemory(shopper_text)
     rows: list[dict[str, Any]] = []
     from_reddit: list[bool] = []
     for call in calls:
@@ -587,6 +669,8 @@ def clean(calls: list[Call], shopper_text: str) -> tuple[list[dict[str, Any]], i
             request_body = clean_reddit_text(request_body, memory)
             response_body = clean_reddit_text(response_body, memory)
             url = hidden_link(url) if call.targets_reddit else REDDIT_SLUG.sub(r"\1", url)
+        elif call.service == "pages":  # a site's own page: its cleaned text is in pipeline.json, never its HTML
+            response_body = page_body_note(call.response_content) if call.response_content else None
         elif call.service not in LLM_SERVICES:
             response_body = clean_reddit_results(response_body, memory)
         row = {
@@ -623,6 +707,61 @@ def clean(calls: list[Call], shopper_text: str) -> tuple[list[dict[str, Any]], i
     return rows, marked
 
 
+def clean_pipeline(
+    runs: list[dict[str, Any]], memory: RedditMemory, secrets: Mapping[str, str] | None = None
+) -> list[dict[str, Any]]:
+    """The pipeline's record as it may be written: no Reddit source at all, and any Reddit text seen in a call gone
+    from every other string, as in the calls themselves.
+
+    A source whose text or title the cleaning would change is left out whole, never rewritten: the gate rebuilds each
+    prompt from the source and finds the accepted reply by the prompt's hash, so a changed page would silently lose its
+    reply, and a longer one could pass the source's own size limits. The same goes for a page holding a secret."""
+
+    def clean(text: str) -> str:
+        return hide_reddit_links(memory.replace(text))
+
+    def changed(source: Mapping[str, Any]) -> bool:
+        texts = [str(source.get("text", "")), str(source.get("title", ""))]
+        return any(clean(t) != t or hide_values(t, secrets or {}) != t for t in texts)
+
+    kept: list[dict[str, Any]] = []
+    for run in runs:
+        public = [s for s in run["sources"] if not is_reddit_source(s)]
+        sources = [s for s in public if not changed(s)]
+        kept.append(
+            {
+                **run,
+                "sources": sources,
+                "reddit_sources_left_out": len(run["sources"]) - len(public),
+                "changed_sources_left_out": len(public) - len(sources),
+            }
+        )
+    cleaned: list[dict[str, Any]] = map_strings(kept, clean)
+    return cleaned
+
+
+def is_reddit_source(source: Mapping[str, Any]) -> bool:
+    """A Reddit thread, Reddit-class text (YouTube with viewers' comments), or anything at a Reddit address."""
+    return (
+        source.get("type") == "reddit"
+        or source.get("data_class") == "reddit"
+        or points_at_reddit(str(source.get("url", "")))
+        or names_reddit(str(source.get("url", "")), None)
+    )
+
+
+HAND_WRITTEN = ("expected_products", "expected_note")  # a recording's metadata written by hand, never recorded
+
+
+def kept_by_hand(args: argparse.Namespace) -> dict[str, Any]:
+    """What the recording being replaced has written by hand, kept through a --force re-recording."""
+    path = getattr(args, "root", RECORDINGS) / args.name / MANIFEST
+    if not path.is_file():
+        return {}
+    old = json.loads(path.read_text(encoding="utf-8"))
+    return {key: old[key] for key in HAND_WRITTEN if key in old}
+
+
 def readme_line(name: str, manifest: Mapping[str, Any]) -> str:
     counts = ", ".join(f"{service}: {count}" for service, count in sorted(manifest["calls"].items()))
     runs = "1 run" if manifest["runs"] == 1 else f"{manifest['runs']} runs"
@@ -657,6 +796,7 @@ def build_files(
     rows: list[dict[str, Any]],
     problems: list[str],
     secrets: Mapping[str, str],
+    pipeline: list[dict[str, Any]] | None = None,
 ) -> tuple[dict[str, str], str]:
     """The folder's files by name, and the README line for the index."""
     manifest = {
@@ -670,11 +810,14 @@ def build_files(
         "recorded_at": datetime.now(UTC).isoformat(timespec="seconds"),
         "recorded_by": args.by,
     }
+    manifest = {**manifest, **kept_by_hand(args)}  # a re-recording keeps what was written by hand (US-49)
     manifest = hide_values(manifest, secrets)
     line = readme_line(args.name, manifest)
     files = {MANIFEST: to_json(manifest), README: line + "\n"}
     for service in sorted({row["service"] for row in rows}):
         files[f"{service}.json"] = to_json(hide_values([row for row in rows if row["service"] == service], secrets))
+    if pipeline:
+        files[PIPELINE] = to_json(hide_values(pipeline, secrets))
     return files, line
 
 
@@ -704,15 +847,150 @@ def write_files(root: Path, name: str, files: Mapping[str, str], index: str) -> 
 # --- running ---------------------------------------------------------------------------------------
 
 
+PIPELINE_RUNS: list[dict[str, Any]] = []  # what each run of run_app made, for pipeline.json (US-49)
+ACCEPTED: list[dict[str, Any]] = []  # the extraction replies the client accepted in this run, for pipeline.json
+ACCEPTED_LOCK = threading.Lock()
+
+
+def prompt_hashes(user: str) -> dict[str, str]:
+    """A prompt's fingerprints: of the whole, and of its data block (what follows the criteria lines)."""
+    import hashlib
+
+    block = user.split("\n\n", 1)[-1]  # what follows the blank line after the criteria
+    return {
+        "prompt_sha256": hashlib.sha256(user.encode("utf-8")).hexdigest(),
+        "data_sha256": hashlib.sha256(block.encode("utf-8")).hexdigest(),
+    }
+
+
+def keep_accepted(args: tuple[Any, ...], kwargs: Mapping[str, Any], data_class: DataClass, answer: Any) -> None:
+    """The reply the client accepted for an extraction prompt, as the model it parsed into (US-49): the gate replays
+    exactly what the live run used, whichever provider or retry gave it. Never one from Reddit-class text."""
+    from app.contracts import LLMTask
+
+    task = args[0] if args else kwargs.get("task")
+    user = args[2] if len(args) > 2 else kwargs.get("user")
+    if task is not LLMTask.EXTRACT_CLAIMS or data_class is DataClass.REDDIT or not isinstance(user, str):
+        return
+    dump = getattr(answer, "model_dump", None)
+    if dump is None:
+        return
+    with ACCEPTED_LOCK:
+        ACCEPTED.append({"task": task.value, **prompt_hashes(user), "reply": dump(mode="json")})
+
+
+class _KeepsResearch:
+    """Wraps the research stage to keep its sources. Anything else the runner asks goes to the stage itself."""
+
+    def __init__(self, inner: Any) -> None:
+        self.inner = inner
+        self.name = inner.name
+        self.is_placeholder = bool(getattr(inner, "is_placeholder", False))
+        self.sources: list[Any] = []
+
+    def run(self, inp: Any, ctx: Any) -> Any:
+        out = self.inner.run(inp, ctx)
+        self.sources = list(out.sources)
+        return out
+
+    def fallback(self, inp: Any, ctx: Any, error: Exception) -> Any:
+        out = self.inner.fallback(inp, ctx, error)
+        self.sources = list(out.sources)
+        return out
+
+    def __getattr__(self, name: str) -> Any:
+        if name == "inner":
+            raise AttributeError(name)
+        return getattr(self.inner, name)
+
+
+def pipeline_record(request: Any, sources: list[Any], result: Any) -> dict[str, Any]:
+    """One run's record: the rubric searched, research's sources, and the result's products by group."""
+    names = {p.product.id: p.product.name for p in result.products}
+    decision = result.decision
+    filtered = list(decision.filtered) if decision is not None else []
+    return {
+        "rubric": request.rubric.model_dump(mode="json"),
+        "sources": [source.model_dump(mode="json") for source in sources],
+        "shown": [names.get(r.product_id, r.product_id) for r in decision.ranked] if decision is not None else [],
+        "filtered_out": [names.get(f.product_id, f.product_id) for f in filtered if f.group == "filtered_out"],
+        "cant_tell": [names.get(f.product_id, f.product_id) for f in filtered if f.group == "cant_tell"],
+        "citations": len(result.citations),
+        "llm_replies": list(ACCEPTED),
+    }
+
+
 def run_app(query: str) -> int:
-    """One run of the real CLI. A fresh store each time, so criteria saved earlier can't hide a call."""
+    """One run of the real CLI. A fresh store each time, so criteria saved earlier can't hide a call. The research
+    cache is off, so every search and page is really fetched, and what the pipeline made is kept for pipeline.json."""
     store = InMemoryCriteriaStore()
     saved = app.presearch.default_criteria_store
+    cli: Any = app.cli  # its names are swapped for this run only, then put back
+    real_stages, real_runner = cli.default_search_stages, cli.PipelineRunner
+    kept: dict[str, Any] = {}
+
+    with ACCEPTED_LOCK:
+        ACCEPTED.clear()
+
+    def stages() -> Any:
+        built = real_stages()
+        built.research = kept.setdefault("research", _KeepsResearch(built.research))
+        return built
+
+    class KeepingRunner(real_runner):  # type: ignore[misc, valid-type]
+        def run(self, request: Any, *args: Any, **kwargs: Any) -> Any:
+            result = super().run(request, *args, **kwargs)
+            research = kept.get("research")
+            PIPELINE_RUNS.append(pipeline_record(request, research.sources if research else [], result))
+            return result
+
     app.presearch.default_criteria_store = lambda: store  # type: ignore[assignment]
+    cli.default_search_stages = stages
+    cli.PipelineRunner = KeepingRunner
+    cache = os.environ.get("RESEARCH_CACHE")
+    os.environ["RESEARCH_CACHE"] = "off"
     try:
         return app.cli.main([query, "--no-db"])
     finally:
         app.presearch.default_criteria_store = saved
+        cli.default_search_stages = real_stages
+        cli.PipelineRunner = real_runner
+        if cache is None:
+            os.environ.pop("RESEARCH_CACHE", None)
+        else:
+            os.environ["RESEARCH_CACHE"] = cache
+
+
+# --- the recordings log (US-49) --------------------------------------------------------------------------------------
+
+
+def read_log(path: Path) -> dict[str, Any]:
+    if not path.is_file():
+        return {"current_sprint": 1, "sessions": []}
+    log: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
+    return log
+
+
+def session_refusal(log: Mapping[str, Any], sprint: int, today: str) -> str | None:
+    """Why a recording today would be refused, or None. A session is one UTC date; a sprint has at most two."""
+    dates = {s["date"] for s in log.get("sessions", []) if s.get("sprint") == sprint}
+    if today in dates or len(dates) < MAX_SESSIONS:
+        return None
+    return (
+        f"Sprint {sprint} already has {MAX_SESSIONS} recording sessions ({', '.join(sorted(dates))}), the most US-49 "
+        "allows, so nothing was called."
+    )
+
+
+def logged(log: Mapping[str, Any], sprint: int, today: str, by: str, name: str) -> dict[str, Any]:
+    """The log with this recording added to today's session."""
+    sessions = [dict(s) for s in log.get("sessions", [])]
+    session = next((s for s in sessions if s.get("sprint") == sprint and s["date"] == today), None)
+    if session is None:
+        session = {"sprint": sprint, "date": today, "by": by, "recordings": []}
+        sessions.append(session)
+    session["recordings"] = sorted({*session["recordings"], name})
+    return {**log, "sessions": sessions}
 
 
 def print_calls(recorder: Recorder) -> None:
@@ -770,8 +1048,12 @@ def main(
     send: Send | None = None,
     runner: Runner = run_app,
     root: Path = RECORDINGS,
+    log_path: Path | None = None,
 ) -> int:
     args = parse_args(argv)
+    args.root = root  # where an earlier recording's hand-written metadata is kept
+    if log_path is None and root == RECORDINGS:
+        log_path = RECORDINGS_LOG  # the real recordings keep the real log; a test's own folder keeps none unless given
     if env is None:
         load_dotenv()  # the root .env, found walking up from here; real environment variables win
         env = os.environ
@@ -781,6 +1063,14 @@ def main(
     if env.get("REDDIT_SOURCE", "").strip().lower() == "official":
         print("REDDIT_SOURCE=official can't be recorded: PRAW doesn't go through httpx. Set REDDIT_SOURCE=off.")
         return 1
+    today = datetime.now(UTC).date().isoformat()
+    log = read_log(log_path) if log_path is not None else None
+    sprint = int(log["current_sprint"]) if log is not None else 0  # set in the log at each sprint's start
+    if log is not None:
+        refusal = session_refusal(log, sprint, today)
+        if refusal is not None:
+            print(refusal)
+            return 1
 
     budget = {**DEFAULT_BUDGET, **dict(args.budget)}
     print("Call budget (a service at 0 is never called):")
@@ -789,6 +1079,7 @@ def main(
 
     recorder = Recorder(budget, send)
     problems: list[str] = []
+    PIPELINE_RUNS.clear()
     with recorder.wrapping_the_app():
         for run in range(1, args.runs + 1):
             recorder.run = run
@@ -821,15 +1112,19 @@ def main(
     # Read now, so whatever the run loaded from .env is included. A plain variable holding the very name given with
     # --by, such as USERNAME, is a person's name given on purpose.
     secrets = {name: value for name, value in secrets_in(env).items() if value != args.by or secret_named(name)}
-    rows, marked = clean(list(recorder.calls), args.request)
-    hidden = count_values(rows, secrets)
-    files, line = build_files(args, recorder, rows, problems, secrets)
+    memory = RedditMemory(args.request)
+    rows, marked = clean(list(recorder.calls), args.request, memory)
+    pipeline = clean_pipeline([{"run": n, **r} for n, r in enumerate(PIPELINE_RUNS, 1)], memory, secrets)
+    hidden = count_values([rows, pipeline], secrets)
+    files, line = build_files(args, recorder, rows, problems, secrets, pipeline)
     index = index_text(root, args.name, line)
     leaks = sorted({name for text in [*files.values(), index] for name in find_leaks(text, secrets)})
     if leaks:
         print(f"Nothing was written: the values of these variables would have been: {', '.join(leaks)}")
         return 1
     write_files(root, args.name, files, index)
+    if log is not None and log_path is not None:
+        log_path.write_text(to_json(logged(log, sprint, today, args.by, args.name)), encoding="utf-8", newline="\n")
 
     if marked:
         print(f"Reddit text: {marked} LLM call(s) replaced whole. Read them before relying on this recording.")
