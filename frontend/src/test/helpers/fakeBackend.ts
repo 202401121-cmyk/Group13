@@ -1,5 +1,5 @@
 /** A recorded stand-in for `fetch`, so adapter tests never call a real backend. */
-import { createApiClient, type ApiClient } from "@/lib/api/client";
+import { createApiClient, type ApiClient, type BearerSource } from "@/lib/api/client";
 
 export const BASE = "http://backend.test";
 
@@ -25,18 +25,26 @@ export const hang: Handler = (_call, init) =>
     init.signal?.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
   });
 
-export function fakeBackend(handler: Handler): { client: ApiClient; calls: Call[] } {
+/** `bearer`: a signed-in shopper's token source (US-30); none for a guest. */
+export function fakeBackend(
+  handler: Handler,
+  bearer?: BearerSource,
+): { client: ApiClient; calls: Call[] } {
   const calls: Call[] = [];
-  const client = createApiClient(BASE, async (url, init) => {
-    const call: Call = {
-      method: init.method ?? "GET",
-      path: url.slice(BASE.length),
-      body: typeof init.body === "string" ? (JSON.parse(init.body) as unknown) : undefined,
-      headers: (init.headers ?? {}) as Record<string, string>,
-    };
-    calls.push(call);
-    return handler(call, init);
-  });
+  const client = createApiClient(
+    BASE,
+    async (url, init) => {
+      const call: Call = {
+        method: init.method ?? "GET",
+        path: url.slice(BASE.length),
+        body: typeof init.body === "string" ? (JSON.parse(init.body) as unknown) : undefined,
+        headers: (init.headers ?? {}) as Record<string, string>,
+      };
+      calls.push(call);
+      return handler(call, init);
+    },
+    bearer,
+  );
   return { client, calls };
 }
 

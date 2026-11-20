@@ -503,7 +503,11 @@ export function createLiveResearchService(
   options: LiveResearchOptions,
 ): ResearchService {
   const readRun = async (searchId: string, input: ResearchInput) =>
-    runFrom(await client.get(runPath(searchId), { timeoutMs: TIMEOUTS.step }), searchId, input);
+    runFrom(
+      await client.get(runPath(searchId), { timeoutMs: TIMEOUTS.step, ownedRun: true }),
+      searchId,
+      input,
+    );
 
   function follow(searchId: string, input: ResearchInput, handlers: FollowHandlers) {
     let closed = false;
@@ -645,6 +649,7 @@ export function createLiveResearchService(
       try {
         const raw = await client.get(`${runPath(encodeURIComponent(searchId))}/evidence?${query}`, {
           timeoutMs: TIMEOUTS.step,
+          ownedRun: true,
         });
         const ev = await checkContract("EvidenceResponse", raw);
         const same =
@@ -663,6 +668,7 @@ export function createLiveResearchService(
       try {
         const { status, data } = await client.delete(runPath(searchId), {
           timeoutMs: TIMEOUTS.step,
+          ownedRun: true,
         });
         const run = await checkContract("SearchRun", data);
         if (run.search_id !== searchId) throw badResponse();
