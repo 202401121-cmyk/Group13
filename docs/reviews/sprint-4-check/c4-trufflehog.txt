@@ -1,0 +1,18 @@
+TruffleHog 3.99.8 (local Docker image trufflesecurity/trufflehog:3.99.8), --results=verified,unknown as CI's secrets job, 20 Nov 2026 16:52 UTC.
+
+1. main's full history: docker run ... git file:///repo --branch=main --results=verified,unknown --no-update --json
+   main = 434384d
+   "chunks":7401,"bytes":17634136,"verified_secrets":0,"unverified_secrets":0
+   Findings: 0.
+
+2. Every ref in this clone (local branches too): docker run ... git file:///repo --results=verified,unknown --no-update --json
+   "chunks":7476,"bytes":17807165,"verified_secrets":0,"unverified_secrets":4
+   The 4 unverified findings, values not printed (detector, file, commit, date, branches holding it):
+   - Postgres, verified False: backend/tests/unit/stack/test_doctor.py line 13, commit 458bbbf1 (2026-11-03), on local branches chore/full-stack-setup, docs/readme-sprint-1; on main: no
+   - Postgres, verified False: backend/tests/unit/stack/test_doctor.py line 13, commit db308924 (2026-11-03), on local branches chore/full-stack-setup-v2, docs/readme-sprint-1-v2; on main: no
+   - Postgres, verified False: backend/tests/unit/stack/test_check_request_saved.py line 10, commit 906119ce (2026-11-03), on local branches chore/full-stack-setup-v2, docs/readme-sprint-1-v2; on main: no
+   - Postgres, verified False: backend/tests/unit/stack/test_check_request_saved.py line 10, commit 5d14797f (2026-11-03), on local branches chore/full-stack-setup, docs/readme-sprint-1; on main: no
+   These are the made-up Postgres URLs of Sprint 1's W8 v1 and v2 branches (status log, 4 Nov). The branches exist
+   only in this clone; none of the commits is on main or in Sprint 4.
+
+3. CI's secrets job (TruffleHog) passed on main 434384d: see c4-ci-on-main.txt.

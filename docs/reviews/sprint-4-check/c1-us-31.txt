@@ -1,0 +1,201 @@
+US-31 Outside failures: backend tests, 20 Nov 2026, main 434384d
+Python 3.11.15, fresh venv, network guard on (tests/conftest.py). From backend/:
+python -m pytest -q -rA -m "not live" tests/faults/test_outside_failures.py tests/unit/llm/test_retry_rule.py tests/unit/llm/test_client.py tests/unit/research/test_site_memory.py
+exit code: 0
+junit: {'tests': '195', 'failures': '0', 'errors': '0', 'skipped': '0', 'time': '6.049'}
+
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[groq-timeout]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[groq-5xx]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[groq-429]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[groq-bad key]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[gemini-timeout]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[gemini-5xx]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[gemini-429]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[gemini-bad key]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[mistral-timeout]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[mistral-5xx]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[mistral-429]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[mistral-bad key]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[deepseek-timeout]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[deepseek-5xx]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[deepseek-429]
+PASSED tests/faults/test_outside_failures.py::test_a_failing_provider_gets_its_one_retry_then_the_next_answers[deepseek-bad key]
+PASSED tests/faults/test_outside_failures.py::test_the_last_provider_failing_ends_in_llm_unavailable_never_a_crash[timeout-2]
+PASSED tests/faults/test_outside_failures.py::test_the_last_provider_failing_ends_in_llm_unavailable_never_a_crash[5xx-2]
+PASSED tests/faults/test_outside_failures.py::test_the_last_provider_failing_ends_in_llm_unavailable_never_a_crash[429-2]
+PASSED tests/faults/test_outside_failures.py::test_the_last_provider_failing_ends_in_llm_unavailable_never_a_crash[bad key-1]
+PASSED tests/faults/test_outside_failures.py::test_serper[timeout]
+PASSED tests/faults/test_outside_failures.py::test_serper[5xx]
+PASSED tests/faults/test_outside_failures.py::test_serper[429]
+PASSED tests/faults/test_outside_failures.py::test_serper[bad key]
+PASSED tests/faults/test_outside_failures.py::test_serper_shopping[timeout]
+PASSED tests/faults/test_outside_failures.py::test_serper_shopping[5xx]
+PASSED tests/faults/test_outside_failures.py::test_serper_shopping[429]
+PASSED tests/faults/test_outside_failures.py::test_serper_shopping[bad key]
+PASSED tests/faults/test_outside_failures.py::test_youtube[timeout]
+PASSED tests/faults/test_outside_failures.py::test_youtube[5xx]
+PASSED tests/faults/test_outside_failures.py::test_youtube[429]
+PASSED tests/faults/test_outside_failures.py::test_youtube[bad key]
+PASSED tests/faults/test_outside_failures.py::test_firecrawl_search[timeout]
+PASSED tests/faults/test_outside_failures.py::test_firecrawl_search[5xx]
+PASSED tests/faults/test_outside_failures.py::test_firecrawl_search[429]
+PASSED tests/faults/test_outside_failures.py::test_firecrawl_search[bad key]
+PASSED tests/faults/test_outside_failures.py::test_firecrawl_pages[timeout]
+PASSED tests/faults/test_outside_failures.py::test_firecrawl_pages[5xx]
+PASSED tests/faults/test_outside_failures.py::test_firecrawl_pages[429]
+PASSED tests/faults/test_outside_failures.py::test_firecrawl_pages[bad key]
+PASSED tests/faults/test_outside_failures.py::test_a_firecrawl_retry_needs_its_own_place_in_the_minute
+PASSED tests/faults/test_outside_failures.py::test_jina[timeout]
+PASSED tests/faults/test_outside_failures.py::test_jina[5xx]
+PASSED tests/faults/test_outside_failures.py::test_jina[429]
+PASSED tests/faults/test_outside_failures.py::test_jina[bad key]
+PASSED tests/faults/test_outside_failures.py::test_plain_pages[timeout-2-timeout]
+PASSED tests/faults/test_outside_failures.py::test_plain_pages[5xx-2-error]
+PASSED tests/faults/test_outside_failures.py::test_plain_pages[429-2-rate_limited]
+PASSED tests/faults/test_outside_failures.py::test_plain_pages[bad key-1-blocked]
+PASSED tests/faults/test_outside_failures.py::test_reddit_archives[arctic_shift-timeout]
+PASSED tests/faults/test_outside_failures.py::test_reddit_archives[arctic_shift-5xx]
+PASSED tests/faults/test_outside_failures.py::test_reddit_archives[arctic_shift-429]
+PASSED tests/faults/test_outside_failures.py::test_reddit_archives[arctic_shift-bad key]
+PASSED tests/faults/test_outside_failures.py::test_reddit_archives[pullpush-timeout]
+PASSED tests/faults/test_outside_failures.py::test_reddit_archives[pullpush-5xx]
+PASSED tests/faults/test_outside_failures.py::test_reddit_archives[pullpush-429]
+PASSED tests/faults/test_outside_failures.py::test_reddit_archives[pullpush-bad key]
+PASSED tests/faults/test_outside_failures.py::test_one_retry_only_however_often_it_fails
+PASSED tests/faults/test_outside_failures.py::test_a_retry_that_would_outlast_the_stage_is_not_made
+PASSED tests/faults/test_outside_failures.py::test_a_429_counts_half_against_its_site
+PASSED tests/faults/test_outside_failures.py::test_a_site_that_keeps_refusing_is_skipped_and_named
+PASSED tests/faults/test_outside_failures.py::test_a_skipped_site_costs_no_request_and_the_note_names_it
+PASSED tests/faults/test_outside_failures.py::test_one_source_type_down_still_gives_results_with_a_note
+PASSED tests/faults/test_outside_failures.py::test_a_failed_firecrawl_search_is_named_as_a_search
+PASSED tests/faults/test_outside_failures.py::test_every_provider_failing_sets_llm_unavailable_and_says_so_first
+PASSED tests/faults/test_outside_failures.py::test_a_search_whose_llm_answered_is_not_marked_unavailable
+PASSED tests/faults/test_outside_failures.py::test_every_llm_call_failed[counts0-True]
+PASSED tests/faults/test_outside_failures.py::test_every_llm_call_failed[counts1-False]
+PASSED tests/faults/test_outside_failures.py::test_every_llm_call_failed[counts2-False]
+PASSED tests/faults/test_outside_failures.py::test_every_llm_call_failed[None-False]
+PASSED tests/faults/test_outside_failures.py::test_every_llm_call_failed[not counts-False]
+PASSED tests/faults/test_outside_failures.py::test_the_note_puts_the_llm_first_and_keeps_its_limit
+PASSED tests/faults/test_outside_failures.py::test_a_stage_helper_that_raises_never_stops_the_search
+PASSED tests/faults/test_outside_failures.py::test_a_dead_robots_file_counts_once_a_search_however_many_pages_it_stops
+PASSED tests/faults/test_outside_failures.py::test_a_robots_no_counts_once_a_search
+PASSED tests/faults/test_outside_failures.py::test_a_robots_file_that_could_not_be_read_says_nothing_about_the_site
+PASSED tests/faults/test_outside_failures.py::test_a_failure_with_no_time_for_its_retry_does_not_count
+PASSED tests/faults/test_outside_failures.py::test_a_failure_that_repeats_on_its_retry_counts
+PASSED tests/faults/test_outside_failures.py::test_a_page_read_from_the_cache_is_served_from_a_skipped_site
+PASSED tests/faults/test_outside_failures.py::test_every_provider_hanging_also_sets_llm_unavailable
+PASSED tests/faults/test_outside_failures.py::test_a_search_with_any_claim_was_answered
+PASSED tests/faults/test_outside_failures.py::test_a_source_that_ran_out_of_time_got_no_answer[counts0-2-True]
+PASSED tests/faults/test_outside_failures.py::test_a_source_that_ran_out_of_time_got_no_answer[counts1-2-False]
+PASSED tests/faults/test_outside_failures.py::test_a_source_that_ran_out_of_time_got_no_answer[counts2-2-True]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[200-None]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[301-None]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[400-refused]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[401-refused]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[403-refused]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[404-refused]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[422-refused]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[429-rate_limited]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[500-server]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[502-server]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[503-server]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_status_says_what_kind_of_failure_it_is[522-server]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_timeout_a_connection_error_or_a_5xx_is_retried_once_after_a_jitter[timeout]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_timeout_a_connection_error_or_a_5xx_is_retried_once_after_a_jitter[connection]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_timeout_a_connection_error_or_a_5xx_is_retried_once_after_a_jitter[server]
+PASSED tests/unit/llm/test_retry_rule.py::test_a_4xx_is_never_retried
+PASSED tests/unit/llm/test_retry_rule.py::test_a_429_is_retried_only_after_its_retry_after
+PASSED tests/unit/llm/test_retry_rule.py::test_a_retry_needs_its_wait_and_a_full_attempt_before_the_stages_limit
+PASSED tests/unit/llm/test_retry_rule.py::test_retry_after_in_seconds[7-7.0]
+PASSED tests/unit/llm/test_retry_rule.py::test_retry_after_in_seconds[ 2.5 -2.5]
+PASSED tests/unit/llm/test_retry_rule.py::test_retry_after_in_seconds[0-0.0]
+PASSED tests/unit/llm/test_retry_rule.py::test_retry_after_in_seconds[-3-0.0]
+PASSED tests/unit/llm/test_retry_rule.py::test_retry_after_in_seconds[-None]
+PASSED tests/unit/llm/test_retry_rule.py::test_retry_after_in_seconds[None-None]
+PASSED tests/unit/llm/test_retry_rule.py::test_retry_after_in_seconds[soon-None]
+PASSED tests/unit/llm/test_retry_rule.py::test_retry_after_in_seconds[inf-None]
+PASSED tests/unit/llm/test_retry_rule.py::test_retry_after_in_seconds[nan-None]
+PASSED tests/unit/llm/test_retry_rule.py::test_retry_after_as_an_http_date
+PASSED tests/unit/llm/test_retry_rule.py::test_retry_after_is_found_whatever_the_headers_case
+PASSED tests/unit/llm/test_retry_rule.py::test_a_retry_clock_asks_its_stage_for_the_time_left
+PASSED tests/unit/llm/test_client.py::test_providers_are_tried_in_order
+PASSED tests/unit/llm/test_client.py::test_order_helpers
+PASSED tests/unit/llm/test_client.py::test_a_provider_failure_moves_to_the_next_provider[RateLimited-rate_limited-1]
+PASSED tests/unit/llm/test_client.py::test_a_provider_failure_moves_to_the_next_provider[ProviderTimeout-timeout-2]
+PASSED tests/unit/llm/test_client.py::test_a_provider_failure_moves_to_the_next_provider[ServerError-error-2]
+PASSED tests/unit/llm/test_client.py::test_a_provider_failure_moves_to_the_next_provider[ConnectionFailed-error-2]
+PASSED tests/unit/llm/test_client.py::test_a_provider_failure_moves_to_the_next_provider[AuthFailed-error-1]
+PASSED tests/unit/llm/test_client.py::test_a_provider_failure_moves_to_the_next_provider[ProviderError-error-1]
+PASSED tests/unit/llm/test_client.py::test_an_unexpected_adapter_error_also_moves_on
+PASSED tests/unit/llm/test_client.py::test_invalid_output_is_retried_once_then_the_next_provider
+PASSED tests/unit/llm/test_client.py::test_a_retry_that_succeeds_stays_on_the_same_provider
+PASSED tests/unit/llm/test_client.py::test_every_provider_failing_raises_llm_unavailable
+PASSED tests/unit/llm/test_client.py::test_a_provider_without_a_key_is_skipped_and_reported_once
+PASSED tests/unit/llm/test_client.py::test_call_records_carry_the_details
+PASSED tests/unit/llm/test_client.py::test_the_call_log_line_has_no_prompt_text
+PASSED tests/unit/llm/test_client.py::test_private_and_reddit_text_never_reach_a_training_provider[answer_user_question-private]
+PASSED tests/unit/llm/test_client.py::test_private_and_reddit_text_never_reach_a_training_provider[classify_reply-private]
+PASSED tests/unit/llm/test_client.py::test_private_and_reddit_text_never_reach_a_training_provider[detect_intent-private]
+PASSED tests/unit/llm/test_client.py::test_private_and_reddit_text_never_reach_a_training_provider[write_explanation-private]
+PASSED tests/unit/llm/test_client.py::test_private_and_reddit_text_never_reach_a_training_provider[write_question-private]
+PASSED tests/unit/llm/test_client.py::test_private_and_reddit_text_never_reach_a_training_provider[generate_criteria-private]
+PASSED tests/unit/llm/test_client.py::test_private_and_reddit_text_never_reach_a_training_provider[extract_claims-reddit]
+PASSED tests/unit/llm/test_client.py::test_private_and_reddit_text_never_reach_a_training_provider[discover_aliases-reddit]
+PASSED tests/unit/llm/test_client.py::test_a_task_with_the_shoppers_words_must_be_private[public-answer_user_question]
+PASSED tests/unit/llm/test_client.py::test_a_task_with_the_shoppers_words_must_be_private[public-classify_reply]
+PASSED tests/unit/llm/test_client.py::test_a_task_with_the_shoppers_words_must_be_private[public-detect_intent]
+PASSED tests/unit/llm/test_client.py::test_a_task_with_the_shoppers_words_must_be_private[public-write_explanation]
+PASSED tests/unit/llm/test_client.py::test_a_task_with_the_shoppers_words_must_be_private[public-write_question]
+PASSED tests/unit/llm/test_client.py::test_a_task_with_the_shoppers_words_must_be_private[reddit-answer_user_question]
+PASSED tests/unit/llm/test_client.py::test_a_task_with_the_shoppers_words_must_be_private[reddit-classify_reply]
+PASSED tests/unit/llm/test_client.py::test_a_task_with_the_shoppers_words_must_be_private[reddit-detect_intent]
+PASSED tests/unit/llm/test_client.py::test_a_task_with_the_shoppers_words_must_be_private[reddit-write_explanation]
+PASSED tests/unit/llm/test_client.py::test_a_task_with_the_shoppers_words_must_be_private[reddit-write_question]
+PASSED tests/unit/llm/test_client.py::test_generate_criteria_may_be_public
+PASSED tests/unit/llm/test_client.py::test_oversized_input_is_trimmed_for_a_normal_task
+PASSED tests/unit/llm/test_client.py::test_oversized_extraction_input_is_chunked_and_merged
+PASSED tests/unit/llm/test_client.py::test_falling_back_to_a_smaller_window_refits_the_input
+PASSED tests/unit/llm/test_client.py::test_a_model_whose_window_cannot_hold_the_system_prompt_is_skipped
+PASSED tests/unit/llm/test_client.py::test_a_rate_limited_provider_is_skipped_until_its_cool_down_ends
+PASSED tests/unit/llm/test_client.py::test_a_bad_key_is_never_tried_again_in_the_run[AuthFailed]
+PASSED tests/unit/llm/test_client.py::test_a_bad_key_is_never_tried_again_in_the_run[NoCredit]
+PASSED tests/unit/llm/test_client.py::test_three_failures_switch_a_provider_off
+PASSED tests/unit/llm/test_client.py::test_a_server_error_that_repeats_switches_a_provider_off_at_once
+PASSED tests/unit/llm/test_client.py::test_a_server_error_that_passes_on_its_retry_leaves_the_provider_well
+PASSED tests/unit/llm/test_client.py::test_a_providers_budget_is_held_while_its_call_runs
+PASSED tests/unit/llm/test_client.py::test_an_unavailable_provider_is_skipped_with_no_call
+PASSED tests/unit/llm/test_client.py::test_invalid_output_does_not_count_against_a_provider
+PASSED tests/unit/llm/test_client.py::test_a_spent_daily_budget_skips_the_provider_and_is_logged
+PASSED tests/unit/llm/test_client.py::test_every_call_is_counted_against_the_budget
+PASSED tests/unit/llm/test_client.py::test_a_full_rate_limiter_moves_on_without_sending
+PASSED tests/unit/llm/test_client.py::test_the_real_client_limits_mistral
+PASSED tests/unit/llm/test_client.py::test_mistral_invalid_json_is_retried_once
+PASSED tests/unit/llm/test_client.py::test_build_uses_only_providers_with_a_key
+PASSED tests/unit/llm/test_client.py::test_build_applies_the_mistral_settings_from_the_environment
+PASSED tests/unit/llm/test_client.py::test_fake_llm_client_returns_canned_answers_and_records_calls
+PASSED tests/unit/llm/test_client.py::test_prose_around_json_is_rejected_for_retrieved_text_tasks
+PASSED tests/unit/llm/test_client.py::test_invalid_output_retries_once_then_gives_up
+PASSED tests/unit/llm/test_client.py::test_a_retry_with_a_clean_reply_is_accepted
+PASSED tests/unit/llm/test_client.py::test_a_whole_reply_in_one_fence_is_accepted
+PASSED tests/unit/llm/test_client.py::test_other_tasks_parse_as_before
+PASSED tests/unit/llm/test_client.py::test_a_failure_whose_retry_cannot_go_out_still_cools_the_provider
+PASSED tests/unit/llm/test_client.py::test_a_model_gets_one_retry_in_a_call_whatever_the_reason
+PASSED tests/unit/research/test_site_memory.py::test_three_blocks_skip_a_site
+PASSED tests/unit/research/test_site_memory.py::test_a_failure_that_repeats_counts_as_much_as_a_block
+PASSED tests/unit/research/test_site_memory.py::test_a_429_counts_half
+PASSED tests/unit/research/test_site_memory.py::test_the_skip_ends_after_24_hours_and_the_site_is_tried_again
+PASSED tests/unit/research/test_site_memory.py::test_failures_older_than_24_hours_no_longer_count
+PASSED tests/unit/research/test_site_memory.py::test_a_page_read_clears_the_sites_score
+PASSED tests/unit/research/test_site_memory.py::test_a_skipped_sites_24_hours_are_not_stretched
+PASSED tests/unit/research/test_site_memory.py::test_the_score_is_kept_between_searches
+PASSED tests/unit/research/test_site_memory.py::test_with_the_cache_off_nothing_is_remembered
+PASSED tests/unit/research/test_site_memory.py::test_one_site_whatever_the_page_or_case
+PASSED tests/unit/research/test_site_memory.py::test_a_damaged_entry_never_skips_a_site
+PASSED tests/unit/research/test_site_memory.py::test_a_site_is_its_host[https://www.Reviews.example/a-reviews.example]
+PASSED tests/unit/research/test_site_memory.py::test_a_site_is_its_host[reviews.example-reviews.example]
+PASSED tests/unit/research/test_site_memory.py::test_a_site_is_its_host[http://shop.example:8080/x-shop.example]
+PASSED tests/unit/research/test_site_memory.py::test_a_site_is_its_host[-None]
+PASSED tests/unit/research/test_site_memory.py::test_the_note_names_at_most_three_sites
+PASSED tests/unit/research/test_site_memory.py::test_the_detail_fits_its_field
+PASSED tests/unit/research/test_site_memory.py::test_two_searches_at_once_never_undo_each_others_counts
+PASSED tests/unit/research/test_site_memory.py::test_a_time_with_no_zone_is_forgotten_never_raised

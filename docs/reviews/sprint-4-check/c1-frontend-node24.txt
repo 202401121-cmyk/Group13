@@ -1,0 +1,35 @@
+Frontend, run again from a clean install on Node 24 (frontend/package.json engines: 24.x; CI's frontend job uses 24).
+20 Nov 2026, about 18:05 to 18:25 UTC, main 434384d, from frontend/ through cmd /d from C:\, with C:\mtv\node24 first on PATH:
+  node --version && npm --version && npm ci && npm run lint && npm run typecheck && npx vitest run && npm run test:e2e
+
+node v24.22.3, npm 11.19.1
+npm ci: added 433 packages, and audited 440 packages in 2m
+lint: no problems; typecheck: no errors (both exit 0 before the unit run)
+unit: Test Files  39 passed (39)
+unit: Tests  822 passed (822)
+browser suite (mock mode, not in CI):
+  1 failed
+  4 skipped
+  220 passed (10.8m)
+
+The one failure:
+1) [chromium] › e2e\quality\vitals.spec.ts:120:3 › web vitals › questions: INP while typing and pressing quick replies under 4x CPU slowdown 
+  Error: expect(received).toBeLessThanOrEqual(expected)
+  Expected: <= 200
+  Received:    232
+  > 152 |     expect.soft(v.INP!).toBeLessThanOrEqual(200);
+        |                         ^
+      at C:\Users\ompan\Desktop\SE_project\shopsense-starter\shopsense-starter\frontend\e2e\quality\vitals.spec.ts:152:25
+
+This run's vitals lines:
+  [vitals] home: LCP 1176 ms, CLS 0.000
+  [vitals] questions: INP 232 ms, CLS 0.044; shifts: 0.022 section answers-title + text
+  [vitals] results arriving: CLS 0.025; shifts: 0.009 li flex min-h-13 items-start gap-3 + li flex min-h-13 item
+  [vitals] slow phone, CLS per page load: criteria 0.000; questions 0.000; brief 0.000; results 0.000; start res
+
+The same test ("questions: INP while typing and pressing quick replies under 4x CPU slowdown", budget 200 ms) on
+this laptop on 20 Nov:
+  this check's first run, Node 22.18, full suite:            INP 136 ms (passed)
+  this run, Node 24.22.3, full suite:                        INP 232 ms (failed)
+  earlier the same day, during the US-30 redesign (code at or near main's, Node 22): full suites 104, 120, 328 and
+  208 ms; the vitals spec alone, three times: 40, 40 and 40 ms.

@@ -1,0 +1,30 @@
+AI tool names in Sprint 4's commits and pull requests, 20 Nov 2026 about 17:00 UTC.
+
+How: a script kept outside the repository (C:\mtv\s4c_names.py on Om's laptop) searched, case-insensitive, for 16
+coding-assistant names, their makers, and phrases such as a co-author line or a note that a tool made the text. The services the
+app calls (Groq, Gemini, Mistral, OpenRouter, Cerebras, DeepSeek) and their model ids may be named (the project's rule
+8), so they are not in the list. This file names no tool, so it does not break that rule itself.
+
+Range: Sprint 4 = every commit after ef2007e (the merge of #113, the Sprint 3 check) up to main 434384d.
+  Sprint 4 commits: ef2007e..origin/main (434384d), 78 commits
+  Names in commit messages, authors and committers: 0
+
+Lines Sprint 4 added, all files (git diff ef2007e..origin/main): 238 matches, none a coding assistant:
+  - 236 are one maker's name inside model ids and endpoint paths of services the app calls: the gpt-oss models
+    served by Groq ("groq/<maker>/gpt-oss-20b" and "-120b") and the providers' compatible chat paths (".../<maker>/v1/
+    chat/completions"). Where: backend/tests/golden/interview (148), the five recorded runs under
+    backend/tests/fixtures/recorded/gate_* (75), backend/config (7), backend/tests/unit/llm (2),
+    backend/tests/faults/interview (2), docs (2).
+  - 2 are text of a recorded web page in backend/tests/fixtures/recorded/gate_earbuds/gemini.json: a site menu item
+    reading "HVAC AI Assistant" (page data inside the untrusted-data block, not our words).
+
+  Pull requests #114 to #153 checked: 39; names found: 6
+  Titles, bodies and branch names: 0. Comments: 0. Reviews: 6, all by GitHub's automated pull-request review bot,
+  whose login and message name an AI coding tool:
+    #119 (author paljalodara): review posted 2026-11-16T12:08:46Z, state COMMENTED, saying the tool "was unable to review this pull request because the user who requested the review has insufficient" quota
+    #132 (author paljalodara): review posted 2026-11-17T09:28:36Z, state COMMENTED, saying the tool "was unable to review this pull request because the user who requested the review has insufficient" quota
+    #140 (author paljalodara): review posted 2026-11-18T10:44:42Z, state COMMENTED, saying the tool "was unable to review this pull request because the user who requested the review has insufficient" quota
+    #142 (author paljalodara): review posted 2026-11-18T12:03:01Z, state COMMENTED, saying the tool "was unable to review this pull request because the user who requested the review has insufficient" quota
+    #145 (author paljalodara): review posted 2026-11-18T19:42:54Z, state COMMENTED, saying the tool "was unable to review this pull request because the user who requested the review has insufficient" quota
+    #150 (author paljalodara): review posted 2026-11-20T09:58:28Z, state COMMENTED, saying the tool "was unable to review this pull request because the user who requested the review has insufficient" quota
+  The review was requested on each of these six pull requests, all opened by paljalodara (Pal Jalodara).

@@ -1,0 +1,159 @@
+R1: the live flow with the database on, at extraction's normal cap, 20 Nov 2026 17:21 to 17:23 UTC (22:51 to 22:53 IST).
+Main 434384d. Session sess_09c8d9254e072f3a0809c7bb, search srch_769a0949faa20cd194464e21.
+
+How: the backend ran from a launcher kept outside the repository (C:\mtv\s4c_launch.py on Om's laptop). It installs
+evals/live_briefs.py's guard (LiveBudget), so every call to an LLM, Serper, Jina, Firecrawl or a Reddit archive is counted
+where it leaves the process and refused past the check's budget (LLM 30, Serper 12, Reddit archive 14, Jina 6,
+Firecrawl 2 for the whole check, with a cap per run). YouTube calls are counted, with no cap (the task sets none). The
+frontend ran with npm run dev in live mode (VITE_API_MODE=live, VITE_API_BASE_URL=http://localhost:8000), as
+scripts/dev.py starts it. The walk was a headless Chromium page driven by Playwright, typing and clicking as a shopper
+does. .env was not opened, printed or changed; each run's own settings were set in the launcher's process only.
+The check set no EXTRACT_MAX_SOURCES, so extract's cap is config/extract.yaml's 40 unless .env sets one, which this
+check could not look at (it never opens .env).
+Request (made up): "Laptop for coding under ₹70,000". Answers: High to every question, by the quick-reply buttons.
+
+R1 only: after the first answer, the reply "what does that mean?" was typed (a question); after the second, "who won
+the cricket match yesterday?" (off-topic). Caps for R1: LLM 22, Serper 10, Reddit archive 14, Jina 5, Firecrawl 2.
+
+Health before the walk: {"status":"ok","schema_version":"1.9.0","database":"ok"}
+
+The walk (times UTC; page text cut at 400 to 900 characters):
+  17:21:40 request typed: "Laptop for coding under ₹70,000"
+  17:21:44 understood: Here's what we understood Check the details and fix anything we got wrong. Product Laptop Edit Used for coding Edit Budget Up to ₹70,000 Edit Region India Edit Must-haves No must-haves given Add Leave out None specified Add Looks right Start over Your brief PRODUCT Laptop USED FOR coding BUDGET Up to ₹70,000 REGION India MUST-HAVES Not given LEAVE OUT Not given Here's what we understood.
+  17:21:45 criteria page: /s/sess_09c8d9254e072f3a0809c7bb/criteria
+  17:21:46 answered High: CPU Speed: how much does it matter to you?
+  17:21:46 typed "what does that mean?" at: Memory Size: how much does it matter to you?
+  17:21:48 after it: heading "Memory Size: how much does it matter to you?", settled ""
+  17:21:48   page text: Criteria Question 2 up to 10 1 of 9 settled Amount of memory lets you keep more programs open without slowing down your computer. Memory Size: how much does it matter to you? Why this question: Memory Size: it usually matters a lot and we don't know your view yet, so we ask now. Amount of memory lets you keep more programs open without slowing down your computer. What does this mean? 1 Low 2 Medium 3 High 4 Good enough Set an exact value Skip this question Answers so far (1) CPU Speed High Answered Change Jump to question Or type your answer Send Your brief PRODUCT Laptop USED FOR coding BUDGET Up to ₹70,000 REGION India MUST-HAVES Not given LEAVE OUT Not given COMPARING ON 1 of 9 settled CPU Speed High Answered Memory Size Not asked yet SSD Speed Not asked yet Screen Clarity Not asked yet Key Comfort Not asked yet Battery Life Not asked yet Portability Not asked yet Heat Management Not 
+  17:21:48 answered High: Memory Size: how much does it matter to you?
+  17:21:48 typed "who won the cricket match yesterday?" at: SSD Speed: how much does it matter to you?
+  17:21:51 after it: heading "SSD Speed: how much does it matter to you?", settled ""
+  17:21:51   page text: Criteria Question 3 up to 10 2 of 9 settled I can only help with questions about the SSD Speed criterion and its definition. SSD Speed: how much does it matter to you? Why this question: SSD Speed: it usually matters a lot and we don't know your view yet, so we ask now. How quickly data can be read or written, so loading files and programs takes less time. What does this mean? 1 Low 2 Medium 3 High 4 Good enough Set an exact value Skip this question Answers so far (2) CPU Speed High Answered Change Memory Size High Answered Change Jump to question Or type your answer Send Your brief PRODUCT Laptop USED FOR coding BUDGET Up to ₹70,000 REGION India MUST-HAVES Not given LEAVE OUT Not given COMPARING ON 2 of 9 settled CPU Speed High Answered Memory Size High Answered SSD Speed Not asked yet Screen Clarity Not asked yet Key Comfort Not asked yet Battery Life Not asked yet Portability Not aske
+  17:21:51 answered High: SSD Speed: how much does it matter to you?
+  17:21:51 answered High: Screen Clarity: how much does it matter to you?
+  17:21:52 answered High: Key Comfort: how much does it matter to you?
+  17:21:52 answered High: Battery Life: how much does it matter to you?
+  17:21:53 answered High: Portability: how much does it matter to you?
+  17:21:53 answered High: Heat Management: how much does it matter to you?
+  17:21:53 answered High: Value: how much does it matter to you?
+  17:21:54 questions done after 9 answers
+  17:21:56 research started
+  17:22:51 results url: /s/sess_09c8d9254e072f3a0809c7bb/results?search=srch_769a0949faa20cd194464e21
+  17:22:51 console errors: none
+
+What the results page showed (lines picked from the page's text):
+  Results ready. 4 options, best match ASUS Vivobook S14 Flip.
+  ASUS Vivobook S14 Flip
+  Score 90
+  High confidence
+  95% chance of ranking first
+  Checked 3 of 9 criteria
+  Data coverage 100%
+  It ranks #1 with a score of 90 out of 100. Weight adds 90 points, with a score of 9 out of 10 compared with the other products we found. We could not check its battery life, cpu performance, display resolution, keyboard tactile feedback or ram. We also could not check its storage speed, thermal performance or value for money.
+  One trade-off: Its weak point is weight, with a score of 9 out of 10 compared with the other products we found.
+  Not verified: Battery Life, CPU Speed, Screen Clarity, Key Comfort, Memory Size, SSD Speed, Heat Management and Value.
+  No store offer
+  Price seen in a source: 69990 ₹ on digit.in, 20 Nov
+  Too close to call
+  GIGABYTE G5 MF5 and Lenovo IdeaPad Slim 3 are tied for 2nd.
+  We can't say yet what separates them.
+  Tied for 2nd:
+  GIGABYTE G5 MF5
+  Tied for 2nd
+  Score 50
+  Tied with Lenovo IdeaPad Slim 3
+  Low confidence
+  2% chance of ranking first
+  Checked 0 of 9 criteria
+  Data coverage 0%
+  It ranks #2 with a score of 50 out of 100. It is too close to call with a product next to it. Weight adds 50 points, but its score of 5 out of 10 is an estimate from similar products. We could not check its weight, battery life, cpu performance, display resolution or keyboard tactile feedback. We also could not check its ram, st
+  Not verified: Portability, Battery Life, CPU Speed, Screen Clarity, Key Comfort, Memory Size, SSD Speed, Heat Management and Value.
+  No store offer
+  Price seen in a source: 69990 ₹ on digit.in, 20 Nov
+  Tied for 2nd:
+  Lenovo IdeaPad Slim 3
+  Tied for 2nd
+  Score 50
+  Tied with GIGABYTE G5 MF5
+  Low confidence
+  2% chance of ranking first
+  Checked 0 of 9 criteria
+  Data coverage 0%
+  It ranks #3 with a score of 50 out of 100. It is too close to call with a product next to it. Weight adds 50 points, but its score of 5 out of 10 is an estimate from similar products. We could not check its weight, battery life, cpu performance, display resolution or keyboard tactile feedback. We also could not check its ram, st
+  Not verified: Portability, Battery Life, CPU Speed, Screen Clarity, Key Comfort, Memory Size, SSD Speed, Heat Management and Value.
+  No store offer
+  Price seen in a source: 66990 ₹ on digit.in, 20 Nov
+  HP Victus 15
+  Score 10
+  Low confidence
+  0% chance of ranking first
+  Checked 4 of 9 criteria
+  Data coverage 100%
+  It ranks #4 with a score of 10 out of 100. Weight adds 10 points, with a score of 1 out of 10 compared with the other products we found. We could not check its battery life, cpu performance, display resolution, keyboard tactile feedback or ram. We also could not check its storage speed, thermal performance or value for money.
+  One trade-off: Its weak point is weight, with a score of 1 out of 10 compared with the other products we found.
+  Not verified: Battery Life, CPU Speed, Screen Clarity, Key Comfort, Memory Size, SSD Speed, Heat Management and Value.
+  No store offer
+  Price seen in a source: 69990 ₹ on digit.in, 20 Nov
+  Couldn't check (18)
+  Left out (9)
+  (No "This result isn't saved" banner: the result was saved.)
+
+The coverage note, as saved (the contract cuts it at its length, with "..."):
+  Commerce used a simpler fallback: the service could not be reached. Reddit hit a rate limit. We found no information
+  on CPU performance, RAM, storage speed, display resolution, keyboard tactile feedback, battery life, thermal
+  performance and value for money for any product, so they were left out of the scores. We scored weight by comparing
+  what the sources say about each product. 5 Reddit threa...
+
+Calls counted by the guard (sent = left the machine; refused = over this run's cap, never sent):
+  --- r1 started 2026-11-20 17:19:23 UTC, flags [], limits left {'llm': 22, 'serper': 10, 'reddit': 14, 'jina': 5, 'firecrawl': 2}, used before {'llm': 0, 'serper': 0, 'reddit': 0, 'jina': 0, 'firecrawl': 0}
+  jina sent: 4
+  llm sent: 21
+  reddit sent: 14
+  serper refused: 5
+  serper sent: 10
+  youtube sent: 7
+  Serper by stage, from the guard's times (UTC):
+    research's 6 web searches (/search, 17:21:56 to 17:22:09): sent;
+    enrich's price look-ups (/shopping, 17:22:41 to 17:22:42): 4 sent and 2 refused (the log: "enrich: 2 of 6 price
+    look-ups failed");
+    commerce's 3 look-ups (/shopping, 17:22:45 to 17:22:46): all refused.
+  So this check's cap cut enrich (US-41) by 2 look-ups and commerce wholly: commerce's "simpler fallback" comes from
+  this check's budget.
+
+LLM attempts in the app's log:
+  attempts by task: {'answer_user_question (private, groq)': 1, 'classify_reply (private, groq)': 2, 'detect_intent (private, groq)': 1, 'extract_claims (public, gemini)': 11, 'extract_claims (public, groq)': 16, 'extract_claims (public, mistral)': 10, 'extract_claims (reddit, groq)': 54, 'write_explanation (private, groq)': 1}
+  outcomes: {'error': 3, 'invalid_output': 1, 'ok': 15, 'rate_limited': 75, 'timeout': 2}
+  (rate_limited means the pool had no room, so the call never left the machine; the guard counts only calls sent)
+  The one answer_user_question attempt (22:51:50 IST) came right after the second classify_reply (22:51:49 IST), the
+  off-topic reply, which was read as a question. The first typed reply, "what does that mean?" (classified at
+  22:51:47 IST), was answered from the criterion's saved definition, with no answer call.
+
+The app's stage lines (robots.txt and per-source drop lines left out; 22 sources were dropped with no valid answer:
+13 Reddit, 4 YouTube, 2 review site, 2 retailer, 1 maker):
+  22:51:53 IST app.interview.questions: interview: thermal_performance has no plain explanation; its definition's first sentence is not plain
+  22:52:14 IST app.research.retrying: Jina: timeout; trying once more in 0.2s
+  22:52:16 IST app.research.retrying: Jina: timeout; trying once more in 0.3s
+  22:52:26 IST app.research.stage: research: reddit 29.7s (20), web_search 14.1s (20), review_site 26.1s (12), youtube 3.9s (5); total 29.7s; used serper 6, reddit_archive 14, pages 17, jina 4, firecrawl_pages 0, firecrawl 0, youtube_search 1, youtube 6
+  22:52:30 IST app.extract.parsing: extract: claims dropped from a youtube source: {'criterion': 3}
+  22:52:30 IST app.extract.parsing: extract: names dropped from a youtube source: {'brand_only': 5}
+  22:52:33 IST app.llm.client: llm gemini-3.5-flash-lite: error; trying it once more in 0.3s
+  22:52:34 IST app.llm.client: llm gemini-3.5-flash-lite: error; trying it once more in 0.5s
+  22:52:35 IST app.llm.client: llm gemini-3.5-flash-lite: error; trying it once more in 0.5s
+  22:52:41 IST app.extract.parsing: extract: claims dropped from a review_site source: {'room': 4}
+  22:52:44 IST app.enrich.stage: enrich: 2 of 6 price look-ups failed
+  22:52:44 IST app.decide.stage: decide: We found no information on CPU performance, RAM, storage speed, display resolution, keyboard tactile feedback, battery life, thermal performance and value for money for any product, so they were left out of the scores. We scored weight by comparing what the sou
+  22:52:45 IST app.explain.stage: explain: prd_asus_vivobook_s14_flip gets the template: a compared score isn't called compared
+  22:52:46 IST app.commerce.stage: commerce: no price look-up answered (error)
+  "llm <model> skipped" lines, counted by model and reason:
+    gemini-3.5-flash-lite: cooling: 5
+    gemini: no room in its rate limit in time: 1
+    gpt-oss-120b: no room before the time limit: 22
+    gpt-oss-20b: no room before the time limit: 22
+    mistral: no room in its rate limit in time: 8
+    qwen3.8-27b: no room before the time limit: 22
+
+YouTube calls (US-38): 1 search (part=snippet, type=video, order=relevance, regionCode=IN, maxResults=5), 1 videos call
+for 5 ids, 5 commentThreads calls; no captions or transcript endpoint. Research: "youtube 3.9s (5)".
+
+Saved: scripts/check_request_saved.py sess_09c8d9254e072f3a0809c7bb printed "saved"; Supabase holds one requests row
+and one searches row, both a guest's (c3-supabase.txt). Console errors in the page: none.

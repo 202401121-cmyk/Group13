@@ -1,0 +1,237 @@
+US-24 Current price and buy link: backend tests, 20 Nov 2026, main 434384d
+Python 3.11.15, fresh venv, network guard on (tests/conftest.py). From backend/:
+python -m pytest -q -rA -m "not live" tests/unit/commerce tests/unit/research/test_serper_shopping.py tests/contract/test_contracts.py tests/unit/test_cli.py
+exit code: 0
+junit: {'tests': '231', 'failures': '0', 'errors': '0', 'skipped': '0', 'time': '3.664'}
+
+PASSED tests/unit/commerce/test_matching.py::test_the_exact_model_is_accepted[product0-ASUS Vivobook 15, Intel Core i5-1335U 13th Gen (16GB RAM/512GB SSD/15.6" FHD) X1504VA-NJ542WS Laptop]
+PASSED tests/unit/commerce/test_matching.py::test_the_exact_model_is_accepted[product1-Asus VivoBook 15 X1504VA Laptop, Cool Silver]
+PASSED tests/unit/commerce/test_matching.py::test_the_exact_model_is_accepted[product2-Apple iPhone 15 (128 GB) - Black]
+PASSED tests/unit/commerce/test_matching.py::test_the_exact_model_is_accepted[product3-HP Victus 15 Gaming Laptop, 16GB RAM, Windows 11 Pro]
+PASSED tests/unit/commerce/test_matching.py::test_the_exact_model_is_accepted[product4-Nova Book 14 (16GB RAM, 512GB SSD) Laptop]
+PASSED tests/unit/commerce/test_matching.py::test_anything_else_is_refused[product0-ASUS Vivobook 15 X1502ZA Intel Core i5 Laptop-a different model code]
+PASSED tests/unit/commerce/test_matching.py::test_anything_else_is_refused[product1-ASUS Vivobook 15 Laptop (16GB/512GB)-no model code to agree with]
+PASSED tests/unit/commerce/test_matching.py::test_anything_else_is_refused[product2-Acer Aspire 15 X1504VA Laptop-another brand]
+PASSED tests/unit/commerce/test_matching.py::test_anything_else_is_refused[product3-ASUS Vivobook 16 X1504VA Laptop-another number]
+PASSED tests/unit/commerce/test_matching.py::test_anything_else_is_refused[product4-Apple iPhone 15 Pro (256 GB) - Natural Titanium-an edition the product doesn't have]
+PASSED tests/unit/commerce/test_matching.py::test_anything_else_is_refused[product5-Apple iPhone 15 Plus (128 GB)-an edition the product doesn't have]
+PASSED tests/unit/commerce/test_matching.py::test_anything_else_is_refused[product6-Apple iPhone 16 (128 GB)-another number]
+PASSED tests/unit/commerce/test_matching.py::test_anything_else_is_refused[product7-HP Omen 15 Gaming Laptop-a missing model word]
+PASSED tests/unit/commerce/test_matching.py::test_anything_else_is_refused[product8-Laptop for gaming, 15 inch-no brand and no model]
+PASSED tests/unit/commerce/test_matching.py::test_a_product_without_a_brand_needs_a_model_code
+PASSED tests/unit/commerce/test_matching.py::test_a_vague_product_is_never_priced
+PASSED tests/unit/commerce/test_matching.py::test_a_stated_matching_variant_is_set
+PASSED tests/unit/commerce/test_matching.py::test_a_variant_mismatch_sets_no_variant
+PASSED tests/unit/commerce/test_matching.py::test_an_unstated_variant_is_none
+PASSED tests/unit/commerce/test_matching.py::test_the_query_and_the_store_search
+PASSED tests/unit/commerce/test_matching.py::test_the_models_words_must_be_in_order_with_nothing_between
+PASSED tests/unit/commerce/test_matching.py::test_a_year_in_the_products_name_is_not_needed_but_another_year_is_another_model
+PASSED tests/unit/commerce/test_matching.py::test_a_gpu_number_is_never_taken_for_a_year
+PASSED tests/unit/commerce/test_matching.py::test_an_accessory_or_a_second_hand_listing_is_refused[product0-Spigen Ultra Hybrid Case for Apple iPhone 15]
+PASSED tests/unit/commerce/test_matching.py::test_an_accessory_or_a_second_hand_listing_is_refused[product1-65W Charger for ASUS Vivobook 15 X1504VA Laptop]
+PASSED tests/unit/commerce/test_matching.py::test_an_accessory_or_a_second_hand_listing_is_refused[product2-Apple iPhone 15 Silicone Case with MagSafe]
+PASSED tests/unit/commerce/test_matching.py::test_an_accessory_or_a_second_hand_listing_is_refused[product3-Apple iPhone 15 (Renewed) 128 GB]
+PASSED tests/unit/commerce/test_matching.py::test_an_accessory_or_a_second_hand_listing_is_refused[product4-Apple iPhone 15 128GB Pre-Owned]
+PASSED tests/unit/commerce/test_matching.py::test_an_accessory_that_comes_with_it_is_still_the_product
+PASSED tests/unit/commerce/test_matching.py::test_a_series_word_between_the_brand_and_the_model_is_another_product[product0-Lenovo IdeaPad Gaming 3 Laptop]
+PASSED tests/unit/commerce/test_matching.py::test_a_series_word_between_the_brand_and_the_model_is_another_product[product1-HP Pavilion x360 14 2-in-1 Laptop]
+PASSED tests/unit/commerce/test_matching.py::test_a_series_word_between_the_brand_and_the_model_is_another_product[product2-HP Victus 15 Gaming Laptop]
+PASSED tests/unit/commerce/test_matching.py::test_a_brand_of_two_words_and_a_sub_brand_are_found
+PASSED tests/unit/commerce/test_partial_failure_note.py::test_the_pipeline_puts_the_commerce_note_in_the_coverage_note
+PASSED tests/unit/commerce/test_review_fixes.py::test_a_long_link_is_kept_whole_and_an_absurd_one_refused
+PASSED tests/unit/commerce/test_review_fixes.py::test_a_slow_look_up_is_no_answer_and_the_others_are_kept
+PASSED tests/unit/commerce/test_review_fixes.py::test_a_product_whose_offers_have_no_readable_price_also_gets_the_store_search
+PASSED tests/unit/commerce/test_review_fixes.py::test_not_in_stock_is_never_read_as_in_stock[Not in stock]
+PASSED tests/unit/commerce/test_review_fixes.py::test_not_in_stock_is_never_read_as_in_stock[Currently unavailable]
+PASSED tests/unit/commerce/test_review_fixes.py::test_not_in_stock_is_never_read_as_in_stock[Sold out]
+PASSED tests/unit/commerce/test_review_fixes.py::test_googles_own_store_is_a_store
+PASSED tests/unit/commerce/test_review_fixes.py::test_the_note_gives_the_likeliest_cause_when_the_failures_differ
+PASSED tests/unit/commerce/test_review_fixes.py::test_shopping_and_web_search_share_one_daily_cap
+PASSED tests/unit/commerce/test_review_fixes.py::test_a_cached_answer_is_served_until_the_caches_limit_then_asked_again
+PASSED tests/unit/commerce/test_review_fixes.py::test_serpers_answer_for_india_as_recorded
+PASSED tests/unit/commerce/test_shopping_stage.py::test_the_top_3_are_looked_up_at_once_and_no_more
+PASSED tests/unit/commerce/test_shopping_stage.py::test_an_accepted_listing_becomes_an_offer_with_its_price_time_and_variant
+PASSED tests/unit/commerce/test_shopping_stage.py::test_25k_is_read_as_25000
+PASSED tests/unit/commerce/test_shopping_stage.py::test_a_price_above_the_budget_is_flagged
+PASSED tests/unit/commerce/test_shopping_stage.py::test_an_unreadable_price_is_no_price
+PASSED tests/unit/commerce/test_shopping_stage.py::test_availability_is_what_the_result_says[In stock-HP Victus 15 Laptop-in_stock]
+PASSED tests/unit/commerce/test_shopping_stage.py::test_availability_is_what_the_result_says[Free delivery-HP Victus 15 Laptop (Out of stock)-out_of_stock]
+PASSED tests/unit/commerce/test_shopping_stage.py::test_a_google_shopping_link_for_the_offer_is_kept_and_said_so
+PASSED tests/unit/commerce/test_shopping_stage.py::test_a_google_redirect_is_unwrapped_to_the_stores_own_page
+PASSED tests/unit/commerce/test_shopping_stage.py::test_any_other_google_link_is_refused[https://www.google.com/shopping/product/123]
+PASSED tests/unit/commerce/test_shopping_stage.py::test_any_other_google_link_is_refused[https://www.google.co.in/search?q=HP+Victus+15]
+PASSED tests/unit/commerce/test_shopping_stage.py::test_any_other_google_link_is_refused[https://www.google.com/url?url=https://www.google.com/maps]
+PASSED tests/unit/commerce/test_shopping_stage.py::test_a_product_keeps_3_offers_one_a_store_cheapest_first
+PASSED tests/unit/commerce/test_shopping_stage.py::test_no_accepted_offer_gives_the_store_search
+PASSED tests/unit/commerce/test_shopping_stage.py::test_one_failed_look_up_leaves_the_others_priced_and_is_named
+PASSED tests/unit/commerce/test_shopping_stage.py::test_two_failed_look_ups_are_named
+PASSED tests/unit/commerce/test_shopping_stage.py::test_no_note_when_every_look_up_answered
+PASSED tests/unit/commerce/test_shopping_stage.py::test_a_late_look_up_is_counted_in_the_note
+PASSED tests/unit/commerce/test_shopping_stage.py::test_a_shopping_retry_stops_at_the_look_up_deadline_and_a_store_page_retry_at_the_stages
+PASSED tests/unit/commerce/test_shopping_stage.py::test_the_stages_clocks_reach_both_serper_clients
+PASSED tests/unit/commerce/test_shopping_stage.py::test_the_commerce_note_reaches_the_coverage_note
+PASSED tests/unit/commerce/test_shopping_stage.py::test_serper_down_gives_store_searches_for_all_and_a_coverage_note[error-the service could not be reached]
+PASSED tests/unit/commerce/test_shopping_stage.py::test_serper_down_gives_store_searches_for_all_and_a_coverage_note[timeout-took too long]
+PASSED tests/unit/commerce/test_shopping_stage.py::test_serper_down_gives_store_searches_for_all_and_a_coverage_note[rate_limited-the service was busy]
+PASSED tests/unit/commerce/test_shopping_stage.py::test_serper_down_gives_store_searches_for_all_and_a_coverage_note[blocked-the service refused the request]
+PASSED tests/unit/commerce/test_shopping_stage.py::test_serper_down_gives_store_searches_for_all_and_a_coverage_note[quota_exhausted-the service refused the request]
+PASSED tests/unit/commerce/test_shopping_stage.py::test_example_offers_never_appear_in_a_live_result
+PASSED tests/unit/commerce/test_shopping_stage.py::test_the_live_stage_is_the_default_and_is_real
+PASSED tests/unit/commerce/test_shopping_stage.py::test_the_stubs_fallback_gives_store_searches_and_no_offers
+PASSED tests/unit/commerce/test_store_links.py::test_a_store_page_found_is_swapped_in_with_the_shopping_price_and_time
+PASSED tests/unit/commerce/test_store_links.py::test_a_store_page_for_another_model_is_refused
+PASSED tests/unit/commerce/test_store_links.py::test_a_search_page_on_the_store_is_not_a_product_page
+PASSED tests/unit/commerce/test_store_links.py::test_no_match_keeps_the_google_link_and_its_label
+PASSED tests/unit/commerce/test_store_links.py::test_a_store_not_in_the_map_is_not_searched
+PASSED tests/unit/commerce/test_store_links.py::test_one_web_search_a_product_with_a_site_for_each_offer_store
+PASSED tests/unit/commerce/test_store_links.py::test_at_most_three_extra_queries_a_search
+PASSED tests/unit/commerce/test_store_links.py::test_the_cap_reached_sends_nothing_and_keeps_the_google_link
+PASSED tests/unit/commerce/test_store_links.py::test_a_cached_answer_sends_nothing
+PASSED tests/unit/commerce/test_store_links.py::test_the_store_map_loads_and_matches_store_names
+PASSED tests/unit/commerce/test_store_links.py::test_a_failed_store_page_search_keeps_its_google_link_and_the_others_pages[web0]
+PASSED tests/unit/commerce/test_store_links.py::test_a_failed_store_page_search_keeps_its_google_link_and_the_others_pages[web1]
+PASSED tests/unit/commerce/test_store_links.py::test_a_late_store_page_search_keeps_the_google_link
+PASSED tests/unit/commerce/test_store_links.py::test_no_store_page_search_when_the_stage_has_no_time_for_one
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://www.flipkart.com/hp-victus-15-gaming-laptop/p/itm0123456789-Flipkart-True]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://m.flipkart.com/hp-victus-15/p/itm0123456789-Flipkart-True]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://flipkart.com/hp-victus-15/p/itm0123456789?pid=X-Flipkart-True]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://www.flipkart.com/laptops/hp~brand/pr?sid=6bo-Flipkart-False]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://stories.flipkart.com/hp-victus-15/p/itm0123456789-Flipkart-False]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://www.flipkart.com.example/hp-victus-15/p/itm0123-Flipkart-False]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://www.amazon.in/ASUS-Vivobook-15-X1504VA-Laptop/dp/B0CTESTVB1-Amazon-True]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://www.amazon.in/gp/product/B0CTESTVB1/-Amazon-True]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://www.amazon.in/s?k=asus+vivobook+15-Amazon-False]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://www.amazon.in/stores/ASUS/page/1234-Amazon-False]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://www.croma.com/asus-vivobook-15/p/301234-Croma-True]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://www.croma.com/laptops/c/20-Croma-False]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://www.reliancedigital.in/asus-vivobook-15/p/493838-Reliance Digital-True]
+PASSED tests/unit/commerce/test_store_links.py::test_only_a_stores_own_product_pages_count[https://www.reliancedigital.in/search?q=vivobook-Reliance Digital-False]
+PASSED tests/unit/commerce/test_store_links.py::test_a_stores_own_page_and_its_google_link_are_one_offer
+PASSED tests/unit/research/test_serper_shopping.py::test_the_request_is_a_post_to_shopping_with_the_key_in_its_header
+PASSED tests/unit/research/test_serper_shopping.py::test_the_key_is_never_shown
+PASSED tests/unit/research/test_serper_shopping.py::test_a_result_needs_a_title_and_a_web_link_and_its_text_is_trimmed
+PASSED tests/unit/research/test_serper_shopping.py::test_each_failure_is_a_reason_never_an_exception[answer0-blocked]
+PASSED tests/unit/research/test_serper_shopping.py::test_each_failure_is_a_reason_never_an_exception[answer1-blocked]
+PASSED tests/unit/research/test_serper_shopping.py::test_each_failure_is_a_reason_never_an_exception[answer2-quota_exhausted]
+PASSED tests/unit/research/test_serper_shopping.py::test_each_failure_is_a_reason_never_an_exception[answer3-rate_limited]
+PASSED tests/unit/research/test_serper_shopping.py::test_each_failure_is_a_reason_never_an_exception[answer4-error]
+PASSED tests/unit/research/test_serper_shopping.py::test_each_failure_is_a_reason_never_an_exception[answer5-error]
+PASSED tests/unit/research/test_serper_shopping.py::test_each_failure_is_a_reason_never_an_exception[answer6-error]
+PASSED tests/unit/research/test_serper_shopping.py::test_each_failure_is_a_reason_never_an_exception[answer7-timeout]
+PASSED tests/unit/research/test_serper_shopping.py::test_each_failure_is_a_reason_never_an_exception[answer8-error]
+PASSED tests/unit/research/test_serper_shopping.py::test_with_no_key_nothing_is_sent
+PASSED tests/unit/research/test_serper_shopping.py::test_a_used_up_cap_sends_nothing
+PASSED tests/unit/research/test_serper_shopping.py::test_each_request_sent_counts_one_serper_unit
+PASSED tests/unit/research/test_serper_shopping.py::test_a_timeout_is_retried_once_and_counts_two_units
+PASSED tests/unit/research/test_serper_shopping.py::test_a_5xx_or_broken_connection_is_retried_once[first0]
+PASSED tests/unit/research/test_serper_shopping.py::test_a_5xx_or_broken_connection_is_retried_once[first1]
+PASSED tests/unit/research/test_serper_shopping.py::test_a_5xx_or_broken_connection_is_retried_once[first2]
+PASSED tests/unit/research/test_serper_shopping.py::test_a_403_is_never_retried[400]
+PASSED tests/unit/research/test_serper_shopping.py::test_a_403_is_never_retried[401]
+PASSED tests/unit/research/test_serper_shopping.py::test_a_403_is_never_retried[402]
+PASSED tests/unit/research/test_serper_shopping.py::test_a_403_is_never_retried[403]
+PASSED tests/unit/research/test_serper_shopping.py::test_a_403_is_never_retried[404]
+PASSED tests/unit/research/test_serper_shopping.py::test_a_429_waits_its_stated_time_once
+PASSED tests/unit/research/test_serper_shopping.py::test_no_retry_past_the_stages_time
+PASSED tests/unit/research/test_serper_shopping.py::test_a_retry_needs_a_unit_of_the_cap
+PASSED tests/unit/research/test_serper_shopping.py::test_a_cache_hit_makes_no_call_and_keeps_its_first_time
+PASSED tests/unit/research/test_serper_shopping.py::test_a_failure_is_never_cached
+PASSED tests/unit/research/test_serper_shopping.py::test_a_damaged_cache_entry_is_asked_again
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[claims]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[commerce]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[criteria]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[decision]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[evidence_disputed]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[evidence_unknown]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[exclusion_parse_response]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[explanations]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[intent]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[intent_unclear]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[interview_state]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[match]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[me_response]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[product_type_claim]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[progress_events]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[recommender_counts]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[reddit_thread]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[reply_exact]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[reply_rough]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[research]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[rough_levels]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[rubric]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[rubric_edit_request]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[rubric_edit_response]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[saved_search_list]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[search_result]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[search_run_done]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[search_run_running]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[search_run_started]
+PASSED tests/contract/test_contracts.py::test_every_example_is_valid_and_round_trips[verify]
+PASSED tests/contract/test_contracts.py::test_every_contract_exports_a_json_schema
+PASSED tests/contract/test_contracts.py::test_contracts_are_frozen
+PASSED tests/contract/test_contracts.py::test_unknown_fields_are_rejected
+PASSED tests/contract/test_contracts.py::test_naive_datetimes_are_rejected
+PASSED tests/contract/test_contracts.py::test_every_stage_has_a_time_limit
+PASSED tests/contract/test_contracts.py::test_no_category_requires_clarification
+PASSED tests/contract/test_contracts.py::test_unclear_request_is_not_ready_for_research
+PASSED tests/contract/test_contracts.py::test_budget_min_above_max_is_rejected
+PASSED tests/contract/test_contracts.py::test_criteria_need_exactly_one_value_for_money
+PASSED tests/contract/test_contracts.py::test_vague_criterion_is_rejected
+PASSED tests/contract/test_contracts.py::test_too_few_criteria_are_rejected
+PASSED tests/contract/test_contracts.py::test_rubric_weights_must_add_up_to_one
+PASSED tests/contract/test_contracts.py::test_normalize_handles_all_zero_weights
+PASSED tests/contract/test_contracts.py::test_rubric_fingerprint_changes_with_priorities
+PASSED tests/contract/test_contracts.py::test_interview_cannot_start_without_a_category
+PASSED tests/contract/test_contracts.py::test_finished_step_needs_a_rubric_and_no_question
+PASSED tests/contract/test_contracts.py::test_answering_a_user_question_records_where_the_answer_came_from
+PASSED tests/contract/test_contracts.py::test_reply_classification_rules[kwargs0-must carry a weight]
+PASSED tests/contract/test_contracts.py::test_reply_classification_rules[kwargs1-user's question]
+PASSED tests/contract/test_contracts.py::test_reply_classification_rules[kwargs2-which question]
+PASSED tests/contract/test_contracts.py::test_off_topic_and_unclear_replies_need_nothing_else
+PASSED tests/contract/test_contracts.py::test_unclear_count_is_capped_at_two
+PASSED tests/contract/test_contracts.py::test_reddit_sources_are_community_evidence_with_a_subreddit
+PASSED tests/contract/test_contracts.py::test_claim_needs_a_value_or_a_score_and_a_quote
+PASSED tests/contract/test_contracts.py::test_extraction_claims_must_belong_to_their_source
+PASSED tests/contract/test_contracts.py::test_alias_map_cannot_point_to_unknown_products
+PASSED tests/contract/test_contracts.py::test_unknown_values_never_get_a_score
+PASSED tests/contract/test_contracts.py::test_disputed_values_cite_both_sides
+PASSED tests/contract/test_contracts.py::test_estimated_values_have_no_claims_of_their_own
+PASSED tests/contract/test_contracts.py::test_one_value_per_product_and_criterion
+PASSED tests/contract/test_contracts.py::test_dropped_products_cannot_keep_values
+PASSED tests/contract/test_contracts.py::test_a_product_cannot_be_ranked_and_filtered
+PASSED tests/contract/test_contracts.py::test_nothing_passing_needs_a_relaxation_hint
+PASSED tests/contract/test_contracts.py::test_simulated_ranking_follows_chance_of_first
+PASSED tests/contract/test_contracts.py::test_ranks_must_be_consecutive
+PASSED tests/contract/test_contracts.py::test_checked_explanations_cannot_keep_unsupported_sentences
+PASSED tests/contract/test_contracts.py::test_generated_sentences_must_cite_claims_but_templates_need_not
+PASSED tests/contract/test_contracts.py::test_offers_must_match_the_model_name
+PASSED tests/contract/test_contracts.py::test_prices_go_stale_after_24_hours
+PASSED tests/contract/test_contracts.py::test_degraded_search_must_explain_itself
+PASSED tests/contract/test_contracts.py::test_ranked_products_must_be_in_the_product_list
+PASSED tests/contract/test_contracts.py::test_search_cannot_finish_before_it_starts
+PASSED tests/contract/test_contracts.py::test_a_result_built_without_saved_is_not_saved
+PASSED tests/contract/test_contracts.py::test_the_exported_schema_gives_saved_the_same_default
+PASSED tests/contract/test_contracts.py::test_input_budget_leaves_room_for_answer_and_margin
+PASSED tests/contract/test_contracts.py::test_personal_tasks_include_everything_with_user_words
+PASSED tests/contract/test_contracts.py::test_generate_criteria_is_not_always_personal
+PASSED tests/contract/test_contracts.py::test_data_classes_and_difficulties
+PASSED tests/contract/test_contracts.py::test_call_record_is_valid
+PASSED tests/contract/test_contracts.py::test_call_record_needs_a_known_data_class
+PASSED tests/contract/test_contracts.py::test_a_reddit_source_records_which_archive_it_came_from
+PASSED tests/contract/test_contracts.py::test_source_detail_is_for_reddit_only
+PASSED tests/contract/test_contracts.py::test_author_hash_is_a_sha256_never_a_username
+PASSED tests/unit/test_cli.py::test_cli_prints_a_ranked_list_with_sources
+PASSED tests/unit/test_cli.py::test_cli_with_the_stub_research_finds_no_price_so_cant_tell
+PASSED tests/unit/test_cli.py::test_cli_says_not_ranked_instead_of_a_missing_score
+PASSED tests/unit/test_cli.py::test_cli_prints_the_relaxation_hint
+PASSED tests/unit/test_cli.py::test_cli_shows_what_it_understood
+PASSED tests/unit/test_cli.py::test_cli_asks_instead_of_searching_when_the_product_is_unclear
+PASSED tests/unit/test_cli.py::test_cli_lists_the_criteria_with_their_definitions
+PASSED tests/unit/test_cli.py::test_cli_skips_every_question_by_default_and_prints_the_rubric
+PASSED tests/unit/test_cli.py::test_cli_interactive_reads_answers
+PASSED tests/unit/test_cli.py::test_cli_saves_the_request_once_with_a_new_session_id
+PASSED tests/unit/test_cli.py::test_cli_no_db_does_not_save
+PASSED tests/unit/test_cli.py::test_cli_still_searches_when_the_database_is_down
+PASSED tests/unit/test_cli.py::test_cli_saves_an_unclear_request_without_an_intent
+PASSED tests/unit/test_cli.py::test_the_prices_block_shows_each_offer_or_a_store_search
+PASSED tests/unit/test_cli.py::test_no_prices_block_without_a_commerce_result
