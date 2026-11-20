@@ -4,12 +4,14 @@ from __future__ import annotations
 
 from enum import StrEnum
 from typing import Literal
+from uuid import UUID
 
 from pydantic import Field, field_validator, model_validator
 
 from .common import Contract, Fraction, Score10, SessionId, Slug, StrictScore10
 from .criteria import CriteriaSet
 from .intake import Exclusion, Intent
+from .memory import PreferenceKind
 from .rubric import Rubric
 
 MAX_QUESTIONS = 10
@@ -116,8 +118,11 @@ class ReplyClassification(Contract):
 
 
 class RememberedPreference(Contract):
-    """A past preference found by meaning (US-06). Shown as 'remembered', changeable in one click."""
+    """A past preference found by meaning (US-06). Shown as 'remembered', changeable or forgotten in one click: it names
+    its PreferenceItem and kind (1.10.0)."""
 
+    preference_id: UUID = Field(description="The PreferenceItem it came from, to change or forget it")
+    kind: PreferenceKind
     text: str = Field(max_length=200)
     criterion_key: Slug | None = None
     weight: Score10 | None = None
@@ -163,6 +168,14 @@ class InterviewState(Contract):
     manual_exclusions_removed: list[Exclusion] = Field(
         default_factory=list, max_length=MAX_EXCLUSIONS, description="Exclusions the shopper removed (US-09)"
     )
+    manual_always: list[Exclusion] = Field(
+        default_factory=list,
+        max_length=MAX_EXCLUSIONS,
+        description=(
+            "The shopper's Always on the request's own leave-outs (US-10, S4-17): kind and value name the leave-out, "
+            "always is the choice. Kept apart from the added ones, so a leave-out counts once against the 30. 1.10.0"
+        ),
+    )
     beliefs: dict[Slug, WeightBelief] = Field(
         default_factory=dict,
         description="The interview's belief about each criterion's weight (US-04). Empty: the fixed order is used",
@@ -178,11 +191,26 @@ class InterviewState(Contract):
         if unknown:
             raise ValueError(f"a rule switch names no hard rule of the request: {unknown}")
         added = {_exclusion_key(e) for e in self.manual_exclusions_added}
-        if added & {_exclusion_key(e) for e in self.manual_exclusions_removed}:
+        removed = {_exclusion_key(e) for e in self.manual_exclusions_removed}
+        if added & removed:
             raise ValueError("an exclusion cannot be both added and removed")
-        if len(self.intent.exclusions) + len(self.manual_exclusions_added) > MAX_EXCLUSIONS:
+        self._check_always(removed)
+        # Each leave-out the rubric holds counts once: the request's own the shopper kept, then each added one the
+        # request doesn't already name. An Always choice and a removed one count nothing.
+        own = {_exclusion_key(e) for e in self.intent.exclusions}
+        kept = [e for e in self.intent.exclusions if _exclusion_key(e) not in removed]
+        if len(kept) + len(added - own) > MAX_EXCLUSIONS:
             raise ValueError(f"the request's exclusions and the added ones must fit the rubric's {MAX_EXCLUSIONS}")
         return self
+
+    def _check_always(self, removed: set[tuple[str, str]]) -> None:
+        chosen = [_exclusion_key(e) for e in self.manual_always]
+        if len(chosen) != len(set(chosen)):
+            raise ValueError("each of the request's leave-outs has its Always choice once")
+        if set(chosen) - {_exclusion_key(e) for e in self.intent.exclusions}:
+            raise ValueError("an Always choice names a leave-out the request does not have")
+        if set(chosen) & removed:
+            raise ValueError("an Always choice names a leave-out the shopper removed")
 
 
 def _exclusion_key(exclusion: Exclusion) -> tuple[str, str]:

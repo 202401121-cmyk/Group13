@@ -22,12 +22,13 @@ from .claims import Claim, ProductMention
 from .commerce import CommerceResult, Offer
 from .common import ClaimType, Money, SourceTier, SourceType, StageName, StageReport, StageStatus
 from .criteria import CriteriaSet, Criterion, Direction
-from .decide import Contribution, DecideResult, FilteredProduct, RankedProduct
+from .decide import CheckedValue, Contribution, DecideResult, FilteredProduct, RankedProduct
 from .entities import MatchResult, Product, Variant
 from .evidence import Citation, ClaimEvidence, EvidenceResponse, EvidenceSource
 from .explain import Explanation, ExplanationSentence
 from .intake import Budget, Exclusion, HardRule, Intent
 from .interview import ROUGH_LEVEL_WEIGHTS, InterviewState, RoughLevel, RoughLevelWeights, WeightBelief
+from .memory import PreferenceEdit, PreferenceExport, PreferenceItem, PreferenceList
 from .pipeline import (
     ProductSummary,
     ProgressEvent,
@@ -674,7 +675,34 @@ def decision() -> DecideResult:
             ),
         ],
         method="monte_carlo",
+        checked_values=checked_values(),
     )
+
+
+_PRICES = {  # rupees, as the filter read them. This example's verify holds no price values: these show the shape
+    "prd_nova_book_14": 64990.0,
+    "prd_kestrel_slim_15": 67490.0,
+    "prd_orion_play_15": 59990.0,
+    "prd_aurora_air_13": 84990.0,
+    "prd_vela_pro_14": 66990.0,
+}
+
+
+def checked_values() -> list[CheckedValue]:
+    """What the filter read for each product decided (US-23, P-42): its price, and its RAM from the verify example."""
+    out: list[CheckedValue] = []
+    for pid, price in _PRICES.items():
+        out.append(
+            CheckedValue(product_id=pid, attribute="price_inr", state=ValueState.KNOWN, values=[price], unit="INR")
+        )
+        if pid in _RAM:
+            ram = CheckedValue(
+                product_id=pid, attribute="ram_gb", state=ValueState.KNOWN, values=[_RAM[pid]], unit="gb"
+            )
+        else:  # Aurora Air 13 and Vela Pro 14: no source gave their RAM
+            ram = CheckedValue(product_id=pid, attribute="ram_gb", state=ValueState.UNKNOWN)
+        out.append(ram)
+    return out
 
 
 # --- 10 explain -----------------------------------------------------------------------------
@@ -977,6 +1005,57 @@ def saved_search_list() -> SavedSearchList:
     )
 
 
+# --- memory (US-06, US-11) ------------------------------------------------------------------------------
+
+
+def preference_list() -> PreferenceList:
+    """What a signed-in shopper has remembered, newest first: a weight, a must-have, and a brand left out with Always,
+    which holds for every category. No embedding, user id or email (P-40)."""
+    return PreferenceList(
+        items=[
+            PreferenceItem(
+                id=UUID("5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b"),
+                kind="exclusion",
+                category=None,
+                text="No Zenith, in any search",
+                exclusion=Exclusion(kind="brand", value="Zenith", always=True),
+                always=True,
+                created_at=T0 + timedelta(days=3),
+                updated_at=T0 + timedelta(days=3),
+            ),
+            PreferenceItem(
+                id=UUID("4d5e6f7a-8b9c-4d0e-9f1a-2b3c4d5e6f7a"),
+                kind="hard_rule",
+                category="laptop",
+                text="At least 16 GB RAM",
+                rule=intent().hard_rules[0],
+                created_at=T0 + timedelta(days=2),
+                updated_at=T0 + timedelta(days=2),
+            ),
+            PreferenceItem(
+                id=UUID("3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f"),
+                kind="weight",
+                category="laptop",
+                criterion_key="battery_life",
+                text="Battery life matters a lot",
+                weight=8.0,
+                created_at=T0,
+                updated_at=T0 + timedelta(days=1),
+            ),
+        ]
+    )
+
+
+def preference_export() -> PreferenceExport:
+    """Every remembered item, as the shopper downloads them (US-11)."""
+    return PreferenceExport(exported_at=T0 + timedelta(days=4), items=preference_list().items)
+
+
+def preference_edit() -> PreferenceEdit:
+    """A change to one remembered weight (US-11)."""
+    return PreferenceEdit(weight=6)
+
+
 ALL_EXAMPLES = {
     "intent": intent,
     "intent_unclear": unclear_intent,
@@ -1005,6 +1084,9 @@ ALL_EXAMPLES = {
     "rubric_edit_request": rubric_edit_request,
     "exclusion_parse_response": exclusion_parse_response,
     "rubric_edit_response": rubric_edit_response,
+    "preference_list": preference_list,
+    "preference_export": preference_export,
+    "preference_edit": preference_edit,
     "interview_state": interview_state,
     "me_response": me_response,
     "saved_search_list": saved_search_list,

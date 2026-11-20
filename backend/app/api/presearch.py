@@ -49,8 +49,9 @@ FINISHED = "The interview is already finished. Go back to a question if you want
 NOT_ANSWERED = "That question hasn't been answered yet, so there is nothing to change."
 NOT_CURRENT = "That isn't the question we're on. To change an earlier answer, go back to that question first."
 MAX_REPLY_CHARS = 500  # IntakeInput.previous_clarification_reply and InterviewTurn.reply_text limit
-# A plain sentence, when the edits left every weight at 0 (US-09). The rubric route also answers it in
-# RubricEditResponse.note (S4-17); the header stays for one sprint, and GET /{session_id} sends it on a reload.
+# A plain sentence, when the edits left every weight at 0 (US-09). The rubric route answers it in
+# RubricEditResponse.note (S4-17) and a reload in PresearchSession.note (1.10.0); the header stays one more sprint
+# (S5-0), on both routes.
 RUBRIC_NOTE_HEADER = "X-Rubric-Note"
 
 router = APIRouter(prefix="/api/presearch", tags=["pre-search"])
@@ -255,7 +256,7 @@ def edit_rubric(session_id: str, body: RubricEditRequest, sessions: Sessions, re
 
     Answers the rebuilt rubric. An unknown rule id or criterion key answers 422 and names it, and nothing is stored.
     When the edits leave every weight at 0, the defaults are used and `note` says so, as does the X-Rubric-Note header
-    (kept for one sprint, S4-17).
+    (kept one more sprint, S4-17, S5-0). A reload carries it in PresearchSession.note.
     """
     with sessions.lock(session_id):
         session = _load(sessions, session_id)
@@ -287,10 +288,12 @@ def edit_rubric(session_id: str, body: RubricEditRequest, sessions: Sessions, re
 def get_session(session_id: str, sessions: Sessions, response: Response) -> PresearchSession:
     """Everything about the session, so a page reload can carry on where it left off.
 
-    While the shopper's edits leave every weight at 0, the X-Rubric-Note header carries the rubric route's note, so a
-    reload shows it too (S4-17). PresearchSession has no field for it: that would be a contract change.
+    While the shopper's edits leave every weight at 0, `note` carries the rubric route's note, so a reload shows it too
+    (1.10.0). It is worked out from the edits each time, never stored, so it can't go stale. The X-Rubric-Note header
+    carries it as well, for one more sprint (S4-17, S5-0).
     """
     session = _load(sessions, session_id)
+    note = None
     if session.interview is not None:
         plan = plan_questions(
             session.interview.criteria, session.interview.intent, session.interview.history, load_interview_rules()
@@ -298,7 +301,7 @@ def get_session(session_id: str, sessions: Sessions, response: Response) -> Pres
         note = rubric_note(session.interview, plan)
         if note is not None:
             response.headers[RUBRIC_NOTE_HEADER] = note
-    return session
+    return session if session.note == note else session.changed(note=note)
 
 
 # --- helpers ----------------------------------------------------------------------------------------

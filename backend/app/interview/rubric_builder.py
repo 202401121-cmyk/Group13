@@ -14,7 +14,8 @@ Hard rules, exclusions, budget, region and use come from the intent: they filter
 rule keeps the shopper's own words (source_text), and identical rules share one id, so the rubric keeps one rule per id.
 A rule the shopper switched to a preference stays in the list with active false: only active rules filter (S3-10).
 Exclusions are the intent's, plus the ones the shopper added, less the ones they removed. "Always" set on one the
-request itself named is stored with the added ones and applied to the request's own (S4-17), so a rebuild keeps it.
+request itself named is stored apart from the added ones (InterviewState.manual_always, 1.10.0) and applied to the
+request's own (S4-17), so a rebuild keeps it and it counts once against the 30.
 
 A rebuild (a new answer, a step back, a changed intent) applies the stored edits again, so they survive it.
 The interview's beliefs about each weight (US-04) are never changed here: an edit is not an answer.
@@ -158,7 +159,7 @@ def _exclusions(state: InterviewState) -> list[Exclusion]:
     """The request's own exclusions as they were, less the removed ones and with the shopper's "Always" on them, then
     each added one not already there."""
     removed = {_key(e) for e in state.manual_exclusions_removed}
-    always = {_key(e): e.always for e in state.manual_exclusions_added}
+    always = {_key(e): e.always for e in state.manual_always}
     kept = [
         e
         if always.get(_key(e), e.always) == e.always
@@ -188,6 +189,7 @@ def apply_edits(state: InterviewState, edits: Sequence[RubricEdit]) -> Interview
     switches = dict(state.manual_rule_switches)
     added = list(state.manual_exclusions_added)
     removed = list(state.manual_exclusions_removed)
+    always = list(state.manual_always)
     for edit in edits:
         if edit.kind == "switch_rule" and edit.rule_id is not None and edit.active is not None:
             if edit.rule_id not in rule_ids:
@@ -200,15 +202,16 @@ def apply_edits(state: InterviewState, edits: Sequence[RubricEdit]) -> Interview
         elif edit.kind == "add_exclusion" and edit.exclusion is not None:
             key = _key(edit.exclusion)
             removed = [e for e in removed if _key(e) != key]
-            if key in request:  # the request's own: only a changed "Always" is stored, and the latest wins (S4-17)
-                added = [e for e in added if _key(e) != key]
+            if key in request:  # the request's own: only a changed "Always" is stored, apart; the latest wins (S4-17)
+                always = [e for e in always if _key(e) != key]
                 if request[key] != {edit.exclusion.always}:
-                    added.append(edit.exclusion)
+                    always.append(edit.exclusion)
             elif all(_key(e) != key for e in added):
                 added.append(edit.exclusion)
         elif edit.kind == "remove_exclusion" and edit.exclusion is not None:
             key = _key(edit.exclusion)
             added = [e for e in added if _key(e) != key]
+            always = [e for e in always if _key(e) != key]  # a leave-out removed keeps no "Always"
             if key in request and all(_key(e) != key for e in removed):
                 removed.append(edit.exclusion)
     return InterviewState.model_validate(
@@ -218,6 +221,7 @@ def apply_edits(state: InterviewState, edits: Sequence[RubricEdit]) -> Interview
             "manual_rule_switches": switches,
             "manual_exclusions_added": [e.model_dump() for e in added],
             "manual_exclusions_removed": [e.model_dump() for e in removed],
+            "manual_always": [e.model_dump() for e in always],
         }
     )
 
@@ -228,6 +232,7 @@ def has_edits(state: InterviewState | None) -> bool:
         or state.manual_rule_switches
         or state.manual_exclusions_added
         or state.manual_exclusions_removed
+        or state.manual_always
     )
 
 
@@ -256,6 +261,7 @@ def carry_edits(old: InterviewState | None, intent: Intent, criteria: CriteriaSe
                     e.model_dump() for e in old.manual_exclusions_added if _key(e) not in dropped
                 ],
                 "manual_exclusions_removed": [e.model_dump() for e in old.manual_exclusions_removed],
+                "manual_always": [e.model_dump() for e in old.manual_always if _key(e) not in dropped],
             }
         )
     except ValueError:  # the intent can't start an interview (say, no category yet): nothing to keep the edits on

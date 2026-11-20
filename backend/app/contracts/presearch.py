@@ -135,6 +135,14 @@ class PresearchSession(Contract):
     request_saved: RequestSaved | None = Field(
         default=None, description="Whether the request reached the database: saved, off (no database) or failed"
     )
+    note: str | None = Field(
+        default=None,
+        max_length=300,
+        description=(
+            "The rubric editor's note while the shopper's edits leave every weight at 0, so a reload shows it too "
+            "(US-09, S4-17). 1.10.0"
+        ),
+    )
 
     def changed(self, **changes: object) -> PresearchSession:
         """A validated copy with some fields changed (the model is frozen)."""

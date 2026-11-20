@@ -270,3 +270,34 @@ def test_clearing_always_on_any_spelling_of_the_requests_leave_out_is_stored() -
     base = InterviewState(session_id=ex.SESSION_ID, intent=mixed, criteria=ex.criteria())
     cleared = apply_edits(base, [edit(kind="add_exclusion", exclusion={"kind": "brand", "value": "zenith"})])
     assert [e.always for e in build_rubric(cleared).exclusions] == [False, False]
+
+
+# --- "Always" kept apart from the added leave-outs (1.10.0, S5-0) -----------------------------------------------------
+
+
+def test_always_on_a_requests_leave_out_is_kept_apart_from_the_added_ones() -> None:
+    edited = _always_zenith(state(), True)
+    assert [(e.value, e.always) for e in edited.manual_always] == [("Zenith", True)]
+    assert edited.manual_exclusions_added == [] and edited.manual_exclusions_removed == []
+
+
+def test_a_leave_out_marked_always_counts_once_at_the_cap_of_30() -> None:
+    """S4-17's gap: stored with the added ones, a 30th leave-out marked Always counted twice and was refused."""
+    thirty = [ZENITH.model_dump(), *({"kind": "brand", "value": f"Brand {n}"} for n in range(29))]
+    full = ex.intent().model_validate({**ex.intent().model_dump(), "exclusions": thirty})
+    base = InterviewState(session_id=ex.SESSION_ID, intent=full, criteria=ex.criteria())
+    rubric = build_rubric(_always_zenith(base, True))
+    assert len(rubric.exclusions) == 30
+    assert [e.value for e in rubric.exclusions if e.always] == ["Zenith"]
+
+
+def test_removing_a_requests_leave_out_drops_its_always_choice() -> None:
+    edited = apply_edits(_always_zenith(state(), True), [edit(kind="remove_exclusion", exclusion=ZENITH.model_dump())])
+    assert edited.manual_always == []
+    assert build_rubric(edited).exclusions == []
+
+
+def test_an_always_choice_alone_is_an_edit_a_restart_keeps() -> None:
+    edited = _always_zenith(state(), True)
+    carried = carry_edits(edited, ex.intent(), ex.criteria())
+    assert carried is not None and [(e.value, e.always) for e in carried.manual_always] == [("Zenith", True)]

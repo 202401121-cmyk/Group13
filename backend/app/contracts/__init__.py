@@ -22,7 +22,7 @@ from .common import (
     StageStatus,
 )
 from .criteria import CriteriaInput, CriteriaSet, Criterion, Direction
-from .decide import Contribution, DecideInput, DecideResult, FilteredProduct, RankedProduct
+from .decide import CheckedValue, Contribution, DecideInput, DecideResult, FilteredProduct, RankedProduct
 from .enrich import EnrichInput, EnrichResult, EnrichTarget
 from .entities import MatchInput, MatchResult, Product, Variant
 from .evidence import Citation, ClaimEvidence, EvidenceResponse, EvidenceSource
@@ -57,6 +57,15 @@ from .llm import (
     LLMUnavailable,
     ModelLimits,
     Provider,
+)
+from .memory import (
+    MAX_PREFERENCE_TEXT,
+    MAX_PREFERENCES,
+    PreferenceEdit,
+    PreferenceExport,
+    PreferenceItem,
+    PreferenceKind,
+    PreferenceList,
 )
 from .pipeline import (
     ProductSummary,
@@ -104,6 +113,8 @@ __all__ = [
     "MAX_COMMENT_DEPTH",
     "MAX_EXCLUSION_TEXT",
     "MAX_EXPLANATION_WORDS",
+    "MAX_PREFERENCES",
+    "MAX_PREFERENCE_TEXT",
     "MAX_QUESTIONS",
     "MAX_RUBRIC_EDITS",
     "MAX_SAVED_SEARCHES_PAGE",
@@ -121,6 +132,7 @@ __all__ = [
     "AlternativeValue",
     "AskedQuestion",
     "Budget",
+    "CheckedValue",
     "Citation",
     "Claim",
     "ClaimEvidence",
@@ -171,6 +183,11 @@ __all__ = [
     "ModelLimits",
     "Money",
     "Offer",
+    "PreferenceEdit",
+    "PreferenceExport",
+    "PreferenceItem",
+    "PreferenceKind",
+    "PreferenceList",
     "PresearchSession",
     "Product",
     "ProductMention",

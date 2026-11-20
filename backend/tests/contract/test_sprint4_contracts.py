@@ -93,10 +93,10 @@ def youtube(**changes: object) -> C.Source:
 # --- the version and old results -----------------------------------------------------------------------------------
 
 
-def test_the_schema_version_is_1_9_0() -> None:
-    assert C.SCHEMA_VERSION == "1.9.0"
-    assert ex.search_result().schema_version == "1.9.0"
-    assert (SHARED / "VERSION").read_text(encoding="utf-8").strip() == "1.9.0"
+def test_the_schema_version_is_1_9_0_or_later() -> None:
+    assert tuple(int(part) for part in C.SCHEMA_VERSION.split(".")) >= (1, 9, 0)  # Sprint 5 pins 1.10.0
+    assert ex.search_result().schema_version == C.SCHEMA_VERSION
+    assert (SHARED / "VERSION").read_text(encoding="utf-8").strip() == C.SCHEMA_VERSION
 
 
 def test_a_1_8_0_result_still_validates() -> None:

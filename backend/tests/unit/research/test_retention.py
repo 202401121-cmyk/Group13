@@ -194,6 +194,12 @@ EXPLAINED_FROM_FACTS = (
     "written from code's facts only, by the LLM or the template: criterion names, scores and points. No claim's words "
     "are sent to the LLM (US-20), so no Reddit words can come back"
 )
+FILTER_VALUE = (
+    "a value the filter read for the price or a hard rule's attribute (1.10.0): verify gives those keys, every rule's "
+    "on or off, no value from Reddit or forums (S3-10b, DR-01), and a version a product's name states is a name "
+    "(US-15). A video with viewers' comments is editorial, so where its words replaced a value, the strings read for "
+    "that value become the marker too (test_what_the_filter_read_from_a_videos_viewers_goes_with_its_value)"
+)
 DROPPED = "a quote that may be left out: dropped on save unless its source is listed and not Reddit"
 UNIT_DROPPED = (
     "the unit a claim gave an alternative value: dropped (None) on save unless every claim behind the alternative is "
@@ -221,11 +227,16 @@ TEXT_FIELDS = {
     "coverage_note": SEARCH_FROM_CODE,
     "stage_reports[].fallback_reason": SEARCH_FROM_CODE,
     "stage_reports[].notes[]": SEARCH_FROM_CODE,
+    "decision.checked_values[].product_id": SEARCH_FROM_CODE,
+    "decision.checked_values[].attribute": SEARCH_FROM_CODE,
+    "decision.checked_values[].unit": SEARCH_FROM_CODE,
+    "decision.checked_values[].values[]": FILTER_VALUE,
     "decision.filtered[].product_id": SEARCH_FROM_CODE,
     "decision.filtered[].reasons[]": FILTER_REASON,
     "decision.filtered[].rule_attribute": SEARCH_FROM_CODE,
     "decision.ranked[].contributions[].criterion_key": SEARCH_FROM_CODE,
     "decision.ranked[].product_id": SEARCH_FROM_CODE,
+    "decision.ranked[].rule_notes[]": FILTER_VALUE,
     "decision.ranked[].separating_criterion": SEARCH_FROM_CODE,
     "decision.ranked[].tied_with[]": SEARCH_FROM_CODE,
     "decision.relaxation_hint": SEARCH_FROM_CODE,
@@ -1164,3 +1175,80 @@ def test_a_reddit_source_still_gets_the_reddit_marker() -> None:
     saved = json.loads(_saved_row([_reddit_thread(), _video([VIEWER_WORDS])]))["sources"]
     assert saved[0]["text"] == REDDIT_TEXT_NOT_KEPT
     assert saved[1]["text"] != REDDIT_TEXT_NOT_KEPT
+
+
+# --- what the filter read (1.10.0, S5-0) ---------------------------------------------------------------------------
+
+
+def test_what_the_filter_read_from_a_videos_viewers_goes_with_its_value() -> None:
+    """A filter key never rests on Reddit or forum words (S3-10b), but a video with viewers' comments is editorial, so
+    its words can reach a hard rule's value (P-23). DecideResult.checked_values and a product's rule notes repeat that
+    value, so they are stripped with it: its strings become the marker, numbers stay, and the notes go."""
+    from app.research.retention import VIDEO_TEXT_NOT_KEPT
+
+    video = _video([VIEWER_WORDS])
+    page = web_source("https://web.example/a")
+    result = {
+        "sources": [video.model_dump(mode="json"), page.model_dump(mode="json")],
+        "citations": [
+            {"claim_id": REDDIT_CLAIM, "source_id": video.id, "quote": VIEWER_WORDS},
+            {"claim_id": OTHER_REDDIT_CLAIM, "source_id": page.id, "quote": "A quote from a web page."},
+        ],
+        "products": [
+            {
+                "values": [
+                    {
+                        "product_id": "prd_nova_phone",
+                        "criterion_key": "ram_gb",
+                        "value": "6GB ram variant cracked",
+                        "supporting_claim_ids": [REDDIT_CLAIM],
+                    },
+                    {
+                        "product_id": "prd_nova_phone",
+                        "criterion_key": "storage_gb",
+                        "value": "256 GB UFS",
+                        "supporting_claim_ids": [OTHER_REDDIT_CLAIM],
+                    },
+                ]
+            }
+        ],
+        "decision": {
+            "ranked": [{"product_id": "prd_nova_phone", "rule_notes": ['It meets "8 GB RAM" in its 6GB ram version']}],
+            "checked_values": [
+                {"product_id": "prd_nova_phone", "attribute": "ram_gb", "values": ["6GB ram variant cracked", 8.0]},
+                {"product_id": "prd_nova_phone", "attribute": "storage_gb", "values": ["256 GB UFS"]},
+            ],
+        },
+    }
+    saved = without_reddit_text(result)
+    assert "cracked" not in json.dumps(saved)
+    ram, storage = saved["decision"]["checked_values"]
+    assert ram["values"] == [VIDEO_TEXT_NOT_KEPT, 8.0]
+    assert storage["values"] == ["256 GB UFS"]  # from a web page: kept
+    assert saved["decision"]["ranked"][0]["rule_notes"] == []
+
+
+def test_what_the_filter_read_is_kept_when_nothing_was_replaced() -> None:
+    page = web_source("https://web.example/a")
+    decision = {
+        "ranked": [{"product_id": "prd_nova_phone", "rule_notes": ['It meets "8 GB RAM" in its 8 GB version']}],
+        "checked_values": [{"product_id": "prd_nova_phone", "attribute": "ram_gb", "values": ["8 GB LPDDR5"]}],
+    }
+    result = {
+        "sources": [page.model_dump(mode="json")],
+        "citations": [{"claim_id": REDDIT_CLAIM, "source_id": page.id, "quote": "A quote from a web page."}],
+        "products": [
+            {
+                "values": [
+                    {
+                        "product_id": "prd_nova_phone",
+                        "criterion_key": "ram_gb",
+                        "value": "8 GB LPDDR5",
+                        "supporting_claim_ids": [REDDIT_CLAIM],
+                    }
+                ]
+            }
+        ],
+        "decision": decision,
+    }
+    assert without_reddit_text(result)["decision"] == decision

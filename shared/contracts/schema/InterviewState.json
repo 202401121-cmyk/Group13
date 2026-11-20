@@ -567,8 +567,23 @@
     },
     "RememberedPreference": {
       "additionalProperties": false,
-      "description": "A past preference found by meaning (US-06). Shown as 'remembered', changeable in one click.",
+      "description": "A past preference found by meaning (US-06). Shown as 'remembered', changeable or forgotten in one click: it names\nits PreferenceItem and kind (1.10.0).",
       "properties": {
+        "preference_id": {
+          "description": "The PreferenceItem it came from, to change or forget it",
+          "format": "uuid",
+          "title": "Preference Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "weight",
+            "hard_rule",
+            "exclusion"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
         "text": {
           "maxLength": 200,
           "title": "Text",
@@ -615,6 +630,8 @@
         }
       },
       "required": [
+        "preference_id",
+        "kind",
         "text",
         "criterion_key",
         "weight",
@@ -840,6 +857,15 @@
       "title": "Manual Exclusions Removed",
       "type": "array"
     },
+    "manual_always": {
+      "description": "The shopper's Always on the request's own leave-outs (US-10, S4-17): kind and value name the leave-out, always is the choice. Kept apart from the added ones, so a leave-out counts once against the 30. 1.10.0",
+      "items": {
+        "$ref": "#/$defs/Exclusion"
+      },
+      "maxItems": 30,
+      "title": "Manual Always",
+      "type": "array"
+    },
     "beliefs": {
       "description": "The interview's belief about each criterion's weight (US-04). Empty: the fixed order is used",
       "patternProperties": {
@@ -864,6 +890,7 @@
     "manual_rule_switches",
     "manual_exclusions_added",
     "manual_exclusions_removed",
+    "manual_always",
     "beliefs"
   ],
   "title": "InterviewState",

@@ -113,6 +113,7 @@
   "manual_rule_switches": {},
   "manual_exclusions_added": [],
   "manual_exclusions_removed": [],
+  "manual_always": [],
   "beliefs": {
     "cpu_performance": {
       "mean": 8.0,

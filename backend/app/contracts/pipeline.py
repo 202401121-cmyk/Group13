@@ -129,11 +129,20 @@ class SearchResult(Contract):
             "(US-31). False on a result from before 1.9.0"
         ),
     )
+    cached: bool = Field(
+        default=False,
+        description="True when this result came from the search cache, not a new search (US-34). False before 1.10.0",
+    )
+    cached_at: AwareDatetime | None = Field(
+        default=None, description="When the cached result was made; set only when cached is true (US-34)"
+    )
 
     @model_validator(mode="after")
     def _check(self) -> SearchResult:
         if self.finished_at < self.started_at:
             raise ValueError("finished_at is before started_at")
+        if self.cached != (self.cached_at is not None):
+            raise ValueError("cached_at is set exactly when the result is cached")
         degraded = any(r.status is not StageStatus.OK for r in self.stage_reports)
         if (degraded or self.partial) and not self.coverage_note:
             raise ValueError("when any stage fell back, failed or timed out, say so in coverage_note")

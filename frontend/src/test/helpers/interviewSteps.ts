@@ -64,6 +64,7 @@ export function stepOf(
       manual_rule_switches: {},
       manual_exclusions_added: [],
       manual_exclusions_removed: [],
+      manual_always: [],
       beliefs: {},
     },
     questions_asked: history.length,
@@ -85,5 +86,6 @@ export function sessionWith(
     interview: step?.state ?? null,
     interview_step: step,
     request_saved: "saved",
+    note: null,
   };
 }

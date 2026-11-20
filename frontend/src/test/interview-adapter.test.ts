@@ -145,6 +145,8 @@ describe("turns", () => {
         key: "keyboard_comfort",
         remembered: [
           {
+            preference_id: "3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f",
+            kind: "weight",
             text: "under 1.5 kg",
             criterion_key: "weight",
             weight: 8,

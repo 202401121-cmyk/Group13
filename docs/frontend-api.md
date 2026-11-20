@@ -478,10 +478,13 @@ Response 200 (`RubricEditResponse`; two of the seven weights left out here):
 - **Every weight 0:** when the edits leave every weight at 0, the rubric uses the category's usual weights (`origin:
   "default"`), and the response's `note` holds the sentence to show: `Every weight was set to 0, so the usual weights
   are used until you raise one.` Otherwise `note` is `null`. The edits stay stored, so raising one weight counts again.
-  - **After a reload,** `GET /api/presearch/{session_id}` sends the same sentence in an `X-Rubric-Note` header while
-    the edits leave every weight at 0 (`PresearchSession` has no field for it).
-  - **The header** `X-Rubric-Note` (exposed to the browser through CORS) also stays on the rubric route's response
-    for Sprint 4, so a screen may read either; read `note` from now on (S4-17).
+  - **After a reload,** `GET /api/presearch/{session_id}` answers the same sentence in `PresearchSession.note` while
+    the edits leave every weight at 0, and `null` otherwise (1.10.0). It is worked out on each read, never stored.
+  - **The header** `X-Rubric-Note` (exposed to the browser through CORS) stays on both routes for one more sprint
+    (S5-0), so a screen may read either; read `note` from now on.
+- **"Always" on the request's own leave-out:** an `add_exclusion` edit for a leave-out the request itself named (with
+  `always` changed) is stored in `InterviewState.manual_always`, apart from the shopper's added leave-outs, so it
+  counts once against the 30 (1.10.0). The rubric shows it in its place, with the flag.
 - **Errors:**
   - 404: the session has expired.
   - 409: the interview hasn't started (`The interview hasn't started yet. Please start it first.`).
@@ -671,6 +674,51 @@ The frontend doesn't receive these two yet. They are listed so the shapes aren't
   `experience` or `spec`. Example: `product_type_claim.json`.
 - **`RecommenderCount`** has `product_mention`, `distinct_recommenders` and `threads`, and is listed in
   `ResearchResult.recommender_counts`. Code counts these, never an LLM. Example: `recommender_counts.json`.
+
+## Sprint 5 contracts (1.10.0)
+
+Agreed and exported in S5-0 (D-23, P-40, P-42), so screens can be built against them. The work behind most of them
+lands in later Sprint 5 stories; until then each is empty or `false`. A saved result from before 1.10.0 still loads:
+the backend fills every new field with its default when it sends it.
+
+| Field or type | Story | What it holds |
+|---|---|---|
+| `PreferenceItem` | US-06, US-11 | One remembered item: `id`, `kind` (`weight`, `hard_rule` or `exclusion`), `category` (`null` exactly for a brand left out with Always, which holds everywhere), `criterion_key`, `text` (plain words, at most 200 characters), `weight` (0 to 10), `rule` (a `HardRule`), `exclusion` (an `Exclusion`), `always`, `created_at`, `updated_at`. A weight carries `criterion_key` and `weight`; a must-have `rule`; a leave-out `exclusion`; nothing else. No embedding, user id or email |
+| `PreferenceList` | US-11 | `items`, newest first. Example: `preference_list.json` |
+| `PreferenceEdit` | US-11 | A request body: `text`, `weight`, `active` (a must-have: `false` makes it a preference) and `always`, each optional; at least one. Example: `preference_edit.json` |
+| `PreferenceExport` | US-11 | `exported_at` and every item. Example: `preference_export.json` |
+| `RememberedPreference.preference_id`, `.kind` | US-06 | The remembered answer's item and kind, so the interview can change or forget it in one click |
+| `SearchResult.cached`, `.cached_at` | US-34 | `true` and the time the result was made when it came from the search cache; else `false` and `null` |
+| `DecideResult.checked_values` | US-23 | What the filter read for every product decided, shown, can't tell or filtered out: `price_inr` and each hard rule's attribute (every rule, on or off), each a `CheckedValue` (below) |
+| `RankedProduct.rule_notes` | US-09 | Up to 5 sentences on how a RAM or storage must-have passed through one version of the product, such as `It meets "at least 8 GB RAM" in its 8 GB version`. Empty when no version decided a rule |
+| `PresearchSession.note` | US-09 | The all-zero sentence on a reload (above) |
+| `InterviewState.manual_always` | US-10 | The shopper's Always on the request's own leave-outs (above) |
+
+- **Re-rank with no server call (US-23):** for the products already shown, a ranked product's `contributions` and the
+  rubric already give its score, so nothing was added for re-weighting.
+  - **The score:** `min(100, Σ score × share × 10)`, over the criteria whose `score` isn't `null`, with each criterion's
+    share of the weight renormalised over those criteria. If those weights add up to 0, every one of them gets an
+    equal share.
+  - **What it doesn't cover:** re-scoring after a re-filter. A product the browser lets back in has no contributions.
+    Compared and estimated scores depend on which products are shown. Leave-outs (brand families, features) aren't in
+    `checked_values`. These are gaps for the US-23 owner to settle.
+- **`CheckedValue`:** `product_id`, `attribute`, `state`, `values`, `unit`, `any_version` and `from_names`.
+  - **`state`** is as the filter read it: `unknown` when verify gave no value, and `known` for a value disputed in
+    scores only, which the filter checks as an agreed one.
+  - **`values`** holds what the filter compared:
+    - a price in rupees (`unit` `INR`);
+    - a size as a number in the first rule's unit (`gb`, `g`, ...), read as decide reads it (a bare number takes the
+      attribute's unit; words around a size count for "at least" and "at most" rules only);
+    - else the value as its claims gave it.
+  - **Versions** (`any_version: true`) come claims' first. `from_names` says how many of the last ones only a product's
+    name states.
+  - **To keep a rule as decide does:**
+    - **No values:** can't tell.
+    - **One value:** the rule keeps it or not.
+    - **Several, not versions (a disputed value's sides):** every side keeps it, pass; every side breaks it, fail; else
+      can't tell. A disputed value with one side alone can't tell either.
+    - **Versions:** any one keeping it, pass. Otherwise, if one can't be compared, or the state is `disputed` and only
+      one value came from the claims, can't tell. Else fail.
 
 ## What the backend cannot do yet
 
