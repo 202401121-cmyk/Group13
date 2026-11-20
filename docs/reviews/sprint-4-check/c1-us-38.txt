@@ -1,0 +1,66 @@
+US-38 YouTube half: backend tests, 20 Nov 2026, main 434384d
+Python 3.11.15, fresh venv, network guard on (tests/conftest.py). From backend/:
+python -m pytest -q -rA -m "not live" tests/unit/research/test_youtube.py tests/unit/research/test_youtube_stage.py tests/unit/extract/test_youtube_routing.py
+exit code: 0
+junit: {'tests': '60', 'failures': '0', 'errors': '0', 'skipped': '0', 'time': '2.347'}
+
+PASSED tests/unit/research/test_youtube.py::test_five_found_make_five_sources_with_one_search_one_videos_call_and_comments_for_each
+PASSED tests/unit/research/test_youtube.py::test_fewer_found_are_used_as_found
+PASSED tests/unit/research/test_youtube.py::test_more_than_five_found_keeps_the_first_five
+PASSED tests/unit/research/test_youtube.py::test_search_list_asks_for_relevant_videos_in_india_with_the_key_in_a_header_only
+PASSED tests/unit/research/test_youtube.py::test_videos_and_comments_are_asked_for_their_text_only
+PASSED tests/unit/research/test_youtube.py::test_no_key_sends_nothing
+PASSED tests/unit/research/test_youtube.py::test_a_video_with_comments_is_one_source_of_the_reddit_data_class
+PASSED tests/unit/research/test_youtube.py::test_a_video_with_comments_off_is_a_public_source
+PASSED tests/unit/research/test_youtube.py::test_a_commenters_name_handle_or_channel_is_never_kept
+PASSED tests/unit/research/test_youtube.py::test_no_viewer_is_named_in_any_form[a made-up viewer's name or handle, redacted here]
+PASSED tests/unit/research/test_youtube.py::test_no_viewer_is_named_in_any_form[a made-up viewer's name or handle, redacted here]
+PASSED tests/unit/research/test_youtube.py::test_no_viewer_is_named_in_any_form[a made-up viewer's name or handle, redacted here]
+PASSED tests/unit/research/test_youtube.py::test_no_viewer_is_named_in_any_form[a made-up viewer's name or handle, redacted here]
+PASSED tests/unit/research/test_youtube.py::test_no_viewer_is_named_in_any_form[a made-up viewer's name or handle, redacted here]
+PASSED tests/unit/research/test_youtube.py::test_no_viewer_is_named_in_any_form[a made-up viewer's name or handle, redacted here]
+PASSED tests/unit/research/test_youtube.py::test_no_viewer_is_named_in_any_form[a made-up viewer's name or handle, redacted here]
+PASSED tests/unit/research/test_youtube.py::test_no_viewer_is_named_in_any_form[a made-up viewer's name or handle, redacted here]
+PASSED tests/unit/research/test_youtube.py::test_no_viewer_is_named_in_any_form[a made-up viewer's name or handle, redacted here]
+PASSED tests/unit/research/test_youtube.py::test_no_viewer_is_named_in_any_form[a made-up viewer's name or handle, redacted here]
+PASSED tests/unit/research/test_youtube.py::test_no_viewer_is_named_in_any_form[a made-up viewer's name or handle, redacted here]
+PASSED tests/unit/research/test_youtube.py::test_with_too_little_time_left_comments_wait_and_the_videos_come_back_public
+PASSED tests/unit/research/test_youtube.py::test_one_retried_comment_read_still_fits_the_per_search_cap
+PASSED tests/unit/research/test_youtube.py::test_the_text_fits_the_source_cap_so_the_stages_cap_never_drops_the_comments
+PASSED tests/unit/research/test_youtube.py::test_a_long_description_leaves_room_for_the_comments
+PASSED tests/unit/research/test_youtube.py::test_each_comment_is_its_own_paragraph_set_apart
+PASSED tests/unit/research/test_youtube.py::test_the_daily_search_cap_sends_nothing
+PASSED tests/unit/research/test_youtube.py::test_out_of_units_keeps_the_videos_read_as_public_sources
+PASSED tests/unit/research/test_youtube.py::test_a_quota_error_from_youtube_says_so
+PASSED tests/unit/research/test_youtube.py::test_a_quota_error_while_reading_comments_keeps_the_videos
+PASSED tests/unit/research/test_youtube.py::test_a_failed_search_names_its_reason[answer0-blocked]
+PASSED tests/unit/research/test_youtube.py::test_a_failed_search_names_its_reason[answer1-error]
+PASSED tests/unit/research/test_youtube.py::test_a_failed_search_names_its_reason[answer2-rate_limited]
+PASSED tests/unit/research/test_youtube.py::test_a_failed_search_names_its_reason[answer3-error]
+PASSED tests/unit/research/test_youtube.py::test_a_failed_search_names_its_reason[answer4-error]
+PASSED tests/unit/research/test_youtube.py::test_a_timeout_is_a_timeout
+PASSED tests/unit/research/test_youtube.py::test_a_server_error_is_tried_once_more
+PASSED tests/unit/research/test_youtube.py::test_comments_that_fail_keep_the_video_as_a_public_source
+PASSED tests/unit/research/test_youtube.py::test_a_repeat_comes_from_the_cache_kept_only_for_the_reddit_serve_limit
+PASSED tests/unit/research/test_youtube.py::test_a_failure_is_never_cached
+PASSED tests/unit/research/test_youtube.py::test_the_source_never_shows_its_key
+PASSED tests/unit/research/test_youtube.py::test_no_request_ever_asks_for_a_transcript_or_captions
+PASSED tests/unit/research/test_youtube_stage.py::test_youtubes_videos_join_the_sources_with_the_others
+PASSED tests/unit/research/test_youtube_stage.py::test_videos_and_threads_take_turns_so_extraction_reads_both
+PASSED tests/unit/research/test_youtube_stage.py::test_taking_turns_alternates_then_keeps_the_rest_in_order
+PASSED tests/unit/research/test_youtube_stage.py::test_the_youtube_query_is_built_from_known_words_only
+PASSED tests/unit/research/test_youtube_stage.py::test_youtube_failing_leaves_the_search_going_and_the_note_says_so[quota_exhausted-YouTube ran out of quota.]
+PASSED tests/unit/research/test_youtube_stage.py::test_youtube_failing_leaves_the_search_going_and_the_note_says_so[blocked-YouTube could not be read.]
+PASSED tests/unit/research/test_youtube_stage.py::test_youtube_failing_leaves_the_search_going_and_the_note_says_so[rate_limited-YouTube hit a rate limit.]
+PASSED tests/unit/research/test_youtube_stage.py::test_youtube_failing_leaves_the_search_going_and_the_note_says_so[error-YouTube had an error.]
+PASSED tests/unit/research/test_youtube_stage.py::test_youtube_raising_or_hanging_never_stops_the_search
+PASSED tests/unit/research/test_youtube_stage.py::test_with_no_key_youtube_is_simply_left_out
+PASSED tests/unit/research/test_youtube_stage.py::test_with_a_key_the_real_source_is_built_and_never_shows_the_key
+PASSED tests/unit/research/test_youtube_stage.py::test_with_a_key_but_no_client_youtube_is_named_as_failing
+PASSED tests/unit/research/test_youtube_stage.py::test_the_config_caps_youtube_searches_at_80_a_day
+PASSED tests/unit/research/test_youtube_stage.py::test_the_source_caps_still_fit_the_contract_with_youtube
+PASSED tests/unit/extract/test_youtube_routing.py::test_a_video_with_comments_is_read_as_reddit_class_text
+PASSED tests/unit/extract/test_youtube_routing.py::test_a_video_with_no_comments_is_read_as_a_public_page
+PASSED tests/unit/extract/test_youtube_routing.py::test_viewers_comments_never_reach_a_provider_that_trains_on_them
+PASSED tests/unit/extract/test_youtube_routing.py::test_a_quote_from_the_videos_title_description_or_one_comment_is_kept
+PASSED tests/unit/extract/test_youtube_routing.py::test_a_quote_not_in_the_text_or_run_across_two_comments_is_dropped

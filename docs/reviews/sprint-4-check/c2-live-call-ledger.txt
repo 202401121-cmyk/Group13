@@ -1,0 +1,25 @@
+Live-call ledger, S4-21, 20 Nov 2026. Counted by the guard where each call leaves the process (c2-live-*.txt).
+
+| Service | Budget | R1 (db on) | R2 (db off) | R3 (LLM off) | Used | Refused, never sent |
+|---|---|---|---|---|---|---|
+| LLM | 30 | 21 | 6 | 0 | 27 | R2 24 |
+| Serper | 12 | 10 | 2 | 0 | 12 | R1 5, R2 4, R3 6 |
+| Reddit archive | 14 | 14 | 0 | 0 | 14 | R2 1, R3 2 |
+| Jina | 6 | 4 | 0 | 0 | 4 | - |
+| Firecrawl | 2 | 0 | 0 | 0 | 0 | R3 6 |
+| YouTube (no budget set) | - | 7 | 0 | 7 | 14 | - |
+
+The guard's ledger file at the end: {'llm': 27, 'serper': 12, 'reddit': 14, 'jina': 4}
+
+The app's own counters (backend/.cache/research/usage.json, today, UTC day 2026-11-20; counts only):
+  usage.json before the live runs: 2026-11-20 {'youtube': 6, 'jina': 1, 'youtube_search': 1, 'pages': 102, 'serper': 56}
+  usage.json after the live runs: 2026-11-20 {'youtube_search': 3, 'youtube': 18, 'jina': 5, 'reddit_archive': 14, 'serper': 68, 'pages': 121, 'firecrawl': 0}
+  Serper 56 -> 68 (+12), Jina 1 -> 5 (+4), Reddit archive 0 -> 14 (+14), youtube_search 1 -> 3 (+2), youtube units
+  6 -> 18 (+12): the same as the guard counted. Serper's day cap is 80 (D-78), so 12 were left after the runs.
+
+Other calls: staging health, CORS and page checks (c2-staging.txt), none to an LLM or a paid search. The offline
+evaluations (c1-offline-evals.txt, c3-interview-sim.txt) call nothing.
+
+Supabase sessions this check created:
+  sess_09c8d9254e072f3a0809c7bb (R1, database on): one row in public.requests and one in public.searches, a guest's.
+  sess_19cf8ac7ab1953c257d2c1f4 (R2) and sess_54b6b9a292cf618ea77152d5 (R3): database off, no rows.

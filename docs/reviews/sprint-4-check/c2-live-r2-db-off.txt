@@ -1,0 +1,75 @@
+R2: the database-off drill, 20 Nov 2026 17:25 to 17:26 UTC. Main 434384d. Session sess_19cf8ac7ab1953c257d2c1f4,
+search srch_14a04fbaecd31b4d331b71ad.
+
+How: the backend ran from a launcher kept outside the repository (C:\mtv\s4c_launch.py on Om's laptop). It installs
+evals/live_briefs.py's guard (LiveBudget), so every call to an LLM, Serper, Jina, Firecrawl or a Reddit archive is counted
+where it leaves the process and refused past the check's budget (LLM 30, Serper 12, Reddit archive 14, Jina 6,
+Firecrawl 2 for the whole check, with a cap per run). YouTube calls are counted, with no cap (the task sets none). The
+frontend ran with npm run dev in live mode (VITE_API_MODE=live, VITE_API_BASE_URL=http://localhost:8000), as
+scripts/dev.py starts it. The walk was a headless Chromium page driven by Playwright, typing and clicking as a shopper
+does. .env was not opened, printed or changed; each run's own settings were set in the launcher's process only.
+The check set no EXTRACT_MAX_SOURCES, so extract's cap is config/extract.yaml's 40 unless .env sets one, which this
+check could not look at (it never opens .env).
+Request (made up): "Laptop for coding under ₹70,000". Answers: High to every question, by the quick-reply buttons.
+
+R2: DATABASE_URL="" in the launcher's process (an empty variable wins over .env, as scripts/dev.py --no-db does).
+Caps for R2: LLM 6, Serper 2, Reddit archive 0, Jina 1, Firecrawl 1 (what the check had left, less a spare).
+
+Health before the walk: {"status":"ok","schema_version":"1.9.0","database":"off"}
+
+The walk (times UTC):
+  17:25:02 request typed: "Laptop for coding under ₹70,000"
+  17:25:05 understood: Here's what we understood Check the details and fix anything we got wrong. Product Laptop Edit Used for coding Edit Budget Up to ₹70,000 Edit Region India Edit Must-haves No must-haves given Add Leave out None specified Add Looks right Start over Your brief PRODUCT Laptop USED FOR coding BUDGET Up to ₹70,000 REGION India MUST-HAVES Not given LEAVE OUT Not given Here's what we understood.
+  17:25:06 criteria page: /s/sess_19cf8ac7ab1953c257d2c1f4/criteria
+  17:25:11 questions done after 9 answers
+  17:25:12 research started
+  17:26:21 results url: /s/sess_19cf8ac7ab1953c257d2c1f4/results?search=srch_14a04fbaecd31b4d331b71ad
+  17:26:21 console errors: none
+  (9 questions answered High with the buttons.)
+
+What the results page showed:
+  Results ready. 2 options found, not ranked.
+  This result isn't saved. It stays at this address for up to 30 minutes, then it's gone.
+  Reddit had an error. Not ranked: we found no scores for your criteria. 2 prices came from store listings. 5 Reddit threads were not read, to leave room for web pages. 29 sources could not be read, because the AI services were busy or their answers could not be used.
+  Found, not ranked
+  Acer Nitro 5
+  No score
+  Low confidence
+  Checked 1 of 9 criteria
+  Listed #1. We found no scores to rank it on.
+  GameLoot via Google Shopping
+  Price as of 10:56 pm
+  View at GameLoot via Google Shopping
+  gadgetsclub.in via Google Shopping
+  Price as of 10:56 pm
+  View at gadgetsclub.in via Google Shopping
+  Gadgets Now via Google Shopping
+  Price as of 10:56 pm
+  View at Gadgets Now via Google Shopping
+  No score
+  Low confidence
+  Checked 4 of 9 criteria
+  Listed #2. We found no scores to rank it on.
+  Desertcart.ae via Google Shopping
+  Price as of 10:56 pm
+  View at Desertcart.ae via Google Shopping
+  Aajjo.com via Google Shopping
+  Price as of 10:56 pm
+  View at Aajjo.com via Google Shopping
+  desertcart.in via Google Shopping
+  Price as of 10:56 pm
+  View at desertcart.in via Google Shopping
+  Couldn't check (22)
+
+The app's log: "app.db.store: search not saved: the database is off".
+Supabase: 0 requests rows and 0 searches rows for this session (c3-supabase.txt).
+
+Calls counted by the guard:
+  --- r2 started 2026-11-20 17:24:58 UTC, flags ['--no-db'], limits left {'llm': 6, 'serper': 2, 'reddit': 0, 'jina': 1, 'firecrawl': 1}, used before {'llm': 21, 'serper': 10, 'reddit': 14, 'jina': 4, 'firecrawl': 0}
+  llm refused: 24
+  llm sent: 6
+  reddit refused: 1
+  serper refused: 4
+  serper sent: 2
+  The 24 LLM calls refused were over R2's cap of 6: "29 sources could not be read" in the note comes from that.
+  Console errors in the page: none.

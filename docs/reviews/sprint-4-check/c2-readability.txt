@@ -1,0 +1,12 @@
+US-20 criterion 4: the reading grade of R1's live explanations, 20 Nov 2026, with the app's own Flesch-Kincaid function
+(app/explain/readability.py, grade()). Python 3.11.15 fresh venv, from backend/. The paragraphs were read from the results
+page's text, kept outside the repository; only our own words are printed here.
+
+grade 6.3 | 60 words | It ranks #1 with a score of 90 out of 100. Weight adds 90 points, with a score of 9 out of 10 compared with the other products we found. We could not check its battery life, cpu performance, display resolution, keyboard tactile feedback or ram. We also could not check its storage speed, thermal performance or value for money.
+grade 6.1 | 22 words | One trade-off: Its weak point is weight, with a score of 9 out of 10 compared with the other products we found.
+grade 5.8 | 72 words | It ranks #2 with a score of 50 out of 100. It is too close to call with a product next to it. Weight adds 50 points, but its score of 5 out of 10 is an estimate from similar products. We could not check its weight, battery life, cpu performance, display resolution or keyboard tactile feedback. We also could not check its ram, storage speed, thermal performance or value for money.
+grade 5.8 | 72 words | It ranks #3 with a score of 50 out of 100. It is too close to call with a product next to it. Weight adds 50 points, but its score of 5 out of 10 is an estimate from similar products. We could not check its weight, battery life, cpu performance, display resolution or keyboard tactile feedback. We also could not check its ram, storage speed, thermal performance or value for money.
+grade 6.3 | 60 words | It ranks #4 with a score of 10 out of 100. Weight adds 10 points, with a score of 1 out of 10 compared with the other products we found. We could not check its battery life, cpu performance, display resolution, keyboard tactile feedback or ram. We also could not check its storage speed, thermal performance or value for money.
+grade 6.1 | 22 words | One trade-off: Its weak point is weight, with a score of 1 out of 10 compared with the other products we found.
+
+The code's own bar is Grade 9 or under (tests/unit/explain/test_templates.py::test_every_template_reads_at_grade_9_or_under).

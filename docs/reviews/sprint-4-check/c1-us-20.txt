@@ -1,0 +1,133 @@
+US-20 Explain why a product fits: backend tests, 20 Nov 2026, main 434384d
+Python 3.11.15, fresh venv, network guard on (tests/conftest.py). From backend/:
+python -m pytest -q -rA -m "not live" tests/unit/explain tests/faults/test_explain_fallback.py
+exit code: 0
+junit: {'tests': '127', 'failures': '0', 'errors': '0', 'skipped': '0', 'time': '1.071'}
+
+PASSED tests/unit/explain/test_facts.py::test_the_top_3_are_the_largest_contributions
+PASSED tests/unit/explain/test_facts.py::test_a_tie_in_contribution_goes_by_key
+PASSED tests/unit/explain/test_facts.py::test_a_criterion_with_no_score_is_never_in_the_top_3
+PASSED tests/unit/explain/test_facts.py::test_the_trade_off_is_the_weakest_criterion
+PASSED tests/unit/explain/test_facts.py::test_a_weak_point_never_scores_higher_than_a_strength
+PASSED tests/unit/explain/test_facts.py::test_on_a_tie_the_weak_point_is_one_outside_the_top_3_then_the_larger_weight
+PASSED tests/unit/explain/test_facts.py::test_a_weight_of_0_is_never_the_trade_off
+PASSED tests/unit/explain/test_facts.py::test_a_tie_with_another_product_is_kept
+PASSED tests/unit/explain/test_facts.py::test_a_criterion_under_weight_2_is_never_the_trade_off
+PASSED tests/unit/explain/test_facts.py::test_a_disputed_value_is_the_trade_off_when_nothing_is_left_outside_the_top_3
+PASSED tests/unit/explain/test_facts.py::test_with_no_dispute_the_weakest_of_the_top_3_is_the_trade_off
+PASSED tests/unit/explain/test_facts.py::test_an_estimate_is_never_the_trade_off_and_with_nothing_else_there_is_none
+PASSED tests/unit/explain/test_facts.py::test_unknown_and_estimated_criteria_are_named_by_weight
+PASSED tests/unit/explain/test_facts.py::test_claims_link_to_their_product_by_the_match_stages_id_rule
+PASSED tests/unit/explain/test_facts.py::test_each_fact_cites_at_most_3_claims_in_a_fixed_order
+PASSED tests/unit/explain/test_facts.py::test_a_product_with_no_linked_claim_cites_nothing
+PASSED tests/unit/explain/test_facts.py::test_how_each_score_was_made_is_kept
+PASSED tests/unit/explain/test_facts.py::test_a_score_shows_one_decimal_at_most
+PASSED tests/unit/explain/test_facts.py::test_the_allowed_numbers_are_codes_own
+PASSED tests/unit/explain/test_facts.py::test_a_sentence_may_name_only_the_numbers_of_the_facts_it_is_about
+PASSED tests/unit/explain/test_facts.py::test_a_fact_with_no_claim_to_cite_may_be_named_in_any_sentence
+PASSED tests/unit/explain/test_facts.py::test_numbers_in_a_label_are_allowed
+PASSED tests/unit/explain/test_facts.py::test_an_unscored_product_has_no_top_and_names_every_criterion
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[It scores 8 out of 10.-values0]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[It scores 7.5 out of 10.-values1]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[It ranks #1 with 78 out of 100.-values2]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[It adds 24% to its score.-values3]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[It costs 1,200 more.-values4]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[Ten hours, or about twenty-five in all.-values5]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[One of its best points.-values6]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[A thirty-minute charge, then a hundred more.-values7]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[No numbers here at all.-values8]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[Its 2nd best point.-values9]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[It costs \u20b91,14,900.-values10]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[Under \u20b910,00,000 in all.-values11]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[A .5 point lead.-values12]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[It ranks second, and is twice as fast.-values13]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[Half the weight, at a lakh or a thousand.-values14]
+PASSED tests/unit/explain/test_numbers.py::test_numbers_are_found_as_digits_and_words[It comes first.-values15]
+PASSED tests/unit/explain/test_numbers.py::test_a_number_matches_at_the_precision_it_is_written
+PASSED tests/unit/explain/test_numbers.py::test_unmatched_lists_every_number_code_did_not_give
+PASSED tests/unit/explain/test_numbers.py::test_a_number_glued_to_letters_still_counts
+PASSED tests/unit/explain/test_privacy.py::test_the_explanation_prompt_reaches_only_providers_that_do_not_train_on_it
+PASSED tests/unit/explain/test_privacy.py::test_the_task_can_never_be_sent_as_public_text
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[cat-1]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[the-1]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[battery-3]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[performance-3]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[durability-5]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[simple-2]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[life-1]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[keyboard-2]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[comfort-2]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[money-2]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[estimate-3]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[Sources-2]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[boxes-2]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[rated-2]
+PASSED tests/unit/explain/test_readability.py::test_syllables_are_counted_by_vowel_groups[worked-1]
+PASSED tests/unit/explain/test_readability.py::test_the_grade_is_the_flesch_kincaid_formula
+PASSED tests/unit/explain/test_readability.py::test_numbers_and_symbols_are_not_words
+PASSED tests/unit/explain/test_readability.py::test_plain_sentences_pass_and_dense_ones_fail
+PASSED tests/unit/explain/test_readability.py::test_an_empty_text_has_grade_0
+PASSED tests/unit/explain/test_readability.py::test_a_decimal_point_does_not_end_a_sentence
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_whose_numbers_match_is_kept_with_its_claims
+PASSED tests/unit/explain/test_stage.py::test_the_call_is_private_medium_and_for_explanations_only
+PASSED tests/unit/explain/test_stage.py::test_the_facts_reach_the_llm_only_as_data_with_no_claims_words
+PASSED tests/unit/explain/test_stage.py::test_the_facts_hold_codes_numbers_and_how_each_score_was_made
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_breaks_a_rule_becomes_the_template_and_the_others_stay[an invented number]
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_breaks_a_rule_becomes_the_template_and_the_others_stay[a sentence with no cite]
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_breaks_a_rule_becomes_the_template_and_the_others_stay[another product's ref]
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_breaks_a_rule_becomes_the_template_and_the_others_stay[a ref nobody gave]
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_breaks_a_rule_becomes_the_template_and_the_others_stay[one sentence]
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_breaks_a_rule_becomes_the_template_and_the_others_stay[five sentences]
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_breaks_a_rule_becomes_the_template_and_the_others_stay[a compared score without saying so]
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_breaks_a_rule_becomes_the_template_and_the_others_stay[an invented number in the trade-off]
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_breaks_a_rule_becomes_the_template_and_the_others_stay[an instruction in a sentence]
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_breaks_a_rule_becomes_the_template_and_the_others_stay[a sentence too long]
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_breaks_a_rule_becomes_the_template_and_the_others_stay[a number from a fact it doesn't cite]
+PASSED tests/unit/explain/test_stage.py::test_a_missing_or_doubled_paragraph_becomes_the_template
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_for_a_product_not_asked_about_is_ignored
+PASSED tests/unit/explain/test_stage.py::test_without_its_own_trade_off_sentence_the_template_one_is_used
+PASSED tests/unit/explain/test_stage.py::test_a_bad_paragraph_is_logged_with_its_product_and_reason_only
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_too_hard_to_read_is_rewritten_once
+PASSED tests/unit/explain/test_stage.py::test_a_rewrite_still_too_hard_to_read_becomes_the_template
+PASSED tests/unit/explain/test_stage.py::test_a_rewrite_that_fails_leaves_the_template_and_keeps_the_rest
+PASSED tests/unit/explain/test_stage.py::test_a_rewrite_with_an_invented_number_becomes_the_template
+PASSED tests/unit/explain/test_stage.py::test_when_the_llm_fails_every_product_gets_the_template_from_the_same_numbers
+PASSED tests/unit/explain/test_stage.py::test_any_other_error_is_left_to_the_runner_whose_fallback_is_the_template
+PASSED tests/unit/explain/test_stage.py::test_products_not_ranked_get_templates_without_scores_and_no_llm_call
+PASSED tests/unit/explain/test_stage.py::test_only_the_top_3_are_written_and_the_rest_get_templates
+PASSED tests/unit/explain/test_stage.py::test_a_product_with_no_linked_claim_gets_the_template_and_is_not_asked_about
+PASSED tests/unit/explain/test_stage.py::test_with_nothing_to_ask_about_there_is_no_call
+PASSED tests/unit/explain/test_stage.py::test_run_never_returns_the_example_explanations
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_leaves_out_one_of_its_top_3_becomes_the_template
+PASSED tests/unit/explain/test_stage.py::test_a_paragraph_that_does_not_name_what_we_could_not_check_becomes_the_template
+PASSED tests/unit/explain/test_stage.py::test_codes_own_not_checked_sentence_needs_no_cite_and_carries_the_paragraphs_claims
+PASSED tests/unit/explain/test_stage.py::test_an_estimated_score_must_be_called_an_estimate[Its ports score 6.5 out of 10.-False]
+PASSED tests/unit/explain/test_stage.py::test_an_estimated_score_must_be_called_an_estimate[Its ports score is an estimate of 6.5 out of 10.-True]
+PASSED tests/unit/explain/test_stage.py::test_a_disputed_score_must_say_sources_disagree
+PASSED tests/unit/explain/test_stage.py::test_a_compared_score_with_no_claim_linked_must_still_be_called_compared
+PASSED tests/unit/explain/test_stage.py::test_a_compared_trade_off_must_be_called_compared
+PASSED tests/unit/explain/test_stage.py::test_the_rewrite_gets_only_the_time_the_first_call_left
+PASSED tests/unit/explain/test_stage.py::test_the_stage_is_real_and_falls_back_to_the_template_stage
+PASSED tests/unit/explain/test_stage.py::test_with_no_client_given_it_uses_the_shared_one
+PASSED tests/unit/explain/test_templates.py::test_the_template_states_the_top_3_and_the_trade_off_from_codes_numbers
+PASSED tests/unit/explain/test_templates.py::test_a_compared_score_says_so_and_a_dispute_is_named
+PASSED tests/unit/explain/test_templates.py::test_an_estimate_says_it_is_one
+PASSED tests/unit/explain/test_templates.py::test_a_disputed_trade_off_says_sources_disagree
+PASSED tests/unit/explain/test_templates.py::test_several_unverified_criteria_are_all_named
+PASSED tests/unit/explain/test_templates.py::test_many_long_unverified_names_split_so_no_sentence_breaks_the_contract
+PASSED tests/unit/explain/test_templates.py::test_a_tie_with_another_product_is_said
+PASSED tests/unit/explain/test_templates.py::test_one_point_is_singular
+PASSED tests/unit/explain/test_templates.py::test_an_unscored_product_shows_no_number_and_names_every_criterion
+PASSED tests/unit/explain/test_templates.py::test_every_number_in_a_template_is_codes_own[prd_nova_book_14]
+PASSED tests/unit/explain/test_templates.py::test_every_number_in_a_template_is_codes_own[prd_kestrel_slim_15]
+PASSED tests/unit/explain/test_templates.py::test_every_number_in_a_template_is_codes_own[prd_orion_play_15]
+PASSED tests/unit/explain/test_templates.py::test_every_number_in_a_template_is_codes_own[prd_lumen_air_13]
+PASSED tests/unit/explain/test_templates.py::test_every_template_reads_at_grade_9_or_under[prd_nova_book_14]
+PASSED tests/unit/explain/test_templates.py::test_every_template_reads_at_grade_9_or_under[prd_kestrel_slim_15]
+PASSED tests/unit/explain/test_templates.py::test_every_template_reads_at_grade_9_or_under[prd_orion_play_15]
+PASSED tests/unit/explain/test_templates.py::test_every_template_reads_at_grade_9_or_under[prd_lumen_air_13]
+PASSED tests/unit/explain/test_templates.py::test_a_template_with_long_criterion_names_still_reads_at_grade_9_or_under
+PASSED tests/faults/test_explain_fallback.py::test_an_error_hands_over_to_the_template
+PASSED tests/faults/test_explain_fallback.py::test_every_llm_provider_down_gives_the_template_as_intake_and_criteria_give_their_rules
+PASSED tests/faults/test_explain_fallback.py::test_the_template_stage_itself_never_needs_the_llm
+PASSED tests/faults/test_explain_fallback.py::test_a_raised_llm_error_is_the_reason_not_its_text

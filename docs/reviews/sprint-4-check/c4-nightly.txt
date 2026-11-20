@@ -1,0 +1,24 @@
+US-49 criterion 5, the nightly half: .github/workflows/nightly.yml ("Nightly evaluation"), schedule 21:30 UTC daily
+(03:00 in India) and workflow_dispatch. It merged on 20 Nov 2026 (#148), so no scheduled run had happened yet. With Om's
+go-ahead, it was started by hand on main at 18:11 UTC with: gh workflow run nightly.yml --ref main
+
+run https://github.com/202401121-cmyk/Group13/actions/runs/44790439296
+event workflow_dispatch, sha 434384d134fa23cf47f30bed759a50caa6c7bf43, conclusion success, 2026-11-20T18:11:39Z to 2026-11-20T18:12:24Z
+job evaluate: success (2026-11-20T18:11:44Z to 2026-11-20T18:12:23Z)
+  step 1 Set up job: success
+  step 2 Run actions/checkout@v4: success
+  step 3 Run actions/setup-python@v5: success
+  step 4 Install: success
+  step 5 Baselines (offline): success
+  step 6 Interview simulator: success
+  step 7 Rank stability: success
+  step 8 Replay gate: success
+  step 9 Every floor: success
+  step 10 Upload the records: success
+started by: Om-5640
+
+Artifacts:
+  evaluation-44790439296: 28710 bytes, expires 2027-02-18
+
+The run calls no live API: every step replays fixtures or simulates (the workflow's own header). The first scheduled
+run is due at 21:30 UTC on 20 Nov.

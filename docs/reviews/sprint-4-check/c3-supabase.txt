@@ -1,0 +1,27 @@
+Supabase, read-only queries through the Supabase connector, project "ShopSense IT314 Group 13", 20 Nov 2026 about 17:25 UTC.
+No row was written, changed or deleted by these queries.
+
+1. R1's rows (session sess_09c8d9254e072f3a0809c7bb, the walk with the database on):
+   select 'requests', session_id, (user_id is null) as guest, created_at from public.requests where session_id = ...
+   union all select 'searches', ... from public.searches where session_id = ...
+   -> requests: guest true, created 2026-11-20 17:21:43 UTC
+   -> searches: guest true, created 2026-11-20 17:22:46 UTC
+   scripts/check_request_saved.py sess_09c8d9254e072f3a0809c7bb printed "saved" (exit 0).
+
+2. Row level security on the live project (pg_class.relrowsecurity and pg_policies, schema public):
+   product_aliases: RLS on, no policy (nobody reads it through the API)
+   profiles:        RLS on; profiles_select_own [SELECT to authenticated]: (id = (SELECT auth.uid()));
+                    profiles_update_own [UPDATE to authenticated]: (id = (SELECT auth.uid()))
+   requests:        RLS on; requests_select_own [SELECT to authenticated]: (user_id = (SELECT auth.uid()))
+   searches:        RLS on; searches_select_own [SELECT to authenticated]: (user_id = (SELECT auth.uid()))
+   No policy for anon. A guest's row (user_id null) matches no signed-in user's policy.
+
+3. R2's and R3's sessions, after both runs (checked at 2026-11-20 17:50:06 UTC; R3 ended at 17:27 UTC):
+   select ... count(*) from public.requests / public.searches
+     where session_id in ('sess_19cf8ac7ab1953c257d2c1f4', 'sess_54b6b9a292cf618ea77152d5')
+   -> no rows in either table (the query returned only its "checked at" line). A first count at about 17:28 UTC gave
+      requests 0 and searches 0 too.
+
+4. Sign-in with Google on the live project (US-30 criterion 1), counts only:
+   select provider, count(*), max(last_sign_in_at)::date from auth.identities group by provider
+   -> google: 1 identity, last signed in 2026-11-20. No other provider. (Om's sign-in by hand on 20 Nov, #151 and #152.)

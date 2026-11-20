@@ -1,0 +1,19 @@
+D-53 and key scan of the other text files in docs/reviews/sprint-4-check/, 20 Nov 2026, after the evidence was written
+(counts of matching lines; this file is left out, as it holds the patterns):
+  reddit\.com/r/: 16
+  redd\.it: 4
+  \bu/[A-Za-z0-9_-]{3,}: 0
+  /user/: 0
+  "author": 0
+  api[_-]?key=: 0
+  key=[A-Za-z0-9]: 0
+  Bearer : 0
+  sk-[A-Za-z0-9]{8,}: 0
+  AIza[0-9A-Za-z_-]{10,}: 0
+  gsk_[A-Za-z0-9]{8,}: 0
+  [a-z][a-z0-9+.-]*://[^/[:space:]:@]+:[^/[:space:]@]+@: 0
+
+The reddit.com/r/ and redd.it lines are all test names in c1-us-49.txt: made-up thread addresses (r/SuggestALaptop,
+id 1qx7aaa) that tests/unit/test_record_run.py refuses. No Reddit title, text, quote or username is in any file.
+Made-up test values with a password or a viewer's handle are redacted in c1-us-30.txt and c1-us-38.txt.
+The PNG screenshots were looked at one by one: they show our pages, product names, scores and site names only.

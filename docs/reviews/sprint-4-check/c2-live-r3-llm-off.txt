@@ -1,0 +1,52 @@
+R3: every LLM provider switched off, 20 Nov 2026 17:26 to 17:27 UTC. Main 434384d. Session
+sess_54b6b9a292cf618ea77152d5, search srch_85ede66941c3683f6b1b46b0.
+
+How: the backend ran from a launcher kept outside the repository (C:\mtv\s4c_launch.py on Om's laptop). It installs
+evals/live_briefs.py's guard (LiveBudget), so every call to an LLM, Serper, Jina, Firecrawl or a Reddit archive is counted
+where it leaves the process and refused past the check's budget (LLM 30, Serper 12, Reddit archive 14, Jina 6,
+Firecrawl 2 for the whole check, with a cap per run). YouTube calls are counted, with no cap (the task sets none). The
+frontend ran with npm run dev in live mode (VITE_API_MODE=live, VITE_API_BASE_URL=http://localhost:8000), as
+scripts/dev.py starts it. The walk was a headless Chromium page driven by Playwright, typing and clicking as a shopper
+does. .env was not opened, printed or changed; each run's own settings were set in the launcher's process only.
+The check set no EXTRACT_MAX_SOURCES, so extract's cap is config/extract.yaml's 40 unless .env sets one, which this
+check could not look at (it never opens .env).
+Request (made up): "Laptop for coding under ₹70,000". Answers: High to every question, by the quick-reply buttons.
+
+R3: GROQ_API_KEY, GEMINI_API_KEY, OPENROUTER_API_KEY, CEREBRAS_API_KEY, MISTRAL_API_KEY and DEEPSEEK_API_KEY set to ""
+in the launcher's process (a copy of the environment with the keys emptied; python-dotenv never overrides a variable
+already set, and build_llm_client skips a provider whose key is blank). DATABASE_URL="" too. Caps for R3: 0 for
+every service, so nothing paid could be spent.
+
+Health before the walk: {"status":"ok","schema_version":"1.9.0","database":"off"}
+
+The launcher's own check, after loading the app's LLM client the app's way:
+  LLM providers with a key in this process: []
+The app's log said, for example, "llm provider groq skipped: GROQ_API_KEY is not set" (also mistral, gemini).
+
+The walk (times UTC):
+  17:26:51 request typed: "Laptop for coding under ₹70,000"
+  17:26:52 understood: Here's what we understood Check the details and fix anything we got wrong. Our backup reader filled this in. Please check it. Product Laptop Edit Used for No use given Add Budget Up to ₹70,000 Edit Region India Edit Must-haves No must-haves given Add Leave out None specified Add Looks right Start over Your brief PRODUCT Laptop USED FOR Not given BUDGET Up to ₹70,000 REGION India MUST-HAVES Not giv
+  17:26:53 criteria page: /s/sess_54b6b9a292cf618ea77152d5/criteria
+  17:26:57 questions done after 8 answers
+  17:26:59 research started
+  17:27:08 results url: /s/sess_54b6b9a292cf618ea77152d5/results?search=srch_85ede66941c3683f6b1b46b0
+  17:27:08 LLM outage message shown; pressing Try again
+  17:27:17 after Try again: Results for your laptop The search couldn't finish. We couldn't reach the AI services that read the sources, so this search found nothing. Please try again. Try again This result isn't saved. It stays at this address for up to 30 minutes, then it's gone. The AI services we use were all unavailable, so no source could be read. Please try again later. Reddit had an error. Web search had an error. Firecrawl search had an error. Skipped commerce because no product was ranked, so there was nothing to price. 5 Reddit threads were not read, to leave room for web pages. 28 sources could not be read, b
+  17:27:17 console errors: none
+  (8 questions answered High with the buttons. Intake said "Our backup reader filled this in. Please check it.")
+
+What the page showed after research, and again after Try again (c2-r3-llm-off-after-try-again.png):
+  We couldn't reach the AI services that read the sources, so this search found nothing. Please try again. [Try again]
+  This result isn't saved. It stays at this address for up to 30 minutes, then it's gone.
+  The AI services we use were all unavailable, so no source could be read. Please try again later. Reddit had an
+  error. Web search had an error. Firecrawl search had an error. Skipped commerce because no product was ranked, so
+  there was nothing to price. ...
+No cached result came back: the backup reader dropped "for coding", so the queries differed from R1's.
+
+Calls counted by the guard (refused: over R3's caps of 0):
+  --- r3 started 2026-11-20 17:26:44 UTC, flags ['--no-db', '--no-llm'], limits left {'llm': 0, 'serper': 0, 'reddit': 0, 'jina': 0, 'firecrawl': 0}, used before {'llm': 27, 'serper': 12, 'reddit': 14, 'jina': 4, 'firecrawl': 0}
+  firecrawl refused: 6
+  reddit refused: 2
+  serper refused: 6
+  youtube sent: 7
+  Console errors in the page: none.

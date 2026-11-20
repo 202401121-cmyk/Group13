@@ -1,0 +1,66 @@
+Frontend tests that show Sprint 4's stories to the shopper. 20 Nov 2026, main 434384d, from frontend/ (run through
+cmd /d from C:\, Node 22.18; node_modules from the committed lockfile, unchanged since 16 Nov):
+  npm run lint && npm run typecheck && npx vitest run --reporter=verbose   (unit)
+  npm run test:e2e                                                       (mock browser suite, not in CI)
+
+Test Files  39 passed (39)
+Tests  822 passed (822)
+4 skipped
+221 passed (8.9m)
+Lint and typecheck: no problems (exit 0 before the unit run).
+
+US-04 Smart interview:
+  ✓ src/test/results-honest.test.tsx > the mock interview, as the smart one (S4-5) > says why a question comes now, worded as backend/app/interview/why.py writes it
+  ok 171 [chromium] › e2e\quality\interview.spec.ts:333:1 › the smart order says why it asks, stops once settled, and the bar reaches 100% (12.4s)
+
+US-39 Questions, skips and off-topic replies:
+  ✓ src/test/interview-steps.test.tsx > stepDisplay: the backend's words, where they belong > answer then repeat: the answer above, the same question as the heading
+  ✓ src/test/interview-steps.test.tsx > the question card > answer then repeat shows the answer, then the question
+  ✓ src/test/interview-steps.test.tsx > the mock reads as live does > a correction that can't be read twice keeps the earlier answer, and says so
+  ✓ src/test/interview-steps.test.tsx > stepDisplay: the backend's words, where they belong > redirect: the one line back to the question above it
+  ✓ src/test/interview-steps.test.tsx > stepDisplay: the backend's words, where they belong > rephrase: asked another way, in its own words, with the question kept for screen readers
+  ✓ src/test/interview-steps.test.tsx > the question card > a rephrase keeps the same buttons
+  ✓ src/test/interview-steps.test.tsx > the mock reads as live does > the second unclear reply skips the question, marks it, and moves on
+  ✓ src/test/interview-steps.test.tsx > skipped questions (US-39: marked, to answer later) > each has an Answer now button in the answers panel
+  ✓ src/test/interview-steps.test.tsx > the mock reads as live does > a question back in between doesn't reset the count; an answer does
+  ok 162 [chromium] › e2e\quality\interview.spec.ts:198:1 › every reply kind reads as the backend writes it, and a skipped question can be answered now (16.5s)
+
+US-19 Confidence and ties:
+  ✓ src/test/results-sprint4.test.tsx > chance of ranking first and confidence (US-19) > each card says its chance as a whole percentage and its confidence in words
+  ✓ src/test/results-sprint4.test.tsx > chance of ranking first and confidence (US-19) > a product with no chance says nothing about one, never 0%
+  ok 178 [chromium] › e2e\quality\results-states.spec.ts:226:3 › result states › each card gives its chance of ranking first and its confidence in words (9.6s)
+  ✓ src/test/results-sprint4.test.tsx > a tie of three > is one group, named in full, with what separates them
+  ok 177 [chromium] › e2e\quality\results-states.spec.ts:213:3 › result states › a tie of three names all three and what separates them (9.4s)
+  ok 175 [chromium] › e2e\quality\results-states.spec.ts:169:3 › result states › a tie for first names no single best match (9.5s)
+
+US-20 Explanations:
+  ✓ src/test/results-sprint4.test.tsx > the explanation (US-20) > shows the trade-off on its own line and names what it couldn't verify
+  ✓ src/test/results-sprint4.test.tsx > the explanation (US-20) > shows a template explanation just as written, with nothing claimed about it
+  ok 181 [chromium] › e2e\quality\results-states.spec.ts:256:3 › result states › an explanation's sentence opens its sources in the drawer, with no new request (9.5s)
+
+US-24 Prices and buy links:
+  ✓ src/test/results-sprint4.test.tsx > offers (US-24) > in stock is said; unknown stock says nothing
+  ✓ src/test/results-sprint4.test.tsx > offers (US-24) > a price exactly 24 hours old has not changed yet; a minute more may have
+  ok 180 [chromium] › e2e\quality\results-states.spec.ts:246:3 › result states › a price exactly 24 hours old hasn't changed yet; a minute older may have (9.1s)
+  ✓ src/test/results-states.test.tsx > old prices > a stale offer shows its as-of time and says the price may have changed
+  ok 168 [chromium] › e2e\quality\results-states.spec.ts:115:3 › result states › old prices say so, from their as-of time (9.9s)
+  ✓ src/test/results-sprint4.test.tsx > offers (US-24) > an offer above the budget is flagged, and stock is said in words
+  ok 179 [chromium] › e2e\quality\results-states.spec.ts:236:3 › result states › an offer above the budget is flagged; stock is said in words (9.5s)
+  ✓ src/test/results-states.test.tsx > no offer > the card says so and links to the store search in a new tab
+  ok 172 [chromium] › e2e\quality\results-states.spec.ts:128:3 › result states › no offer says so and links to a store search (9.3s)
+  ✓ src/test/results-sprint4.test.tsx > offers (US-24) > every store link opens the store's own page in a new tab, with no referrer
+
+US-30 Login and private searches:
+  ✓ src/lib/auth/auth.test.ts > live sign-in > signing in sends the shopper to Google and back to the page they were on
+  ✓ src/test/account-controls.test.tsx > the navigation's sign-in > is signed out by default: Sign in opens the sign-in page, coming back to this page
+  ok  14 [chromium] › e2e\quality\account.spec.ts:62:3 › signed out › Sign in opens the sign-in page, which comes back to the page after (1.0s)
+  ok  21 [chromium] › e2e\quality\account.spec.ts:138:3 › signed in › My searches lists newest first, shows more, and opens a saved result (2.6s)
+  ✓ src/lib/account/account.test.ts > the live account service > someone else's id says not found, in our own words
+  ok  26 [chromium] › e2e\quality\account.spec.ts:215:3 › signed in › someone else's saved search shows not found (1.6s)
+  ok  15 [chromium] › e2e\quality\account.spec.ts:74:3 › signed out › the sign-in page lets a guest carry on without signing in (867ms)
+  ok  30 [chromium] › e2e\quality\account.spec.ts:235:3 › a new session ID at sign-in and sign-out (D-80) › a guest's search ends at sign-in, and the signed-in one ends at sign-out (8.6s)
+
+US-31 Outside failures:
+  ✓ src/test/results-sprint4.test.tsx > an LLM outage (US-31) > says so plainly, as an alert, and Try again starts the search again
+  ok 176 [chromium] › e2e\quality\results-states.spec.ts:185:3 › result states › an LLM outage says so plainly, and Try again runs the same search to its results (9.4s)
+

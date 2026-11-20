@@ -1,0 +1,42 @@
+Demo item: the shorter interview against the fixed one, with the simulator's numbers. 20 Nov 2026, main 434384d,
+Python 3.11.15 fresh venv, offline (no LLM). From backend/:
+python -m evals.interview_sim --planners fixed,smart,d69 --out-dir <scratch folder outside the repository>
+
+                                             fixed           smart             d69
+overall: questions (mean)                        8               8           4.493
+overall: weight error (MAE)                  1.023           1.023            1.36
+overall: top 3 match                        0.3167          0.3167          0.2367
+overall: accuracy                              0.6             0.6          0.4933
+smartphone: questions (mean)                     8               8             4.6
+smartphone: weight error (MAE)               1.057           1.057           1.435
+smartphone: top 3 match                       0.28            0.28             0.2
+smartphone: accuracy                           0.6             0.6             0.5
+air_fryer: questions (mean)                      8               8            4.54
+air_fryer: weight error (MAE)                1.045           1.045           1.343
+air_fryer: top 3 match                        0.34            0.34             0.3
+air_fryer: accuracy                           0.54            0.54            0.42
+laptop: questions (mean)                         8               8            4.86
+laptop: weight error (MAE)                   1.016           1.016           1.297
+laptop: top 3 match                           0.36            0.36            0.28
+laptop: accuracy                              0.66            0.66            0.54
+smartwatch: questions (mean)                     8               8            4.58
+smartwatch: weight error (MAE)               1.024           1.024           1.339
+smartwatch: top 3 match                       0.28            0.28            0.18
+smartwatch: accuracy                          0.56            0.56            0.52
+earbuds: questions (mean)                        8               8            4.62
+earbuds: weight error (MAE)                      1               1           1.338
+earbuds: top 3 match                          0.26            0.26            0.14
+earbuds: accuracy                             0.58            0.58             0.5
+headphones: questions (mean)                     8               8            3.76
+headphones: weight error (MAE)              0.9947          0.9947           1.406
+headphones: top 3 match                       0.38            0.38            0.32
+headphones: accuracy                          0.66            0.66            0.48
+Written: C:/mtv/s4c_sim/interview-sim-fixed.json
+Written: C:/mtv/s4c_sim/interview-sim-smart.json
+Written: C:/mtv/s4c_sim/interview-sim-d69.json
+exit code: 0
+
+The committed records (backend/evals/results/interview-sim-*.json) against this run (generated/commit lines aside):
+  fixed: same
+  smart: same
+  d69: same

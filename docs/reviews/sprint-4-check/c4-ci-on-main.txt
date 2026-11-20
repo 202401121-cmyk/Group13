@@ -1,0 +1,7 @@
+run https://github.com/202401121-cmyk/Group13/actions/runs/44775486511 sha 434384d134fa23cf47f30bed759a50caa6c7bf43 conclusion success
+  secrets: success (2026-11-20T16:39:06Z to 2026-11-20T16:39:18Z)
+  frontend: success (2026-11-20T16:39:05Z to 2026-11-20T16:40:23Z)
+  backend-windows: success (2026-11-20T16:39:05Z to 2026-11-20T16:44:56Z)
+  backend: success (2026-11-20T16:39:05Z to 2026-11-20T16:46:09Z)
+  quality-gate: success (2026-11-20T16:39:06Z to 2026-11-20T16:39:35Z)
+  ml: success (2026-11-20T16:39:05Z to 2026-11-20T16:39:37Z)

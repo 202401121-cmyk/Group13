@@ -1,0 +1,48 @@
+Sprint 4's pull requests, 20 Nov 2026 about 17:55 UTC (gh pr list / gh pr view, read only).
+
+Open pull requests: 0
+
+#113 to #153, with how each ended (merged date, or closed):
+  #113 MERGED 2026-11-15 Om-5640 chore/sprint-3-check
+  #114 MERGED 2026-11-15 Om-5640 chore/sprint-4-contracts
+  #115 MERGED 2026-11-15 Om-5640 fix/US-14-price-first
+  #116 CLOSED 2026-11-16 JhanviBarot JhanviBarot-patch-1
+  #117 MERGED 2026-11-16 Rushinavar18 fix/US-15-brand-only-names
+  #118 MERGED 2026-11-16 Om-5640 chore/interview-simulator
+  #119 MERGED 2026-11-16 paljalodara feature/US-31-graceful-failures
+  #120 MERGED 2026-11-16 JenishKavad feature/US-24-offers
+  #121 MERGED 2026-11-16 yashpatel4239 fix/FE-vite-keys
+  #122 MERGED 2026-11-16 VaishviMehta346 fix/US-09-variant-rules
+  #123 MERGED 2026-11-16 JenishKavad fix/US-10-brand-families
+  #124 MERGED 2026-11-16 VaishviMehta346 feature/US-30-user-tables
+  #125 MERGED 2026-11-16 Rushinavar18 feature/US-19-simulations
+  #126 MERGED 2026-11-16 Palak178-creator chore/CI-node-24
+  #127 MERGED 2026-11-16 JhanviBarot feature/US-20-explanations
+  #128 MERGED 2026-11-17 JhanviBarot feature/US-39-reply-types
+  #129 MERGED 2026-11-17 Om-5640 feature/US-04-smart-interview
+  #130 MERGED 2026-11-17 JenishKavad feature/US-04-interview-api
+  #131 MERGED 2026-11-17 202401121-cmyk chore/sprint-4-live-baselines
+  #132 MERGED 2026-11-17 paljalodara feature/US-38-youtube
+  #133 MERGED 2026-11-17 manupardhan05 feature/FE-sprint-4-screens
+  #134 MERGED 2026-11-17 manupardhan05 fix/FE-results-honest
+  #135 MERGED 2026-11-17 JhanviBarot fix/US-46-extract-room
+  #136 MERGED 2026-11-18 JenishKavad fix/US-24-store-links
+  #137 MERGED 2026-11-18 manupardhan05 fix/US-07-terms-plain
+  #138 MERGED 2026-11-18 manupardhan05 fix/US-07-fallback-plain
+  #139 MERGED 2026-11-18 202401121-cmyk docs/readme-sprint-4
+  #140 MERGED 2026-11-18 paljalodara fix/US-52-sample-label
+  #141 MERGED 2026-11-18 VaishviMehta346 fix/US-30-owner-fixed
+  #142 MERGED 2026-11-18 paljalodara fix/US-52-fallback-label
+  #143 MERGED 2026-11-18 JhanviBarot fix/US-46-free-capacity
+  #144 MERGED 2026-11-18 JenishKavad feature/US-41-price-lookup
+  #145 MERGED 2026-11-18 paljalodara chore/DEP-1-smoke
+  #146 MERGED 2026-11-19 JenishKavad fix/US-41-serper-room
+  #147 MERGED 2026-11-19 Rushinavar18 chore/US-19-close-brief
+  #148 MERGED 2026-11-20 202401121-cmyk feature/US-49-quality-gate
+  #149 MERGED 2026-11-20 JhanviBarot fix/US-49-all-products
+  #150 MERGED 2026-11-20 paljalodara fix/S3-leftovers
+  #151 MERGED 2026-11-20 202401121-cmyk feature/US-30-auth
+  #152 MERGED 2026-11-20 yashpatel4239 feature/US-30-login-screens
+  #153 MERGED 2026-11-20 yashpatel4239 feature/US-30-redesign
+
+#116 was closed without merging: a test of the pull-request tool ("please close, don't merge"), so it is not Sprint 4 work.

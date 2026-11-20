@@ -1,0 +1,26 @@
+Staging (S4-20, DEP-1), checked 20 Nov 2026 17:07 UTC from Om's laptop. The addresses stay within the team
+(D-65), so they are written <service> and <project>, as docs/deploy.md does. curl 8.14.1.
+
+1. GET https://<service>.onrender.com/api/health, twice:
+   {"status":"ok","schema_version":"1.9.0","database":"ok"}
+   HTTP 200, 1.120044 s
+   {"status":"ok","schema_version":"1.9.0","database":"ok"}
+   HTTP 200, 0.675601 s
+   (An earlier call at 17:02 UTC answered the same body; the service may have been starting. Two calls between
+   failed in curl itself with error 60, a certificate revocation check on this laptop, before reaching the server.)
+
+2. CORS preflight to /api/presearch/intake (docs/deploy.md section 2):
+   From https://<project>.vercel.app:
+     HTTP/1.1 200 OK
+     access-control-allow-origin: https://<project>.vercel.app
+   From https://not-shopsense.example:
+     HTTP/1.1 400 Bad Request
+     (no access-control-allow-origin header)
+
+3. The deployed frontend, https://<project>.vercel.app (curl --compressed):
+   /: HTTP 200, 6.120978 s, title: "ShopSense — Find the right product, with evidence"
+   /sign-in: HTTP 200, 1.299539 s, title: "Sign in — ShopSense"
+   /my-searches: HTTP 200, 0.358728 s, title: "My searches — ShopSense"
+   /account: HTTP 200, 4.330060 s, title: "Your profile — ShopSense"
+   /features: HTTP 200, 0.637370 s, title: "Features — ShopSense"
+   /no-such-page: HTTP 404, 0.485620 s, title: "ShopSense"
