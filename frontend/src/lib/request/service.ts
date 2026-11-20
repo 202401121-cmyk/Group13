@@ -1,4 +1,5 @@
 import { apiConfig, createApiClient } from "@/lib/api/client";
+import { bearerSource } from "@/lib/auth/service";
 import { createLiveRequestService } from "./liveAdapter";
 import { createMockService } from "./mockService";
 import type { RequestService } from "./types";
@@ -10,7 +11,7 @@ export function getRequestService(): RequestService {
   const config = apiConfig();
   service ??=
     config.mode === "live"
-      ? createLiveRequestService(createApiClient(config.baseUrl))
+      ? createLiveRequestService(createApiClient(config.baseUrl, undefined, bearerSource))
       : createMockService();
   return service;
 }

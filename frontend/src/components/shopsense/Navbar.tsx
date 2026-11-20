@@ -4,12 +4,17 @@ import { Menu, X } from "lucide-react";
 import { BrandMark } from "./ui";
 import { pillButton } from "./pill-button";
 import { ThemeToggle } from "./ThemeToggle";
+import { AccountControls, SignInError } from "./AccountControls";
+import { useAuth } from "@/lib/auth/service";
 import { cn } from "@/lib/utils";
 
 const links = [
   { to: "/", label: "Home" },
   { to: "/research", label: "Research" },
 ] as const;
+
+/** Shown only to a signed-in shopper (US-30). */
+const myLink = { to: "/my-searches", label: "My searches" } as const;
 
 const linkCls =
   "inline-flex min-h-11 items-center rounded-full px-4 text-sm text-muted-foreground transition-colors hover:text-foreground";
@@ -24,6 +29,9 @@ export function Navbar({
 }) {
   const menuButton = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
+  const auth = useAuth().status;
+  const signedIn = auth === "signedIn";
+  const shown = signedIn ? [...links, myLink] : links;
 
   // Closing gives focus back to the menu button, so it never drops to the page body.
   const close = useCallback(() => {
@@ -35,9 +43,10 @@ export function Navbar({
   useEffect(() => {
     if (!open) return;
     const stops = (): HTMLElement[] =>
-      [menuButton.current, ...(panel.current?.querySelectorAll("a") ?? [])].filter(
-        (el) => el !== null,
-      );
+      [
+        menuButton.current,
+        ...(panel.current?.querySelectorAll<HTMLElement>("a, button") ?? []),
+      ].filter((el) => el !== null);
     stops()[1]?.focus();
 
     function onKey(e: KeyboardEvent) {
@@ -71,7 +80,7 @@ export function Navbar({
           <BrandMark />
         </div>
         <ul className="hidden items-center gap-1 md:flex">
-          {links.map((l) => (
+          {shown.map((l) => (
             <li key={l.to}>
               <Link
                 to={l.to}
@@ -83,6 +92,12 @@ export function Navbar({
               </Link>
             </li>
           ))}
+          {/* Sign-in sits with the links, so the buttons on the right keep their place (US-30). */}
+          {auth !== "unavailable" && (
+            <li>
+              <AccountControls layout="bar" />
+            </li>
+          )}
         </ul>
         <div className="hidden items-center gap-1 md:flex">
           <ThemeToggle />
@@ -122,7 +137,8 @@ export function Navbar({
               {l.label}
             </Link>
           ))}
-          <div className="mt-2 flex gap-2 border-t border-border pt-3">
+          <div className="mt-2 flex flex-wrap gap-2 border-t border-border pt-3">
+            <AccountControls layout="panel" onNavigate={close} />
             <Link
               to="/research"
               onClick={close}
@@ -133,6 +149,7 @@ export function Navbar({
           </div>
         </div>
       )}
+      <SignInError />
     </header>
   );
 }

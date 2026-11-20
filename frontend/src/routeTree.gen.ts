@@ -17,6 +17,8 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResearchRouteImport } from './routes/research'
+import { Route as MySearchesIndexRouteImport } from './routes/my-searches.index'
+import { Route as MySearchesSearchIdRouteImport } from './routes/my-searches.$searchId'
 import { Route as SSessionIdBriefRouteImport } from './routes/s.$sessionId.brief'
 import { Route as SSessionIdCriteriaRouteImport } from './routes/s.$sessionId.criteria'
 import { Route as SSessionIdQuestionsRouteImport } from './routes/s.$sessionId.questions'
@@ -62,6 +64,16 @@ const ResearchRoute = ResearchRouteImport.update({
   path: '/research',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MySearchesIndexRoute = MySearchesIndexRouteImport.update({
+  id: '/my-searches/',
+  path: '/my-searches/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MySearchesSearchIdRoute = MySearchesSearchIdRouteImport.update({
+  id: '/my-searches/$searchId',
+  path: '/my-searches/$searchId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SSessionIdBriefRoute = SSessionIdBriefRouteImport.update({
   id: '/s/$sessionId/brief',
   path: '/s/$sessionId/brief',
@@ -92,6 +104,8 @@ export interface FileRoutesByFullPath {
   '/features': typeof FeaturesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
+  '/my-searches/$searchId': typeof MySearchesSearchIdRoute
+  '/my-searches/': typeof MySearchesIndexRoute
   '/s/$sessionId/brief': typeof SSessionIdBriefRoute
   '/s/$sessionId/criteria': typeof SSessionIdCriteriaRoute
   '/s/$sessionId/questions': typeof SSessionIdQuestionsRoute
@@ -106,6 +120,8 @@ export interface FileRoutesByTo {
   '/features': typeof FeaturesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
+  '/my-searches/$searchId': typeof MySearchesSearchIdRoute
+  '/my-searches': typeof MySearchesIndexRoute
   '/s/$sessionId/brief': typeof SSessionIdBriefRoute
   '/s/$sessionId/criteria': typeof SSessionIdCriteriaRoute
   '/s/$sessionId/questions': typeof SSessionIdQuestionsRoute
@@ -121,6 +137,8 @@ export interface FileRoutesById {
   '/features': typeof FeaturesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
+  '/my-searches/$searchId': typeof MySearchesSearchIdRoute
+  '/my-searches/': typeof MySearchesIndexRoute
   '/s/$sessionId/brief': typeof SSessionIdBriefRoute
   '/s/$sessionId/criteria': typeof SSessionIdCriteriaRoute
   '/s/$sessionId/questions': typeof SSessionIdQuestionsRoute
@@ -137,6 +155,8 @@ export interface FileRouteTypes {
     | '/features'
     | '/privacy'
     | '/research'
+    | '/my-searches/$searchId'
+    | '/my-searches/'
     | '/s/$sessionId/brief'
     | '/s/$sessionId/criteria'
     | '/s/$sessionId/questions'
@@ -151,6 +171,8 @@ export interface FileRouteTypes {
     | '/features'
     | '/privacy'
     | '/research'
+    | '/my-searches/$searchId'
+    | '/my-searches'
     | '/s/$sessionId/brief'
     | '/s/$sessionId/criteria'
     | '/s/$sessionId/questions'
@@ -165,6 +187,8 @@ export interface FileRouteTypes {
     | '/features'
     | '/privacy'
     | '/research'
+    | '/my-searches/$searchId'
+    | '/my-searches/'
     | '/s/$sessionId/brief'
     | '/s/$sessionId/criteria'
     | '/s/$sessionId/questions'
@@ -180,6 +204,8 @@ export interface RootRouteChildren {
   FeaturesRoute: typeof FeaturesRoute
   PrivacyRoute: typeof PrivacyRoute
   ResearchRoute: typeof ResearchRoute
+  MySearchesSearchIdRoute: typeof MySearchesSearchIdRoute
+  MySearchesIndexRoute: typeof MySearchesIndexRoute
   SSessionIdBriefRoute: typeof SSessionIdBriefRoute
   SSessionIdCriteriaRoute: typeof SSessionIdCriteriaRoute
   SSessionIdQuestionsRoute: typeof SSessionIdQuestionsRoute
@@ -244,6 +270,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/my-searches/': {
+      id: '/my-searches/'
+      path: '/my-searches'
+      fullPath: '/my-searches/'
+      preLoaderRoute: typeof MySearchesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-searches/$searchId': {
+      id: '/my-searches/$searchId'
+      path: '/my-searches/$searchId'
+      fullPath: '/my-searches/$searchId'
+      preLoaderRoute: typeof MySearchesSearchIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/s/$sessionId/brief': {
       id: '/s/$sessionId/brief'
       path: '/s/$sessionId/brief'
@@ -284,6 +324,8 @@ const rootRouteChildren: RootRouteChildren = {
   FeaturesRoute: FeaturesRoute,
   PrivacyRoute: PrivacyRoute,
   ResearchRoute: ResearchRoute,
+  MySearchesSearchIdRoute: MySearchesSearchIdRoute,
+  MySearchesIndexRoute: MySearchesIndexRoute,
   SSessionIdBriefRoute: SSessionIdBriefRoute,
   SSessionIdCriteriaRoute: SSessionIdCriteriaRoute,
   SSessionIdQuestionsRoute: SSessionIdQuestionsRoute,

@@ -1,4 +1,5 @@
 import { ApiError, MESSAGES, apiConfig, createApiClient } from "@/lib/api/client";
+import { bearerSource } from "@/lib/auth/service";
 import { createMockInterviewService } from "./mockService";
 import type { InterviewService } from "./types";
 
@@ -13,7 +14,7 @@ function liveService(baseUrl: string): InterviewService {
   let live: Promise<InterviewService> | null = null;
   const adapter = () =>
     (live ??= import("./liveAdapter").then(
-      (m) => m.createLiveInterviewService(createApiClient(baseUrl)),
+      (m) => m.createLiveInterviewService(createApiClient(baseUrl, undefined, bearerSource)),
       () => {
         live = null;
         throw new ApiError("network", MESSAGES.network);

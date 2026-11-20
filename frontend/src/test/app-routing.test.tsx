@@ -14,3 +14,13 @@ describe("App routing", () => {
     expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
   });
 });
+
+describe("My searches (US-30)", () => {
+  it.each(["/my-searches", "/my-searches/3f2a9c1e-8b7d-4e6f-a5c4-1d2e3f4a5b6c"])(
+    "%s has its page",
+    (path) => {
+      const router = createRouter({ routeTree });
+      expect(router.matchRoutes(path).at(-1)?.routeId).not.toBe(rootRouteId);
+    },
+  );
+});

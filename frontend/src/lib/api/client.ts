@@ -7,6 +7,11 @@
  * Every call has a time limit and can be cancelled. Every failure becomes an ApiError whose message is a
  * plain sentence the screen can show as it is: the backend's own `detail` for a 4xx, otherwise ours.
  * Responses come back as `unknown`; the adapters check them against the contract (./schemas.ts) before use.
+ *
+ * Signed in (US-30), every call carries `Authorization: Bearer <access token>`, read from the BearerSource at the
+ * moment of the call and never kept. A signed-in shopper's search run answers 404 to anyone else (S4-10), so a run
+ * route's 404 while signed in gets one retry with a token refreshed through supabase-js, in case the old one had
+ * just expired.
  */
 import { type PublicEnv, publicEnv } from "@/lib/config";
 import { REQUEST_TIMEOUT_MS } from "@/lib/interview/types";
@@ -66,6 +71,39 @@ export class ApiError extends Error {
 export interface CallOptions {
   timeoutMs: number;
   signal?: AbortSignal | undefined;
+  /** A search run's own route: a 404 while signed in is retried once with a refreshed token (S4-10). */
+  ownedRun?: boolean | undefined;
+}
+
+/** Where the client gets the signed-in shopper's token: src/lib/auth/service.ts. Null for a guest. */
+export interface BearerSource {
+  token(): Promise<string | null>;
+  refreshed(): Promise<string | null>;
+}
+
+/** The headers of a call: JSON when it has a body, and the token when the shopper is signed in. */
+export function callHeaders(token: string | null, json: boolean): Record<string, string> {
+  return {
+    ...(json ? { "Content-Type": "application/json" } : {}),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+/**
+ * The token, or null for a guest. If the sign-in couldn't be read in time the call fails (D-80: a signed-in shopper's
+ * search is never saved without its owner); any other failure to get one sends the call as a guest's.
+ */
+export async function tokenOf(
+  bearer: BearerSource | undefined,
+  fresh = false,
+): Promise<string | null> {
+  if (!bearer) return null;
+  try {
+    return await (fresh ? bearer.refreshed() : bearer.token());
+  } catch (e) {
+    if (e instanceof Error && e.name === "SignInNotReady") throw new ApiError("network", e.message);
+    return null;
+  }
 }
 
 export interface ApiClient {
@@ -87,6 +125,7 @@ type FetchLike = (input: string, init: RequestInit) => Promise<Response>;
 export function createApiClient(
   baseUrl: string,
   fetchImpl: FetchLike = (i, init) => fetch(i, init),
+  bearer?: BearerSource,
 ): ApiClient {
   async function call(
     method: string,
@@ -98,19 +137,30 @@ export function createApiClient(
     const timer = setTimeout(() => timeout.abort(), opts.timeoutMs);
     const onAbort = () => timeout.abort();
     opts.signal?.addEventListener("abort", onAbort);
-    let response: Response;
+    let response!: Response; // set by send(), which runs at least once before any read
     let data: unknown;
-    try {
+    const send = async (token: string | null) => {
+      // Reading the token takes a moment: a call cancelled (or out of time) meanwhile is never sent.
+      timeout.signal.throwIfAborted();
       response = await fetchImpl(baseUrl + path, {
         method,
-        headers: body === undefined ? {} : { "Content-Type": "application/json" },
+        headers: callHeaders(token, body !== undefined),
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
         signal: timeout.signal,
       });
       // The limit covers the body too: an answer that stalls halfway must not leave a screen waiting for ever.
       data = await readJson(response);
+    };
+    try {
+      const token = await tokenOf(bearer);
+      await send(token);
+      if (response.status === 404 && token && opts.ownedRun) {
+        const fresh = await tokenOf(bearer, true);
+        if (fresh) await send(fresh); // once: a second 404 is the run being someone else's, or gone
+      }
     } catch (e) {
       if (opts.signal?.aborted) throw e; // the caller cancelled: let them see their own abort
+      if (e instanceof ApiError) throw e; // already a sentence for the screen (a sign-in that couldn't be read)
       if (timeout.signal.aborted) throw new ApiError("timeout", MESSAGES.timeout);
       throw new ApiError("network", MESSAGES.network);
     } finally {

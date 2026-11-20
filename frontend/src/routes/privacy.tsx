@@ -22,8 +22,11 @@ export const Route = createFileRoute("/privacy")({
 // Every statement here is true today, and each has a source. What is stored, who can read it and that nothing expires:
 // docs/database.md and supabase/migrations/. The session in memory: backend/app/api/sessions.py. The region: decision
 // D-29. Every finished search is saved: decision D-36. Where the request goes: the routes and trains_on_inputs flags in
-// backend/config/models.yaml, and result B3 of the Sprint 1 verification report. Change this page whenever one of
-// those changes, and never promise a deletion period that is not built.
+// backend/config/models.yaml, and result B3 of the Sprint 1 verification report. Sign-in (US-30): the user tables and
+// row level security in supabase/migrations/*_add_user_tables.sql and *_keep_owner_fixed.sql, the backend's user routes
+// (backend/app/api/account.py), a new session at sign-in and sign-out (D-80), and supabase-js keeping the session in
+// the browser (src/lib/auth/). Change this page whenever one of those changes, and never promise a deletion period
+// that is not built.
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -72,15 +75,42 @@ function Privacy() {
           </ul>
           <p>
             We use the request records to learn what people really ask for and to test ShopSense.
-            Nothing in the app reads the search records back yet.
+            The app reads a search record back only for the signed-in person it belongs to, in My
+            searches.
           </p>
         </Section>
 
-        <Section title="What we don't save">
+        <Section title="If you search as a guest">
           <p>
-            You don't need an account. We never ask for your name, email address or a password, and
-            we don't save your IP address or which browser you use. There is no sign-in, so a search
-            is saved under its session ID and nothing else.
+            You don't need an account. As a guest we never ask for your name, email address or a
+            password, and we don't save your IP address or which browser you use. Your requests and
+            searches are saved under their session ID and nothing else, and they are never linked to
+            an account later, even if you sign in afterwards.
+          </p>
+        </Section>
+
+        <Section title="If you sign in">
+          <p>
+            You can sign in with Google to see your finished searches again in My searches. Signing
+            in goes through Supabase Auth. To sign you in and keep your account safe, it keeps your
+            email address and the profile details Google shares (such as your name and picture), and
+            for each sign-in the IP address and browser it came from. ShopSense never sees your
+            Google password.
+          </p>
+          <p>
+            While you are signed in, the requests and searches you send are saved as above, together
+            with your account's ID: a random code, not your name or email. Your account also gets a
+            profile record with your account's ID and a display name, which is empty unless you set
+            one. Our own records never hold your email address, your IP address or your browser.
+          </p>
+          <p>
+            Only you can see your saved searches. The backend shows each person only their own, and
+            the database refuses to show anyone else's. Signing in or out starts a new search, so a
+            search you began as a guest stays a guest's.
+          </p>
+          <p>
+            If an account is deleted, its saved requests, searches and profile are deleted with it.
+            The project team can still read all records through the database dashboard, as below.
           </p>
         </Section>
 
@@ -88,8 +118,9 @@ function Privacy() {
           <p>These records are stored in a Supabase database in the Mumbai region.</p>
           <p>
             The ShopSense backend can read them, and so can the project team through the database
-            dashboard. They can't be read with Supabase's public keys, the kind a website uses in
-            the browser.
+            dashboard. With Supabase's public keys, the kind a website uses in the browser, a
+            signed-in person can read only their own records, and a guest's records can't be read at
+            all.
           </p>
         </Section>
 
@@ -130,10 +161,15 @@ function Privacy() {
         <Section title="In your browser">
           <p>
             Your brief and your answers are kept in this browser tab, so reloading the page doesn't
-            lose them. They are gone when you close the tab. The results page's address holds a
-            search ID, never your words. ShopSense keeps a search's progress and results in memory
-            for up to 30 minutes after it ends, so reloading the page shows them again. Your light
-            or dark theme choice is kept in this browser.
+            lose them. They are gone when you close the tab, and when you sign in or out. The
+            results page's address holds a search ID, never your words. ShopSense keeps a search's
+            progress and results in memory for up to 30 minutes after it ends, so reloading the page
+            shows them again. Your light or dark theme choice is kept in this browser.
+          </p>
+          <p>
+            If you sign in, Supabase's sign-in code keeps your sign-in session in this browser until
+            you sign out, so you stay signed in between visits. Your searches go to the backend with
+            a short-lived proof that it is you, never with your password.
           </p>
         </Section>
       </article>

@@ -50,17 +50,18 @@ test.describe("small-screen menu at 390 px", () => {
     await openMenu(page);
     expect(await focusedName(page)).toBe("Home");
 
+    // "Sign in" (US-30) is a button in the menu, and a stop like the links.
     expect(await pressAndRead(page, "Tab", 5)).toEqual([
       "Research",
+      "Sign in",
       "Get started",
       "Close menu",
       "Home",
-      "Research",
     ]);
     expect(await pressAndRead(page, "Shift+Tab", 5)).toEqual([
-      "Home",
       "Close menu",
       "Get started",
+      "Sign in",
       "Research",
       "Home",
     ]);
@@ -87,7 +88,9 @@ test.describe("small-screen menu at 390 px", () => {
       ...(await pressAndRead(page, "Tab", 40)),
       ...(await pressAndRead(page, "Shift+Tab", 40)),
     ];
-    expect(new Set(stops)).toEqual(new Set(["Close menu", "Home", "Research", "Get started"]));
+    expect(new Set(stops)).toEqual(
+      new Set(["Close menu", "Home", "Research", "Sign in", "Get started"]),
+    );
 
     // Even a script can't put focus on the page, the logo or the theme button: it stays where it was.
     const before = await focusedName(page);

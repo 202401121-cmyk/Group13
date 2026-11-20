@@ -1,4 +1,5 @@
 import { MESSAGES, apiConfig, createApiClient } from "@/lib/api/client";
+import { bearerSource, maySendToken } from "@/lib/auth/service";
 import { createMockResearchService } from "./mockService";
 import { ResearchError, type ResearchService } from "./types";
 
@@ -12,11 +13,13 @@ let service: ResearchService | null = null;
 function liveService(baseUrl: string): ResearchService {
   let live: Promise<ResearchService> | null = null;
   const adapter = () =>
-    (live ??= import("./liveAdapter").then(
-      (m) =>
-        m.createLiveResearchService(createApiClient(baseUrl), {
+    (live ??= Promise.all([import("./liveAdapter"), import("./fetchStream")]).then(
+      ([m, { FetchEventStream }]) =>
+        m.createLiveResearchService(createApiClient(baseUrl, undefined, bearerSource), {
           baseUrl,
-          openStream: (url) => new EventSource(url),
+          // EventSource can't send the token: a signed-in shopper's run is read with fetch and the header (S4-10).
+          openStream: (url) =>
+            maySendToken() ? new FetchEventStream(url, bearerSource) : new EventSource(url),
         }),
       () => {
         live = null;
