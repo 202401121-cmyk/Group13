@@ -12,6 +12,18 @@
         "gate_smartphone",
         "gate_smartwatch"
       ]
+    },
+    {
+      "sprint": 4,
+      "date": "2026-11-20",
+      "by": "Harsh Kodavala",
+      "recordings": [
+        "gate_air_fryer",
+        "gate_earbuds",
+        "gate_laptop",
+        "gate_smartphone",
+        "gate_smartwatch"
+      ]
     }
   ]
 }

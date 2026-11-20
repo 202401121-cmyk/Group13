@@ -650,17 +650,13 @@
       }
     ],
     "shown": [
-      "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
-      "Prestige PAF 4.0 2.2L Air Fryer",
       "Baltra Jwel BAF-202 6L Digital Air Fryer",
-      "Prestige Crysta Chef 5.5L Air Fryer",
       "Lifelong LLHF421 4.5 L Air Fryer",
       "Wonderchef Platinum Manual 4.5L Air Fryer",
       "Kent New Ultra 4L Digital Air Fryer"
     ],
     "filtered_out": [
-      "Philips NA154/00 Dual Basket Air Fryer",
-      "Prestige Crysta 4.5L Digital Air Fryer"
+      "Philips NA154/00 Dual Basket Air Fryer"
     ],
     "cant_tell": [
       "Baltra Honour BAF-204 12L Air Fryer",
@@ -668,18 +664,23 @@
       "Chefman Crispinator 8 Qt.",
       "COSORI Iconic",
       "COSORI TurboBlaze",
+      "Havells Prolife Aero 4.2L Air Fryer",
       "iBELL AEROFRY300 3.2L Air Fryer",
-      "Inalsa Aero Crisp 16 16L Air Fryer Oven",
-      "Inalsa Aero Smart N Steam 15L Air Fryer Oven",
+      "Inalsa SteelChef DW5.5 5.5L Air Fryer",
+      "Italia IAF-4342 4.5L Air Fryer",
+      "Kenstar Aster Smart 4.5L Air Fryer",
       "Kent Digital 116166 8L Air Fryer",
       "Lifelong LLHFD710 7L Air Fryer",
       "Longway Crisp Max 5L Air Fryer",
       "Longway True Cook 6L Digital Air Fryer",
       "Morphy Richards 510077 4.2L Digital Air Fryer",
+      "Ninja AF101",
       "Ninja Air Fryer Pro XL AF181",
+      "Ninja Combi SFP701",
       "Ninja Crispi DualZone DD101",
       "Ninja Crispi FN101GY",
       "Ninja Crispi Pro AS101",
+      "Ninja DualZone DZ801",
       "Ninja DualZone Pro DZ950",
       "Ninja Foodi DZ071",
       "Ninja Foodi DZ201",
@@ -688,19 +689,66 @@
       "Ninja Pro AF141",
       "Our Place Wonder Oven Pro",
       "Philips 2000 series 4.2L NA220/00",
+      "Philips 3000 Series Dual Basket NA350/00",
       "Philips Air Fryer NA130/00 6.2 L Air Fryer",
       "Philips NA154/00",
-      "Prestige PAF 1.0 1 l Air fryer",
-      "Prestige PAF 5.0 2.2L Air Fryer",
-      "Prestige PAMF 1.0 2.2L Air Fryer",
-      "Prestige PMAF 1.0 2.2 L Air Fryer",
       "Skyline VT 5424 2L Electric Deep Fryer",
       "Typhur Dome 2",
+      "Typhur Sync Air Fryer",
       "Ultron Airoast 4.5M 4.5L Air Fryer",
       "Xiaomi MIJIA N1 5L Air Fryer"
     ],
-    "citations": 22,
+    "citations": 12,
     "llm_replies": [
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "d1fd687bf311445f9e4338dc80ebf0a2812439816da70dae59cdf15a854cdc05",
+        "data_sha256": "653ef3a968fac1b8d43c51de4c91d6150c8fa9c00e72787917cabfebca1c397c",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Philips NA154/00 Dual Basket Air Fryer",
+              "is_product": true,
+              "brand": "Philips",
+              "recommends": null
+            },
+            {
+              "raw_name": "Philips NA154/00",
+              "is_product": true,
+              "brand": "Philips",
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Foodi Max Dual-Drawer",
+              "is_product": true,
+              "brand": "Ninja",
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Philips NA154/00 Dual Basket Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 13990.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "The Philips NA154/00 is a 7.1-liter dual basket air fryer priced at ₹13,990 to ₹15,000 in India.",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Philips NA154/00 Dual Basket Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "capacity",
+              "value": 7.1,
+              "unit": "litres",
+              "score": null,
+              "quote": "The Philips NA154/00 is a 7.1-liter dual basket air fryer",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      },
       {
         "task": "extract_claims",
         "prompt_sha256": "1772c19db57563ac8a9ffe7bc6af2c946c88221010b51091781695b4274a8e54",
@@ -796,6 +844,36 @@
               "is_product": true,
               "brand": null,
               "recommends": null
+            },
+            {
+              "raw_name": "Typhur Sync Air Fryer",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Combi SFP701",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja DualZone DZ801",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja AF101",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Philips 3000 Series Dual Basket NA350/00",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
             }
           ],
           "claims": []
@@ -810,91 +888,139 @@
             {
               "raw_name": "Kent Ultra 116181 4L Air Fryer",
               "is_product": true,
-              "brand": "Kent",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Lifelong LLHF421 4.5 L Air Fryer",
               "is_product": true,
-              "brand": "Lifelong",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Baltra Jwel BAF-202 6L Digital Air Fryer",
               "is_product": true,
-              "brand": "Baltra",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Wonderchef Platinum Manual 4.5L Air Fryer",
               "is_product": true,
-              "brand": "Wonderchef",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Philips Air Fryer NA130/00 6.2 L Air Fryer",
               "is_product": true,
-              "brand": "Philips",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Morphy Richards 510077 4.2L Digital Air Fryer",
               "is_product": true,
-              "brand": "Morphy Richards",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Kent New Ultra 4L Digital Air Fryer",
               "is_product": true,
-              "brand": "Kent",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "iBELL AEROFRY300 3.2L Air Fryer",
               "is_product": true,
-              "brand": "iBELL",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Kent Digital 116166 8L Air Fryer",
               "is_product": true,
-              "brand": "Kent",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Xiaomi MIJIA N1 5L Air Fryer",
               "is_product": true,
-              "brand": "Xiaomi",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Longway Crisp Max 5L Air Fryer",
               "is_product": true,
-              "brand": "Longway",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Baltra Honour BAF-204 12L Air Fryer",
               "is_product": true,
-              "brand": "Baltra",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Ultron Airoast 4.5M 4.5L Air Fryer",
               "is_product": true,
-              "brand": "Ultron",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Lifelong LLHFD710 7L Air Fryer",
               "is_product": true,
-              "brand": "Lifelong",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Billion Bistro Lite 5L Air Fryer",
               "is_product": true,
-              "brand": "Billion",
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Kenstar Aster Smart 4.5L Air Fryer",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Italia IAF-4342 4.5L Air Fryer",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Inalsa SteelChef DW5.5 5.5L Air Fryer",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Kent Ultra Digital 4L Air Fryer",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Havells Prolife Aero 4.2L Air Fryer",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Philips NA120/00 4.2L Air Fryer",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Longway True Cook 6L Digital Air Fryer",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Skyline VT 5424 2L Electric Deep Fryer",
+              "is_product": true,
+              "brand": null,
               "recommends": null
             }
           ],
@@ -906,7 +1032,7 @@
               "value": 2499.0,
               "unit": "₹",
               "score": null,
-              "quote": "₹2,499",
+              "quote": "Kent Ultra 116181 4L Air Fryer\n₹2,499",
               "polarity": "neutral"
             },
             {
@@ -936,7 +1062,7 @@
               "value": 999.0,
               "unit": "₹",
               "score": null,
-              "quote": "₹999",
+              "quote": "Lifelong LLHF421 4.5 L Air Fryer\n₹999",
               "polarity": "neutral"
             },
             {
@@ -946,7 +1072,7 @@
               "value": 4.5,
               "unit": "L",
               "score": null,
-              "quote": "4.5 L Food Basket capacity",
+              "quote": "With 4.5 L Food Basket capacity",
               "polarity": "neutral"
             },
             {
@@ -956,7 +1082,7 @@
               "value": 4795.0,
               "unit": "₹",
               "score": null,
-              "quote": "₹4,795",
+              "quote": "Baltra Jwel BAF-202 6L Digital Air Fryer\n₹4,795",
               "polarity": "neutral"
             },
             {
@@ -986,7 +1112,7 @@
               "value": 3999.0,
               "unit": "₹",
               "score": null,
-              "quote": "₹3,999",
+              "quote": "Wonderchef Platinum Manual 4.5L Air Fryer\n₹3,999",
               "polarity": "neutral"
             },
             {
@@ -1097,259 +1223,39 @@
               "is_product": true,
               "brand": null,
               "recommends": null
+            },
+            {
+              "raw_name": "Typhur Sync Air Fryer",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Combi SFP701",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja DualZone DZ801",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja AF101",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Philips 3000 Series Dual Basket NA350/00",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
             }
           ],
           "claims": []
-        }
-      },
-      {
-        "task": "extract_claims",
-        "prompt_sha256": "d1fd687bf311445f9e4338dc80ebf0a2812439816da70dae59cdf15a854cdc05",
-        "data_sha256": "653ef3a968fac1b8d43c51de4c91d6150c8fa9c00e72787917cabfebca1c397c",
-        "reply": {
-          "mentions": [
-            {
-              "raw_name": "Philips NA154/00 Dual Basket Air Fryer",
-              "is_product": true,
-              "brand": "Philips",
-              "recommends": null
-            },
-            {
-              "raw_name": "Philips NA154/00",
-              "is_product": true,
-              "brand": "Philips",
-              "recommends": null
-            },
-            {
-              "raw_name": "Ninja Foodi Max Dual-Drawer",
-              "is_product": true,
-              "brand": "Ninja",
-              "recommends": null
-            }
-          ],
-          "claims": [
-            {
-              "product_mention": "Philips NA154/00 Dual Basket Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 13990.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "priced at ₹13,990 to ₹15,000 in India.",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Philips NA154/00 Dual Basket Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "capacity",
-              "value": 7.1,
-              "unit": "L",
-              "score": null,
-              "quote": "is a 7.1-liter dual basket air fryer",
-              "polarity": "neutral"
-            }
-          ]
-        }
-      },
-      {
-        "task": "extract_claims",
-        "prompt_sha256": "5cb013fce36546f14925dd59c9f9209d1f1a158d104273b554cdc77c8ea477f7",
-        "data_sha256": "4cf5c79230df731c39cbc3d3791454ebb074161830b1dc077a253466420407a8",
-        "reply": {
-          "mentions": [
-            {
-              "raw_name": "Prestige Crysta Chef 5.5L Air Fryer",
-              "is_product": true,
-              "brand": "Prestige",
-              "recommends": null
-            },
-            {
-              "raw_name": "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
-              "is_product": true,
-              "brand": "Prestige",
-              "recommends": null
-            },
-            {
-              "raw_name": "Prestige Crysta 4.5L Digital Air Fryer",
-              "is_product": true,
-              "brand": "Prestige",
-              "recommends": null
-            },
-            {
-              "raw_name": "Prestige PAF 4.0 2.2L Air Fryer",
-              "is_product": true,
-              "brand": "Prestige",
-              "recommends": null
-            },
-            {
-              "raw_name": "Prestige PAMF 1.0 2.2L Air Fryer",
-              "is_product": true,
-              "brand": "Prestige",
-              "recommends": null
-            },
-            {
-              "raw_name": "Prestige PAF 1.0 1 l Air fryer",
-              "is_product": true,
-              "brand": "Prestige",
-              "recommends": null
-            },
-            {
-              "raw_name": "Prestige PMAF 1.0 2.2 L Air Fryer",
-              "is_product": true,
-              "brand": "Prestige",
-              "recommends": null
-            },
-            {
-              "raw_name": "Prestige PAF 5.0 2.2L Air Fryer",
-              "is_product": true,
-              "brand": "Prestige",
-              "recommends": null
-            },
-            {
-              "raw_name": "Kent Ultra 116181 4L Air Fryer",
-              "is_product": true,
-              "brand": "Kent",
-              "recommends": null
-            },
-            {
-              "raw_name": "Lifelong LLHF421 4.5 L Air Fryer",
-              "is_product": true,
-              "brand": "Lifelong",
-              "recommends": null
-            },
-            {
-              "raw_name": "Longway True Cook 6L Digital Air Fryer",
-              "is_product": true,
-              "brand": "Longway",
-              "recommends": null
-            },
-            {
-              "raw_name": "Skyline VT 5424 2L Electric Deep Fryer",
-              "is_product": true,
-              "brand": "Skyline",
-              "recommends": null
-            },
-            {
-              "raw_name": "Wonderchef Platinum Manual 4.5L Air Fryer",
-              "is_product": true,
-              "brand": "Wonderchef",
-              "recommends": null
-            },
-            {
-              "raw_name": "Inalsa Aero Crisp 16 16L Air Fryer Oven",
-              "is_product": true,
-              "brand": "Inalsa",
-              "recommends": null
-            },
-            {
-              "raw_name": "Inalsa Aero Smart N Steam 15L Air Fryer Oven",
-              "is_product": true,
-              "brand": "Inalsa",
-              "recommends": null
-            }
-          ],
-          "claims": [
-            {
-              "product_mention": "Prestige Crysta Chef 5.5L Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 5790.0,
-              "unit": "₹",
-              "score": null,
-              "quote": "Prestige Crysta Chef 5.5L Air Fryer\n₹5,790",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Prestige Crysta Chef 5.5L Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "capacity",
-              "value": 5.5,
-              "unit": "L",
-              "score": null,
-              "quote": "5.5 L Capacity",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Prestige Crysta Chef 5.5L Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "temperature_range",
-              "value": "100-200 Degree Celsius",
-              "unit": null,
-              "score": null,
-              "quote": "100-200 Degree Celsius",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 5385.0,
-              "unit": "₹",
-              "score": null,
-              "quote": "Prestige Multi-Chef All-in-One 6.5L Air Fryer\n₹5,385",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "capacity",
-              "value": 6.5,
-              "unit": "L",
-              "score": null,
-              "quote": "6.5 L Capacity",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "temperature_range",
-              "value": "Max 200°C",
-              "unit": null,
-              "score": null,
-              "quote": "Max 200°C",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Prestige Crysta 4.5L Digital Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 8995.0,
-              "unit": "₹",
-              "score": null,
-              "quote": "Prestige Crysta 4.5L Digital Air Fryer\n₹8,995",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Prestige Crysta 4.5L Digital Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "capacity",
-              "value": 4.5,
-              "unit": "L",
-              "score": null,
-              "quote": "4.5 L Capacity",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Prestige Crysta 4.5L Digital Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "temperature_range",
-              "value": "100-200°C",
-              "unit": null,
-              "score": null,
-              "quote": "100-200°C",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Prestige PAF 4.0 2.2L Air Fryer",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 5350.0,
-              "unit": "₹",
-              "score": null,
-              "quote": "Prestige PAF 4.0 2.2L Air Fryer\n₹5,350",
-              "polarity": "neutral"
-            }
-          ]
         }
       }
     ],

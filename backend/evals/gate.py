@@ -75,7 +75,7 @@ LLM_SERVICES = ("groq", "gemini", "mistral", "openrouter", "cerebras")
 RATE_DROP = 0.10  # US-49: more than 10 points below main fails
 COUNT_DROP = 0.10  # a count: more than 10% below main fails
 SURVIVAL_TARGET = 0.9  # US-49: at least 90% of the expected products survive extraction
-WORD = re.compile(r"[a-z0-9]+")
+WORD = re.compile(r"[a-z]+|[0-9]+")  # letters and digits apart: "Fold6" and "Fold 6" read the same
 
 M = TypeVar("M", bound=BaseModel)
 
@@ -143,6 +143,7 @@ class ReplayLLM:
                 self.replies.append((user, reply))
         self.answered = 0
         self.unanswered = 0
+        self.answered_prompts: list[str] = []  # which pages got their recorded answer, for the expected list
         self._used: set[int] = set()
         self._lock = threading.Lock()  # extraction reads sources on several threads
 
@@ -188,6 +189,7 @@ class ReplayLLM:
         accepted = self.accepted_for(user)
         if accepted is not None:
             self.answered += 1
+            self.answered_prompts.append(user)
             return parse_output(accepted, schema)
         if self.has_accepted:  # the recording says which replies the run used: a prompt without one got none
             self.unanswered += 1
@@ -262,9 +264,16 @@ class Replay:
     """What one recording's replay gave."""
 
     def __init__(
-        self, name: str, expected: list[str], sources: list[Source], results: list[ExtractionResult], result: Any
+        self,
+        name: str,
+        expected: list[str],
+        sources: list[Source],
+        results: list[ExtractionResult],
+        result: Any,
+        pages: tuple[int, int] = (0, 0),
     ) -> None:
         self.name, self.expected, self.sources, self.results, self.result = name, expected, sources, results, result
+        self.pages = pages  # (labelled pages, of them answered in this recording)
 
 
 def replay(folder: Path) -> Replay:
@@ -286,7 +295,8 @@ def replay(folder: Path) -> Replay:
         for row in json.loads((folder / f"{service}.json").read_text(encoding="utf-8"))
     ]
     settings = load_extract_settings(env={"EXTRACT_MAX_SOURCES": EXTRACT_MAX_SOURCES})
-    extract = RecordingStage(GuardedExtractStage(ReplayLLM(rows, run.get("llm_replies", [])), settings))
+    llm = ReplayLLM(rows, run.get("llm_replies", []))
+    extract = RecordingStage(GuardedExtractStage(llm, settings))
     stages = SearchStages(
         research=_RecordedResearch(sources),
         extract=extract,
@@ -300,8 +310,27 @@ def replay(folder: Path) -> Replay:
     rubric = Rubric.model_validate(run["rubric"])
     request = SearchRequest(session_id=SESSION, raw_query=manifest["request"], rubric=rubric)
     result = PipelineRunner(stages, InMemoryResultStore()).run(request)
-    expected = list(manifest.get("expected_products", []))
-    return Replay(folder.name, expected, sources, list(extract.results.values()), result)
+    answered = {str(src.url) for src in sources if any(src.text[:200] in user for user in llm.answered_prompts)}
+    expected, pages = expected_on_answered_pages(manifest, answered)
+    return Replay(folder.name, expected, sources, list(extract.results.values()), result, pages)
+
+
+def expected_on_answered_pages(manifest: Mapping[str, Any], answered: set[str]) -> tuple[list[str], tuple[int, int]]:
+    """The hand-written products of the pages that got their recorded extraction answer in the replay (Om, 19 Nov
+    2026): a page with no answer has nothing to replay, so its products can't be counted against extraction. A page is
+    known by its address (`answered` holds the answered sources' URLs). Each product once. A manifest without pages
+    counts its whole list."""
+    pages = manifest.get("expected_pages")
+    if not pages:
+        return list(manifest.get("expected_products", [])), (0, 0)
+    kept: dict[str, str] = {}
+    done = 0
+    for page in pages:
+        if page["url"] in answered:
+            done += 1
+            for name in page["products"]:
+                kept.setdefault(name.casefold(), name)
+    return list(kept.values()), (len(pages), done)
 
 
 # --- the measures --------------------------------------------------------------------------------------------------
@@ -313,9 +342,15 @@ def _words(name: str) -> set[str]:
 
 def survives(expected: str, names: Sequence[str]) -> bool:
     """Extraction still finds this product: a name it gave holds every word of the expected one ("Dell XPS 14" in
-    "Dell XPS 14 (2026)"). A shorter name never counts: "Dell XPS" is no proof it found the 14."""
+    "Dell XPS 14 (2026)"), or every word but the first, the brand ("Galaxy Watch 8" for "Samsung Galaxy Watch 8";
+    Om, 20 Nov 2026). Any other shorter name never counts: "Dell XPS" is no proof it found the 14, nor "Galaxy S25"
+    the S25 Ultra."""
     want = _words(expected)
-    return bool(want) and any(want <= got for got in map(_words, names))
+    if not want:
+        return False
+    spaced = expected.split()  # the brand rule counts words as written: "Vivo V80" is two, and keeps its brand
+    without_brand = _words(" ".join(spaced[1:])) if len(spaced) >= 3 else want
+    return any(want <= got or without_brand <= got for got in map(_words, names))
 
 
 def _plain(text: str) -> str:
@@ -338,6 +373,8 @@ def measure_one(rp: Replay) -> dict[str, Any]:
     survived = [name for name in rp.expected if survives(name, names)]
     unquoted = [c for c in claims if c.source_id not in by_id or not quoted(c.quote, by_id[c.source_id].text)]
     return {
+        "pages_labelled": rp.pages[0],
+        "pages_answered": rp.pages[1],
         "expected": len(rp.expected),
         "survived": len(survived),
         "missed": sorted(set(rp.expected) - set(survived)),

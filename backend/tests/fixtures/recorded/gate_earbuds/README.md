@@ -1,1 +1,1 @@
-- `gate_earbuds`: real replies to "wireless earbuds for the gym under 3000 rupees" (1 run; calls gemini: 8, groq: 7, mistral: 2, pages: 17, serper: 7). Recorded 2026-11-19 by Harsh Kodavala. Some calls failed or were refused: see manifest.json.
+- `gate_earbuds`: real replies to "wireless earbuds for the gym under 3000 rupees" (1 run; calls gemini: 9, groq: 4, mistral: 2). Recorded 2026-11-20 by Harsh Kodavala. Some calls failed or were refused: see manifest.json.

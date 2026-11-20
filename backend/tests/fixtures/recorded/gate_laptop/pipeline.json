@@ -706,78 +706,109 @@
       }
     ],
     "shown": [
-      "Lenovo IdeaPad Slim 1 82R400BGIN Laptop (AMD Ryzen 5 5500U/ 8GB/ 512GB SSD/ Win11 Home)",
-      "Dell Inspiron 15 3530 (OIN353034011RINS1M) Laptop",
-      "HP 15s 15 FD0623TU Standard Laptop",
-      "Acer Travel Lite TL14-42M 14 Laptop (AMD Ryzen 7 7730U/ 32GB/ 1TB SSD/ Win11)",
-      "Acer Aspire 3 A325-45 UN.344SI.013 Standard Laptop",
-      "Asus Vivobook 15 X1504MA-BQ424WS Standard Laptop",
-      "Asus VivoBook 15 X1504VAP-BQ1321WS Standard Laptop",
-      "Dell Inspiron 15 3530 (OIN353034011RINB1M) Laptop",
-      "JioBook 11 with Lifetime Office/Android 4G Laptop Mediatek 8788 (JioOS)/Octa-core/4GB RAM/64 eMMC Storage/Thin and Light Laptop",
-      "Lenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop (11th Gen Core i3/ 8GB/ 512GB SSD/ Win11)",
-      "HP OmniPad 12 12-M0005QU Convertible Laptop",
-      "Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home)",
-      "Lenovo IdeaPad Slim3 83ER00KRIN Standard Laptop",
-      "Acer AL15-53 UN.34ESI.02E Standard Laptop",
-      "Lenovo IdeaPad Slim 3 82RK0085IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11)",
-      "Lenovo Ideapad Slim 3 Laptop",
-      "Lenovo Ideapad Slim 3i 81WQ00NXIN Laptop (Intel Celeron N4020/ 8GB/ 256GB SSD/ Win11)",
       "Acer AL15-52H UN.347SI.01G Standard Laptop",
-      "Asus CX9406 Googlebook Laptop (Intel Core Ultra 5 325/ 32GB/ ChromeOS)",
-      "Asus Vivobook 15 X1504VAP-BQ1543WS Laptop (Intel Core 5 120U/ 16GB/ 512GB SSD/ Win11)",
-      "Acer Aspire Pro AP14-55 UN.37SSI.003 Laptop (Intel Core Ultra 5 125H/ 16GB/ 512GB SSD/ Win11 Home)",
-      "HP 15 250R G10 Laptop (Intel Core 3 100U/ 16GB/ 512GB SSD/ Win11)",
-      "HP Pavilion x360"
+      "Acer Aspire 3 A325-45 UN.344SI.013 Standard Laptop",
+      "Acer Aspire Pro AP14-55 UN.37SSI.003 Laptop",
+      "Acer Travel Lite TL14-42M 14 Laptop",
+      "Asus CX9406 Googlebook Laptop",
+      "Asus Vivobook 15 X1504VAP-BQ1543WS Laptop",
+      "Dell Inspiron 15 3530 (OIN353034011RINB1M) Laptop",
+      "Dell Inspiron 15 3530 (OIN353034011RINS1M) Laptop",
+      "HP 15 250R G10 Laptop",
+      "HP OmniPad 12 12-M0005QU Convertible Laptop",
+      "JioBook 11 with Lifetime Office/Android 4G Laptop",
+      "Lenovo IdeaPad Slim 1 82R400BGIN Laptop",
+      "Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop",
+      "Lenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop",
+      "Lenovo IdeaPad Slim 3 82RK0085IN Laptop",
+      "Lenovo Ideapad Slim 3i 81WQ00NXIN Laptop",
+      "Lenovo IdeaPad Slim3 83ER00KRIN Standard Laptop"
     ],
     "filtered_out": [
+      "Apple MacBook Air (MDH84HN/A) Laptop",
+      "Apple MacBook Air (MDH94HN/A) Laptop",
+      "Apple MacBook Air (MDHA4HN/A) Laptop",
+      "Apple MacBook Air (MDHJ4HN/A) Laptop",
       "Apple MacBook Neo (A18 Pro, 2026)",
-      "Apple MacBook Neo (MHFA4HN/A) Laptop"
+      "Apple MacBook Neo (MHFA4HN/A) Laptop",
+      "Dell Inspiron 15 3530 (OIN353034071RINS1M) Laptop"
     ],
     "cant_tell": [
+      "2-In-1",
       "Acer AL14-71P NX.D7USI.001 Standard Laptop",
+      "Acer AL15-53 UN.34ESI.02E Standard Laptop",
+      "Acer Aspire 5 A514-56M 2023 Gaming Laptop",
+      "Acer Aspire One A115-39 UN.38CSI.001 Laptop",
       "Acer Swift Go 14 (2024)",
       "Alienware 16X Aurora 2026",
       "Apple MacBook Air 13 (M5, 2026)",
       "Apple MacBook Neo",
+      "Apple MacBook Pro 14 (M4, 2024)",
       "Apple MacBook Pro 14 (M5, 2025)",
       "Apple MacBook Pro 16 (M5, 2026)",
       "Asus Chromebook CM32 Detachable",
+      "ASUS Chromebook CX15 (2026)",
       "Asus ExpertBook Ultra",
+      "ASUS TUF Gaming A16 Advantage Edition (2023)",
+      "Asus Vivobook 15 X1504MA-BQ424WS Standard Laptop",
+      "Asus VivoBook 15 X1504VAP-BQ1321WS Standard Laptop",
+      "ASUS Vivobook 16 M1605 (2023)",
       "Asus Vivobook 16 X1605VA-MB1627WS Standard Laptop",
       "Asus Zenbook 14",
       "Asus Zenbook Duo 2026",
-      "Dell Inspiron 15 3530 (OIN353034071RINS1M) Laptop",
+      "Budget And Cheap",
+      "Business",
+      "Chromebooks",
+      "College",
       "Dell Pro 14 Premium PA14250",
+      "Dell Pro 15 Essential Laptop",
       "Dell XPS 13 (2026)",
       "Dell XPS 14",
       "Dell XPS 14 (2026)",
-      "HP EliteBook series",
+      "Gaming",
+      "Honor MagicBook X14 Pro 2024 FRI-G56 Laptop",
+      "HP 15s 15 FD0623TU Standard Laptop",
+      "HP 255R G10 2025 Laptop",
+      "HP EliteBook laptops",
       "HP EliteBook X G2i 14",
+      "HP ENVY 17-inch notebook",
+      "HP ENVY 360",
       "HP ENVY x360 15-inch laptop",
       "HP HyperX OMEN 15-ga0028TX",
       "HP OMEN MAX 16 (2025)",
-      "HP OMEN X 17-inch gaming laptop",
       "HP OmniBook 3 14 (2025)",
       "HP Omnibook 5",
       "HP OmniBook 5 16 (2026)",
       "HP Pavilion 15-inch gaming laptop",
+      "HP Pavilion x360",
       "HP SPECTRE x360 convertible laptop",
       "HP Stream 11-inch notebook",
-      "HP Stream notebook",
       "HP ZBook 15 mobile workstation",
       "HP ZBook Studio mobile workstation",
       "HyperX Omen 16 Valorant Edition",
-      "Lenovo IdeaPad Slim 3i Gen 11",
+      "Jio JioBook NB1112MM BLU 2023 Netbook Laptop",
+      "Lenovo Ideapad Slim 3 Laptop",
       "Lenovo Legion Pro 7i Gen 10 16 (2026)",
+      "Lenovo ThinkPad P1 Gen 7 (2024)",
       "Lenovo ThinkPad X1 Carbon Gen 14 Aura Edition (2026)",
       "Lenovo ThinkPad X9 Aura Edition (2025)",
+      "Lenovo V15 G4 83CQ0006IN Laptop",
+      "Lenovo Yoga Slim 7x",
       "Microsoft Surface Laptop 8th Edition (2026)",
       "Microsoft Surface Pro 13 12th Edition (2026)",
+      "MSI Modern 15 B13M-289IN Laptop",
+      "Music Production",
+      "Photo Editing",
+      "Programming",
       "Razer Blade 18",
-      "Samsung Galaxy Book 6 Ultra"
+      "Samsung Galaxy Book 4 np750xgj-kg2in Laptop",
+      "Samsung Galaxy Book 6 Ultra",
+      "Ultimus APEX Pro NU14U8INB43SN-CS Laptop",
+      "Video Editing",
+      "Windows",
+      "Working From Home"
     ],
-    "citations": 41,
+    "citations": 38,
     "llm_replies": [
       {
         "task": "extract_claims",
@@ -790,401 +821,6 @@
       },
       {
         "task": "extract_claims",
-        "prompt_sha256": "c86035553f22db4808901a0d5f6bb5612cf0a9717fb720e519e5798284f838e0",
-        "data_sha256": "00fccb3170ab9cb3f5db350572c0fc78bc9d5f71c5c4f99d7c3a4ecf045a6b1c",
-        "reply": {
-          "mentions": [
-            {
-              "raw_name": "HyperX Omen 16 Valorant Edition",
-              "is_product": true,
-              "brand": "HyperX",
-              "recommends": null
-            },
-            {
-              "raw_name": "Alienware 16X Aurora 2026",
-              "is_product": true,
-              "brand": "Alienware",
-              "recommends": null
-            },
-            {
-              "raw_name": "Asus Chromebook CM32 Detachable",
-              "is_product": true,
-              "brand": "Asus",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP HyperX OMEN 15-ga0028TX",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP EliteBook X G2i 14",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "Asus ExpertBook Ultra",
-              "is_product": true,
-              "brand": "Asus",
-              "recommends": null
-            },
-            {
-              "raw_name": "Lenovo IdeaPad Slim 3i Gen 11",
-              "is_product": true,
-              "brand": "Lenovo",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP Omnibook 5",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "Samsung Galaxy Book 6 Ultra",
-              "is_product": true,
-              "brand": "Samsung",
-              "recommends": null
-            },
-            {
-              "raw_name": "Dell XPS 14",
-              "is_product": true,
-              "brand": "Dell",
-              "recommends": null
-            },
-            {
-              "raw_name": "Razer Blade 18",
-              "is_product": true,
-              "brand": "Razer",
-              "recommends": null
-            },
-            {
-              "raw_name": "Apple MacBook Neo",
-              "is_product": true,
-              "brand": "Apple",
-              "recommends": null
-            },
-            {
-              "raw_name": "Asus Zenbook Duo 2026",
-              "is_product": true,
-              "brand": "Asus",
-              "recommends": null
-            },
-            {
-              "raw_name": "Dell Pro 14 Premium PA14250",
-              "is_product": true,
-              "brand": "Dell",
-              "recommends": null
-            },
-            {
-              "raw_name": "Asus Zenbook 14",
-              "is_product": true,
-              "brand": "Asus",
-              "recommends": null
-            }
-          ],
-          "claims": []
-        }
-      },
-      {
-        "task": "extract_claims",
-        "prompt_sha256": "40875910a1fcfc39c90ae0dd01d7897020268730b1269475c594f68d243934ac",
-        "data_sha256": "3d9ddcf4099bd7f76c5ac495864a03f0e09346032a9d3a4726702c8c215214bc",
-        "reply": {
-          "mentions": [
-            {
-              "raw_name": "HP ENVY x360 15-inch laptop",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP SPECTRE x360 convertible laptop",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP Stream notebook",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP OMEN 15-inch gaming laptop",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP Pavilion 15-inch gaming laptop",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP Pavilion x360",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP ENVY x360",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP ZBook Studio mobile workstation",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP EliteBook series",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP ZBook 15 mobile workstation",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP ENVY 17-inch notebook",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP Spectre x360 convertible laptop",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP Stream 11-inch notebook",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP OMEN X 17-inch gaming laptop",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            }
-          ],
-          "claims": [
-            {
-              "product_mention": "HP ENVY x360 15-inch laptop",
-              "is_product_type": false,
-              "criterion_key": "processor_speed",
-              "value": null,
-              "unit": null,
-              "score": 9.0,
-              "quote": "This heavy-duty laptop has the processing power needed to tackle any task.",
-              "polarity": "positive"
-            },
-            {
-              "product_mention": "HP ENVY x360 15-inch laptop",
-              "is_product_type": false,
-              "criterion_key": "display_quality",
-              "value": null,
-              "unit": null,
-              "score": 9.0,
-              "quote": "high-quality graphics for ideal streaming and scrolling.",
-              "polarity": "positive"
-            },
-            {
-              "product_mention": "HP ENVY x360 15-inch laptop",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": null,
-              "unit": null,
-              "score": 9.0,
-              "quote": "Add to that an impressive battery life so you don’t have to worry about sitting next to an outlet and you’ve got a winning device.",
-              "polarity": "positive"
-            },
-            {
-              "product_mention": "HP SPECTRE x360 convertible laptop",
-              "is_product_type": false,
-              "criterion_key": "display_quality",
-              "value": null,
-              "unit": null,
-              "score": 9.0,
-              "quote": "This touch laptop has a sleek, razor-thin design, including a 90% screen-to-body ratio",
-              "polarity": "positive"
-            },
-            {
-              "product_mention": "HP Stream notebook",
-              "is_product_type": false,
-              "criterion_key": "value_for_money",
-              "value": null,
-              "unit": null,
-              "score": 9.0,
-              "quote": "It’s a scholar’s dream laptop because it’s flexible, portable, and budget-friendly.",
-              "polarity": "positive"
-            },
-            {
-              "product_mention": "HP Stream notebook",
-              "is_product_type": false,
-              "criterion_key": "processor_speed",
-              "value": null,
-              "unit": null,
-              "score": 8.0,
-              "quote": "industry-leading processors will ensure that you have enough power so you’re never left in a crunch",
-              "polarity": "positive"
-            },
-            {
-              "product_mention": "HP Pavilion x360",
-              "is_product_type": false,
-              "criterion_key": "value_for_money",
-              "value": null,
-              "unit": null,
-              "score": 9.0,
-              "quote": "This budget-friendly laptop can adapt to your needs",
-              "polarity": "positive"
-            },
-            {
-              "product_mention": "HP Pavilion x360",
-              "is_product_type": false,
-              "criterion_key": "weight",
-              "value": null,
-              "unit": null,
-              "score": 9.0,
-              "quote": "The thin, light design and 360 degree hinge make it easy to use your laptop in any position",
-              "polarity": "positive"
-            },
-            {
-              "product_mention": "HP ENVY x360",
-              "is_product_type": false,
-              "criterion_key": "display_quality",
-              "value": null,
-              "unit": null,
-              "score": 9.0,
-              "quote": "crystal-clear Full HD resolution, 3-sided micro-edge display",
-              "polarity": "positive"
-            },
-            {
-              "product_mention": "HP ZBook Studio mobile workstation",
-              "is_product_type": false,
-              "criterion_key": "weight",
-              "value": "< 5 pounds",
-              "unit": null,
-              "score": null,
-              "quote": "it weighs less than five pounds.",
-              "polarity": "positive"
-            }
-          ]
-        }
-      },
-      {
-        "task": "extract_claims",
-        "prompt_sha256": "2e4fb853d71add643cecd439a33c484a014e4436f48d197af8d82c937bae8e79",
-        "data_sha256": "7ca7cb08fa7f7c9a232db550eadf7e02f75a06e3e9606209965ba27f54295862",
-        "reply": {
-          "mentions": [
-            {
-              "raw_name": "Dell XPS 13 (2026)",
-              "is_product": true,
-              "brand": "Dell",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP OmniBook 3 14 (2025)",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "Lenovo ThinkPad X9 Aura Edition (2025)",
-              "is_product": true,
-              "brand": "Lenovo",
-              "recommends": null
-            },
-            {
-              "raw_name": "Apple MacBook Pro 16 (M5, 2026)",
-              "is_product": true,
-              "brand": "Apple",
-              "recommends": null
-            },
-            {
-              "raw_name": "Apple MacBook Air 13 (M5, 2026)",
-              "is_product": true,
-              "brand": "Apple",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP OmniBook 5 16 (2026)",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "Apple MacBook Neo (A18 Pro, 2026)",
-              "is_product": true,
-              "brand": "Apple",
-              "recommends": null
-            },
-            {
-              "raw_name": "Lenovo ThinkPad X1 Carbon Gen 14 Aura Edition (2026)",
-              "is_product": true,
-              "brand": "Lenovo",
-              "recommends": null
-            },
-            {
-              "raw_name": "HP OMEN MAX 16 (2025)",
-              "is_product": true,
-              "brand": "HP",
-              "recommends": null
-            },
-            {
-              "raw_name": "Microsoft Surface Pro 13 12th Edition (2026)",
-              "is_product": true,
-              "brand": "Microsoft",
-              "recommends": null
-            },
-            {
-              "raw_name": "Apple MacBook Pro 14 (M5, 2025)",
-              "is_product": true,
-              "brand": "Apple",
-              "recommends": null
-            },
-            {
-              "raw_name": "Microsoft Surface Laptop 8th Edition (2026)",
-              "is_product": true,
-              "brand": "Microsoft",
-              "recommends": null
-            },
-            {
-              "raw_name": "Acer Swift Go 14 (2024)",
-              "is_product": true,
-              "brand": "Acer",
-              "recommends": null
-            },
-            {
-              "raw_name": "Lenovo Legion Pro 7i Gen 10 16 (2026)",
-              "is_product": true,
-              "brand": "Lenovo",
-              "recommends": null
-            },
-            {
-              "raw_name": "Dell XPS 14 (2026)",
-              "is_product": true,
-              "brand": "Dell",
-              "recommends": null
-            }
-          ],
-          "claims": []
-        }
-      },
-      {
-        "task": "extract_claims",
         "prompt_sha256": "20654b1695ebfd60b479b815a19f26a66a64b7c723d1af48ee85dff028956fd9",
         "data_sha256": "c5ba11d98a729e8fa687007ed925a97d0b9d86e05e8523ced8cf4af951a09133",
         "reply": {
@@ -1192,73 +828,73 @@
             {
               "raw_name": "Acer Aspire 3 A325-45 UN.344SI.013 Standard Laptop",
               "is_product": true,
-              "brand": "Acer",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Acer AL15-52H UN.347SI.01G Standard Laptop",
               "is_product": true,
-              "brand": "Acer",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Lenovo IdeaPad Slim3 83ER00KRIN Standard Laptop",
               "is_product": true,
-              "brand": "Lenovo",
+              "brand": null,
               "recommends": null
             },
             {
-              "raw_name": "JioBook 11 with Lifetime Office/Android 4G Laptop Mediatek 8788 (JioOS)/Octa-core/4GB RAM/64 eMMC Storage/Thin and Light Laptop",
+              "raw_name": "JioBook 11 with Lifetime Office/Android 4G Laptop",
               "is_product": true,
-              "brand": "JIO",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "HP OmniPad 12 12-M0005QU Convertible Laptop",
               "is_product": true,
-              "brand": "HP",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Asus VivoBook 15 X1504VAP-BQ1321WS Standard Laptop",
               "is_product": true,
-              "brand": "Asus",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Lenovo Ideapad Slim 3 Laptop",
               "is_product": true,
-              "brand": "Lenovo",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Acer AL15-53 UN.34ESI.02E Standard Laptop",
               "is_product": true,
-              "brand": "Acer",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Asus Vivobook 15 X1504MA-BQ424WS Standard Laptop",
               "is_product": true,
-              "brand": "Asus",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "HP 15s 15 FD0623TU Standard Laptop",
               "is_product": true,
-              "brand": "HP",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Asus Vivobook 16 X1605VA-MB1627WS Standard Laptop",
               "is_product": true,
-              "brand": "Asus",
+              "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Acer AL14-71P NX.D7USI.001 Standard Laptop",
               "is_product": true,
-              "brand": "Acer",
+              "brand": null,
               "recommends": null
             }
           ],
@@ -1274,6 +910,16 @@
               "polarity": "neutral"
             },
             {
+              "product_mention": "Acer Aspire 3 A325-45 UN.344SI.013 Standard Laptop",
+              "is_product_type": false,
+              "criterion_key": "memory_and_storage",
+              "value": "8 GB/256 GB",
+              "unit": null,
+              "score": null,
+              "quote": "Intel Core Celeron N4500/8 GB/256 GB/Intel UHD Graphics",
+              "polarity": "neutral"
+            },
+            {
               "product_mention": "Acer AL15-52H UN.347SI.01G Standard Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
@@ -1281,6 +927,16 @@
               "unit": "INR",
               "score": null,
               "quote": "₹56,490.00",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Acer AL15-52H UN.347SI.01G Standard Laptop",
+              "is_product_type": false,
+              "criterion_key": "memory_and_storage",
+              "value": "16 GB/512 GB",
+              "unit": null,
+              "score": null,
+              "quote": "Intel Core 5 210H/16 GB/512 GB/Intel UHD Graphics",
               "polarity": "neutral"
             },
             {
@@ -1294,13 +950,33 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "JioBook 11 with Lifetime Office/Android 4G Laptop Mediatek 8788 (JioOS)/Octa-core/4GB RAM/64 eMMC Storage/Thin and Light Laptop",
+              "product_mention": "Lenovo IdeaPad Slim3 83ER00KRIN Standard Laptop",
+              "is_product_type": false,
+              "criterion_key": "memory_and_storage",
+              "value": "16 GB/512 GB SSD",
+              "unit": null,
+              "score": null,
+              "quote": "Intel Core i5-12450H/16 GB/512 GB SSD/Intel UHD Graphics",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "JioBook 11 with Lifetime Office/Android 4G Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 12999.0,
               "unit": "INR",
               "score": null,
               "quote": "₹12,999.00",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "JioBook 11 with Lifetime Office/Android 4G Laptop",
+              "is_product_type": false,
+              "criterion_key": "memory_and_storage",
+              "value": "4GB RAM/64 eMMC Storage",
+              "unit": null,
+              "score": null,
+              "quote": "4GB RAM/64 eMMC Storage",
               "polarity": "neutral"
             },
             {
@@ -1314,56 +990,116 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Asus VivoBook 15 X1504VAP-BQ1321WS Standard Laptop",
+              "product_mention": "HP OmniPad 12 12-M0005QU Convertible Laptop",
               "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 56990.0,
-              "unit": "INR",
+              "criterion_key": "memory_and_storage",
+              "value": "8 GB/128 GB UFC",
+              "unit": null,
               "score": null,
-              "quote": "₹56,990.00",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Lenovo Ideapad Slim 3 Laptop",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 45999.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹45,999.00",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Acer AL15-53 UN.34ESI.02E Standard Laptop",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 56499.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹56,499.00",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Asus Vivobook 15 X1504MA-BQ424WS Standard Laptop",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 62990.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹62,990.00",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "HP 15s 15 FD0623TU Standard Laptop",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 60490.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹60,490.00",
+              "quote": "Snapdragon SM6475Q/8 GB/128 GB UFC/Qualcomm Adreno GPU",
               "polarity": "neutral"
             }
           ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "c86035553f22db4808901a0d5f6bb5612cf0a9717fb720e519e5798284f838e0",
+        "data_sha256": "00fccb3170ab9cb3f5db350572c0fc78bc9d5f71c5c4f99d7c3a4ecf045a6b1c",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "HyperX Omen 16 Valorant Edition",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Alienware 16X Aurora 2026",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus Chromebook CM32 Detachable",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP HyperX OMEN 15-ga0028TX",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP EliteBook X G2i 14",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus ExpertBook Ultra",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo IdeaPad Slim 3i Gen 11",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP Omnibook 5",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy Book 6 Ultra",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Dell XPS 14",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Razer Blade 18",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Neo",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus Zenbook Duo 2026",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Dell Pro 14 Premium PA14250",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Asus Zenbook 14",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": []
         }
       },
       {
@@ -1409,7 +1145,7 @@
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 67990.0,
-              "unit": "INR",
+              "unit": null,
               "score": null,
               "quote": "₹67,990",
               "polarity": "neutral"
@@ -1425,21 +1161,11 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Dell Inspiron 15 3530 (OIN353034011RINB1M) Laptop",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": "41 WHrs",
-              "unit": null,
-              "score": null,
-              "quote": "41 WHrs Battery Capacity",
-              "polarity": "neutral"
-            },
-            {
               "product_mention": "Apple MacBook Neo (MHFA4HN/A) Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 71890.0,
-              "unit": "INR",
+              "unit": null,
               "score": null,
               "quote": "₹71,890",
               "polarity": "neutral"
@@ -1455,21 +1181,11 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Apple MacBook Neo (MHFA4HN/A) Laptop",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": "16 Hrs",
-              "unit": null,
-              "score": null,
-              "quote": "16 Hrs Battery Life, Li-Ion",
-              "polarity": "neutral"
-            },
-            {
               "product_mention": "Apple Macbook Neo (A18 Pro/8 GB/256 GB SSD/MAC) Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 71890.0,
-              "unit": "INR",
+              "unit": null,
               "score": null,
               "quote": "₹71,890",
               "polarity": "neutral"
@@ -1485,23 +1201,43 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Apple Macbook Neo (A18 Pro/8 GB/256 GB SSD/MAC) Laptop",
+              "product_mention": "Dell Inspiron 15 3530 (OIN353034011RINS1M) Laptop",
               "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": "16 Hrs",
+              "criterion_key": "price_inr",
+              "value": 69490.0,
               "unit": null,
               "score": null,
-              "quote": "16 Hrs Battery Life, Li-Ion",
+              "quote": "₹69,490",
               "polarity": "neutral"
             },
             {
               "product_mention": "Dell Inspiron 15 3530 (OIN353034011RINS1M) Laptop",
               "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 69490.0,
-              "unit": "INR",
+              "criterion_key": "memory_and_storage",
+              "value": "8 GB DDR4 RAM, 512 GB SSD",
+              "unit": null,
               "score": null,
-              "quote": "₹69,490",
+              "quote": "8 GB DDR4 RAM, 512 GB SSD",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Dell Inspiron 15 3530 (OIN353034071RINS1M) Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 71990.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹71,990",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Dell Inspiron 15 3530 (OIN353034071RINS1M) Laptop",
+              "is_product_type": false,
+              "criterion_key": "memory_and_storage",
+              "value": "16 GB DDR4 RAM, 512 GB SSD",
+              "unit": null,
+              "score": null,
+              "quote": "16 GB DDR4 RAM, 512 GB SSD",
               "polarity": "neutral"
             }
           ]
@@ -1514,69 +1250,135 @@
         "reply": {
           "mentions": [
             {
-              "raw_name": "HP 15 250R G10 Laptop (Intel Core 3 100U/ 16GB/ 512GB SSD/ Win11)",
+              "raw_name": "HP 15 250R G10 Laptop",
               "is_product": true,
-              "brand": null,
+              "brand": "HP",
               "recommends": null
             },
             {
-              "raw_name": "Asus Vivobook 15 X1504VAP-BQ1543WS Laptop (Intel Core 5 120U/ 16GB/ 512GB SSD/ Win11)",
+              "raw_name": "Asus Vivobook 15 X1504VAP-BQ1543WS Laptop",
               "is_product": true,
-              "brand": null,
+              "brand": "Asus",
               "recommends": null
             },
             {
-              "raw_name": "Lenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop (11th Gen Core i3/ 8GB/ 512GB SSD/ Win11)",
+              "raw_name": "Lenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop",
               "is_product": true,
-              "brand": null,
+              "brand": "Lenovo",
               "recommends": null
             },
             {
-              "raw_name": "Asus CX9406 Googlebook Laptop (Intel Core Ultra 5 325/ 32GB/ ChromeOS)",
+              "raw_name": "Asus CX9406 Googlebook Laptop",
               "is_product": true,
-              "brand": null,
+              "brand": "Asus",
               "recommends": null
             },
             {
-              "raw_name": "Lenovo IdeaPad Slim 1 82R400BGIN Laptop (AMD Ryzen 5 5500U/ 8GB/ 512GB SSD/ Win11 Home)",
+              "raw_name": "Lenovo IdeaPad Slim 1 82R400BGIN Laptop",
               "is_product": true,
-              "brand": null,
+              "brand": "Lenovo",
               "recommends": null
             },
             {
-              "raw_name": "Lenovo IdeaPad Slim 3 82RK0085IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11)",
+              "raw_name": "Lenovo IdeaPad Slim 3 82RK0085IN Laptop",
               "is_product": true,
-              "brand": null,
+              "brand": "Lenovo",
               "recommends": null
             },
             {
-              "raw_name": "Lenovo Ideapad Slim 3i 81WQ00NXIN Laptop (Intel Celeron N4020/ 8GB/ 256GB SSD/ Win11)",
+              "raw_name": "Lenovo Ideapad Slim 3i 81WQ00NXIN Laptop",
               "is_product": true,
-              "brand": null,
+              "brand": "Lenovo",
               "recommends": null
             },
             {
-              "raw_name": "Acer Travel Lite TL14-42M 14 Laptop (AMD Ryzen 7 7730U/ 32GB/ 1TB SSD/ Win11)",
+              "raw_name": "Acer Travel Lite TL14-42M 14 Laptop",
               "is_product": true,
-              "brand": null,
+              "brand": "Acer",
               "recommends": null
             },
             {
-              "raw_name": "Acer Aspire Pro AP14-55 UN.37SSI.003 Laptop (Intel Core Ultra 5 125H/ 16GB/ 512GB SSD/ Win11 Home)",
+              "raw_name": "Acer Aspire Pro AP14-55 UN.37SSI.003 Laptop",
               "is_product": true,
-              "brand": null,
+              "brand": "Acer",
               "recommends": null
             },
             {
-              "raw_name": "Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home)",
+              "raw_name": "Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop",
               "is_product": true,
-              "brand": null,
+              "brand": "Lenovo",
+              "recommends": null
+            },
+            {
+              "raw_name": "Ultimus APEX Pro NU14U8INB43SN-CS Laptop",
+              "is_product": true,
+              "brand": "Ultimus",
+              "recommends": null
+            },
+            {
+              "raw_name": "Dell Pro 15 Essential Laptop",
+              "is_product": true,
+              "brand": "Dell",
+              "recommends": null
+            },
+            {
+              "raw_name": "Acer Aspire 5 A514-56M 2023 Gaming Laptop",
+              "is_product": true,
+              "brand": "Acer",
+              "recommends": null
+            },
+            {
+              "raw_name": "MSI Modern 15 B13M-289IN Laptop",
+              "is_product": true,
+              "brand": "MSI",
+              "recommends": null
+            },
+            {
+              "raw_name": "Honor MagicBook X14 Pro 2024 FRI-G56 Laptop",
+              "is_product": true,
+              "brand": "Honor",
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo V15 G4 83CQ0006IN Laptop",
+              "is_product": true,
+              "brand": "Lenovo",
+              "recommends": null
+            },
+            {
+              "raw_name": "Jio JioBook NB1112MM BLU 2023 Netbook Laptop",
+              "is_product": true,
+              "brand": "Jio",
+              "recommends": null
+            },
+            {
+              "raw_name": "HP 255R G10 2025 Laptop",
+              "is_product": true,
+              "brand": "HP",
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy Book 4 np750xgj-kg2in Laptop",
+              "is_product": true,
+              "brand": "Samsung",
+              "recommends": null
+            },
+            {
+              "raw_name": "Acer Aspire One A115-39 UN.38CSI.001 Laptop",
+              "is_product": true,
+              "brand": "Acer",
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo Yoga Slim 7x",
+              "is_product": true,
+              "brand": "Lenovo",
               "recommends": null
             }
           ],
           "claims": [
             {
-              "product_mention": "HP 15 250R G10 Laptop (Intel Core 3 100U/ 16GB/ 512GB SSD/ Win11)",
+              "product_mention": "HP 15 250R G10 Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 48600.0,
@@ -1586,7 +1388,7 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Asus Vivobook 15 X1504VAP-BQ1543WS Laptop (Intel Core 5 120U/ 16GB/ 512GB SSD/ Win11)",
+              "product_mention": "Asus Vivobook 15 X1504VAP-BQ1543WS Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 56140.0,
@@ -1596,7 +1398,7 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Lenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop (11th Gen Core i3/ 8GB/ 512GB SSD/ Win11)",
+              "product_mention": "Lenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 37890.0,
@@ -1606,7 +1408,7 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Asus CX9406 Googlebook Laptop (Intel Core Ultra 5 325/ 32GB/ ChromeOS)",
+              "product_mention": "Asus CX9406 Googlebook Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 34999.0,
@@ -1616,7 +1418,7 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Lenovo IdeaPad Slim 1 82R400BGIN Laptop (AMD Ryzen 5 5500U/ 8GB/ 512GB SSD/ Win11 Home)",
+              "product_mention": "Lenovo IdeaPad Slim 1 82R400BGIN Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 37990.0,
@@ -1626,7 +1428,7 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Lenovo IdeaPad Slim 3 82RK0085IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11)",
+              "product_mention": "Lenovo IdeaPad Slim 3 82RK0085IN Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 59499.0,
@@ -1636,7 +1438,7 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Lenovo Ideapad Slim 3i 81WQ00NXIN Laptop (Intel Celeron N4020/ 8GB/ 256GB SSD/ Win11)",
+              "product_mention": "Lenovo Ideapad Slim 3i 81WQ00NXIN Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 27990.0,
@@ -1646,7 +1448,7 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Acer Travel Lite TL14-42M 14 Laptop (AMD Ryzen 7 7730U/ 32GB/ 1TB SSD/ Win11)",
+              "product_mention": "Acer Travel Lite TL14-42M 14 Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 69990.0,
@@ -1656,7 +1458,7 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Acer Aspire Pro AP14-55 UN.37SSI.003 Laptop (Intel Core Ultra 5 125H/ 16GB/ 512GB SSD/ Win11 Home)",
+              "product_mention": "Acer Aspire Pro AP14-55 UN.37SSI.003 Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 69990.0,
@@ -1666,13 +1468,430 @@
               "polarity": "neutral"
             },
             {
-              "product_mention": "Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop (12th Gen Core i5/ 16GB/ 512GB SSD/ Win11 Home)",
+              "product_mention": "Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 64899.0,
               "unit": "INR",
               "score": null,
               "quote": "₹64,899",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "40875910a1fcfc39c90ae0dd01d7897020268730b1269475c594f68d243934ac",
+        "data_sha256": "3d9ddcf4099bd7f76c5ac495864a03f0e09346032a9d3a4726702c8c215214bc",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "HP ENVY x360 15-inch laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP SPECTRE x360 convertible laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP Stream 11-inch notebook",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP OMEN 15-inch gaming laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP Pavilion 15-inch gaming laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP Pavilion x360",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP ENVY 360",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP ZBook Studio mobile workstation",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP EliteBook laptops",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP ZBook 15 mobile workstation",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP ENVY 17-inch notebook",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": []
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "2e4fb853d71add643cecd439a33c484a014e4436f48d197af8d82c937bae8e79",
+        "data_sha256": "7ca7cb08fa7f7c9a232db550eadf7e02f75a06e3e9606209965ba27f54295862",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Dell XPS 13 (2026)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP OmniBook 3 14 (2025)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo ThinkPad X9 Aura Edition (2025)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Pro 16 (M5, 2026)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Air 13 (M5, 2026)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP OmniBook 5 16 (2026)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Neo (A18 Pro, 2026)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo ThinkPad X1 Carbon Gen 14 Aura Edition (2026)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP OMEN MAX 16 (2025)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Microsoft Surface Pro 13 12th Edition (2026)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Pro 14 (M5, 2025)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Microsoft Surface Laptop 8th Edition (2026)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Acer Swift Go 14 (2024)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo Legion Pro 7i Gen 10 16 (2026)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Dell XPS 14 (2026)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lenovo ThinkPad P1 Gen 7 (2024)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "ASUS Chromebook CX15 (2026)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Pro 14 (M4, 2024)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "ASUS Vivobook 16 M1605 (2023)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "ASUS TUF Gaming A16 Advantage Edition (2023)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Gaming",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Budget And Cheap",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "College",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Business",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Windows",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Chromebooks",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Video Editing",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Working From Home",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Photo Editing",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "2-In-1",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Music Production",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "HP",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Programming",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Dell",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": []
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "b0464a3db0b4891e8a165cbb6481a532926741a7406b9746e98de4916306720f",
+        "data_sha256": "0dacd4e46a225c23fbfea8e8510285d35b5ff881010f973d57564f73b111cdeb",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Apple MacBook Air (MDH84HN/A) Laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Air (MDHJ4HN/A) Laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Air (MDH94HN/A) Laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple MacBook Air (MDHA4HN/A) Laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Dell Inspiron 15 3530 (OIN353034011RINB1M) Laptop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Apple MacBook Air (MDH84HN/A) Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 172490.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹172,490",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Apple MacBook Air (MDH84HN/A) Laptop",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": "18 Hrs",
+              "unit": null,
+              "score": null,
+              "quote": "18 Hrs Battery Life",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Apple MacBook Air (MDH84HN/A) Laptop",
+              "is_product_type": false,
+              "criterion_key": "memory_and_storage",
+              "value": "16 GB Unified Memory RAM, 1 TB SSD",
+              "unit": null,
+              "score": null,
+              "quote": "16 GB Unified Memory RAM, 1 TB SSD",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Apple MacBook Air (MDHJ4HN/A) Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 167290.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹167,290",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Apple MacBook Air (MDH94HN/A) Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 195490.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹195,490",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Apple MacBook Air (MDH94HN/A) Laptop",
+              "is_product_type": false,
+              "criterion_key": "memory_and_storage",
+              "value": "24 GB Unified Memory RAM, 1 TB SSD",
+              "unit": null,
+              "score": null,
+              "quote": "24 GB Unified Memory RAM, 1 TB SSD",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Apple MacBook Air (MDHA4HN/A) Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 134240.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹134,240",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Dell Inspiron 15 3530 (OIN353034011RINB1M) Laptop",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 67990.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹67,990",
               "polarity": "neutral"
             }
           ]

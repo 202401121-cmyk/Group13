@@ -3,37 +3,32 @@
   "request": "air fryer for a family of four under 8000 rupees",
   "runs": 1,
   "budget": {
-    "groq": 12,
-    "gemini": 8,
+    "groq": 14,
+    "gemini": 10,
     "mistral": 4,
     "openrouter": 0,
     "cerebras": 0,
-    "serper": 7,
+    "serper": 0,
     "youtube": 0,
     "reddit": 0,
     "jina": 0,
-    "pages": 24
+    "pages": 0
   },
   "calls": {
-    "groq": 5,
-    "gemini": 7,
-    "mistral": 2,
-    "serper": 7,
-    "pages": 14
+    "groq": 2,
+    "gemini": 9,
+    "mistral": 2
   },
   "refused": {
-    "the jina budget of 0 is spent": 1,
-    "the serper budget of 7 is spent": 7
+    "the serper budget of 0 is spent": 9
   },
   "problems": [
-    "groq call failed: ConnectTimeout",
     "mistral call failed: ReadTimeout",
-    "groq call failed: ConnectTimeout",
-    "pages call answered 403",
-    "refused 1: the jina budget of 0 is spent",
-    "refused 7: the serper budget of 7 is spent"
+    "mistral call failed: ReadTimeout",
+    "gemini call failed: ReadTimeout",
+    "refused 9: the serper budget of 0 is spent"
   ],
-  "recorded_at": "2026-11-19T05:49:08+00:00",
+  "recorded_at": "2026-11-20T07:42:56+00:00",
   "recorded_by": "Harsh Kodavala",
   "expected_products": [
     "Kent Ultra 116181 4L Air Fryer",
@@ -72,5 +67,79 @@
     "Inalsa Aero Smart N Steam 15L Air Fryer Oven",
     "Inalsa Crisp Pro 24 L Air Fryer Oven"
   ],
-  "expected_note": "Expected products listed by hand by Harsh Kodavala, 20 Nov 2026"
+  "expected_note": "Expected products listed by hand by Harsh Kodavala, 20 Nov 2026",
+  "expected_pages": [
+    {
+      "title": "Air Fryers Under ₹7,000 | Smartprix",
+      "url": "https://www.smartprix.com/air_fryers/price-below_7000",
+      "products": [
+        "Kent Ultra 116181 4L Air Fryer",
+        "Lifelong LLHF421 4.5 L Air Fryer",
+        "Baltra Jwel BAF-202 6L Digital Air Fryer",
+        "Wonderchef Platinum Manual 4.5L Air Fryer",
+        "Philips Air Fryer NA130/00 6.2 L Air Fryer",
+        "Morphy Richards 510077 4.2L Digital Air Fryer",
+        "Kent New Ultra 4L Digital Air Fryer",
+        "iBELL AEROFRY300 3.2L Air Fryer",
+        "Kent Digital 116166 8L Air Fryer",
+        "Xiaomi MIJIA N1 5L Air Fryer",
+        "Longway Crisp Max 5L Air Fryer",
+        "Baltra Honour BAF-204 12L Air Fryer",
+        "Ultron Airoast 4.5M 4.5L Air Fryer",
+        "Lifelong LLHFD710 7L Air Fryer",
+        "Billion Bistro Lite 5L Air Fryer",
+        "Kenstar Aster Smart 4.5L Air Fryer",
+        "Italia IAF-4342 4.5L Air Fryer",
+        "Inalsa SteelChef DW5.5 5.5L Air Fryer",
+        "Kent Ultra Digital 4L Air Fryer",
+        "Havells Prolife Aero 4.2L Air Fryer",
+        "Philips NA120/00 4.2L Air Fryer",
+        "Longway True Cook 6L Digital Air Fryer"
+      ]
+    },
+    {
+      "title": "The 7 Best Air Fryers - Black Friday 2026",
+      "url": "https://www.rtings.com/air-fryer/reviews/best/air-fryers",
+      "products": []
+    },
+    {
+      "title": "The 7 Best Air Fryers - Black Friday 2026",
+      "url": "https://www.rtings.com/air-fryer/reviews/best/air-fryers",
+      "products": []
+    },
+    {
+      "title": "Philips NA154/00 Dual Basket Air Fryer Review (2026) | Price, Performance, Verdict - Smartprix",
+      "url": "https://www.smartprix.com/bytes/philips-just-made-the-air-fryer-youd-actually-want-on-your-counter/",
+      "products": [
+        "Philips NA154/00",
+        "Ninja Foodi Max Dual-Drawer"
+      ]
+    },
+    {
+      "title": "Prestige Air Fryers Between ₹5,000 and ₹10,000 | Smartprix",
+      "url": "https://www.smartprix.com/air_fryers/prestige-brand/price-5000_to_10000",
+      "products": [
+        "Prestige Crysta Chef 5.5L Air Fryer",
+        "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
+        "Prestige Crysta 4.5L Digital Air Fryer",
+        "Prestige PAF 4.0 2.2L Air Fryer",
+        "Prestige PAMF 1.0 2.2L Air Fryer",
+        "Prestige PAF 1.0 1 l Air fryer",
+        "Prestige PMAF 1.0 2.2 L Air Fryer",
+        "Prestige PAF 5.0 2.2L Air Fryer",
+        "Kent Ultra 116181 4L Air Fryer",
+        "Lifelong LLHF421 4.5 L Air Fryer",
+        "Longway True Cook 6L Digital Air Fryer",
+        "Wonderchef Platinum Manual 4.5L Air Fryer",
+        "Inalsa Aero Crisp 16 16L Air Fryer Oven",
+        "Inalsa Aero Smart N Steam 15L Air Fryer Oven",
+        "Inalsa Crisp Pro 24 L Air Fryer Oven"
+      ]
+    }
+  ],
+  "pages_recorded_at": "2026-11-19T05:49:08+00:00",
+  "pages_calls": {
+    "serper": 7,
+    "pages": 14
+  }
 }

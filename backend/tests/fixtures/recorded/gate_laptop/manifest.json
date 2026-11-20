@@ -3,38 +3,33 @@
   "request": "laptop for coding under 70000 rupees",
   "runs": 1,
   "budget": {
-    "groq": 12,
-    "gemini": 8,
+    "groq": 14,
+    "gemini": 10,
     "mistral": 4,
     "openrouter": 0,
     "cerebras": 0,
-    "serper": 7,
+    "serper": 0,
     "youtube": 0,
     "reddit": 0,
     "jina": 0,
-    "pages": 24
+    "pages": 0
   },
   "calls": {
-    "groq": 4,
-    "gemini": 8,
-    "mistral": 2,
-    "serper": 7,
-    "pages": 20
+    "groq": 1,
+    "gemini": 10,
+    "mistral": 2
   },
   "refused": {
-    "the jina budget of 0 is spent": 1,
-    "the gemini budget of 8 is spent": 1,
-    "the serper budget of 7 is spent": 7
+    "the serper budget of 0 is spent": 9
   },
   "problems": [
-    "groq call failed: ConnectTimeout",
-    "groq call failed: ReadTimeout",
+    "gemini call failed: ReadTimeout",
     "mistral call failed: ReadTimeout",
-    "refused 1: the jina budget of 0 is spent",
-    "refused 1: the gemini budget of 8 is spent",
-    "refused 7: the serper budget of 7 is spent"
+    "gemini call failed: ReadTimeout",
+    "gemini call failed: ReadTimeout",
+    "refused 9: the serper budget of 0 is spent"
   ],
-  "recorded_at": "2026-11-19T05:50:58+00:00",
+  "recorded_at": "2026-11-20T07:44:36+00:00",
   "recorded_by": "Harsh Kodavala",
   "expected_products": [
     "HP ENVY x360 15-inch laptop",
@@ -94,5 +89,109 @@
     "Dell Pro 14 Premium PA14250",
     "Asus Zenbook 14"
   ],
-  "expected_note": "Expected products listed by hand by Harsh Kodavala, 20 Nov 2026"
+  "expected_note": "Expected products listed by hand by Harsh Kodavala, 20 Nov 2026",
+  "expected_pages": [
+    {
+      "title": "Which Laptop is Right for Me? A Buyer's Guide",
+      "url": "https://www.hp.com/in-en/tech-takes/laptops/guide/which-laptop-is-right-for-me-buyers-guide.html",
+      "products": [
+        "HP ENVY x360 15-inch laptop",
+        "HP SPECTRE x360 convertible laptop",
+        "HP Stream 11-inch notebook",
+        "HP OMEN 15-inch gaming laptop",
+        "HP Pavilion 15-inch gaming laptop",
+        "HP Pavilion x360",
+        "HP ENVY 17-inch notebook",
+        "HP OMEN X 17-inch gaming laptop"
+      ]
+    },
+    {
+      "title": "Laptops Under Rs 70000 | Online Electronic Shopping Store in India - Reliance Digital | www.reliancedigital.in",
+      "url": "https://www.reliancedigital.in/collection/laptops-under-rs-70000",
+      "products": [
+        "Acer Aspire 3 A325-45 UN.344SI.013 Standard Laptop",
+        "Acer AL15-52H UN.347SI.01G Standard Laptop",
+        "Lenovo IdeaPad Slim3 83ER00KRIN Standard Laptop",
+        "JioBook 11",
+        "HP OmniPad 12 12-M0005QU Convertible Laptop",
+        "Asus VivoBook 15 X1504VAP-BQ1321WS Standard Laptop",
+        "Lenovo Ideapad Slim 3 Laptop",
+        "Acer AL15-53 UN.34ESI.02E Standard Laptop",
+        "Asus Vivobook 15 X1504MA-BQ424WS Standard Laptop",
+        "HP 15s 15 FD0623TU Standard Laptop",
+        "Asus Vivobook 16 X1605VA-MB1627WS Standard Laptop",
+        "Acer AL14-71P NX.D7USI.001 Standard Laptop"
+      ]
+    },
+    {
+      "title": "Amazon.in: Laptop buying guide: Computers & Accessories",
+      "url": "https://www.amazon.in/b?ie=UTF8&node=16092374031",
+      "products": []
+    },
+    {
+      "title": "Laptops Under Rs. 75000 In India (Updated on Nov 2026) | 91mobiles.com",
+      "url": "https://www.91mobiles.com/list-of-laptops/best-laptops-under-75000",
+      "products": [
+        "Dell Inspiron 15 3530",
+        "Apple MacBook Neo"
+      ]
+    },
+    {
+      "title": "Laptops Under 70000 Price List in India 2026 | Smartprix",
+      "url": "https://www.smartprix.com/laptops/price-below_70000",
+      "products": [
+        "HP 15 250R G10 Laptop",
+        "Asus Vivobook 15 X1504VAP-BQ1543WS Laptop",
+        "Lenovo Ideapad Slim 3 15ITL05 81X800N1IN Laptop",
+        "Asus CX9406 Googlebook Laptop",
+        "Lenovo IdeaPad Slim 1 82R400BGIN Laptop",
+        "Lenovo IdeaPad Slim 3 82RK0085IN Laptop",
+        "Lenovo Ideapad Slim 3i 81WQ00NXIN Laptop",
+        "Acer Travel Lite TL14-42M 14 Laptop",
+        "Acer Aspire Pro AP14-55 UN.37SSI.003 Laptop",
+        "Lenovo IdeaPad Slim 3 14IAH8 83EQ0074IN Laptop",
+        "Ultimus APEX Pro NU14U8INB43SN-CS Laptop",
+        "Dell Pro 15 Essential Laptop",
+        "Acer Aspire 5 A514-56M 2023 Gaming Laptop",
+        "MSI Modern 15 B13M-289IN Laptop",
+        "Honor MagicBook X14 Pro 2024 FRI-G56 Laptop",
+        "Lenovo V15 G4 83CQ0006IN Laptop",
+        "Jio JioBook NB1112MM BLU 2023 Netbook Laptop",
+        "HP 255R G10 2025 Laptop",
+        "Samsung Galaxy Book 4 np750xgj-kg2in Laptop",
+        "Acer Aspire One A115-39 UN.38CSI.001 Laptop"
+      ]
+    },
+    {
+      "title": "Laptops Reviews",
+      "url": "https://www.digit.in/reviews/laptops/",
+      "products": [
+        "HyperX Omen 16 Valorant Edition",
+        "Alienware 16X Aurora 2026",
+        "Asus Chromebook CM32 Detachable",
+        "HP HyperX OMEN 15-ga0028TX",
+        "HP EliteBook X G2i 14",
+        "Asus ExpertBook Ultra",
+        "Lenovo IdeaPad Slim 3i Gen 11",
+        "HP Omnibook 5",
+        "Samsung Galaxy Book 6 Ultra",
+        "Dell XPS 14",
+        "Razer Blade 18",
+        "Apple MacBook Neo",
+        "Asus Zenbook Duo 2026",
+        "Dell Pro 14 Premium PA14250",
+        "Asus Zenbook 14"
+      ]
+    },
+    {
+      "title": "The 8 Best Laptops - Black Friday 2026",
+      "url": "https://www.rtings.com/laptop/reviews/best/laptop",
+      "products": []
+    }
+  ],
+  "pages_recorded_at": "2026-11-19T05:50:58+00:00",
+  "pages_calls": {
+    "serper": 7,
+    "pages": 20
+  }
 }

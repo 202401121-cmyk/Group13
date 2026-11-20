@@ -247,8 +247,8 @@ def test_main_reports_its_time_and_fails_on_a_fall_from_main(
 ) -> None:
     baseline = json.loads(gate.GATE_OUT.read_text(encoding="utf-8"))
     for m in baseline["measures"]:
-        if m["id"] == "gate.expected_survival":
-            m["value"] = min(1.0, m["value"] + 0.2)
+        if m["id"] == "gate.claims_kept":
+            m["value"] = m["value"] * 2  # main kept twice the claims: today's count is far more than 10% below
     path = tmp_path / "main.json"
     path.write_text(json.dumps(baseline), encoding="utf-8")
     assert gate.main(["--baseline", str(path)]) == 1
@@ -276,3 +276,32 @@ def test_the_reply_the_live_client_accepted_wins_over_the_raw_ones(root: Path) -
     (folder / "pipeline.json").write_text(json.dumps(run), encoding="utf-8")
     (row,) = gate.measure(root)["recordings"].values()
     assert row["claims"] == 1  # the accepted reply's quote is on the page; the raw one's isn't, and would be dropped
+
+
+def test_a_name_without_its_brand_still_counts_but_never_a_shorter_model() -> None:
+    """Om, 20 Nov 2026: a page that writes "Galaxy Watch 8" names "Samsung Galaxy Watch 8"."""
+    assert gate.survives("Samsung Galaxy Watch 8", ["Galaxy Watch 8"])
+    assert not gate.survives("Samsung Galaxy S25 Ultra", ["Galaxy S25"])  # the Ultra is missing
+    assert not gate.survives("Vivo V80", ["V80"])  # a two-word name keeps its brand
+    assert not gate.survives("Samsung Galaxy Watch 8", ["Samsung Watch 8"])  # only the first word may go
+
+
+def test_only_products_of_answered_pages_are_expected() -> None:
+    """Om, 19 Nov 2026: a page whose live call got no answer has nothing to replay. Each product counts once."""
+    a, b = "https://made-up-reviews.example/a", "https://made-up-reviews.example/b"
+    manifest = {
+        "expected_products": ["Nova Phone 7", "Kite X2", "Opal Mini 3"],
+        "expected_pages": [
+            {"url": a, "products": ["Nova Phone 7", "Kite X2"]},
+            {"url": b, "products": ["Opal Mini 3", "nova phone 7"]},
+        ],
+    }
+    assert gate.expected_on_answered_pages(manifest, {a}) == (["Nova Phone 7", "Kite X2"], (2, 1))
+    assert gate.expected_on_answered_pages(manifest, {a, b}) == (["Nova Phone 7", "Kite X2", "Opal Mini 3"], (2, 2))
+    assert gate.expected_on_answered_pages({"expected_products": ["X"]}, {a}) == (["X"], (0, 0))
+
+
+def test_letters_and_digits_read_the_same_joined_or_apart() -> None:
+    assert gate.survives("vivo X Fold6", ["vivo X Fold 6"])
+    assert gate.survives("Philips NA154/00", ["Philips NA 154/00"])
+    assert not gate.survives("vivo X Fold6", ["vivo X Fold 7"])

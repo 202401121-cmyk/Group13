@@ -1,1 +1,1 @@
-- `gate_smartphone`: real replies to "phone with a good camera under 30000 rupees" (1 run; calls gemini: 7, groq: 6, mistral: 2, pages: 19, serper: 7). Recorded 2026-11-19 by Harsh Kodavala. Some calls failed or were refused: see manifest.json.
+- `gate_smartphone`: real replies to "phone with a good camera under 30000 rupees" (1 run; calls gemini: 10, groq: 2, mistral: 2). Recorded 2026-11-20 by Harsh Kodavala. Some calls failed or were refused: see manifest.json.

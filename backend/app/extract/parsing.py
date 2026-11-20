@@ -20,9 +20,9 @@ import re
 from collections import Counter
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from app.contracts import Claim, ClaimType, ExtractionResult, ProductMention, Source, SourceTier
 from app.decide.rules import PRICE_KEY
@@ -66,6 +66,17 @@ class RawClaim(_Strict):
 class RawExtraction(_Strict):
     mentions: list[RawMention] = Field(max_length=MAX_MENTIONS)
     claims: list[RawClaim] = Field(max_length=MAX_CLAIMS)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _bare_names(cls, data: Any) -> Any:
+        """A mention given as just a name is a product someone can buy (the prompt asks for names, US-49): about a
+        quarter of an object's tokens, so a list page's products all fit the answer. Anything else is left to the
+        strict fields, which refuse it as before."""
+        if isinstance(data, dict) and isinstance(data.get("mentions"), list):
+            mentions = [{"raw_name": m, "is_product": True} if isinstance(m, str) else m for m in data["mentions"]]
+            return {**data, "mentions": mentions}
+        return data
 
 
 def _plain(text: str) -> str:

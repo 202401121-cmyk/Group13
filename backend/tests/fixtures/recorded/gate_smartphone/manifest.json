@@ -3,42 +3,30 @@
   "request": "phone with a good camera under 30000 rupees",
   "runs": 1,
   "budget": {
-    "groq": 12,
-    "gemini": 8,
+    "groq": 14,
+    "gemini": 10,
     "mistral": 4,
     "openrouter": 0,
     "cerebras": 0,
-    "serper": 7,
+    "serper": 0,
     "youtube": 0,
     "reddit": 0,
     "jina": 0,
-    "pages": 24
+    "pages": 0
   },
   "calls": {
-    "groq": 6,
-    "gemini": 7,
-    "mistral": 2,
-    "serper": 7,
-    "pages": 19
+    "groq": 2,
+    "gemini": 10,
+    "mistral": 2
   },
   "refused": {
-    "the jina budget of 0 is spent": 1,
-    "the serper budget of 7 is spent": 7
+    "the serper budget of 0 is spent": 9
   },
   "problems": [
-    "groq call failed: ConnectTimeout",
-    "groq call failed: ConnectTimeout",
-    "groq call failed: ReadTimeout",
-    "gemini call failed: ReadTimeout",
-    "gemini call failed: ReadTimeout",
-    "gemini call failed: ReadTimeout",
-    "gemini call failed: ReadTimeout",
-    "gemini call failed: ReadTimeout",
-    "pages call answered 403",
-    "refused 1: the jina budget of 0 is spent",
-    "refused 7: the serper budget of 7 is spent"
+    "mistral call failed: ReadTimeout",
+    "refused 9: the serper budget of 0 is spent"
   ],
-  "recorded_at": "2026-11-19T05:47:11+00:00",
+  "recorded_at": "2026-11-20T07:41:15+00:00",
   "recorded_by": "Harsh Kodavala",
   "expected_products": [
     "Oppo Find X10 Pro Max",
@@ -79,5 +67,74 @@
     "Huawei Osta O1 Pro",
     "Xiaomi 18"
   ],
-  "expected_note": "Expected products listed by hand by Harsh Kodavala, 20 Nov 2026"
+  "expected_note": "Expected products listed by hand by Harsh Kodavala, 20 Nov 2026",
+  "expected_pages": [
+    {
+      "title": "Mobile Phones Reviews",
+      "url": "https://www.digit.in/reviews/mobile-phones/",
+      "products": [
+        "Oppo Find X10 Pro Max",
+        "Ai+ Nova 2 Power",
+        "Mivi One 5G",
+        "Vivo X Fold 6",
+        "Vivo V80",
+        "Redmi Note 17 Pro",
+        "Redmi 17 5G",
+        "Pixel 11 Pro Fold",
+        "Google Pixel 11",
+        "Redmi Note 17 Pro Max",
+        "Vivo S2",
+        "Samsung Galaxy S26 FE",
+        "Samsung Galaxy Z Flip 8",
+        "Samsung Galaxy Z Fold 8 Ultra",
+        "Samsung Galaxy Z Fold 8",
+        "iPhone Air 2",
+        "Oppo Reno 17 Pro",
+        "Oppo Reno 17"
+      ]
+    },
+    {
+      "title": "Best All-Rounder Phones Under ₹30,000 in India Right Now (August 2026) - Smartprix",
+      "url": "https://www.smartprix.com/bytes/best-all-rounder-phones-under-30000-august-2026/",
+      "products": [
+        "Motorola Edge 70 Fusion",
+        "Realme P4 Power",
+        "vivo T4 5G",
+        "Nothing Phone (3a)"
+      ]
+    },
+    {
+      "title": "GSMArena.com - mobile phone reviews, news, specifications and more...",
+      "url": "https://www.gsmarena.com/",
+      "products": [
+        "RedMagic 12 Pro",
+        "Oppo Find X10",
+        "vivo X500 Pro Max",
+        "Oppo Find X10 Pro Max",
+        "vivo X Fold6",
+        "Honor Magic V7",
+        "iPhone 20 Pro",
+        "iPhone 18",
+        "iPhone Air 2",
+        "vivo X Fold7",
+        "OnePlus Turbo 7 Pro",
+        "OnePlus 16",
+        "Motorola Edge 70 Neo",
+        "Samsung Galaxy A24",
+        "iQOO Z12 Lite",
+        "Huawei Osta O1 Pro",
+        "Xiaomi 18"
+      ]
+    },
+    {
+      "title": "Buy Smartphones Under 30000 Online at Best Price | Vijay Sales",
+      "url": "https://www.vijaysales.com/c/smartphones/price/buy-phones-under-30000",
+      "products": []
+    }
+  ],
+  "pages_recorded_at": "2026-11-19T05:47:11+00:00",
+  "pages_calls": {
+    "serper": 7,
+    "pages": 19
+  }
 }

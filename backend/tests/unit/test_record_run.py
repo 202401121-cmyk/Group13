@@ -1496,3 +1496,89 @@ def test_the_reply_the_client_accepted_for_an_extraction_prompt_is_kept() -> Non
     assert kept["reply"] == {"quote": "kept words"}
     assert kept == {"task": "extract_claims", **record_run.prompt_hashes(prompt), "reply": {"quote": "kept words"}}
     record_run.ACCEPTED.clear()
+
+
+def test_reextract_needs_recorded_pages(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    (tmp_path / "demo").mkdir()
+    sent: list[httpx.Request] = []
+    argv = ["a made-up request", "--name", "demo", "--by", "Test Person", "--reextract"]
+    assert main(argv, env=ENV, send=counted(sent), root=tmp_path) == 1
+    assert sent == [] and "no pipeline.json" in capsys.readouterr().out
+
+
+def test_reextract_keeps_the_pages_and_their_calls(tmp_path: Path) -> None:
+    """US-49: the pages a hand-written list was made from stay exactly as recorded; only the LLM rows are new."""
+    folder = tmp_path / "demo"
+    folder.mkdir()
+    (folder / "serper.json").write_text('[{"made": "up search row"}]\n', encoding="utf-8")
+    (folder / "pages.json").write_text('[{"made": "up page row"}]\n', encoding="utf-8")
+    (folder / "manifest.json").write_text(
+        json.dumps(
+            {
+                "recorded_at": "2026-11-19T05:45:02+00:00",
+                "calls": {"serper": 7, "pages": 19, "groq": 6},
+                "expected_products": ["Nova Phone 7"],
+                "expected_note": "listed by hand",
+            }
+        ),
+        encoding="utf-8",
+    )
+    page = _source(REVIEW_PAGE)
+    (folder / "pipeline.json").write_text(json.dumps([{"run": 1, "sources": [page]}]), encoding="utf-8")
+
+    def runner(query: str) -> None:
+        ask_llm(query)
+        record_run.PIPELINE_RUNS.append({"rubric": {}, "sources": [page], "shown": [], "filtered_out": [],
+                                         "cant_tell": [], "citations": 0})  # fmt: skip
+
+    with patch.object(record_run, "reextract_runner", lambda _folder: runner):
+        assert run(tmp_path, "--reextract") == 0
+    assert (folder / "serper.json").read_text(encoding="utf-8") == '[{"made": "up search row"}]\n'
+    assert (folder / "pages.json").read_text(encoding="utf-8") == '[{"made": "up page row"}]\n'
+    manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["pages_recorded_at"] == "2026-11-19T05:45:02+00:00"
+    assert manifest["pages_calls"] == {"serper": 7, "pages": 19}
+    assert manifest["expected_products"] == ["Nova Phone 7"]  # the hand-written list stays
+    assert len(calls(tmp_path)) == 1  # the new LLM row
+
+
+def test_a_reextraction_that_changes_the_pages_writes_nothing(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The hand-written expected list was made from these very pages: a re-extraction may never swap one."""
+    folder = tmp_path / "demo"
+    folder.mkdir()
+    (folder / "manifest.json").write_text(json.dumps({"recorded_at": "2026-11-19T05:45:02+00:00"}), encoding="utf-8")
+    (folder / "pipeline.json").write_text(json.dumps([{"run": 1, "sources": [_source(REVIEW_PAGE)]}]), encoding="utf-8")
+
+    def runner(query: str) -> None:
+        ask_llm(query)
+        other = _source("https://www.91mobiles.com/a-different-made-up-page")
+        record_run.PIPELINE_RUNS.append({"rubric": {}, "sources": [other], "shown": [], "filtered_out": [],
+                                         "cant_tell": [], "citations": 0})  # fmt: skip
+
+    before = (folder / "pipeline.json").read_text(encoding="utf-8")
+    with patch.object(record_run, "reextract_runner", lambda _folder: runner):
+        assert run(tmp_path, "--reextract") == 1
+    assert "differ from the recording's pages" in capsys.readouterr().out
+    assert (folder / "pipeline.json").read_text(encoding="utf-8") == before
+
+
+def test_a_reextraction_never_replaces_the_recorded_search_rows(tmp_path: Path) -> None:
+    folder = tmp_path / "demo"
+    folder.mkdir()
+    (folder / "serper.json").write_text('[{"made": "up search row"}]\n', encoding="utf-8")
+    (folder / "manifest.json").write_text(json.dumps({"recorded_at": "2026-11-19T05:45:02+00:00"}), encoding="utf-8")
+    page = _source(REVIEW_PAGE)
+    (folder / "pipeline.json").write_text(json.dumps([{"run": 1, "sources": [page]}]), encoding="utf-8")
+
+    def runner(query: str) -> None:
+        ask_llm(query)
+        with contextlib.suppress(httpx.TransportError), shared_client() as http:
+            http.post("https://google.serper.dev/shopping", json={"q": "x"})  # refused: serper is 0
+        record_run.PIPELINE_RUNS.append({"rubric": {}, "sources": [page], "shown": [], "filtered_out": [],
+                                         "cant_tell": [], "citations": 0})  # fmt: skip
+
+    with patch.object(record_run, "reextract_runner", lambda _folder: runner):
+        assert run(tmp_path, "--reextract", "--keep-failures") == 0
+    assert (folder / "serper.json").read_text(encoding="utf-8") == '[{"made": "up search row"}]\n'
