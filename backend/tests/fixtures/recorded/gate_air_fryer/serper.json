@@ -1,0 +1,894 @@
+[
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "best air fryer under 8000 rupees India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "23",
+      "x-ratelimit-reset": "1795067255"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "best air fryer under 8000 rupees India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Buy Air Fryer Online at Best Price in India with Up to 70% OFF",
+          "link": "https://www.amazon.in/Air-Fryers/b?ie=UTF8&node=26953501031",
+          "displayedLink": "https://www.amazon.in › Air-Fryers › b",
+          "snippet": "Philips Smartchoice OneChef 6L Smart All in One Device, 100% Food Safe | 33-in-1 Functions: Air Fryer, Stir Fry, Steam, Boil, Curry & More. AmbiHeat Technology ...",
+          "position": 1
+        },
+        {
+          "title": "Buy Air Fryers Online at Best Prices in India",
+          "link": "https://www.flipkart.com/air-fryers/pr?sid=j9e,m38,j1e",
+          "displayedLink": "https://www.flipkart.com › air-fryers › pr",
+          "snippet": "Air Fryer online at best prices on Flipkart. Compare top models, read ratings & reviews and get fast delivery. Philips, Pigeon, Havells, Prestige, KENT, and ...",
+          "position": 2
+        },
+        {
+          "title": "Best Air Fryer 2026 India | Under 5000 - 10000",
+          "link": "https://www.youtube.com/watch?v=YmQsPu7Ji9k",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Best Air Fryer 2026 in India | Philips vs Inalsa vs Pigeon vs Faber vs Solara. I have personally bought and tested 5 top #1 – Inalsa Air Fryer ...",
+          "position": 3
+        },
+        {
+          "title": "Best Air Fryers Online",
+          "link": "https://apnidukaan.com/collections/air-fryers?srsltid=AYCX9vLMUoRagW6b1dw1Vi1uYWXwi1sm8bvQGOOBaaKaU7aAe_atLGsA",
+          "displayedLink": "https://apnidukaan.com › collections › air-fryers",
+          "snippet": "Apnidukaan.com for the best Air Fryers in India. Brands like Philips, Glen, and Prestige with many more at the best prices with fair deals,",
+          "position": 4
+        },
+        {
+          "title": "Best Air Fryer in India",
+          "link": "https://www.youtube.com/watch?v=yNE3B-vleTU",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Philips OneChef 6L Air Fryer: Ninja MAX PRO 6.2L Air Fryer: American Micronic 6.5L Air Fryer:",
+          "position": 5
+        },
+        {
+          "title": "Top 10 Air Fryer in India 2026 | Price, Delivery & Warranty",
+          "link": "https://smarketonline.in/top-10-air-fryer-in-india/",
+          "displayedLink": "https://smarketonline.in › top-10-air-fryer-in-india",
+          "snippet": "1. Joyonn JOAFARRO12W. Price: Approximately ₹3,183–₹4,000. · 2. Philips HD9252/90. Price: roughly ₹7,300 to ₹14,000. · 3. Instant Vortex Plus ...",
+          "date": "17 Jul 2026",
+          "position": 6
+        },
+        {
+          "title": "Air Fryers Under ₹7000",
+          "link": "https://www.smartprix.com/air_fryers/price-below_7000",
+          "displayedLink": "https://www.smartprix.com › air_fryers › price-below_7000",
+          "snippet": "Top 3 Air Fryers Under ₹7,000 are as follows: Kent Ultra 116181 4L Air Fryer: Philips NA120/00 4.2L. LLHF421 4.5 L Air Fryer: Available From Kent Ultra 116181 ...",
+          "position": 7
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "snippet": "[reddit text not stored]",
+          "position": 8
+        },
+        {
+          "title": "Air Fryer Complete Guide for Indian Cooking: Uses, Tips & Best Brands",
+          "link": "https://www.hassanchef.com/2026/04/best-air-fryer-india.html",
+          "displayedLink": "https://www.hassanchef.com › 2026 › 04 › best-air-fryer-india.html",
+          "snippet": "India mein best air fryer kaunsa hai? Overall best: Philips NA120/00 (₹4,672) — Amazon's Choice, 6,900+ reviews. Budget pick: INALSA NutriFry 3.5L (₹2,999) ...",
+          "position": 9
+        },
+        {
+          "title": "Best Air Fryer 2026 in India",
+          "link": "https://www.youtube.com/watch?v=42JQwwe3m7U",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "SOLARA Steel Air Fryer Oven Tested No Teflon or PFAS?? | Best Under ₹8,000? Manu Raina TRUSTED•81K views · 11:14 · Go to channel VeggieVibe ...",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2089
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "air fryer review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "1795067255"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "air fryer review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "The 7 Best Air Fryers - Black Friday 2026",
+          "link": "https://www.rtings.com/air-fryer/reviews/best/air-fryers",
+          "displayedLink": "https://www.rtings.com › Air Fryer › Best",
+          "snippet": "For most people, the best air fryer we&#39;ve tested is the COSORI TurboBlaze. cooked, crispy, golden-brown food fast, quickly and evenly it ...",
+          "date": "Oct 22, 2026",
+          "position": 1
+        },
+        {
+          "title": "The 7 Best Large-Capacity Air Fryers - Black Friday 2026",
+          "link": "https://www.rtings.com/air-fryer/reviews/best/large",
+          "displayedLink": "https://www.rtings.com › Air Fryer › Best",
+          "snippet": "The best large air fryer we've tested is the Ninja DualZone Pro DZ950, a 10-quart, dual-basket model with helpful features that make cooking ...",
+          "date": "Oct 22, 2026",
+          "position": 2
+        },
+        {
+          "title": "Philips NA154/00 Dual Basket Air Fryer Review (2026)",
+          "link": "https://www.smartprix.com/bytes/philips-just-made-the-air-fryer-youd-actually-want-on-your-counter/",
+          "displayedLink": "https://www.smartprix.com › News › Reviews",
+          "snippet": "The Philips NA154/00 is a 7.1-liter dual basket air fryer priced at ₹13,990 to ₹15,000 in India. It stands out on the counter, cooks a ...",
+          "date": "Nov 3, 2026",
+          "position": 3
+        },
+        {
+          "title": "Best air fryers under 10000 in India: 5 options your kitchen will ...",
+          "link": "https://www.google.com/goto?url=CAESugEBxCJF16bwUoUq9Q4xzK9Xp0qB5fyi0-KAyeCWYuBDO8uH8aKkR2N4c2pQcSdh8Jvq2CKV-yprwR7JrUaUpjYtC9WuDcTUcA99EStQ4QaCDEiY5yVVrjU-Hx1WJidW17-B9s3Ci49euEhADZPo6nrk-bvA6SEx9_pT7I3eK22SUK2-FGUtOko0XU1Aihkb5pAuZJ2nLaqwL3Cd3PzxXda0lNveeCVpRna3WZV7EkjFOGokjW3a6nSI6mM&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+          "displayedLink": "https://www.digit.in › Feature Story › Home Appliances",
+          "snippet": "Air fryers can handle much more than fries and frozen snacks. 1400–1800W is generally plenty. Safety: Auto shut-off, overheat protection and a ...",
+          "date": "Oct 19, 2026",
+          "position": 4
+        },
+        {
+          "title": "Wonderchef Greenlife Air Fryer Review: Veg-only presets with ...",
+          "link": "https://www.google.com/goto?url=CAEStgEBxCJF1-M8nUCa2BKgNGfIQdIuCohYND2oTslkjWvQPu5AKhkIKbTAao5JIzZ66qfk19fglkmSJRfkAHGqI1jev1wV_f3p6UGAFGUZPJmctGvYtTKTUswerTu3iu5HSwha41LW3Bk6_-4G2gWhoQOoyJDhPGv_QauvOhx3AnzhUfG9EjTEoO1O79QUCo1EoPoS638HUuNv2mqhh52dF8gHf1Hj5iEHzYUsTpvh_K8wY1dHBp999A&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+          "displayedLink": "https://www.digit.in › Reviews › Home Appliances",
+          "snippet": "Wonderchef's solution is the Greenlife 6.5L, which it claims to be the first air fryer in India with only pre-set menus for vegetarian dishes.",
+          "date": "3 days ago",
+          "position": 5
+        },
+        {
+          "title": "Why have air fryers become so popular in India? - Digit",
+          "link": "https://www.google.com/goto?url=CAESngEBxCJF1yrglMFjhVDDOiII1PKuMOqzmuMSSrQRTtFF5Jggt_TRYQM7tT3kYmSYYMv2fNYXMjqAu_qNz1pRdw9ZFIjl15MyEI4rIwqYXAPYUBIoVIiQVZb2uaZDoRMsRF7Qki-E7k3jgvXBu-TN8CvEwONmBcUgGGiYLQwwBN_bKMRMVn6aLQbK4PJ8_-wb8cW-sWf3Z15dO7v9SDBhOw&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+          "displayedLink": "https://www.digit.in › Feature Story › Home Appliances",
+          "snippet": "Using less oil makes air fryers appealing to health-conscious everyday cooks. An air fryer gives you a way to get a similar crispy texture ...",
+          "date": "Aug 24, 2026",
+          "position": 6
+        },
+        {
+          "title": "Video: Review: Philips Air Fryer",
+          "link": "https://www.google.com/goto?url=CAESfgHEIkXXlLq3xJjiNcYXIn1f33B51RihhUbaKlrNvAD8u3E0rDq8eHWToYaP_u-tVkbWQws0ho0yhSc_r8QLmXNSJbE0Qun6ynRxbRuo1OjnkhXWPFPaXho_pEk6yOj2rfDnWIGxpRWkocp8B8un8_Mm17Sb4KbjTJBkm0Slvg&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+          "displayedLink": "https://www.gadgets360.com › Videos",
+          "snippet": "Philips Air fryer claims to cook fried food in 80 percent less oil. it works as per its claims. Starts from ₹40,999",
+          "date": "Jun 9, 2012",
+          "position": 7
+        },
+        {
+          "title": "Breville the Joule Oven Air Fryer Pro Review",
+          "link": "https://www.google.com/goto?url=CAESiwEBxCJF1-v48dSWlxYC_yyHxUZnYzdXewDqOvTupROk3ZL0LXF80L3v3WUdfIjCJE0nXfTI8J4EJhMrvom9dEMIVi1m9QudmjUhuyLbdMEqgWT6dDNx8FCqNwCzvbL7OM2trkXl7HWWjXRuow34Ndv3uQe7WrkzofGb5I3cDYTVTmkmqcF1hwC93v5J&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+          "displayedLink": "https://www.rtings.com › Air Fryer › Reviews",
+          "snippet": "Makes decent-quality fried food. Lots of cooking surface area to spread food out. Provides excellent versatility. ... Preheats and cooks slowly.",
+          "date": "Nov 21, 2025",
+          "position": 8
+        },
+        {
+          "title": "New AGARO Air Fryer Price List in India October 2026 | Digit.in",
+          "link": "https://www.google.com/goto?url=CAESYgHEIkXXsGOQS-bCgGugfYYWMs6Vq_ZraUmsmLtEOn7CpgKTZXz6SIeJrN_DisxC37FzL5VMArnnQHQ66CuhN6E1rUBviaaubtALHPaGm8qOb_spa-Z9hwkRPz67W0cS8p9Y&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+          "displayedLink": "https://www.digit.in › agaro-air-fryer",
+          "snippet": "Price list of latest AGARO Air Fryer in India October 2026. Check out new AGARO Air Fryer model specs and compare prices on different online stores before ...",
+          "position": 9
+        },
+        {
+          "title": "How healthy is an air fryer? What you should know before ...",
+          "link": "https://www.google.com/goto?url=CAESsgEBxCJF1zurX7Hh0fF2ewOLV3HxInXi86uY30i_S8F1dnpo7rqa6DZqpPRl-mhG0cqKi_iNhz_dwlRnrgYmZUPvu3Q7xMDQA9byxYpKLwt6Hg5h6lcALU2tuCzYgCZS2tMHriv6hPRyf7mWf_z7mPqj8RvAFzh81zdz_Ib8yv1fF-fxmfdvpl82yFn5eVzUnalNamORom8l8cmrVC96OdXVEkCq43ySucFpzfGzAxD1giv7&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+          "displayedLink": "https://www.digit.in › Feature Story › Home Appliances",
+          "snippet": "The biggest advantage is that an air fryer can give you a crispy result while using considerably less added oil. That can mean less fat and ...",
+          "date": "Aug 25, 2026",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2100
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "air fryer buying guide India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "22",
+      "x-ratelimit-reset": "1795067255"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "air fryer buying guide India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Air Fryer Buying Guide 2026: How to Choose the Right One for Your Kitchen",
+          "link": "https://www.reliancedigital.in/c/resource-center/hs/buying-guide-how-to-choose-an-air-fryer",
+          "displayedLink": "https://www.reliancedigital.in › c › ... › buying-guide-how-to-choose-...",
+          "snippet": "Air fryers in India typically range between 1200W and 1800W. Higher wattage generally means faster cooking, which is ideal for busy kitchens.",
+          "date": "23 Jun 2026",
+          "position": 1
+        },
+        {
+          "title": "Air Fryer Buying Guide: How to Choose the Right One",
+          "link": "https://www.domesticappliances.philips.co.in/blogs/blog/air-fryer-buying-guide-how-to-choose-the-right-one?srsltid=AYCX9vIMq5XmKLek1R1YC5HOIl2e3qXQdwFCggZZ-2_TEqo6ZABXFA0X",
+          "displayedLink": "https://www.domesticappliances.philips.co.in › blogs › blog › air-fryer-buying-guide-how-...",
+          "snippet": "Find the best air fryer with this easy guide. Explore key features, sizes, and tips to select the perfect model for healthy and hassle-free cooking.",
+          "position": 2
+        },
+        {
+          "title": "Air Fryer Complete Guide for Indian Cooking: Uses, Tips & Best Brands",
+          "link": "https://www.hassanchef.com/2026/04/best-air-fryer-india.html",
+          "displayedLink": "https://www.hassanchef.com › 2026 › 04 › best-air-fryer-india.html",
+          "snippet": "Best air fryer in India 2026: Chef-tested picks for every budget. Philips, Ninja, Nutricook, Pigeon compare karo. Family size guide, buying tips & FAQ.",
+          "position": 3
+        },
+        {
+          "title": "Air Fryer Buying Guide: Everything You Need to Know",
+          "link": "https://www.crompton.co.in/blogs/kitchen-appliances-guide/air-fryer-buying-guide-here-s-all-you-need-to-know",
+          "displayedLink": "https://www.crompton.co.in › blogs › kitchen-appliances-guide › air-fryer-buying-guide-here...",
+          "snippet": "Air Fryer Buying Guide: Learn how air fryers work, their health benefits, and the variety of foods they can cook. Check out 4 Things To Consider While ...",
+          "position": 4
+        },
+        {
+          "title": "Air Fryer Exposed: Buying Guide, Science & Limits for Indian Homes",
+          "link": "https://www.facebook.com/anshuman.kaushal/videos/thinking-of-buying-an-air-fryer-read-this-before-spending-your-moneyan-air-fryer/1766320884530866/",
+          "displayedLink": "https://www.facebook.com › anshuman.kaushal › ... › 1766320884530866",
+          "position": 5
+        },
+        {
+          "title": "Top 10 Best Air Fryer Buying Guide || best tech in telugu",
+          "link": "https://www.youtube.com/watch?v=d1rA_FywbR4",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Best air fryers in India · Top 10 air fryers · Air fryer buying guide · Best air fryer for home use · Best air fryer for family · Budget vs premium ...",
+          "position": 6
+        },
+        {
+          "title": "Air Fryer Buying Guide: How to Choose the Right One - Boss India",
+          "link": "https://bossindia.com/blogs-air-fryer-buying-guide-india/?srsltid=AYCX9vJ9tvMwjvYXfdr5c4b5o5MDxW2iRCHI-JiRkl9q7mdehiQBYCHX",
+          "displayedLink": "https://bossindia.com › blogs-air-fryer-buying-guid...",
+          "snippet": "Ready to buy an air fryer online? Learn how to choose the right capacity, functions, and wattage for Indian cooking in this practical buying guide.",
+          "position": 7
+        },
+        {
+          "title": "How to Compare Air Fryer Brands Before Buying",
+          "link": "https://glenindia.com/blogs/news/air-fryer-buying-guide?srsltid=AYCX9vLL8w4aRfFKwDTgbdyolg5JcQ270-KHGDV-YweJH36zabl0Au41",
+          "displayedLink": "https://glenindia.com › blogs › news › air-fryer-buying-guide",
+          "snippet": "Any air fryer comparison Indian buyers can trust starts with the same six figures for every model, taken from the specification table rather ...",
+          "date": "10 Nov 2026",
+          "position": 8
+        },
+        {
+          "title": "Air Fryer Buying Guide: Everything You Need to Know",
+          "link": "https://home.hafeleindia.com/blogs/home-appliances/air-fryer-buying-guide-everything-you-need-to-know",
+          "displayedLink": "https://home.hafeleindia.com › blogs › home-appliances › air-fryer-buying-guide-ever...",
+          "snippet": "Compare the key factors to consider when buying an air fryer, including capacity, power, cooking functions, features and ease of use.",
+          "date": "25 Aug 2026",
+          "position": 9
+        },
+        {
+          "title": "Air fryer buying guide – Everything You Must Know Before Buying",
+          "link": "https://www.navinmart.com/blogs/news/air-fryer-guide-everything-you-must-know-before-buying?srsltid=AYCX9vIIW6m6Dvj5EitA0wWID6cbmR_QX8E28UJXGuA00yypeiqLTmg3",
+          "displayedLink": "https://www.navinmart.com › blogs › news › air-fryer-guide-everything-...",
+          "snippet": "Air fryer buying guide to help you choose the right model. Learn about capacity, features, cooking performance, energy use, cleaning, ...",
+          "date": "9 Feb 2026",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2070
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "air fryer recommendations",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "21",
+      "x-ratelimit-reset": "1795067255"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "air fryer recommendations",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "snippet": "[reddit text not stored]",
+          "sitelinks": [
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            },
+            {
+              "title": "[reddit text not stored]",
+              "link": "https://www.reddit.com/[reddit link not stored]"
+            }
+          ],
+          "position": 1
+        },
+        {
+          "title": "The Best Air Fryers for Crispy Fries, Wings, and Easy Weeknight Meals",
+          "link": "https://www.seriouseats.com/best-air-fryer-6824732",
+          "displayedLink": "https://www.seriouseats.com › best-air-fryer-6824732",
+          "position": 2
+        },
+        {
+          "title": "Air Fryer Complete Guide for Indian Cooking: Uses, Tips & Best Brands",
+          "link": "https://www.hassanchef.com/2026/04/best-air-fryer-india.html",
+          "displayedLink": "https://www.hassanchef.com › 2026 › 04 › best-air-fryer-india.html",
+          "snippet": "Overall best: Philips NA120/00 (₹4,672) — Amazon's Choice, 6,900+ reviews. Budget pick: INALSA NutriFry 3.5L (₹2,999). Large family: Nutricook 7.6L Slim XL (₹7 ...",
+          "position": 3
+        },
+        {
+          "title": "Best Air Fryer in India",
+          "link": "https://www.youtube.com/watch?v=yNE3B-vleTU",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "An Air Fryer is in demand because it reduces the need for oil in frying, making cooking healthier. Whether you use an Air Fryer for a tasty ...",
+          "position": 4
+        },
+        {
+          "title": "The 7 Best Air Fryers - Black Friday 2026",
+          "link": "https://www.rtings.com/air-fryer/reviews/best/air-fryers",
+          "displayedLink": "https://www.rtings.com › air-fryer › ... › air-fryers",
+          "position": 5
+        },
+        {
+          "title": "Buy Air Fryer Online at Best Price in India with Up to 70% OFF",
+          "link": "https://www.amazon.in/Air-Fryers/b?ie=UTF8&node=26953501031",
+          "displayedLink": "https://www.amazon.in › Air-Fryers › b",
+          "snippet": "Shop Air Fryer from brands like PHILIPS, AGARO, KENT, Morphy Richards. Recommended for you Pigeon Healthifry Digital Air Fryer, 360° High Speed Air Circulation ...",
+          "position": 6
+        },
+        {
+          "title": "After Testing 26 Air Fryers, These Are the 6 Best for Faster, Crispier Cooking",
+          "link": "https://www.bonappetit.com/story/best-air-fryers-reviewed?srsltid=AYCX9vKittw9OWqc00uTMy9adJtYvx4teb_HdMWEK6t3UNVm7fvQ7_yx",
+          "displayedLink": "https://www.bonappetit.com › story › best-air-fryers-reviewed",
+          "snippet": "Our top picks Best air fryer overall: Cosori Turboblaze 6.0-Quart Smart Air Fryer Best small air fryer: Cosori Lite 2.1-Quart Mini Air Fryer",
+          "position": 7
+        },
+        {
+          "title": "Best Air Fryer 2026 | Philips vs Inalsa vs Agaro vs Kent vs Nutricook vs NUUK",
+          "link": "https://www.youtube.com/watch?v=HIKrjlYSeR4",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Philips NA120/00 · KENT Classic Hot Air Fryer · KENT Digi Plus Air Fryer · Cookwell Air Fryer · INALSA Tasty Fry Digital · AGARO Galaxy Digital Air ...",
+          "position": 8
+        },
+        {
+          "title": "5 Best Air Fryers for 2026 (Tested and Reviewed)",
+          "link": "https://www.thekitchn.com/air-fryer-review-261972",
+          "displayedLink": "https://www.thekitchn.com › air-fryer-review-261972",
+          "snippet": "Pros. No need to heat up a large oven; Food is crisped evenly; Uses less oil than deep-frying; Less cleanup than deep-frying ...",
+          "date": "21 Oct 2026",
+          "position": 9
+        },
+        {
+          "title": "14 best air fryers of 2026, tested and rated by our reviews experts",
+          "link": "https://www.bbcgoodfood.com/review/best-air-fryers",
+          "displayedLink": "https://www.bbcgoodfood.com › review › best-air-fryers",
+          "snippet": "Best of the rest. Best air fryer for large kitchens: Our Place Wonder Oven Pro, £295; Best air fryer for pizza: Cuisinart 8.5L ClearView 8 ...",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2828
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "air fryer under 8000 rupees review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "20",
+      "x-ratelimit-reset": "1795067255"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "air fryer under 8000 rupees review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Prestige Air Fryers Between ₹5000 and ₹10000 | Smartprix",
+          "link": "https://www.smartprix.com/air_fryers/prestige-brand/price-5000_to_10000",
+          "displayedLink": "https://www.smartprix.com › price-5000_to_10000",
+          "snippet": "This list contains 8 Prestige Air Fryers Between ₹5,000 and ₹10,000 in India. Prestige Crysta Chef 5.5L Air Fryer: Easy to clean grill and basket",
+          "position": 1
+        },
+        {
+          "title": "Video: Review: Philips Air Fryer",
+          "link": "https://www.gadgets360.com/videos/review-philips-air-fryer-235430",
+          "displayedLink": "https://www.gadgets360.com › Videos",
+          "snippet": "Philips Air fryer claims to cook fried food in 80 percent less oil. We tried making French fries, eggplant with tomato sauce and chicken ...",
+          "date": "Jun 9, 2012",
+          "position": 2
+        },
+        {
+          "title": "Air Fryers Under ₹7000",
+          "link": "https://www.smartprix.com/air_fryers/price-below_7000",
+          "displayedLink": "https://www.smartprix.com › price-below_7000",
+          "snippet": "This list contains 545 Air Fryers Under ₹7,000 in India. Top 3 Air Fryers Under ₹7,000 are as follows: Kent Ultra 116181 4L Air Fryer: Available From Kent ...",
+          "position": 3
+        },
+        {
+          "title": "Xiaomi to launch Air Fryer in India soon: Might retail for Rs. ...",
+          "link": "https://www.google.com/goto?url=CAESnwEBxCJF1_U5Y3N5emVbCmGPSV2_-psQXO_pVy_8GvM9oRDtXhUDFDQBmE7LMGXWzJgZaamRA14xWvjCVVJYugVWZRfhqc_APLveGc6d25GxxRNSCEWUgNBzkH7adBTshQ2Hiv92Rg3F7zfueA96VoxhBmCCTRPq12Txx1ApGAEmaXKojChs9fUik8a3HbjP6ndRAsaGdAdU88EOQoe00EM&gsessionid=G1XpNNBmG11pXXe9Laz91gPsBC1ySeXYdok06v10v4WuztZvQ8N40Q",
+          "displayedLink": "https://www.smartprix.com › News › News",
+          "snippet": "The Air Fryer will retail for around 8k in the Indian market because it is priced at 99 EUR (Rs. 7945) at the global level. Xiaomi Air Fryer: ...",
+          "date": "Aug 3, 2022",
+          "position": 4
+        },
+        {
+          "title": "Best Rated Air Fryers",
+          "link": "https://www.google.com/goto?url=CAESdwHEIkXXeR9WvbKTuRh0T-D7bDSqLMedzSrkFH2LN9Z1ViAyqiELCo9ry8PTEsd2oXYD2rhxaiIgeaSd_baxb46hGRE3r5MqBYRHiR597JY5pkHqf-epRsA2E9S4fyPH_aBdpRDp2XR2aXON0IS5vr2i1tbMMVhg&gsessionid=G1XpNNBmG11pXXe9Laz91gPsBC1ySeXYdok06v10v4WuztZvQ8N40Q",
+          "displayedLink": "https://www.smartprix.com › air_fryers › best-rated-air...",
+          "snippet": "This list contains 795 Best Rated Air Fryers in India. Miro 8L Air Fryer ₹5,699. Air Fryer ₹4,499",
+          "position": 5
+        },
+        {
+          "title": "Air Fryers Between ₹3000 and ₹5000",
+          "link": "https://www.google.com/goto?url=CAESdAHEIkXXAbajcYIHT4lWUfhxjxt_Jtcx1NVOmD7eNcRYOqu2py-HMmZ6pRM4Q0vFonxEjKHET3qqdd5DEmIGOFSeTlO_4lLYaMu2bPGRZZTI-7363ZF28HxFNw_PB7HuIdVaedxTZzmpaDKxHbn-CyUQrwHB&gsessionid=G1XpNNBmG11pXXe9Laz91gPsBC1ySeXYdok06v10v4WuztZvQ8N40Q",
+          "displayedLink": "https://www.smartprix.com › price-3000_to_5000",
+          "snippet": "Air Fryers Between ₹3,000 and ₹5,000 · Philips NA120/00 4.2L Air Fryer: Plastic Body, 2 years Warranty, 4.2 L Capacity, 80-200°C, Auto Off · Baltra Jwel BAF-202 ...",
+          "position": 6
+        },
+        {
+          "title": "Air Fryers Between ₹10000 and ₹15000",
+          "link": "https://www.google.com/goto?url=CAESdgHEIkXXqpk71nakpuX_IfqtecfC_nCZ773SKPsv20kyLUJIKXNUIaHtrafNuwjhjl5ahoQd59pozmKp0rTdKcJa9kR_B-Mf_eiFvewlmW8OwylvoTJbSWY-uRHFTW1DnsbHn9pxmfCOfIRkv_ZLFYcIREMepUg&gsessionid=G1XpNNBmG11pXXe9Laz91gPsBC1ySeXYdok06v10v4WuztZvQ8N40Q",
+          "displayedLink": "https://www.smartprix.com › price-10000_to_15000",
+          "snippet": "Top 3 Air Fryers Between ₹10,000 and ₹15,000 are as follows: Philips NA154/00 7.1L Air Fryer: Countertop, 40-200°C, 6 Preset Menu, LED Display, ...",
+          "position": 7
+        },
+        {
+          "title": "Air Fryers Under ₹3000",
+          "link": "https://www.google.com/goto?url=CAEScgHEIkXXgahyzDZrkEknbaGwvCibfb0jMaySDcoH6ZDGhinaJigSwcUCxI0puJOy3ctLjq3R76i3XE54_I9NOfQm7U3Lksm9biwMK10tG9caeinxjxmhdS4OKMzindeANVyehMY_ux3wm5NA1ZH5ZOhqFg&gsessionid=G1XpNNBmG11pXXe9Laz91gPsBC1ySeXYdok06v10v4WuztZvQ8N40Q",
+          "displayedLink": "https://www.smartprix.com › price-below_3000",
+          "snippet": "This list contains 104 Air Fryers Under ₹3,000 in India. Top 3 Air Fryers Under ₹3,000 are as follows: Kent Ultra 116181 4L Air Fryer: 4.5 L Air Fryer: Ultron ...",
+          "position": 8
+        },
+        {
+          "title": "Amazon Great Freedom Sale 2026: Best Deals on Air Fryers",
+          "link": "https://www.google.com/goto?url=CAESyAEBxCJF1zNiH-JjF_tq26vwssXVKGSP3B6Z4s33FYJWZj0WUPz_eQwS6blcUNxgnLGLUN2j7c3RyRatD0zVgWpTPk6U3bH-NHI3-7vwq_vpoQKdCCakMyONEeV8DJtmRZ8I7HnHHum7DYy6gos4X6D0d5ASed42V9qPHE9dfTKktMzNC_82FTJW-vr1clkZmc6We5fVUOmx-mD4HrMs36DtH55hWjnh1CYXUq4bvNLHi049BolDVqnVmaNcFeSqpK-p6uhX6uz-uQ&gsessionid=G1XpNNBmG11pXXe9Laz91gPsBC1ySeXYdok06v10v4WuztZvQ8N40Q",
+          "displayedLink": "https://www.gadgets360.com › home-appliances › news",
+          "snippet": "Amazon Great Freedom Sale 2026: Best deals on Air Fryers ; Ninja Air Fryer Max Pro, Rs. 14,990, Rs. 9,999 ; Philips Air Fryer NA120/00, Rs. 5,995 ...",
+          "date": "Aug 11, 2026",
+          "position": 9
+        },
+        {
+          "title": "Usha InfiniteCook 360R Halogen Oven Review",
+          "link": "https://www.google.com/goto?url=CAESnAEBxCJF1yRoYnqKPrnm8fi0vjDtF8Dr04v98NbIk-04PHogtfVTlzZv2226rl0h21OJaCHydStYbnCtWR7Hd2oEmaJC2LGx4sFTInBxOxmWIzWBrDf6Stg6Wd80netIqWANQhSZRWsUKEgZ-aEYm1jQ3EOgdrqNN-JNVEDPEYu5cLJf2CrY2zal2V5rr9VT890flYSAfyOGnLINZzI&gsessionid=G1XpNNBmG11pXXe9Laz91gPsBC1ySeXYdok06v10v4WuztZvQ8N40Q",
+          "displayedLink": "https://www.smartprix.com › News › Reviews",
+          "snippet": "Usha's InfiniteCook 360R Halogen Oven combines the benefits of microwave oven and an Air fryer, and is very well suited for slow, ...",
+          "date": "Apr 22, 2016",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2571
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Baltra Honour BAF-204 12L Air Fryer",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "23",
+      "x-ratelimit-reset": "1795067290"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "Baltra Honour BAF-204 12L Air Fryer",
+        "gl": "in",
+        "hl": "en",
+        "type": "shopping",
+        "num": 40,
+        "page": 1,
+        "engine": "google"
+      },
+      "shopping": [
+        {
+          "title": "Baltra Baf-204 Air Fryer",
+          "source": "Flipkart",
+          "price": "₹6,549",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcR04fnMmZQyQs5rLIOqYML1Apwx8fTXC9bEnLNbYVUEZmlv3RlfGaS8GFqY24pB-SPchrj0jPlKe1t9qunA17ByWU1QWaCijIdkDsbkBlWS4l4Qq5kEmhQX3A",
+          "productId": "8108786926701911660",
+          "position": 1
+        },
+        {
+          "title": "SOLARA 12L Air Fryer Oven OTG 1800W",
+          "source": "Solara",
+          "link": "https://www.google.com/search?ibp=oshop&q=Baltra+Honour+BAF-204+12L+Air+Fryer&prds=localAnnotatedOfferId:1,catalogid:11633610197153928853,gpcid:11374035541125157013,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹7,999",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQbhhwDm-EcIgq20Vj6hnvrS_GYmDVQNYJO-c-XalvpzwUh2KmtlQj_uPVHwOaMXJQcbXiNZN8S1vpkPEFwjERFRW3h5V_TfIIB2VWekKYdYVkq67dIQtJg",
+          "rating": 4.7,
+          "ratingCount": 2300,
+          "productId": "11633610197153928853",
+          "position": 2
+        }
+      ],
+      "credits": 2
+    },
+    "elapsed_ms": 8150
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Billion Bistro Lite 5L Air Fryer",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "1795067290"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "Billion Bistro Lite 5L Air Fryer",
+        "gl": "in",
+        "hl": "en",
+        "type": "shopping",
+        "num": 40,
+        "page": 1,
+        "engine": "google"
+      },
+      "shopping": [
+        {
+          "title": "Billion Bistro Lite Air Fryer",
+          "source": "Flipkart",
+          "price": "₹2,599",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTFKDqS5jK6XC6WMsZgBJx5N_QqYDMf-p65qQLmsKA-sGtiudoPuJBRC83chzwNXwPczRE7cdThjs1KmWJCcQ4i6TdEM4i-OFboovhhV18",
+          "productId": "10862121212641189433",
+          "position": 1
+        },
+        {
+          "title": "Billion Bistro Clear With 5.5l + 3.5l Frying Bowls Air Fryer",
+          "source": "Flipkart",
+          "price": "₹6,629",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSVi2Ok-NybIIs5RCQ-GUE5lz9B3EtX5F8-nfI1wakUTSszPmMiJsE122GidVhJDwMbKdHCg7YQ6jCK4l3VntCuoB0CK0WpjILi9CiizCTJ",
+          "productId": "9949585619493383271",
+          "position": 2
+        },
+        {
+          "title": "Milton Rapid Digital Air Fryer 1450W 360° High Speed Air Circulation",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Billion+Bistro+Lite+5L+Air+Fryer&prds=localAnnotatedOfferId:1,catalogid:9787416222183849080,gpcid:4260778799969376741,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹4,499",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcShS5QroYHordecdziKP6Mw-aJWWCmdu9Y1dNjQHOQUJGfhEYm5YHm9nI8HWinoCmcmmmPMUrM-NnQYPDQSBq4rB7vm67tGQaT5cHDtCpFuCOTPkowvpOgE-A",
+          "productId": "9787416222183849080",
+          "position": 3
+        },
+        {
+          "title": "Morphy Richards 5L Digital Air Fryer",
+          "source": "Pai International",
+          "link": "https://www.google.com/search?ibp=oshop&q=Billion+Bistro+Lite+5L+Air+Fryer&prds=localAnnotatedOfferId:1,catalogid:15854377668794996070,gpcid:14723125567667507883,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹6,988",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRCFo_CKwMKLzH-u53b9GL_xD73lgtdjF_R0uDNRommf4OfQea2RWMQJJ1FtaSF1BZxYfhpelCnwgNj7BsecZ0QxdQ3ZtFXMVWY0-PF8QTgDOtJ8RQhFjX8Ug",
+          "rating": 4,
+          "ratingCount": 15,
+          "productId": "15854377668794996070",
+          "position": 4
+        },
+        {
+          "title": "Morphy Richards 5 Litre Classic Air Fryer|Easy Knob Control|Adjustable Time & Temperature Control|Voltage Fluctuation Protection|Non-stick Coated Bask",
+          "source": "desertcart.in",
+          "price": "₹26,277",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTr0yUfHsndOz4J3hnocJpqogjequlFes3DXFdyrX0sGczzQClUv9OqnBB0u97GPFVHcNpLcTq7GvfuvSwLQUkubhxi0ackfUy9FhhrvFNcGkcvFRO4Q_TSPg",
+          "productId": "10077945296099175385",
+          "position": 5
+        },
+        {
+          "title": "Billion Bistro Lite Air Fryer (5 L)",
+          "source": "Desidime",
+          "price": "₹2,341",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSycjpVdSQQnDc0Zea0YAyI5D46Q8K24vop_U4O1Bf8Bso2DG0T9s340u0td5csusNZO9SI8ismssxjkruXJVLwaBdz2rPg2WiGl2EbFEAW",
+          "productId": "5659817707756712058",
+          "position": 6
+        },
+        {
+          "title": "5L Digital Air Fryer with One-Touch Display",
+          "source": "indiaorbit.in",
+          "price": "₹4,999",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQGkaeGx5KDs-2WlkYS8NFZMTL64_5PJq6-ne8YX_kmy-HQFD-6mY4j1nCgAdc35z_-ERvderklIePSF5HE_5DE3P255TXn4vKFdqq3TH27",
+          "productId": "11386508880334314875",
+          "position": 7
+        },
+        {
+          "title": "Morphy Richards 5L Classic Crisp Pro Air Fryer",
+          "source": "vasanthandco.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Billion+Bistro+Lite+5L+Air+Fryer&prds=localAnnotatedOfferId:1,catalogid:12793565785146864765,gpcid:10490185623838213208,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹6,090",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTTtYPDYwlnNKBKAeTduNM-dUUXCsUpcYUw6tKzRXYaF50oS-ZFvYan3AU-iI7QJXNEt2_GcPDhswe6mc8KWutqMcFGjsBjdemEmhqHL2SOCDuwuonsiw22gA",
+          "productId": "12793565785146864765",
+          "position": 8
+        },
+        {
+          "title": "Morphy Richards 5 Litre Knob Control Classic Air Fryer",
+          "source": "Bajaj World",
+          "link": "https://www.google.com/search?ibp=oshop&q=Billion+Bistro+Lite+5L+Air+Fryer&prds=localAnnotatedOfferId:1,catalogid:4705381464608423561,gpcid:14492588735767935892,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹5,454",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcR6_UwirYPCV5PUoGmKe0IaIMOH6oixFHrc-4HE2sE_Cnhvt-g0GUNMP5PgFTfpXvap1IwQrsfMJC0uELLlYnyuNwtg_W8V-y91inva0_A",
+          "rating": 5,
+          "ratingCount": 1,
+          "productId": "4705381464608423561",
+          "position": 9
+        }
+      ],
+      "credits": 2
+    },
+    "elapsed_ms": 7373
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Chefman Crispinator 8 Qt.",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "COSORI Iconic",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "COSORI TurboBlaze",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "iBELL AEROFRY300 3.2L Air Fryer",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Prestige PAF 4.0 2.2L Air Fryer",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Baltra Jwel BAF-202 6L Digital Air Fryer",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  }
+]

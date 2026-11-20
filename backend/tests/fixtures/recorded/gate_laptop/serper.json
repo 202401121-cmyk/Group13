@@ -1,0 +1,1511 @@
+[
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "best laptop under 70000 rupees India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "1795067370"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "best laptop under 70000 rupees India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Laptops Under Rs. 75000 In India (Nov 2026)",
+          "link": "https://www.91mobiles.com/list-of-laptops/best-laptops-under-75000",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › best-laptops-under-75000",
+          "snippet": "Top 5 Laptops Under Rs. · Dell Inspiron 15 3530 (OIN353034011RINB1M) Laptop · Apple MacBook Neo (MHFA4HN/A) Laptop · Apple Macbook Neo (A18 Pro/8 GB/256 GB SSD/MAC) ...",
+          "position": 1
+        },
+        {
+          "title": "Laptops Under Rs 70000 Online at India's Best Online Shopping Store",
+          "link": "https://www.flipkart.com/laptops/~laptops-under-rs70000/pr?sid=6bo,b5g",
+          "displayedLink": "https://www.flipkart.com › laptops › ~laptops-under-rs70000 › pr",
+          "snippet": "Buy the best laptops under Rs 70000 online at Flipkart. 70,000 online are HP, Lenovo, Dell, MSI, Avita, and others. Brands like HP, Lenovo, ASUS, Acer, Samsung ...",
+          "position": 2
+        },
+        {
+          "title": "Best Laptop under 70000  TOP 5 Best Laptops to Buy in Flipkart Diwali Sale ...",
+          "link": "https://www.youtube.com/watch?v=qdyWJZWWh9Y",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Intel Core Ultra 5 225H ・ 2. Samsung Galaxy Book 5 — Intel Core Ultra 5 225U ・ 3. ASUS ExpertBook P3 — Intel Core Ultra 5 225H ・ 4. HP 15 5 ...",
+          "position": 3
+        },
+        {
+          "title": "Best Laptops Under 70000 In India (Nov 2026)",
+          "link": "https://www.mysmartprice.com/computer/pricelist/laptops-under-70000-price-list-in-india.html",
+          "displayedLink": "https://www.mysmartprice.com › computer › pricelist › laptops-under-70000-price-l...",
+          "snippet": "Lenovo IdeaPad Slim 3 14IAH8 (83EQ0074IN) Laptop (14 Inch | Core i5 12th Gen | 16 GB | Windows 11 | 512 GB SSD) · Acer Aspire 3 A325-53 (UN. · Lenovo IdeaPad Slim ...",
+          "position": 4
+        },
+        {
+          "title": "Laptops under 70000 Online in India",
+          "link": "https://gadgetsnow.indiatimes.com/laptops/filters/price/60001-to-70000-laptops-in-india",
+          "displayedLink": "https://gadgetsnow.indiatimes.com › laptops › ... › 60001-to-70000-laptops-in-i...",
+          "snippet": "Laptops under 70000 · Asus Vivobook 16 (2026) Snapdragon X X1 26 100 Processor 8 GB 256 GB SSD ‎Windows 11 Home · HP Professional 15 (2026) Intel (i5 14th Gen) ...",
+          "position": 5
+        },
+        {
+          "title": "Laptops Under Rs 70000 | Online Electronic Shopping Store in India",
+          "link": "https://www.reliancedigital.in/collection/laptops-under-rs-70000",
+          "displayedLink": "https://www.reliancedigital.in › collection › laptops-under-rs-70000",
+          "snippet": "1. HP 15s 15 FD0623TU Standard Laptop (13th Generation Intel Core i3 Processor/8 GB/512 GB SSD/Intel integrated SoC/Windows 11 Home/MS Office Home 2024 + 1 year ...",
+          "position": 6
+        },
+        {
+          "title": "Top 5 Windows Laptops under Rs 70000 Looking for the best ...",
+          "link": "https://www.facebook.com/thinkdigit/videos/top-5-windows-laptops-under-rs-70000looking-for-the-best-laptops-under-rs-70000-/2056439571581893/",
+          "displayedLink": "https://www.facebook.com › thinkdigit › ... › 2056439571581893",
+          "position": 7
+        },
+        {
+          "title": "Best HP Laptops under Rs. 70000 in India (2026)",
+          "link": "https://www.bajajfinserv.in/best-hp-laptop-under-70000-price-in-india",
+          "displayedLink": "https://www.bajajfinserv.in › best-hp-laptop-under-70000-...",
+          "snippet": "Best HP Laptops under Rs. 70,000 - Price in India, Features, and Specifications · 1. HP Victus 15-fa1351TX · 2. HP Pavilion 15-eh1137AU · 3. HP Victus 15- ...",
+          "position": 8
+        },
+        {
+          "title": "Best Laptop Under 70000 in 2026  TOP 5 Laptops for Gaming, Coding ...",
+          "link": "https://www.youtube.com/watch?v=8KgGpvafZxk",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Asus Vivobook 14 – Int... · The Perfect Student La... · Asus Vivobook 14 – Int... · Asus Tuf Gaming A15 | ... · HP VICTUS i5 13th Gen ... · / ...",
+          "position": 9
+        },
+        {
+          "title": "Laptops Under 70000 Price List in India 2026",
+          "link": "https://www.smartprix.com/laptops/price-below_70000",
+          "displayedLink": "https://www.smartprix.com › laptops › price-below_70000",
+          "snippet": "Laptops Under ₹70,000 ; Asus CX9406 Googlebook Laptop (Intel Core Ultra 5 325/ 32GB/ ChromeOS), ₹34,999, Upcoming ; Lenovo IdeaPad Slim 3 82RK0085IN Laptop ( ...",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2036
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "laptop review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "23",
+      "x-ratelimit-reset": "1795067370"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "laptop review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Laptops Reviews - Digit",
+          "link": "https://www.digit.in/reviews/laptops/",
+          "displayedLink": "https://www.digit.in › reviews › laptops",
+          "snippet": "Asus Chromebook CM32 Detachable review: A surprisingly good laptop-tablet hybrid with one big catch · HP HyperX OMEN 15-ga0028TX review: strong foundations, ...",
+          "position": 1
+        },
+        {
+          "title": "The 8 Best Laptops - Black Friday 2026",
+          "link": "https://www.rtings.com/laptop/reviews/best/laptop",
+          "displayedLink": "https://www.rtings.com › Laptop › Best",
+          "snippet": "The best laptop we've tested is the Apple MacBook Pro 14 (M5, 2025). This premium workstation has outstanding build quality, long battery life, ...",
+          "date": "Sep 16, 2026",
+          "position": 2
+        },
+        {
+          "title": "Laptops in India (2026) | Prices, Reviews, Specifications & ...",
+          "link": "https://www.91mobiles.com/laptops",
+          "displayedLink": "https://www.91mobiles.com › laptops",
+          "snippet": "Explore the latest laptops in India from top brands with updated prices, full specifications, expert reviews, comparisons, latest news, and best laptop ...",
+          "position": 3
+        },
+        {
+          "title": "Laptop Finder",
+          "link": "https://www.google.com/goto?url=CAESbQHEIkXXGUK7Pt2agYGolJo17wGgSUE4mOtr8WGLqoAtQnQsYOU5xBrUDJfb2HWrTi6JqRsRXlSyS1Zy_fur9lrzq6hNJpQaMxZspuj9Hd4vxHSiKUYqzXuYiKa_86MTC_QrHzj7UGx5nhJE8Ug&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+          "displayedLink": "https://www.gadgets360.com › Laptops",
+          "snippet": "Find here the latest laptops launched in 2026 in India and Worldwide. These include Acer, Asus, Dell, Lenovo, and Apple. There are 41 brands in total to choose ...",
+          "position": 4
+        },
+        {
+          "title": "Latest Laptops, Desktop, PC, Notebooks Reviews",
+          "link": "https://www.google.com/goto?url=CAESZwHEIkXXZvhROaB2SZqq6dAepb68FoHMFf8eSiCnpu6A1JOQUbqbOCytdfleackFFcUsgIgGR-D2P8AGbsk6FwwPDLfwvL3P7EQRQgyhlYhfVnqt8B6D8IeD0yOb9NAGpm4SYybkqm4&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+          "displayedLink": "https://www.gadgets360.com › Laptops",
+          "snippet": "Laptop Reviews: Latest reviews on Laptops, PC, Notebooks, Desktop from top brands like dell, microsoft, infinix, apple, samsung and others. India's Festive",
+          "position": 5
+        },
+        {
+          "title": "Laptops Price List in India (Nov 2026)",
+          "link": "https://www.google.com/goto?url=CAESXgHEIkXXu1DLBq3HXbqL_s8kzPbDsGHuIIJNyAGOXgmy2gqyHHTK4rTOBqNoLad8CoytZJjQqHi1Li-GqzCaLAbmnL9JXs4xNNvTtn1jwZuVLcU-_JrJdDnWmTCs9BE&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+          "displayedLink": "https://www.smartprix.com › laptops",
+          "snippet": "Find the latest laptop prices & deals in India. Smartprix's powerful Laptop Finder. Instantly compare specifications like processor, RAM, SSD, screen size, ...",
+          "position": 6
+        },
+        {
+          "title": "Best Laptops in India Across Price Ranges (Tested and ...",
+          "link": "https://www.google.com/goto?url=CAESpAEBxCJF10SLNSZomg-hBGpxa2VHm4fuAJnNrctau1_x0oMnRReWWsqpzoCX6ZbCz2Y_NtX8zOQHanRrcfr6RBTWt2jn_hOJyNJ0x9-_lgxWHq0wfslgDO2joNQ8BmFroOyrjPPiLVms6PrTdUjk35Dkg78DvYJqFcTXV11tZT9RyDYDnh0WaM5BiGO229NX7iW482_tmmCTRbhfSjBqNOf1M2QyPA&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+          "displayedLink": "https://www.91mobiles.com › Laptops",
+          "snippet": "Discover the best laptops in India across price ranges, based on hands-on testing. From budget picks to premium gaming and productivity ...",
+          "date": "Dec 17, 2025",
+          "position": 7
+        },
+        {
+          "title": "Best Laptops for Students in India (2026): Tested Picks ...",
+          "link": "https://www.google.com/goto?url=CAESjwEBxCJF1-iaVsFZ0jl51kVliGGhKIzCvIN3WZ5o-Q66jv-Al0PYQWhgpwi1yCvWjkrh6bD_6Ixyez8NJliQCPdT9pEkwMOu_03lcv199RApBg0NBCMazT9iq51aqyioxsb-9ql0glP53hPmN1MYYGO2o9oboIrHgRVY0CrMsw-f_-b7sUPpd7H8sGhQulOSxQ&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+          "displayedLink": "https://www.91mobiles.com › Laptops",
+          "snippet": "Acer Aspire 15 AS15-42 (review) is our best overall student laptop because it delivers genuine Ryzen 7 multi-core performance",
+          "date": "Jul 29, 2026",
+          "position": 8
+        },
+        {
+          "title": "Compare Laptops in India",
+          "link": "https://www.google.com/goto?url=CAEScQHEIkXXbZVnaTurJoEJGd97IUoaDq9XeKQk2Q4j5zhbfN59V0wWaJMDbWpbcJmP699k5edj7U2u_G0csQ-yEV_1GKsW79i1v64VH_gm-w-6uLEPxD0MtwNWMrio4IVNT7EoRqm-BWz3wWtScGo15FBy&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+          "displayedLink": "https://www.91mobiles.com › compare-laptops-india",
+          "snippet": "Compare laptops and notebooks in India with updated prices, full specifications, processor details, performance benchmarks, expert reviews, ...",
+          "position": 9
+        },
+        {
+          "title": "AI Laptops Under 1,00000 Price List In India (Nov 2026)",
+          "link": "https://www.google.com/goto?url=CAESfgHEIkXXAJUTXpbQZ92PkwooQMOLReKBF3XSqfhcWzt92Xv4h_srXOUqc-kKPIzPHqgseBB5qMbA7ldbifGKZbgVtgLeKiC6j-MvCc1g2HnsZbnB9XILS9XLgmOwqgkN3tlIb2YTcID3DXR8JfnihXLkq1FSrDtyKRYwRMDNKw&gsessionid=uzg5CfhQurS58GSOSH-EY0J2LF9GxwFNSh411wpMXgM-jdjfR9IFCw",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › ai-laptops-...",
+          "snippet": "Check Out the List of AI Laptops Under 1,00,000 in India with Prices, Full Specs, Reviews, Images, and Many More at 91mobiles.",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2519
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "laptop buying guide India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "22",
+      "x-ratelimit-reset": "1795067370"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "laptop buying guide India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Laptop Buying Guide: How to Choose",
+          "link": "https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=AYCX9vLm6aW7vM1RUilWGnzmfOwX5EIgYTB7Js9x6nnCRW0nFJ6AOcnB",
+          "displayedLink": "https://www.lenovo.com › in › en › laptop-buying-guide",
+          "snippet": "Use this laptop buying guide to compare processor, RAM, storage, display, battery and budget, and learn how to choose the right laptop for your needs in India.",
+          "position": 1
+        },
+        {
+          "title": "[reddit text not stored]",
+          "link": "https://www.reddit.com/[reddit link not stored]",
+          "displayedLink": "[reddit text not stored]",
+          "snippet": "[reddit text not stored]",
+          "position": 2
+        },
+        {
+          "title": "Laptop buying guide: Computers & Accessories",
+          "link": "https://www.amazon.in/b?ie=UTF8&node=16092374031",
+          "displayedLink": "https://www.amazon.in › b",
+          "snippet": "Online shopping for Laptop buying guide from a great selection at Computers & Accessories Store. Delivering to Mumbai 400001. Up to 2GB 4GB 8GB 16GB … 500GB- ...",
+          "position": 3
+        },
+        {
+          "title": "Laptop Buying Guide | How to Choose the Best Laptop | Croma Unboxed",
+          "link": "https://www.croma.com/unboxed/buying-guides/laptop?srsltid=AYCX9vLmfUIzatYj4otTtiJP00jcthJhPV_QveS0OVFl5j-EEhE-Mu4W",
+          "displayedLink": "https://www.croma.com › unboxed › buying-guides › laptop",
+          "snippet": "What are the Factors to Consider Before Buying a Laptop? Usage; Operating System; Processors; RAM; Storage; Graphic; Screen Size; Resolution; Form Factor ...",
+          "position": 4
+        },
+        {
+          "title": "How to Choose the Right Laptop: A Step-by-Step Guide",
+          "link": "https://www.wired.com/story/how-to-buy-the-right-laptop-for-you/",
+          "displayedLink": "https://www.wired.com › story › how-to-buy-the-right-laptop...",
+          "snippet": "I recommend buying a 15-inch or 16-inch laptop with at least this resolution, while 1920 x 1200 is good enough for more budget-minded 13-inch or ...",
+          "date": "20 May 2026",
+          "position": 5
+        },
+        {
+          "title": "Best Laptop Finder in India | Compare & Find the Right Laptop",
+          "link": "https://www.91mobiles.com/laptopfinder.php",
+          "displayedLink": "https://www.91mobiles.com › laptopfinder.php",
+          "snippet": "Compare top Laptops in India based on price, specifications, features, ratings, and preferences to discover the right device easily.",
+          "position": 6
+        },
+        {
+          "title": "The ONLY Laptop Buying Guide You Need in 2026!",
+          "link": "https://www.youtube.com/watch?v=p5Jp18DBNqM",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Looking for the best laptop under ₹50000. This ultimate Laptop Buying Guide will help you choose. Buying a Used Laptop: An Experts Guide on ...",
+          "position": 7
+        },
+        {
+          "title": "Complete Laptop Buying Guide 2026: India Checklist",
+          "link": "https://edify.club/blog/laptop-buying-checklist-india-2026/",
+          "displayedLink": "https://edify.club › blog › laptop-buying-checklist-ind...",
+          "snippet": "A comprehensive laptop buying checklist India includes defining usage and budget, evaluating processor performance, checking minimum 8GB RAM, ...",
+          "date": "9 Nov 2026",
+          "position": 8
+        },
+        {
+          "title": "Which Laptop is Right for Me? A Buyer's Guide",
+          "link": "https://www.hp.com/in-en/tech-takes/laptops/guide/which-laptop-is-right-for-me-buyers-guide.html",
+          "displayedLink": "https://www.hp.com › in-en › ... › which-laptop-is-right-for-m...",
+          "snippet": "Discover which HP Laptop is right for you using our infographic buyer's guide on HP® Tech Takes. Exploring today's technology for tomorrow's possibilities.",
+          "position": 9
+        },
+        {
+          "title": "Laptop Buying Guide in India: Brands, Specs & Best Deals",
+          "link": "https://www.reliancedigital.in/c/resource-center/bg/laptop-buying-guide",
+          "displayedLink": "https://www.reliancedigital.in › c › ... › laptop-buying-guide",
+          "snippet": "Quick Overview. - This laptop buying guide covers all the essentials an Indian customer should know before investing in a laptop.",
+          "date": "18 May 2026",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2200
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "laptop recommendations",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "21",
+      "x-ratelimit-reset": "1795067370"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "laptop recommendations",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "The Best Laptops We've Tested (November 2026)",
+          "link": "https://www.pcmag.com/picks/the-best-laptops",
+          "displayedLink": "https://www.pcmag.com › picks › the-best-laptops",
+          "snippet": "Our Top Tested Picks · HP OmniBook 5 14 · Apple MacBook Air 13-Inch (2026, M5) · Dell XPS 13 (2026) · Apple MacBook Neo · Lenovo ThinkPad X1 Carbon ...",
+          "date": "2 Nov 2026",
+          "position": 1
+        },
+        {
+          "title": "Help Me Choose the Best Windows Laptop or PC",
+          "link": "https://www.microsoft.com/en-in/windows/help-me-choose",
+          "displayedLink": "https://www.microsoft.com › en-in › windows › help-me-choose",
+          "snippet": "Find the best Windows computer for your needs with this quiz from Microsoft. Choose the best PC to buy based on size, performance, portability, and more.",
+          "position": 2
+        },
+        {
+          "title": "Best Laptops (2026): My Top Recommendations After Testing ...",
+          "link": "https://www.wired.com/story/best-laptops/",
+          "displayedLink": "https://www.wired.com › story › best-laptops",
+          "snippet": "The Acer Googlebook 14 and Dell XPS Googlebook are the two standouts in my book, as both use a Snapdragon X-series chip to deliver really great battery life.",
+          "position": 3
+        },
+        {
+          "title": "The 8 Best Laptops - Black Friday 2026",
+          "link": "https://www.rtings.com/laptop/reviews/best/laptop",
+          "displayedLink": "https://www.rtings.com › laptop › ... › laptop",
+          "snippet": "The best laptop we've tested is the Apple MacBook Pro 14 (M5, 2025). This premium workstation has outstanding build quality, long battery life, ...",
+          "date": "16 Sept 2026",
+          "position": 4
+        },
+        {
+          "title": "Best Laptop Finder in India | Compare & Find the Right Laptop",
+          "link": "https://www.91mobiles.com/laptopfinder.php",
+          "displayedLink": "https://www.91mobiles.com › laptopfinder.php",
+          "snippet": "Find the best Laptop for your needs with the 91mobiles Laptop Finder ... SSD laptops under 50000 · HP Laptops under 30,000 · Touch screen laptops under 60000 ...",
+          "position": 5
+        },
+        {
+          "title": "The Best Laptops to Buy in the WORST Year to Buy a Laptop",
+          "link": "https://www.youtube.com/watch?v=zy9j3sajNTQ",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Picks: - Asus ExpertBook Ultra: ... Josh's Favorites 16:34 OmniBook 3 18:36 XPS 13 19:12 Laptop Longevity 20:23 Yoga Range 22:05 MacBook Pro 14 ...",
+          "position": 6
+        },
+        {
+          "title": "Best Laptops of 2026: Top Picks Tested by CNET",
+          "link": "https://www.cnet.com/tech/computing/best-laptop/",
+          "displayedLink": "https://www.cnet.com › tech › computing › best-laptop",
+          "snippet": "Apple's MacBook Neo and Dell's XPS 13 are excellent choices for students, but HP's OmniBook Ultra 14 is my favorite overall laptop.",
+          "date": "6 days ago",
+          "position": 7
+        },
+        {
+          "title": "Buy Laptop Online with Up to 35% OFF",
+          "link": "https://www.amazon.in/Laptops/b?ie=UTF8&node=1375424031",
+          "displayedLink": "https://www.amazon.in › Laptops › b",
+          "snippet": "Find the best deals on new laptops online from top brands such as Dell, HP, Apple, Lenovo. ASUS Zenbook 14 (2026),Smartchoice, Office24,Foggy",
+          "position": 8
+        },
+        {
+          "title": "Laptops Online: Gaming, Student & Business",
+          "link": "https://www.flipkart.com/laptops-store",
+          "displayedLink": "https://www.flipkart.com › laptops-store",
+          "snippet": "Shop laptops online at Flipkart. Explore gaming, thin & light and business laptops from HP, Dell, Lenovo, ASUS, Apple & more. Easy EMI, fast delivery.",
+          "sitelinks": [
+            {
+              "title": "Message",
+              "link": "https://rbm.goog/message?bot-id=flipkart_minutes_z8bakzab_agent@rbm.goog&body=Start+shopping&ctx=gctx-c%3DAcGZgod1wcS1W5d0-gUwdD6_hbaG6f6l36nJ0DPZEt0vsMMoEhGKD-LNZZfEHN_bHfxYswqlHCJQ8prFh5MTwEtUGaiViv4dCZdU9g7VD7qSFToEzbW5V9UvktGiX7lDr9diuq_BlF5nmQI%3D;gctx-s%3DAcGZgodgCVFBdl_PhayydOMLNkzXMUsh3Fe9QMPNKcY90Aa42jA2NzccNG5RWdspvdBcwi6zBK2Z4G5XzUj9wCMig3IU-wbLZCwtUFtAbd-rw_YgKw5Y29WuExZgnXMjiXzX-FEHpAPKdKXfmo2Ab52OJNWt41lA8kUB6i8%3D"
+            }
+          ],
+          "position": 9
+        },
+        {
+          "title": "Noteb - Search, Compare and Find the Best Laptop for You",
+          "link": "https://noteb.com/",
+          "displayedLink": "https://noteb.com",
+          "snippet": "RECOMMENDED ; Lenovo ThinkPad P16. $1,800 - $1,900 ; HP Zbook Firefly 16 G11. $1,900 - $2,000 ; Dell XPS 16. $2,400 - $2,500 ; Lenovo Legion Pro. $1,500 - $1,600 ...",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 1611
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "laptop under 70000 rupees review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "20",
+      "x-ratelimit-reset": "1795067370"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "laptop under 70000 rupees review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Laptops Under Rs. 75000 In India (Nov 2026)",
+          "link": "https://www.91mobiles.com/list-of-laptops/best-laptops-under-75000",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › best-lapto...",
+          "snippet": "Acer Aspire Pro AP14-55 review: Best in the market under Rs 70,000? Acer. ASUS TUF Gaming 16 (2026) review: TUF luck beating the competition?",
+          "position": 1
+        },
+        {
+          "title": "Laptops Under 70000 Price List in India 2026",
+          "link": "https://www.smartprix.com/laptops/price-below_70000",
+          "displayedLink": "https://www.smartprix.com › price-below_70000",
+          "snippet": "Laptops Under ₹70,000 ; Asus CX9406 Googlebook Laptop (Intel Core Ultra 5 325/ 32GB/ ChromeOS), ₹34,999, Upcoming ; Lenovo IdeaPad Slim 3 82RK0085IN Laptop ( ...",
+          "position": 2
+        },
+        {
+          "title": "Laptops in India (2026) | Prices, Reviews, Specifications & ...",
+          "link": "https://www.91mobiles.com/laptops",
+          "displayedLink": "https://www.91mobiles.com › laptops",
+          "snippet": "Acer Aspire Pro AP14-55 review: Best in the market under Rs 70,000? OnePlus Phone. ASUS TUF Gaming 16 (2026) review: TUF luck beating the competition?",
+          "position": 3
+        },
+        {
+          "title": "HP Laptops Under 70000 In India",
+          "link": "https://www.google.com/goto?url=CAESfQHEIkXXgqJ6X-hAnbXRZr9TNCr_ZGfApYGBMU5Gxat3Pwild-lD8tAPTws-OcEZxpNbNY7Usseq2Yy05OdvJz48EQuMCg2MCbG9RaS3WJq-3hLJDpttHFy9AjJv_gL_PjgEA_khZ5paO9rZuY5LJT5fpKhZzK8TwgnaWV2H&gsessionid=kwzRlgbTK86o6BQh3RI9i0S-N3ZZS5cXBfvoIytKHldj8MIvGVwuEQ",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › hp-laptops...",
+          "snippet": "Top 5 HP Laptops Under 70,000 with Prices & Specs ; HP 15-fc0690AU (C94FVPA) Laptop, 15.6\" (39.62 cm), 1920 x 1080 px Display, AMD Ryzen 5 7520U, 4.3 GHz, Quad- ...",
+          "position": 4
+        },
+        {
+          "title": "Laptop Finder",
+          "link": "https://www.google.com/goto?url=CAESbQHEIkXXUBA2MEr-4y7gkLz8dMX1Uc2EMy8dMEt6_cNJaaEUjp4M-m0IU5l83MegZtFAXFbKjKrwc92pPsFTqyZMAK72NB1v4dGhGLM5Iufye3kW6ULsjnmsD8hHftD0z-0Po2Jn25oi-ng6IKI&gsessionid=kwzRlgbTK86o6BQh3RI9i0S-N3ZZS5cXBfvoIytKHldj8MIvGVwuEQ",
+          "displayedLink": "https://www.gadgets360.com › Laptops",
+          "snippet": "Find here the latest laptops launched in 2026 in India and Worldwide. Asus Vivobook 16 (2025) ₹ 68,990 Dell Inspiron … 80,000 Best Thin and Light Laptops Under ...",
+          "position": 5
+        },
+        {
+          "title": "Touch Screen Laptops Under 75000 in India (Nov 2026)",
+          "link": "https://www.google.com/goto?url=CAEShwEBxCJF1_E9uoeiEmNdXEnYs74rH-PPKDN6XTETF35PH2OAbVOgDx73xQPBv4188hMZTEiPpffIEY1Wgmk5AUStBacHqQJeMq5djV_K-9QrBMnHfVOw1aNg3KStb3HHnOm6SIxz-TjbqTgDWa7GAFATfOnr-jwbdPnBYgEFZOl-8zOr3TkWsRo&gsessionid=kwzRlgbTK86o6BQh3RI9i0S-N3ZZS5cXBfvoIytKHldj8MIvGVwuEQ",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › touch-scre...",
+          "snippet": "Top 5 Touch Screen Laptops Under 75000 with Prices & Specs · Apple MacBook Neo (MHFA4HN/A) Laptop · Asus Vivobook S 14 Flip TP3402VAO-LZ612WS Laptop · Dell ...",
+          "position": 6
+        },
+        {
+          "title": "Gaming Laptops Under 70000 Price List in India (Nov 2026)",
+          "link": "https://www.google.com/goto?url=CAESfwHEIkXXrG4Vaot1CI3gtlgApIEQVGoKYNtlZirsXx1z4g3-r-ZFT-kGdA56jO5jBqx-mz28fSNqGhyNuLwRqBLQkMtMQy9QsT68Mr__dKcnFwnSDuECVRty1jbH9rvvExpK6PrnbYxb5rwjfwu3cM4q0K0Ukol9rkitnuK8U4o&gsessionid=kwzRlgbTK86o6BQh3RI9i0S-N3ZZS5cXBfvoIytKHldj8MIvGVwuEQ",
+          "displayedLink": "https://www.smartprix.com › laptops › utility-gaming",
+          "snippet": "Gaming Laptops Under ₹70,000 ; Asus TUF Gaming A15 FA566NCR-HN075W Laptop (AMD Ryzen 7 7435HS/ 16GB / 512GB SSD/ Win11 Home / 4GB Graph), ₹64,990, Jul, 2024.",
+          "position": 7
+        },
+        {
+          "title": "16GB RAM Laptops Under Rs. 60000 (Nov 2026)",
+          "link": "https://www.google.com/goto?url=CAESgwEBxCJF12BorIhWAi3N3Qzndxc-wui8izvVX5_e-cCA9drggHqcoCDOI4cdiR8BD8zzKLlSU2P3NAFPDrecUxSeUdqJ5GjdIaQzy-sIANcltfwKE8COkEEWKawfP_r98ioJOxqVI_UPOt3QQHClHYrGSoIbmrs8sNQ-UqV59FmFtfEYAw&gsessionid=kwzRlgbTK86o6BQh3RI9i0S-N3ZZS5cXBfvoIytKHldj8MIvGVwuEQ",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › 16gb-ram...",
+          "snippet": "Acer Aspire Pro AP14-55 review: Best in the market under Rs 70,000? Acer. ASUS TUF Gaming 16 (2026) review: TUF luck beating the competition?",
+          "position": 8
+        },
+        {
+          "title": "Best Laptops Under 1,00000 (Nov 2026)",
+          "link": "https://www.google.com/goto?url=CAESgAEBxCJF1-mF_LQR94O9UU-ejHrcrvqVzhgoAbaNTh_l9YaaSXa2LyarwsWvC1T2U2Sn6TEImyas4R1dk3qwM3W50w2X4HeW0dvyuDGJAFdeCiDYbBQh54IQACsZ45nG--m81KB6Z6c6iG8fPMIF7qsjoeNmWx7ahP6mwQs9vTIlaw&gsessionid=kwzRlgbTK86o6BQh3RI9i0S-N3ZZS5cXBfvoIytKHldj8MIvGVwuEQ",
+          "displayedLink": "https://www.91mobiles.com › list-of-laptops › best-lapto...",
+          "snippet": "Latest Laptop Reviews ... Primebook 3 Max review: an incremental refesh or more than that? ... Acer Aspire Pro AP14-55 review: Best in the market under Rs 70,000?",
+          "position": 9
+        },
+        {
+          "title": "Best laptops under Rs 70,000 - Digit",
+          "link": "https://www.google.com/goto?url=CAESgAEBxCJF14UQyZAnEky7Ua5XCMuUy3Hx3ggfjh9iOTmAzSnHIEyKfKcrciiSB_ig-eUxWgkar9GF5YtqCv6xC-gaHxCoJXT2a9LHn61l0wUusObUM8CafJDraqW1FcNiqMntUJiWNcZszyjsDJHyy4R8z6H6sgGBpdl3hf2ERYlLcg&gsessionid=kwzRlgbTK86o6BQh3RI9i0S-N3ZZS5cXBfvoIytKHldj8MIvGVwuEQ",
+          "displayedLink": "https://www.digit.in › features › best-laptops-under-700...",
+          "snippet": "Best laptops under ₹70k: from silent MacBook Air M2 to RTX 4050 gaming rigs, find power, portability and value.",
+          "date": "Jun 11, 2025",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 2935
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "HP ENVY x360 15-inch laptop",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "1795067400"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "HP ENVY x360 15-inch laptop",
+        "gl": "in",
+        "hl": "en",
+        "type": "shopping",
+        "num": 40,
+        "page": 1,
+        "engine": "google"
+      },
+      "shopping": [
+        {
+          "title": "HP Envy x360 15-fe0027TU Intel Core I5 13th Gen",
+          "source": "JioMart Electronics",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:6611555212192385450,gpcid:3939418065969226303,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹84,495",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSsz3f2QgdWGg9UhWq9D7Tv2Gp6G5I-tq06GaDxj1ELtnBU8eOEdLu7jGas1YZnKGzSf0xIm6g9WQE-qEogXq12kKRrELWnrv5EDSWNWnwY62WCRI9_wHkotQ",
+          "productId": "6611555212192385450",
+          "position": 1
+        },
+        {
+          "title": "HP Envy x360 13th Gen Intel Core i7-1355U 15.6-inch IMAX,FHD",
+          "source": "LowestRate Shopping",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:9946659982873151592,gpcid:2841637433613226913,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹89,488",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSYNZL5MsmSFnHnfpdySoQI-QArUNWqEOyOa93fwqLTAyqZR2L8UvJ68y_3rU4BhVf1enwQ_6W1Iw4wFnIoNz97dccSLWIq0wGdoh12VO9AIR2G8ur7NktKqg",
+          "productId": "9946659982873151592",
+          "position": 2
+        },
+        {
+          "title": "HP Envy 39.6 cm x360 2-in-1 Laptop OLED 15-ew0023TX",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:18431272775635967830,gpcid:795663463451397660,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,09,990",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTsRu7Nw_wWsfun_LTcInIrOgwE8gvaa_4gAE6iJkfTFzaEIe7Q62oKVTA8FEJBGg2uDs3qHwp9CBx_wRuAUupJR1PMfQaCg8uPZxsoJHlflXjtlrZhblsn",
+          "productId": "18431272775635967830",
+          "position": 3
+        },
+        {
+          "title": "HP",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:5032510924212962069,gpcid:12384871427949351345,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,31,392",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTQBqV88uv_feV9-9fmqxM4Bbi_mbTnYlv7JqOvNNCVg6v2Keq6wrkR8sLtEjGkPp8PcpjZ5wHxHG6FZz4KsXPl4B-D5DhaDjjbgY6ipTwnLYG85yGaZTAodA",
+          "rating": 4.7,
+          "ratingCount": 85,
+          "productId": "5032510924212962069",
+          "position": 4
+        },
+        {
+          "title": "HP Envy x360 2in1 15.6' TouchScreen Laptop Intel Core i5 8GB",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:12330638679341360154,gpcid:3580005421470094558,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹99,272",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQ1seSaCWzvkIWFbeHf53FDVb5fmjH7yKk2di3suFgu344ZAw4g_2hbljKqXdvGUKJdgIZ2VFS3iW3G3h0EOEgMTkTsaJUZ8K0Sm20WTSNAHnNkJ0sCxbbEyQ",
+          "rating": 4.5,
+          "ratingCount": 12,
+          "productId": "12330638679341360154",
+          "position": 5
+        },
+        {
+          "title": "HP Envy x360 15-fh0019AU AMD Ryzen 7",
+          "source": "innovationestore.com",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:14848678545949069438,gpcid:6532003772338956173,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,11,744",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQbckRHxtTerVU10eFb2vnzsfWm34X9Lrsr-tWxUCw1aZcirlaAfq4OHG1OB6QPpshLo-vbPhjApiRPZpYH-KnHkBWQhSqSVhVzSN-X7Xm7",
+          "productId": "14848678545949069438",
+          "position": 6
+        },
+        {
+          "title": "Envy x360 15-fh0077ng",
+          "source": "LowestRate Shopping",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:16670623864268489393,gpcid:8760428013278528863,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹89,488",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSYNZL5MsmSFnHnfpdySoQI-QArUNWqEOyOa93fwqLTAyqZR2L8UvJ68y_3rU4BhVf1enwQ_6W1Iw4wFnIoNz97dccSLWIq0wGdoh12VO9AIR2G8ur7NktKqg",
+          "rating": 5,
+          "ratingCount": 8,
+          "productId": "16670623864268489393",
+          "position": 7
+        },
+        {
+          "title": "HP Envy x360 for Creators 12th Gen Intel Core i7-1255U, 15.6inch(39.6 cm) FHD OLED 500 Nits Micro-Edge Display (16GB RAM/1TB SSD/B&O/NVIDIA GeForce",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:11639215289562783933,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,04,798",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcToJWW_m4ZRqAa0ftB2-7rJ1TDYj4Mvij2249VyhJgTCjh0Ak7bLnpegHFcNgXJN6vxG1o4sIkllo4VDDuhtABaYaogdgnkkvZ6yFOeyB7hLbDwHgRinPeTaw",
+          "productId": "11639215289562783933",
+          "position": 8
+        },
+        {
+          "title": "HP Envy x360 Touch Laptop",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:15810861012986638445,gpcid:7550783110444492834,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,21,201",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQJ2_3uU3qUUU1rnJFUQln_j02Z_joi8g3TdoVv-kB4vxoARytNlwruEJMtN-Ti3A8iLbKr0jcPhL_CxFlCFm6TKF-HPLD-MSDM_yO-L0E",
+          "rating": 3.9,
+          "ratingCount": 80,
+          "productId": "15810861012986638445",
+          "position": 9
+        },
+        {
+          "title": "HP Envy x360 15.6 inch 2-In-1 Laptop 15-fh0014AU (Ryzen 5, 8GB, 512GB SSD, Win 11, MSO HS 21)",
+          "source": "Theitdepot",
+          "price": "₹79,315",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcR8qqTbLOcdXodIM5wZOW5IKz4dnApvRqwYf_Tozf893BRACHg1i47mfrvy64QIQt9I1TEqDejcdsuiYdNu5Ru6GK50BAjtGhKKfE0tNNeGA83VUUAAOCn7xw",
+          "productId": "9839214836917328235",
+          "position": 10
+        },
+        {
+          "title": "HP Envy x360 2-in-1 15.6\" Touch-Screen Laptop",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:10273967285217391102,gpcid:12433665955644991173,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,92,940",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcS3ERxiyMxBsUvmbDV-O3IHUZe6p2y3Yf61WGDH9e_0cHrQs0lfYY7PghbaayhJ9bDxSmMneuwpOSmX7yQTe2k234KynqVGSSxAYFzI8M9_nZkETHhTnYeV",
+          "rating": 4.8,
+          "ratingCount": 4,
+          "productId": "10273967285217391102",
+          "position": 11
+        },
+        {
+          "title": "HP Envy x360 Convertible 15-inch Laptop AMD Ryzen 7 5825U processor",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:9121421431913477379,gpcid:3643430641998201571,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,17,160",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRZjLsUDYejExpQIiRNXjep_aQp-uXVzjcjGyITXeXZXHz_CbUEh-ZjbpU6woxIy_KdUYZmlH8OIz3dhWsxL0fV3Lw10n_A13gprsSc8sk",
+          "productId": "9121421431913477379",
+          "position": 12
+        },
+        {
+          "title": "HP ENVY Silver Hybrid 39.6 cm 1920 x 1080 pixels Touchscreen 1.6 GHz 8th gen Intel Core i5 i5-8265U",
+          "source": "Desertcart.ae",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:9762860143517286607,gpcid:3061727881636013482,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,69,696.41",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSJf1Lb0PPjena1-cnQJujmz0Zflrb76M098_xM5tsrIUl5t3dfKSWh_xC1sKAMSWXB96lXPpGaqEiM78mMnZBbFPAnTHp8L2XCCGo5P_86",
+          "rating": 4.9,
+          "ratingCount": 9,
+          "productId": "9762860143517286607",
+          "position": 13
+        },
+        {
+          "title": "HP Envy x360 15-fh0014AU AMD Ryzen 5",
+          "source": "zapnet.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:10984975033089669801,gpcid:15876392691863658881,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹90,860",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSX09-u56Y6bgth7zRqQWQ5Jj9dA8GCTenCPkLtNoSubO_6CnieuBb9TKX06De-51NAuNsqjFmrzQnERNUESCj9WCxhF03AVKDhAWsKvMc",
+          "productId": "10984975033089669801",
+          "position": 14
+        },
+        {
+          "title": "HP Envy x360 2-in-1 15.6 inch Laptop 15-fe0028TU (13th Gen i5 1335U, 16GB RAM, 512GB SSD, Win 11, MSO 2021)",
+          "source": "Theitdepot",
+          "price": "₹98,700",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcR-epdU1BfDKkFZTB2GY_rRaHBRyJKukqI4DBRXTw_d4Dt3LdzUQI85WDwDNGAYojRq3sf4294O5Dd274ifrID9iMk4k1a3Kw",
+          "productId": "4705083445925785089",
+          "position": 15
+        },
+        {
+          "title": "Envy x360 15 Convertible 11th Gen Intel Core i71165G7 8 GB RAM 512 GB SSD Storage 156inch Full HD Display Windows 10 Home Long Battery Life",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:9501958692197490568,gpcid:7393433736047448316,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,24,711",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS0UFXwmJHuZxnjv4_In29By_vOKNHGVPzCX1DScPInYC0GsS38mFZkYUAqoZW0vgO_2ViFUFJyPXaZuDKsSbifBCb7nmCrYQuTHFGR-jI0",
+          "rating": 5,
+          "ratingCount": 1,
+          "productId": "9501958692197490568",
+          "position": 16
+        },
+        {
+          "title": "HP ENVY x360 2-in-1 15.6\" FHD Touch",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:14713568699141532531,gpcid:17484136685166310175,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,22,220",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTSB43qBn_dEMzj_zV_PqsaugOooFVWsDJM6FA_TnUP2ILOUwo3bsmap7aBEoaCACceROvbLYAdC_-k7a-EWep6epyB4uzshTpX5PBJDIMd",
+          "rating": 4.4,
+          "ratingCount": 5,
+          "productId": "14713568699141532531",
+          "position": 17
+        },
+        {
+          "title": "HP Envy x360, 13th Gen Intel Core i5-1335U",
+          "source": "innovationestore.com",
+          "price": "₹1,15,638",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQQw4T4ZttiwYYSA4autYvCuJMZ22_0mSHx6G9SEEjA97Ow6DdqGwJfA2FHhwSiEoGXZVtgfBpyjqQwhAspwoLJGOtUcmvMGbZF-RkCsZbvkHO8pt16xxEgOQ",
+          "productId": "3989301434939909604",
+          "position": 18
+        },
+        {
+          "title": "ENVY x360 156 512GB SSD Intel Core i51240P 44GHz 8GB RAM 2In1 Touch",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:12272173822806091855,gpcid:9629416761133123253,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹68,868",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRCBAE-PaNg_rIU5rIY5-UvC0al9z9dx1Wr0wGHW1jR_qMHa6RAizh_sz7pgdwfZllQB2GfAQlN8X3UViOQpT7l2C8i66pLmk11pELBFYwT",
+          "rating": 4.3,
+          "ratingCount": 19,
+          "productId": "12272173822806091855",
+          "position": 19
+        },
+        {
+          "title": "HP Envy x360 2-in-1 156 Touch-Screen Laptop Amd Ryzen 5 5625U",
+          "source": "Desertcart.ae",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:8568060275346853314,gpcid:297883833860576627,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹83,500.60",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSMLedNJJ0zNAirOOmfw55EAs8eeTpssPsqNFPq2n8qBZRD4BB8zutu6ixQcg_eyFMujwmCNQeY1bO57gA0AgBUKX5UAvm8jn3SvZy771lXqj6nooHNL9mxSA",
+          "rating": 3.9,
+          "ratingCount": 10,
+          "productId": "8568060275346853314",
+          "position": 20
+        },
+        {
+          "title": "Refurbished HP Envy x360, 13th Gen Intel Core i5-1335U, 15.6-inch (39.6 cm) FHD,Creator Laptop,16GB LPDDR5, 512GB SSD, Intel Iris Xe Graphics, 5MP IR",
+          "source": "zapnet.in",
+          "price": "₹71,366",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQCHYbHSn9rqj1JgOJ64PctF_8-JMcwP1V8LmNRIA8nwngNfAN4cUkQUmGw-VmNfp3Mgjwt7FAoL7XMtHiei_XfzNScYDQf4c5zH8XAiyg_6mzXDflZ7_lfiQ",
+          "productId": "6502237540154048321",
+          "position": 21
+        },
+        {
+          "title": "HP Envy x360 15.6\" Laptop",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:11477287764846136699,gpcid:11497119251951132345,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹89,690",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTu80TanO9_LzXRMP95KVnEpCixy3reVnaQlxDLenw-Rjj2vUrhJXWQRioYwbNXX1J53-ZTuTUtVVW5ribUoFTPVJVqkghj36cQc3bWiZ-_MPIXkQEXu8juxw",
+          "rating": 4,
+          "ratingCount": 3,
+          "productId": "11477287764846136699",
+          "position": 22
+        },
+        {
+          "title": "HP ENVY x360 Intel Core? i7 Processors",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:4097257061191591134,gpcid:2887188929015475104,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹2,13,516",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRmYB9z23HiyhIYj1g9T0ewkup39g-pICkf_hJF_d6b5pgJQwfAyeYU7jl_x45e5p6Xna5wfCBC0RAOFAifMurRHkgg96se1bdSt0SknYU",
+          "rating": 2,
+          "ratingCount": 1,
+          "productId": "4097257061191591134",
+          "position": 23
+        },
+        {
+          "title": "HP Envy X360 Laptop",
+          "source": "BazarGPT",
+          "price": "₹55,900",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTkqydaRHQSXLa14bejZsorpoA8qYdDfaLNlvcw8l3gUXEWTWWVAnHfkf44HLraPiN2YvgQ32ePUwcCKRhGJgMdX_LCBDdlBzN_m5QKagJZvbtMoCNanM9BNQ",
+          "productId": "6865609804130718904",
+          "position": 24
+        },
+        {
+          "title": "Hp Envy x360 15-ds1010wm 15.6\" FHD IPS Laptop AMD Ryzen 5 4500U 8GB 256GB SSD 15ds1010wm",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:14315760185137661759,gpcid:3541191726555247527,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹83,742",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSzvs1oFsAzUziuLm3NGEkrE4IFZyaLwJtGCXuOvEEuyLO2ZsX5AeF9WnnFSIzHqxBB7ClIxoVnVfU7ttyTDzsow1bcMxf0gaifQ2fM-486",
+          "rating": 4.2,
+          "ratingCount": 99,
+          "productId": "14315760185137661759",
+          "position": 25
+        },
+        {
+          "title": "HP Envy x360 Core i5 13th Gen",
+          "source": "innovationestore.com",
+          "price": "₹1,25,078",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSfevHBl_gAsYbGMoS1NMZ10X0p_quzqUW-Y7I77tYAdbAbPJtNy42ZFymyHcKOt_RuPepGjuwsqBJGButJ2fOOMdp7wn-kAu8woUVNXLmpmuSTztGG_atT3w",
+          "productId": "3191722448890847392",
+          "position": 26
+        },
+        {
+          "title": "HP Envy x360 2-in-1 Laptop 2023 15.6 FHD 1920 x 1080 Touchscrenn AMD Ryzen 5 7530U",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:17068739197558191862,gpcid:17032156513824714741,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,14,200",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTIggqM5N8dl5P4x0qlQfd47kYDDimzjJC23hAfMUr2YA62n8sbQcTAUM34xprZZalHwyPKaKYazCcMiSwWXaYK026dqTuOjyGwdEVesz69",
+          "productId": "17068739197558191862",
+          "position": 27
+        },
+        {
+          "title": "HP Envy x360 15.6\" FHD Touchscreen 2-in-1 Laptop 13th Gen i5-1335U Processor",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:1598250632828663185,gpcid:1437925540834569282,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹94,862",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSTjrelHsdvELUnCH1OqbHDE9cQeZNJS04R-6ih0bG5jyeHLAq15OsKLUzgvHHvFzGsU--s7jtNFilit06PnygPvnyHc6apN3scSaqYDhw",
+          "productId": "1598250632828663185",
+          "position": 28
+        },
+        {
+          "title": "HP 15-fd0006TU Intel Core i3 13th Gen",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:15464026694704078238,gpcid:13636015868195305732,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹55,090",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRQg43jxm3-XLj-9nvBbbcTgZLlOnJxPwG18fqq5_kM82sjd_teRe1vYwNp-UpyLXkjABg0qhNsgsw_rVqXBgyS7JNe0JnqimzQaenrc3lk6Z7q7g6rh9r7yg",
+          "productId": "15464026694704078238",
+          "position": 29
+        },
+        {
+          "title": "Envy x360156 FHD Touch AMD Ryzen 5 3500U Radeon Vega 88GB 256GB SSD Black",
+          "source": "Desertcart.ae",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:2625349558305140113,gpcid:10106696336877925029,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,09,333.91",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRfmaKJ4P0v-ay2yX-WQ0lHOG_XX6s30ZrWyf6lC_Hp0ZklIgzYQnXW7r-qU-qM1d_NmpWVFQAKgZXzfcWWO6OdjVQzrYlYcO0j-09zmQl23lwLaa4QJTbv",
+          "rating": 3.9,
+          "ratingCount": 11,
+          "productId": "2625349558305140113",
+          "position": 30
+        },
+        {
+          "title": "HP Envy x360 15 Convertible 2-in-1 PC 12th Gen Intel Core i5-1240P 15es2023nr",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:16222292257034540143,gpcid:2188440353286867409,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹96,662",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcREx7rhFuG4mJzFwHdITf3DULEWwsgAa9vRzP5zwOLbomGRn7hMPKhpjdCJFeWjhD48q_w0P5ciCiOpmSPP_L1NiCrB8-Qlu57YBWGnESA",
+          "productId": "16222292257034540143",
+          "position": 31
+        },
+        {
+          "title": "HP Envy x360 15.6\" 2-in-1 Laptop Intel Core i7 16GB-RAM 1TB-SSD at Harvey Norman",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:12912136646151099096,gpcid:3544815177826639017,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹2,13,420",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSIKS-YY7ogxIdmmPQUGhNpvPSxw_A-BLlSg70bvHabfrG5ukmc_DICsxNc4pEZR2LB-6_8t3cL5i9SLfe1ZAITHIF_6nLzQ4rkbVAGchsbwBnw6KZfqNVRlQ",
+          "rating": 1,
+          "ratingCount": 1,
+          "productId": "12912136646151099096",
+          "position": 32
+        },
+        {
+          "title": "HP Envy x360 2-in-1 15.6\" Touch-Screen Laptop",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:6831209016382757794,gpcid:16670431345863293409,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,21,879",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSu0Gg1Pe3wfC7BBNNYJAmOvcBSUTyE8ACxZW1yxUwuEiBjHORYIcIpL4T2bzzK7hethJZH0onnh0tHWr4RS1gU_ld8j98yMSyjqbP4J4dW4OeCyuSQbByl",
+          "rating": 4.7,
+          "ratingCount": 3,
+          "productId": "6831209016382757794",
+          "position": 33
+        },
+        {
+          "title": "HP Envy x360 2-in-1 Laptop 14-fc0123TU",
+          "source": "shopclues.com",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:4101287327573178213,gpcid:12536314860211139136,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹90,800",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTED_HI09IiYArwTXUJYmHcRPGnUQlJVyOc9_NNjlL5iyT3xmvneQWcnXjwU4YHtjZSl6Yt5vP7XCi0qMX60sBVgl6OKi_Ysw",
+          "rating": 5,
+          "ratingCount": 1,
+          "productId": "4101287327573178213",
+          "position": 34
+        },
+        {
+          "title": "HP ENVY x360 15.6\" Full HD Touchscreen 2-in-1 Laptop, Intel Core Ultra 7 155u, 1TB Ssd, Windows 11 Home, 15-fe1097nr",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:2500355872505882563,gpcid:15397266595940506833,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹2,32,086",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQHiDIPF7DL8y_VO5giSD1MVrsg1BvcuBA1cAUDGWbXiwUziOYZ1VcELVz1errCfrM4qttdnKdnqdL4EASBbtPlzaw-2tzYcHdJ9rjP7fdVvjySA9S0oxx0cg",
+          "productId": "2500355872505882563",
+          "position": 35
+        },
+        {
+          "title": "HP ENVY x360 Convertible 15-inch FHD Touchscreen 2-in-1 Laptop",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:4504148688287321715,gpcid:13236785816128091502,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,12,479",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSZsjX5dlQ_SMgQa12yUOsW2jVWwL8PKFvlz0gr0_70UjLDQ9dBz8jSasgIKd0iQ14fd4uySn_-05suGkXqcC7LCmx3rryzkHSLBQ0xX0RK",
+          "rating": 5,
+          "ratingCount": 1,
+          "productId": "4504148688287321715",
+          "position": 36
+        },
+        {
+          "title": "Envy X360 15 15-Dr1000Nx 2-In-1 Laptop",
+          "source": "Desertcart.ae",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:2781348822899849640,gpcid:2979682401519113455,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,30,590.46",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTyHRFUPzb7SQvVeXSoIhsD6PefUbRxgSWomU1kurMNf_bBgLrDR6lnIa3H2uO_6Dr5c9XLE8g7poyZ66V0zIPkgg6P_sP8Y-xRNJFhe0E",
+          "productId": "2781348822899849640",
+          "position": 37
+        },
+        {
+          "title": "HP 15-FD0651TU Intel Core 5 Laptop",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:3636504205341443921,gpcid:12924512682306438925,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹61,990",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTyRP9MJfsdiBEE_EjPSZ51zAKVXqwz0g5zcNNYKx6RlsFydb-yyZta-31xM_ODCaIThz9by89pPB-oUW8UQU7IzlX_2sbVsn7SO_Sl9kgYbtSOAn_MtsTA6w",
+          "rating": 3.7,
+          "ratingCount": 31,
+          "productId": "3636504205341443921",
+          "position": 38
+        },
+        {
+          "title": "HP Envy x360 2-in-1-15.6\" FHD Touch",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:7968444232446023907,gpcid:3937141482408782046,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,00,644",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSXCXJssgfPdgG_MjMfJdP86WmpOGHOWyyYjXY4TN8ljL_regntB540ZwKAZBaDVGT9BtDQPd8vMk4cT-npoFPgQSXSwjSJuUkuNxuhYfdaysc4VZtxqTw9GA",
+          "rating": 3.7,
+          "ratingCount": 3,
+          "productId": "7968444232446023907",
+          "position": 39
+        },
+        {
+          "title": "HP Envy X360 2-in-1 15-fe0053dx 15.6\" i7-1335U 1.7GHz 16GB RAM 512GB SSD",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+ENVY+x360+15-inch+laptop&prds=localAnnotatedOfferId:1,catalogid:9512180482739493491,gpcid:5274451022955057206,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,67,870",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRBfyL2_xqWWu7IPTZm-o2HNTij4j-tm3YoCpvFSH5eZCPlTZqNB2L6q-0tTrkJytbepg7uRGqe-PBgcQdONAz83qz8_QvBECdmxweQVB1A",
+          "rating": 5,
+          "ratingCount": 1,
+          "productId": "9512180482739493491",
+          "position": 40
+        }
+      ],
+      "credits": 2
+    },
+    "elapsed_ms": 1946
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "HP Pavilion x360",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "23",
+      "x-ratelimit-reset": "1795067400"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "HP Pavilion x360",
+        "gl": "in",
+        "hl": "en",
+        "type": "shopping",
+        "num": 40,
+        "page": 1,
+        "engine": "google"
+      },
+      "shopping": [
+        {
+          "title": "HP Pavilion 14-ek2033TU Intel Core 3 100U Touchscreen 2-in-1 Laptop",
+          "source": "cayroshop.com",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:14657283210369219394,gpcid:10854312730060899790,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹58,499",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTu2Lwsb3IhZORWZ-ahJEiXPpsrLvBBz1worwBpc3z3W7g2YjdhXG16CizBGnliiHiTSWoK5y3qy7crgtEwOvyGb47SJkUlIAkMwP10CEQ",
+          "productId": "14657283210369219394",
+          "position": 1
+        },
+        {
+          "title": "HP Pavilion x360 13th Gen Intel Core i5-1335U 14-inch FHD",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:2786434166279607012,gpcid:14681861655024264072,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹83,965",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcS5Bz56ltbyvOROEIvXTD7cObW6Ag3cVqzfD74-PhKkvoQ91oBjHQ9C8Qj8cyhVrGs93tjSQ-B_Zgl_Uh-V6j-OfdZg0IAT9xl-axHhKNyl",
+          "productId": "2786434166279607012",
+          "position": 2
+        },
+        {
+          "title": "HP Pavilion x360 14\" FHD Touch Flip Laptop Intel Core",
+          "source": "ECore TechServ",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:6872566536057261232,gpcid:3513755453295623209,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹54,999",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSoiBGvNmHJOiruQK9QU-rPrs5HoVFymj2nuAD6B6kRQKbuKgYfJOmhUQ2zkA8VED5HiOCwq42Lvcjo9TPNHkPGRpKrZR0ZG2MrIx9ayVN_IG4QlWXS3eWf",
+          "productId": "6872566536057261232",
+          "position": 3
+        },
+        {
+          "title": "HP Pavilion x360 ek0072TU Intel Core i5 12th Gen",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:6221209245204882061,gpcid:11064339950441652664,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹75,959",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRVAXOprQuhJmPfyvhqd1GqObLpVe6HXjo4dDX-5CjUp-9Q4RKVj5QYSoHK1l8Ale_e3tJcO8ms9o9V1jmtMHHVQxP4GuCAhgOb-vkbspU",
+          "productId": "6221209245204882061",
+          "position": 4
+        },
+        {
+          "title": "HP Pavilion X360 Laptop",
+          "source": "BazarGPT",
+          "price": "₹55,900",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQKgVe8SKWJUR37v_sWbxzH_n6qJDnZl4f60tyJkwWFvejNOuYv7QmG1MGVOLi93Wpyaib1p0anFxXpcsE6D-P6Op7ye3FygrcXsj1J63EChwVgpIk0tNqA-Q",
+          "productId": "10605432008964451243",
+          "position": 5
+        },
+        {
+          "title": "Hp Pavilion x360 14-dy1047TU Laptop",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:6752736318015121244,gpcid:565983133239344528,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹60,267",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQZI-PZJXrOdohN3ofAjkeC2DJscPyLrYc7RR_1Fwo5qaOPHvNlHMYTjdV2gweVpkuhkDEsK14r2DJVWCrLldSsQ4Hy4PpaI1kvhCQkuwuUWh49gPWbHfxk",
+          "productId": "6752736318015121244",
+          "position": 6
+        },
+        {
+          "title": "HP Pavilion x360 14-dw1511TU | Intel Core i5 11th Gen Laptop",
+          "source": "Serggo",
+          "price": "₹41,781",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTDzTy8s3P2KkuU-ifieRUV_lwun9ryG02H_puEnb9bfDlmEN1pwFmAa2PyrN4snTgqWRzZn-J6MnhT9Tz7yCJ7wzTqhfc7brPNklqDu5o",
+          "productId": "215481650071349660",
+          "position": 7
+        },
+        {
+          "title": "Hp Pavilion x360 14 i5",
+          "source": "Flipshope",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:17068268264092390840,gpcid:8594339261716695189,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹99,900",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSotapUAQZCD8EimfqqUx8hc3VV5yoOVpVCFEY0CxnRPTJyJqVbKz2csyHSaq1MnHyPoZTtVlbsKhW9FsPnAcYLX8ect_Iiz-_7y09Qdb39XSvqyKpKmfZE",
+          "productId": "17068268264092390840",
+          "position": 8
+        },
+        {
+          "title": "Hp Pavilion x360 11th Gen Intel Core I7 14 Inches Fhd Ips Convertible Laptop",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:9003069966163901827,gpcid:13748252482465381176,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹88,954",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTZ6503FillxKj0riuhxr6Jy4WdAdZ8Z8wW_PG7DsQaPhbWmP4FvItu0d9YvKP2pw0PDOH_wRhGmPVkyF_biNiqTkeLmO9eKw",
+          "productId": "9003069966163901827",
+          "position": 9
+        },
+        {
+          "title": "HP Pavilion x360 14-inch i5-1335U/16GB/512GB SSD 2-in-1 Laptop",
+          "source": "innovationestore.com",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:2632977213937537985,gpcid:4196530035917506222,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹97,938",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQ1Q1OGy0U44WIrLXXs_ngL8E8tR4DHaAhN4u54WFRoux7STv2GUR7W9qJXdVQo_xVk5qRdZEqsRhT8E0CAsuOfGGAFxAesef3Vt9NMPu2Gr-mq5oFJPahL",
+          "productId": "2632977213937537985",
+          "position": 10
+        },
+        {
+          "title": "HP Pavilion X360 14 DH1179TU Laptop",
+          "source": "BazarGPT",
+          "price": "₹66,900",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQxO4Q8PmDAKo7SqNpr-q43u18SFj9qxjWhLbhpg6IKzqsEVuHb0NJZ9rO7RHwmIQC7q_3k85bOrnWCzwXhVKtQb87xYknhqzJF4q25c_v53ZEyB-SluAat",
+          "productId": "13629376179698343354",
+          "position": 11
+        },
+        {
+          "title": "HP Pavilion x360 14-dy0190TU Intel Core i3 11th Gen",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:11226834849021792028,gpcid:1046795373588473485,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹61,999",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ9fKPZpUWiJnwaaZAD3_q4X9rPvx9QL9E1qnNXQKw3Ag0WRgeKG7__rPvDUeYmI8FFuNinjBy8Q3HlvZkOgNGfaUKYCNg36f1NGT3P8HJJ9zd0uOLVogpC8Q",
+          "productId": "11226834849021792028",
+          "position": 12
+        },
+        {
+          "title": "Pavilion X360 2-In-1 Laptop",
+          "source": "innovationestore.com",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:8704563649500420536,gpcid:11147688228246394538,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,01,478",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSmd_RQ_JIbcMMfmtC-H32A1-TOQX2l-OpvP8S4UiFIrgSzOLQLzt0oaUuZOu8k2HdYuInP7NsH_E2taDypivNSQ47YJiZm2-4ZtX24Zq9gG2zjFHoMiJxMkw",
+          "productId": "8704563649500420536",
+          "position": 13
+        },
+        {
+          "title": "HP Pavilion x360 Convertible 14-dy1049TU",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:11178479263646693455,gpcid:853508616652541938,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹72,990",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTi7WMrbV7XqYDh_Rv2HrIZoZJrtWjURicYN3ciyjTA053D3URGdze2D8mSdJeArqt0MFZsLJYVRiu2ngg5fIaYn6h8PMxHnq29ZIEJsHo",
+          "productId": "11178479263646693455",
+          "position": 14
+        },
+        {
+          "title": "HP Pavilion x360 Laptop 11th Gen Core",
+          "source": "HiLaptop.com",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:11438353361166741085,gpcid:1677004927382514231,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹24,999",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQ-K5VJIoIionwHbUqedDfWUjTvmYEc3ntqSwH345EnbKDfvJSxpGlp4OQRNZamn1UPZddejc-zApqAeLM2atrtH91QkuBQf4A5x1PKqwTQj3I7RFCCi4Oy1A",
+          "productId": "11438353361166741085",
+          "position": 15
+        },
+        {
+          "title": "HP 14-dy0053TU Pavilion x360 Convertible Laptop",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:3557150134214204408,gpcid:17158055229928356247,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹69,730",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRdecnTtayZGd_uXWfL9_3EZejNGdMm4gH2PVEDEFeA2srw9M-F9cUTGv7-1HZ3q2IFcAToVbx9mkA1FIZXSgRa4newV3TVC7FMy_ZlKsHf0HV2cx7drMIJGg",
+          "productId": "3557150134214204408",
+          "position": 16
+        },
+        {
+          "title": "Hp Envy x360 Convertible Laptop",
+          "source": "BazarGPT",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:6990304982843655032,gpcid:3006899620915398020,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹27,900",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQqcxm-B7uO1-W9TEpZ2kdOgZ4oYlatw7ehaQftEVgJRm1GCww8hrB6IBz_AIVd4bAUzruuuqnBUDm6qmYmUI-vBD-ixGX4QcOY95VABWxkivavrhtUI5fJ",
+          "productId": "6990304982843655032",
+          "position": 17
+        },
+        {
+          "title": "HP Pavilion x360,14\" Touch Screen, 12th Gen ,i5, 8GB RAM, 256GB SSD",
+          "source": "FoneZone.com",
+          "price": "₹61,822",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcT_HpqgG2bO1OAp0o58qdyDV-jF2UUWf3MyEXGgS2XpEOd7rMwTUg-55zhkB6LkH5MVYGyFayo62k-GnnL2FmPMPPWGMTW3OuMQKkJWgYbH0aoiGiPG73E7",
+          "rating": 4.5,
+          "ratingCount": 73,
+          "productId": "14979486042237192833",
+          "position": 18
+        },
+        {
+          "title": "HP Pavilion x360 14-dh0047tu",
+          "source": "Zopic",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:16008816022640937166,gpcid:7610630017395584488,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹50,490",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSllfW5xBidTcEpxycFcoT-UUuUQ95ikhulKBvQTAYLk3WBtKEumdHmA6iAyVKHpZ7sLF5XtDtwr9BOTjiqe8Rji-99uduYvLaLqYoDUqE",
+          "productId": "16008816022640937166",
+          "position": 19
+        },
+        {
+          "title": "HP Pavilion x360 14-dy0208tu Intel Core i3 11th Gen Touchscreen 2-in-1 Laptop",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:2996073013699880187,gpcid:16209056869918038326,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹63,499",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTUTfyCofTuNuBzqlZtBB42H1G6FVrlrjp2K4mfxKujZ0fzqjlWi_5nnWKNA2qF4EsEsFti975zBaofcsn-yJ5ytuzoA4MCRTS6ii-ixiSU",
+          "productId": "2996073013699880187",
+          "position": 20
+        },
+        {
+          "title": "HP Envy x360 14\" 2in1 Laptop AMD Ryzen 5 8640HS Processor AI Enhanced",
+          "source": "innovationestore.com",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:875602678613658175,gpcid:15777418517826936899,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,06,198",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ5gsnE5d6TGlx7Ch8ohgz5uO7ARTMLX18vPQYVsxxSJuU5QUb4VIrJn90wgm81EHJhv1_0MPGaUc8Hq7HJXfcQsr3B70lqN0vUMUVSFeusk9F2BNusorhc",
+          "rating": 5,
+          "ratingCount": 1,
+          "productId": "875602678613658175",
+          "position": 21
+        },
+        {
+          "title": "HP Probook X360 435 G9 Ryzen 7 Pro 5875U Laptop - Buy at Lapilab Pune",
+          "source": "buylapi.in",
+          "price": "₹42,000",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcStKXnYxYyUZLFFlEOdoFBVdOuJqyNPDPKbfGqIHZ3zOoCsmqERQ9ARJKje1uhTzUjL99HEkSibHIddpuJIOW4BRPbqxMNa105YF_WlV09Sp79k0jq_e-QoIg",
+          "rating": 4.4,
+          "ratingCount": 21,
+          "productId": "3353979911587817872",
+          "position": 22
+        },
+        {
+          "title": "HP Probook x360 435 G8",
+          "source": "pureonecomputers.com",
+          "price": "₹34,499",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS25YmpE9h8XyM3W3reC8IhU3fbWLUJB_VdXDUSp3Sd94ZGtVkL8HO7HQ7Dgl6ABxpHIG1AWgw-BpKcPM_fUTdHzbS2PwKvUKiJSbQwd3QS11FObEPJBdM1",
+          "productId": "608899983386700665",
+          "position": 23
+        },
+        {
+          "title": "HP Pavilion Intel Core I3 11th Gen 8 Gb/512 Gb Ssd/Windows 11 Home 14-dy0186tu 2 In 1 Laptop",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:9039496959502877585,gpcid:16030471726963591143,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹64,299",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQTEu6AYPMWyuK160jHwetVKYd8-T3DhnyfTrSBhZoErBL3-oEzafLlc7nvCJGVFPV-vPxh6MsVTsvI7bVCOlh18Fbl-iPt",
+          "productId": "9039496959502877585",
+          "position": 24
+        },
+        {
+          "title": "HP ENVY x360 14-fc0106TU Laptop 16GB RAM 512GB SSD",
+          "source": "BazarGPT",
+          "price": "₹1,00,000",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRW0d_uBK8YoZpqyFvd0Yu_FUOhiXer7WVXDowpG4_qWvdDfElNC4Utct4-RYzi56WdP2QiATpxc7v7Tm4K3PZmGbbyih8_Myje6fIhQh35yZIE1iJqCgmsPw",
+          "productId": "9494838926732344555",
+          "position": 25
+        },
+        {
+          "title": "HP Pavilion x360 14 EK0137TU (Intel Core i3 12th Gen) Laptop",
+          "source": "GameLoot",
+          "price": "₹14,000",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcT4FW4y4tfeCW4S67X_6nzaIivnpaKLQJdPt5ffx-sTaM7fE7WFxm3OYlN-hMbR06jjNyS2Y9MwifKirH0NGYhO4z_87agQPQ",
+          "productId": "6105412039100775633",
+          "position": 26
+        },
+        {
+          "title": "HP Envy x360 15.6in Ryzen 5 8GB 512GB 2-in-1 Laptop",
+          "source": "Theitdepot",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:8140081484352913245,gpcid:4481854065090247170,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹79,315",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcR8qqTbLOcdXodIM5wZOW5IKz4dnApvRqwYf_Tozf893BRACHg1i47mfrvy64QIQt9I1TEqDejcdsuiYdNu5Ru6GK50BAjtGhKKfE0tNNeGA83VUUAAOCn7xw",
+          "productId": "8140081484352913245",
+          "position": 27
+        },
+        {
+          "title": "HP Pavilion Intel Core I5 12th Gen 1235u 8 Gb/512 Gb SSD/Windows 11 Home 14-ek0086tu Thin And Light Laptop",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:17635707798248878679,gpcid:10742149851807042498,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹64,565",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRq94ahehVkaTYEpfV-B_WlIgKGUYO9yuuwxnqZTVwfcdbC1p5OVc98lr1OlIurs0CVXALvBr17pDP26hIvgtEEN2kL6mCZSjvUGNeGcnM",
+          "productId": "17635707798248878679",
+          "position": 28
+        },
+        {
+          "title": "HP Pavilion x360, Intel Core i5-1235U, 14-inch (35.6 cm), FHD, 16GB DDR4, 512GB SSD",
+          "source": "Ibox Services",
+          "price": "₹75,990",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ5ffpnzR9-MmA20t1OnUh3Be7EClAuiZEP_Xrxjl7Koqa1yq6sSHLuExVkS7NKFXb6kZf7dx9I9qCa-H_vbox2C4h433ZRkUW-g4lY8BpXE2wgAh_dLE0e",
+          "productId": "3915168835205589532",
+          "position": 29
+        },
+        {
+          "title": "*Hp Elite Book X360 1030 G2 Ultra Slim*TOUCH FOLDABLE*",
+          "source": "skytechnologieshyd.com",
+          "price": "₹29,999",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSJZYP8-vfyLWpmsZxnzvbj_aNQJyCTupm_AHyFw0mwTkswSUqCFni_lsOy2Vc1UpQ66KvACcogNTOQxgxxAxSokEb2fVf1WDGSTp7B-qKE",
+          "productId": "6510222510156757365",
+          "position": 30
+        },
+        {
+          "title": "HP Pavilion Plus 14-ew0116TU Laptop",
+          "source": "cayroshop.com",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:14765065967175184067,gpcid:9909677746055339557,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹82,499",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcT6kmoGxXfsDjK_dYHdJhduL8tu61bRi5s07cP2VTXMJhWEfCbyr2p3ut57hnQHwLEIHkASHqGtJXaf8JqfOVcYZlwYuGBq5nsxVscVyeZvIUx4uAfXwNH0fQ",
+          "productId": "14765065967175184067",
+          "position": 31
+        },
+        {
+          "title": "Hp pavilion x360 i5 10th gen 8gb 256gb ssd touch screen 360 degree rotatable",
+          "source": "gadgetsclub.in",
+          "price": "₹27,999",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRGF1rnFgdnnSWg9eQwd4TSUchOkXy5hnuGbULj-p2y8Gbj3Zct_5-DwNN85oOkbijX1S4grknhJPnHR84PRH2TsoS7ZDb1HPWV0maaTU0VMI_szdJZXhpS",
+          "productId": "14871739072809023722",
+          "position": 32
+        },
+        {
+          "title": "HP Envy x360 13th Gen Intel Core i7-1355U 15.6-inch IMAX,FHD",
+          "source": "LowestRate Shopping",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:9946659982873151592,gpcid:2841637433613226913,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹89,488",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS7ceDO453VhdNNJFBUojOUjs1pHpp59ioHScw7IQiqDrKN8TZRu6Osj4Uz-skAA-j9Nlm7PZ9er-vuiOL53idmfBVi4onXpuJ0JvQxOI0Q42sxryue37Yrdw",
+          "productId": "9946659982873151592",
+          "position": 33
+        },
+        {
+          "title": "HP Envy x360 for Creators 12th Gen Intel Core i7-1255U, 15.6inch(39.6 cm) FHD OLED 500 Nits Micro-Edge Display (16GB RAM/1TB SSD/B&O/NVIDIA GeForce",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:11639215289562783933,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,04,798",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSH_X2bQ0kqC_P3pYJFVcipn_tp2WPND1u5hTc_vI4NW1O1lfGDmReSEDnVjT1M_Y7wIc4UX-Nithd2_ZmabMGA3MZXeDqU4w",
+          "productId": "11639215289562783933",
+          "position": 34
+        },
+        {
+          "title": "HP Pavilion x360 14-dw1002ne Core i5-1135G7 8GB RAM 512GB SSD",
+          "source": "HiLaptop.com",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:7747192392119578588,gpcid:3270056963384236163,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹59,999",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTFYkHXfSsQxQE7hA97B2wrcJclmlltw5fVTgfe8Tz3mREmjN3vDOlj9n_N_FYW2BRUJNyBebLDdDf2p15v_wn4Qq8W51Vsbh89SHiZPWs",
+          "rating": 5,
+          "ratingCount": 1,
+          "productId": "7747192392119578588",
+          "position": 35
+        },
+        {
+          "title": "Envy x360 15-fh0077ng",
+          "source": "LowestRate Shopping",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:16670623864268489393,gpcid:8760428013278528863,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹89,488",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS7ceDO453VhdNNJFBUojOUjs1pHpp59ioHScw7IQiqDrKN8TZRu6Osj4Uz-skAA-j9Nlm7PZ9er-vuiOL53idmfBVi4onXpuJ0JvQxOI0Q42sxryue37Yrdw",
+          "rating": 5,
+          "ratingCount": 8,
+          "productId": "16670623864268489393",
+          "position": 36
+        },
+        {
+          "title": "HP EliteBook x360 1030 G8 Notebook Pc, 11Th Gen Intel Core I5 13.3 Inches 4K Uhd, Touch, Ips, Corning Gorilla Glass Display (16Gb Ram/512Gb Ssd/ Fpr",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:88826638826712,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,73,145",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQ10FwIXarE15qxANtrxxdZIP7jGlv-D2ltxzPGGWuFT3CukAWwKJnhofpvHXkUXJQiXD2TrRgpegheHEx4G9mX3O6fbR8g",
+          "rating": 4.7,
+          "ratingCount": 28,
+          "productId": "88826638826712",
+          "position": 37
+        },
+        {
+          "title": "HP Pavilion x360 14-dh1028ne Hybrid (2-in-1) Silver 35.6 cm (14\") 1920 x 1080 pixels Touchscreen 10th gen Intel Core i7 8 GB DDR4-SDRAM 512 GB SSD NVI",
+          "source": "ravirajtech.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:7178413385099997981,gpcid:11592895331513232200,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹97,928.68",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSYkOUJ7_6Df-_AL0MFChB_zVUmUAhytmRDJt9sWuWOLb5ZoWMwEHTPH8IPwSf7DAOh4dkzDr6_aZl_1fuGZAs7wabQq9kEid3hqJS_CD1qCNLiwYDwu8RC",
+          "rating": 5,
+          "ratingCount": 3,
+          "productId": "7178413385099997981",
+          "position": 38
+        },
+        {
+          "title": "HP Pavilion x360 14-dy0207TU Intel Core I3 11th Gen Touchscreen 2-in-1 Laptop",
+          "source": "Basket Rich",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:1367432755957822552,gpcid:9611446474569178772,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹56,300",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcT4f2mqDVHahz0FSSOVn2-wPKP3585Ii4IxjbFeK69AAY3vENe92ZXLwgXZcLO4qegE3RdGZi5hViTlJ86pnDTKSQX6bWCA5zvWg2QXNVY",
+          "productId": "1367432755957822552",
+          "position": 39
+        },
+        {
+          "title": "Hp Envy X360 13-ay1035au Amd Ryzen 5",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=HP+Pavilion+x360&prds=localAnnotatedOfferId:1,catalogid:2806485100647261873,gpcid:9354174993897819385,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹75,019",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTO4idaOKS0EdpBoym9nS8UkZ5nXjTrab-mdfpdc4okfk3lmYDK359Xt_sR7r7I5zb8olwDQ6Lwv0doGEaNWNULAuSFcg5HO7e1zXRvqIfb",
+          "productId": "2806485100647261873",
+          "position": 40
+        }
+      ],
+      "credits": 2
+    },
+    "elapsed_ms": 1699
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "HP SPECTRE x360 convertible laptop",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "HP Stream notebook",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "HP ZBook Studio mobile workstation",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Acer AL14-71P NX.D7USI.001 Standard Laptop",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Lenovo IdeaPad Slim 1 82R400BGIN Laptop (AMD Ryzen 5 5500U/ 8GB/ 512GB SSD/ Win11 Home)",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Dell Inspiron 15 3530 (OIN353034011RINS1M) Laptop",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "HP 15s 15 FD0623TU Standard Laptop",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  }
+]

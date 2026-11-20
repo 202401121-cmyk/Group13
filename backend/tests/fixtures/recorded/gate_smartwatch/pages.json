@@ -1,0 +1,189 @@
+[
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 3553 bytes]",
+    "elapsed_ms": 243
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "49",
+      "x-ratelimit-reset": "1795063210"
+    },
+    "response_body": "[page body not stored: 1837 bytes]",
+    "elapsed_ms": 3185
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.reliancedigital.in/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 1022 bytes]",
+    "elapsed_ms": 7085
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.amazon.in/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 9320 bytes]",
+    "elapsed_ms": 302
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.gadgets360.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 403,
+    "response_headers": {
+      "content-type": "text/html"
+    },
+    "response_body": "[page body not stored: 386 bytes]",
+    "elapsed_ms": 3157
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/list-of-smartwatch/best-smartwatches-under-15000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 340071 bytes]",
+    "elapsed_ms": 531
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.amazon.in/wearable-devices/b?ie=[redacted]&node=[redacted]",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html;charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 771384 bytes]",
+    "elapsed_ms": 1848
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.vijaysales.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 10125,
+    "error": "ConnectTimeout"
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/smartwatches/price-10000_to_15000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "49",
+      "x-ratelimit-reset": "1795067546"
+    },
+    "response_body": "[page body not stored: 131566 bytes]",
+    "elapsed_ms": 166
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/smartwatchfinder.php",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 377715 bytes]",
+    "elapsed_ms": 99
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.reliancedigital.in/collection/smart-watches-under-15000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html"
+    },
+    "response_body": "[page body not stored: 1343498 bytes]",
+    "elapsed_ms": 2847
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.vijaysales.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 3546 bytes]",
+    "elapsed_ms": 1582
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.vijaysales.com/blog-listing/buying-a-smartwatch-how-do-you-pick-one",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html;charset=utf-8"
+    },
+    "response_body": "[page body not stored: 498198 bytes]",
+    "elapsed_ms": 1923
+  }
+]

@@ -1,0 +1,138 @@
+{
+  "generated": "2026-11-20",
+  "commit": "161934b",
+  "story": "US-49 (S4-13): the recorded runs replayed offline",
+  "runner": "python -m evals.gate (offline)",
+  "recordings": {
+    "gate_air_fryer": {
+      "expected": 35,
+      "survived": 29,
+      "missed": [
+        "Havells Prolife Aero 4.2L Air Fryer",
+        "Inalsa Crisp Pro 24 L Air Fryer Oven",
+        "Inalsa SteelChef DW5.5 5.5L Air Fryer",
+        "Italia IAF-4342 4.5L Air Fryer",
+        "Kenstar Aster Smart 4.5L Air Fryer",
+        "Philips NA120/00 4.2L Air Fryer"
+      ],
+      "claims": 22,
+      "claims_without_quote": 0,
+      "shown": 7,
+      "shown_without_source": 0
+    },
+    "gate_earbuds": {
+      "expected": 6,
+      "survived": 6,
+      "missed": [],
+      "claims": 6,
+      "claims_without_quote": 0,
+      "shown": 6,
+      "shown_without_source": 0
+    },
+    "gate_laptop": {
+      "expected": 56,
+      "survived": 46,
+      "missed": [
+        "Acer Aspire 5 A514-56M 2023 Gaming Laptop",
+        "Acer Aspire One A115-39 UN.38CSI.001 Laptop",
+        "Dell Pro 15 Essential Laptop",
+        "HP 255R G10 2025 Laptop",
+        "Honor MagicBook X14 Pro 2024 FRI-G56 Laptop",
+        "Jio JioBook NB1112MM BLU 2023 Netbook Laptop",
+        "Lenovo V15 G4 83CQ0006IN Laptop",
+        "MSI Modern 15 B13M-289IN Laptop",
+        "Samsung Galaxy Book 4 np750xgj-kg2in Laptop",
+        "Ultimus APEX Pro NU14U8INB43SN-CS Laptop"
+      ],
+      "claims": 40,
+      "claims_without_quote": 0,
+      "shown": 22,
+      "shown_without_source": 0
+    },
+    "gate_smartphone": {
+      "expected": 37,
+      "survived": 17,
+      "missed": [
+        "Ai+ Nova 2 Power",
+        "Google Pixel 11",
+        "Huawei Osta O1 Pro",
+        "Mivi One 5G",
+        "Motorola Edge 70 Neo",
+        "Oppo Reno 17",
+        "Oppo Reno 17 Pro",
+        "Pixel 11 Pro Fold",
+        "Redmi 17 5G",
+        "Redmi Note 17 Pro",
+        "Redmi Note 17 Pro Max",
+        "Samsung Galaxy S26 FE",
+        "Samsung Galaxy Z Flip 8",
+        "Samsung Galaxy Z Fold 8",
+        "Samsung Galaxy Z Fold 8 Ultra",
+        "Vivo S2",
+        "Vivo V80",
+        "Vivo X Fold 6",
+        "iPhone 18",
+        "iPhone Air 2"
+      ],
+      "claims": 10,
+      "claims_without_quote": 0,
+      "shown": 4,
+      "shown_without_source": 0
+    },
+    "gate_smartwatch": {
+      "expected": 10,
+      "survived": 10,
+      "missed": [],
+      "claims": 19,
+      "claims_without_quote": 0,
+      "shown": 10,
+      "shown_without_source": 0
+    }
+  },
+  "survival_target": 0.9,
+  "meets_target": false,
+  "label_problems": [],
+  "without_expected": [],
+  "measures": [
+    {
+      "id": "gate.expected_survival",
+      "value": 0.75,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/tests/fixtures/recorded (the recordings with a pipeline.json), app.extract, app.decide",
+      "detail": "Expected products extraction still finds, of all."
+    },
+    {
+      "id": "gate.claims_without_quote",
+      "value": 0,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/tests/fixtures/recorded (the recordings with a pipeline.json), app.extract, app.decide",
+      "detail": "Claims whose quote is not their source's own words."
+    },
+    {
+      "id": "gate.shown_without_source",
+      "value": 0,
+      "unit": "products",
+      "status": "measured",
+      "source": "backend/tests/fixtures/recorded (the recordings with a pipeline.json), app.extract, app.decide",
+      "detail": "Shown products with no cited source."
+    },
+    {
+      "id": "gate.claims_kept",
+      "value": 97,
+      "unit": "claims",
+      "status": "measured",
+      "source": "backend/tests/fixtures/recorded (the recordings with a pipeline.json), app.extract, app.decide",
+      "detail": "Claims extraction kept."
+    },
+    {
+      "id": "gate.label_disagreements",
+      "value": 0,
+      "unit": "briefs",
+      "status": "measured",
+      "source": "backend/tests/fixtures/recorded (the recordings with a pipeline.json), app.extract, app.decide",
+      "detail": "Hand-labelled winners the scoring code rejects."
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "gate_smartwatch",
+  "request": "smartwatch for running with GPS under 15000 rupees",
+  "runs": 1,
+  "budget": {
+    "groq": 12,
+    "gemini": 8,
+    "mistral": 4,
+    "openrouter": 0,
+    "cerebras": 0,
+    "serper": 7,
+    "youtube": 0,
+    "reddit": 0,
+    "jina": 0,
+    "pages": 24
+  },
+  "calls": {
+    "groq": 6,
+    "gemini": 6,
+    "mistral": 2,
+    "serper": 7,
+    "pages": 13
+  },
+  "refused": {
+    "the serper budget of 7 is spent": 1
+  },
+  "problems": [
+    "groq call failed: ConnectTimeout",
+    "pages call failed: ConnectTimeout",
+    "gemini call failed: ReadTimeout",
+    "mistral call failed: ReadTimeout",
+    "gemini call failed: ReadTimeout",
+    "gemini call failed: ReadTimeout",
+    "pages call answered 403",
+    "refused 1: the serper budget of 7 is spent"
+  ],
+  "recorded_at": "2026-11-19T05:52:58+00:00",
+  "recorded_by": "Harsh Kodavala",
+  "expected_products": [
+    "Fire-Boltt Combat",
+    "Amazfit Balance",
+    "Amazfit Active 2 Square",
+    "Titan Smart Pro",
+    "beatXP Vega",
+    "Fire-Boltt Rise Luxe",
+    "Fire-Boltt Rise",
+    "Fire-Boltt Hunter",
+    "Fire-Boltt Ninja Call Pro Plus",
+    "Fire-Boltt Ninja Calling Pro"
+  ],
+  "expected_note": "Expected products listed by hand by Harsh Kodavala, 20 Nov 2026"
+}

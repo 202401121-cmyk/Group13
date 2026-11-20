@@ -1,0 +1,1436 @@
+[
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "best smartwatch under 15000 rupees India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "23",
+      "x-ratelimit-reset": "1795067485"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "best smartwatch under 15000 rupees India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Smartwatches Under Rs. 15000 (Nov 2026)",
+          "link": "https://www.91mobiles.com/list-of-smartwatch/best-smartwatches-under-15000",
+          "displayedLink": "https://www.91mobiles.com › list-of-smartwatch › best-smartwatches-under-15000",
+          "snippet": "Top 5 Smartwatches Under Rs. 15,000 with Prices & Specs · Fire-Boltt Combat · Amazfit Balance · Amazfit Active 2 Square · Titan Smart Pro · beatXP Vega · beatXP Exact.",
+          "position": 1
+        },
+        {
+          "title": "BEST SMARTWATCH UNDER 15000 - Amazfit India",
+          "link": "https://in.amazfit.com/collections/best-smartwatch-under-15000?srsltid=AYCX9vJeL-BrdsIe6MG-gVjx_o7cyxDDzHxtzwXTN_srrrMgIw3VMAtX",
+          "displayedLink": "https://in.amazfit.com › collections › best-smartwatch-under-15000",
+          "snippet": "Amazfit Active 2 Square · Amazfit Bip Max · Bip 6 · Amazfit GTS 2 (Refurbished) · Amazfit GTS 2 Mini Refurbished · Amazfit GTS (Refurbished) · Amazfit Strap Leather ...",
+          "position": 2
+        },
+        {
+          "title": "Smartwatches Between ₹10000 and ₹15000",
+          "link": "https://www.smartprix.com/smartwatches/price-10000_to_15000",
+          "displayedLink": "https://www.smartprix.com › smartwatches › price-10000_to_15000",
+          "snippet": "Smartwatches Between ₹10,000 and ₹15,000 · OnePlus Watch 2R · OPPO Watch 5 · Samsung Galaxy Watch 4 Classic 46mm Bluetooth · Xiaomi Watch S5 · Amazfit Active 2 ...",
+          "position": 3
+        },
+        {
+          "title": "Best Smartwatch Under 15000 in 2026  Best Premium ...",
+          "link": "https://www.youtube.com/watch?v=91EzCjo69os",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Today we're talking about the Best Smartwatch Under 15000 in 2026. Best Buying Links - ✓ Huawei Watch FIT 3 : https://amzn.to/4ti71hz ...",
+          "position": 4
+        },
+        {
+          "title": "Best Smartwatches Under Rs. 15000 in India",
+          "link": "https://www.bajajfinserv.in/best-smartwatch-under-rs-15000",
+          "displayedLink": "https://www.bajajfinserv.in › best-smartwatch-under-rs-15000",
+          "snippet": "Looking for the best smartwatch under Rs. 15000? Explore top smartwatches with Bluetooth calling, AMOLED display, health tracking, and long battery life.",
+          "position": 5
+        },
+        {
+          "title": "Buy Smart Watches Under 15000 online in India",
+          "link": "https://www.myntra.com/smart-watches-under-15000",
+          "displayedLink": "https://www.myntra.com › smart-watches-under-15000",
+          "snippet": "Bluetooth Calling Smartwatch · ₹9,999. ₹1,531 ; inear INWATCH Pro Smartwatch · ₹11,999. ₹3,299 ; Chrome Iris Smartwatch. ₹6,499. ₹4,399 ; Enigma Radiant ...",
+          "position": 6
+        },
+        {
+          "title": "Shop Smart Watches Under 15000 Online in India",
+          "link": "https://www.reliancedigital.in/collection/smart-watches-under-15000",
+          "displayedLink": "https://www.reliancedigital.in › collection › smart-watches-under-15000",
+          "snippet": "Amazfit T-Rex 3 Outdoor Rugged Military 48 mm Smart Watch Built in GPS, 2000 Nits Brightness, 27 Days Battery Life, Offline Maps, 10 ATM, AI Coach, ...",
+          "position": 7
+        },
+        {
+          "title": "Galaxy Watch 6 vs OnePlus Watch 2R: Best Smartwatch Under ₹15000?",
+          "link": "https://www.youtube.com/watch?v=QXnC1w2GnfQ",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "If you are looking for a WearOS smartwatch under 15,000 rupees, this video is for you. The OnePlus Watch 2R is going for ₹12,999 and the ...",
+          "position": 8
+        },
+        {
+          "title": "Buy Smart Watches Online at Best Prices in India",
+          "link": "https://www.amazon.in/wearable-devices/b?ie=UTF8&node=11599648031",
+          "displayedLink": "https://www.amazon.in › wearable-devices › b",
+          "snippet": "Noise Pulse 2 Max 1.85\" Display, Bluetooth Calling Smart Watch, 10 Days Battery, 550 NITS Brightness, Smart DND, 100 Sports Modes, Smartwatch for Men and Women ...",
+          "position": 9
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 4921
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "smartwatch review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "1795067480"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "smartwatch review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Latest & Best Smartwatches Online 2020 ...",
+          "link": "https://www.gadgets360.com/wearables/smartwatch-finder",
+          "displayedLink": "https://www.gadgets360.com › Wearables",
+          "snippet": "The Gadgets 360 Smartwatch Finder can help you take on the daunting task of finding the right smartwatch that suits your needs and budget.",
+          "position": 1
+        },
+        {
+          "title": "Moto Watch Review: The Best Smartwatch Under Rs. ...",
+          "link": "https://www.gadgets360.com/wearables/reviews/moto-watch-review-11170847",
+          "displayedLink": "https://www.gadgets360.com › ... › Wearables Reviews",
+          "snippet": "The Moto Watch brings a premium design, a dependable battery life, and a comfortable wear experience. 5,999 its flawed tracking. than 7 days of ...",
+          "date": "Mar 5, 2026",
+          "position": 2
+        },
+        {
+          "title": "Pebble Cosmos Luxe Smartwatch Review",
+          "link": "https://www.gadgets360.com/wearables/reviews/pebble-cosmos-luxe-smartwatch-review-price-in-india-3114533",
+          "displayedLink": "https://www.gadgets360.com › ... › Wearables Reviews",
+          "snippet": "The Pebble Cosmos Luxe smartwatch is priced at Rs. 3999 in India, and has an interesting, eye-catching design and a 1.36-inch round AMOLED ...",
+          "date": "Jun 30, 2022",
+          "position": 3
+        },
+        {
+          "title": "Smartwatches & Fitness Bands in India",
+          "link": "https://www.google.com/goto?url=CAESYAHEIkXXPVR0ZABrBg6KVbvBYptkLbBg08h4iDy2ZgxNNcysLVDm3-7expUBGP4iNUYFwoxbFOD68HgKT3x1sVzw_BTcDggiVdWOMJRk4LZAc6HXWSHQAp92MExnC3H_wQ&gsessionid=NfJoW7fuNapo9i88Nfcr6bSYmXi-hJT0scncQ8Yq5mfq4HjFe2NiDg",
+          "displayedLink": "https://www.91mobiles.com › wearables",
+          "snippet": "Explore the latest wearables in India including smartwatches and fitness bands with updated prices, full specifications, expert reviews, latest news, ...",
+          "position": 4
+        },
+        {
+          "title": "Fire-Boltt Beast Smartwatch Review: Affordable Apple ...",
+          "link": "https://www.google.com/goto?url=CAESwwEBxCJF1_4D5yaHMxIQa3aVa0OXaj7dro098_ToKYLxJVrTnTsGD-CaGTqJ3w4B8VL9aswM3iFn5ysCba3HR3dLubFfT4dpJyAPAqw6wtXfyzbJwCxpynC5NYlFDLRE7xKLTijlam-i_4Zpt9e12wJyfGzNMBMY5IxEI5jUA-MX6G33a_Iq7EPok7hfLcKpWk9Rzlm08ynUKGsA1Dm6XCZ3wOYT2oiXhNFmd-sX3_tAqbJ4polh1ixffFXoY5bqWJD2mwA&gsessionid=NfJoW7fuNapo9i88Nfcr6bSYmXi-hJT0scncQ8Yq5mfq4HjFe2NiDg",
+          "displayedLink": "https://www.gadgets360.com › ... › Wearables Reviews",
+          "snippet": "The Fire-Boltt Beast is an affordable smartwatch and fitness tracker, There's heart rate, SpO2, sleep, and exercise tracking on the Fire-Boltt ...",
+          "date": "May 19, 2021",
+          "position": 5
+        },
+        {
+          "title": "Smartwatches Under 1500 (Nov 2026)",
+          "link": "https://www.google.com/goto?url=CAEShgEBxCJF1yAJr__d5T4nSwac7nH37fJwh0BrME-CSeF_gDLhexU_PXjCn7Ol1uWnw2yokcYrjCqnWBjVdqHoKSabSuOfM9uMWuQs4gMsuoSb0ZQ5ko2N8i-stp8mXFa5jGaCBthZHZIaus0gNA08Tz6Ms8RWoy5chqflODDFzmRRFrxI24RNPQ&gsessionid=NfJoW7fuNapo9i88Nfcr6bSYmXi-hJT0scncQ8Yq5mfq4HjFe2NiDg",
+          "displayedLink": "https://www.91mobiles.com › list-of-smartwatch › best-s...",
+          "snippet": "Key Specs · 1.85 Inch (4.7 cm) Display · 240 x 280 Pixels Resolution · Rectangular, Flat Dial · Water Resistant · Calling Support · Upto 7 Days battery life.",
+          "position": 6
+        },
+        {
+          "title": "NoiseFit Active Smartwatch Review",
+          "link": "https://www.google.com/goto?url=CAESogEBxCJF1wb3TBWLh41WY1RPL1qdiMR_F7kCY2e-kYoTT2UHJpK3Dh01Hjb9SifWIrsVgrXwZrSGrtRWh2Wj7X6j9wIBOI9An8mypGRXNcKRrCn2GYilt87UEHOtweGdBG9xdCCvTrMSfMfIgWG-iNLBrq5dfM7lfpiCbvAlaZ1ry6ngc-CZFtNrLyhpJTrwPE7MYA_4Wbpba455QI44xkR3ZhE&gsessionid=NfJoW7fuNapo9i88Nfcr6bSYmXi-hJT0scncQ8Yq5mfq4HjFe2NiDg",
+          "displayedLink": "https://www.gadgets360.com › ... › Wearables Reviews",
+          "snippet": "The NoiseFit Active is an affordable smartwatch meant. Sleep tracking is decent enough, Battery life on the NoiseFit Active is particularly ...",
+          "date": "Sep 6, 2021",
+          "position": 7
+        },
+        {
+          "title": "Timex iConnect Premium Active Smartwatch Review",
+          "link": "https://www.google.com/goto?url=CAESwAEBxCJF1wIDpEikXrof3liLDscxCg2af9FAk33-Xb4eFl6ujGtAFNAqVdRTlpwKTvXdnfv0VRpdnFl9FPFYVSNsKeMWfucsgRIGit5l04DzAUT1i1cGUZaQh9tk0PZUKfbLRUEQI7IKsZ2Pjq9mGBOrMrQeGGRf-SeMoatt-XF7mc5uFidsQvtFoF0irTWlHUNEbSv0EaQUyskv40k0tzsOzxAkDXgHfwNJJXKfr_mjt6bvSOLy3ZAXJs85m_U2_X8&gsessionid=NfJoW7fuNapo9i88Nfcr6bSYmXi-hJT0scncQ8Yq5mfq4HjFe2NiDg",
+          "displayedLink": "https://www.gadgets360.com › ... › Wearables Reviews",
+          "snippet": "Activity tracking is not absolutely accurate, as compared to smartwatches from other brands such as Amazfit. There's no configurable 24x7 heart ...",
+          "date": "Apr 19, 2021",
+          "position": 8
+        },
+        {
+          "title": "Huawei Band 10 Review: Smart Choice Over a Budget ...",
+          "link": "https://www.google.com/goto?url=CAEShwEBxCJF1zt6IYde-cLAzKNfF0Afp6-HTWoU8Zlmb70f0eDyM3N45QX4_3yf_42xnxrvT7p6wGOgIYiD9XMWDB2l1exOAnKt67mCFtA6xinOE4IoQ8BtKrFMadrvdJZ13rHAJIWSBqLvTsg9Z_rJZwvWjYJxJto_U3MUm6F9nIRG6V5DGMiTNMA&gsessionid=NfJoW7fuNapo9i88Nfcr6bSYmXi-hJT0scncQ8Yq5mfq4HjFe2NiDg",
+          "displayedLink": "https://www.gadgets360.com › ... › Wearables Reviews",
+          "snippet": "The Huawei Band 10 packs an interesting set of fitness and health-centric features. But is it worth purchasing over a budget smartwatch?",
+          "date": "Jul 25, 2025",
+          "position": 9
+        },
+        {
+          "title": "Samsung Galaxy Watch 8 Review: The No-Nonsense ...",
+          "link": "https://www.google.com/goto?url=CAESjwEBxCJF17OWnQwAiXwax0VFpsDWRwAXmI7ddqux5sehRIG_SCz2ziRasJCP7E_GZHQcjKqN_Ww4-5MFEgCfF-ZCGkALv96RoLG6MKpUTQBP5ugxnMb3F-ILzCnikEEQjwRq2G-aKKxb0qxlVHmb7KF5Ql-CXtMXGNOEpElaAWnn3eU6BfgQt6Eh9xsRNAmCWw&gsessionid=NfJoW7fuNapo9i88Nfcr6bSYmXi-hJT0scncQ8Yq5mfq4HjFe2NiDg",
+          "displayedLink": "https://www.gadgets360.com › ... › Wearables Reviews",
+          "snippet": "The smartwatch comes with a premium design that is lightweight and comfortable to wear for prolonged period. The smartwatch also comes with an ...",
+          "date": "Oct 1, 2025",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 5249
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "smartwatch buying guide India",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "23",
+      "x-ratelimit-reset": "1795067480"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "smartwatch buying guide India",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "The best smartwatches 2026: The best options for iPhone and Android",
+          "link": "https://www.techradar.com/news/wearables/best-smart-watches-what-s-the-best-wearable-tech-for-you-1154074",
+          "displayedLink": "https://www.techradar.com › news › wearables › best-smart-watches-what-s-t...",
+          "snippet": "From Apple and Samsung to Garmin and Fitbit, these are the best smartwatches we've tested, with options for every budget and need.",
+          "date": "30 Oct 2026",
+          "position": 1
+        },
+        {
+          "title": "Smartwatch Buying Guide: How to Choose One",
+          "link": "https://www.vijaysales.com/blog-listing/buying-a-smartwatch-how-do-you-pick-one",
+          "displayedLink": "https://www.vijaysales.com › blog-listing › buying-a-smartwatch-how-do-...",
+          "snippet": "Confused about how to choose a smartwatch? Read this smartwatch buying guide to compare features, compatibility & price before you buy from ...",
+          "date": "27 Nov 2025",
+          "position": 2
+        },
+        {
+          "title": "Smartwatch Buying Guide (2026) – How to Choose the Best Smartwatch",
+          "link": "https://www.snapup.life/blogs/snapup-news-updates-stories-product-knowledge/smartwatch-buying-guide?srsltid=AYCX9vKl2jO93rMtV7xrCf3AcS1YDf_7_2SmXuuDRKzG_l3B4Vd_T9Fc",
+          "displayedLink": "https://www.snapup.life › blogs › snapup-news-updates-stories... › smartwatch-buying-guide",
+          "snippet": "Complete smartwatch buying guide for India. Learn about display types, health tracking features, Bluetooth calling, battery life, ...",
+          "date": "28 Mar 2026",
+          "position": 3
+        },
+        {
+          "title": "I Tested 50+ Smartwatches: These Are the Ones Worth Buying!",
+          "link": "https://www.youtube.com/watch?v=_4k3bMu6Wlk",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Hi everyone, in this video, we have listed the best smartwatches that you can buy in every price range starting from INR 2000 to INR 1 lakh.",
+          "position": 4
+        },
+        {
+          "title": "Buy Smartwatches online at Best Prices in India",
+          "link": "https://www.reliancedigital.in/sections/smart-watches",
+          "displayedLink": "https://www.reliancedigital.in › sections › smart-watches",
+          "snippet": "Buy smartwatches online at Reliance Digital. Track health, fitness, heart rate & SpO2 with AMOLED displays, bank discounts, and fast home delivery.",
+          "position": 5
+        },
+        {
+          "title": "Smartwatch Buying Guide For Indian Consumers: Everything You Need to ...",
+          "link": "https://www.amazon.in/Smartwatch-Buying-Guide-Indian-Consumers/dp/B0DYZ3LX9K",
+          "displayedLink": "https://www.amazon.in › Smartwatch-Buying-Guide-Ind... › dp › B0DYZ3LX9K",
+          "snippet": "This book covers key aspects such as understanding different operating systems, assessing health and fitness tracking capabilities, and evaluating battery life ...",
+          "position": 6
+        },
+        {
+          "title": "Latest & Best Smartwatches Online 2020, Smartwatches Finder ...",
+          "link": "https://www.gadgets360.com/wearables/smartwatch-finder",
+          "displayedLink": "https://www.gadgets360.com › wearables › smartwatch-finder",
+          "snippet": "Here are the List of Best Smartwatches in India (19th November 2026) ; Samsung Galaxy Watch 9 (44mm), ₹ 40,999 ; Google Pixel Watch 5, ₹ 42,900 ; Amazfit Cheetah ...",
+          "position": 7
+        },
+        {
+          "title": "Best Smartwatch in India (2026): Top Picks for Health, Calls & Fitness",
+          "link": "https://topsuggest.in/best-smartwatch-in-india/",
+          "displayedLink": "https://topsuggest.in › best-smartwatch-in-india",
+          "snippet": "2026 me sahi smartwatch dhoond rahe hain? Check out our ultimate buying guide & review of the best smartwatch in India for budget, ...",
+          "date": "28 Jul 2026",
+          "position": 8
+        },
+        {
+          "title": "Best Smartwatch for 2026",
+          "link": "https://www.cnet.com/tech/mobile/best-smartwatch/",
+          "displayedLink": "https://www.cnet.com › tech › mobile › best-smartwatch",
+          "snippet": "We've tested dozens of smartwatch models from Apple, Samsung, Google, Garmin and more to help you narrow the field and find the one that's ...",
+          "date": "3 Aug 2026",
+          "position": 9
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 4493
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "smartwatch recommendations",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "22",
+      "x-ratelimit-reset": "1795067480"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "smartwatch recommendations",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "The best smartwatches in 2026: Top picks for every budget",
+          "link": "https://www.wareable.com/smartwatches/best-smartwatch-reviews-compared-8286",
+          "displayedLink": "https://www.wareable.com › smartwatches › best-smartwatch-reviews-com...",
+          "snippet": "At the top of our recommendations sits the Apple Watch Series 11—our definitive choice as the best overall smartwatch for most people, Samsung Galaxy Watch ...",
+          "position": 1
+        },
+        {
+          "title": "The Best Smartwatches We've Tested for 2026",
+          "link": "https://www.pcmag.com/picks/the-best-smartwatches",
+          "displayedLink": "https://www.pcmag.com › picks › the-best-smartwatches",
+          "snippet": "Our Top Tested Picks · Apple Watch Series 12 · Google Pixel Watch 5 · Samsung Galaxy Watch 8 · Apple Watch SE 3 · Apple Watch Ultra 4 · Fitbit ...",
+          "date": "22 Sept 2026",
+          "position": 2
+        },
+        {
+          "title": "Smartwatches: Fitness, Calling & AMOLED Watches",
+          "link": "https://www.flipkart.com/wearable-smart-devices/smart-watches/pr?sid=ajy,buh",
+          "displayedLink": "https://www.flipkart.com › wearable-smart-devices › smart-watches › pr",
+          "snippet": "Best Smart Watch Under 2000 | Heart Shaped Watches | Buy Samsung Smart Watches | Mobile Watch 4g Under 500 | Amazfit Smartwatch | Huawei Watch Gt 2e ...",
+          "position": 3
+        },
+        {
+          "title": "The best smartwatches 2026: The best options for iPhone and Android",
+          "link": "https://www.techradar.com/news/wearables/best-smart-watches-what-s-the-best-wearable-tech-for-you-1154074",
+          "displayedLink": "https://www.techradar.com › news › wearables › best-smart-watches-what-s-t...",
+          "snippet": "The best smartwatches 2026: The best options for iPhone and Android · 1. Apple Watch Series 12 · 2. Amazfit Active 2 · 3. Google Pixel Watch 4.",
+          "date": "30 Oct 2026",
+          "position": 4
+        },
+        {
+          "title": "I Tested 50+ Smartwatches: These Are the Ones Worth Buying!",
+          "link": "https://www.youtube.com/watch?v=_4k3bMu6Wlk",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Hi everyone, in this video, we have listed the best smartwatches that you can buy in every price range starting from INR 2000 to INR 1 lakh.",
+          "position": 5
+        },
+        {
+          "title": "Best Smartwatch 2026: Including Apple Watch, Galaxy Watch and more",
+          "link": "https://www.techadvisor.com/article/723389/best-smartwatch.html",
+          "displayedLink": "https://www.techadvisor.com › article › 723389 › best-smartwatch.html",
+          "snippet": "Best Smartwatch 2026: Including Apple Watch, Galaxy Watch and more · 1. Google Pixel Watch 4 – Best Overall · 2. Samsung Galaxy Watch 8 – Best for Samsung Users.",
+          "position": 6
+        },
+        {
+          "title": "Buy Smartwatches online at Best Prices in India",
+          "link": "https://www.reliancedigital.in/sections/smart-watches",
+          "displayedLink": "https://www.reliancedigital.in › sections › smart-watches",
+          "snippet": "Explore smartwatch brands such as Fastrack, Fire Boltt, Noise, Apple, Samsung, and Boult, Fitbit Smartwatch: Amazfit Smartwatch: Xiaomi Smartwatch: Fossil ...",
+          "position": 7
+        },
+        {
+          "title": "Best Smartwatch Finder in India | Compare & Find the Right ...",
+          "link": "https://www.91mobiles.com/smartwatchfinder.php",
+          "displayedLink": "https://www.91mobiles.com › smartwatchfinder.php",
+          "snippet": "Smartwatch Finder · Top 5 Smartwatch with Prices & Specs · Fire-Boltt Rise Luxe · Fire-Boltt Rise · Fire-Boltt Hunter · Fire-Boltt Ninja Call Pro Plus · Fire- ...",
+          "position": 8
+        },
+        {
+          "title": "Best Smartwatch for 2026",
+          "link": "https://www.cnet.com/tech/mobile/best-smartwatch/",
+          "displayedLink": "https://www.cnet.com › tech › mobile › best-smartwatch",
+          "snippet": "What is the best smartwatch? The Apple Watch Series 11 is our favorite overall smartwatch. It combines polished software with a wide variety of ...",
+          "date": "3 Aug 2026",
+          "position": 9
+        },
+        {
+          "title": "Smartwatch Buying Guide: Best Pick for Every Person (Science‑Based)",
+          "link": "https://www.youtube.com/watch?v=w8M9iqrZV_E&vl=en",
+          "displayedLink": "https://www.youtube.com › watch",
+          "snippet": "Smartwatch Buying Guide: Best Pick for Every Person (Science‑Based) · Comments. 270. This brother has completely changed the way I look at ...",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 5496
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/search",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "smartwatch under 15000 rupees review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+      "hl": "en",
+      "num": 10,
+      "gl": "in"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "1795067485"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "smartwatch under 15000 rupees review India (site:91mobiles.com OR site:smartprix.com OR site:digit.in OR site:gadgets360.com OR site:notebookcheck.net OR site:gsmarena.com OR site:rtings.com)",
+        "gl": "in",
+        "hl": "en",
+        "type": "search",
+        "num": 10,
+        "engine": "google"
+      },
+      "organic": [
+        {
+          "title": "Smartwatches Under Rs. 15000 (Nov 2026) - 91Mobiles",
+          "link": "https://www.91mobiles.com/list-of-smartwatch/best-smartwatches-under-15000",
+          "displayedLink": "https://www.91mobiles.com › list-of-smartwatch › best-s...",
+          "snippet": "Top 5 Smartwatches Under Rs. 15,000 with Prices & Specs · Fire-Boltt Combat · Amazfit Balance · Amazfit Active 2 Square · Titan Smart Pro · beatXP Vega · beatXP Exact.",
+          "position": 1
+        },
+        {
+          "title": "Smartwatches Between ₹10000 and ₹15000",
+          "link": "https://www.smartprix.com/smartwatches/price-10000_to_15000",
+          "displayedLink": "https://www.smartprix.com › price-10000_to_15000",
+          "snippet": "Smartwatches Between ₹10,000 and ₹15,000 · OnePlus Watch 2R · OPPO Watch 5 · Samsung Galaxy Watch 4 Classic 46mm Bluetooth · Xiaomi Watch S5 · Amazfit Active 2 ...",
+          "position": 2
+        },
+        {
+          "title": "Best Smartwatches Under Rs 15000 in India",
+          "link": "https://www.gadgets360.com/wearables/features/best-smartwatches-under-rs-15000-in-india-amazfit-huawei-oneplus-samsung-10938861",
+          "displayedLink": "https://www.gadgets360.com › ... › Wearables Features",
+          "snippet": "Smartwatches priced under Rs. 15000 in India now pack premium features. Options like the Amazfit Active 2, Huawei Watch Fit 4, OnePlus Watch ...",
+          "date": "Feb 3, 2026",
+          "position": 3
+        },
+        {
+          "title": "Smartwatches Under 1500 (Nov 2026)",
+          "link": "https://www.google.com/goto?url=CAEShgEBxCJF1zsfyXy39JWqEBI6I98VUig1h35UDO1S6PXLJwe7GvikiEUcgf5s8U3KHFeQ6Dh5n4EDseaxj_JHRoKURCX8k3S17uVYlCNuUgLduZ3aEGgHzqrc16r-Navsn9l5AJc7WmgVMNMuKWf5zyN8XWg0u2Tgsseqy3E57kwKLRFKNxM-nQ&gsessionid=uphsI0b4HpEffMYpCec1U4Rs-iWY603aT2AzazPyOISzY3B3o9ihZg",
+          "displayedLink": "https://www.91mobiles.com › list-of-smartwatch › best-s...",
+          "snippet": "Smartwatches Under 1,500 (Nov 2026) · Top 5 Smartwatches Under 1,500 with Prices & Specs · Fire-Boltt Rise Luxe · Fire-Boltt Rise · Fire-Boltt Hunter · Fire-Boltt ...",
+          "position": 4
+        },
+        {
+          "title": "Smartwatch Under 25000 in India",
+          "link": "https://www.google.com/goto?url=CAESgAEBxCJF14XLZ6UNq6be7fa67b6SxcfYVJje_eBuJPbGYzOsHj5ghmmxztXuO0Qrgk8Tz7LoM6VFdhECXDop4W3ZSpGzySspsD_IiZFeL9EADjo_1q62ao7AJZ221jdIzCo6p3JxLHocPkSC0Q8uDipmM3OIc3g-wkTA_1FAbjrQvg&gsessionid=uphsI0b4HpEffMYpCec1U4Rs-iWY603aT2AzazPyOISzY3B3o9ihZg",
+          "displayedLink": "https://www.91mobiles.com › list-of-smartwatch › smart...",
+          "snippet": "Top 5 Smartwatch Under 25,000 with Prices & Specs · Amazfit Balance 2 · Fire-Boltt Astra · Fire-Boltt Expedition · Fitbit Versa 4 · Huawei Watch Fit 4 Pro · Google ...",
+          "position": 5
+        },
+        {
+          "title": "Smartwatch Under 20000 in India",
+          "link": "https://www.google.com/goto?url=CAESgAEBxCJF18QZZx6EdIb7lomad5iiCd6gY1udFYaBPflL0BSP6Kpan02LE24kTgM8rGNRcOcG9LrEXMi-pYIBjBkarN6CyrZcIqdJgJpx1SWXqJyx0sN3oVzVxiaZ37YYv-y_Rs1OpXAM9gygedU5CwOOpK0nWxWjW5hxp6kWzYTgZg&gsessionid=uphsI0b4HpEffMYpCec1U4Rs-iWY603aT2AzazPyOISzY3B3o9ihZg",
+          "displayedLink": "https://www.91mobiles.com › list-of-smartwatch › smart...",
+          "snippet": "List of all Smartwatch Under 20000 in India. Check out their reviews, specifications, features and many more at 91mobiles.",
+          "position": 6
+        },
+        {
+          "title": "Smartwatches Under ₹15000",
+          "link": "https://www.google.com/goto?url=CAESdQHEIkXXRdMKhDDSjKZL1ybD277pHIgTaRv31bCTq3fW7p38qhLhp3VONTRN8t8dmZE4xDZrX0gbX-mKMg3fp40pcOY-ti7MJ-bHqXN9zpQzzAXzJvvG21dtUbeQx77JIuAcKi8FVK7M3VgNfQhHK8YEHiEhNQ&gsessionid=uphsI0b4HpEffMYpCec1U4Rs-iWY603aT2AzazPyOISzY3B3o9ihZg",
+          "displayedLink": "https://www.smartprix.com › price-below_15000",
+          "snippet": "Smartwatches Under ₹15,000 ; Fire Boltt 4G Pro Smartwatch, ₹2,031, May, 2024 ; Redmi Watch Move, ₹2,199, May, 2025 ; Vivo Watch GT 2, ₹8,999, Upcoming ; boAt ...",
+          "position": 7
+        },
+        {
+          "title": "Smartwatches & Fitness Bands in India",
+          "link": "https://www.google.com/goto?url=CAESYAHEIkXX90GHmDEtwdU0Y5v4zm-IxyX5M2BI-pSrqDZHRm68iaQeqNGkrtZ0Ew8eIOJ733WqoScxIu1FXixSZarnezYGY9YtcHmP4yoKymI6uf9JE5Nb0fewO7bRuJ_Haw&gsessionid=uphsI0b4HpEffMYpCec1U4Rs-iWY603aT2AzazPyOISzY3B3o9ihZg",
+          "displayedLink": "https://www.91mobiles.com › wearables",
+          "snippet": "Explore the latest wearables in India including smartwatches and fitness bands with updated prices, full specifications, expert reviews, latest news, ...",
+          "position": 8
+        },
+        {
+          "title": "Smartwatch Under 1000 in India",
+          "link": "https://www.google.com/goto?url=CAESfwHEIkXXmp1dRlfONKlyai8Ln6ulAk-5-YLFaWuNw4Ia0G6N8WwciPUkiR15IJufP6dA4L7K85psqCAY1jub8WwMF9ljxoD8RykkQxbpnRHmNIoPMerLdJFZeNC_LxGLadH02bwu2Wh67BhI2JE1ATjC9f3i9UVHa_PBD1mhz1I&gsessionid=uphsI0b4HpEffMYpCec1U4Rs-iWY603aT2AzazPyOISzY3B3o9ihZg",
+          "displayedLink": "https://www.91mobiles.com › list-of-smartwatch › smart...",
+          "snippet": "Top 5 Smartwatch Under 1,000 with Prices & Specs · Fire-Boltt Phoenix Pro · Fire-Boltt Talk · Fire-Boltt Ninja Pro Max · Alt Spunk · Boat Xtend Call Plus · Generic ...",
+          "position": 9
+        },
+        {
+          "title": "Best Smartwatches Under Rs 10000 in India",
+          "link": "https://www.google.com/goto?url=CAESzwEBxCJF109jtoijjv0KE9O_LaJZLr75RCVnJnkmK9kw3Ut02h0UOeM0nudbsfLTnV8wuCe8vjZqQMBzeFNPzNkjEvjbSP0PvCp7ebkovECvZ6g4LXm_lRnvEl1-g5dHpkwOkLg-etP8nze2TCo6lMrP8H4djKdV7QwhtPtMNTNvyitsiHlevyTF0ySuXwGYRk7NQWsr7Iedk7n26qPZtgc5xYVFYAnJSiZJhhf12aukHRjIeXjK1Ml4OxadeVbEwdOutQnRWLSfoPal5hgXwPg&gsessionid=uphsI0b4HpEffMYpCec1U4Rs-iWY603aT2AzazPyOISzY3B3o9ihZg",
+          "displayedLink": "https://www.gadgets360.com › ... › Wearables Features",
+          "snippet": "Best Smartwatches Under Rs 10,000 in India: Amazfit Active 2, NoiseFit Endeavour Pro, and More · NoiseFit Endeavour Pro offers AMOLED display, ...",
+          "date": "Jan 31, 2026",
+          "position": 10
+        }
+      ],
+      "credits": 1
+    },
+    "elapsed_ms": 4474
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Amazfit Balance",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "1795067520"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "Amazfit Balance",
+        "gl": "in",
+        "hl": "en",
+        "type": "shopping",
+        "num": 40,
+        "page": 1,
+        "engine": "google"
+      },
+      "shopping": [
+        {
+          "title": "Amazfit Balance 2",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:15463375761574684790,gpcid:3530115552553461491,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹21,999",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRHphr37tn1Xyy8_Am16f9CDkAoxXfbr6RtVVjqki76nqiFhbKIzPVIbjs_aatJ42UK4NL5pIotDoeQOWoX1EX0x5NzWjOLKKxoRlkCeOdI",
+          "rating": 4.8,
+          "ratingCount": 752,
+          "productId": "15463375761574684790",
+          "position": 1
+        },
+        {
+          "title": "Amazfit Balance 3",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:12121423812778092234,gpcid:14629841915520537023,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹35,999",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSDM8EU9vGuelvTkEEpYflWPUw8vgdKBFgkuU0CT-3RxvvMaodLTtSmuOBoivTu2azv3N521Xvsmet9no7jXFZCjwwqhmPuCulIfn697Yf0etWd7G2a7XG5",
+          "rating": 4.8,
+          "ratingCount": 138,
+          "productId": "12121423812778092234",
+          "position": 2
+        },
+        {
+          "title": "Amazfit Balance",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:12007666990849498554,gpcid:14519899120468285449,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹12,999",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRAxOSFu1H4jRa0SdtSHiawCwi528ZB85tq8Pz2cStREit8gV959xrdI2BidEHi98hfRiiJLh8KXmVv7NAJqReIKH0dvjGdexl7oXKsh7QsaA-gZW9XY_2s",
+          "rating": 4.7,
+          "ratingCount": 520,
+          "productId": "12007666990849498554",
+          "position": 3
+        },
+        {
+          "title": "Amazfit Balance Smart Watch",
+          "source": "Amazfit India",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:11681324032951561400,gpcid:1558160381760305638,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹16,999",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcR7zSARiQE9idngjn_AL-HPPQrum1H0EFP2f8dSrScDf5Xp7szfn9YeOKFLISTtRBboNxrJTBKdr4gUOax_PZbpE4lPRDrM9N_AeW1xgYuCXsMjPBY82Urq",
+          "rating": 4.7,
+          "ratingCount": 520,
+          "productId": "11681324032951561400",
+          "position": 4
+        },
+        {
+          "title": "Amazfit Balance Smart Watch",
+          "source": "desertcart.com.sa",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:11681324032951561400,gpcid:11257344896569199209,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹19,510.50",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcR9Nr4jQuiZ34lQ_dOXgOseLa8EIcEQsC8xiNfUbNFmN5sXnYRtzwoYtyWuafRqYfS4GnQrJA8ToggfuAgAa4jtbAGcBe88mNVKuGb0jOOVGeXQhUGkIkYrxA",
+          "rating": 4.7,
+          "ratingCount": 520,
+          "productId": "11681324032951561400",
+          "position": 5
+        },
+        {
+          "title": "AMAZFIT Balance 2 Black",
+          "source": "desertcart.co.za",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:6015168953635962823,gpcid:16913536551679975397,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹71,164.34",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcT8Indknx8zamFyIKgumIN-tPkMgt3OQtyG5jAKg-rb3zCAWZZPd767ZzlWzMysyluI-s-O19wrmVNatgEp7Oiq6WuHaf03Mb0Zz55L8AvOrBUW7LBzsANu2Q",
+          "rating": 4.8,
+          "ratingCount": 868,
+          "productId": "6015168953635962823",
+          "position": 6
+        },
+        {
+          "title": "Amazfit Balance Grey",
+          "source": "7R Technology",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:5901506068653143121,gpcid:8077584274839821288,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹15,868.71",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQOo1HifqIhJlxCYCrTqpGony1VpSbTsVqPHAy6TzhmkIo8uJeTHHILXcKxRcU6x7DhQ1auH7vBEgC8ImTmC7Ph5Ng56C_6YjfOBCjao4cSOVdefKn2cm04jQ",
+          "rating": 4.7,
+          "ratingCount": 520,
+          "productId": "5901506068653143121",
+          "position": 7
+        },
+        {
+          "title": "Amazfit Balance 3 Titanium Smartwatch",
+          "source": "Amazfit.hk",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:2028245503211133327,gpcid:7663929275419392322,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹41,680.52",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSZ0JNkNZGikC5KVNC904CxZGB-4JTrdkb5YhdeGWp_XxudT7wjaPs1iAcwq0vqOke1IbX8GJBBVp3wjhBCTdHvqaafK157r_F6E2tQDoS4Z_lCmAc3uWiDiQ",
+          "rating": 5,
+          "ratingCount": 4,
+          "productId": "2028245503211133327",
+          "position": 8
+        },
+        {
+          "title": "Amazfit Balance 3 Smartwatch",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:16654858598440762151,gpcid:7967833566853264000,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹58,945",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQj95Y_9AlmpdjoUGLGwNFsobK1eVrdZlfLREa50gqxeZnbhhIGjXPc3EcXcl5z1K3WcPYQrzl1c4NtSqifMJZQDMGLypBaSZVkZcd9fG8ABIdH_FpDSP6cVA",
+          "rating": 4.8,
+          "ratingCount": 12,
+          "productId": "16654858598440762151",
+          "position": 9
+        },
+        {
+          "title": "Amazfit Balance 2",
+          "source": "JioMart Electronic",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:6015168953635962823,gpcid:4666401794427931251,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹21,199",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRE_dLJwfJMsk06swPm3E97Oaqb9k5Ql5_fd-RdB85uCygtkQdNSPYiJigfysmUnJ8-2kzsLhdw5d3cQL_oaxrWg8dXoTGkm9bljGfs_2GKIphXY8iqEpI7Eg",
+          "rating": 4.8,
+          "ratingCount": 868,
+          "productId": "6015168953635962823",
+          "position": 10
+        },
+        {
+          "title": "Amazfit Balance Smart Watch 46mm with Fitness Tracker Body Composition Health Analysis",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:13288320554032644377,gpcid:1294282359012558202,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹19,513",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRSqVgHOdODmZVxxYsWo40oFETC1WkSUbYdkLn4WxVU88TkJ_-Xy3UrHQGecVMpKt8JGEawOnhx3MJ9RbjhZRUn9Mpygh-QHG1OrubKwcMCH7kxpOdz39msKQ",
+          "rating": 4.5,
+          "ratingCount": 475,
+          "productId": "13288320554032644377",
+          "position": 11
+        },
+        {
+          "title": "New Amazfit Balance 2 XT Smart Watch",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:867356827524093246,gpcid:5666207421891804063,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹23,082",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRimvu6EL97TbbwLLu2ngS4fBue8mPEm3Pz9cs-WNGI9vABi57EgHd-Rd5Q0Yw7qG9AC1ExtW7Zi1Silgr4iCNI2z3qfRrTM4hpZJPctxgRKhTGVuKtlP8t",
+          "rating": 4.4,
+          "ratingCount": 23,
+          "productId": "867356827524093246",
+          "position": 12
+        },
+        {
+          "title": "Amazfit Balance Ultra Smart Watch",
+          "source": "Desertcart.ae",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:16053909893841844877,gpcid:8483154274247854477,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,08,225.42",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRrSaPZNLo-l8xPalDQ6z95jrgx9kjGv3zTYc6VzKDBjF-E5AsMHbz2znLVUpHFLkYkpvxpWH2vMkwbDQMKOOvvvnhAx14MK6q1YKDMAkRrewh1J7ZRZWL78g",
+          "rating": 4.7,
+          "ratingCount": 211,
+          "productId": "16053909893841844877",
+          "position": 13
+        },
+        {
+          "title": "Amazfit Balance 2 Xt Sort Smartwatch",
+          "source": "7R Technology",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:3136587700493948592,gpcid:7212268846780790949,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹15,445.43",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcR1T-9eZi3qw5WFeZ0timY54kaBgaOc3AzmLzF5if_JQVpE2abEreKbBc_7RJz96Aa37tOZBIMci1UqkLWPWesdR5_tjzlZQY971U_fkmoStNh9ZBwopNy-mw",
+          "rating": 4.8,
+          "ratingCount": 65,
+          "productId": "3136587700493948592",
+          "position": 14
+        },
+        {
+          "title": "Amazfit Balance 2 Smart Watch 47 mm AMOLED Sapphire Glass Display 21 Days Battery",
+          "source": "JioMart Electronics",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:3520773905768603509,gpcid:4239152870852362038,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹24,999",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRE_dLJwfJMsk06swPm3E97Oaqb9k5Ql5_fd-RdB85uCygtkQdNSPYiJigfysmUnJ8-2kzsLhdw5d3cQL_oaxrWg8dXoTGkm9bljGfs_2GKIphXY8iqEpI7Eg",
+          "rating": 4.8,
+          "ratingCount": 868,
+          "productId": "3520773905768603509",
+          "position": 15
+        },
+        {
+          "title": "Amazfit Balance Ultra Smartwatch",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:7317402727570262353,gpcid:2087763629020885554,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹1,33,433",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRrSaPZNLo-l8xPalDQ6z95jrgx9kjGv3zTYc6VzKDBjF-E5AsMHbz2znLVUpHFLkYkpvxpWH2vMkwbDQMKOOvvvnhAx14MK6q1YKDMAkRrewh1J7ZRZWL78g",
+          "rating": 5,
+          "ratingCount": 4,
+          "productId": "7317402727570262353",
+          "position": 16
+        },
+        {
+          "title": "Balance 2 Smart Watch for Men 47mm + AMAZFIT Helio Strap Fitness Tracker Wristband",
+          "source": "desertcart.in",
+          "price": "₹1,00,934",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSEPjqfYtQZU8vwrcmZDQKV2vMsd-ToIZQVc46xrbvgOt9nuPT9LebEvXCLJeWBZeiMqZ4iHa1kBJcwtdiOdxPQn6zeD4BZMKx-Fkz-nFCAKUSQf64HdiAc",
+          "rating": 4.8,
+          "ratingCount": 868,
+          "productId": "1278061212375983314",
+          "position": 17
+        },
+        {
+          "title": "Amazfit Balance 2 Smartwatch Multi-Sports Sapphire Glass Golf Function",
+          "source": "ubuy.co.in",
+          "price": "₹50,313",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSwwy5QY5_XlpVrLa8tCBpx8H1A1gw3rL58mGqMjkJO2DrgUz6wkj30AI2XGXtmatuDybBH1fG6Bc0H7uT85sFjNp33PmgchPNiBztcV3uMb5gupu7Jr34puQ",
+          "rating": 5,
+          "ratingCount": 5,
+          "productId": "237252658324410430",
+          "position": 18
+        },
+        {
+          "title": "Bundle of Amazfit Balance Smart Watch (Black) + 22mm Soft Silicone Strap (Black)",
+          "source": "desertcart.in",
+          "price": "₹252",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRBzFV21pc_s-aGZq67iiZxmJigq7joqPj4w_QYpmKS0uYrlE0qO0PY_i7KK9nq4utp3VUghZ0SaCsewT4mGyyuJ3oAYCCxPvSVACknc8-p4zbhXDBQ73c35A",
+          "rating": 5,
+          "ratingCount": 2,
+          "productId": "6038806890673773983",
+          "position": 19
+        },
+        {
+          "title": "Amazfit Balance (Smartchoice) 46mm AMOLED Smart Watch, Body Composition, 14 Days Battery, Dual-Band GPS, BT Calling, VO2 Max, Aluminium Alloy Frame,",
+          "source": "LootFaat",
+          "price": "₹14,999",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQiB4J9gIO-j1q0Duk4kmjtwknzrByj19_R9JQaA5E3FvV7QAXEb4i_VPXsdgMna_7r0MRu6TxhZwdBPL8X62gcAkN-n3htYeyaT29i5wghdlNr6rfLY-g3",
+          "productId": "482331521487535789",
+          "position": 20
+        },
+        {
+          "title": "Amazfit Band 7",
+          "source": "ImFitIndia",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:4310056031015252362,gpcid:7035441251940490542,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹3,499",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTiqDTTBQK-WYWooJeRu-JqK34WikdPFoUAWPNsMBrlmThXCG0ekXji635qkwwlx2lMTkN3NUaPv13jVG8UKs1aw_1AejVw6yznEyFH9oU94z7j5Lms55-C",
+          "rating": 4.3,
+          "ratingCount": 1000,
+          "productId": "4310056031015252362",
+          "position": 21
+        },
+        {
+          "title": "Amazfit A1902 Aluminium Alloy 47MM Smartwatch",
+          "source": "Bajaj Markets X ONDC",
+          "price": "₹11,490",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTp7WXiB9ltyQV8PUWEdAxmq-0fNviTsPmoiQufbuyKbh9jZH_aBEOb4Ki9KJTBxshSu_--j8A-Y43E_0LlakxHKnOhY5qmGkmJzttgHhc",
+          "productId": "6796011741413871238",
+          "position": 22
+        },
+        {
+          "title": "Lamshaw Amazfit Helio बैंड के लिए कम्पैटिबल, क्विक रिलीज़ रग्ड नायलॉन स्पोर्ट्स स्ट्रैप बुना लूप डिज़ाइन के साथ Amazfit Helio फ़िटनेस ट्रैकर रिस्टबैंड",
+          "source": "amazon.in",
+          "price": "₹9,254.74",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcR8tZtyntkqL7Z92l2oPWyW5tqU0zE-mqusOsEBlPyP2mdLVbxMw39km23x1CqZm0PEGqMay0rMthUxmnmyqIr4N7vo20HO48xR8XUF08RNpnAHCMdnzzqs",
+          "productId": "4288660503190762771",
+          "position": 23
+        },
+        {
+          "title": "Amazfit GTR 4.7 cm Smart Watch",
+          "source": "Gadgets Now",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:595243975089899748,gpcid:12149343089674565533,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹13,713",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSyYGd6l6LUkNFCNws_MnZp04-NmEKKj05z4PJUGp-Lh8Rzziqw1HXrGpE2gpn5qVvHFGFoUEA-h0SGOwsN5SyVrA2wBoB4dvwgaogqw_OntRH9BW05YKHE2A",
+          "rating": 3,
+          "ratingCount": 4,
+          "productId": "595243975089899748",
+          "position": 24
+        },
+        {
+          "title": "Amazfit Band 7 Activity Fitness Tracker for Men Women, 18-Day Battery Life, Alexa Built-in, 1.47AMOLED Display",
+          "source": "desertcart.in",
+          "price": "₹11,791",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQve7XwidY7_ezZXkybfp4svog91eijkDsL8ebd0byEIXWFmXkQL2vjLTJW553sjJ1OaRBlgIdVXX3VGZI8fThd1hR-PsjtFwEkDDrxPAk-",
+          "productId": "13045711432933362360",
+          "position": 25
+        },
+        {
+          "title": "Amazfit Balance 46mm Smart Watch Amazfit balance Upcycled Silicone Straps Solaris Black",
+          "source": "ubuy.co.in",
+          "price": "₹36,366",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ76WKw-Fi_BDowSEj66hJL5JKxddE18X1S9LQSegu0F7SE-ijzuOJw5PsmjyQFEJA23kwZxeDi25qGsenMdi43ubhNbnQ4g7270LX9Wksj",
+          "productId": "3519479386185260042",
+          "position": 26
+        },
+        {
+          "title": "Amazfit Bip Max/Balance 3/Bip 6",
+          "source": "desertcart.in",
+          "price": "₹945",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRF2LlwNGWMGf7BvUMx_ZBLC9JbknUtXru2oCrXj4MoNt_npbChCppsgoWb5mlu3OT12UNWicDJ0KcGqp2YOdgE-A558QgYhdDKVKrEEE9YzjhQcwgGzYe3",
+          "productId": "17741681572333590767",
+          "position": 27
+        },
+        {
+          "title": "Huami Amazfit Verge Lite Smartwatch",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:501968060545207816,gpcid:5570723832705160699,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹9,998",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSe_GkIf4G1T_k7h0aEk2SCnVoXz2obWg56B4w-iS33EVjjG-wHgZtuizEjK4EZuq6L384ytTFNKY0RCWon9zbuzWvRneQ1QITs3kLLXd7W",
+          "rating": 4.8,
+          "ratingCount": 382,
+          "productId": "501968060545207816",
+          "position": 28
+        },
+        {
+          "title": "Amazfit GTS 2e",
+          "source": "Unboxify",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:7571935613931547572,gpcid:10005013446188599918,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹3,999",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSxA3vr-H6P4a09hSz0Sqvax5xIcSCrttPcT2l-MAy7C_v7sXX42CVZzr8ELprd-6rRF2yNGH0cCTROAl_fGGSRNJVFZt9bxKC0CLEMJnk",
+          "rating": 1,
+          "ratingCount": 1,
+          "productId": "7571935613931547572",
+          "position": 29
+        },
+        {
+          "title": "Smartwatch Xiaomi Gtr 2e",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:11262641040189971836,gpcid:2600371776818017385,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹43,686",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTIUJAlv9toWOOEOePRDqmFFuKWGNMGiaXMMUPrIDHqzL8dVAlHqS__CncK5EAIhJFUclsAmofKmyh9vKcDuXwOHsl5zghSNktm_1BMJDVzTuNcJ07cvJun",
+          "rating": 4.5,
+          "ratingCount": 50,
+          "productId": "11262641040189971836",
+          "position": 30
+        },
+        {
+          "title": "Amazfit Active 2 Square 44mm Smartwatch (Any Color)",
+          "source": "GameLoot",
+          "price": "₹2,500",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRrUoAlVTu8TGKbbyvqMuF5TsxKZbF-y74ScsBtvTJr5Hs1BujPmHRDcDbbdf5DaUy6ueLrL7CvF8hi74WY8hHFhcn700foS5l7WfDtrY1Wflxpo1ucMWupnw",
+          "productId": "8099781180619815166",
+          "position": 31
+        },
+        {
+          "title": "Original screen for Amazfit Balance 2 Sapphire (Grey)",
+          "source": "Gozyla",
+          "price": "₹5,204.50",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQLFUo72PmlTZnLmzdw_82HkL8GxQ4Z4j0D-MVcBV8zUVy8LkbEV4ts_jvDdfYGgCFJC9vcq5CQMrPlTImC0mV4M5VjF8XSaQSSHT_JyM5a73KvmO3Cmyiy",
+          "productId": "14415093681176604093",
+          "position": 32
+        },
+        {
+          "title": "Amazfit Buy Active Max",
+          "source": "Reliance Digital",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:13509579609237331392,gpcid:12303117245628012376,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹15,999",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQJmRwJu_xyU5cV6g1CffqVCvsz6vkBjFy_dfFfzEaC6WURZ87tBtqGMHstcZgh7QljLipdrBhY3z89fXnGEikFSAN9Bnnc-yvo-D7HXZEKc2Ii5rVwqqI9PQ",
+          "rating": 4.8,
+          "ratingCount": 134,
+          "productId": "13509579609237331392",
+          "position": 33
+        },
+        {
+          "title": "- [YANMONGI] Amazfit Balance 2/Amazfit Helio Strap +",
+          "source": "desertcart.in",
+          "price": "₹1,360",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSE2PDWc7g2QX_xnUREZtRtMYjz2cgNP2JKate2L9G1gkYkQPBs3YDuJ2kG375hm2H1Gg9GqbSbjyDnfK9cSvFHsZaFTv_RBxz59uYnG0paGaJjEr2x6ua5",
+          "productId": "12789017254442816582",
+          "position": 34
+        },
+        {
+          "title": "Amazfit Bip Smartwatch A1608",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:8446252046681512160,gpcid:11582376549477587389,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹13,166",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRVinaejkmH2DC75I4ntwHE56vPAY-HVcyZ2buM-Q_HpyQvOYuHNuB8NeCAxlBl4FJyg1XGt9zjdBdHYZkXJ-Q3MRvpmxK4xz84piUFC9aL2ExuLmlbdaJ5",
+          "rating": 4.3,
+          "ratingCount": 63,
+          "productId": "8446252046681512160",
+          "position": 35
+        },
+        {
+          "title": "Amazfit Bip Max",
+          "source": "desertcart.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Amazfit+Balance&prds=localAnnotatedOfferId:1,catalogid:9799426323897223895,gpcid:4734479585444268984,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹15,358",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTe1bX0SqRPrv8qpniZY6XKntgVmW13sSJwWzfpTUlcRpN6-oCgJ52iGlslbbq9si5iMrZMbvUgNoIzN_TMn5IhJMBA_rxnbkxf6woMAjw",
+          "rating": 4.9,
+          "ratingCount": 1500,
+          "productId": "9799426323897223895",
+          "position": 36
+        },
+        {
+          "title": "Amazfit Bip U Smartwatch SpO2 & Stress Monitor, 3.63 (1.43\"(3.6cm)) HD Color Display, 60+ Sports Modes, Breathing Training, 50+ Watch Faces",
+          "source": "Zopic",
+          "price": "₹2,999",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcR2sNzvIvuyOq3dADTh7LT3Z5lD5djS0XxcFfmoSw3vDGTtnSbdizoWk1rFXGRECuhhQXQ7eJXYFOYP4RzC-qVc29EZ5UEiQO2k2YegFQr1p9zykEyHAFqwGg",
+          "rating": 5,
+          "ratingCount": 2,
+          "productId": "9814958175100719894",
+          "position": 37
+        },
+        {
+          "title": "ACM Amazfit बैलेंस स्मार्टवॉच स्पोर्ट्स डॉट बैंड के साथ इस्तेमाल होने वाला स्ट्रैप सिलिकॉन बेल्ट देखें",
+          "source": "amazon.in",
+          "price": "₹329",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQJxg7tWdLlOokIM6pZdVWBZWlMWAe7P2syuy1miNVRh-fKQeD95vtoQPBY5aubz3P0IBWmcai9LabkpnnKZaxJ6dWBPevIiA",
+          "productId": "17773925124627273425",
+          "position": 38
+        },
+        {
+          "title": "Amazfit फाल्कन स्मार्टवॉच स्पोर्ट रिस्टबैंड केस सिलिकॉन रिप्लेसमेंट वॉच बैंड के लिए इस्तेमाल होने वाला स्ट्रैप प्रोटेक्टिव केस के साथ",
+          "source": "amazon.in",
+          "price": "₹4,329",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTFOK7k6F-PhSWThccgN8oAGEwTxNfIWAj_WQ3HaQIWbBr-aSxt8GbstOAnnmnsQaWc8ORDgsib1uKbwaaH9wJdNVWKu-cLzAHRwgVwjHSSCDSM2fT1W2PC",
+          "productId": "17873601909446725506",
+          "position": 39
+        },
+        {
+          "title": "Amazfit बैलेंस (Smartchoice) 46mm AMOLED स्मार्ट वॉच, बॉडी कम्पोजिशन, 14 दिन की बैटरी, डुअल-बैंड GPS, BT कॉलिंग, VO2 मैक्स, एल्युमीनियम अलॉय फ्रेम,",
+          "source": "amazon.in",
+          "price": "₹12,999",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSefQ6fvG6nVM7qOe3b_1sMhg2G6oep9NRKWkyWk4qLYGp0z-yKSIpDVRQrLwgUaL0TaKQ4KzfYbyKLuTGmF4-IlY5XrvaBOI0fNtuySURPALcvAsZVjgK7",
+          "rating": 4.7,
+          "ratingCount": 520,
+          "productId": "192531001263472141",
+          "position": 40
+        }
+      ],
+      "credits": 2
+    },
+    "elapsed_ms": 1803
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Titan Smart Pro",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": 200,
+    "response_headers": {
+      "content-type": "application/json; charset=utf-8",
+      "x-ratelimit-limit": "25",
+      "x-ratelimit-remaining": "23",
+      "x-ratelimit-reset": "1795067520"
+    },
+    "response_body": {
+      "searchParameters": {
+        "q": "Titan Smart Pro",
+        "gl": "in",
+        "hl": "en",
+        "type": "shopping",
+        "num": 40,
+        "page": 1,
+        "engine": "google"
+      },
+      "shopping": [
+        {
+          "title": "Titan Smart Pro Smartwatch",
+          "source": "Swiss Time House",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:3256922811971929603,gpcid:6239742121040859776,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹14,995",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTPMlV0W0Ebt79tzQfp710awFjjf1_sEq6SXM_hd-buFjxswTBvEevM66LyN3Z9t_rt8rDLryWMfP5Nu2QPC551QvMquVsQclS75Wv0MdXC",
+          "productId": "3256922811971929603",
+          "position": 1
+        },
+        {
+          "title": "Titan Smart Pro Smartwatch With Amoled Display 90149ap01 Smartwatch",
+          "source": "Flipkart",
+          "price": "₹5,500",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSZbTdOmdiZ9O6uf6GAKrdNc4ks4Dfpqbvyqwn_ZKYy3W3UcUWP5kT8ckdroCcDSe47s1weoYz33zcu_KlnUwgyP208pTrQGXaPLJKvimiIrQvlbsfGqzgIBQ",
+          "productId": "12365578350121067946",
+          "position": 2
+        },
+        {
+          "title": "Titan Smart 3 Smartwatch",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:15028675425262189636,gpcid:14001963003112533581,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹4,709",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcToa-752kWQZV-BwdHAkwDIpnF_hEF8_aK84LZugT7hp535WkhdCw7XU9QthPoTXwwHv0xJeveRnzhxvV2khqtWN4WGoRDasM-cGmVVATat90PS35UUNHvJGQ",
+          "rating": 3.8,
+          "ratingCount": 17,
+          "productId": "15028675425262189636",
+          "position": 3
+        },
+        {
+          "title": "Titan Smart Pro Smartwatch with Camera & Music Control",
+          "source": "Swiss Time House",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:8666778141019585093,gpcid:7574543583275211350,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹14,995",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRl5aESpODoWdpUpYo18JnnIVOHHhIXedbd0WatsSkDZwyewpkwZEflumC9c9b7ZHVuHg_C1upsmsFhZUrMqUq2b8Q_2DlJMGGdpzxu81g",
+          "productId": "8666778141019585093",
+          "position": 4
+        },
+        {
+          "title": "Titan Heritage Premium Smartwatch with All SS Design 3.6 cm AMOLED Display",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:381540075729383330,gpcid:10111594429194158327,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹8,799",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQfOZ2i9qks3DAaCHdGi9xHB0LOok9_7eTZI-YZ_up2q9I3JMT1C3F5g-swaGGX14OuzwfGqkllSpqzm0jhfowDeR9ZzGEVQQu7pzNNUWmqA5_qIoZIfiJJ",
+          "rating": 3.9,
+          "ratingCount": 16,
+          "productId": "381540075729383330",
+          "position": 5
+        },
+        {
+          "title": "Titan Celestor 2.0 Smartwatch",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:3114648909842529509,gpcid:2255081248391211025,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹12,499",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTYjR9donc9rE-AifWKnZxs2iFrvz3tlQLYtvEkIjUxnSMt_OUzN0leP0bUbRVkYzmBq7XWcwCvIizeDnrby7ab19HX4cCqyMJCdSd_uOJU75355f5h0Xk_VA",
+          "rating": 4.3,
+          "ratingCount": 18,
+          "productId": "3114648909842529509",
+          "position": 6
+        },
+        {
+          "title": "Titan Smart 4.0 1.93inch AMOLED Display AI Watch Faces",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:8996717720591020613,gpcid:16965089453528211894,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹5,999",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSxvOj9JMETLFwSQCyi21uBNlSjXocGNojylLH6xkMpZdGDrrBwGlwx9K9g4oOhqZ5X4SvOxf3PF4r-dG3leTE075BNK_hy_QA-ky1IzpirWQPfDXsUqMU3",
+          "rating": 4.3,
+          "ratingCount": 6,
+          "productId": "8996717720591020613",
+          "position": 7
+        },
+        {
+          "title": "Titan Celestor Swift Smart Watch 1.32\" AMOLED Display Advanced Badminton Mode",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:2907539064340097122,gpcid:5136844820465475905,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹9,499",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSPIH_22IV2dnnw-GMlI3bMrJ7Upe0ODuH5LPWDJTY30ET8EDJQRt7F6OS275w_rzjIzHjUbRFfGC5m2DcxZvqvEKzC4-O5esiwJFjMqkmBHA-oYvSqt7wHkA",
+          "rating": 4.9,
+          "ratingCount": 13,
+          "productId": "2907539064340097122",
+          "position": 8
+        },
+        {
+          "title": "Titan Pro Smartwatch Watch for Men",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:4878835612223558807,gpcid:1287835199280511362,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹11,995",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQ6ulXJPph3vEZJbrcKHmziYnVgXjoRhuNvAgQ-tqCQGMJgi_LeJ-0KVUXVNIcRqbiVMDy0Dy98oAQDd3CpJ8UHclMcwTnSphf3l4RHr3bOiiNBEPV3Pt-R",
+          "productId": "4878835612223558807",
+          "position": 9
+        },
+        {
+          "title": "Titan Maestro 1.47\" Zero Lag AMOLED Smart Watch for Man with SS316L Stainless Steel",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:4382164766109533451,gpcid:5027574368740506615,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹9,239",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTkxh825RDe6hvsibv1JEnKCjw31ek-xepjp16M4pmal5gFPIie-I2f_54uQmrZ6abpJ9Lk7vqomNhZH0yUN3zHfU5hZ4MTNemw5Y1sBkx2v-m03aQ9LIxi",
+          "rating": 3.9,
+          "ratingCount": 26,
+          "productId": "4382164766109533451",
+          "position": 10
+        },
+        {
+          "title": "Women Titan Valerie",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:2557696411201572246,gpcid:10263230698744230097,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹8,999",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTY3RtCiqdC0qmaHxaLWHStS0G447REeLwJe6qAXL8B2CItFSUBDHk-mLu3w3R9EOZ-6ArW4j8Qp4Sj3Jq1q7gn3dWIMN6NyVaWiz7v4WEUlRxliRwqsp8k",
+          "rating": 3.8,
+          "ratingCount": 25,
+          "productId": "2557696411201572246",
+          "position": 11
+        },
+        {
+          "title": "Titan Crest 1.43” AMOLED Smart Watch with BT Calling AI Morning Briefs",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:9902256245733443790,gpcid:15288185641262916740,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹7,995",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSFQ2EoXslcbHT-43nvMV2lVBHZnLstESwnyIG0AuVSUWtte26U3y_ePHHn2Iz9Mn6L_MocGHC7XqCK_qFIIH8WaYqmuKRi5KN8uVkzOPZUl0-gKR0LmgUV",
+          "rating": 3.8,
+          "ratingCount": 108,
+          "productId": "9902256245733443790",
+          "position": 12
+        },
+        {
+          "title": "Titan Crest-1.43''|premium Design|amoled|aod|working Crown|bt Calling|fast Charge|ip68 Smartwatch",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:13595962274223909676,gpcid:2759374583665936407,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹5,399",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTCXO5VpI9SUEHikvqlNQt5vQbY5Hsz7ChnltCjm22l7Lcr7n-DmH9x5XNxMBLGR16pliFYxLvS1EIjiSPQ3mZG3v7Fm9ay3xnyo2kuR4hmKWmaCzNcCAX6",
+          "rating": 3,
+          "ratingCount": 2,
+          "productId": "13595962274223909676",
+          "position": 13
+        },
+        {
+          "title": "Titan Crest 2.0 Smart Watch for Man & Women 1.43\" AMOLED Display",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:5972174617603635196,gpcid:17735665759995870246,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹6,499",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSr8btzggU95bgTkBdb9hnJgjeW1lo0kEWMmgWklTTfFa1JmTgd9e3rB5HRGHfQIUKMXia09X3n3CVUDERXYi8BEt3OGxPuHichM1ZYUlVJA1_Dwc0TPoLj",
+          "rating": 4.2,
+          "ratingCount": 6,
+          "productId": "5972174617603635196",
+          "position": 14
+        },
+        {
+          "title": "Titan Zeal 2.0 Smartwatch",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:16964199224493310694,gpcid:162193094613414155,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹4,999",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcT2eQyKQ9OJ2bCMcBhKFQvdavb5PW25QBoGaRPvZoMMH1Qc6eaDRyaMcnuWP4mL2pwKdPGVvxCeitFiEKe79IZkFn6BFrkq866nSNA2Wz1wt2y1nDPTpEGQBQ",
+          "rating": 4.8,
+          "ratingCount": 5,
+          "productId": "16964199224493310694",
+          "position": 15
+        },
+        {
+          "title": "Titan Crest 2.0 IP68 Black Dial Metal Smart Watch for Men 90205AM02",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:9296238537298231335,gpcid:17903009927532221980,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹7,995",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSuI8HafBFawMYUUu1D_Lx5hLzqBBPmtWdRoeFj5vuWynZr9ShPsSmajgo7NSYCzzMI6sUDjOuP3_u4Y3gqEaFYD2k9-2riVWU0LUmDixV5QrSCM0Il0x8Bsg",
+          "productId": "9296238537298231335",
+          "position": 16
+        },
+        {
+          "title": "Titan Women AiRA Smartwatch 1.70\" inch AMOLED Display",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:6107783285483682245,gpcid:11203875334142899983,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹6,999",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTie9By7zJ-x5C8_h1G61bvO95fMze5IY8XUZ4AHO8f7G2DTgTH0vrQEvaCkMEGlBCNow10ya4U0bEQIycq0OhO7h2B9mioGzMVXv-aTDGLnFscndz6Nh6T",
+          "rating": 4.1,
+          "ratingCount": 26,
+          "productId": "6107783285483682245",
+          "position": 17
+        },
+        {
+          "title": "Titan Orbis Women 1.62 AMOLED Display Smartwatch",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:9864357677717578163,gpcid:6889297796321500758,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹9,999",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcT_EpeEsYBKmipILn9QxtTYhUbmu_RKwl28BWzskS_UcKiE8zwtmVDu1NBGhaL3kRnnoKxYnm8ZrbL0-ycXZbpPsz4OG8wvGETKWmKA2S3zil8uPzwvfAslHg",
+          "rating": 5,
+          "ratingCount": 2,
+          "productId": "9864357677717578163",
+          "position": 18
+        },
+        {
+          "title": "Titan Women AiRA 1.70\" AMOLED Display AI Chat",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:3053499894034368457,gpcid:16930139651610003938,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹8,499",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcR3y4EfT3yGKJwxzQqwg4iyAc0BNPuip3VjyoFCQmzHzavU67jqUFZCXhgIYWUBo90p1RIP9BuTpVSFPRCp_NinJcyr79P3mdZ_4CxAr0MIidi5tFdcFjuaEQ",
+          "rating": 4.2,
+          "ratingCount": 45,
+          "productId": "3053499894034368457",
+          "position": 19
+        },
+        {
+          "title": "Titan Evolution 2.0 with 1.85\" AMOLED GPS AI Run Coach",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:4318263129185169497,gpcid:3199789091471608126,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹8,499",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTyHj-cvWO4YHJQlb6CaIpTtXvxfVzrKZqs1Cw7V4P9WN0IGqA8m3FudsDGPKYZ6QeRNhg5SdXH_mkQ6MTbL1qHGrAhSPtLyLRHkoVOcnTwUmr7ZbN-39zWTQ",
+          "productId": "4318263129185169497",
+          "position": 20
+        },
+        {
+          "title": "Titan Celestor 1.43\" AMOLED Smart Watch with built-in GPS Advanced Health Intelligence",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:331042724205931635,gpcid:2605343243964130495,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹9,995",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcR4iwNvCsu2uOKEzS4TvEFOU5Ywabf59-NLOiXjEaoZBpnn7vXIQgeq52ds2oe6rfB6r_1aaIIM-Y2WD0l1oEkKoginTiWKxzeoUYOGFH6_WKnAbxoDRPTdIA",
+          "rating": 4.3,
+          "ratingCount": 18,
+          "productId": "331042724205931635",
+          "position": 21
+        },
+        {
+          "title": "Titan Crest 2.0 Smartwatch",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:6001295308484816122,gpcid:6309670478863656480,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹6,995",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQv18_y65jdT82-7PlAEguYmoF4guUpbo7FsPduL77jHVcd_rwKEKhUdTFsqVRUqLfqosQ6yYpnu4qm4ORx1uUgo1uY0_h5hjh2ZsSX_30Gvhik66EmC__A",
+          "productId": "6001295308484816122",
+          "position": 22
+        },
+        {
+          "title": "Titan 90137AP01 - Watch for Men",
+          "source": "Flipkart",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:1677837242227272004,gpcid:693750507783921878,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹8,995",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSNczQUNb613NOPZRIRrPJ8eEyP1e6Rpr2CRSiJLKqVNppUhzcWEsWqJSraiBhCcaeB0vwN9Mz9n1wUcc7pWa3OuYCxvSnueFgNiO14yeU",
+          "productId": "1677837242227272004",
+          "position": 23
+        },
+        {
+          "title": "Titan EVOKE S Smartwatch with 1.7” AMOLED Display,1000 Nits AI Watch Faces",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:13044651310765283405,gpcid:7401940754572887793,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹8,999",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQ326NGFRaM-N9mbgpbXrFvsROdBbhksrKpjOWHUGJIR-YA12UjBtbpFkDE6bY1LjSBhq944CUx4_-0liMhox5mTv-AG7xRJQuKL8i5e9-vu_zT1K6d50hL",
+          "rating": 4.4,
+          "ratingCount": 16,
+          "productId": "13044651310765283405",
+          "position": 24
+        },
+        {
+          "title": "Men Titan Evolution 4.6 cm Curved AMOLED Display",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:15846184721347300809,gpcid:9344193728796595702,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹6,999",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRGqRCMpjBcRYU2GWKYip3faVz82UhxRPxoPHdcxaxW6PNMH2cQVzh2ENfdF3YXDXaNRSIhubRvCRbR1qGolq5-shd_sD69taMBjxcXmyo4tUMiadONHvSCiA",
+          "rating": 4.6,
+          "ratingCount": 28,
+          "productId": "15846184721347300809",
+          "position": 25
+        },
+        {
+          "title": "Titan Crest with 3.63 cm AMOLED Display with AOD, Functional Crown, BT Calling, Premium Smartwatch with Blue Strap",
+          "source": "Titan.co.in",
+          "price": "₹4,499",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQD33BeYbWses9nujleEsG4tDPxsjDXEGiOgmdh8JRT_iSnS3dxnSWI8QCwU960tHStuZ_EFeOj-tPNhOUtl0Xqg01V3sX9ipTei5p00cFJBYJOAMYxmsN24w",
+          "rating": 3.8,
+          "ratingCount": 108,
+          "productId": "9282562574400067559",
+          "position": 26
+        },
+        {
+          "title": "Titan Smart Men SMART Black Digital/Smart Smart/Digital watch SKU ID 90188AP01 Helios The Watch Store",
+          "source": "Helios - The Watch Store",
+          "price": "₹4,709",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcROBtzABNh2wkV05rMqu5bsYMA1ULMvTpGJg9gDYBQiNk-tqnBxM36jaxAB4Vxo_roBVOqWXi9gQ1BtYq4zV6WKqDCpPOrXAUPYFf26huxiDvWZIxprY1Rh",
+          "rating": 4,
+          "ratingCount": 23,
+          "productId": "15432862682723769406",
+          "position": 27
+        },
+        {
+          "title": "Men Titan Evoke 2.0 1.32\" AMOLED Display Smart Watch with AOD,1000 Nits",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:5614075748644412368,gpcid:16062247352161730039,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹8,499",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQouL--jsaU0zkjvgRZV3-6XTKQuo_SOT75rHRzS1LpUhc9ClOwmEGTZ0W2TN9KcEO0iwucuHfuY0rOF7GdiHNGTYDSUxA6Jereg8Uc_iRtFfNpYq3weHAq",
+          "rating": 3.7,
+          "ratingCount": 3,
+          "productId": "5614075748644412368",
+          "position": 28
+        },
+        {
+          "title": "Polar Grit X2 Pro",
+          "source": "amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:2088366419968348658,gpcid:18327775155405574063,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹75,000",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRUx1hLEuJmR3VrN4OAWxIiWMA_17Vbu-RhXXzLuUFX7cOrbCs-RJ1vs99wiPICP8R6FgegP9eVTs5MaCsHML0fr4QnpQCOvIsBt-nMyoiTqJ7U7Z5sQEUv",
+          "rating": 4.3,
+          "ratingCount": 67,
+          "productId": "2088366419968348658",
+          "position": 29
+        },
+        {
+          "title": "Smart Ring Titan 2 Pro | Display Screen Rose Gold / 12#21.6mm / Standard",
+          "source": "Q Smart Ring",
+          "price": "₹9,254.07",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRKY0qZqHQRnEBul25YCp8JN94x4NsuafZL6-aMRr7pdSOfrIzEUhNlzOgOQXGiEry1ovuZkUKvvipHd_jTmLznRGhIJ-Ht9Duo27De_AsTFhA7AlGgqOSfgg",
+          "productId": "4584165172097920072",
+          "position": 30
+        },
+        {
+          "title": "Titan Men's Analog Leather Watch",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:8251090908762752429,gpcid:13440845963474326219,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹6,395",
+          "imageUrl": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS5AZG4GpvauvSgEt_k4wxs9kt0aUO1WfVfB-z8CmaE-sZ_X3V06b5VFQW48MGIogrn2vIhBZ4sUvGlNzFf-kyVulf6PF644il_0n0zUti7uOZ3hOJP_lyLAg",
+          "rating": 4.5,
+          "ratingCount": 142,
+          "productId": "8251090908762752429",
+          "position": 31
+        },
+        {
+          "title": "Titan Unisex Smart Watch",
+          "source": "Shopy Vision",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:13398006511751069354,gpcid:17680690753568265958,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹5,499",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcT-BguFhljVnBoVSPT-bSV8FjKFpOQ1E9afz123aIAhIkiPYV0yME04VLvVoUsBCUzl3-dzmfcKZqbZa4SWPIDzM-oDv0x68YwxEyoOTE0yTNzDL1NxABA",
+          "rating": 4.6,
+          "ratingCount": 18,
+          "productId": "13398006511751069354",
+          "position": 32
+        },
+        {
+          "title": "Titan Smart 3 premium 1.96 Inch Super AMOLED Display",
+          "source": "EMI Snapmint",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:3764876666400380771,gpcid:17810192056857003744,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹4,599",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcR5_3BP09j8afE_JyFuK2B0cMT1bwFsgubyg5Kym7RmnnASGiEQccLZ_bzAXxXPFQPFRu9LQ1MUQPeXE6C2QKlRLIcTHBu9OmnA_E5Mgk48ZG5lmlTlrqM0",
+          "rating": 4,
+          "ratingCount": 23,
+          "productId": "3764876666400380771",
+          "position": 33
+        },
+        {
+          "title": "Titan Smart Men SMART Black Digital/Smart Smart/Digital watch SKU ID 90188AP03 Helios The Watch Store",
+          "source": "Helios - The Watch Store",
+          "price": "₹4,709",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTr763yqfvnX2w-zQiDeUNZeJltuPWtlkQduC_IORt3wFI9UDF0EoeQVf28QjQoCgikasOY6lVIFkCGYrBx74P561v61uukw_DysSIFZeuPaRLb_ZwxhV-UeQ",
+          "rating": 4,
+          "ratingCount": 52,
+          "productId": "8677660184615906418",
+          "position": 34
+        },
+        {
+          "title": "Titan NQ90110WL03 Watch for Men",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:11265633124115868170,gpcid:11544152068078427332,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹15,620",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcR5bP-aXqHfA2wiW7hYZhA2R3uLnh2N4ZdoQS1g0T2rzynnjYhixR398eVbITNDaUIt6BOJeDxa34qISAEIQK-1-B9zbloom5R2lPoC8fh_rVYBP_LKYLt0PA",
+          "productId": "11265633124115868170",
+          "position": 35
+        },
+        {
+          "title": "Titan Quartz Multifunction Black Dial Leather Strap Watch for Men",
+          "source": "Titan.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:10722045464833849275,gpcid:5184249491341700991,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹6,795",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRjDEBV2erfC0uCegDqi2EhCY-ZNXnkiMv_KFkm2Wz_pd7l4AiUNL15J2-bc8kj_uB65N1y0BBpBLNga_KAStg5rcwmjcmXieGCDUi_CrdpUPxo2xK6YJ7c",
+          "rating": 4.4,
+          "ratingCount": 368,
+          "productId": "10722045464833849275",
+          "position": 36
+        },
+        {
+          "title": "Smart Ring Titan 2 Pro | Display Screen Silver / 8#18.3mm / Standard",
+          "source": "Q Smart Ring",
+          "price": "₹9,254.07",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTM932-B5GnoyG-cEjZ8BVeT-Q-KydcBo2daZhsW9zrDOpdgcia8plh6QgQq6xhe0iu_9FijGoKaBbQYTRDxul0zM-yYDoKvc7CzK2aR80bmN3WkUUs5nsr",
+          "productId": "254975588005329903",
+          "position": 37
+        },
+        {
+          "title": "Titan Black Talk Touch Screen Smart Watch with Amoled Display At Nykaa",
+          "source": "Flipkart",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:13066725277561195826,gpcid:6008463676889332739,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹5,299",
+          "imageUrl": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQpHDfolQx5Uhqi8WEc7y5k52QasMtW3n_qzNxL1NN5kHZzEfCHWL0eoBU00QYHPG8oYdGwrPBxRedTXkOo0HQiVnFJCSq4RzvUrN8vZflC",
+          "rating": 4,
+          "ratingCount": 4,
+          "productId": "13066725277561195826",
+          "position": 38
+        },
+        {
+          "title": "Titan T1 pro Rugged Armor Unlocked Cell Phone,32+512 GB Smartphone 7\" HD Screen Android 15 Battery 12800mAh AI Unlocked Phone",
+          "source": "ubuy.co.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:665556362367368501,gpcid:13959474844722533044,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹42,953",
+          "imageUrl": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRbhrw6IloSqQtjs5rz56nW54GFvm3NgIFz-AeKYdUvT6pA0FBBN6f3hW381twj9rCy00BjoPheV9ZC8_3TJDKbAba2HG1Hp4ni7nBeGEQ",
+          "productId": "665556362367368501",
+          "position": 39
+        },
+        {
+          "title": "Titan 1825KM01 Watch for Men",
+          "source": "Amazon.in",
+          "link": "https://www.google.com/search?ibp=oshop&q=Titan+Smart+Pro&prds=localAnnotatedOfferId:1,catalogid:5409553686529776145,gpcid:14310288960625365993,pvo:2,pvt:hg&gl=in&udm=28&pvorigin=2",
+          "price": "₹3,795",
+          "imageUrl": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRNPImHQ8vIbILWpohUY2K8BtWPIoe1_6LX-eF_tDBNXdmFhaowROw7OI-tjWI0BtMcYYMrxnw6U1AmCxHsnZVNsNnreU6GI1_GlyUzLWTXSg8Ki6ROVG8S",
+          "productId": "5409553686529776145",
+          "position": 40
+        }
+      ],
+      "credits": 2
+    },
+    "elapsed_ms": 1876
+  },
+  {
+    "run": 1,
+    "service": "serper",
+    "method": "POST",
+    "url": "https://google.serper.dev/shopping",
+    "request_headers": {
+      "content-type": "application/json"
+    },
+    "request_body": {
+      "q": "Fire-Boltt Ninja Calling Pro",
+      "gl": "in",
+      "hl": "en"
+    },
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  }
+]

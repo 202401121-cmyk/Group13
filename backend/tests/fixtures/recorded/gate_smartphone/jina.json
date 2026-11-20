@@ -1,0 +1,15 @@
+[
+  {
+    "run": 1,
+    "service": "jina",
+    "method": "GET",
+    "url": "https://r.jina.ai/https://www.croma.com/unboxed/buying-guides/smartphones?srsltid=[redacted]",
+    "request_headers": {},
+    "request_body": null,
+    "status": null,
+    "response_headers": {},
+    "response_body": null,
+    "elapsed_ms": 0,
+    "error": "Refused"
+  }
+]

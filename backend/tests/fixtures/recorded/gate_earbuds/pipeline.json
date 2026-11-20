@@ -1,0 +1,1139 @@
+[
+  {
+    "run": 1,
+    "rubric": {
+      "category": "wireless_earbuds",
+      "use_case": "gym",
+      "region": "IN",
+      "budget": {
+        "min": null,
+        "max": {
+          "amount": 3000.0,
+          "currency": "INR"
+        }
+      },
+      "hard_rules": [],
+      "exclusions": [],
+      "weights": [
+        {
+          "key": "secure_fit",
+          "weight": 9.0,
+          "normalized": 0.14876033057851235,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "sweat_resistance",
+          "weight": 8.5,
+          "normalized": 0.14049586776859505,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "battery_life",
+          "weight": 8.0,
+          "normalized": 0.1322314049586777,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "sound_isolation",
+          "weight": 7.5,
+          "normalized": 0.12396694214876033,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "latency",
+          "weight": 7.0,
+          "normalized": 0.11570247933884298,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "bluetooth_range",
+          "weight": 6.0,
+          "normalized": 0.09917355371900827,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "weight",
+          "weight": 5.5,
+          "normalized": 0.09090909090909091,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "durability",
+          "weight": 5.0,
+          "normalized": 0.08264462809917356,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "value_for_money",
+          "weight": 4.0,
+          "normalized": 0.06611570247933884,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        }
+      ]
+    },
+    "sources": [
+      {
+        "id": "src_21228ddd77bf669b",
+        "url": "https://www.geekman.in/best-earbuds-under-3000-india/",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best Earbuds Under 3000 in India 2026: Top Picks",
+        "text": "Best earbuds under 3000 in India: Realme Buds T500 Pro — the best all-rounder (powerful bass, Hi-Res LHDC, 50 dB ANC); CMF Buds 2 Plus ...",
+        "text_hash": "252eed51974503b19242bdd73ac7c0b8e5abdc287bf743895258a273daeecb95",
+        "fetched_at": "2026-11-19T05:53:22.309034Z",
+        "published_at": null,
+        "community": null,
+        "site": "geekman.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_18a18bcef091dfd1",
+        "url": "https://www.youtube.com/watch?v=ub0xGVh9IUw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best TWS Under 2500 & 3000 in Amazon Flipkart Sale",
+        "text": "Best TWS Under 2500 & 3000 in Amazon Flipkart Sale",
+        "text_hash": "6d5335ce0f8dcc8b2cc192550853f6bc12d2382deb18ca257b0bc9f435142f00",
+        "fetched_at": "2026-11-19T05:53:22.310037Z",
+        "published_at": null,
+        "community": null,
+        "site": "youtube.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_07721cab7af6cdb4",
+        "url": "https://www.boat-lifestyle.com/collections/earbuds-under-3000?srsltid=AYCX9vJlagsgpVu8Y8njeGSHSiXjyjjPNOwpSk3nR1uYn87XSm17VPlC",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Earbuds Under 3000",
+        "text": "Buy latest earbuds under 3000 from boAt Lifestyle. Enjoy powerful sound, long battery life & sleek design at a budget price. Perfect for music & calls!",
+        "text_hash": "84584300041a6690bed0f55e3e8acfca1d246814db727168ca268c74937a5e0f",
+        "fetched_at": "2026-11-19T05:53:22.310037Z",
+        "published_at": null,
+        "community": null,
+        "site": "boat-lifestyle.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_d3f5c9afa4e5b43c",
+        "url": "https://www.youtube.com/watch?v=ba78TFhC8h0",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best TWS Earbuds From ₹1000 - ₹3000 * Don't Buy Wrong!",
+        "text": "Best TWS Earbuds From ₹1000 - ₹3000 * Don't Buy Wrong!",
+        "text_hash": "8e301f3ed50aca24d151e16c5be9336156dbcdbf4c6c125fe6f76fd682f50ac2",
+        "fetched_at": "2026-11-19T05:53:22.311036Z",
+        "published_at": null,
+        "community": null,
+        "site": "youtube.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_bfd04c02331d3b23",
+        "url": "https://www.myntra.com/earbuds-under-3000",
+        "type": "web_search",
+        "tier": 3,
+        "title": "earbuds under 3000",
+        "text": "PunnkFunnk. Wireless Bluetooth Headphones · ₹827 ; Portronics. Wireless In Ear Earphones · ₹661 ; Portronics. Conch Theta C, Orange · ₹323 ; OnePlus. Nord Buds 3r ...",
+        "text_hash": "e2c8d3eb379858c766dbb2f3f7db1e6d75a24265885e3525146f2e8398962386",
+        "fetched_at": "2026-11-19T05:53:22.311036Z",
+        "published_at": null,
+        "community": null,
+        "site": "myntra.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_13b1d05c3f9272a0",
+        "url": "https://www.google.com/goto?url=CAESggEBxCJF18dj4Byc483Y8kx5GiWeMgRYq8eymDVoZx6-NyE9XWjyUFEiiAsepqlt944lIdhYt0skrJa_G7vb3otihSJTyD4fOBOJLUPWA96-hfUNnI1iFI_3wlqfH3u13xkkdgfos1ng-G7caAAHNEXs4eHDvWmy79BjZDQEROhtdT6w&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "The 6 Best In-Ear Headphones - Black Friday 2026",
+        "text": "The best in-ear headphones we've tested are the Sony WF-1000XM6. They provide good sound and top-tier noise isolation performance.",
+        "text_hash": "181201d82ffb6cccedcf2aaf917c0b14f47792f3b94f0579d741e18d046c61bc",
+        "fetched_at": "2026-11-19T05:53:22.549845Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_f0cc95ab63061027",
+        "url": "https://www.google.com/goto?url=CAESgwEBxCJF1zJxd3c-aYKlBFkLKO9HAv5Uvw1UcbbVHJ_0wBEoLM6d5CbVMFbd534NKFsJydg5sHDMymE3d83Ol4w9MNpe8yQ1sgP90QRdmpt-CxvbsmMbgSxIrD6h9c9v1Iuab4rAkZr9UWIhY0H7BiSbC4VHIe0djvKlQLBSr7DW50BPTA&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "The 5 Best Earbuds For iPhones - Black Friday 2026",
+        "text": "The Beats Powerbeats Pro 2 have large ear hooks, making them the best iPhone earbuds for sports that we've tested. While they're about as stable ...",
+        "text_hash": "3c3ea1777429fd72595d267eb3c441423798548cf536a8148c5b250e3f6ecb92",
+        "fetched_at": "2026-11-19T05:53:22.549845Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_7c8039aa303d35ed",
+        "url": "https://www.google.com/goto?url=CAEShAEBxCJF1-rkmIk6V9mp_7fZLOvdqOkQWhnhyNoRfRMSx-u6BX-46y77bH97xXsu94ujkXc47LeQYLtk3dEOlk_dYYqFddt7WQALS1NHfrLaSgqm92_z3XdQjEiH6Wu6ZBNvtSHHutc0e_gt0yHVPL86lAr0XPcK8Br_85-UHWfvk52DUSs&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "The 5 Best Bone Conduction And Open-Ear Headphones",
+        "text": "The Shokz OpenFit Pro are flagship open-ear buds. They sport a comfortable, lightweight ear hook design and come with a rudimentary ANC feature, ...",
+        "text_hash": "39709b328ecf4ffeb7f992065ed9bd72604ccf07d1a538885f5e569397edf0b7",
+        "fetched_at": "2026-11-19T05:53:22.549845Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_1a004f50fbdaa544",
+        "url": "https://www.google.com/goto?url=CAESggEBxCJF1_QZH316g_Gk0o1O369dk8eUszKEfoc1hY1HmlNZtx1xh_XoBTHSSLoOiZJO3GDnqRaNobf2XWh2tSNDM-F5sgGKjuH2oB2fSmDxL36lraOwz7c-fZW3mqmR9xfavEhTTJafFMLSTR3IZylaOiMvEgcO4aLXifvqJNFWkgBK&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Earbuds Under 2000 in India (Nov 2026)",
+        "text": "In ear canalphone, Wireless, With Mic · 65 Hours Talk time, 1.5 Hours Charging time · 5.4 Bluetooth Version, 10 meter Range · Noise cancellation · 13 mm Driver Size.",
+        "text_hash": "6cdb5ea6750404d2c42a57622460c366f894db2c85183e9bac460c3596ff3cd9",
+        "fetched_at": "2026-11-19T05:53:22.550859Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_e80c67dfe507f00d",
+        "url": "https://www.google.com/goto?url=CAESdAHEIkXXxopI8SgZNNo1LrgyIxyUEP-meDU1b_gK5_Di0uXVlbwDjbqvyYOusmBSDSk8Q0tisRhH4Bint_1sTRMY93HAjfqCwpnBeM08O7yVTKxydBI2ksobr1TpYY1PqTxcfB5sGG77W8gGepJ6b34DcEVH&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "The 4 Best Neckband Headphones - Black Friday 2026",
+        "text": "The best neckband headphones we've tested are the Sony WI-1000XM2 Wireless. These headphones offer intuitive controls and a comfortable, ...",
+        "text_hash": "b9870db5d01282efe8ffcbea39397c4b8bc530d7e6be42ae8020836760102326",
+        "fetched_at": "2026-11-19T05:53:22.550859Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_c4095e2d1ef901a7",
+        "url": "https://www.google.com/goto?url=CAESegHEIkXX4jJL7j9jacL9qlYPYWVOzIguhTRRsgiH5OhbIH2T1AzaLt571c2u0zC1z892GxB45cugNfVm03Mkr3ykX0oIL7vLEUAso-YnLqOXk9lJTBII3mne0B12U5gVSMxIGZ3BJFwHYerlVbLOD9TwSb0XU-iggDxc&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "The 5 Best Earbuds For Gaming - Black Friday 2026",
+        "text": "The SteelSeries Arctis GameBuds are the best gaming earbuds we've tested. These in-ears have a wireless USB-C dongle for a low-latency ...",
+        "text_hash": "e4815bea231d962da3c91cd2d6ec01e74e47a8ee32352a7f63955fc42a3b7e22",
+        "fetched_at": "2026-11-19T05:53:22.550859Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_f151e3e70a3d7871",
+        "url": "https://www.google.com/goto?url=CAESagHEIkXXqnplcILTDq-EIZYA9q10wPuXJG5Blj8I_kdqyGBDvaS_udXtXhGvM9yaadeaCUi0JWq7EI4VOb2tUYd4HU1cXebddmTOUuju2nHXUMxY0oV_rQ2VSArEnSggpk1vy4YL-D8XxqU&gsessionid=ljqDJ5FrYBhCOGPb59ehag3YIX_kGqE2WR40K2ci3cXra_bDd9_sUw",
+        "type": "web_search",
+        "tier": 3,
+        "title": "The 5 Best JBL Earbuds And Headphones - Black Friday ...",
+        "text": "Their fit isn't as secure as the JBL Endurance Peak 4 above either, so they're not the right choice for runs or harder gym sessions. However, ...",
+        "text_hash": "724996b76cdbc152ab62edade60d029c836d9ca636f19edea36dd23ea6f1ba9b",
+        "fetched_at": "2026-11-19T05:53:22.550859Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_0ed2532c6dcd60cb",
+        "url": "https://www.youtube.com/watch?v=baMPlZXVsTY",
+        "type": "web_search",
+        "tier": 3,
+        "title": "The Ultimate TWS Earphones Buying Guide 2025 2025",
+        "text": "The Ultimate TWS Earphones Buying Guide 2025 2025",
+        "text_hash": "9794211990801f6a330ef9a2397c26090945f705d00a84a9210e19a7335c12b7",
+        "fetched_at": "2026-11-19T05:53:21.903494Z",
+        "published_at": null,
+        "community": null,
+        "site": "youtube.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_24422f159d62a83a",
+        "url": "https://www.croma.com/unboxed/buying-guides/headphones-earphones?srsltid=AYCX9vL2GlJm7QPmgO9ctxZxtgRVc1lcsdv0n5UzfTRUtQkecsCmaeew",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Headphones & Earphones Buying Guide | How to Choose the Best ...",
+        "text": "Ensure your Earbuds are compatible with your Smartphone OS, Android, or iOS. Some features may be OS or brand specific, so be sure to check before you buy.",
+        "text_hash": "19541af86fd2c50cab943b2a7b5af56ea724b2cd26a214d916eb15a4e2f1fbc3",
+        "fetched_at": "2026-11-19T05:53:21.904493Z",
+        "published_at": null,
+        "community": null,
+        "site": "croma.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_e406c7998785e578",
+        "url": "https://www.snapup.life/blogs/snapup-news-updates-stories-product-knowledge/tws-earbuds-buying-guide?srsltid=AYCX9vInDEwcM2_mlpjLmxR_nQMlDNszE6ytOz_-wwmfMJXpAKhFi0tX",
+        "type": "web_search",
+        "tier": 3,
+        "title": "TWS Earbuds Buying Guide – How to Choose the Best Earbuds",
+        "text": "Learn how to choose the best TWS earbuds with this complete guide covering Bluetooth versions, battery life, drivers, ENC vs ANC, ...",
+        "text_hash": "617aaaf0868938957973f5d6b4547069dd828a7479e7cdbbebf1582aa3c112d3",
+        "fetched_at": "2026-11-19T05:53:21.904493Z",
+        "published_at": null,
+        "community": null,
+        "site": "snapup.life",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_0e151d7de883b9cb",
+        "url": "https://www.vijaysales.com/blog-listing/how-to-choose-right-wireless-earbuds",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Truly Wireless Earbuds: How To Choose the Right Pair",
+        "text": "Look for sound quality, comfort, battery life, Bluetooth stability, and extra features like ANC or water resistance. Always match the earbuds to ...",
+        "text_hash": "480321f3aaf112a781680d51ff7d5fbbde3820c86d7e157d13d0b471848d2f28",
+        "fetched_at": "2026-11-19T05:53:21.904493Z",
+        "published_at": null,
+        "community": null,
+        "site": "vijaysales.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_416145ddcd6fe2e4",
+        "url": "https://elver.in/blogs/audio-tips/earbuds-buying-guide-2026-how-to-choose-the-best-wireless-earbuds-for-music-lovers?srsltid=AYCX9vImE2N9eMKQ2ULy1kp9OKgYm4XBDrg9juIJKIPxyhAIQPnONJ35",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Earbuds Buying Guide 2026: How to Choose the Best Wireless Earbuds for",
+        "text": "Earbuds Buying Guide 2026: How to Choose the Best Wireless Earbuds for Music Lovers · 1. Sound Quality · 2. Comfort and fit are very important · 3.",
+        "text_hash": "b90da3cad54b4887af68146b1587aaccef48cc62b00ac63ae065c2ea3226e89a",
+        "fetched_at": "2026-11-19T05:53:21.905503Z",
+        "published_at": null,
+        "community": null,
+        "site": "elver.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_93cc1dfeb318db95",
+        "url": "https://www.boat-lifestyle.com/blogs/blog/earphones-buying-guide-everything-you-need-to-know-before-buying-the-right-pair?srsltid=AYCX9vKO19xXV4lJhdGLjm6VlZc3xdrQI2jRKVb8fs-eiCjCJb2KN28U",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Earphones Buying Guide - Everything You Need To Know",
+        "text": "The best thing about wireless earbuds is that they often come with a carry cum charging case that provide additional hours of charge. So always ...",
+        "text_hash": "d1d4bc2612cc5675dd676fbfbbf86b50f7cbe63d55beadc03c428f7aca9dde4c",
+        "fetched_at": "2026-11-19T05:53:21.905503Z",
+        "published_at": null,
+        "community": null,
+        "site": "boat-lifestyle.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_de750546ee72c972",
+        "url": "https://www.soundguys.com/best-workout-earbuds-2719/",
+        "type": "web_search",
+        "tier": 3,
+        "title": "I've tested dozens of workout earbuds, and these are the best in 2026",
+        "text": "Beats Powerbeats Pro 2 are our top recommendation. Their adjustable ear hooks do an excellent job of keeping everything in place, even during ...",
+        "text_hash": "1fbc19f3a6139e5bb51865962611d4eeffcc7c427a6a060e4ce933cad1db5936",
+        "fetched_at": "2026-11-19T05:53:23.035831Z",
+        "published_at": null,
+        "community": null,
+        "site": "soundguys.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_bbd9be0918abd83f",
+        "url": "https://www.amazon.in/best-anc-earbuds-under-3000/s?k=best+anc+earbuds+under+3000",
+        "type": "retailer",
+        "tier": 5,
+        "title": "Amazon.in : best anc earbuds under 3000",
+        "text": "1-16 of over 20,000 results for \"best anc earbuds under 3000\"\n\nFeatured\n\nPrice: Low to High\n\nPrice: High to Low\n\nAvg. Customer Review\n\nNewest Arrivals\n\nBest Sellers\n\nBuds N1 Pro | Newly Launched | ANC ( Upto 32 dB)\n\nSponsored\n\n|\n\nTop 10 best-selling brand in audio headphones\n\n|\n\nShop Noise AudioShop now\n\nPrevious page\n\nNoise Buds N1 Pro Truly Wireless Earbuds with Metallic Finish, ANC(Upto 30Db), 60H of Playtime, Dual Pairing, Instacharge(10 Min=200 Min), BT V5.3(Chrome Green)\n\n3.7 3.7 out of 5 stars. (7.3k)\n\n₹1,499.00\n\nM.R.P: ₹4,999.00\n\nNoise Buds N1 Pro Truly Wireless Earbuds with Metallic Finish, ANC(Upto 30Db), 60H of Playtime, Dual Pairing, Instacharge(10 Min=200 Min), BT V5.3(Chrome Black)\n\n3.7 3.7 out of 5 stars. (7.3k)\n\n₹1,499.00\n\nM.R.P: ₹4,999.00\n\nNoise Buds N1 Pro Truly Wireless Earbuds with Metallic Finish, ANC(Upto 30Db), 60H of Playtime, Dual Pairing, Instacharge(10 Min=200 Min), BT V5.3(Chrome Beige)\n\n3.7 3.7 out of 5 stars. (7.3k)\n\n₹1,499.00\n\nM.R.P: ₹2,999.00\n\nNext page\n\nShowing products near you, with fast delivery\n\nSee all products, across price ranges.\n\nResults\n\nCheck each product page for other buying options.\n\nSponsored\n\nYou are seeing this ad based on the product’s relevance to your search query.\n\nLet us know\n\nNoise Newly Launch ALT Buds Truly Wireless Earbuds with 35dB ANC, AI Spatial Audio, 45H Playtime, App Support, InstaCharge, Dual Pairing, BT V6.0 (Chosen Grey (Metallic))\n\n500+ bought in past month\n\nPrice, product page₹2,299\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sun, 22 Nov\n\n+1 other color/pattern\n\nSponsored\n\nYou are seeing this ad based on the product’s relevance to your search query.\n\nLet us know\n\nNoise Buds N2 Pro Truly Wireless Earbuds with ANC (Up to 32dB), 70H Playtime, Dual Pairing, InstaCharge (10 Min = 200 Min), Bluetooth v6.0, Metallic Finish – Arctic Blue\n\n500+ bought in past month\n\nPrice, product page₹1,799 M.R.P: ₹4,999\n\nM.R.P: ₹4,999\n\n(64% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sat, 21 Nov\n\nOr fastest delivery Today\n\n+4 other colors/patterns\n\nOnePlus Nord Buds 3r TWS Earbuds up to 54 Hours Playback, 2-mic Clear Calls, 3D Spatial Audio, AI Translation, 12.4mm Drivers, Dual-Device Connectivity, 47ms Low Latency - Ash Black\n\n30K+ bought in past month\n\nPrice, product page₹1,899 M.R.P: ₹1,999\n\nM.R.P: ₹1,999\n\n(5% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sun, 22 Nov\n\nrealme Buds T310 True Wireless in-Ear Earbuds with 46dB Hybrid ANC, 360° Spatial Audio, 12.4mm Dynamic Bass Driver, Upto 40Hrs Battery and Fast Charging (Vibrant Black)\n\n10K+ bought in past month\n\nPrice, product page₹2,399 M.R.P: ₹3,999\n\nM.R.P: ₹3,999\n\n(40% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sat, 21 Nov\n\nOr fastest delivery Today\n\nSponsored\n\nYou are seeing this ad based on the product’s relevance to your search query.\n\nLet us know\n\nNoise Buds N1 Pro Truly Wireless Earbuds with Metallic Finish, ANC(Upto 30Db), 60H of Playtime, Dual Pairing, Instacharge(10 Min=200 Min), BT V5.3(Chrome Black)\n\n1K+ bought in past month\n\nPrice, product page₹1,499 M.R.P: ₹4,999\n\nM.R.P: ₹4,999\n\n(70% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sun, 22 Nov\n\n+3 other colors/patterns\n\nSponsored\n\nYou are seeing this ad based on the product’s relevance to your search query.\n\nLet us know\n\nNoise Buds VS402 (Gen 2) Truly Wireless Earbuds with 31dB ANC, 10mm Driver, 35H Playtime, Quad Mic ENC, Bluetooth 6.0, Dual Pairing, Volume Scroller, IPX4, Music & Video Modes - (Glacier Mint)\n\n100+ bought in past month\n\nPrice, product page₹1,999 M.R.P: ₹4,999\n\nM.R.P: ₹4,999\n\n(60% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sun, 22 Nov\n\n+3 other colors/patterns\n\nTrending now\n\nSponsored\n\n+4 other colors/patterns\n\nGOBOULT Mustang Torq Wireless in Ear Earbuds with 60H Playtime, App Support, Quad Mic ENC, 45ms Low Latency, 13mm Driver, Breathing LEDs, Made in India Ear Buds Wireless (Green)\n\n1K+ bought in past month\n\nPrice, product page₹1,799 M.R.P: ₹5,999\n\nM.R.P: ₹5,999\n\n(70% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sat, 21 Nov\n\nOr fastest delivery Today\n\n+7 other colors/patterns\n\npTron Bassbuds Astra in-Ear TWS Earbuds w/Stereo Sound, 50Hrs Playtime, Stereo Calls, Custom EQ, Mobile App, BTv5.3 Headphones, Touch Control, Voice Assistant, Type C Charging & IPX4 (Black)\n\n7K+ bought in past month\n\nPrice, product page₹699 M.R.P: ₹2,899\n\nM.R.P: ₹2,899\n\n(76% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sat, 21 Nov\n\nOr fastest delivery Today\n\n+2 other colors/patterns\n\nGOBOULT. Mustang Nitro Earbuds with 72H Playtime, 32db ANC, Amp App Support, Quad Mic ENC, Dual Device Pairing Buds, 13mm Driver Ear Buds, BTv 6.0, Google Fast Pairing, Wireless Earbuds (Black GT)\n\n400+ bought in past month\n\nPrice, product page₹1,999 M.R.P: ₹5,999\n\nM.R.P: ₹5,999\n\n(67% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sat, 21 Nov\n\nOr fastest delivery Today\n\n+3 other colors/patterns\n\nNoise Buds Mini X Truly Wireless Earbuds (2026) | Half in-Ear Design | 50H Playtime |12mm Titanium-Coated Drivers | Quad Mic ENC for Clear Calls| Dual Pairing | BTv6.0 | IPX4 - [Sand Beige]\n\nTop Reviewed for Comfort\n\n1K+ bought in past month\n\nPrice, product page₹1,199 M.R.P: ₹2,999\n\nM.R.P: ₹2,999\n\n(60% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sat, 21 Nov\n\nOr fastest delivery Today\n\n+3 other colors/patterns\n\nEarFun [2025 VGP Winner] Air Pro 4+ Adaptive Hybrid Noise Cancelling Wireless Earbuds Bluetooth 6.0,Qualcomm Snapdragon Sound, aptX Lossless,LDAC Hi-Res Audio, 6 Mics AI CVC Call,54H Playtime\n\n100+ bought in past month\n\nLimited time deal\n\nPrice, product page₹8,899 M.R.P: ₹10,498\n\nM.R.P: ₹10,498\n\n(15% off)\n\nSavings Buy 2 items, get 5% off\n\nFREE delivery Sat, 21 Nov\n\nOr fastest delivery Today\n\nWireless open earbuds by truke\n\nSponsored\n\n|\n\n10K+ bought from this brand in past month\n\n|\n\nShop trukeShop now\n\nPrevious page\n\ntruke TruClips 2 India’s 1st AI Open Earbuds with 165 Language Translation, AI Chat, Meeting Notes, Mind Map & Lifetime App Subscription, 70H Battery, 13mm Beryllium Drivers, Spatial Audio, 4-Mic ENC\n\n3.6 3.6 out of 5 stars. 45\n\nLimited time deal\n\n-57%₹2,999.00\n\nM.R.P: ₹6,999.00\n\ntruke TruClips 2 India’s 1st AI Open Earbuds with 165 Language Translation, AI Chat, Meeting Notes, Mind Map & Lifetime App Subscription, 70H Battery, 13mm Beryllium Drivers, Spatial Audio, 4-Mic ENC\n\n3.6 3.6 out of 5 stars. 45\n\nLimited time deal\n\n-57%₹2,999.00\n\nM.R.P: ₹6,999.00\n\ntruke TruClips Wireless Open Ear Buds with 55H Battery, 12mm Custom Drivers, Spatial Audio, Premium Leather Dual Form Design, Low Latency, Quad Mic ENC, Ambient Awareness, IPX5 - OnyxBlue\n\n3.6 3.6 out of 5 stars. 2,808\n\n₹1,799.00\n\nM.R.P: ₹8,999.00\n\nNext page\n\nMore results\n\nOnePlus Nord Buds 3 Pro True Wireless Bluetooth Earbuds with Upto 49dB Active Noise Cancellation,12.4mm Dynamic Drivers,10mins for 11Hrs Fast Charging with Upto 44Hrs Music Playback [Starry Black]\n\n500+ bought in past month\n\nSee options\n\nNo featured offers available\n₹2,900(1 new offer)\n\nboAt Nirvana Ion ANC, Active Noise Cancellation(~32dB), 120Hrs Battery, App Support, Crystal Bionic Sound, 4Mics ENx, v5.3 Bluetooth Earbuds, TWS Ear Buds Wireless Earphones with mic (Quartz White)\n\n500+ bought in past month\n\nPrice, product page₹1,999 M.R.P: ₹9,990\n\nM.R.P: ₹9,990\n\n(80% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sat, 21 Nov\n\nOr fastest delivery Today\n\nSponsored\n\nYou are seeing this ad based on the product’s relevance to your search query.\n\nLet us know\n\nGOBOULT Mustang Torq Wireless in Ear Earbuds with 60H Playtime, App Support, Quad Mic ENC, 45ms Low Latency, 13mm Driver, Breathing LEDs, Made in India Ear Buds Wireless (Green)\n\n1K+ bought in past month\n\nPrice, product page₹1,799 M.R.P: ₹5,999\n\nM.R.P: ₹5,999\n\n(70% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sat, 21 Nov\n\nOr fastest delivery Today\n\n+4 other colors/patterns\n\nSponsored\n\nYou are seeing this ad based on the product’s relevance to your search query.\n\nLet us know\n\nGOBOULT Mustang Sprint in Ear Earbuds with 60H Playtime, Amp App Support, 32dB Active Noise Cancellation, Quad Mic ENC, Dual Device Pairing, 10mm Drivers, BTv 6.0 TWS (Neon Green)\n\n300+ bought in past month\n\nPrice, product page₹1,799 M.R.P: ₹5,999\n\nM.R.P: ₹5,999\n\n(70% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Fri, 27 Nov\n\n+2 other colors/patterns\n\nboAt 2026 Launch Nirvana Ion ANC w/Crest AI (Smart Burgandy)\n\nUp to 50 dB Hybrid ANC, Massive 120 Hours Playtime, Spatial Audio, 12mm Dynamic Driver & Advanced Bluetooth v6.1\n\n100+ bought in past month\n\nPrice, product page₹2,399 M.R.P: ₹9,990\n\nM.R.P: ₹9,990\n\n(76% off)\n\nUp to 5% back with Amazon Pay ICICI card\n\nFREE delivery Sun, 22 Nov\n\nOr fastest delivery Sat, 21 Nov",
+        "text_hash": "30c18ca4527fd0a4c41a05d23ccaa970d4e7ba66cc1d9babcb6c35b224167d62",
+        "fetched_at": "2026-11-19T05:53:26.260528Z",
+        "published_at": null,
+        "community": null,
+        "site": "amazon.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_7a103d9b3091918f",
+        "url": "https://www.91mobiles.com/list-of-earbuds/earbuds-under-3000-in-india",
+        "type": "review_site",
+        "tier": 3,
+        "title": "Earbuds Under 3,000 in India (Nov 2026) | 91mobiles.com",
+        "text": "Earbuds Under 3,000 in India (Nov 2026)\n\nView Popular earbuds under Rs 3,000 in India with all specifications and features. Buy Top earbuds under Rs.3,000 from different online stores at 91mobiles.\n\nTop 5 Earbuds Under 3,000 with Prices & Specs\n\nProduct Name\n\nType\n\nTalk Time\n\nBluetooth\n\nFeatures\n\nWeight\n\nDriver Size\n\nPrices\n\nrealme Buds T200\n\nIn ear canalphone, Wireless, With Mic\n\n50 Hours Talk time, 2 Hours Charging time\n\n5.4 Bluetooth Version, 10 meter Range\n\nNoise cancellation\n\n50 gm Weight\n\n12.4 mm Driver Size\n\n₹2,099\n\nrealme Buds T310\n\nIn ear canalphone, Wireless, With Mic, A2DP\n\n40 Hours Talk time\n\n5.4 Bluetooth Version, 10 meter Range\n\nNoise cancellation\n\n90 gm Weight\n\n12.4 mm Driver Size\n\n₹2,399\n\nrealme Buds T200x\n\nIn ear canalphone, Wireless, With Mic\n\n48 Hours Talk time, 120 Minute Charging time\n\n5.4 Bluetooth Version, 10 meter Range\n\nNoise cancellation\n\n52 gm Weight\n\n12.4 mm Driver Size\n\n₹1,899\n\nOnePlus Nord Buds 3r\n\nIn ear canalphone, Wireless, With Mic, A2DP, AVRCP, HFP\n\n54 Hours Talk time, 120 Minute Charging time\n\n5.4 Bluetooth Version, 10 meter Range\n\nNoise cancellation\n\n48 gm Weight\n\n12.4 mm Driver Size\n\n₹1,899\n\nrealme Buds T300\n\nIn ear canalphone, Wireless, With Mic\n\n40 Hours Talk time\n\n5.3 Bluetooth Version, 10 meter Range\n\n12.4 mm Driver Size\n\n₹1,799\n\n... read more\n\nCompare",
+        "text_hash": "4bc71627a4ad97c22a53dd250a6c9a65bb4e9630a10d74f435b0c2d1493ae208",
+        "fetched_at": "2026-11-19T05:53:25.486135Z",
+        "published_at": null,
+        "community": null,
+        "site": "91mobiles.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_2c81c46f12c77604",
+        "url": "https://www.smartprix.com/mobile_headphones/best-earbuds-under-3000-list",
+        "type": "review_site",
+        "tier": 3,
+        "title": "Best Earbuds Under 3000 in India (Nov 2026) | Smartprix",
+        "text": "Best Earbuds Under 3000 in India\n\nExplore the best earbuds under ₹3000 in India. Compare features, ratings, and user reviews to pick the perfect pair for you. This price list was last updated on November 19, 2026.\n\nBest Earbuds Under 3000 in India Price List\n\nHeadphone And Earphone\nPrice\nAvailable From\n\nMotorola Moto Buds 2 Fusion\n₹2,199\nSep, 2026\n\nRealme Buds T310 True Wireless Earbuds\n₹2,399\nAug, 2024\n\nOnePlus Nord Buds 3 Pro\n₹3,099\nJul, 2024\n\nJBL Wave Beam True Wireless Earbuds\n₹2,699\nFeb, 2023\n\nOnePlus Nord Buds 3\n₹2,499\nSep, 2024\n\nCMF Buds 2a\n₹2,399\nJun, 2025\n\nboAt Nirvana Ion ANC True Wireless Earbuds (2026)\n₹2,399\nNov, 2026\n\nCMF Buds 2\n₹2,799\nJul, 2025\n\nRealme Buds Air 5 True Wireless Earbuds\n₹2,299\nAug, 2023\n\nboAt Nirvana Ion ANC True Wireless Earbuds (Crest Ai)\n₹2,799\nOct, 2026\n\nRead More\n\nLike\nComment\nShare\n\n110 Headphones And Earphones\n\nSort By\n\nRelevancePopularityPrice Low To HighPrice High To LowDateRatingPrice Drop\n\nMotorola Moto Buds 2 Fusion\n\n₹2,19915%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 6.0\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nRealme Buds T310 True Wireless Earbuds\n\n₹2,39920%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.4\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n12.4 mm Driver\n\nCompareLikeView →\n\nOnePlus Nord Buds 3 Pro\n\n₹3,09911%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.4\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nJBL Wave Beam True Wireless Earbuds\n\n₹2,69943%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.2\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n8 mm Driver\n\nCompareLikeView →\n\nOnePlus Nord Buds 3\n\n₹2,4995%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.4\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nCMF Buds 2a\n\n₹2,39916%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.4\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nboAt Nirvana Ion ANC True Wireless Earbuds (2026)\n\n₹2,3996%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 6.1\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nCMF Buds 2\n\n₹2,7995%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.4\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nRealme Buds Air 5 True Wireless Earbuds\n\n₹2,299\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.3\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 40 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nboAt Nirvana Ion ANC True Wireless Earbuds (Crest Ai)\n\n₹2,79922%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.2\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nOPPO Enco Buds3 Pro Plus\n\n₹2,8184%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.4\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nCMF by Nothing Buds True Wireless Earbuds\n\n₹2,49933%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.3\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nboAt Nirvana Ivy True Wireless Earbuds\n\n₹2,98239%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.3\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nCMF by Nothing Buds Pro True Wireless Earbuds\n\n₹2,79931%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.3\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nPortronics Twins Vibe True Wireless Earbuds\n\n₹2,690103%\n\nTWS Earbuds\nOpen Ear\nWireless\nBluetooth\nMicrophone\n20 Hz (Min) - 20 kHz (Max) Frequency Response\nDeep Bass\nSweat Proof\n\nCompareLikeView →\n\niQOO TWS Air 3 Pro True Wireless Earbuds\n\n₹2,499\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 6.0\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeSearch →\n\nUPCOMING\n\nXiaomi Redmi Buds 7S True Wireless Earbuds\n\n₹2,299\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.4\nActive Noise Cancellation\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n\nCompareLikeSearch →\n\nUPCOMING\n\nHuawei Freebuds SE 2 True Wireless Earbuds\n\n₹2,9991%\n\nTWS Earbuds\nIn the Ear\nWireless\nBluetooth 5.3\nActive Noise Cancellation\nMicrophone\n10 m Range\n14 Hz (Min) - 48 kHz (Max) Frequency Response\n\nCompareLikeView →\n\nNoise Pure Pods OWS True Wireless Earbuds\n\n₹2,77920%\n\nTWS Earbuds\nOpen Ear\nWireless\nBluetooth 5.3\nMicrophone\n10 m Range\n20 Hz (Min) - 20 kHz (Max) Frequency Response\n16 mm Driver\n\nCompareLikeView →\n\nZebronics Zeb-Pods O2 True Wireless Earbuds\n\n₹2,1892%\n\nTWS Earbuds\nOpen Ear\nWireless\nBluetooth 5.4\nMicrophone\n10 m Range\n13 mm Driver\n40 hours Battery Life with Case\n\nCompareLikeView →\n\nLoad More\n\nDiscuss\n\nBe the first to leave a comment.\n\nRelated News\n\nMotorola Unveils Signature 27 Phone, Moto Watch 2 Fit And Moto Buds 2 Ultra: Prices And Specs\n\nMotorola has forayed into the flagship segment with a bang. On November 5, 2026, the company launched Signature 27, its top-tier flagship with the Snapdragon 8 Elite Extreme Gen 6 chip, and that’s only for yo…\n\nOnePlus Nord Buds 4 Launched in India at ₹3,299 With 52dB ANC and 54 Hours of Battery Life\n\nOnePlus has launched the Nord Buds 4 in India, expanding its affordable audio lineup with a new pair of TWS earbuds. The new earbuds come in Stellar Black and Astral Teal color options and will go on sale sta…\n\nOnePlus Nord Buds 4 Specs Revealed Ahead of June 25 Launch\n\nAhead of their debut later this month, OnePlus has officially detailed the key features of the upcoming OnePlus Nord Buds 4. The new earbuds are set to launch on June 25, with pricing set to be announced at t…\n\nBlinkit is Delivering GTA 6 in 10 Minutes Just in Time For Midnight India Launch\n\nRockstar Games spent 13 years making Grand Theft Auto VI. Blinkit needs just 10 minutes to get it to your door. Quick-commerce and gaming just collided in the best way. Blinkit now delivers physical copies of…\n\nRelated Headphones And Earphones\n\nRealme Buds T310 True Wireless Earbuds₹2,399\n\nMotorola Moto Buds 2₹28,056\n\nOnePlus Nord Buds 3R True Wireless Earbuds₹1,899\n\nOnePlus Nord Buds 3₹2,499\n\nOnePlus Nord Buds 4₹3,299\n\nRealme Buds T500 Pro₹3,199\n\nMotorola Moto Buds True Wireless Earbuds₹1,799\n\nMotorola Moto Buds 2 Plus₹4,999\n\nRelated Searches\n\nBest Motorola Headphones And Earphones Price ListOnePlus Headphones And Earphones Under ₹5,000boAt Rockerz Series Earphones Price ListRealme Headphones And Earphones Under ₹5,000OnePlus Headphones And Earphones PriceBest Earbuds Under 3000 in IndiaEarphones Under ₹300Best TWS Earbuds Under 5000\n\nSort RelevancePopularityPrice Low To HighPrice High To LowDateRatingPrice Drop\n\nFilter",
+        "text_hash": "491fb5109e4bca1c3df73c6fede14589aacb26f9428045e8398cef1e90d6057b",
+        "fetched_at": "2026-11-19T05:53:25.300181Z",
+        "published_at": null,
+        "community": null,
+        "site": "smartprix.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_e61ad3c7990c39fe",
+        "url": "https://www.rtings.com/headphones/reviews/best/earbuds-for-working-out",
+        "type": "review_site",
+        "tier": 3,
+        "title": "The 5 Best Earbuds For Working Out - Black Friday 2026",
+        "text": "Best\n\nHeadphones\n\nNoise Cancelling\n\nWireless Earbuds\n\nGaming\n\nNoise Cancelling Earbuds\n\nOver-Ear\n\nWireless\n\nRunning\n\nApple\n\nPC Gaming\n\nWireless Gaming\n\nBone Conduction And Open-Ear\n\nWired\n\nEarbuds For Working Out\n\nOn-Ear\n\nIn-Ears\n\nWireless Earbuds For Android\n\nMusic\n\nPS5/PS5 Pro\n\nOver-Ears For Working Out\n\nTools\n\nCompare\n\nResults Table Tool\n\nReview List\n\nReview Index\n\nGraph\n\nReview Pipeline\n\nVote\n\nCustom Ratings\n\nPopular\n\nSony WH-1000XM6\n\nSony WF-1000XM6\n\nAnker Soundcore Liberty 5 Pro\n\nAudeze Maxwell 2\n\nRazer BlackShark V3 Pro\n\nAnker Soundcore Space A40 Truly Wireless\n\nJBL Live 780NC\n\nBose QuietComfort Ultra Headphones (2nd Gen)\n\nSteelSeries Arctis Nova 7 Wireless [7, 7P, 7X]\n\nAnker Soundcore P31i\n\nAnker Soundcore Space Q45 Wireless\n\nApple AirPods Pro 3\n\nSennheiser HDB 630\n\nSennheiser HD 800 S\n\nSamsung Galaxy Buds4 Pro\n\nTurtle Beach Stealth 600 (Gen 3)\n\nSennheiser HD 560S\n\nApple AirPods 5\n\nBose QuietComfort Headphones Wireless\n\nSony WF-1000XM5 Truly Wireless\n\n935\nHeadphones bought and tested\n\nSupported by you via\n\nmembership, and when you purchase through links on our site, we may earn an affiliate commission.\n\nHome\n\nHeadphones\n\nBest\n\nEarbuds For Working Out\n\nCreate your free account or log in to unlock a full product review.\nLOGIN\n\nFor unlimited access, become a member",
+        "text_hash": "58a662f2b25a78a4ecb37589a5cb0de9810261429dba7dff5467c50403a47d44",
+        "fetched_at": "2026-11-19T05:53:27.438872Z",
+        "published_at": null,
+        "community": null,
+        "site": "rtings.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_de59ae75434aab9f",
+        "url": "https://www.rtings.com/headphones/reviews/best/wireless-earbuds",
+        "type": "review_site",
+        "tier": 3,
+        "title": "The 6 Best Wireless Earbuds - Black Friday 2026",
+        "text": "Best\n\nHeadphones\n\nNoise Cancelling\n\nWireless Earbuds\n\nGaming\n\nNoise Cancelling Earbuds\n\nOver-Ear\n\nWireless\n\nRunning\n\nApple\n\nPC Gaming\n\nWireless Gaming\n\nBone Conduction And Open-Ear\n\nWired\n\nEarbuds For Working Out\n\nOn-Ear\n\nIn-Ears\n\nWireless Earbuds For Android\n\nMusic\n\nPS5/PS5 Pro\n\nOver-Ears For Working Out\n\nTools\n\nCompare\n\nResults Table Tool\n\nReview List\n\nReview Index\n\nGraph\n\nReview Pipeline\n\nVote\n\nCustom Ratings\n\nPopular\n\nSony WH-1000XM6\n\nSony WF-1000XM6\n\nAnker Soundcore Liberty 5 Pro\n\nAudeze Maxwell 2\n\nRazer BlackShark V3 Pro\n\nAnker Soundcore Space A40 Truly Wireless\n\nJBL Live 780NC\n\nBose QuietComfort Ultra Headphones (2nd Gen)\n\nSteelSeries Arctis Nova 7 Wireless [7, 7P, 7X]\n\nAnker Soundcore P31i\n\nAnker Soundcore Space Q45 Wireless\n\nApple AirPods Pro 3\n\nSennheiser HDB 630\n\nSennheiser HD 800 S\n\nSamsung Galaxy Buds4 Pro\n\nTurtle Beach Stealth 600 (Gen 3)\n\nSennheiser HD 560S\n\nApple AirPods 5\n\nBose QuietComfort Headphones Wireless\n\nSony WF-1000XM5 Truly Wireless\n\n935\nHeadphones bought and tested\n\nSupported by you via\n\nmembership, and when you purchase through links on our site, we may earn an affiliate commission.\n\nHome\n\nHeadphones\n\nBest\n\nWireless Earbuds\n\nCreate your free account or log in to unlock a full product review.\nLOGIN\n\nFor unlimited access, become a member",
+        "text_hash": "0edbece00769c0492d11cca0e0db1317022522abb14cafe7ac04a1887fddc8dc",
+        "fetched_at": "2026-11-19T05:53:29.416118Z",
+        "published_at": null,
+        "community": null,
+        "site": "rtings.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_97d34889ccb66caa",
+        "url": "https://www.rtings.com/headphones/reviews/best/over-ear-headphones-working-out",
+        "type": "review_site",
+        "tier": 3,
+        "title": "The 5 Best Over-Ear Headphones For Working Out - Black Friday 2026",
+        "text": "Best\n\nHeadphones\n\nNoise Cancelling\n\nWireless Earbuds\n\nGaming\n\nNoise Cancelling Earbuds\n\nOver-Ear\n\nWireless\n\nRunning\n\nApple\n\nPC Gaming\n\nWireless Gaming\n\nBone Conduction And Open-Ear\n\nWired\n\nEarbuds For Working Out\n\nOn-Ear\n\nIn-Ears\n\nWireless Earbuds For Android\n\nMusic\n\nPS5/PS5 Pro\n\nOver-Ears For Working Out\n\nTools\n\nCompare\n\nResults Table Tool\n\nReview List\n\nReview Index\n\nGraph\n\nReview Pipeline\n\nVote\n\nCustom Ratings\n\nPopular\n\nSony WH-1000XM6\n\nSony WF-1000XM6\n\nAnker Soundcore Liberty 5 Pro\n\nAudeze Maxwell 2\n\nRazer BlackShark V3 Pro\n\nAnker Soundcore Space A40 Truly Wireless\n\nJBL Live 780NC\n\nBose QuietComfort Ultra Headphones (2nd Gen)\n\nSteelSeries Arctis Nova 7 Wireless [7, 7P, 7X]\n\nAnker Soundcore P31i\n\nAnker Soundcore Space Q45 Wireless\n\nApple AirPods Pro 3\n\nSennheiser HDB 630\n\nSennheiser HD 800 S\n\nSamsung Galaxy Buds4 Pro\n\nTurtle Beach Stealth 600 (Gen 3)\n\nSennheiser HD 560S\n\nApple AirPods 5\n\nBose QuietComfort Headphones Wireless\n\nSony WF-1000XM5 Truly Wireless\n\n935\nHeadphones bought and tested\n\nSupported by you via\n\nmembership, and when you purchase through links on our site, we may earn an affiliate commission.\n\nHome\n\nHeadphones\n\nBest\n\nOver-Ears For Working Out\n\nCreate your free account or log in to unlock a full product review.\nLOGIN\n\nFor unlimited access, become a member",
+        "text_hash": "05f68dc84cedd2ce31aa4704de6a4913a6e164149645cfb85de2fb1b19a62560",
+        "fetched_at": "2026-11-19T05:53:31.561334Z",
+        "published_at": null,
+        "community": null,
+        "site": "rtings.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_b8930ed8c4bc1495",
+        "url": "https://www.amazon.in/Earbuds-Buying-Guide-Indian-Consumers/dp/B0DYZ625PF",
+        "type": "retailer",
+        "tier": 5,
+        "title": "Amazon.in: Buy TWS Earbuds Buying Guide For Indian Consumers: Everything You Need to Know Before You Buy TWS Earbuds Book Online at Low Prices in India | TWS Earbuds Buying Guide For Indian Consumers: Everything You Need to Know Before You Buy TWS Earbuds Reviews & Ratings",
+        "text": "Paperback\n\n₹2,149.00\n\nOther New from ₹2,149.00\n\nPaperback from ₹2,149.00\n\n₹2,149.00 with 57 percent savings\n\nM.R.P.: ₹4,999.00\n\nInclusive of all taxes\n\nFREE delivery 2 - 4 December. Details\n\nIn stock\n\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30\n\n₹₹2,149.00\n()\nIncludes selected options. Includes initial monthly payment and selected options.\nDetails\n\nPrice\n\nSubtotal\n\n₹₹2,149.00\n\nSubtotal\n\nInitial payment breakdown\n\nShipping cost, delivery date and order total (including tax) shown at checkout.\n\nThe enhancements that you chose are not available for this seller. Details\n\nTo add the following enhancements to your purchase, choose a different seller.\n\n%cardName%\n\n${cardName} not available for the seller that you chose\n\n${cardName} unavailable for quantities greater than ${maxQuantity}.\n\nShipper / Seller\n\nGaneshaSai\n\nGaneshaSai\n\nShipper / Seller\n\nGaneshaSai\n\nPayment\n\nSecure transaction\n\nYour transaction is secure\n\nWe work hard to protect your security and privacy. Our payment security system encrypts your information during transmission. We don’t share your credit card details with third-party sellers, and we don’t sell your information to others. Learn more\n\nSee more\n\nAdd to Wish List\n\nAdded to\n\nUnable to add item to Wish List. Please try again.\n\nSorry, there was a problem.\n\nThere was an error retrieving your Wish Lists. Please try again.\n\nSorry, there was a problem.\n\nList unavailable.\n\nDownload the free Kindle app and start reading Kindle books instantly on your smartphone, tablet or computer – no Kindle device required.\n\nRead instantly on your browser with Kindle for Web.\n\nUsing your mobile phone camera, scan the code below and download the Kindle app.\n\nImage Unavailable\n\nImage not available for\nColour:\n\nVIDEOS\n\n360° VIEW\n\nIMAGES\n\nTWS Earbuds Buying Guide For Indian Consumers: Everything You Need to Know Before You Buy TWS Earbuds\n\nFormat: Paperback\n\nSorry, there was a problem loading this page.Try again.\n\nEMI starts at ₹76 per month. EMI starts at ₹76. No Cost EMI available EMI options\n\nSave Extra with 4 offers\n\nCashback:\nGet 5% back with Amazon Pay ICICI Bank credit card for Prime members. 3% back for others. Not applicable on EMI orders and Amazon business transactions.\nDetails\n\nNo Cost EMI:\nAvail No Cost EMI on select cards for orders above ₹3000\nDetails\n\nSee 2 more\n\nFree Delivery\n\n10 days Replacement\n\nSecure transaction\n\nFree Delivery\n\nThe product is eligible for Free delivery. Learn more\n\n10 days Replacement\n\nReplacement Reason\nReplacement Period\nReplacement Policy\n\nPhysical Damage,\nDefective,\nWrong and Missing Item\n10 days from delivery\nReplacement\n\nKnow More\n\nYour transaction is secure\n\nWe work hard to protect your security and privacy. Our payment security system encrypts your information during transmission. We don’t share your credit card details with third-party sellers, and we don’t sell your information to others. Learn more\n\nPurchase options and add-ons\n\nAre you considering purchasing TWS (True Wireless Stereo) earbuds but feeling overwhelmed by the myriad of options available in the market? This comprehensive guide is designed specifically for Indian consumers, offering you invaluable insights into the world of TWS earbuds.\n\nFrom understanding the technology behind these wireless wonders to knowing what features to prioritize, this book covers it all. Learn about sound quality, battery life, connectivity options, and the importance of comfort and fit. Whether you're a casual listener or an audiophile, you'll find tailored advice that meets your unique audio needs.\n\nIn addition, this guide provides a breakdown of the various brands and models available in India, helping you make an informed decision. We delve into customer reviews and expert opinions to give you a well-rounded perspective on the best options available.\n\nBy the end of this guide, you will not only be equipped with the knowledge to choose the right TWS earbuds but also gain an understanding of how to maximize their use in your daily life. Invest in your audio experience with confidence!\n\nRead more\n\nReport an issue with this product\n\nPrevious slide of product details\n\nPrint length\n\n112 pages\n\nNext slide of product details\n\nSee all details\n\nProduct details\n\nASIN\n\n:\n\nB0DYZ625PF\nPrint length\n\n:\n\n112 pages\nCountry of Origin\n\n:\n\nIndia\n\nView Image Gallery\n\nAmazon Customer\n\n5.0 out of 5 stars\n\nImages in this review\n\nThere was a problem filtering reviews. Please reload the page.\n\nThere are 0 customer reviews.\n\nBack to top\n\nGet to Know Us\n\nAbout Amazon\n\nCareers\n\nPress Releases\n\nAmazon Science\n\nConnect with Us\n\nFacebook\n\nTwitter\n\nInstagram\n\nMake Money with Us\n\nSell on Amazon\n\nSell under Amazon Accelerator\n\nProtect and Build Your Brand\n\nAmazon Global Selling\n\nSupply to Amazon\n\nBecome an Affiliate\n\nFulfilment by Amazon\n\nAdvertise Your Products\n\nAmazon Pay on Merchants\n\nLet Us Help You\n\nYour Account\n\nReturns Centre\n\nRecalls and Product Safety Alerts\n\n100% Purchase Protection\n\nAmazon App Download\n\nHelp\n\nEnglish\n\nIndia\n\nAbeBooks\n\nBooks, art\n& collectibles\n\nAmazon Web Services\n\nScalable Cloud\nComputing Services\n\nAudible\n\nDownload\nAudio Books\n\nIMDb\n\nMovies, TV\n& Celebrities\n\nShopbop\n\nDesigner\nFashion Brands\n\nAmazon Business\n\nEverything For\nYour Business\n\nAmazon Music\n\nStream millions of songs\n\nConditions of Use & Sale\nPrivacy Notice\nInterest-Based Ads\n\n© 1996-2026, Amazon.com, Inc. or its affiliates",
+        "text_hash": "d21e398a495c5002c6e841afca7db41e330470e61b4cbcdbd5b07cccd5734af1",
+        "fetched_at": "2026-11-19T05:53:28.790523Z",
+        "published_at": null,
+        "community": null,
+        "site": "amazon.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_0dfe8fb984bbbf59",
+        "url": "https://www.91mobiles.com/list-of-earbuds/best-earbuds-in-india",
+        "type": "review_site",
+        "tier": 3,
+        "title": "earbuds in India with Price 19th November, 2026 | 91mobiles.com",
+        "text": "Earbuds in India\n\nPrice list of Best Earbuds with brands, specification and features in India. Checkout top 20 Earbuds available in India across different online stores. All prices updated on 19th November 2026\n\nTop 5 Earbuds with Prices & Specs\n\nProduct Name\n\nType\n\nTalk Time\n\nBluetooth\n\nFeatures\n\nWeight\n\nDriver Size\n\nPrices\n\nBoat Airdopes 161\n\nIn ear canalphone, Wireless, With Mic\n\n50 Hours Talk time, 1.5 Hours Charging time\n\n5.1 Bluetooth Version, 10 meter Range\n\n₹1,199\n\nrealme Buds T200\n\nIn ear canalphone, Wireless, With Mic\n\n50 Hours Talk time, 2 Hours Charging time\n\n5.4 Bluetooth Version, 10 meter Range\n\nNoise cancellation\n\n50 gm Weight\n\n12.4 mm Driver Size\n\n₹2,099\n\nrealme Buds T310\n\nIn ear canalphone, Wireless, With Mic, A2DP\n\n40 Hours Talk time\n\n5.4 Bluetooth Version, 10 meter Range\n\nNoise cancellation\n\n90 gm Weight\n\n12.4 mm Driver Size\n\n₹2,399\n\nrealme Buds T200 Lite\n\nIn ear canalphone, Wireless, With Mic\n\n48 Hours Talk time, 120 Minute Charging time\n\n5.4 Bluetooth Version, 10 meter Range\n\nNoise cancellation\n\n50 gm Weight\n\n12.4 mm Driver Size\n\n₹1,499\n\nBoat Airdopes 219\n\nIn ear canalphone, Wireless, With Mic\n\n40 Hours Talk time, 1.45 Hours Charging time\n\n5.4 Bluetooth Version, 10 meter Range\n\nNoise cancellation\n\n60 gm Weight\n\n13 mm Driver Size\n\n₹1,099\n\n... read more\n\nCompare",
+        "text_hash": "7b55cd98538184c91b7e16675637b14e1625ff9221f53fac83cf6e47c174bca9",
+        "fetched_at": "2026-11-19T05:53:27.758168Z",
+        "published_at": null,
+        "community": null,
+        "site": "91mobiles.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_25e433d7647db697",
+        "url": "https://www.lg.com/in/magazine/heres-everything-you-need-to-know-before-buying-headphones/?srsltid=AYCX9vJVV1y8XSA1lhBAneEUWcS7h1zKgmbrzMPdVZdr-Yx23oHTOSXF",
+        "type": "manufacturer",
+        "tier": 1,
+        "title": "Here's Everything You Need to Know Before Buying EarBuds | | LG India",
+        "text": "Skip to ContentSkip to Accessibility Help\n\nAbout Cookies on This Site\n\nWe use cookies, including cookies from third parties, to enhance your user experience and the effectiveness of our marketing activities. These cookies are performance, analytics and advertising cookies, please see our Privacy and Cookie policy for further information. If you agree to all of our cookies select “Accept all” or select “Cookie Settings” to see which cookies we use and choose which ones you would like to accept.\n\nCookie SettingsAccept all\n\nCookies Setting\n\nAbsolutely Necessary Cookies\n\nAbsolutely Necessary Cookies\n\nThese are cookies that are absolutely essential to running a website. This category of cookies cannot be disabled.\n\nFunctional Cookies\n\nFunctional Cookies\n\nThese cookies are used to provide you with convenient functions, such as product reviews and product video playback, during your web browsing, they also enable interaction with social media accounts.\n\nSocial media\n\nSocial media\n\nConnect with your social channels to share LG Technology with friends for example on Facebook and Twitter.\n\nAnalytics Cookies\n\nAnalytics Cookies\n\nThese cookies allow our website to keep improving functions through website traffic analysis and to suggest personalized content for you.\n\nAdvertising Cookies\n\nAdvertising Cookies\n\nThese cookies enable us to show you ads and other content that we think is most attuned to your interests and digital behavior.\n\nAccept allSave & ProceedReject All\n\nClose the Cookie Setting banner\n\nThis website collects cookies to provide you with an improved and personalized experience. See our Privacy Policy and use of Cookies.\n\nUpdates to LG Electronics Service Privacy Policy (10/29/2026) Learn More\n\nPrevious Slide Next Slide Pause Carousel Play Carousel\n\nClose\n\nHere's Everything You Need to Know Before Buying Headphones\n\n08/10/2022\n\nShare\n\nShare this content. You can share the items you like with your friends.\n\nfacebook\n\ninstagram\n\ntwitter-X\n\nwhatsapp\n\nlinkedin\n\nToday's world is busy with things that overload their schedules; having your favorite music by your side in the best quality sound is something that aids in slowing down and taking a moment for yourself. Imagine yourself standing on the side of the road, and you realize how noisy and fast-moving this world is all the time. But, when you stand at the same spot, thinking the same thing, only this time you have your favorite song playing in your wireless earbuds. The same situation somehow just becomes calmer and contemplative, this is exactly what music adds to everyone's life.\n\nThis blog will talk about the features and advantages of LG's TONE-FREE Wireless Earbuds, highlighting how it helps customers experience high-quality immersive hearing. Before moving further, let us learn about Active Noise Cancellation (ANC) and LG's UVnano breakthrough to understand what makes the Tone-Free Wireless Earbuds innovative and special.\n\nActive Noise Cancellation (ANC)\n\nWhen one thinks about buying the best headphones/earbuds, the primary criterion to be considered is Bluetooth. The next thing to see is if your pick comes with active noise canceling feature; if not, then it is up to date with the technology we are harvesting today.\n\nUsing highly advanced technology to counter and cancel out all the active noise around you is what we usually call the Active Noise Cancellation feature in headphones/earbuds. The sensor recognizes the sound pattern of extra noise, then successfully creates an anti-noise mirror signal to cancel it out.\n\nThis feature enables an individual to enjoy their music in any situation without any outside noise interrupting their experience. It is important to appreciate the work of talented musicians by listening to it all crystal clear. This is where LG's TONE-FREE Wireless Earbuds come into play, the world turns upside down when there are only good sounds and no noise. We ensure that our customers experience the best of viewing and listening when our top-shelf products are designed.\n\nThe UVnano Cleanliness Breakthrough\n\nPlay video Pause video\n\nNowadays, cleanliness cannot be stressed enough. With LG being at the peak of innovation, we would like to take the idea of cleanliness to a new level. UVnano is an innovative and elaborate sanitizing technology that eliminates 99.99% of bacteria in just a few minutes. The newly designed LG TONE-FREE FN7 is equipped with a UVnano charging case that kills harmful germs while charging.\n\nStudies have shown that headphones/earbuds have more bacteria than kitchen chopping boards. Therefore, it is essential to deeply understand the devices an individual uses to know better and make smart purchases. These wireless earbuds exempt you from all the cleanliness-related worries. LG's slim charging case keeps listeners' ears cleaner by utilizing built-in ultraviolet (UV) light that eliminates 99.9% of bacteria from the non-toxic, hypoallergenic silicone ear gel and inner mesh.\n\nWe have not only made use of this breakthrough in wireless earbuds but also in LG's newest air purifiers, air-conditioners, and the InstaView line of refrigerators. A 360-degree to the epitome of sanitization is what we aim to produce and provide to our customers.\n\nA Peek into the Future\n\nUltraviolet lights have changed the technology game in essential ways, and we have adopted the revolution in the most innovative form. LG's UVnano keeps allergies and bacteria at bay; from wearables to home appliances, we are a step ahead in encouraging and promoting healthier living. This is just half of it, considering the proper sanitation is lined with clear and spatial audio.\n\nNow you know where to turn when it comes to buying the best Bluetooth headphones, whether offline or online. Let the Bluetooth headphone shopping begin. Explore our website today!\n\nAlso read: 5 Things to Keep in Mind While Finding the Best UV Bluetooth Earphones\n\nYour email has been successfully registered.\n\nClose\n\nClose\n\nThe restocking notification has already been updated.\n\nClose\n\nClose\n\nEnvironmental Handing Fee (EHF)\n\nEHFs vary by product and province. The final fee will be calculated after you enter your postal code at checkout. Click here for more information (FAQ) at Frequently Asked Questions - Support & Help | LG CA\n\nCLOSE\n\nClose\n\nSign In to Create Your Wishlist\n\nAdd items to your wishlist so you can easily find them when you return to LG.com. Its an easy way to keep track of that special something Youve had your eye on or save gift ideas for friends and family.\n\nNo Thanks, Not NowCONTINUE TO SIGN IN\n\nClose\n\nAdd items to your MY LG wishlist\n\nRemove ItemContinue to MY LG Wishlist\n\nClose\n\nOTP authentication failed. Please verify your mobile number to use for mobile OTP login.\n\nVerify right nowVerify later\n\nCLOSE\n\nInstallment Calculator\n\nclose\n\nHow may I help you ?close\n\nChat about shopping.\n\nChat about service\n\nBuy AMC(Warranty extension)\n\nMy LG\nProduct Registration\nProduct Support\nRequest a Repair\nShare Your Feedback\n\nContact Us\n\nback to the topQuick Menu\n\nCollapseHVAC AI Assistant\n\nclose",
+        "text_hash": "94f55e43da7dc3e797c71a461bcfab0e17cd5992c7a0e4523cfd3a5ce8805152",
+        "fetched_at": "2026-11-19T05:53:31.902920Z",
+        "published_at": null,
+        "community": null,
+        "site": "lg.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      }
+    ],
+    "shown": [
+      "OnePlus Nord Buds 3r",
+      "realme Buds T200",
+      "realme Buds T200x",
+      "realme Buds T300",
+      "realme Buds T310",
+      "TWS Earbuds Buying Guide For Indian Consumers"
+    ],
+    "filtered_out": [],
+    "cant_tell": [
+      "air-conditioners",
+      "air purifiers",
+      "Anker Soundcore Liberty 5 Pro",
+      "Anker Soundcore P31i",
+      "Anker Soundcore Space A40 Truly Wireless",
+      "Anker Soundcore Space Q45 Wireless",
+      "Apple AirPods Pro 3",
+      "Audeze Maxwell 2",
+      "Bose QuietComfort Ultra Headphones (2nd Gen)",
+      "EarBuds",
+      "Headphones",
+      "InstaView line of refrigerators",
+      "JBL Live 780NC",
+      "LG's TONE-FREE Wireless Earbuds",
+      "LG TONE-FREE FN7",
+      "Razer BlackShark V3 Pro",
+      "Samsung Galaxy Buds4 Pro",
+      "Sennheiser HD 800 S",
+      "Sennheiser HDB 630",
+      "Sony WF-1000XM6",
+      "Sony WH-1000XM6",
+      "SteelSeries Arctis Nova 7 Wireless [7, 7P, 7X]",
+      "Tone-Free Wireless Earbuds"
+    ],
+    "citations": 6,
+    "llm_replies": [
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "f84a09b26c3ab3882486783b081842739e079a054b2c9653e3a8a84d54eef572",
+        "data_sha256": "4e7dc1535d1244b8742dd34f0f99bd5cec39ab8432dc76db6769085d79c7c2ff",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "EarBuds",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Headphones",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "LG's TONE-FREE Wireless Earbuds",
+              "is_product": true,
+              "brand": "LG",
+              "recommends": null
+            },
+            {
+              "raw_name": "Tone-Free Wireless Earbuds",
+              "is_product": true,
+              "brand": "LG",
+              "recommends": null
+            },
+            {
+              "raw_name": "LG TONE-FREE FN7",
+              "is_product": true,
+              "brand": "LG",
+              "recommends": null
+            },
+            {
+              "raw_name": "air purifiers",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "air-conditioners",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "InstaView line of refrigerators",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": []
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "104bb0ee371f96da345118d99d75329de30dfae2099450665e0f3934c795dee9",
+        "data_sha256": "ecae9d6f53c1a001026808eb980809e5dc70c9610cb09d59b21c20c7662dca54",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "realme Buds T200",
+              "is_product": true,
+              "brand": "realme",
+              "recommends": null
+            },
+            {
+              "raw_name": "realme Buds T310",
+              "is_product": true,
+              "brand": "realme",
+              "recommends": null
+            },
+            {
+              "raw_name": "realme Buds T200x",
+              "is_product": true,
+              "brand": "realme",
+              "recommends": null
+            },
+            {
+              "raw_name": "OnePlus Nord Buds 3r",
+              "is_product": true,
+              "brand": "OnePlus",
+              "recommends": null
+            },
+            {
+              "raw_name": "realme Buds T300",
+              "is_product": true,
+              "brand": "realme",
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "realme Buds T200",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 2099.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "₹2,099",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "realme Buds T200",
+              "is_product_type": false,
+              "criterion_key": "build_durability",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "50 Hours Talk time, 2 Hours Charging time",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "realme Buds T310",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 2399.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "₹2,399",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "realme Buds T310",
+              "is_product_type": false,
+              "criterion_key": "build_durability",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "40 Hours Talk time",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "realme Buds T200x",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 1899.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "₹1,899",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "realme Buds T200x",
+              "is_product_type": false,
+              "criterion_key": "build_durability",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "48 Hours Talk time, 120 Minute Charging time",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "OnePlus Nord Buds 3r",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 1899.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "₹1,899",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "OnePlus Nord Buds 3r",
+              "is_product_type": false,
+              "criterion_key": "build_durability",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "54 Hours Talk time, 120 Minute Charging time",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "realme Buds T300",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 1799.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "₹1,799",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "realme Buds T300",
+              "is_product_type": false,
+              "criterion_key": "build_durability",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "40 Hours Talk time",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "78cacb19dde8c39c3a36982f6e17b2bda574603b45baa3ba0db081206c057928",
+        "data_sha256": "66434c48dde80bebf94ca99c2bf0671a742162e1711dc40eed54c58f0c8b34e4",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Sony WH-1000XM6",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Sony WF-1000XM6",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Anker Soundcore Liberty 5 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Audeze Maxwell 2",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Razer BlackShark V3 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Anker Soundcore Space A40 Truly Wireless",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "JBL Live 780NC",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Bose QuietComfort Ultra Headphones (2nd Gen)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "SteelSeries Arctis Nova 7 Wireless [7, 7P, 7X]",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Anker Soundcore P31i",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Anker Soundcore Space Q45 Wireless",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple AirPods Pro 3",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Sennheiser HDB 630",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Sennheiser HD 800 S",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy Buds4 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": []
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "d375e6ed4548860618294d6f118fdcc9eda694859b28cb911dc79ce5fbae8a69",
+        "data_sha256": "9e6d0a0c95b0d0a6ffdb19ae534a0825495a73003574a6d934288d1e992b3732",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "TWS Earbuds Buying Guide For Indian Consumers",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "TWS Earbuds Buying Guide For Indian Consumers",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 2149.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "₹2,149.00",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "4f7c0abf6c6da2e0178a758a4283b584d0459c5b97a8842a961443f6c395c51d",
+        "data_sha256": "8d4fe8af15f88bc46e7ba005ec6034c1f3ef5a7cbd35e3d3d914c0ffae3e903d",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Sony WH-1000XM6",
+              "is_product": true,
+              "brand": "Sony",
+              "recommends": null
+            },
+            {
+              "raw_name": "Sony WF-1000XM6",
+              "is_product": true,
+              "brand": "Sony",
+              "recommends": null
+            },
+            {
+              "raw_name": "Anker Soundcore Liberty 5 Pro",
+              "is_product": true,
+              "brand": "Anker",
+              "recommends": null
+            },
+            {
+              "raw_name": "Audeze Maxwell 2",
+              "is_product": true,
+              "brand": "Audeze",
+              "recommends": null
+            },
+            {
+              "raw_name": "Razer BlackShark V3 Pro",
+              "is_product": true,
+              "brand": "Razer",
+              "recommends": null
+            },
+            {
+              "raw_name": "Anker Soundcore Space A40 Truly Wireless",
+              "is_product": true,
+              "brand": "Anker",
+              "recommends": null
+            },
+            {
+              "raw_name": "JBL Live 780NC",
+              "is_product": true,
+              "brand": "JBL",
+              "recommends": null
+            },
+            {
+              "raw_name": "Bose QuietComfort Ultra Headphones (2nd Gen)",
+              "is_product": true,
+              "brand": "Bose",
+              "recommends": null
+            },
+            {
+              "raw_name": "SteelSeries Arctis Nova 7 Wireless [7, 7P, 7X]",
+              "is_product": true,
+              "brand": "SteelSeries",
+              "recommends": null
+            },
+            {
+              "raw_name": "Anker Soundcore P31i",
+              "is_product": true,
+              "brand": "Anker",
+              "recommends": null
+            },
+            {
+              "raw_name": "Anker Soundcore Space Q45 Wireless",
+              "is_product": true,
+              "brand": "Anker",
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple AirPods Pro 3",
+              "is_product": true,
+              "brand": "Apple",
+              "recommends": null
+            },
+            {
+              "raw_name": "Sennheiser HDB 630",
+              "is_product": true,
+              "brand": "Sennheiser",
+              "recommends": null
+            },
+            {
+              "raw_name": "Sennheiser HD 800 S",
+              "is_product": true,
+              "brand": "Sennheiser",
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy Buds4 Pro",
+              "is_product": true,
+              "brand": "Samsung",
+              "recommends": null
+            }
+          ],
+          "claims": []
+        }
+      }
+    ],
+    "reddit_sources_left_out": 0,
+    "changed_sources_left_out": 1
+  }
+]

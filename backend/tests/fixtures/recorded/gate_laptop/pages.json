@@ -1,0 +1,288 @@
+[
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 3553 bytes]",
+    "elapsed_ms": 174
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.flipkart.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 3224 bytes]",
+    "elapsed_ms": 392
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.reliancedigital.in/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 1022 bytes]",
+    "elapsed_ms": 3800
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "49",
+      "x-ratelimit-reset": "1795063210"
+    },
+    "response_body": "[page body not stored: 1837 bytes]",
+    "elapsed_ms": 205
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.digit.in/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 1622 bytes]",
+    "elapsed_ms": 177
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.rtings.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 159 bytes]",
+    "elapsed_ms": 3458
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/list-of-laptops/best-laptops-under-75000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 583865 bytes]",
+    "elapsed_ms": 270
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.flipkart.com/laptops/~laptops-under-rs70000/pr?sid=[redacted]",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 685321 bytes]",
+    "elapsed_ms": 627
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/laptops/price-below_70000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "49",
+      "x-ratelimit-reset": "1795067433"
+    },
+    "response_body": "[page body not stored: 145975 bytes]",
+    "elapsed_ms": 226
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.digit.in/reviews/laptops/",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 367848 bytes]",
+    "elapsed_ms": 543
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.lenovo.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain;charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 5219 bytes]",
+    "elapsed_ms": 7016
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.amazon.in/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 9320 bytes]",
+    "elapsed_ms": 504
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.rtings.com/laptop/reviews/best/laptop",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 404066 bytes]",
+    "elapsed_ms": 819
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.reliancedigital.in/collection/laptops-under-rs-70000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html"
+    },
+    "response_body": "[page body not stored: 1386943 bytes]",
+    "elapsed_ms": 380
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/laptops",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 217879 bytes]",
+    "elapsed_ms": 175
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.hp.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 17151 bytes]",
+    "elapsed_ms": 440
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.amazon.in/b?ie=[redacted]&node=[redacted]",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html;charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 421884 bytes]",
+    "elapsed_ms": 1092
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/laptopfinder.php",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 539440 bytes]",
+    "elapsed_ms": 99
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.hp.com/in-en/tech-takes/laptops/guide/which-laptop-is-right-for-me-buyers-guide.html",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html;charset=utf-8"
+    },
+    "response_body": "[page body not stored: 232232 bytes]",
+    "elapsed_ms": 1542
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.lenovo.com/in/en/laptop-buying-guide/?srsltid=[redacted]",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html;charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 522146 bytes]",
+    "elapsed_ms": 719
+  }
+]

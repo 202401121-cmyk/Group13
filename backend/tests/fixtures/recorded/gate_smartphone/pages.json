@@ -1,0 +1,277 @@
+[
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 3553 bytes]",
+    "elapsed_ms": 454
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.flipkart.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 3224 bytes]",
+    "elapsed_ms": 3030
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "49",
+      "x-ratelimit-reset": "1795063210"
+    },
+    "response_body": "[page body not stored: 1837 bytes]",
+    "elapsed_ms": 393
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.vijaysales.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 3546 bytes]",
+    "elapsed_ms": 540
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/list-of-phones/ai-smartphones-under-30000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 817777 bytes]",
+    "elapsed_ms": 186
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.vijaysales.com/c/smartphones/price/buy-phones-under-30000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html;charset=utf-8"
+    },
+    "response_body": "[page body not stored: 1377246 bytes]",
+    "elapsed_ms": 3327
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/bytes/best-all-rounder-phones-under-30000-august-2026/",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "49",
+      "x-ratelimit-reset": "1795067190"
+    },
+    "response_body": "[page body not stored: 111129 bytes]",
+    "elapsed_ms": 102
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.digit.in/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 1622 bytes]",
+    "elapsed_ms": 247
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.gsmarena.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 1851 bytes]",
+    "elapsed_ms": 4075
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.flipkart.com/q/5g-mobiles-under-30000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 641598 bytes]",
+    "elapsed_ms": 673
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/list-of-phones/best-mobile-under-25000-to-30000",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 788667 bytes]",
+    "elapsed_ms": 164
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.smartprix.com/",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8",
+      "x-ratelimit-limit": "50",
+      "x-ratelimit-remaining": "48",
+      "x-ratelimit-reset": "1795067190"
+    },
+    "response_body": "[page body not stored: 131688 bytes]",
+    "elapsed_ms": 90
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.croma.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/plain"
+    },
+    "response_body": "[page body not stored: 987 bytes]",
+    "elapsed_ms": 10479
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.gadgets360.com/robots.txt",
+    "request_headers": {},
+    "request_body": null,
+    "status": 403,
+    "response_headers": {
+      "content-type": "text/html"
+    },
+    "response_body": "[page body not stored: 386 bytes]",
+    "elapsed_ms": 406
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.digit.in/reviews/mobile-phones/",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 366382 bytes]",
+    "elapsed_ms": 274
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.91mobiles.com/",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 288431 bytes]",
+    "elapsed_ms": 206
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.gsmarena.com/",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 47837 bytes]",
+    "elapsed_ms": 623
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.gsmarena.com/smartphone_buyers_guide-review-2036.php",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "response_body": "[page body not stored: 58605 bytes]",
+    "elapsed_ms": 823
+  },
+  {
+    "run": 1,
+    "service": "pages",
+    "method": "GET",
+    "url": "https://www.croma.com/unboxed/buying-guides/smartphones?srsltid=[redacted]",
+    "request_headers": {},
+    "request_body": null,
+    "status": 200,
+    "response_headers": {
+      "content-type": "text/html; charset=UTF-8"
+    },
+    "response_body": "[page body not stored: 87894 bytes]",
+    "elapsed_ms": 214
+  }
+]

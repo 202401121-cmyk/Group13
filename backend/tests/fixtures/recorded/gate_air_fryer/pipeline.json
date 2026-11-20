@@ -1,0 +1,1359 @@
+[
+  {
+    "run": 1,
+    "rubric": {
+      "category": "air_fryer",
+      "use_case": null,
+      "region": "IN",
+      "budget": {
+        "min": null,
+        "max": {
+          "amount": 8000.0,
+          "currency": "INR"
+        }
+      },
+      "hard_rules": [],
+      "exclusions": [],
+      "weights": [
+        {
+          "key": "value_for_money",
+          "weight": 10.0,
+          "normalized": 0.18518518518518512,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "capacity_liters",
+          "weight": 9.0,
+          "normalized": 0.16666666666666666,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "power_consumption_watts",
+          "weight": 8.0,
+          "normalized": 0.14814814814814814,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "temperature_range_celsius",
+          "weight": 7.0,
+          "normalized": 0.12962962962962962,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "preheat_time_minutes",
+          "weight": 6.0,
+          "normalized": 0.1111111111111111,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "cooking_time_minutes",
+          "weight": 5.0,
+          "normalized": 0.09259259259259259,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "noise_level_db",
+          "weight": 4.0,
+          "normalized": 0.07407407407407407,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "dishwasher_safe_parts",
+          "weight": 3.0,
+          "normalized": 0.05555555555555555,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        },
+        {
+          "key": "warranty_years",
+          "weight": 2.0,
+          "normalized": 0.037037037037037035,
+          "origin": "skipped",
+          "uncertainty": 0.5
+        }
+      ]
+    },
+    "sources": [
+      {
+        "id": "src_89eb523d0099313a",
+        "url": "https://www.youtube.com/watch?v=YmQsPu7Ji9k",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best Air Fryer 2026 India | Under 5000 - 10000",
+        "text": "Best Air Fryer 2026 India | Under 5000 - 10000",
+        "text_hash": "9a98d67e3c69bb6d44837d32a0e9ab9955161b2caefb2647b6963875d6d9b8d7",
+        "fetched_at": "2026-11-19T05:47:32.163943Z",
+        "published_at": null,
+        "community": null,
+        "site": "youtube.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_399e2236cfa1dca7",
+        "url": "https://apnidukaan.com/collections/air-fryers?srsltid=AYCX9vLMUoRagW6b1dw1Vi1uYWXwi1sm8bvQGOOBaaKaU7aAe_atLGsA",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best Air Fryers Online",
+        "text": "Apnidukaan.com for the best Air Fryers in India. Brands like Philips, Glen, and Prestige with many more at the best prices with fair deals,",
+        "text_hash": "f3491a9c790b87571f53fbbe55585dac1020c1fdb15f93de32fc3a675bfcea04",
+        "fetched_at": "2026-11-19T05:47:32.164952Z",
+        "published_at": null,
+        "community": null,
+        "site": "apnidukaan.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_d5b96b28bc8002c0",
+        "url": "https://www.youtube.com/watch?v=yNE3B-vleTU",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best Air Fryer in India",
+        "text": "Best Air Fryer in India",
+        "text_hash": "b4b15aee1e4e7c075dd306240e6a7bfec9e4e0a4964b553480475005f1c449c9",
+        "fetched_at": "2026-11-19T05:47:32.164952Z",
+        "published_at": null,
+        "community": null,
+        "site": "youtube.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_d6eb66523f4a9712",
+        "url": "https://smarketonline.in/top-10-air-fryer-in-india/",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Top 10 Air Fryer in India 2026 | Price, Delivery & Warranty",
+        "text": "1. Joyonn JOAFARRO12W. Price: Approximately ₹3,183–₹4,000. · 2. Philips HD9252/90. Price: roughly ₹7,300 to ₹14,000. · 3. Instant Vortex Plus ...",
+        "text_hash": "5e5fe66a41187b9d07a64a6ce49bded54eacb2ca1b543d378ff44bff0fc2f207",
+        "fetched_at": "2026-11-19T05:47:32.164952Z",
+        "published_at": null,
+        "community": null,
+        "site": "smarketonline.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_725404831d394ce0",
+        "url": "https://www.hassanchef.com/2026/04/best-air-fryer-india.html",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Air Fryer Complete Guide for Indian Cooking: Uses, Tips & Best Brands",
+        "text": "India mein best air fryer kaunsa hai? Overall best: Philips NA120/00 (₹4,672) — Amazon's Choice, 6,900+ reviews. Budget pick: INALSA NutriFry 3.5L (₹2,999) ...",
+        "text_hash": "84d0c095296092a7ce685d09ea2a7f2b620cae262b2c3fc96bd5e3131d832900",
+        "fetched_at": "2026-11-19T05:47:32.165952Z",
+        "published_at": null,
+        "community": null,
+        "site": "hassanchef.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_e1c0c1c2f27e6218",
+        "url": "https://www.youtube.com/watch?v=42JQwwe3m7U",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best Air Fryer 2026 in India",
+        "text": "Best Air Fryer 2026 in India",
+        "text_hash": "5fd708702d217fc2c760446b410b0bd28377196e43bfd44377a3ac8a690d38c4",
+        "fetched_at": "2026-11-19T05:47:32.165952Z",
+        "published_at": null,
+        "community": null,
+        "site": "youtube.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_fabdff91247462ad",
+        "url": "https://www.google.com/goto?url=CAESugEBxCJF16bwUoUq9Q4xzK9Xp0qB5fyi0-KAyeCWYuBDO8uH8aKkR2N4c2pQcSdh8Jvq2CKV-yprwR7JrUaUpjYtC9WuDcTUcA99EStQ4QaCDEiY5yVVrjU-Hx1WJidW17-B9s3Ci49euEhADZPo6nrk-bvA6SEx9_pT7I3eK22SUK2-FGUtOko0XU1Aihkb5pAuZJ2nLaqwL3Cd3PzxXda0lNveeCVpRna3WZV7EkjFOGokjW3a6nSI6mM&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Best air fryers under 10000 in India: 5 options your kitchen will ...",
+        "text": "Air fryers can handle much more than fries and frozen snacks. 1400–1800W is generally plenty. Safety: Auto shut-off, overheat protection and a ...",
+        "text_hash": "ca996296552bfa82b1558a997514aab7ac62a164a0e99837f0767db7a1f65529",
+        "fetched_at": "2026-11-19T05:47:32.368571Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_65d03a1b2feabf3c",
+        "url": "https://www.google.com/goto?url=CAEStgEBxCJF1-M8nUCa2BKgNGfIQdIuCohYND2oTslkjWvQPu5AKhkIKbTAao5JIzZ66qfk19fglkmSJRfkAHGqI1jev1wV_f3p6UGAFGUZPJmctGvYtTKTUswerTu3iu5HSwha41LW3Bk6_-4G2gWhoQOoyJDhPGv_QauvOhx3AnzhUfG9EjTEoO1O79QUCo1EoPoS638HUuNv2mqhh52dF8gHf1Hj5iEHzYUsTpvh_K8wY1dHBp999A&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Wonderchef Greenlife Air Fryer Review: Veg-only presets with ...",
+        "text": "Wonderchef's solution is the Greenlife 6.5L, which it claims to be the first air fryer in India with only pre-set menus for vegetarian dishes.",
+        "text_hash": "b23f92d4b2174820cbb04aeac64d73d0aab98bb30ab084ccf9f98ea99d6266b5",
+        "fetched_at": "2026-11-19T05:47:32.369576Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_7e56f4cf40d0234c",
+        "url": "https://www.google.com/goto?url=CAESngEBxCJF1yrglMFjhVDDOiII1PKuMOqzmuMSSrQRTtFF5Jggt_TRYQM7tT3kYmSYYMv2fNYXMjqAu_qNz1pRdw9ZFIjl15MyEI4rIwqYXAPYUBIoVIiQVZb2uaZDoRMsRF7Qki-E7k3jgvXBu-TN8CvEwONmBcUgGGiYLQwwBN_bKMRMVn6aLQbK4PJ8_-wb8cW-sWf3Z15dO7v9SDBhOw&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Why have air fryers become so popular in India? - Digit",
+        "text": "Using less oil makes air fryers appealing to health-conscious everyday cooks. An air fryer gives you a way to get a similar crispy texture ...",
+        "text_hash": "cc9298f79bb3c7a544f07862ea1130d95a408c526ab0f42a8ff565e54c88ac52",
+        "fetched_at": "2026-11-19T05:47:32.369576Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_d53e3c30dc0184d2",
+        "url": "https://www.google.com/goto?url=CAESfgHEIkXXlLq3xJjiNcYXIn1f33B51RihhUbaKlrNvAD8u3E0rDq8eHWToYaP_u-tVkbWQws0ho0yhSc_r8QLmXNSJbE0Qun6ynRxbRuo1OjnkhXWPFPaXho_pEk6yOj2rfDnWIGxpRWkocp8B8un8_Mm17Sb4KbjTJBkm0Slvg&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Video: Review: Philips Air Fryer",
+        "text": "Philips Air fryer claims to cook fried food in 80 percent less oil. it works as per its claims. Starts from ₹40,999",
+        "text_hash": "35c09dd229ae615e349776748b3b3df9a9a222400a18243ab448855d95fdb207",
+        "fetched_at": "2026-11-19T05:47:32.369576Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_8f747a92a4791453",
+        "url": "https://www.google.com/goto?url=CAESiwEBxCJF1-v48dSWlxYC_yyHxUZnYzdXewDqOvTupROk3ZL0LXF80L3v3WUdfIjCJE0nXfTI8J4EJhMrvom9dEMIVi1m9QudmjUhuyLbdMEqgWT6dDNx8FCqNwCzvbL7OM2trkXl7HWWjXRuow34Ndv3uQe7WrkzofGb5I3cDYTVTmkmqcF1hwC93v5J&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Breville the Joule Oven Air Fryer Pro Review",
+        "text": "Makes decent-quality fried food. Lots of cooking surface area to spread food out. Provides excellent versatility. ... Preheats and cooks slowly.",
+        "text_hash": "99728517e1aef8617a4a38394fb3c3e0cdeaf875ca0a3f5571e6d9db1c3c02b5",
+        "fetched_at": "2026-11-19T05:47:32.369576Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_6814387daf3b1f31",
+        "url": "https://www.google.com/goto?url=CAESYgHEIkXXsGOQS-bCgGugfYYWMs6Vq_ZraUmsmLtEOn7CpgKTZXz6SIeJrN_DisxC37FzL5VMArnnQHQ66CuhN6E1rUBviaaubtALHPaGm8qOb_spa-Z9hwkRPz67W0cS8p9Y&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+        "type": "web_search",
+        "tier": 3,
+        "title": "New AGARO Air Fryer Price List in India October 2026 | Digit.in",
+        "text": "Price list of latest AGARO Air Fryer in India October 2026. Check out new AGARO Air Fryer model specs and compare prices on different online stores before ...",
+        "text_hash": "6120fcdee9674743689bc2c4f05d4606f87bf6790856fc1665d3ab2897f129e2",
+        "fetched_at": "2026-11-19T05:47:32.369576Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_1f690a3a22723cd2",
+        "url": "https://www.google.com/goto?url=CAESsgEBxCJF1zurX7Hh0fF2ewOLV3HxInXi86uY30i_S8F1dnpo7rqa6DZqpPRl-mhG0cqKi_iNhz_dwlRnrgYmZUPvu3Q7xMDQA9byxYpKLwt6Hg5h6lcALU2tuCzYgCZS2tMHriv6hPRyf7mWf_z7mPqj8RvAFzh81zdz_Ib8yv1fF-fxmfdvpl82yFn5eVzUnalNamORom8l8cmrVC96OdXVEkCq43ySucFpzfGzAxD1giv7&gsessionid=_eeGJyXa9AYet1EkkuXX8-E21qJurf4cv8BqoxFZP_1uXm9RJOG8wA",
+        "type": "web_search",
+        "tier": 3,
+        "title": "How healthy is an air fryer? What you should know before ...",
+        "text": "The biggest advantage is that an air fryer can give you a crispy result while using considerably less added oil. That can mean less fat and ...",
+        "text_hash": "820df9b3b5a02febcfea2bb81daf7077ecc4858e4d8146a3381fc8500767332d",
+        "fetched_at": "2026-11-19T05:47:32.370576Z",
+        "published_at": null,
+        "community": null,
+        "site": "google.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_406ac6063f3bdb60",
+        "url": "https://www.reliancedigital.in/c/resource-center/hs/buying-guide-how-to-choose-an-air-fryer",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Air Fryer Buying Guide 2026: How to Choose the Right One for Your Kitchen",
+        "text": "Air fryers in India typically range between 1200W and 1800W. Higher wattage generally means faster cooking, which is ideal for busy kitchens.",
+        "text_hash": "00c6f8b3af0e9bac1325a268884da24350e6fc73c240dea39c2e0df86e613861",
+        "fetched_at": "2026-11-19T05:47:32.539585Z",
+        "published_at": null,
+        "community": null,
+        "site": "reliancedigital.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_2ae88ad0cf96b722",
+        "url": "https://www.domesticappliances.philips.co.in/blogs/blog/air-fryer-buying-guide-how-to-choose-the-right-one?srsltid=AYCX9vIMq5XmKLek1R1YC5HOIl2e3qXQdwFCggZZ-2_TEqo6ZABXFA0X",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Air Fryer Buying Guide: How to Choose the Right One",
+        "text": "Find the best air fryer with this easy guide. Explore key features, sizes, and tips to select the perfect model for healthy and hassle-free cooking.",
+        "text_hash": "3fb8e484a7dca12df6b762a5df881bd3fa30579de3efa56dbb021eefc5651fda",
+        "fetched_at": "2026-11-19T05:47:32.540639Z",
+        "published_at": null,
+        "community": null,
+        "site": "domesticappliances.philips.co.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_bd2e16add2ddd194",
+        "url": "https://www.crompton.co.in/blogs/kitchen-appliances-guide/air-fryer-buying-guide-here-s-all-you-need-to-know",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Air Fryer Buying Guide: Everything You Need to Know",
+        "text": "Air Fryer Buying Guide: Learn how air fryers work, their health benefits, and the variety of foods they can cook. Check out 4 Things To Consider While ...",
+        "text_hash": "49225d7d9259de294668d4ced363e1f33d80c499a489edba193dff88ba606864",
+        "fetched_at": "2026-11-19T05:47:32.540639Z",
+        "published_at": null,
+        "community": null,
+        "site": "crompton.co.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_df54b3d060dd0bcc",
+        "url": "https://www.facebook.com/anshuman.kaushal/videos/thinking-of-buying-an-air-fryer-read-this-before-spending-your-moneyan-air-fryer/1766320884530866/",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Air Fryer Exposed: Buying Guide, Science & Limits for Indian Homes",
+        "text": "Air Fryer Exposed: Buying Guide, Science & Limits for Indian Homes",
+        "text_hash": "01983862658add943ce5ac077a66da5d2f35d7e33fea349e4e7ff1f36d86481c",
+        "fetched_at": "2026-11-19T05:47:32.540639Z",
+        "published_at": null,
+        "community": null,
+        "site": "facebook.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_24ed242a7dd90f97",
+        "url": "https://www.youtube.com/watch?v=d1rA_FywbR4",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Top 10 Best Air Fryer Buying Guide || best tech in telugu",
+        "text": "Top 10 Best Air Fryer Buying Guide || best tech in telugu",
+        "text_hash": "328bd61c57ab82a38860f97dab25d45394d61b15adb8739adabc989a0e6963bb",
+        "fetched_at": "2026-11-19T05:47:32.540639Z",
+        "published_at": null,
+        "community": null,
+        "site": "youtube.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_0ec673acb0a5da3f",
+        "url": "https://bossindia.com/blogs-air-fryer-buying-guide-india/?srsltid=AYCX9vJ9tvMwjvYXfdr5c4b5o5MDxW2iRCHI-JiRkl9q7mdehiQBYCHX",
+        "type": "web_search",
+        "tier": 3,
+        "title": "Air Fryer Buying Guide: How to Choose the Right One - Boss India",
+        "text": "Ready to buy an air fryer online? Learn how to choose the right capacity, functions, and wattage for Indian cooking in this practical buying guide.",
+        "text_hash": "a38f2fdd32e44f8106dc71f25c324a201e86d5c70620ee14d673d5df9a5edf9b",
+        "fetched_at": "2026-11-19T05:47:32.541652Z",
+        "published_at": null,
+        "community": null,
+        "site": "bossindia.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_ba558bc0f580f218",
+        "url": "https://glenindia.com/blogs/news/air-fryer-buying-guide?srsltid=AYCX9vLL8w4aRfFKwDTgbdyolg5JcQ270-KHGDV-YweJH36zabl0Au41",
+        "type": "web_search",
+        "tier": 3,
+        "title": "How to Compare Air Fryer Brands Before Buying",
+        "text": "Any air fryer comparison Indian buyers can trust starts with the same six figures for every model, taken from the specification table rather ...",
+        "text_hash": "ca2f046ce0c8bc8dec7b2d973f0aefcd19f4443d472e8a011a960430d0765154",
+        "fetched_at": "2026-11-19T05:47:32.541652Z",
+        "published_at": null,
+        "community": null,
+        "site": "glenindia.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "search_snippet",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_b5be3f749ca4da63",
+        "url": "https://www.amazon.in/Air-Fryers/b?ie=UTF8&node=26953501031",
+        "type": "retailer",
+        "tier": 5,
+        "title": "Buy Air Fryer Online at Best Price in India with Up to 70% OFF",
+        "text": "Air Fryers\n\nCategory\n\nHome & Kitchen\n\nKitchen & Home Appliances\n\nSmall Kitchen Appliances\n\nDeep Fat Fryers\n\nAir Fryers\n\nAmazon Prime\n\nPrime Eligible\n\nBrands\n\nPHILIPS\n\nPHILIPS\n\nPigeon\n\nPigeon\n\nInalsa\n\nInalsa\n\nHavells\n\nHavells\n\nAGARO\n\nAGARO\n\nPrestige\n\nPrestige\n\nCustomer Reviews\n\n4 Stars & Up\n\n& Up\n\nItem Condition\n\nNew\n\nNew\n\nPrice\n\nUnder ₹500\n\n₹500 - ₹1,000\n\n₹1,000 - ₹2,000\n\n₹2,000 - ₹3,000\n\nOver ₹3,000\n\nDeals & Discounts\n\nAll Discounts\n\nBuy More, Save More\n\nCoupons\n\nToday's Deals\n\nTop Brands in Home & Kitchen\n\nTop Brands\n\nTop Brands\n\nPurpose\n\nCooking\n\nCooking\n\nBaking\n\nBaking\n\nRoasting\n\nRoasting\n\nBroiling\n\nBroiling\n\nDehydrating\n\nDehydrating\n\nReheating\n\nReheating\n\nHeight\n\nUp to 27.9 cm\n\nUp to 27.9 cm\n\n28 to 32.9 cm\n\n28 to 32.9 cm\n\n33 to 37.9 cm\n\n33 to 37.9 cm\n\n38 cm & above\n\n38 cm & above\n\nPay On Delivery\n\nEligible for Pay On Delivery\n\nEligible for Pay On Delivery\n\nDiscount\n\n10% Off or more\n\n25% Off or more\n\n35% Off or more\n\n50% Off or more\n\n60% Off or more\n\n70% Off or more\n\nDepth\n\nUp to 22.9 cm\n\nUp to 22.9 cm\n\n23 to 27.9 cm\n\n23 to 27.9 cm\n\n28 to 32.9 cm\n\n28 to 32.9 cm\n\n33 to 37.9 cm\n\n33 to 37.9 cm\n\n38 cm & above\n\n38 cm & above\n\nWidth\n\nUp to 19.9 cm\n\nUp to 19.9 cm\n\n20 to 24.9 cm\n\n20 to 24.9 cm\n\n25 to 29.9 cm\n\n25 to 29.9 cm\n\n30 to 35.9 cm\n\n30 to 35.9 cm\n\n36 cm & above\n\n36 cm & above\n\nOutput Wattage\n\nUp to 1,292 W\n\nUp to 1,292 W\n\n1,293 to 1,395 W\n\n1,293 to 1,395 W\n\n1,396 to 1,498 W\n\n1,396 to 1,498 W\n\n1,499 to 1,601 W\n\n1,499 to 1,601 W\n\n1,602 to 1,704 W\n\n1,602 to 1,704 W\n\n1,705 W & above\n\n1,705 W & above\n\nCapacity\n\nUp to 2,999 mL\n\nUp to 2,999 mL\n\n3,000 to 3,999 mL\n\n3,000 to 3,999 mL\n\n4,000 to 4,999 mL\n\n4,000 to 4,999 mL\n\n5,000 to 5,499 mL\n\n5,000 to 5,499 mL\n\n5,500 mL & above\n\n5,500 mL & above\n\nUp to 2.9 L\n\nUp to 2.9 L\n\n3.0 to 3.9 L\n\n3.0 to 3.9 L\n\n4.0 to 4.9 L\n\n4.0 to 4.9 L\n\n5.0 to 5.9 L\n\n5.0 to 5.9 L\n\n6.0 L & above\n\n6.0 L & above\n\nAvailability\n\nInclude Out of Stock\n\nInclude Out of Stock\n\nFeatures\n\nTemperature Control\n\nTemperature Control\n\nAutomatic Shut-Off\n\nAutomatic Shut-Off\n\nTimer\n\nTimer\n\nDual Zone Features\n\nDual Zone Features\n\nProgrammable\n\nProgrammable\n\nStain Resistant\n\nStain Resistant\n\nCountry of Origin\n\nIndia\n\nIndia\n\nChina\n\nChina\n\nUnited States\n\nUnited States\n\nHong Kong\n\nHong Kong\n\nColour\n\nNew Arrivals\n\nLast 30 days\n\nLast 90 days\n\nSeller\n\nRetailEZ Pvt Ltd\n\nRetailEZ Pvt Ltd\n\nTrendora Global\n\nTrendora Global\n\nSUPREME_ENTERPRISE\n\nSUPREME_ENTERPRISE\n\nGeeta Enterprises Store\n\nGeeta Enterprises Store\n\nJAIYAS ENTERPRISES\n\nJAIYAS ENTERPRISES\n\nBENIE STORE\n\nBENIE STORE\n\nTheGlobalGenie\n\nTheGlobalGenie\n\nFeatured categories\n\nHome & Kitchen\n\nSee subcategories\n\nKitchen & Home Appliances\n\nSee subcategories\n\nSmall Kitchen Appliances\n\nSee subcategories\n\nDeep Fat Fryers\n\nSee subcategories\n\nAir Fryers\n\nSee subcategories\n\nHighly rated\n\nPage 1 of 1 Start over\n\nSponsored\n\nPrevious page of related Sponsored Products\n\nINALSA Air Fryer for Home 6.5L Capacity-1600 W with Digital Control and 8 Preset Function|Quick Heat Circulation Variable Temp. Control,Baking,Grilling, Air Frying,Roasting up to 60 Min, 2 Yr Warranty\n\nInalsa\n\n4.3 out of 5 stars 460\n\n₹5,399.00\n\nNinja Crispi 1700W CleanCrisp Glass Air Fryer | 1.4L & 3.8L containers, Microwave, Freezer and PFAS Safe, Non-Toxic Glass Portable Cooking System with 2 year Warranty\n\nNinja\n\n4.5 out of 5 stars 6,883\n\n₹15,999.00\n\nNESTER Full Stack Steamlock™ SS430 Stainless Steel Air Fryer Oven 16L | 2000 W Steam + Air Fry | Multi-Function - Air Fryer, Reheat, Bake, Toast, Pizza,and Snacks | Adjustable Temperature & Timer\n\nNESTER\n\n4.0 out of 5 stars 108\n\n₹18,998.00\n\nInstant Vortex Plus 6L Air Fryer, 6-in-1 with 360° EvenCrisp Technology, Touch Control Panel, Uses 95% Less Oil, Air Fry, Roast, Grill, Bake, Reheat & Dehydrate, 1500W, PFOA-Free & BPA-Free, 230V\n\nInstant Pot\n\n4.8 out of 5 stars 21,524\n\n₹11,999.00\n\nINALSA Air Fryer 4.2 ltr|1400 W with Air Crisp Technology|Temperature & Timer Control|8 Preset Menu & Digital Display|Air fry, Bake,Roast,Reheat,Dehydrate|Airfryer Recipe book(Tasty Fry Digital)\n\nInalsa\n\n4.2 out of 5 stars 914\n\n₹3,990.00\n\nFaber 6L 1500W Digital Air Fryer | Fry, Bake, Roast, Toast, Defrost, Grill & Reheat | 85% Less Oil, 360° Air Cooking | 8-Preset Menu, LED Display & Touch Control, Non-Stick Pan, View Window | (Black)\n\nFaber\n\n4.3 out of 5 stars 970\n\n₹5,590.00\n\nNext page of related Sponsored Products\n\nSee product details\n\nCustomers also bought\n\nHot new releases\n\nSee more\n\n₹8,999.00\n\n₹12,990.00\n\nNinja Air Fryer PRO, 4.7L Air Fryer, 1750W High-Power Motor, AirCrisp Technology, Variable Air Flow, Chemical Free Cooking Surface, 4-in-1 Air Fry, Roast, Bake & Reheat, Matte Black\n\n4.4 out of 5 stars\n2,653\n\n₹15,999.00\n\n₹19,990.00\n\nNinja Crispi 1700W CleanCrisp Glass Air Fryer | 1.4L & 3.8L containers, Microwave, Freezer and PFAS Safe, Non-Toxic Glass Portable Cooking System with 2 year Warranty\n\n4.5 out of 5 stars\n6,883\n\n₹2,950.00\n\n₹7,290.00\n\nIBELL Air Fryer 4.2 L, 1500W Digital Air Fryer with Feather Touch Controls, Adjustable Temperature, Multi-Cook Options, Hot Air Circulation, Black\n\n5.0 out of 5 stars\n5\n\n₹13,999.00\n\n₹25,000.00\n\nHamilton Beach Smartchoice Air Fryer Oven 25L| 6 -IN-1 AIR FRYER OVEN| 12 Preset | 1700W power | Digital Display | Black\n\n4.3 out of 5 stars\n3,918\n\n₹13,998.00\n\n₹16,999.00\n\nNester Home Cook Glass Air Fryer 6.2 Ltr with 6mm Borosilicate Glass bowl and SteamLock™ Technology 1600 W | 9 Smart Presets | Auto Clean Function | 100% Toxin Free | 3-year Warranty | Smoked Caramel\n\n4.5 out of 5 stars\n31\n\n₹7,599.00\n\n₹19,999.00\n\nVANTRO 13L Digital Air Fryer Oven | 1800W | Top Glass Viewing Window | 360° Rapid Air Technology | Rotisserie, Bake, Grill, Roast | LED Touch Control | 6 Accessories\n\n4.2 out of 5 stars\n40\n\n₹2,999.00\n\n₹6,499.00\n\nULTRON AIROAST 4.5D Digital Air Fryer 4.5L, 1400W, 2 Years Warranty | 8 Preset Menus, 80-200°C Temperature Control, 60 Min Timer, Rapid Cyclonic Airflow, Non-Stick Basket\n\n5.0 out of 5 stars\n3\n\n₹7,490.00\n\n₹11,990.00\n\nRYKEN Aero Plus Dual-Capacity Glass Air Fryer, 1500W, 12 Presets | 4L + 2.5L, 360° Visibility, Borosilicate, Dishwasher-Safe Parts\n\n4.8 out of 5 stars\n10\n\n₹6,035.00\n\n₹14,999.00\n\nLifelong Air Fryer|7L Capacity, 1500W Power|7 Presets, 360° Rapid Air Circulation, Defrost Function, Low Oil Cooking, Touch Panel Control, Clear Window| Kitchen Appliance for Baking, Grilling & Frying\n\n4.8 out of 5 stars\n6\n\n₹3,499.00\n\n₹6,999.00\n\nEverest EAF58 Air Fryer 5L, 1500W Digital Air Fryer with One-Touch Display| 80°C-200°C Adjustable Temperature| Preset Cooking Options| Overheat Protection| Cool Touch Handle|Black\n\n5.0 out of 5 stars\n3\n\n₹3,669.00\n\n₹7,595.00\n\nGlen Digital Air Fryer 4 L, 1350 Watt, Touch Control, 80–200°C Temperature Control, Rapid Air Circulation Technology, Crisper Tray, Mesh Basket, Bake, Roast, Grill, Reheat (SA3060DIGI)\n\n4.0 out of 5 stars\n423\n\n₹7,550.00\n\n₹13,999.00\n\nIBELL 16 Litre Air Fryer Oven for Home Kitchen 1800W with Rotisserie, 6-in-1 Multifunction, 360° Hot Air Technology| 5 Preset Modes, 2Year Warranty\n\n4.0 out of 5 stars\n11\n\nSee product details\n\nCustomers also bought\n\nBest sellers\n\nSee more\n\n₹2,799.00\n\n₹5,995.00\n\nPigeon Healthifry Digital Air Fryer, 360° High Speed Air Circulation Technology 1200 W with Non-Stick 4.2 liters Basket - Green\n\n3.7 out of 5 stars\n12,479\n\n₹4,699.00\n\n₹5,995.00\n\nPHILIPS Air Fryer NA120/00, 4.2 Litre, Large, 100% Food Safe | uses up to 90% less fat, with Rapid Air Technology\n\n4.3 out of 5 stars\n6,818\n\n₹2,999.00\n\n₹8,000.00\n\nKENT Classic Hot Air Fryer 4L 1300 W | 80% Less Oil | Instant Electric Air Fryer | Auto Cut Off | Fry, Grill, Roast, Steam, and Bake | 1 Year Warranty | Black\n\n4.0 out of 5 stars\n4,713\n\n₹6,499.00\n\n₹8,995.00\n\nPHILIPS Air Fryer NA130, 6.2 Litre, Extra Large, 100% Food Safe | uses up to 90% less fat, 1700W, with Rapid Air Technology (Black)\n\n4.2 out of 5 stars\n1,951\n\n₹3,399.00\n\n₹9,000.00\n\nCookwell Air Fryer - 5L With See Through Window - 1400W (Grey & Black)\n\n4.3 out of 5 stars\n1,749\n\n₹9,399.00\n\n₹12,995.00\n\nPHILIPS Air Fryer NA231/00, touch panel, 6.2L, Extra Large, 100% Food Safe | with touch panel, uses up to 90% less fat, 1700W, with Rapid Air Technology (Black),Cooking window\n\n4.1 out of 5 stars\n2,949\n\n₹4,049.00\n\n₹8,495.00\n\nHavells Prolife Brio Air Fryer 4.2 L| Aero Crisp Technology for Air Circulation| See Through Window| Non-Stick Silicon Coated Basket| Adjustable Temperature and Time| 2Yr Door Step Warranty by Havells\n\n4.2 out of 5 stars\n253\n\n₹5,599.00\n\n₹6,995.00\n\nPHILIPS Air fryer for Home HD9200/90, 4.1L, 100% Food Safe | with RapidAir Technology (Black), with additional 1 Yr Warranty by Philips, uses up to 90% less fat\n\n4.2 out of 5 stars\n4,679\n\n₹3,999.00\n\n₹9,999.00\n\nSOLARA Air Fryer For Home 4.5L with See Through Window, 10 Preset menus, 360° High Speed Air Circulation for Fry, Grill, Roast & Bake,Uses upto 90% less fat, 1500 Watts, Digital Touch Control, Black\n\n4.2 out of 5 stars\n677\n\n₹4,999.00\n\n₹7,499.00",
+        "text_hash": "7a770046d43e4b7b0b6299cd0468504e16ebf1dc7c1275bb70427d85dc8350f1",
+        "fetched_at": "2026-11-19T05:47:41.701228Z",
+        "published_at": null,
+        "community": null,
+        "site": "amazon.in",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_e9adf190fcc140d0",
+        "url": "https://www.flipkart.com/air-fryers/pr?sid=j9e,m38,j1e",
+        "type": "retailer",
+        "tier": 5,
+        "title": "Buy Air Fryers Online at Best Prices in India",
+        "text": "Explore Plus\n\nLogin\n\nBecome a Seller\n\nMore\n\nCart\n\nFilters\n\nCATEGORIES\n\nHome & Kitchen\n\nKitchen Appliances\n\nAir Fryers\n\nBrand\n\nPan Capacity\n\nType\n\nCustomer Ratings\n\n4★ & above\n\n3★ & above\n\nPrice\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\n.\n\nMin₹500₹1000₹5000₹10000₹25000\n\nto\n\n₹500₹1000₹5000₹10000₹25000₹25000+\n\nSee Through Door\n\n?\n\nDiscount\n\nOffers\n\nSpecial Price\n\nBuy More, Save More\n\nCountry Of Origin\n\nAvailability\n\nHome\n\nHome & Kitchen\n\nKitchen Appliances\n\nAir Fryers\n\nEnjoy crunchy, crispy, and healthy Indian snacks with an air fryer that uses hot air to cook food with minimal oil. Prepare everyday meals and snacks like samosas, pakoras, tikkas, and roasted veggies instead of deep-frying them every time. These are ideal for people who want to cook with ease and less oil in their daily meals. Digital air fryers come with touch screens and pre-programmed modes for specific foods. Some models come with adjustable temperatures and timers, so you have more control over the results. It's also handy when preparing snacks and appetisers on special occasions and at family gatherings. The best air fryer for Indian cooking is one that can prepare anything from crispy potato wedges to paneer tikkas. Big names in consumer technology and home appliances like Philips, Pigeon, Havells, Prestige, KENT, and more offer numerous kitchenware options for different needs. Shop on Flipkart for an air fryer that suits your cooking style, needs, and size.\n\nAir Fryers\n\n(Showing 1 – 40 products of 844 products)\n\nSort By\n\nPopularity\n\nPrice -- Low to High\n\nPrice -- High to Low\n\nNewest First\n\nPigeon Healthifry Digital with 360 High Speed Air Circu...\n\n4.2 L\n\n4\n\n(57,317)\n\n₹2,799\n\n₹5,995\n\n53% off\n\nUpto\n\n₹1,450\n\nOff on Exchange\n\nSolara Air Fryer Oven 12L for Home, 360 Rapid Air Circu...\n\n12 L\n\n4.2\n\n(3,740)\n\n₹8,999\n\n₹12,999\n\n30% off\n\nUpto\n\n₹6,650\n\nOff on Exchange\n\nSolara Air Fryer 4.5L with See Through Window, 10 Prese...\n\n4.5 L\n\n4.3\n\n(2,330)\n\n₹3,999\n\n₹5,499\n\n27% off\n\nUpto\n\n₹2,500\n\nOff on Exchange\n\nPigeon Healthifry Digital with 360 High Speed Air Circu...\n\n4.2 L\n\n4\n\n(57,317)\n\n₹2,799\n\n₹5,995\n\n53% off\n\nUpto\n\n₹1,450\n\nOff on Exchange\n\nPHILIPS NA120/00 with uses up to 90% less fat, 1500W, w...\n\n4.2 L\n\n4.4\n\n(24,212)\n\n₹4,699\n\n₹5,995\n\n21% off\n\nOnly 1 left\n\nBillion Bistro Lite Air Fryer\n\n5 L\n\n4.3\n\n(65)\n\n₹2,599\n\n₹7,499\n\n65% off\n\nUpto\n\n₹1,400\n\nOff on Exchange\n\nPrestige Nutrifry Digital Air Fryer\n\n4.5 L\n\n4.2\n\n(10,095)\n\n₹3,799\n\n₹6,290\n\n39% off\n\nUpto\n\n₹2,500\n\nOff on Exchange\n\nKENT Ultra Air Fryer 4L 1300W | Fry, Bake, Grill & Roas...\n\n4 L\n\n4.1\n\n(13,355)\n\n₹2,599\n\n₹8,000\n\n67% off\n\nValue 365\n\nPHILIPS HD9200/90 uses up to 90% less fat 1400W, with R...\n\n4.1 L\n\n4.4\n\n(4,375)\n\n₹5,599\n\n₹6,995\n\n19% off\n\nUpto\n\n₹3,850\n\nOff on Exchange\n\nToYooZe Air Fryer Parchment Paper Liners, 100 PCS Non-S...\n\n500 L\n\n4\n\n(210)\n\n₹148\n\n₹599\n\n75% off\n\nBank Offer\n\nPrestige Nutrifry Digital Air Fryer\n\n4.5 L\n\n4.2\n\n(10,095)\n\n₹3,799\n\n₹6,290\n\n39% off\n\nUpto\n\n₹2,500\n\nOff on Exchange\n\nSolara 12L Air Fryer Oven with 500ml 2-in-1 Glass Oil S...\n\n12 L\n\n4.2\n\n(3,740)\n\n₹9,299\n\n₹14,197\n\n34% off\n\nUpto\n\n₹6,975\n\nOff on Exchange\n\nSBValueMart 00 Pcs 8 Inch Air Fryer Paper Liners – Non-...\n\n8 L\n\n4.1\n\n(58)\n\n₹148\n\n₹899\n\n83% off\n\nBank Offer\n\ncookwell See-through Window Air Fryer\n\n5 L\n\n4.4\n\n(1,860)\n\n₹3,399\n\n₹9,000\n\n62% off\n\nHot Deal\n\nWONDERCHEF Greenlife Air Fryer\n\n6.5 L\n\n₹6,499\n\n₹13,100\n\n50% off\n\nBank Offer\n\nKENT New Ultra Air Fryer 4L Air Fryer\n\n4 L\n\n4.1\n\n(13,355)\n\n₹2,599\n\n₹10,999\n\n76% off\n\nValue 365\n\nWONDERCHEF Astra Air Fryer Oven Duo,10-in-1 Appliance F...\n\n25 L\n\n₹16,999\n\n₹29,900\n\n43% off\n\nBank Offer\n\nKILIG ST-AF Nexa SteamX 10.5L Steam Air Fryer, WiFi App...\n\n10.5 L\n\n3.7\n\n(3)\n\n₹15,990\n\n₹34,990\n\n54% off\n\nUpto\n\n₹12,675\n\nOff on Exchange\n\nDee wrapping paper PO-100PCS Air Fryer Disposable Liner...\n\n5 L\n\n₹163\n\n₹299\n\n45% off\n\nBank Offer\n\nKENT Ultra Air Fryer 4L 1300W | Fry, Bake, Grill & Roas...\n\n4 L\n\n4.1\n\n(13,355)\n\n₹2,599\n\n₹8,000\n\n67% off\n\nValue 365\n\nWONDERCHEF Evita 1000W Air Fryer\n\n2 L\n\n3.8\n\n(4)\n\n₹3,052\n\n₹6,500\n\n53% off\n\nUpto\n\n₹2,075\n\nOff on Exchange\n\nIMPEX Nutrifry Smart 7 in 1 Function, Uses up to 90% Le...\n\n4.5 L\n\n4.2\n\n(1,833)\n\n₹2,936\n\n₹6,295\n\n53% off\n\nBank Offer\n\nSansui Kurkura Magic 5L With 85% Less Oil Consumption, ...\n\n5 L\n\n4.3\n\n(5,016)\n\n₹2,709\n\n₹6,999\n\n61% off\n\nOnly few left\n\ncookwell See-through Window Air Fryer\n\n5 L\n\n4.4\n\n(1,860)\n\n₹3,399\n\n₹9,000\n\n62% off\n\nHot Deal\n\nKENT Ultra Digital Air Fryer 4.5L Bake, Grill & Roast U...\n\n4.5 L\n\n4.1\n\n(13,355)\n\n₹3,899\n\n₹10,400\n\n62% off\n\nHot Deal\n\nCloudmall 100Pcs Air Fryer Baking Paper Square Air Frye...\n\n500 ml\n\n4.1\n\n(538)\n\n₹148\n\n₹499\n\n70% off\n\nOnly few left\n\nKENT Ultra Digital Air Fryer 4L 1300W Fry, Grill, Roast...\n\n4 L\n\n4.1\n\n(13,355)\n\n₹3,099\n\n₹11,999\n\n74% off\n\nUpto\n\n₹1,925\n\nOff on Exchange\n\nGlen appliances pvt ltd SA 3050 AIR FRYER OVEN Air Frye...\n\n25 L\n\n₹11,285\n\n₹15,995\n\n29% off\n\nBank Offer\n\nPavnime Air Fryer Disposable Paper Liners 100 PCS, 8 In...\n\n500 ml\n\n4.6\n\n(5)\n\n₹159\n\n₹499\n\n68% off\n\nBank Offer\n\nPHILIPS NA130/00 with up to 90% less fat, 1700W, with R...\n\n6.2 L\n\n4.4\n\n(5,212)\n\n₹6,499\n\n₹8,995\n\n27% off\n\nUpto\n\n₹4,500\n\nOff on Exchange\n\nMILTON Rapid New Launch 5L Air Fryer 1450W 360° High Sp...\n\n5 L\n\n4.4\n\n(306)\n\n₹5,140\n\n₹7,499\n\n31% off\n\nBank Offer\n\nWONDERCHEF Roma Digital, Rapid Hot Air Technology, 7 Pr...\n\n4.5 L\n\n₹4,499\n\n₹8,500\n\n47% off\n\nBank Offer\n\nDee wrapping paper 100PCS Air fryer liner Baking & Cook...\n\n6 L\n\n₹170\n\n₹399\n\n57% off\n\nOnly few left\n\nVALTUJA Air Fryer Liners I Round Silicone Basket Baking...\n\n1 L\n\n4.2\n\n(69)\n\n₹342\n\n₹999\n\n65% off\n\nOnly few left\n\nWONDERCHEF Regalia Digital 1500 Watts Air Fryer\n\n4.5 L\n\n₹4,499\n\n₹7,000\n\n35% off\n\nBank Offer\n\nKenstar Aster Smart 4.5 L with See Through Window Non-S...\n\n4.5 L\n\n4.3\n\n(386)\n\n₹3,399\n\n₹9,990\n\n65% off\n\nValue 365\n\nDomestica Domstica Elio Pro 24 in 1 Digital Air Fryer O...\n\n30 L\n\n₹16,940\n\n₹22,999\n\n26% off\n\nBank Offer\n\nDomestica Elio Air Fryer Oven, 6 in 1 Compact Oven with...\n\n12 L\n\n₹8,799\n\n₹16,999\n\n48% off\n\nBank Offer\n\nCello Smart Pro Digital Display & Touch Control Panel, ...\n\n4.5 L\n\n4.1\n\n(709)\n\n₹3,399\n\n₹7,995\n\n57% off\n\nUpto\n\n₹2,200\n\nOff on Exchange\n\nDee wrapping paper 100PCS Air fryer Liner Baking & Cook...\n\n6 L\n\n₹170\n\n₹399\n\n57% off\n\nOnly few left\n\nPage 1 of 22\n\nDid you find what you were looking for?\n\nYesNo\n\nReviews for Popular Air Fryers\n\n1. Solara Air Fryer 4.5L with ...\n\n4.3\n\n2,330 Ratings&249 Reviews\n\n₹3,999\n\n27% off\n\nPower Consumption: 1500 W\nCapacity: 4.5 L\n\nMost Helpful Review\n\n5\n\nBrilliant\n\nIf you want to eat healthy, guilt-free food without spending a fortune, this is the best air fryer in this price range. Highly recommended!\n\nRead full review\n\nMohammad Osama\n\nCertified Buyer\n\n4 months ago\n\nRecent Review\n\n5\n\nSimply awesome\n\n• Budget-Friendly: It gives amazing features at a very reasonable price.\n• Super Efficient: Cooks very fast and saves a lot of electricity and time...\n\nRead full review\n\nDINESH REDDI Customer\n\nCertified Buyer\n\n21 days ago\n\n2. Cloudmall 100Pcs Air Fryer ...\n\n4.1\n\n538 Ratings&29 Reviews\n\n₹148\n\n70% off\n\nPower Consumption: 0 W\nCapacity: 500 ml\n\nMost Helpful Review\n\n3\n\nFair\n\nWhenever I put it inside for hot food that paper is flying 😁\n\nRead full review\n\nBidisha Maji\n\nCertified Buyer\n\n1 month ago\n\nRecent Review\n\n3\n\nFair\n\nWhenever I put it inside for hot food that paper is flying 😁\n\nRead full review\n\nBidisha Maji\n\nCertified Buyer\n\n1 month ago\n\n3. Billion Bistro Lite Air Fry...\n\n4.3\n\n65 Ratings&16 Reviews\n\n₹2,599\n\n65% off\n\nPower Consumption: 1350 W\nCapacity: 5 L\n\nMost Helpful Review\n\n5\n\nWonderful\n\nPerfect product worth of money quick fry amazing product thank you Sakshi\n\nRead full review\n\nnasima freen\n\nCertified Buyer\n\n1 month ago\n\nRecent Review\n\n5\n\nWonderful\n\nPerfect product worth of money quick fry amazing product thank you Sakshi\n\nRead full review\n\nnasima freen\n\nCertified Buyer\n\n1 month ago\n\n4. Pigeon Healthifry Digital w...\n\n4\n\n57,317 Ratings&4,748 Reviews\n\n₹2,799\n\n53% off\n\nPower Consumption: 1200 W\nCapacity: 4.2 L\n\nMost Helpful Review\n\n5\n\nJust wow!\n\nAmazing Product Ever 👌👌\n\nRead full review\n\nFlipkart Customer\n\nCertified Buyer\n\nNov, 2022\n\nRecent Review\n\n5\n\nClassy product\n\nIt's nice .Easy to use and very affordable as well .\n\nRead full review\n\nPiyush Raj\n\nCertified Buyer\n\n21 days ago\n\n5. Kenstar Aster Smart 4.5 L w...\n\n4.3\n\n386 Ratings&33 Reviews\n\n₹3,399\n\n65% off\n\nPower Consumption: 1300 W\nCapacity: 4.5 L\n\nMost Helpful Review\n\n5\n\nGreat product\n\n⭐⭐⭐⭐⭐\nReally happy with this air fryer. It looks good, the digital display is nice, and it very easy to use. Cooking is quick and the results are great. Over...\n\nRead full review\n\nNARINDER SINGH\n\nCertified Buyer\n\n2 months ago\n\nRecent Review\n\n5\n\nWorth every penny\n\nLove it 🥰 . This one is very nice 👌\n\nRead full review\n\nZamin Zamin\n\nCertified Buyer\n\n24 days ago\n\nBack to top",
+        "text_hash": "2b30b9360f18e5a624e8f732d176c3a60df0caab189489450fbcaceccd8159d0",
+        "fetched_at": "2026-11-19T05:47:40.530529Z",
+        "published_at": null,
+        "community": null,
+        "site": "flipkart.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_77eb035c323b5df4",
+        "url": "https://www.smartprix.com/air_fryers/price-below_7000",
+        "type": "review_site",
+        "tier": 3,
+        "title": "Air Fryers Under ₹7,000 | Smartprix",
+        "text": "Air Fryers Under ₹7,000\n\nThis list contains 545 Air Fryers Under ₹7,000 in India. This price list was last updated on Nov 19, 2026.\n\nTop 3 Air Fryers Under ₹7,000 are as follows:\n\nKent Ultra 116181 4L Air Fryer: Countertop, Timer, Auto Off, Plastic Body, 4 L Capacity\nLifelong LLHF421 4.5 L Air Fryer: Compared with deep fryer, Prepare amazing meals from your cookbook, Compared with traditional OTG oven, With 1400W of power, With 4.5 L Food Basket capacity\nBaltra Jwel BAF-202 6L Digital Air Fryer: 80-200°C, 8 Preset Menu, 6 L Capacity, ABS Plastic,\nAluminium Body, Chamber Light\n\nAir Fryers Under ₹7,000 Price List\n\nAir Fryer\nPrice\nAvailable From\n\nKent Ultra 116181 4L Air Fryer\n₹2,499\nOct, 2025\n\nLifelong LLHF421 4.5 L Air Fryer\n₹999\nSep, 2021\n\nBaltra Jwel BAF-202 6L Digital Air Fryer\n₹4,795\nNov, 2026\n\nWonderchef Platinum Manual 4.5L Air Fryer\n₹3,999\nNov, 2026\n\nPhilips Air Fryer NA130/00 6.2 L Air Fryer\n₹6,499\nJul, 2024\n\nMorphy Richards 510077 4.2L Digital Air Fryer\n₹6,999\nNov, 2026\n\nKent New Ultra 4L Digital Air Fryer\n₹2,599\nOct, 2026\n\niBELL AEROFRY300 3.2L Air Fryer\n₹2,490\nOct, 2025\n\nKent Digital 116166 8L Air Fryer\n₹5,999\nOct, 2024\n\nXiaomi MIJIA N1 5L Air Fryer\n₹2,499\nUpcoming\n\nRead More\n\nLike\nComment\nShare\n\n545 Air Fryers\n\nSort By\n\nRelevancePopularityPrice Low To HighPrice High To LowDateRatingPrice Drop\n\nKent Ultra 116181 4L Air Fryer\n\n₹2,4991%\n\nCountertop\n4 L Capacity\n80-200˚C\nAuto Off\nTimer\nPlastic Body\n\nLikeView →\n\nLifelong LLHF421 4.5 L Air Fryer\n\n₹99956%\n\nWith 4.5 L Food Basket capacity\nCompared with traditional OTG oven\nCompared with deep fryer\nPrepare amazing meals from your cookbook\nWith 1400W of power\n\nLikeView →\n\nBaltra Jwel BAF-202 6L Digital Air Fryer\n\n₹4,795\n\nCountertop\n6 L Capacity\nTouch Control\n8 Preset Menu\n80-200°C\nChamber Light, See Through Glass\nTimer\nABS Plastic,\nAluminium Body\n\nLikeView →\n\nWonderchef Platinum Manual 4.5L Air Fryer\n\n₹3,999\n\nCountertop\n4.5 L Capacity\n80°C-200°C\nAuto Off\nPreheat\nTimer\nABS Body\n2 years Warranty\n\nLikeView →\n\nPhilips Air Fryer NA130/00 6.2 L Air Fryer\n\n₹6,499\n\nBrand Fryer Philips\nColour: multi-coloured\nDimensions: 37.5 x 34 x 37.5 cm\nReference: S91112127\nIf what you want is quality at the best price don't keep looking for!\n\nLikeView →\n\nMorphy Richards 510077 4.2L Digital Air Fryer\n\n₹6,999\n\nCountertop\n4.2 L Capacity\nTouch Control\n8 Preset Menu\nChamber Light, See Through Glass\nTimer\n2 years Warranty\n\nLikeView →\n\nKent New Ultra 4L Digital Air Fryer\n\n₹2,5996%\n\nCountertop\n4 L Capacity\nPreset Menu\n80°C-200°C\nAuto Off\nTimer\n1 year Warranty\n\nLikeView →\n\niBELL AEROFRY300 3.2L Air Fryer\n\n₹2,4903%\n\nCountertop\n3.2 L Capacity\nTouch Control\nLED Display\n6 Preset Menu\nUp to 200 Degrees Celsius\nTimer\nPlastic Body\n\nLikeView →\n\nKent Digital 116166 8L Air Fryer\n\n₹5,99921%\n\nCountertop\n8 L Capacity\nTouch Control\n7 Preset Menu\nChamber Light, See Through Glass\nAuto Off, Overheat Protection\nPreheat\nTimer\n\nLikeView →\n\nXiaomi MIJIA N1 5L Air Fryer\n\n₹2,499\n\nLikeSearch →\n\nUPCOMING\n\nLongway Crisp Max 5L Air Fryer\n\n₹6,299\n\nCountertop\n5 L Capacity\nTouch Control\nLED Display\n9 Preset Menu\n80-200°C\nChamber Light, See Through Glass\nAuto Off\n\nLikeView →\n\nBaltra Honour BAF-204 12L Air Fryer\n\n₹6,574\n\nCountertop\n12 L Capacity\nTouch Control\n8 Preset Menu\n80-200°C\nChamber Light, See Through Glass\nTimer\nABS Plastic Body\n\nLikeView →\n\nUltron Airoast 4.5M 4.5L Air Fryer\n\n₹2,599\n\nCountertop\n4.5 L Capacity\n80-200°C\nOverheat Protection\nTimer\nABS,\nNon-stick Coated Metal Body\n2 years Warranty\n\nLikeView →\n\nLifelong LLHFD710 7L Air Fryer\n\n₹4,99926%\n\nCountertop\n7 L Capacity\nTouch Control\nLED Display\n7 Preset Menu\nChamber Light, See Through Glass\nAuto Off\nTimer\n\nLikeView →\n\nBillion Bistro Lite 5L Air Fryer\n\n₹2,5991%\n\nCountertop\n5 L Capacity\nTouch Control\nPreset Menu\n80-200°C\nChamber Light, See Through Glass\nTimer\nPlastic Body\n\nLikeView →\n\nKenstar Aster Smart 4.5L Air Fryer\n\n₹3,3999%\n\nCountertop\n4.5 L Capacity\nTouch Control\nPreset Menu\nUpto 200°C\nChamber Light, See Through Glass\nAuto Off\nTimer\n\nLikeView →\n\nItalia IAF-4342 4.5L Air Fryer\n\n₹4,49914%\n\nCountertop\n4.5 L Capacity\nTouch Control\nLED Display\n8 Preset Menu\nChamber Light, See Through Glass\nOverheat Protection\nPreheat\n\nLikeView →\n\nInalsa SteelChef DW5.5 5.5L Air Fryer\n\n₹6,2967%\n\nCountertop\n5.5 L Capacity\nTouch Control\n8 Preset Menu\n80-200°C\nChamber Light, See Through Glass\nTimer\nBPA Free,\nPFAS and PFOA Free,\nStainless Steel Body\n\nLikeView →\n\nKent Ultra Digital 4L Air Fryer\n\n₹3,0995%\n\nCountertop\n4 L Capacity\nTouch Control\n6 Preset Menu\n80-200°C\nAuto Off\nTimer\nPlastic Body\n\nLikeView →\n\nHavells Prolife Aero 4.2L Air Fryer\n\n₹4,4302%\n\nCountertop\n4.2 L Capacity\nPreset Menu\nUpto 200°C\nAuto Off, Overheat Protection\nTimer\n2 years Warranty\n\nLikeView →\n\nLoad More\n\nDiscuss\n\nBe the first to leave a comment.\n\nRelated News\n\nApple’s Ultra-Thin iPhone Air May Finally Get A Second Camera And A Bigger Battery\n\nApple’s ultra-thin iPhone Air traded camera and battery for slimness and an almost surreal feel. However, a new leak says its successor could bring both back. Chinese tipster Digital Chat Station claims that …\n\nPhilips Just Made the Air Fryer You’d Actually Want on Your Counter\n\nDual basket air fryers fix a simple problem. With one basket, I’m stuck cooking just one thing at a time. Philips joined this category after Ninja, and I spotted that in a few interface quirks. But once it la…\n\nApple’s First Foldable iPhone Could Bring MagSafe to a 4.5mm-Thick Body\n\nApple is gearing up for one of its biggest iPhone launch events in years. The date is already official: September 9, 2026. However, it’s the devices that remain a mystery for now, well, sort of. Based on seve…\n\nBlinkit is Delivering GTA 6 in 10 Minutes Just in Time For Midnight India Launch\n\nRockstar Games spent 13 years making Grand Theft Auto VI. Blinkit needs just 10 minutes to get it to your door. Quick-commerce and gaming just collided in the best way. Blinkit now delivers physical copies of…\n\nRelated Air Fryers\n\nPhilips NA120/00 4.2L Air Fryer₹4,699\n\nLifelong LLHF421 4.5 L Air Fryer₹999\n\nPhilips Air Fryer NA130/00 6.2 L Air Fryer₹6,499\n\nLongway True Cook 6L Digital Air Fryer₹11,199\n\nSkyline VT 5424 2L Electric Deep Fryer₹3,599\n\nWonderchef Platinum Manual 4.5L Air Fryer₹3,999\n\nBaltra Jwel BAF-202 6L Digital Air Fryer₹4,795\n\nKent Digital 116166 8L Air Fryer₹5,999\n\nRelated Searches\n\nAir Fryers Under ₹3,0005G Mobile Phones Price ListBest Android Mobile Phones Under ₹20000256GB Storage Mobile PhonesLifelong Air Fryers Price ListUpcoming Realme Mobile PhonesKent Air Fryers Under ₹3,000Baltra Air Fryers Price List\n\nSort RelevancePopularityPrice Low To HighPrice High To LowDateRatingPrice Drop\n\nFilter",
+        "text_hash": "aa06b6931f0507506b0d8f7384292efaa743c8b7b7a404314eaa0d6c062a87b3",
+        "fetched_at": "2026-11-19T05:47:35.702586Z",
+        "published_at": null,
+        "community": null,
+        "site": "smartprix.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_14cd65c12c05ae68",
+        "url": "https://www.rtings.com/air-fryer/reviews/best/air-fryers",
+        "type": "review_site",
+        "tier": 3,
+        "title": "The 7 Best Air Fryers - Black Friday 2026",
+        "text": "Best\n\nAir Fryers\n\nSmall\n\nFrench Fries\n\nBrands\n\nLarge Capacity\n\nBudget And Cheap\n\n6-Quart\n\n4-Quart\n\n8-Quart\n\nTools\n\nCompare\n\nResults Table Tool\n\nReview List\n\nReview Index\n\nGraph\n\nReview Pipeline\n\nVote\n\nCustom Ratings\n\nPopular\n\nCOSORI TurboBlaze\n\nNinja Crispi Pro AS101\n\nNinja Foodi DZ550\n\nNinja Crispi DualZone DD101\n\nNinja DualZone Pro DZ950\n\nNinja Pro AF141\n\nTyphur Dome 2\n\nNinja Crispi FN101GY\n\nNinja Air Fryer Pro XL AF181\n\nCOSORI Iconic\n\nChefman Crispinator 8 Qt.\n\nOur Place Wonder Oven Pro\n\nNinja Foodi DZ071\n\nPhilips 2000 series 4.2L NA220/00\n\nNinja Foodi DZ201\n\nTyphur Sync Air Fryer\n\nNinja Combi SFP701\n\nNinja DualZone DZ801\n\nNinja AF101\n\nPhilips 3000 Series Dual Basket NA350/00\n\n57\nAir Fryers bought and tested\n\nSupported by you via\n\nmembership, and when you purchase through links on our site, we may earn an affiliate commission.\n\nHome\n\nAir Fryer\n\nBest\n\nAir Fryers\n\nTo access\n\nunlimited full product reviews,\n\nproduct prices, and\n\nother exclusive site features\n\nBecome a member\n\n₹68.75/month, billed yearly",
+        "text_hash": "a41b2495c0f7adf6ca4652671a71f70da8703705c8eb3f7c64fc8134281903d1",
+        "fetched_at": "2026-11-19T05:47:36.340454Z",
+        "published_at": null,
+        "community": null,
+        "site": "rtings.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_f1bbfd23fbaa0b18",
+        "url": "https://www.rtings.com/air-fryer/reviews/best/large",
+        "type": "review_site",
+        "tier": 3,
+        "title": "The 7 Best Large-Capacity Air Fryers - Black Friday 2026",
+        "text": "Best\n\nAir Fryers\n\nSmall\n\nFrench Fries\n\nBrands\n\nLarge Capacity\n\nBudget And Cheap\n\n6-Quart\n\n4-Quart\n\n8-Quart\n\nTools\n\nCompare\n\nResults Table Tool\n\nReview List\n\nReview Index\n\nGraph\n\nReview Pipeline\n\nVote\n\nCustom Ratings\n\nPopular\n\nCOSORI TurboBlaze\n\nNinja Crispi Pro AS101\n\nNinja Foodi DZ550\n\nNinja Crispi DualZone DD101\n\nNinja DualZone Pro DZ950\n\nNinja Pro AF141\n\nTyphur Dome 2\n\nNinja Crispi FN101GY\n\nNinja Air Fryer Pro XL AF181\n\nCOSORI Iconic\n\nChefman Crispinator 8 Qt.\n\nOur Place Wonder Oven Pro\n\nNinja Foodi DZ071\n\nPhilips 2000 series 4.2L NA220/00\n\nNinja Foodi DZ201\n\nTyphur Sync Air Fryer\n\nNinja Combi SFP701\n\nNinja DualZone DZ801\n\nNinja AF101\n\nPhilips 3000 Series Dual Basket NA350/00\n\n57\nAir Fryers bought and tested\n\nSupported by you via\n\nmembership, and when you purchase through links on our site, we may earn an affiliate commission.\n\nHome\n\nAir Fryer\n\nBest\n\nLarge Capacity\n\nTo access\n\nunlimited full product reviews,\n\nproduct prices, and\n\nother exclusive site features\n\nBecome a member\n\n₹68.75/month, billed yearly",
+        "text_hash": "8b160fd109f22b3978c054f6bb1b087c18b21cfdbae4538fc1b37bab5a3e50e5",
+        "fetched_at": "2026-11-19T05:47:38.381201Z",
+        "published_at": null,
+        "community": null,
+        "site": "rtings.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_6da0a0974649d118",
+        "url": "https://www.smartprix.com/bytes/philips-just-made-the-air-fryer-youd-actually-want-on-your-counter/",
+        "type": "review_site",
+        "tier": 3,
+        "title": "Philips NA154/00 Dual Basket Air Fryer Review (2026) | Price, Performance, Verdict - Smartprix",
+        "text": "Reviews\n\nPhilips Just Made the Air Fryer You’d Actually Want on Your Counter\n\nBy Karan Rathore • Updated On 3 Nov 2026\n\nLike\nComment\nShare\n\nQuick Verdict: Score: 8.2/10\n\nThe Philips NA154/00 is a 7.1-liter dual basket air fryer priced at ₹13,990 to ₹15,000 in India. It stands out on the counter, cooks a whole chicken better than most ovens I’ve used, and lets me run one basket at half power when I don’t need both.\n\nBuy it if:\n\nYou’re cooking for two to four people regularly.\n\nYou want an air fryer that doesn’t look like an appliance.\n\nYou occasionally host 8 to 10 guests.\n\nYou care about saving electricity on small cooks.\n\nSkip it if:\n\nYou want to see your food cooking through a window.\n\nYou need more than air frying in one machine.\n\nYou regularly cook for six or more people at once\n\nYou want a detailed printed manual in the box.\n\nDual basket air fryers fix a simple problem. With one basket, I’m stuck cooking just one thing at a time. Philips joined this category after Ninja, and I spotted that in a few interface quirks. But once it landed on my counter, only the cooking mattered. Here, Philips nails it.\n\nI treated the NA154/00 like any air fryer I use at home. I roasted a chicken on a busy weeknight, made fries, and threw together snacks before guests arrived. When I looked for a printed manual, I found the box empty.\n\nJump to :\n\nPros & Cons\n\nDesign and Build\n\nPerformance\n\nCleaning\n\nService\n\nVerdict\n\nFAQ\n\nPhilips NA154/00 is a 7.1-liter dual basket air fryer Price & Availability\n\nThe Philips NA154/00 costs ₹14,990, depending on where you buy it. That puts it right up against the Ninja Foodi Max Dual-Drawer, which sits in the same price range.\n\nCheck Latest India Prices\n\nPhilips NA154/00 Pros and Cons\n\nPros\n\nGenuinely premium, attractive design\n\nTrue independent dual-zone cooking\n\nSync feature times both baskets together\n\nSingle-basket mode saves real electricity.\n\nChicken and fries cook excellently.\n\nDishwasher-safe baskets, easy cleanup\n\nCons\n\nNo viewing window at all\n\nFinger smudges easily\n\nSix-plus people need multiple rounds\n\nPhilips NA154/00 Specifications\n\nSpec\nDetail\n\nPrice in India\n₹14,990\n\nTotal capacity\n7.1L (3L + 6L, removable partition)\n\nPower\n2,450W total, 1,225W on single basket\n\nPreheat required\nNone\n\nHeating system\n2 independent elements, 2 fans\n\nDisplay\nFull touchscreen\n\nPresets\nFries, meat, drumsticks, vegetables, cake, reheat, frozen potato, fish\n\nSpecial features\nSync, Copy, Shake reminder\n\nWeight\n~8kg\n\nDimensions\n42cm W x 31cm H x 38cm D\n\nPhilips NA154/00 is a 7.1-liter Review: Design and Build\n\nThe NA154/00 doesn’t look like an air fryer. That’s on purpose. Most big dual basket models are bulky black boxes I want to shove out of sight. This one comes with a matte black finish and rose gold handles. It feels like someone at Philips finally cared about making it look good.\n\nIt measures about 42cm wide, 31cm tall, and 38cm deep, and weighs close to 8kg. The casing stays slim, so almost all that space goes to cooking, not wasted plastic. The touch panel lights up just the power button when idle. It’s a small detail, but it shows someone actually thought about the design.\n\nBuild quality holds up day to day. The baskets slide out smoothly. The handles feel solid in my hand. The rear wall spacer and exhaust vents keep heat away from my cabinets. The only weak spot is the glossy control panel. It picks up scratches and smudges fast, and I spot them under bright kitchen lights.\n\nHere are the two sections rewritten with more first-person depth and sensory detail, ready to drop into the article in place of the current versions.\n\nPhilips NA154/00 is a 7.1-liter Review:Performance\n\nNo preheating needed, and that matters more than it sounds. Most nights, I use my air fryer around 7 pm, when I already know what I want to eat and don’t want to wait ten extra minutes for a machine to heat up. With the NA154/00, I put the food in and the timer starts right away. After a few weeks, that convenience felt less like a feature and more like the baseline every air fryer should have hit years ago.\n\nThe whole chicken test is where this machine won me over. I cooked a 1.2kg bird at 160°C for about an hour in the larger basket. It came out evenly golden on the outside, and when I cut in, the meat stayed juicy instead of turning dry and overcooked like I half expected from an air fryer this size. Cleanup surprised me even more. There was barely any splatter, and the basket caught the fat and juices instead of spreading them across the chamber, which is usually the most annoying part of cooking a whole bird at home.\n\nFries are the other test that separates good air fryers from the rest, and the Fresh Fries preset handled them well. I did the usual soak, pat dry, and light oil toss. The fries came out crisp outside and soft inside, much closer to a proper fry than the leathery results I’ve seen from cheaper single-basket machines. Drumsticks needed a few extra minutes beyond the default preset for thicker pieces. That’s a minor annoyance, but easy to fix once you know to expect it.\n\nI kept coming back to the dual-zone system. It’s one thing to have two baskets, but it’s another for them to work like two separate appliances in one. Each basket has its own heating element and fan. Running one basket doesn’t pull power or airflow from the other, and I saw that on my electricity bill since a single basket uses about half the rated 2,450W. The Sync feature delays the start of one basket so two different dishes finish together. That sounds minor until you’ve tried timing two dishes by hand on a cheaper machine and ended up with cold fries next to hot fish.\n\nThe missing viewing window is the real frustration. I kept reaching to check on food like I would with any oven, only to remember I had to pull the whole basket out. That pauses both the fan and the heating element until I put it back in. It’s not a dealbreaker, but after using air fryers with a window, going back to this felt like a step backward in a machine that otherwise moves forward. The interface has a similar learning curve. A few icons are hard to figure out at a glance, and without a printed manual in the box, I ended up on Philips’s website more than once in the first week to check what a button did.\n\nPhilips Dual Basket Air fryer Review: Cleaning and Maintenance\n\nNobody talks about cleaning an air fryer, but it matters more than half the features. Here, the dual-basket design pays off again. Two smaller baskets are just easier to handle than one big drawer. Neither feels heavy or awkward to wash by hand. Most nights, I just rinse them under the tap and move on, instead of waiting for a full dishwasher load.\n\nBoth baskets are dishwasher safe if you don’t want to wash them by hand, but they’ll probably take up the whole bottom rack. If you’re running a full load, that’s something to plan for, not a surprise you want mid-cycle. For daily use, I just use soap, warm water, and a soft sponge. Both baskets come clean in a couple of minutes.\n\nBuild one habit early: skip the parchment paper, butter paper, or foil, even if it looks like it’ll make cleanup easier. All of them block the airflow this machine needs to cook evenly. I learned that the hard way when a batch of vegetable tikkis cooked unevenly after I lined the basket out of habit. Once I stopped, my results got much more consistent.\n\nLong term, the only thing I watch is the control panel, not the baskets. The glossy finish looks great on day one, but even a rough towel can leave faint scratches that catch the light. I stick to a microfiber cloth and a light touch to keep it looking new.\n\nPhilips Dual Basket Air fryer Review: Service and Warranty\n\nPhilips backs the NA154/00 with its standard appliance warranty through authorized service centers across India. Philips has a longer track record with air fryers than several of its dual basket competitors, and that established service network is worth weighing alongside the spec sheet, not just the price tag.\n\nReview Verdict: Should You Buy the Philips Dual Basket Air fryer?\n\nSmartprix ⭐ Rating: 8.2/10\n\nThe Philips NA154/00 proves an air fryer doesn’t have to be something you hide before guests arrive. It cooks a whole chicken better than most ovens, saves power when you’re not using both baskets, and looks good doing it. The trade-offs are real but narrow: no viewing window, a panel that scratches easily, and a feature set that sticks to the basics. For most Indian kitchens built for two to four people, that trade-off is worth it.\n\nFirst reviewed in November 2026.\n\nFrequently Asked Questions (FAQ)\n\nIs the Philips NA154/00 worth buying in 2026?\n\nYes, for couples, small families, and anyone who occasionally hosts up to 10 guests. Under ₹15,000, it beats most competitors on build quality and cooking results, but you give up a viewing window, extra modes, and a printed manual to get there.",
+        "text_hash": "d27ab61f7e8358c199e23b5da598561113bcd5a5e72727df55a03eacd93d586a",
+        "fetched_at": "2026-11-19T05:47:37.663742Z",
+        "published_at": null,
+        "community": null,
+        "site": "smartprix.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      },
+      {
+        "id": "src_6a796963700135d8",
+        "url": "https://www.smartprix.com/air_fryers/prestige-brand/price-5000_to_10000",
+        "type": "review_site",
+        "tier": 3,
+        "title": "Prestige Air Fryers Between ₹5,000 and ₹10,000 | Smartprix",
+        "text": "Prestige Air Fryers Between ₹5,000 and ₹10,000\n\nThis list contains 8 Prestige Air Fryers Between ₹5,000 and ₹10,000 in India. This price list was last updated on Nov 19, 2026.\n\nTop 3 Prestige Air Fryers Between ₹5,000 and ₹10,000 are as follows:\n\nPrestige Crysta Chef 5.5L Air Fryer: 5.5 L Capacity, 100-200 Degree Celsius, Timer, See Through Glass, Touch Control\nPrestige Multi-Chef All-in-One 6.5L Air Fryer: 1 year Warranty, See Through Glass, 6.5 L Capacity, Timer, ABS Plastic Body\nPrestige Crysta 4.5L Digital Air Fryer: Touch Control, 100-200°C, ABS Plastic Body, See Through Glass, 9 Preset Menu\n\nPrestige Air Fryers Between ₹5,000 and ₹10,000 Price List\n\nAir Fryer\nPrice\nAvailable From\n\nPrestige Crysta Chef 5.5L Air Fryer\n₹5,790\nApr, 2026\n\nPrestige Multi-Chef All-in-One 6.5L Air Fryer\n₹5,385\nJul, 2024\n\nPrestige Crysta 4.5L Digital Air Fryer\n₹8,995\nJul, 2024\n\nPrestige PAF 4.0 2.2L Air Fryer\n₹5,350\nApr, 2019\n\nPrestige PAMF 1.0 2.2L Air Fryer\n₹8,480\nOct, 2019\n\nPrestige PAF 1.0 1 l Air fryer\n₹9,750\nSep, 2019\n\nPrestige PMAF 1.0 2.2 L Air Fryer\n₹8,480\nJul, 2019\n\nPrestige PAF 5.0 2.2L Air Fryer\n₹6,000\nApr, 2019\n\nRead More\n\nLike\nComment\nShare\n\n8 Air Fryers\n\nSort By\n\nRelevancePopularityPrice Low To HighPrice High To LowDateRatingPrice Drop\n\nPrestige Crysta Chef 5.5L Air Fryer\n\n₹5,790\n\nCountertop\n5.5 L Capacity\nTouch Control\n11 Preset Menu\n100-200 Degree Celsius\nChamber Light, See Through Glass\nTimer\nABS Plastic Body\n\nLikeView →\n\nPrestige Multi-Chef All-in-One 6.5L Air Fryer\n\n₹5,3854%\n\nCountertop\n6.5 L Capacity\nTouch Control\nMax 200°C\nChamber Light, See Through Glass\nTimer\nABS Plastic Body\n1 year Warranty\n\nLikeView →\n\nPrestige Crysta 4.5L Digital Air Fryer\n\n₹8,995\n\nCountertop\n4.5 L Capacity\nTouch Control\n9 Preset Menu\n100-200°C\nChamber Light, See Through Glass\nTimer\nABS Plastic Body\n\nLikeView →\n\nPrestige PAF 4.0 2.2L Air Fryer\n\n₹5,350\n\nContent: Prestige Air Fryer Paf 4.0 With\nNet Quantity: 1 Unit\nVoltage: 230V; Wattage: 1400W\nCapacity: 2.2 litres\nIncludes Air Fryer\n\nLikeView →\n\nPrestige PAMF 1.0 2.2L Air Fryer\n\n₹8,480\n\nAirfryer& OTG & Oven\n\nLikeSearch →\n\nOUT OF STOCK\n\nPrestige PAF 1.0 1 l Air fryer\n\n₹9,750\n\nDigital display with preset cooking menu\nEasy to clean grill and basket\nHot air cooking\nSafety button, oil and smoke filter\nSpecially designed frying basket\nSturdy carry handle\nAutomatic shut off\nTimer and temperature controls to suit the type of food to be cooked\n\nLikeSearch →\n\nOUT OF STOCK\n\nPrestige PMAF 1.0 2.2 L Air Fryer\n\n₹8,480\n\n2.2 Litres Capacity\nPre Set Cooking Menu\nHeat Resistant Toughened Glass Door\nFilter and Safety Button\nPMAF 1.0\n\nLikeSearch →\n\nOUT OF STOCK\n\nPrestige PAF 5.0 2.2L Air Fryer\n\n₹6,000\n\nContent - PRESTIGE AIR FRYER PAF 5.0\nNet Quantity - 1 U\nMaximum Retail Price (Inclusive Of all Taxes) -Rs. 7 495.00\nCountry Of Origin - PEOPLE'S REPUBLIC OF CHINA\nImported By - TTK PRESTIGE LIMITED\nVoltage (V) - 230\nWattage (W) -1400\n\nLikeSearch →\n\nOUT OF STOCK\n\nDiscuss\n\nBe the first to leave a comment.\n\nRelated News\n\nPhilips Just Made the Air Fryer You’d Actually Want on Your Counter\n\nDual basket air fryers fix a simple problem. With one basket, I’m stuck cooking just one thing at a time. Philips joined this category after Ninja, and I spotted that in a few interface quirks. But once it la…\n\nTefal Chef Assist 800W Review: The All-in-One Kitchen Machine That Actually Understands Indian Cooking\n\nMy kitchen counter is packed with single-use appliances. My old Bosch mixer makes great coconut chutney, but it sounds like a jet engine. The Philips food processor I bought during lockdown barely gets used b…\n\nHifresh Air Purifiers and Dehumidifiers for Indian Homes: The Right Indoor Climate Solution For Pollution and Humidity\n\nPollution and humidity are different problems that need different machines. Hifresh’s air purifiers and dehumidifiers target each one, and this guide explains which fits your Indian home and household needs. …\n\nGTA VI FAQs: 50 Most Asked Questions And Their Answers Every Indian Gamer Must Know About\n\nPop-culture fans have been looking forward to two major events in 2026: GTA VI’s arrival and Doomsday’s theatrical release. While we’re still about a month away from the latter, the former happens tonight. Th…\n\nRelated Air Fryers\n\nKent Ultra 116181 4L Air Fryer₹2,499\n\nLifelong LLHF421 4.5 L Air Fryer₹999\n\nLongway True Cook 6L Digital Air Fryer₹11,199\n\nSkyline VT 5424 2L Electric Deep Fryer₹3,599\n\nWonderchef Platinum Manual 4.5L Air Fryer₹3,999\n\nInalsa Aero Crisp 16 16L Air Fryer Oven₹11,393\n\nInalsa Aero Smart N Steam 15L Air Fryer Oven₹16,999\n\nInalsa Crisp Pro 24 L Air Fryer Oven₹13,493\n\nRelated Searches\n\nNVIDIA GeForce RTX 4050 LaptopsPrestige Air Fryers Under ₹7,000Upcoming Honor Mobile PhonesBest Prestige Air Fryers Between ₹5,000 and ₹7,000Mediatek Dimensity 9600 Mobile PhonesTWS Earbuds Price ListPrestige Air Fryers Between ₹7,000 and ₹10,0005G Mobile Phones Under ₹9,000\n\nSort RelevancePopularityPrice Low To HighPrice High To LowDateRatingPrice Drop\n\nFilter",
+        "text_hash": "615019a49b2b472df0b9d2633f05836d272851ded5261eb33bd27f3146814229",
+        "fetched_at": "2026-11-19T05:47:39.661319Z",
+        "published_at": null,
+        "community": null,
+        "site": "smartprix.com",
+        "data_class": "public",
+        "quality": 0.5,
+        "via": "direct",
+        "source_detail": null,
+        "author_hash": null,
+        "upvotes": null,
+        "comment_count": null,
+        "comments": []
+      }
+    ],
+    "shown": [
+      "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
+      "Prestige PAF 4.0 2.2L Air Fryer",
+      "Baltra Jwel BAF-202 6L Digital Air Fryer",
+      "Prestige Crysta Chef 5.5L Air Fryer",
+      "Lifelong LLHF421 4.5 L Air Fryer",
+      "Wonderchef Platinum Manual 4.5L Air Fryer",
+      "Kent New Ultra 4L Digital Air Fryer"
+    ],
+    "filtered_out": [
+      "Philips NA154/00 Dual Basket Air Fryer",
+      "Prestige Crysta 4.5L Digital Air Fryer"
+    ],
+    "cant_tell": [
+      "Baltra Honour BAF-204 12L Air Fryer",
+      "Billion Bistro Lite 5L Air Fryer",
+      "Chefman Crispinator 8 Qt.",
+      "COSORI Iconic",
+      "COSORI TurboBlaze",
+      "iBELL AEROFRY300 3.2L Air Fryer",
+      "Inalsa Aero Crisp 16 16L Air Fryer Oven",
+      "Inalsa Aero Smart N Steam 15L Air Fryer Oven",
+      "Kent Digital 116166 8L Air Fryer",
+      "Lifelong LLHFD710 7L Air Fryer",
+      "Longway Crisp Max 5L Air Fryer",
+      "Longway True Cook 6L Digital Air Fryer",
+      "Morphy Richards 510077 4.2L Digital Air Fryer",
+      "Ninja Air Fryer Pro XL AF181",
+      "Ninja Crispi DualZone DD101",
+      "Ninja Crispi FN101GY",
+      "Ninja Crispi Pro AS101",
+      "Ninja DualZone Pro DZ950",
+      "Ninja Foodi DZ071",
+      "Ninja Foodi DZ201",
+      "Ninja Foodi DZ550",
+      "Ninja Foodi Max Dual-Drawer",
+      "Ninja Pro AF141",
+      "Our Place Wonder Oven Pro",
+      "Philips 2000 series 4.2L NA220/00",
+      "Philips Air Fryer NA130/00 6.2 L Air Fryer",
+      "Philips NA154/00",
+      "Prestige PAF 1.0 1 l Air fryer",
+      "Prestige PAF 5.0 2.2L Air Fryer",
+      "Prestige PAMF 1.0 2.2L Air Fryer",
+      "Prestige PMAF 1.0 2.2 L Air Fryer",
+      "Skyline VT 5424 2L Electric Deep Fryer",
+      "Typhur Dome 2",
+      "Ultron Airoast 4.5M 4.5L Air Fryer",
+      "Xiaomi MIJIA N1 5L Air Fryer"
+    ],
+    "citations": 22,
+    "llm_replies": [
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "1772c19db57563ac8a9ffe7bc6af2c946c88221010b51091781695b4274a8e54",
+        "data_sha256": "9315f9c2b8f9a61c0852a60b4c161567eac7c12cbde5852bdf1a85df8d670304",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "COSORI TurboBlaze",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Crispi Pro AS101",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Foodi DZ550",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Crispi DualZone DD101",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja DualZone Pro DZ950",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Pro AF141",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Typhur Dome 2",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Crispi FN101GY",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Air Fryer Pro XL AF181",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "COSORI Iconic",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Chefman Crispinator 8 Qt.",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Our Place Wonder Oven Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Foodi DZ071",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Philips 2000 series 4.2L NA220/00",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Foodi DZ201",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": []
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "47ff02514045c22e6332afcea776bd852b436624e280626764aff0f4f9328c2c",
+        "data_sha256": "0ef3604cfa03da6fe4a36c989a90ef977ea1d4bbaac1635c4c8fc65441dffae2",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Kent Ultra 116181 4L Air Fryer",
+              "is_product": true,
+              "brand": "Kent",
+              "recommends": null
+            },
+            {
+              "raw_name": "Lifelong LLHF421 4.5 L Air Fryer",
+              "is_product": true,
+              "brand": "Lifelong",
+              "recommends": null
+            },
+            {
+              "raw_name": "Baltra Jwel BAF-202 6L Digital Air Fryer",
+              "is_product": true,
+              "brand": "Baltra",
+              "recommends": null
+            },
+            {
+              "raw_name": "Wonderchef Platinum Manual 4.5L Air Fryer",
+              "is_product": true,
+              "brand": "Wonderchef",
+              "recommends": null
+            },
+            {
+              "raw_name": "Philips Air Fryer NA130/00 6.2 L Air Fryer",
+              "is_product": true,
+              "brand": "Philips",
+              "recommends": null
+            },
+            {
+              "raw_name": "Morphy Richards 510077 4.2L Digital Air Fryer",
+              "is_product": true,
+              "brand": "Morphy Richards",
+              "recommends": null
+            },
+            {
+              "raw_name": "Kent New Ultra 4L Digital Air Fryer",
+              "is_product": true,
+              "brand": "Kent",
+              "recommends": null
+            },
+            {
+              "raw_name": "iBELL AEROFRY300 3.2L Air Fryer",
+              "is_product": true,
+              "brand": "iBELL",
+              "recommends": null
+            },
+            {
+              "raw_name": "Kent Digital 116166 8L Air Fryer",
+              "is_product": true,
+              "brand": "Kent",
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi MIJIA N1 5L Air Fryer",
+              "is_product": true,
+              "brand": "Xiaomi",
+              "recommends": null
+            },
+            {
+              "raw_name": "Longway Crisp Max 5L Air Fryer",
+              "is_product": true,
+              "brand": "Longway",
+              "recommends": null
+            },
+            {
+              "raw_name": "Baltra Honour BAF-204 12L Air Fryer",
+              "is_product": true,
+              "brand": "Baltra",
+              "recommends": null
+            },
+            {
+              "raw_name": "Ultron Airoast 4.5M 4.5L Air Fryer",
+              "is_product": true,
+              "brand": "Ultron",
+              "recommends": null
+            },
+            {
+              "raw_name": "Lifelong LLHFD710 7L Air Fryer",
+              "is_product": true,
+              "brand": "Lifelong",
+              "recommends": null
+            },
+            {
+              "raw_name": "Billion Bistro Lite 5L Air Fryer",
+              "is_product": true,
+              "brand": "Billion",
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Kent Ultra 116181 4L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 2499.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "₹2,499",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Kent Ultra 116181 4L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "capacity",
+              "value": 4.0,
+              "unit": "L",
+              "score": null,
+              "quote": "4 L Capacity",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Kent Ultra 116181 4L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "temperature_range",
+              "value": "80-200˚C",
+              "unit": null,
+              "score": null,
+              "quote": "80-200˚C",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Lifelong LLHF421 4.5 L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 999.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "₹999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Lifelong LLHF421 4.5 L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "capacity",
+              "value": 4.5,
+              "unit": "L",
+              "score": null,
+              "quote": "4.5 L Food Basket capacity",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Baltra Jwel BAF-202 6L Digital Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 4795.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "₹4,795",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Baltra Jwel BAF-202 6L Digital Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "capacity",
+              "value": 6.0,
+              "unit": "L",
+              "score": null,
+              "quote": "6 L Capacity",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Baltra Jwel BAF-202 6L Digital Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "temperature_range",
+              "value": "80-200°C",
+              "unit": null,
+              "score": null,
+              "quote": "80-200°C",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Wonderchef Platinum Manual 4.5L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 3999.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "₹3,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Wonderchef Platinum Manual 4.5L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "capacity",
+              "value": 4.5,
+              "unit": "L",
+              "score": null,
+              "quote": "4.5 L Capacity",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "58b4d5ae926debf037da885d0bdf70b9fed82955fad9fdf0433065e6f4351a93",
+        "data_sha256": "bcafb1de9629ccc1fc2b61d4389bc1628abf3023e46178e38ce359fbad8ab1e0",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "COSORI TurboBlaze",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Crispi Pro AS101",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Foodi DZ550",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Crispi DualZone DD101",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja DualZone Pro DZ950",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Pro AF141",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Typhur Dome 2",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Crispi FN101GY",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Air Fryer Pro XL AF181",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "COSORI Iconic",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Chefman Crispinator 8 Qt.",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Our Place Wonder Oven Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Foodi DZ071",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Philips 2000 series 4.2L NA220/00",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Foodi DZ201",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": []
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "d1fd687bf311445f9e4338dc80ebf0a2812439816da70dae59cdf15a854cdc05",
+        "data_sha256": "653ef3a968fac1b8d43c51de4c91d6150c8fa9c00e72787917cabfebca1c397c",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Philips NA154/00 Dual Basket Air Fryer",
+              "is_product": true,
+              "brand": "Philips",
+              "recommends": null
+            },
+            {
+              "raw_name": "Philips NA154/00",
+              "is_product": true,
+              "brand": "Philips",
+              "recommends": null
+            },
+            {
+              "raw_name": "Ninja Foodi Max Dual-Drawer",
+              "is_product": true,
+              "brand": "Ninja",
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Philips NA154/00 Dual Basket Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 13990.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "priced at ₹13,990 to ₹15,000 in India.",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Philips NA154/00 Dual Basket Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "capacity",
+              "value": 7.1,
+              "unit": "L",
+              "score": null,
+              "quote": "is a 7.1-liter dual basket air fryer",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "5cb013fce36546f14925dd59c9f9209d1f1a158d104273b554cdc77c8ea477f7",
+        "data_sha256": "4cf5c79230df731c39cbc3d3791454ebb074161830b1dc077a253466420407a8",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Prestige Crysta Chef 5.5L Air Fryer",
+              "is_product": true,
+              "brand": "Prestige",
+              "recommends": null
+            },
+            {
+              "raw_name": "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
+              "is_product": true,
+              "brand": "Prestige",
+              "recommends": null
+            },
+            {
+              "raw_name": "Prestige Crysta 4.5L Digital Air Fryer",
+              "is_product": true,
+              "brand": "Prestige",
+              "recommends": null
+            },
+            {
+              "raw_name": "Prestige PAF 4.0 2.2L Air Fryer",
+              "is_product": true,
+              "brand": "Prestige",
+              "recommends": null
+            },
+            {
+              "raw_name": "Prestige PAMF 1.0 2.2L Air Fryer",
+              "is_product": true,
+              "brand": "Prestige",
+              "recommends": null
+            },
+            {
+              "raw_name": "Prestige PAF 1.0 1 l Air fryer",
+              "is_product": true,
+              "brand": "Prestige",
+              "recommends": null
+            },
+            {
+              "raw_name": "Prestige PMAF 1.0 2.2 L Air Fryer",
+              "is_product": true,
+              "brand": "Prestige",
+              "recommends": null
+            },
+            {
+              "raw_name": "Prestige PAF 5.0 2.2L Air Fryer",
+              "is_product": true,
+              "brand": "Prestige",
+              "recommends": null
+            },
+            {
+              "raw_name": "Kent Ultra 116181 4L Air Fryer",
+              "is_product": true,
+              "brand": "Kent",
+              "recommends": null
+            },
+            {
+              "raw_name": "Lifelong LLHF421 4.5 L Air Fryer",
+              "is_product": true,
+              "brand": "Lifelong",
+              "recommends": null
+            },
+            {
+              "raw_name": "Longway True Cook 6L Digital Air Fryer",
+              "is_product": true,
+              "brand": "Longway",
+              "recommends": null
+            },
+            {
+              "raw_name": "Skyline VT 5424 2L Electric Deep Fryer",
+              "is_product": true,
+              "brand": "Skyline",
+              "recommends": null
+            },
+            {
+              "raw_name": "Wonderchef Platinum Manual 4.5L Air Fryer",
+              "is_product": true,
+              "brand": "Wonderchef",
+              "recommends": null
+            },
+            {
+              "raw_name": "Inalsa Aero Crisp 16 16L Air Fryer Oven",
+              "is_product": true,
+              "brand": "Inalsa",
+              "recommends": null
+            },
+            {
+              "raw_name": "Inalsa Aero Smart N Steam 15L Air Fryer Oven",
+              "is_product": true,
+              "brand": "Inalsa",
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Prestige Crysta Chef 5.5L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 5790.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "Prestige Crysta Chef 5.5L Air Fryer\n₹5,790",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Prestige Crysta Chef 5.5L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "capacity",
+              "value": 5.5,
+              "unit": "L",
+              "score": null,
+              "quote": "5.5 L Capacity",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Prestige Crysta Chef 5.5L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "temperature_range",
+              "value": "100-200 Degree Celsius",
+              "unit": null,
+              "score": null,
+              "quote": "100-200 Degree Celsius",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 5385.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "Prestige Multi-Chef All-in-One 6.5L Air Fryer\n₹5,385",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "capacity",
+              "value": 6.5,
+              "unit": "L",
+              "score": null,
+              "quote": "6.5 L Capacity",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Prestige Multi-Chef All-in-One 6.5L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "temperature_range",
+              "value": "Max 200°C",
+              "unit": null,
+              "score": null,
+              "quote": "Max 200°C",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Prestige Crysta 4.5L Digital Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 8995.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "Prestige Crysta 4.5L Digital Air Fryer\n₹8,995",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Prestige Crysta 4.5L Digital Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "capacity",
+              "value": 4.5,
+              "unit": "L",
+              "score": null,
+              "quote": "4.5 L Capacity",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Prestige Crysta 4.5L Digital Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "temperature_range",
+              "value": "100-200°C",
+              "unit": null,
+              "score": null,
+              "quote": "100-200°C",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Prestige PAF 4.0 2.2L Air Fryer",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 5350.0,
+              "unit": "₹",
+              "score": null,
+              "quote": "Prestige PAF 4.0 2.2L Air Fryer\n₹5,350",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      }
+    ],
+    "reddit_sources_left_out": 0,
+    "changed_sources_left_out": 0
+  }
+]

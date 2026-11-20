@@ -139,6 +139,39 @@ jobs:
           done < <(git ls-files -z -- ml)
           exit "$too_big"
 
+  # US-49's fast gate: the recorded runs replayed offline, every measure held to its floor in evals/thresholds.yaml and
+  # to main's last record (more than 10 points down fails), and every hand-labelled winner checked. Under 3 minutes.
+  quality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - name: Install
+        run: pip install -e ".[dev]"
+      - name: Main's last record
+        run: |
+          git fetch --depth=1 origin main
+          if ! git show origin/main:backend/evals/results/us49-gate.json > "$RUNNER_TEMP/main-gate.json"; then
+            rm -f "$RUNNER_TEMP/main-gate.json"
+            echo "main has no gate record yet: only the floors are checked"
+          fi
+      - name: Replay gate (no network)
+        timeout-minutes: 3
+        run: |
+          started=$(date +%s)
+          python -m evals.gate --baseline "$RUNNER_TEMP/main-gate.json"
+          echo "Gate step took $(( $(date +%s) - started )) s"
+      - name: Every floor
+        run: python -m evals.thresholds --check
+
   secrets:
     runs-on: ubuntu-latest
     steps:

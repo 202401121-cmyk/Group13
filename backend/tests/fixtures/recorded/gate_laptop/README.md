@@ -1,0 +1,1 @@
+- `gate_laptop`: real replies to "laptop for coding under 70000 rupees" (1 run; calls gemini: 8, groq: 4, mistral: 2, pages: 20, serper: 7). Recorded 2026-11-19 by Harsh Kodavala. Some calls failed or were refused: see manifest.json.
