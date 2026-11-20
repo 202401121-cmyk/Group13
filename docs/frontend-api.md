@@ -13,7 +13,10 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
   root `.env`; default `http://localhost:3000`, the frontend's dev server). `*` is never allowed. If the browser
   console shows a CORS error, add the page's origin there and restart the backend.
 - **JSON in, JSON out.** Send `Content-Type: application/json`. The backend allows only `GET`, `POST`, `PUT` and
-  `DELETE`, and only the `Content-Type` and `Last-Event-ID` headers. The frontend may read the `Retry-After` header.
+  `DELETE`, and only the `Content-Type`, `Last-Event-ID` and `Authorization` headers. The frontend may read the
+  `Retry-After` header.
+- **Signed in:** send the Supabase access token on every call, as `Authorization: Bearer <access_token>` ([signing
+  in](#signing-in-us-30)). Without one, the shopper is a guest.
 - **Errors** are always `{"detail": "<one plain sentence>"}`, never a stack trace. Show `detail` as it is.
 - **Types:** every request and response is a contract model. The JSON Schemas are in `shared/contracts/schema/`,
   and the TypeScript types are generated from them into `frontend/src/types/contracts/` (`npm ci` does it). Never
@@ -21,7 +24,7 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
 
 ## Every route the backend serves
 
-These sixteen routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). `GET /api/health`
+These nineteen routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). `GET /api/health`
 is for `scripts/dev.py`, to see that the backend is up. The screens do not call `POST /api/search` (they use search runs).
 The brief page's rubric editor (S3-14) calls `POST /api/presearch/{session_id}/rubric` to save the shopper's edits and
 `POST /api/presearch/exclusions/parse` to read leave-outs from their words.
@@ -44,6 +47,9 @@ The brief page's rubric editor (S3-14) calls `POST /api/presearch/{session_id}/r
 | `GET /api/search/runs/{search_id}/events` | The run's progress, live (Server-Sent Events) | none | `text/event-stream` | 204, 404 | [search runs](#following-its-progress) |
 | `DELETE /api/search/runs/{search_id}` | Cancels the run | none | `SearchRun` (202 while it stops) | 404 | [search runs](#cancelling) |
 | `GET /api/search/runs/{search_id}/evidence` | The claims behind one value of a finished run, each with its quote and source | none; query `product_id` and `criterion_key`, both required | `EvidenceResponse` | 404, 409, 422 | [sources behind a value](#sources-behind-a-value-us-21) |
+| `GET /api/me` | Who is signed in: a guest without a token | none | `MeResponse` | 401, 503 | [signing in](#signing-in-us-30) |
+| `GET /api/me/searches` | The signed-in shopper's saved searches, newest first, 20 a page | none; query `cursor` (optional) | `SavedSearchList` | 401, 422, 503 | [signing in](#signing-in-us-30) |
+| `GET /api/me/searches/{id}` | One of the signed-in shopper's saved searches | none | `SearchResult` (`saved: true`) | 401, 404, 503 | [signing in](#signing-in-us-30) |
 
 What each error means:
 
@@ -75,7 +81,7 @@ to cancel it, start a [search run](#search-runs-with-live-progress-us-12) instea
 | Field | Type | Notes |
 |---|---|---|
 | `session_id` | string | The `session_id` from intake (`sess_` and 24 hex characters). Never make one up. |
-| `user_id` | string or `null` | Always `null` until login (Sprint 4). A guest's search is stored only under the anonymous `session_id`, and is never linked to an account. |
+| `user_id` | string or `null` | Leave it out. The backend sets it from the bearer token ([signing in](#signing-in-us-30)): the signed-in shopper's id, or `null` for a guest. A guest's search is stored only under the anonymous `session_id`, and is never linked to an account. `POST /api/search` answers it as set; a search run's result always shows `null`. |
 | `raw_query` | string, 1 to 1,000 characters | The request as the shopper typed it. |
 | `rubric` | `Rubric` | The `rubric` from the interview's `finished` step, unchanged. |
 
@@ -372,7 +378,7 @@ Every error is `{"detail": "<one plain sentence>"}`. Show `detail`, or fall back
 | Status | When | `detail` |
 |---|---|---|
 | 404 | The server has no record of this run: it never existed, the backend restarted since, or it was dropped so long ago that the server forgot it (after 1,000 newer drops) | `We couldn't find that search.` |
-| 404 | The run has been dropped: it ended more than `SEARCH_RUN_KEEP_MINUTES` ago, or newer runs pushed it out | `This search has expired. Run it again to see its sources.` |
+| 404 | The run has been dropped: it ended more than `SEARCH_RUN_KEEP_MINUTES` ago, or newer runs pushed it out. A signed-in shopper's run leaves no such trace, so its ID is never confirmed: it gets the line above, even for its owner. | `This search has expired. Run it again to see its sources.` |
 | 404 | The run was cancelled or failed, so it has no result | `This search has no results to show sources for.` |
 | 404 | `product_id` is not one of the result's products | `This search didn't keep that product.` |
 | 404 | That product has no value for `criterion_key` | `That product has no value for that criterion.` |
@@ -530,6 +536,69 @@ Response 200 (`ExclusionParseResponse`):
 
 The same reader runs in intake's keyword rules, so "best phone under 30k, no Xiaomi" leaves Xiaomi out even when no AI
 model answers. There it reads only phrases that start with one of the words above.
+
+## Signing in (US-30)
+
+The shopper signs in with Google through Supabase Auth, in the browser, using the project's publishable key (D-32).
+The backend never sees a password or a key: it reads the access token the browser sends and checks it against the
+project's public signing keys ([api-setup.md](api-setup.md#supabase-auth-checking-a-sign-in-us-30-p-24)).
+
+- **The header:** `Authorization: Bearer <access_token>`, the session's `access_token` from Supabase. Send it on every
+  call while the shopper is signed in. Supabase refreshes it about once an hour; send the current one.
+- **Every route takes it.** A signed-in shopper's request (`POST /api/presearch/intake`) and finished search
+  (`POST /api/search`, `POST /api/search/runs`) are saved with their account. The backend sets `SearchRequest.user_id`
+  from the token itself and ignores whatever the body says, so leave it out.
+- **A signed-in shopper's search run is theirs alone.** Send the same token on `GET /api/search/runs/{search_id}`,
+  its `/events` stream, its `/evidence` and `DELETE`. Without it, or with another account's, they answer the same 404
+  as an unknown search, never 403. No run state or event ever includes `user_id`. A guest's run works as before, for
+  anyone with its ID. A browser `EventSource` can't send headers, so read a signed-in run's events with `fetch` and the
+  header.
+- **No token, or a bad one, is a guest** on every route but the three below: the search runs, and is saved under its
+  session ID only. A guest's searches are never linked to an account later, even after signing in (D-36).
+
+### GET /api/me
+
+Who the browser is signed in as. `MeResponse`:
+
+- No token: `{"signed_in": false, "user_id": null, "display_name": null}`. No database is needed.
+- A good token: `{"signed_in": true, "user_id": "<uuid>", "display_name": null}`. The first call after signing in
+  makes the shopper's profile; `display_name` stays `null` until they set one.
+
+### GET /api/me/searches
+
+The signed-in shopper's saved searches, newest first, 20 a page. `SavedSearchList`:
+
+```json
+{
+  "items": [
+    {"id": "<uuid>", "created_at": "2026-11-20T08:05:00Z", "request_text": "best laptop for coding under 70k",
+     "category": "laptop", "top_product": "Nova Book 14"}
+  ],
+  "next_cursor": "eyJ0Ijoi..."
+}
+```
+
+- **The next page:** `GET /api/me/searches?cursor=<next_cursor>`. `next_cursor` is `null` on the last page. Treat it
+  as opaque; one this route didn't make answers 422.
+- **`request_text`** is at most 500 characters: a longer request (up to 1,000) ends with "…". Open the search for
+  the whole text (`result.request.raw_query`).
+- **`top_product`** is the first-ranked product's name, and `null` when the ranking scored nothing.
+
+### GET /api/me/searches/{id}
+
+One saved search, as the `SearchResult` it finished with, with `saved: true`. Only the owner gets it. Anyone else's
+id, a guest's, or one that doesn't exist all answer the same 404, so an id is never confirmed. Reddit's words are not
+in it: a saved result never keeps them (D-53).
+
+### Errors on these three routes
+
+| Status | When | `detail` |
+|---|---|---|
+| 401 | The token is expired, from another project, or not valid; also `/api/me/searches` without one. Sign in again. The response has `WWW-Authenticate: Bearer`. | `Your sign-in has expired or isn't valid. Please sign in again.` (no token: `Please sign in to see your saved searches.`) |
+| 404 | That saved search isn't this shopper's, or doesn't exist | `We couldn't find that saved search.` |
+| 422 | The `cursor` wasn't made by this route | `That page link doesn't work. Please start again from the first page.` |
+| 503 | The database is off or down. Searches still work. | `Your account can't be reached right now. Searching still works; please try again in a minute.` |
+| 503 | Sign-in can't be checked (the backend's `SUPABASE_URL` is unset, or the signing keys can't be fetched) | `We can't check sign-ins right now. Please try again in a minute.` |
 
 ## Sprint 2 contracts
 

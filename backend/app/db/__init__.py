@@ -1,9 +1,20 @@
-"""Saving requests and finished searches (US-01, US-52). Optional: with no DATABASE_URL nothing is saved."""
+"""Saving requests and finished searches (US-01, US-52), and a signed-in shopper's own data (US-30).
+
+Optional: with no DATABASE_URL nothing is saved, and the account reads are unavailable.
+"""
 
 from __future__ import annotations
 
 import functools
 
+from .accounts import (
+    AccountStore,
+    AccountsUnavailable,
+    NullAccountStore,
+    PageAfter,
+    SavedSearchRow,
+    UserGone,
+)
 from .aliases import AliasStore, InMemoryAliasStore, PostgresAliasStore, alias_store_for, shared_memory_aliases
 from .breaker import CircuitBreaker
 from .postgres import PostgresRequestStore
@@ -31,7 +42,15 @@ def default_request_store() -> RequestStore:
     return PostgresRequestStore(settings)
 
 
+def default_account_store() -> AccountStore:
+    """The account reads (US-30) share the request store's pool and circuit breaker; unavailable with no database."""
+    store = default_request_store()
+    return store if isinstance(store, PostgresRequestStore) else NullAccountStore()
+
+
 __all__ = [
+    "AccountStore",
+    "AccountsUnavailable",
     "AliasStore",
     "CircuitBreaker",
     "DatabaseSettings",
@@ -39,14 +58,19 @@ __all__ = [
     "InMemoryAliasStore",
     "InMemoryRequestStore",
     "JsonObject",
+    "NullAccountStore",
     "NullRequestStore",
+    "PageAfter",
     "PostgresAliasStore",
     "PostgresRequestStore",
     "RequestRow",
     "RequestStore",
     "SaveOutcome",
+    "SavedSearchRow",
     "SearchRow",
+    "UserGone",
     "alias_store_for",
+    "default_account_store",
     "default_request_store",
     "describe_host",
     "load_settings",

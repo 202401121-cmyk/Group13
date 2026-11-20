@@ -37,6 +37,10 @@ dependencies = [
     "tokenizers==0.23.3",
     "huggingface_hub==1.33.0",
     "numpy==2.4.6",
+    # Checking a signed-in shopper's Supabase access token (US-30, P-24): the signature against the project's JWT
+    # signing keys (ES256 or RS256), expiry, issuer and audience. Pinned exactly after checking PyPI on 20 Nov 2026.
+    "PyJWT[crypto]==2.15.1",
+    "cryptography==50.0.2",
 ]
 # Stories add their own libraries when they need them (for example sentence-transformers,
 # rapidfuzz, pyahocorasick, numpy, slowapi). Add them here in the same pull request.

@@ -8,6 +8,10 @@ waits longer than that for the database, and a failure never raises (build rule 
 - connect_timeout and statement_timeout bound the work inside psycopg as well.
 - After 3 failures in a row the circuit breaker skips the database for 30 seconds (saves fail at once).
 - Logs show the host and the error type only: never the URL, the password, the user name or the request text.
+
+It is also the AccountStore (US-30, app/db/accounts.py): a signed-in shopper's profile and saved searches, read with
+the same pool, time limit and circuit breaker. Every read filters on the user's id. A signed-in shopper's rows are
+inserted with their id; nothing here ever updates user_id (D-36, S4-27).
 """
 
 from __future__ import annotations
@@ -16,16 +20,20 @@ import logging
 import math
 import threading
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
+from typing import TypeVar
+from uuid import UUID
 
-from psycopg import Connection, sql
+from psycopg import Connection, errors, sql
 from psycopg.rows import TupleRow
 from psycopg.types.json import Jsonb
 from psycopg_pool import ConnectionPool
 
 from app.contracts import Intent
 
+from .accounts import AccountsUnavailable, PageAfter, SavedSearchRow, UserGone
 from .breaker import CircuitBreaker
 from .settings import DatabaseSettings, describe_host
 from .store import DbHealth, JsonObject, RequestRow, SaveOutcome, SearchRow, request_row, search_row
@@ -36,8 +44,35 @@ log = logging.getLogger(__name__)
 for _name in ("psycopg", "psycopg.pool"):
     logging.getLogger(_name).setLevel(logging.CRITICAL)
 
-INSERT = "insert into public.requests (session_id, request_text, intent, intent_source) values (%s, %s, %s, %s)"
-INSERT_SEARCH = "insert into public.searches (session_id, rubric, result) values (%s, %s::jsonb, %s::jsonb)"
+INSERT = (
+    "insert into public.requests (session_id, request_text, intent, intent_source, user_id) values (%s, %s, %s, %s, %s)"
+)
+INSERT_SEARCH = (
+    "insert into public.searches (session_id, rubric, result, user_id) values (%s, %s::jsonb, %s::jsonb, %s)"
+)
+# A profile is made at first sign-in, and an existing one is left as it is (US-30).
+INSERT_PROFILE = "insert into public.profiles (id) values (%s) on conflict (id) do nothing"
+SELECT_PROFILE = "select display_name from public.profiles where id = %s"
+# One page of a user's saved searches, newest first. The first-ranked product's name only when the ranking scored it.
+SAVED_SEARCHES = """
+select s.id, s.created_at, s.result #>> '{{request,raw_query}}', s.rubric ->> 'category',
+  (select p #>> '{{product,name}}'
+     from jsonb_array_elements(
+       case jsonb_typeof(s.result -> 'products') when 'array' then s.result -> 'products' else '[]'::jsonb end
+     ) as p
+    where jsonb_typeof(s.result #> '{{decision,ranked,0,score}}') = 'number'
+      and p #>> '{{product,id}}' = s.result #>> '{{decision,ranked,0,product_id}}'
+    limit 1)
+from public.searches as s
+where s.user_id = %s {after}
+order by s.created_at desc, s.id desc
+limit %s
+"""
+FIRST_PAGE = SAVED_SEARCHES.format(after="")
+NEXT_PAGE = SAVED_SEARCHES.format(after="and (s.created_at, s.id) < (%s::timestamptz, %s::uuid)")
+SAVED_SEARCH = "select result from public.searches where id = %s and user_id = %s"
+
+T = TypeVar("T")
 
 
 class PostgresRequestStore:
@@ -55,15 +90,17 @@ class PostgresRequestStore:
     def __repr__(self) -> str:
         return f"PostgresRequestStore(host={self._host!r}, timeout_s={self._timeout_s})"
 
-    def save_request(self, session_id: str, request_text: str, intent: Intent | None) -> SaveOutcome:
+    def save_request(
+        self, session_id: str, request_text: str, intent: Intent | None, user_id: UUID | None = None
+    ) -> SaveOutcome:
         try:
-            row = request_row(session_id, request_text, intent)
+            row = request_row(session_id, request_text, intent, user_id)
         except ValueError:
             log.warning("request not saved: it does not fit the requests table")
             return "failed"
         return "saved" if self._guarded("save", lambda: self._insert(row)) else "failed"
 
-    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject) -> bool:
+    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject, user_id: UUID | None = None) -> bool:
         """Insert one finished search and commit it. True only when the row was committed. Never raises.
 
         `rubric` and `result` are model_dump(mode="json") output: a plain model_dump() holds datetimes and URLs, which
@@ -71,7 +108,7 @@ class PostgresRequestStore:
         DB_TIMEOUT_SECONDS, the store is closed, the insert fails, or the search cannot fit the table.
         """
         try:
-            row = search_row(session_id, rubric, result)
+            row = search_row(session_id, rubric, result, user_id)
         except Exception as exc:  # whatever the caller passed, a failed save must not reach the search
             log.warning("search not saved: it does not fit the searches table (%s)", type(exc).__name__)
             return False
@@ -80,6 +117,17 @@ class PostgresRequestStore:
 
     def health(self) -> DbHealth:
         return "ok" if self._guarded("health check", self._ping) else "down"
+
+    # --- AccountStore (US-30) ----------------------------------------------------------------------------
+
+    def ensure_profile(self, user_id: UUID) -> str | None:
+        return self._read("profile", lambda: self._profile(user_id))
+
+    def saved_searches(self, user_id: UUID, after: PageAfter | None, limit: int) -> list[SavedSearchRow]:
+        return self._read("saved searches", lambda: self._page(user_id, after, limit))
+
+    def saved_search(self, user_id: UUID, search_id: UUID) -> JsonObject | None:
+        return self._read("saved search", lambda: self._one(user_id, search_id))
 
     def close(self) -> None:
         self._close_pool()
@@ -102,6 +150,10 @@ class PostgresRequestStore:
             return False
         try:
             future.result(timeout=self._timeout_s)
+        except UserGone:  # a deleted account's row is refused: the database answered, so it is not a failure
+            self.breaker.record_success()
+            log.warning("database %s refused (host=%s): the account no longer exists", what, self._host)
+            return False
         except Exception as exc:  # a timeout, a refused connection, a bad password, a paused project, ...
             future.cancel()  # if it has not started yet, it never will
             opened = self.breaker.record_failure()
@@ -113,18 +165,69 @@ class PostgresRequestStore:
         self.breaker.record_success()
         return True
 
+    def _read(self, what: str, work: Callable[[], T]) -> T:
+        """Run a read on a worker thread and wait at most DB_TIMEOUT_SECONDS. Raises AccountsUnavailable (or
+        UserGone, which is not a database failure); never anything that names the URL."""
+        if not self.breaker.allow():
+            raise AccountsUnavailable("the circuit breaker is open")
+        try:
+            future = self._workers.submit(work)
+        except RuntimeError:  # the store was closed
+            self.breaker.record_success()
+            raise AccountsUnavailable("the store is closed") from None
+        try:
+            value = future.result(timeout=self._timeout_s)
+        except UserGone:
+            self.breaker.record_success()
+            raise
+        except Exception as exc:  # a timeout, a refused connection, a paused project, ...
+            future.cancel()
+            opened = self.breaker.record_failure()
+            skip = f"; skipping the database for {self.breaker.cooldown_s:g} s" if opened else ""
+            log.warning("database %s read failed (host=%s): %s%s", what, self._host, type(exc).__name__, skip)
+            if opened:
+                self._close_pool()
+            raise AccountsUnavailable(f"the {what} read failed") from None
+        self.breaker.record_success()
+        return value
+
     # --- the work, on a worker thread -------------------------------------------------------------------
 
     def _insert(self, row: RequestRow) -> None:
         intent = Jsonb(row.intent.model_dump(mode="json")) if row.intent is not None else None
-        with self._get_pool().connection(timeout=self._timeout_s) as conn:
-            conn.execute(INSERT, (row.session_id, row.request_text, intent, row.intent_source))
+        with self._get_pool().connection(timeout=self._timeout_s) as conn, _owner_exists():
+            conn.execute(INSERT, (row.session_id, row.request_text, intent, row.intent_source, row.user_id))
 
     def _insert_search(self, row: SearchRow, deadline: float) -> None:
-        with self._get_pool().connection(timeout=self._timeout_s) as conn, conn.transaction():
-            conn.execute(INSERT_SEARCH, (row.session_id, row.rubric, row.result))
+        with self._get_pool().connection(timeout=self._timeout_s) as conn, _owner_exists(), conn.transaction():
+            conn.execute(INSERT_SEARCH, (row.session_id, row.rubric, row.result, row.user_id))
             if time.monotonic() >= deadline:  # the caller has already been told "not saved": keep that true
                 raise TimeoutError("the search save ran past its time limit")
+
+    def _profile(self, user_id: UUID) -> str | None:
+        with self._get_pool().connection(timeout=self._timeout_s) as conn:
+            with _owner_exists():
+                conn.execute(INSERT_PROFILE, (user_id,))
+            found = conn.execute(SELECT_PROFILE, (user_id,)).fetchone()
+        name = found[0] if found is not None else None
+        return name if isinstance(name, str) else None
+
+    def _page(self, user_id: UUID, after: PageAfter | None, limit: int) -> list[SavedSearchRow]:
+        with self._get_pool().connection(timeout=self._timeout_s) as conn:
+            if after is None:
+                rows = conn.execute(FIRST_PAGE, (user_id, limit)).fetchall()
+            else:
+                rows = conn.execute(NEXT_PAGE, (user_id, after.created_at, after.id, limit)).fetchall()
+        return [
+            SavedSearchRow(id=row[0], created_at=row[1], request_text=row[2], category=row[3], top_product=row[4])
+            for row in rows
+        ]
+
+    def _one(self, user_id: UUID, search_id: UUID) -> JsonObject | None:
+        with self._get_pool().connection(timeout=self._timeout_s) as conn:
+            found = conn.execute(SAVED_SEARCH, (search_id, user_id)).fetchone()
+        result = found[0] if found is not None else None
+        return result if isinstance(result, dict) else None
 
     def _ping(self) -> None:
         with self._get_pool().connection(timeout=self._timeout_s) as conn:
@@ -162,3 +265,12 @@ class PostgresRequestStore:
         if pool is not None:
             # Closing waits for the pool's own threads, so do it off the caller's thread.
             threading.Thread(target=pool.close, kwargs={"timeout": 1.0}, daemon=True).start()
+
+
+@contextmanager
+def _owner_exists() -> Iterator[None]:
+    """A row whose user_id is not in auth.users (the account was deleted after its token was issued) is UserGone."""
+    try:
+        yield
+    except errors.ForeignKeyViolation:
+        raise UserGone("no such user") from None

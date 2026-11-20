@@ -119,6 +119,7 @@ and the file name the same ones.
 | `REDDIT_USER_SALT` | A new random value for staging (`python -c "import secrets; print(secrets.token_hex(32))"`). Never the laptop's. | **yes** |
 | `DATABASE_URL` | The Supabase **Session pooler** string, ending in `?sslmode=require` ([database.md](database.md)). The direct connection is IPv6 only. | **yes** |
 | `DB_TIMEOUT_SECONDS` | `2` | no |
+| `SUPABASE_URL` | The project's address, `https://<project-ref>.supabase.co`, with no slash at the end. The backend checks sign-ins against this project's public signing keys (US-30). Empty turns sign-in off: every caller is a guest. | no |
 | `MATCHER` | `model` (see below) | no |
 | `EXTRACT_MAX_SOURCES` | `5` | no |
 | `SEARCH_RUN_WORKERS` | `1` | no |
