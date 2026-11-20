@@ -73,7 +73,7 @@ export function Navbar({
   return (
     <header className="sticky top-4 z-50 px-4">
       <nav
-        className="mx-auto flex max-w-5xl items-center justify-between rounded-full border border-border bg-surface/90 py-2 pl-5 pr-2 shadow-soft backdrop-blur"
+        className="surface-glass mx-auto flex max-w-5xl items-center justify-between rounded-full border border-border/80 py-2 pl-5 pr-2 shadow-[var(--highlight),var(--shadow-soft)]"
         aria-label="Main"
       >
         <div inert={open}>
@@ -101,7 +101,7 @@ export function Navbar({
         </ul>
         <div className="hidden items-center gap-1 md:flex">
           <ThemeToggle />
-          <Link to="/research" className={pillButton({ size: "sm" })}>
+          <Link to="/research" className={cn(pillButton({ size: "sm" }), "sheen")}>
             Get started
           </Link>
         </div>
@@ -123,7 +123,7 @@ export function Navbar({
       {open && (
         <div
           ref={panel}
-          className="mx-auto mt-2 max-h-[calc(100dvh-6rem)] max-w-5xl overflow-y-auto rounded-2xl border border-border bg-surface p-3 shadow-soft md:hidden"
+          className="animate-menu mx-auto mt-2 max-h-[calc(100dvh-6rem)] max-w-5xl overflow-y-auto rounded-3xl border border-border bg-popover p-3 shadow-[var(--highlight),var(--shadow-float)] md:hidden"
         >
           {links.map((l) => (
             <Link

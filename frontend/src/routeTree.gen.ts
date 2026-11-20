@@ -11,12 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CriteriaRouteImport } from './routes/criteria'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResearchRouteImport } from './routes/research'
+import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as MySearchesIndexRouteImport } from './routes/my-searches.index'
 import { Route as MySearchesSearchIdRouteImport } from './routes/my-searches.$searchId'
 import { Route as SSessionIdBriefRouteImport } from './routes/s.$sessionId.brief'
@@ -32,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -62,6 +69,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const ResearchRoute = ResearchRouteImport.update({
   id: '/research',
   path: '/research',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MySearchesIndexRoute = MySearchesIndexRouteImport.update({
@@ -98,12 +110,14 @@ const SSessionIdResultsRoute = SSessionIdResultsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/contact': typeof ContactRoute
   '/criteria': typeof CriteriaRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
+  '/sign-in': typeof SignInRoute
   '/my-searches/$searchId': typeof MySearchesSearchIdRoute
   '/my-searches/': typeof MySearchesIndexRoute
   '/s/$sessionId/brief': typeof SSessionIdBriefRoute
@@ -114,12 +128,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/contact': typeof ContactRoute
   '/criteria': typeof CriteriaRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
+  '/sign-in': typeof SignInRoute
   '/my-searches/$searchId': typeof MySearchesSearchIdRoute
   '/my-searches': typeof MySearchesIndexRoute
   '/s/$sessionId/brief': typeof SSessionIdBriefRoute
@@ -131,12 +147,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRoute
   '/contact': typeof ContactRoute
   '/criteria': typeof CriteriaRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
+  '/sign-in': typeof SignInRoute
   '/my-searches/$searchId': typeof MySearchesSearchIdRoute
   '/my-searches/': typeof MySearchesIndexRoute
   '/s/$sessionId/brief': typeof SSessionIdBriefRoute
@@ -149,12 +167,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/account'
     | '/contact'
     | '/criteria'
     | '/faq'
     | '/features'
     | '/privacy'
     | '/research'
+    | '/sign-in'
     | '/my-searches/$searchId'
     | '/my-searches/'
     | '/s/$sessionId/brief'
@@ -165,12 +185,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/account'
     | '/contact'
     | '/criteria'
     | '/faq'
     | '/features'
     | '/privacy'
     | '/research'
+    | '/sign-in'
     | '/my-searches/$searchId'
     | '/my-searches'
     | '/s/$sessionId/brief'
@@ -181,12 +203,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/account'
     | '/contact'
     | '/criteria'
     | '/faq'
     | '/features'
     | '/privacy'
     | '/research'
+    | '/sign-in'
     | '/my-searches/$searchId'
     | '/my-searches/'
     | '/s/$sessionId/brief'
@@ -198,12 +222,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AccountRoute: typeof AccountRoute
   ContactRoute: typeof ContactRoute
   CriteriaRoute: typeof CriteriaRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
   PrivacyRoute: typeof PrivacyRoute
   ResearchRoute: typeof ResearchRoute
+  SignInRoute: typeof SignInRoute
   MySearchesSearchIdRoute: typeof MySearchesSearchIdRoute
   MySearchesIndexRoute: typeof MySearchesIndexRoute
   SSessionIdBriefRoute: typeof SSessionIdBriefRoute
@@ -226,6 +252,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -268,6 +301,13 @@ declare module '@tanstack/react-router' {
       path: '/research'
       fullPath: '/research'
       preLoaderRoute: typeof ResearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-searches/': {
@@ -318,12 +358,14 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AccountRoute: AccountRoute,
   ContactRoute: ContactRoute,
   CriteriaRoute: CriteriaRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
   PrivacyRoute: PrivacyRoute,
   ResearchRoute: ResearchRoute,
+  SignInRoute: SignInRoute,
   MySearchesSearchIdRoute: MySearchesSearchIdRoute,
   MySearchesIndexRoute: MySearchesIndexRoute,
   SSessionIdBriefRoute: SSessionIdBriefRoute,

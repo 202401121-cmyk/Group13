@@ -12,25 +12,29 @@ import { Suspense, lazy, useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { SHELL_FONTS } from "@/lib/fonts";
+import { LostPage } from "@/components/shopsense/LostPage";
+
+const primary =
+  "shopsense-button primary-button sheen inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-transparent bg-primary px-6 text-sm font-medium text-primary-foreground shadow-soft";
+const secondary =
+  "shopsense-button inline-flex min-h-11 items-center justify-center rounded-full border border-border bg-card px-6 text-sm font-medium text-foreground hover:border-primary/50";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="font-serif text-4xl text-foreground">We can't find that page</h1>
-        <p className="mt-3 text-muted-foreground">
-          It may have moved, or the address may be wrong.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex min-h-11 items-center justify-center rounded-md border border-transparent bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
+    <LostPage
+      title="We can't find that page"
+      text="It may have moved, or the address may be wrong."
+      actions={
+        <>
+          <Link to="/" className={primary}>
             Go home
           </Link>
-        </div>
-      </div>
-    </div>
+          <Link to="/research" className={secondary}>
+            Start a search
+          </Link>
+        </>
+      }
+    />
   );
 }
 
@@ -39,33 +43,26 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+    <LostPage
+      title="This page didn't load"
+      text="Something went wrong on our end. You can try again, or head back home."
+      actions={
+        <>
           <button
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="inline-flex min-h-11 items-center justify-center rounded-md border border-transparent bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className={primary}
           >
             Try again
           </button>
-          <a
-            href="/"
-            className="inline-flex min-h-11 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
+          <a href="/" className={secondary}>
             Go home
           </a>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }
 

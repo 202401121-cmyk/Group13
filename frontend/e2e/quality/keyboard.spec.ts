@@ -14,6 +14,7 @@ import {
   reachQuestions,
   reachUnderstood,
   waitForHydration,
+  signInTo,
 } from "./helpers";
 
 function problems(stops: FocusStop[]): string[] {
@@ -122,6 +123,33 @@ test.describe("keyboard only", () => {
       await walkBothWays(page, `what we understood (${px})`);
       await reachQuestions(page);
       await walkBothWays(page, `questions (${px})`);
+    });
+  }
+
+  for (const size of [
+    { width: 1280, height: 720 },
+    { width: 390, height: 844 },
+  ]) {
+    const px = `${size.width}x${size.height}`;
+    test(`focus is visible on the sign-in, account and information pages at ${px}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(size);
+      for (const [path, label] of [
+        ["/sign-in", "sign-in"],
+        ["/features", "features"],
+        ["/faq", "faq"],
+        ["/contact", "contact"],
+        ["/about", "about"],
+      ] as const) {
+        await page.goto(path);
+        await walkBothWays(page, `${label} (${px})`);
+      }
+      await signInTo(page, "/account");
+      await walkBothWays(page, `profile (${px})`);
+      await page.goto("/my-searches");
+      await expect(page.getByRole("main").getByRole("listitem").first()).toBeVisible();
+      await walkBothWays(page, `my searches (${px})`);
     });
   }
 

@@ -9,7 +9,12 @@ import { reloadHere, signInErrorFromAddress, stateHolder } from "./shared";
 import { returnPath, type AuthService, type AuthUser } from "./types";
 
 export const MOCK_SESSION_KEY = "shopsense.auth.mock";
-export const MOCK_USER: AuthUser = { id: "6f1c2b8e-3d4a-4f5b-9c7d-2e1a0b9c8d7e", name: "Asha" };
+export const MOCK_USER: AuthUser = {
+  id: "6f1c2b8e-3d4a-4f5b-9c7d-2e1a0b9c8d7e",
+  name: "Asha",
+  email: "asha@example.test",
+  since: Date.parse("2026-11-03T09:00:00Z"),
+};
 export const MOCK_SESSION_MS = 60 * 60 * 1000; // an hour, as a Supabase access token
 const MOCK_TOKEN = "mock-access-token";
 

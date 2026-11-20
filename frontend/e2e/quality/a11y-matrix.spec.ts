@@ -37,10 +37,10 @@ test.describe("audit matrix: axe in light and dark mode", () => {
   test("information pages", async ({ page }) => {
     for (const [path, row] of [
       ["/", "home"],
-      ["/about", "about (coming soon)"],
-      ["/contact", "contact (coming soon)"],
-      ["/faq", "faq (coming soon)"],
-      ["/features", "features (coming soon)"],
+      ["/about", "about"],
+      ["/contact", "contact"],
+      ["/faq", "faq"],
+      ["/features", "features"],
       ["/privacy", "privacy"],
       ["/criteria", "old criteria link, no brief"],
       ["/no-such-page", "page not found"],

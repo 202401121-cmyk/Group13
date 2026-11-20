@@ -8,7 +8,7 @@
  */
 import { expect, test, type Page } from "@playwright/test";
 import { clippedText, horizontalOverflow } from "./layout";
-import { finishResearch, reachBrief, reachQuestions, reachUnderstood } from "./helpers";
+import { finishResearch, reachBrief, reachQuestions, reachUnderstood, signInTo } from "./helpers";
 
 const TEXT_SPACING = `
   * { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; }
@@ -40,6 +40,23 @@ async function everyScreen(page: Page, mode: string) {
   await expect(page.getByRole("heading", { level: 1, name: /Results for your/ })).toBeVisible();
   for (const s of await page.locator("summary").all()) await s.click();
   await check(page, `results, ${mode}`);
+
+  for (const [path, label] of [
+    ["/sign-in", "sign-in"],
+    ["/features", "features"],
+    ["/faq", "faq"],
+    ["/contact", "contact"],
+    ["/about", "about"],
+    ["/no-such-page", "page not found"],
+  ] as const) {
+    await page.goto(path);
+    await check(page, `${label}, ${mode}`);
+  }
+  await signInTo(page, "/account");
+  await check(page, `profile, ${mode}`);
+  await page.goto("/my-searches");
+  await expect(page.getByRole("main").getByRole("listitem").first()).toBeVisible();
+  await check(page, `my searches, ${mode}`);
 }
 
 test.describe("zoom and text spacing", () => {

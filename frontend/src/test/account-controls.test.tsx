@@ -13,13 +13,39 @@ import { setAuthServiceForTests } from "@/lib/auth/service";
 import { SIGN_IN_FAILED, type AuthService, type AuthState } from "@/lib/auth/types";
 
 vi.mock("@tanstack/react-router", () => ({
-  Link: ({ to, children, className }: { to: string; children: ReactNode; className?: string }) => (
-    <a href={to} className={className}>
+  Link: ({
+    to,
+    search,
+    children,
+    className,
+    role,
+    onClick,
+  }: {
+    to: string;
+    search?: Record<string, string>;
+    children: ReactNode;
+    className?: string;
+    role?: string;
+    onClick?: () => void;
+  }) => (
+    <a
+      href={search ? `${to}?${new URLSearchParams(search).toString()}` : to}
+      className={className}
+      role={role}
+      onClick={(e) => {
+        e.preventDefault(); // no page to go to in the test
+        onClick?.();
+      }}
+    >
       {children}
     </a>
   ),
   useRouterState: () => "/privacy?x=1",
 }));
+
+function link(name: string): HTMLAnchorElement | undefined {
+  return [...document.querySelectorAll("a")].find((a) => (a.textContent ?? "").trim() === name);
+}
 
 let root: Root | null = null;
 
@@ -88,38 +114,131 @@ function fakeAccount(me: AccountService["me"]) {
 const user = (id: string, name: string | null = "Asha Rao") => ({ id, name });
 
 describe("the navigation's sign-in", () => {
-  it("is signed out by default: a Sign in button that comes back to this page", async () => {
-    const auth = fakeAuth({ status: "guest" });
+  it("is signed out by default: Sign in opens the sign-in page, coming back to this page", async () => {
+    fakeAuth({ status: "guest" });
     await render(<AccountControls layout="bar" />);
-    act(() => button("Sign in")!.click());
-    expect(auth.signIn).toHaveBeenCalledWith("/privacy?x=1");
-    expect(button(/Sign out/)).toBeUndefined();
+    expect(link("Sign in")?.getAttribute("href")).toBe("/sign-in?next=%2Fprivacy%3Fx%3D1");
+    expect(button(/account menu/)).toBeUndefined();
   });
 
-  it("signed in: the name Google gave, and Sign out", async () => {
+  it("signed in: the shopper's menu, with the name Google gave, their places and Sign out", async () => {
     fakeAccount(async () => ({ signedIn: true, displayName: null }));
-    const auth = fakeAuth({ status: "signedIn", user: user("a1") });
+    const auth = fakeAuth({
+      status: "signedIn",
+      user: { ...user("a1"), email: "asha@example.test" },
+    });
     const host = await render(<AccountControls layout="bar" />);
-    expect(host.textContent).toContain("Asha Rao");
-    act(() => button(/^Sign out/)!.click());
+    const menuButton = button("Asha Rao") ?? document.querySelector<HTMLButtonElement>("button");
+    expect(menuButton?.getAttribute("aria-label")).toBe("Asha Rao, account menu");
+    expect(menuButton?.getAttribute("aria-expanded")).toBe("false");
+    act(() => menuButton!.click());
+    expect(menuButton?.getAttribute("aria-expanded")).toBe("true");
+    const menu = host.querySelector('[role="menu"]');
+    expect(menu?.textContent).toContain("asha@example.test");
+    const items = [...(menu?.querySelectorAll('[role="menuitem"]') ?? [])].map((i) =>
+      i.textContent?.trim(),
+    );
+    expect(items).toEqual(["My searches", "Your profile", "Privacy", "Sign out"]);
+    expect(document.activeElement?.textContent?.trim()).toBe("My searches"); // focus moved into the menu
+    act(() => (menu!.querySelector('button[role="menuitem"]') as HTMLButtonElement).click());
     expect(auth.signOut).toHaveBeenCalledWith("/privacy?x=1");
-    expect(button("Sign in")).toBeUndefined();
   });
 
-  it("the profile's display name wins, and the menu has My searches", async () => {
+  it("the menu closes with Escape and gives focus back to its button", async () => {
+    fakeAccount(async () => ({ signedIn: true, displayName: null }));
+    fakeAuth({ status: "signedIn", user: user("e1") });
+    const host = await render(<AccountControls layout="bar" />);
+    const menuButton = document.querySelector<HTMLButtonElement>("button[aria-haspopup]")!;
+    act(() => menuButton.click());
+    const menu = host.querySelector<HTMLElement>('[role="menu"]')!;
+    act(() => {
+      menu.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+    });
+    expect(document.activeElement?.textContent?.trim()).toBe("Your profile");
+    act(() => {
+      menu.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
+    });
+    expect(document.activeElement?.textContent?.trim()).toBe("Sign out");
+    act(() => {
+      menu.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    });
+    expect(host.querySelector('[role="menu"]')).toBeNull();
+    expect(document.activeElement).toBe(menuButton);
+  });
+
+  it("Up opens the menu on its last item, Home goes to the first, and Tab closes it from the button", async () => {
+    fakeAccount(async () => ({ signedIn: true, displayName: null }));
+    fakeAuth({ status: "signedIn", user: user("t1") });
+    const host = await render(<AccountControls layout="bar" />);
+    const menuButton = document.querySelector<HTMLButtonElement>("button[aria-haspopup]")!;
+    menuButton.focus();
+    act(() => {
+      menuButton.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
+    });
+    expect(document.activeElement?.textContent?.trim()).toBe("Sign out");
+    const menu = host.querySelector<HTMLElement>('[role="menu"]')!;
+    act(() => {
+      menu.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true }));
+    });
+    expect(document.activeElement?.textContent?.trim()).toBe("My searches");
+    act(() => {
+      menu.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+    });
+    expect(host.querySelector('[role="menu"]')).toBeNull();
+    // Focus is back on the button, so the browser's Tab moves on from there.
+    expect(document.activeElement).toBe(menuButton);
+  });
+
+  it("choosing a place closes the menu and gives focus back to its button", async () => {
+    fakeAccount(async () => ({ signedIn: true, displayName: null }));
+    fakeAuth({ status: "signedIn", user: user("p1") });
+    const host = await render(<AccountControls layout="bar" />);
+    const menuButton = document.querySelector<HTMLButtonElement>("button[aria-haspopup]")!;
+    act(() => menuButton.click());
+    act(() => link("Your profile")!.click());
+    expect(host.querySelector('[role="menu"]')).toBeNull();
+    expect(document.activeElement).toBe(menuButton);
+  });
+
+  it("a click outside closes the menu; a click on the shopper's name inside keeps it open", async () => {
+    fakeAccount(async () => ({ signedIn: true, displayName: null }));
+    fakeAuth({ status: "signedIn", user: { ...user("o1"), email: "asha@example.test" } });
+    const host = await render(<AccountControls layout="bar" />);
+    const menuButton = document.querySelector<HTMLButtonElement>("button[aria-haspopup]")!;
+    act(() => menuButton.click());
+    const email = [...host.querySelectorAll('[role="menu"] p')].find(
+      (p) => p.textContent === "asha@example.test",
+    )!;
+    const down = new MouseEvent("mousedown", { bubbles: true, cancelable: true });
+    act(() => {
+      email.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+      email.dispatchEvent(down);
+    });
+    expect(down.defaultPrevented).toBe(true); // focus stays in the menu
+    expect(host.querySelector('[role="menu"]')).not.toBeNull();
+    act(() => {
+      document.body.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    });
+    expect(host.querySelector('[role="menu"]')).toBeNull();
+  });
+
+  it("the profile's display name wins, and the small-screen menu has My searches and the profile", async () => {
     fakeAccount(async () => ({ signedIn: true, displayName: "Asha R." }));
     fakeAuth({ status: "signedIn", user: user("b1") });
     const host = await render(<AccountControls layout="panel" />);
     expect(host.textContent).toContain("Asha R.");
-    const link = [...host.querySelectorAll("a")].find((a) => a.textContent === "My searches");
-    expect(link?.getAttribute("href")).toBe("/my-searches");
+    expect(link("My searches")?.getAttribute("href")).toBe("/my-searches");
+    expect(link("Your profile")?.getAttribute("href")).toBe("/account");
+    expect(button("Sign out")).toBeDefined();
   });
 
   it("with no name at all: Your account", async () => {
     fakeAccount(async () => ({ signedIn: true, displayName: null }));
     fakeAuth({ status: "signedIn", user: user("c1", null) });
-    const host = await render(<AccountControls layout="bar" />);
-    expect(host.textContent).toContain("Your account");
+    await render(<AccountControls layout="bar" />);
+    expect(document.querySelector("button")?.getAttribute("aria-label")).toBe(
+      "Your account, account menu",
+    );
   });
 
   it("a session the backend refuses (401) falls back to a guest", async () => {
@@ -129,13 +248,13 @@ describe("the navigation's sign-in", () => {
     const auth = fakeAuth({ status: "signedIn", user: user("d1") });
     await render(<AccountControls layout="bar" />);
     expect(auth.dropSession).toHaveBeenCalled();
-    expect(button("Sign in")).toBeDefined();
+    expect(link("Sign in")).toBeDefined();
   });
 
-  it("shows no button while the session is read", async () => {
+  it("shows no control while the session is read", async () => {
     fakeAuth({ status: "loading" });
     await render(<AccountControls layout="bar" />);
-    expect(document.querySelectorAll("button")).toHaveLength(0);
+    expect(document.querySelectorAll("button, a")).toHaveLength(0);
   });
 
   it("has no sign-in at all without Supabase settings", async () => {

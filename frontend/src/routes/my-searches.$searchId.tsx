@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Bookmark } from "lucide-react";
 import { PageShell } from "@/components/shopsense/PageShell";
 import { PillButton } from "@/components/shopsense/ui";
 import { pillButton } from "@/components/shopsense/pill-button";
@@ -28,7 +28,7 @@ function SavedSearchRoute() {
   const state = useAuth();
   return (
     <PageShell>
-      <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6">
+      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 md:py-20">
         <Link
           to="/my-searches"
           className={`${pillButton({ variant: "ghost", size: "sm" })} -ml-4 min-h-11`}
@@ -137,9 +137,14 @@ function Saved({ searchId }: { searchId: string }) {
         heading={`Results for your ${inSentence(keyInWords(saved.category))}`}
         sessionId={null}
         before={
-          <p className="mt-3 break-words text-muted-foreground">
-            Saved {savedAt(saved.finishedAt)}. You asked: “{saved.request}”
-          </p>
+          <div className="surface-raised mt-5 flex items-start gap-3 rounded-2xl p-4">
+            <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary-soft-foreground">
+              <Bookmark className="h-4 w-4" aria-hidden />
+            </span>
+            <p className="break-words text-muted-foreground">
+              Saved {savedAt(saved.finishedAt)}. You asked: “{saved.request}”
+            </p>
+          </div>
         }
       />
     </div>

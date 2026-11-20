@@ -1,5 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, MessageSquareText, Scale, ShieldCheck, Link2, Tag, Split } from "lucide-react";
+import {
+  ArrowRight,
+  Link2,
+  MessageSquareText,
+  Quote,
+  Scale,
+  ShieldCheck,
+  Split,
+  Tag,
+} from "lucide-react";
 import { PageShell } from "@/components/shopsense/PageShell";
 import { Badge, SectionHeading } from "@/components/shopsense/ui";
 import { pillButton } from "@/components/shopsense/pill-button";
@@ -7,8 +16,10 @@ import { Typewriter } from "@/components/shopsense/Typewriter";
 import { useState } from "react";
 import { ResearchInput } from "@/components/shopsense/ResearchInput";
 import { ResearchPipeline } from "@/components/shopsense/ResearchPipeline";
+import { EvidenceGraph } from "@/components/shopsense/EvidenceGraph";
 import { useVisualMotion } from "@/hooks/useVisualMotion";
 import { HERO_FONTS, RUPEE_FONTS } from "@/lib/fonts";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -56,6 +67,79 @@ const assurances = [
   { icon: Split, value: "Trade-offs", label: "stated, not hidden" },
 ];
 
+/** What ShopSense reads: the kinds of source, and the review sites it reads directly (config/research.yaml). */
+const SOURCES = [
+  "Reddit threads",
+  "Video reviews",
+  "Store listings",
+  "Makers' own pages",
+  "RTINGS",
+  "GSMArena",
+  "Notebookcheck",
+  "Gadgets 360",
+  "Digit",
+  "91mobiles",
+  "Smartprix",
+];
+
+function SourceList() {
+  return (
+    <ul className="mx-auto flex max-w-4xl flex-wrap justify-center gap-2.5 px-6">
+      {SOURCES.map((s) => (
+        <li
+          key={s}
+          className="rounded-full border border-border bg-card px-4 py-2 text-sm text-foreground shadow-[var(--highlight)] transition-colors hover:border-primary/50"
+        >
+          {s}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** A result's value with its receipt: the claim, the exact quote and where it came from (an illustration). */
+function Receipt() {
+  return (
+    <div
+      role="img"
+      aria-label="An illustration: a battery life value, with the quote and the source behind it"
+      data-motion-loop
+      className="relative mx-auto w-full max-w-md"
+    >
+      <div aria-hidden className="surface-raised rounded-3xl p-6">
+        <p className="font-mono text-[11px] tracking-[0.14em] text-muted-foreground uppercase">
+          Nova Book 14 · Battery life
+        </p>
+        <div className="mt-3 flex items-end justify-between">
+          <p className="font-serif text-4xl text-foreground">11 h 40 m</p>
+          <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-medium text-primary-soft-foreground">
+            3 sources agree
+          </span>
+        </div>
+        <div className="mt-4 h-2 overflow-hidden rounded-full bg-secondary">
+          <div className="h-full w-[88%] rounded-full bg-primary" />
+        </div>
+      </div>
+      <div
+        aria-hidden
+        className="animate-float surface-raised relative -mt-3 ml-8 mr-[-1rem] rounded-3xl border-l-4 border-l-primary p-6 sm:ml-14"
+      >
+        <Quote className="h-5 w-5 text-primary" />
+        <p className="mt-3 font-serif text-lg leading-snug text-foreground">
+          “On our standard browsing test it lasted eleven hours and forty minutes, well past a full
+          workday.”
+        </p>
+        <div className="mt-4 flex items-center justify-between gap-3 text-sm">
+          <span className="text-muted-foreground">Expert review · checked today</span>
+          <span className="rounded-full bg-secondary px-2.5 py-1 text-xs text-secondary-foreground">
+            Source kept
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Index() {
   const motionRef = useVisualMotion<HTMLDivElement>();
   const [heroDone, setHeroDone] = useState(false);
@@ -69,16 +153,17 @@ function Index() {
             data-motion-loop
             aria-hidden
           />
+          <div className="bg-blueprint pointer-events-none absolute inset-0" aria-hidden />
           <div
             className="pointer-events-none absolute inset-0 bg-grain opacity-[0.04]"
             aria-hidden
           />
-          <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-24 md:pt-32">
-            <div className="max-w-3xl">
+          <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-6 pb-16 pt-20 md:pt-28 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
+            <div className="max-w-2xl">
               <Badge>AI-POWERED SHOPPING RESEARCH</Badge>
               <Typewriter
                 as="h1"
-                className="mt-8 font-serif text-5xl leading-[1.05] tracking-[-0.015em] text-foreground sm:text-6xl md:text-7xl"
+                className="mt-8 font-serif text-5xl leading-[1.03] tracking-[-0.02em] text-foreground sm:text-6xl md:text-7xl"
                 speed={55}
                 onDone={() => setHeroDone(true)}
                 segments={[
@@ -96,12 +181,34 @@ function Index() {
                 ]}
               />
               <div className="mt-10 flex flex-wrap items-center gap-3">
-                <a href="#start" className={pillButton({ size: "lg" })}>
+                <a href="#start" className={cn(pillButton({ size: "lg" }), "sheen")}>
                   Start researching <ArrowRight className="h-4 w-4" />
                 </a>
                 <a href="#how" className={pillButton({ variant: "link", size: "lg" })}>
                   See how it works <ArrowRight className="h-4 w-4" />
                 </a>
+              </div>
+            </div>
+            <div className="relative">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -inset-6 rounded-[2.5rem] bg-[radial-gradient(60%_60%_at_50%_45%,color-mix(in_oklab,var(--primary)_22%,transparent),transparent_70%)] blur-2xl"
+              />
+              <div className="bg-ink-glow relative overflow-hidden rounded-[2rem] border border-ink-border p-5 shadow-float sm:p-7">
+                <div
+                  className="bg-blueprint pointer-events-none absolute inset-0 opacity-40"
+                  aria-hidden
+                />
+                <div className="relative mb-2 flex flex-wrap items-center gap-1.5" aria-hidden>
+                  <span className="h-2.5 w-2.5 rounded-full bg-ink-dot" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-ink-dot" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-ink-dot" />
+                  <span className="ml-3 min-w-0 font-mono text-[11px] tracking-[0.14em] text-ink-muted uppercase">
+                    {/* The ₹ in Geist: Geist Mono has no small rupee file (fonts.spec.ts). */}
+                    Laptop for coding · <span className="font-sans">₹</span>70,000
+                  </span>
+                </div>
+                <EvidenceGraph className="relative" />
               </div>
             </div>
           </div>
@@ -111,7 +218,7 @@ function Index() {
                 <div
                   key={a.value}
                   data-reveal
-                  className="interactive-card grid grid-cols-[2.5rem_1fr] items-center gap-x-4 gap-y-1 rounded-2xl border border-border bg-card p-6 shadow-soft"
+                  className="interactive-card surface-raised grid grid-cols-[2.5rem_1fr] items-center gap-x-4 gap-y-1 rounded-2xl p-6"
                 >
                   {/* A div in a <dl> may hold only <dt> then <dd>: the grid shows the value first. */}
                   <dt className="col-start-2 row-start-2 font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
@@ -131,6 +238,20 @@ function Index() {
                 </div>
               ))}
             </dl>
+          </div>
+        </section>
+
+        <section aria-labelledby="reads-title" className="py-14">
+          <div className="mx-auto max-w-6xl px-6">
+            <h2
+              id="reads-title"
+              className="text-center font-mono text-xs tracking-[0.14em] text-muted-foreground uppercase"
+            >
+              What ShopSense reads for you
+            </h2>
+          </div>
+          <div className="mt-6">
+            <SourceList />
           </div>
         </section>
 
@@ -166,7 +287,7 @@ function Index() {
                 <li
                   key={s.title}
                   data-reveal
-                  className="interactive-card group relative flex flex-col rounded-2xl border border-border bg-card p-7 shadow-soft"
+                  className="interactive-card surface-raised group relative flex flex-col rounded-2xl p-7"
                 >
                   <div className="flex items-center justify-between">
                     <span className="grid h-11 w-11 place-items-center rounded-full border border-border bg-primary-soft text-primary-soft-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
@@ -191,7 +312,31 @@ function Index() {
           </div>
         </section>
 
-        <section id="start" data-reveal className="mx-auto max-w-4xl px-6 py-20">
+        <section aria-labelledby="receipts-title" className="mx-auto max-w-6xl px-6 py-24">
+          <div className="grid items-center gap-14 lg:grid-cols-2">
+            <div data-reveal>
+              <p className="font-mono text-xs tracking-[0.14em] text-muted-foreground uppercase">
+                Evidence, not adjectives
+              </p>
+              <h2
+                id="receipts-title"
+                className="mt-3 font-serif text-4xl leading-tight text-foreground md:text-5xl"
+              >
+                Every fact comes with its receipt
+              </h2>
+              <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
+                Click any value on a result to see the exact words behind it and the page they came
+                from. When sources disagree, you see both sides. When we can't find a value, we say
+                so.
+              </p>
+            </div>
+            <div data-reveal>
+              <Receipt />
+            </div>
+          </div>
+        </section>
+
+        <section id="start" data-reveal className="mx-auto max-w-4xl px-6 pb-20 pt-4">
           <ResearchInput />
         </section>
       </div>
