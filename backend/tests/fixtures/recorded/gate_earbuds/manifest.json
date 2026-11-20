@@ -3,43 +3,41 @@
   "request": "wireless earbuds for the gym under 3000 rupees",
   "runs": 1,
   "budget": {
-    "groq": 12,
-    "gemini": 8,
+    "groq": 14,
+    "gemini": 10,
     "mistral": 4,
     "openrouter": 0,
     "cerebras": 0,
-    "serper": 7,
+    "serper": 0,
     "youtube": 0,
     "reddit": 0,
     "jina": 0,
-    "pages": 24
+    "pages": 0
   },
   "calls": {
-    "groq": 7,
-    "gemini": 8,
-    "mistral": 2,
-    "serper": 7,
-    "pages": 17
+    "groq": 4,
+    "gemini": 9,
+    "mistral": 2
   },
   "refused": {
-    "the jina budget of 0 is spent": 1,
-    "the serper budget of 7 is spent": 8
+    "the serper budget of 0 is spent": 7
   },
   "problems": [
-    "groq call failed: ConnectTimeout",
+    "mistral call failed: ReadTimeout",
+    "gemini call failed: ReadTimeout",
     "mistral call failed: ReadTimeout",
     "gemini call failed: ReadTimeout",
     "gemini call failed: ReadTimeout",
     "gemini call failed: ReadTimeout",
     "gemini call failed: ReadTimeout",
     "gemini call failed: ReadTimeout",
-    "pages call answered 403",
-    "gemini call answered 503",
+    "gemini call failed: ReadTimeout",
+    "gemini call failed: ReadTimeout",
     "groq call answered 429",
-    "refused 1: the jina budget of 0 is spent",
-    "refused 8: the serper budget of 7 is spent"
+    "groq call answered 429",
+    "refused 7: the serper budget of 0 is spent"
   ],
-  "recorded_at": "2026-11-19T05:54:52+00:00",
+  "recorded_at": "2026-11-20T07:47:51+00:00",
   "recorded_by": "Harsh Kodavala",
   "expected_products": [
     "LG TONE-FREE FN7",
@@ -49,5 +47,45 @@
     "OnePlus Nord Buds 3r",
     "realme Buds T300"
   ],
-  "expected_note": "Expected products listed by hand by Harsh Kodavala, 20 Nov 2026"
+  "expected_note": "Expected products listed by hand by Harsh Kodavala, 20 Nov 2026",
+  "expected_pages": [
+    {
+      "title": "Amazon.in: Buy TWS Earbuds Buying Guide For Indian Consumers: Everything You Need to Know Before You Buy TWS Earbuds Book Online at Low Prices in India | TWS Earbuds Buying Guide For Indian Consumers: Everything You Need to Know Before You Buy TWS Earbuds Reviews & Ratings",
+      "url": "https://www.amazon.in/Earbuds-Buying-Guide-Indian-Consumers/dp/B0DYZ625PF",
+      "products": []
+    },
+    {
+      "title": "The 5 Best Earbuds For Working Out - Black Friday 2026",
+      "url": "https://www.rtings.com/headphones/reviews/best/earbuds-for-working-out",
+      "products": []
+    },
+    {
+      "title": "Here's Everything You Need to Know Before Buying EarBuds | | LG India",
+      "url": "https://www.lg.com/in/magazine/heres-everything-you-need-to-know-before-buying-headphones/?srsltid=AYCX9vJVV1y8XSA1lhBAneEUWcS7h1zKgmbrzMPdVZdr-Yx23oHTOSXF",
+      "products": [
+        "LG TONE-FREE FN7"
+      ]
+    },
+    {
+      "title": "The 5 Best Earbuds For Working Out - Black Friday 2026",
+      "url": "https://www.rtings.com/headphones/reviews/best/earbuds-for-working-out",
+      "products": []
+    },
+    {
+      "title": "Earbuds Under 3,000 in India (Nov 2026) | 91mobiles.com",
+      "url": "https://www.91mobiles.com/list-of-earbuds/earbuds-under-3000-in-india",
+      "products": [
+        "realme Buds T200",
+        "realme Buds T310",
+        "realme Buds T200x",
+        "OnePlus Nord Buds 3r",
+        "realme Buds T300"
+      ]
+    }
+  ],
+  "pages_recorded_at": "2026-11-19T05:54:52+00:00",
+  "pages_calls": {
+    "serper": 7,
+    "pages": 17
+  }
 }

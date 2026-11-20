@@ -40,8 +40,8 @@ from .settings import ExtractSettings
 SYSTEM_PROMPT = f"""You read one source about products and report what it says. You never judge, rank or recommend.
 
 Fill in:
-- mentions: at most 15. Each product the source names, as written. is_product is true for a product someone can buy,
-  such as "Nova Book 14", and false for a kind of product, such as "memory foam".
+- mentions: every product the source names, up to 60, just its name: "Nova Book 14". A kind of product as
+  {{"raw_name": "memory foam", "is_product": false}}.
 - claims: at most 10, the most useful ones. Each is one statement about one product or kind of product, on one of the
   criteria listed in the message:
   - product_mention: its name, as written in the source.
@@ -55,7 +55,7 @@ Fill in:
   - polarity: positive, negative or neutral.
 
 Leave out any field you do not use. If no listed criterion fits a statement, leave that statement out. Never guess.
-If the source says nothing useful, return empty lists.
+If it names no product and says nothing useful, return empty lists.
 
 {DATA_RULE}"""
 
@@ -69,7 +69,7 @@ If the source says nothing useful, return empty lists.
 BASE_CLAIMS = 10
 EXTRA_CLAIMS = 5
 CLAIM_TOKENS = 70  # about what one claim takes in an answer (config/extract.yaml)
-MENTIONS_TOKENS = 600  # 15 mentions: a live reply used 566 on them alone
+MENTIONS_TOKENS = 600  # 60 bare names at about 10 tokens (15 full objects took 566 in a live reply, US-49)
 GROQ_PUBLIC_ANSWER = 1200  # config/models.yaml pool.public_output_tokens, if that file can't be read
 _CLAIMS_PHRASE = "- claims: at most 10, the most useful ones."
 if _CLAIMS_PHRASE not in SYSTEM_PROMPT:  # pragma: no cover - a guard on our own text

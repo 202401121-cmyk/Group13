@@ -624,19 +624,530 @@
     "shown": [
       "Amazfit Balance",
       "Titan Smart Pro",
-      "Fire-Boltt Ninja Calling Pro",
       "Amazfit Active 2 Square",
       "Fire-Boltt Combat",
       "beatXP Vega",
       "Fire-Boltt Rise",
       "Fire-Boltt Rise Luxe",
       "Fire-Boltt Hunter",
-      "Fire-Boltt Ninja Call Pro Plus"
+      "Fire-Boltt Ninja Call Pro Plus",
+      "Fire-Boltt Ninja Calling Pro"
     ],
     "filtered_out": [],
-    "cant_tell": [],
+    "cant_tell": [
+      "Ambrane Power Bank",
+      "Ambrane Smartwatch",
+      "Apple Power Bank",
+      "Basic Phone",
+      "Cable",
+      "Cases & Covers",
+      "Charger",
+      "CMF by Nothing Smartwatch",
+      "Computer Accessories",
+      "Desktop",
+      "EVM Power Bank",
+      "Fire-bolt Smartwatch",
+      "Graphic Tablet",
+      "Hard Disk",
+      "iPad",
+      "iPhone",
+      "iPhone 15",
+      "iPhone 16",
+      "iPhone 17",
+      "iPhone 17 Pro and Pro Max",
+      "iPhone 18 Pro & Pro Max",
+      "iPhone Duo",
+      "Keyboards and Mouse",
+      "Laptop",
+      "Lava Power Bank",
+      "MacBook",
+      "Mobile Accesories",
+      "Muvtech Power Bank",
+      "Noise Smartwatch",
+      "Pendrives",
+      "Portronics Power Bank",
+      "Power Bank",
+      "Printer",
+      "Qubo Power Bank",
+      "Redmi Power Bank",
+      "Router",
+      "Samsung Power Bank",
+      "SENS Smartwatch",
+      "Smart Watch",
+      "Smartphone",
+      "Smartwatch",
+      "SSD",
+      "Swiss Military Power Bank",
+      "Tablet Accessories",
+      "Tablets",
+      "URBN Power Bank",
+      "Xiaomi Power Bank"
+    ],
     "citations": 19,
     "llm_replies": [
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "3cb5a9ff22d805c0518c7311ee5383f212694dd3562968d65095227fba4c6c5b",
+        "data_sha256": "bb93deb907a8cd846ede8c073e466857bb68823d4baf150fe746e68cb6cab748",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Fire-Boltt Rise Luxe",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Fire-Boltt Rise",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Fire-Boltt Hunter",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Fire-Boltt Ninja Call Pro Plus",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Fire-Boltt Ninja Calling Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Smartwatch",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Fire-Boltt Rise Luxe",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 1099.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹1,099",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Fire-Boltt Rise Luxe",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": 7.0,
+              "unit": "days",
+              "score": null,
+              "quote": "Upto 7 Days battery life",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Fire-Boltt Rise",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 1099.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹1,099",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Fire-Boltt Rise",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": 7.0,
+              "unit": "days",
+              "score": null,
+              "quote": "Upto 7 Days battery life",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Fire-Boltt Hunter",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 1399.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹1,399",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Fire-Boltt Hunter",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": 6.0,
+              "unit": "days",
+              "score": null,
+              "quote": "Upto 6 Days battery life",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Fire-Boltt Ninja Call Pro Plus",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 1299.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹1,299",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Fire-Boltt Ninja Call Pro Plus",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": 6.0,
+              "unit": "days",
+              "score": null,
+              "quote": "Upto 6 Days battery life",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Fire-Boltt Ninja Calling Pro",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 1399.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹1,399",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Fire-Boltt Ninja Calling Pro",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": 5.0,
+              "unit": "days",
+              "score": null,
+              "quote": "Upto 5 Days battery life",
+              "polarity": "positive"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "158eef2d277c92d1aa1f48034f4ebba8d24594904fc3b0badf8d7deb5afc9f28",
+        "data_sha256": "e3cae38feefecef6d91224100db78539f6959fe75fdc1ac3c3b98b33400845c5",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Smartphone",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPhone",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Charger",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Cable",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Tablets",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Smart Watch",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPad",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Tablet Accessories",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Mobile Accesories",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Graphic Tablet",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Basic Phone",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "URBN Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Swiss Military Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Muvtech Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ambrane Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "EVM Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Qubo Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Redmi Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lava Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Portronics Power Bank",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPhone 18 Pro & Pro Max",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPhone Duo",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPhone 17",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPhone 17 Pro and Pro Max",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPhone 16",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPhone 15",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple Smartwatch",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "CMF by Nothing Smartwatch",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Google Smartwatch",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Fire-bolt Smartwatch",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Noise Smartwatch",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Boat Smartwatch",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Smartwatch",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Redmi Smartwatch",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "SENS Smartwatch",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ambrane Smartwatch",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Cases & Covers",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Laptop",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "MacBook",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Printer",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Router",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Keyboards and Mouse",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Computer Accessories",
+              "is_product": false,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Hard Disk",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Pendrives",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "SSD",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Desktop",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": []
+        }
+      },
       {
         "task": "extract_claims",
         "prompt_sha256": "3b4f6d1c3f322769f3addbd46090ba149f982313ee5b2e9c0c321ed221dcaab1",
@@ -678,25 +1189,15 @@
             {
               "product_mention": "Fire-Boltt Combat",
               "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 12999.0,
-              "unit": null,
+              "criterion_key": "battery_life",
+              "value": 8.0,
+              "unit": "Days",
               "score": null,
-              "quote": "₹12,999",
-              "polarity": "neutral"
+              "quote": "Upto 8 Days battery life",
+              "polarity": "positive"
             },
             {
               "product_mention": "Fire-Boltt Combat",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": 8.0,
-              "unit": "days",
-              "score": null,
-              "quote": "Upto 8 Days battery life",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Amazfit Balance",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 12999.0,
@@ -710,10 +1211,30 @@
               "is_product_type": false,
               "criterion_key": "battery_life",
               "value": 14.0,
-              "unit": "days",
+              "unit": "Days",
               "score": null,
               "quote": "Upto 14 Days battery life (475 mAh)",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Amazfit Balance",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 12999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹12,999",
               "polarity": "neutral"
+            },
+            {
+              "product_mention": "Amazfit Active 2 Square",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": 10.0,
+              "unit": "Days",
+              "score": null,
+              "quote": "Upto 10 Days battery life (260 mAh)",
+              "polarity": "positive"
             },
             {
               "product_mention": "Amazfit Active 2 Square",
@@ -723,16 +1244,6 @@
               "unit": null,
               "score": null,
               "quote": "₹13,999",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Amazfit Active 2 Square",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": 10.0,
-              "unit": "days",
-              "score": null,
-              "quote": "Upto 10 Days battery life (260 mAh)",
               "polarity": "neutral"
             },
             {
@@ -748,162 +1259,21 @@
             {
               "product_mention": "beatXP Vega",
               "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": 7.0,
+              "unit": "Day",
+              "score": null,
+              "quote": "Upto 7 Day battery life (280 mAh)",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "beatXP Vega",
+              "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 11999.0,
               "unit": null,
               "score": null,
               "quote": "₹11,999",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "beatXP Vega",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": 7.0,
-              "unit": "days",
-              "score": null,
-              "quote": "Upto 7 Day battery life (280 mAh)",
-              "polarity": "neutral"
-            }
-          ]
-        }
-      },
-      {
-        "task": "extract_claims",
-        "prompt_sha256": "3cb5a9ff22d805c0518c7311ee5383f212694dd3562968d65095227fba4c6c5b",
-        "data_sha256": "bb93deb907a8cd846ede8c073e466857bb68823d4baf150fe746e68cb6cab748",
-        "reply": {
-          "mentions": [
-            {
-              "raw_name": "Fire-Boltt Rise Luxe",
-              "is_product": true,
-              "brand": "Fire-Boltt",
-              "recommends": null
-            },
-            {
-              "raw_name": "Fire-Boltt Rise",
-              "is_product": true,
-              "brand": "Fire-Boltt",
-              "recommends": null
-            },
-            {
-              "raw_name": "Fire-Boltt Hunter",
-              "is_product": true,
-              "brand": "Fire-Boltt",
-              "recommends": null
-            },
-            {
-              "raw_name": "Fire-Boltt Ninja Call Pro Plus",
-              "is_product": true,
-              "brand": "Fire-Boltt",
-              "recommends": null
-            },
-            {
-              "raw_name": "Fire-Boltt Ninja Calling Pro",
-              "is_product": true,
-              "brand": "Fire-Boltt",
-              "recommends": null
-            }
-          ],
-          "claims": [
-            {
-              "product_mention": "Fire-Boltt Rise Luxe",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 1099.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹1,099",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Fire-Boltt Rise Luxe",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": 7.0,
-              "unit": "days",
-              "score": null,
-              "quote": "Upto 7 Days battery life",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Fire-Boltt Rise Luxe",
-              "is_product_type": false,
-              "criterion_key": "water_resistance",
-              "value": "yes",
-              "unit": null,
-              "score": null,
-              "quote": "Water Resistant",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Fire-Boltt Rise",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 1099.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹1,099",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Fire-Boltt Rise",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": 7.0,
-              "unit": "days",
-              "score": null,
-              "quote": "Upto 7 Days battery life",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Fire-Boltt Hunter",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 1399.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹1,399",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Fire-Boltt Hunter",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": 6.0,
-              "unit": "days",
-              "score": null,
-              "quote": "Upto 6 Days battery life",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Fire-Boltt Ninja Call Pro Plus",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 1299.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹1,299",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Fire-Boltt Ninja Call Pro Plus",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": 6.0,
-              "unit": "days",
-              "score": null,
-              "quote": "Upto 6 Days battery life",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Fire-Boltt Ninja Calling Pro",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 1399.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹1,399",
               "polarity": "neutral"
             }
           ]

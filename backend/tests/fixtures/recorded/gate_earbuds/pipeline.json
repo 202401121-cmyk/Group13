@@ -671,40 +671,21 @@
       }
     ],
     "shown": [
-      "OnePlus Nord Buds 3r",
-      "realme Buds T200",
-      "realme Buds T200x",
-      "realme Buds T300",
-      "realme Buds T310",
-      "TWS Earbuds Buying Guide For Indian Consumers"
+      "TWS Earbuds"
     ],
     "filtered_out": [],
     "cant_tell": [
       "air-conditioners",
       "air purifiers",
-      "Anker Soundcore Liberty 5 Pro",
-      "Anker Soundcore P31i",
-      "Anker Soundcore Space A40 Truly Wireless",
-      "Anker Soundcore Space Q45 Wireless",
-      "Apple AirPods Pro 3",
-      "Audeze Maxwell 2",
-      "Bose QuietComfort Ultra Headphones (2nd Gen)",
+      "Bluetooth headphones",
       "EarBuds",
       "Headphones",
       "InstaView line of refrigerators",
-      "JBL Live 780NC",
-      "LG's TONE-FREE Wireless Earbuds",
       "LG TONE-FREE FN7",
-      "Razer BlackShark V3 Pro",
-      "Samsung Galaxy Buds4 Pro",
-      "Sennheiser HD 800 S",
-      "Sennheiser HDB 630",
-      "Sony WF-1000XM6",
-      "Sony WH-1000XM6",
-      "SteelSeries Arctis Nova 7 Wireless [7, 7P, 7X]",
-      "Tone-Free Wireless Earbuds"
+      "TONE-FREE Wireless Earbuds",
+      "UV Bluetooth Earphones"
     ],
-    "citations": 6,
+    "citations": 1,
     "llm_replies": [
       {
         "task": "extract_claims",
@@ -714,18 +695,18 @@
           "mentions": [
             {
               "raw_name": "EarBuds",
-              "is_product": false,
+              "is_product": true,
               "brand": null,
               "recommends": null
             },
             {
               "raw_name": "Headphones",
-              "is_product": false,
+              "is_product": true,
               "brand": null,
               "recommends": null
             },
             {
-              "raw_name": "LG's TONE-FREE Wireless Earbuds",
+              "raw_name": "TONE-FREE Wireless Earbuds",
               "is_product": true,
               "brand": "LG",
               "recommends": null
@@ -744,259 +725,30 @@
             },
             {
               "raw_name": "air purifiers",
-              "is_product": false,
-              "brand": null,
+              "is_product": true,
+              "brand": "LG",
               "recommends": null
             },
             {
               "raw_name": "air-conditioners",
-              "is_product": false,
-              "brand": null,
+              "is_product": true,
+              "brand": "LG",
               "recommends": null
             },
             {
               "raw_name": "InstaView line of refrigerators",
-              "is_product": false,
-              "brand": null,
-              "recommends": null
-            }
-          ],
-          "claims": []
-        }
-      },
-      {
-        "task": "extract_claims",
-        "prompt_sha256": "104bb0ee371f96da345118d99d75329de30dfae2099450665e0f3934c795dee9",
-        "data_sha256": "ecae9d6f53c1a001026808eb980809e5dc70c9610cb09d59b21c20c7662dca54",
-        "reply": {
-          "mentions": [
-            {
-              "raw_name": "realme Buds T200",
               "is_product": true,
-              "brand": "realme",
+              "brand": "LG",
               "recommends": null
             },
             {
-              "raw_name": "realme Buds T310",
-              "is_product": true,
-              "brand": "realme",
-              "recommends": null
-            },
-            {
-              "raw_name": "realme Buds T200x",
-              "is_product": true,
-              "brand": "realme",
-              "recommends": null
-            },
-            {
-              "raw_name": "OnePlus Nord Buds 3r",
-              "is_product": true,
-              "brand": "OnePlus",
-              "recommends": null
-            },
-            {
-              "raw_name": "realme Buds T300",
-              "is_product": true,
-              "brand": "realme",
-              "recommends": null
-            }
-          ],
-          "claims": [
-            {
-              "product_mention": "realme Buds T200",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 2099.0,
-              "unit": "₹",
-              "score": null,
-              "quote": "₹2,099",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "realme Buds T200",
-              "is_product_type": false,
-              "criterion_key": "build_durability",
-              "value": null,
-              "unit": null,
-              "score": null,
-              "quote": "50 Hours Talk time, 2 Hours Charging time",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "realme Buds T310",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 2399.0,
-              "unit": "₹",
-              "score": null,
-              "quote": "₹2,399",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "realme Buds T310",
-              "is_product_type": false,
-              "criterion_key": "build_durability",
-              "value": null,
-              "unit": null,
-              "score": null,
-              "quote": "40 Hours Talk time",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "realme Buds T200x",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 1899.0,
-              "unit": "₹",
-              "score": null,
-              "quote": "₹1,899",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "realme Buds T200x",
-              "is_product_type": false,
-              "criterion_key": "build_durability",
-              "value": null,
-              "unit": null,
-              "score": null,
-              "quote": "48 Hours Talk time, 120 Minute Charging time",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "OnePlus Nord Buds 3r",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 1899.0,
-              "unit": "₹",
-              "score": null,
-              "quote": "₹1,899",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "OnePlus Nord Buds 3r",
-              "is_product_type": false,
-              "criterion_key": "build_durability",
-              "value": null,
-              "unit": null,
-              "score": null,
-              "quote": "54 Hours Talk time, 120 Minute Charging time",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "realme Buds T300",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 1799.0,
-              "unit": "₹",
-              "score": null,
-              "quote": "₹1,799",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "realme Buds T300",
-              "is_product_type": false,
-              "criterion_key": "build_durability",
-              "value": null,
-              "unit": null,
-              "score": null,
-              "quote": "40 Hours Talk time",
-              "polarity": "neutral"
-            }
-          ]
-        }
-      },
-      {
-        "task": "extract_claims",
-        "prompt_sha256": "78cacb19dde8c39c3a36982f6e17b2bda574603b45baa3ba0db081206c057928",
-        "data_sha256": "66434c48dde80bebf94ca99c2bf0671a742162e1711dc40eed54c58f0c8b34e4",
-        "reply": {
-          "mentions": [
-            {
-              "raw_name": "Sony WH-1000XM6",
+              "raw_name": "Bluetooth headphones",
               "is_product": true,
               "brand": null,
               "recommends": null
             },
             {
-              "raw_name": "Sony WF-1000XM6",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "Anker Soundcore Liberty 5 Pro",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "Audeze Maxwell 2",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "Razer BlackShark V3 Pro",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "Anker Soundcore Space A40 Truly Wireless",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "JBL Live 780NC",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "Bose QuietComfort Ultra Headphones (2nd Gen)",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "SteelSeries Arctis Nova 7 Wireless [7, 7P, 7X]",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "Anker Soundcore P31i",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "Anker Soundcore Space Q45 Wireless",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "Apple AirPods Pro 3",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "Sennheiser HDB 630",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "Sennheiser HD 800 S",
-              "is_product": true,
-              "brand": null,
-              "recommends": null
-            },
-            {
-              "raw_name": "Samsung Galaxy Buds4 Pro",
+              "raw_name": "UV Bluetooth Earphones",
               "is_product": true,
               "brand": null,
               "recommends": null
@@ -1012,7 +764,7 @@
         "reply": {
           "mentions": [
             {
-              "raw_name": "TWS Earbuds Buying Guide For Indian Consumers",
+              "raw_name": "TWS Earbuds",
               "is_product": true,
               "brand": null,
               "recommends": null
@@ -1020,120 +772,20 @@
           ],
           "claims": [
             {
-              "product_mention": "TWS Earbuds Buying Guide For Indian Consumers",
+              "product_mention": "TWS Earbuds",
               "is_product_type": false,
               "criterion_key": "price_inr",
               "value": 2149.0,
-              "unit": "₹",
+              "unit": "INR",
               "score": null,
               "quote": "₹2,149.00",
               "polarity": "neutral"
             }
           ]
         }
-      },
-      {
-        "task": "extract_claims",
-        "prompt_sha256": "4f7c0abf6c6da2e0178a758a4283b584d0459c5b97a8842a961443f6c395c51d",
-        "data_sha256": "8d4fe8af15f88bc46e7ba005ec6034c1f3ef5a7cbd35e3d3d914c0ffae3e903d",
-        "reply": {
-          "mentions": [
-            {
-              "raw_name": "Sony WH-1000XM6",
-              "is_product": true,
-              "brand": "Sony",
-              "recommends": null
-            },
-            {
-              "raw_name": "Sony WF-1000XM6",
-              "is_product": true,
-              "brand": "Sony",
-              "recommends": null
-            },
-            {
-              "raw_name": "Anker Soundcore Liberty 5 Pro",
-              "is_product": true,
-              "brand": "Anker",
-              "recommends": null
-            },
-            {
-              "raw_name": "Audeze Maxwell 2",
-              "is_product": true,
-              "brand": "Audeze",
-              "recommends": null
-            },
-            {
-              "raw_name": "Razer BlackShark V3 Pro",
-              "is_product": true,
-              "brand": "Razer",
-              "recommends": null
-            },
-            {
-              "raw_name": "Anker Soundcore Space A40 Truly Wireless",
-              "is_product": true,
-              "brand": "Anker",
-              "recommends": null
-            },
-            {
-              "raw_name": "JBL Live 780NC",
-              "is_product": true,
-              "brand": "JBL",
-              "recommends": null
-            },
-            {
-              "raw_name": "Bose QuietComfort Ultra Headphones (2nd Gen)",
-              "is_product": true,
-              "brand": "Bose",
-              "recommends": null
-            },
-            {
-              "raw_name": "SteelSeries Arctis Nova 7 Wireless [7, 7P, 7X]",
-              "is_product": true,
-              "brand": "SteelSeries",
-              "recommends": null
-            },
-            {
-              "raw_name": "Anker Soundcore P31i",
-              "is_product": true,
-              "brand": "Anker",
-              "recommends": null
-            },
-            {
-              "raw_name": "Anker Soundcore Space Q45 Wireless",
-              "is_product": true,
-              "brand": "Anker",
-              "recommends": null
-            },
-            {
-              "raw_name": "Apple AirPods Pro 3",
-              "is_product": true,
-              "brand": "Apple",
-              "recommends": null
-            },
-            {
-              "raw_name": "Sennheiser HDB 630",
-              "is_product": true,
-              "brand": "Sennheiser",
-              "recommends": null
-            },
-            {
-              "raw_name": "Sennheiser HD 800 S",
-              "is_product": true,
-              "brand": "Sennheiser",
-              "recommends": null
-            },
-            {
-              "raw_name": "Samsung Galaxy Buds4 Pro",
-              "is_product": true,
-              "brand": "Samsung",
-              "recommends": null
-            }
-          ],
-          "claims": []
-        }
       }
     ],
     "reddit_sources_left_out": 0,
-    "changed_sources_left_out": 1
+    "changed_sources_left_out": 0
   }
 ]

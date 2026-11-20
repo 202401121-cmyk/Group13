@@ -87,15 +87,15 @@ measures:
   gate.claims_kept:
     kind: quality
     direction: at_least
-    floor: 87.0
-    measured: 97
+    floor: 122.0
+    measured: 136
     unit: claims
     margin: 10% below the measured value, rounded down
     measured_on: offline
     source: backend/evals/results/us49-gate.json; backend/tests/fixtures/recorded (the recordings with a pipeline.json), app.extract,
       app.decide
     date: '2026-11-20'
-    commit: 161934b
+    commit: cc6c514
     rule: Extraction keeps the claims it keeps now from the recorded runs (US-49).
   gate.claims_without_quote:
     kind: safety
@@ -108,25 +108,25 @@ measures:
     source: backend/evals/results/us49-gate.json; backend/tests/fixtures/recorded (the recordings with a pipeline.json), app.extract,
       app.decide
     date: '2026-11-20'
-    commit: 161934b
+    commit: cc6c514
     rule: Every claim in the recorded runs quotes its source's own words (build rule 4, US-49).
   gate.expected_survival:
     kind: quality
     direction: at_least
-    floor: 0.7
-    measured: 0.75
+    floor: 0.9422
+    measured: 0.9922
     unit: rate
     margin: 0.05 below the measured rate
     measured_on: offline
     source: backend/evals/results/us49-gate.json; backend/tests/fixtures/recorded (the recordings with a pipeline.json), app.extract,
       app.decide
     date: '2026-11-20'
-    commit: 161934b
+    commit: cc6c514
     rule: Extraction keeps finding the products the recorded runs' sources name (US-49).
     target:
       value: 0.9
       source: 'US-49: at least 90% of the expected products survive extraction in the recorded runs'
-      note: not met
+      note: met
   gate.label_disagreements:
     kind: safety
     direction: at_most
@@ -138,7 +138,7 @@ measures:
     source: backend/evals/results/us49-gate.json; backend/tests/fixtures/recorded (the recordings with a pipeline.json), app.extract,
       app.decide
     date: '2026-11-20'
-    commit: 161934b
+    commit: cc6c514
     rule: Every decide brief's hand-labelled winner is the one the scoring code gives (US-49).
   gate.shown_without_source:
     kind: safety
@@ -151,7 +151,7 @@ measures:
     source: backend/evals/results/us49-gate.json; backend/tests/fixtures/recorded (the recordings with a pipeline.json), app.extract,
       app.decide
     date: '2026-11-20'
-    commit: 161934b
+    commit: cc6c514
     rule: No shown product in the recorded runs lacks a source (build rule 5, US-49).
   interview.fixed.accuracy:
     kind: quality

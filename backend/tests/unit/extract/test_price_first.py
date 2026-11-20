@@ -36,8 +36,9 @@ from tests.fakes.research import review_source, thread
 SETTINGS = load_extract_settings(env={})
 NOW = datetime(2026, 11, 16, 9, 0, tzinfo=UTC)
 CTX = StageContext(search_id="srch_pricefirst")
-# SYSTEM_PROMPT as it was before S4-1. Reddit calls, and public calls asked for no price or rule key, still send it.
-SYSTEM_PROMPT_BEFORE = "772e753c5d8866119a18a3630bbdae722a628be66b8592fc1e2bc747234da7e6"
+# SYSTEM_PROMPT, which Reddit calls and public calls asked for no price or rule key still send byte for byte. Changed on
+# purpose once since S4-1: US-49 (20 Nov 2026) asks for every product a source names, as bare names, up to 60.
+SYSTEM_PROMPT_BEFORE = "398b3790fc5593942ee30229f2e1c7ea302563e6eefbf7319cdc8ac898810253"
 
 NAMES = ["Alto One", "Brio Two", "Cora Three", "Dune Four", "Echo Five", "Fable Six", "Gala Seven", "Halo Eight"]
 NAMES += ["Iris Nine", "Juno Ten", "Kite Eleven", "Lumo Twelve"]

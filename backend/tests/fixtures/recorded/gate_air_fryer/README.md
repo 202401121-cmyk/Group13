@@ -1,1 +1,1 @@
-- `gate_air_fryer`: real replies to "air fryer for a family of four under 8000 rupees" (1 run; calls gemini: 7, groq: 5, mistral: 2, pages: 14, serper: 7). Recorded 2026-11-19 by Harsh Kodavala. Some calls failed or were refused: see manifest.json.
+- `gate_air_fryer`: real replies to "air fryer for a family of four under 8000 rupees" (1 run; calls gemini: 9, groq: 2, mistral: 2). Recorded 2026-11-20 by Harsh Kodavala. Some calls failed or were refused: see manifest.json.

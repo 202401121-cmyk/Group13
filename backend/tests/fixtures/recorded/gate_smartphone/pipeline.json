@@ -706,30 +706,140 @@
       }
     ],
     "shown": [
-      "Motorola Edge 70 Fusion",
+      "vivo T5x",
+      "POCO X8 Power 5G",
+      "REDMI Note 15 SE 5G Snapdragon (Crimson Reserve, 128 GB)",
+      "IQOO Z11xa 5G (Titan Black, 128 GB)",
+      "realme P4 5G (Steel Grey, 256 GB)",
+      "Motorola Edge 60 Fusion",
+      "Samsung Galaxy F70 5G",
+      "Samsung Galaxy A36 5G (Dark Green, 128 GB)",
+      "vivo T5x 5G (Cosmic Green, 128 GB)",
+      "OnePlus N6 5G (Fresh Mint, 128 GB)",
+      "Samsung Galaxy A17",
+      "realme P4 Power",
       "Nothing Phone (3a)",
-      "Realme P4 Power",
-      "vivo T4 5G"
+      "vivo T4 5G",
+      "Motorola Edge 70 Fusion",
+      "Samsung Galaxy F70 Pro 5G"
     ],
-    "filtered_out": [],
+    "filtered_out": [
+      "Ai+ Nova 2 Power 5G",
+      "Apple iPhone 18 Pro",
+      "Apple iPhone 18 Pro Max",
+      "Google Pixel 11 (Frost, 256 GB)",
+      "Google Pixel 11 (Hibiscus, 256 GB)",
+      "Google Pixel 11 (Obsidian, 256 GB)",
+      "Google Pixel 11 (Pistachio, 256 GB)",
+      "iQOO Z11 5G",
+      "OPPO F35 Pro",
+      "Oppo Find X10 Pro Max",
+      "Oppo Find X9 Ultra",
+      "OPPO K14 Plus",
+      "Samsung Galaxy A37",
+      "Samsung Galaxy S26 FE",
+      "Vivo S2 FE",
+      "vivo V80 5G"
+    ],
     "cant_tell": [
+      "2026 Skoda Slavia Facelift",
+      "Ai+ Nova 2 Power",
+      "Apple HomeView",
+      "BlackZone BZ S26 Ultra",
+      "BlackZone BZ S26 Ultra Plus",
+      "Caul A27 Ultra",
       "Edge 70 Neo",
-      "Galaxy Tab S12 Ultra",
+      "Galaxy phones",
+      "Google Pixel 11",
       "Honor Magic V7",
+      "Huawei Osta O1 Pro",
+      "iKall Z18 2026",
+      "Infinix GT 50 Pro",
+      "iPhone",
+      "iPhone 18",
       "iPhone 20 Pro",
+      "iPhone Air",
+      "iPhone Air 2",
+      "iQOO 15",
+      "iQOO 16",
       "iQOO Z12 Lite",
+      "Lava Aura Curve 5G",
+      "M8 Power",
+      "Magic9",
+      "Mivi One 5G",
+      "Moto G82 8GB RAM",
+      "Moto g max 5G",
+      "Motorola Razr 70 Ultra",
+      "Motorola Signature 27",
       "OnePlus 16",
       "OnePlus Turbo 7 Pro",
+      "OPPO A3 Pro 256GB",
+      "OPPO A5 5G 8GB RAM",
       "Oppo Find X10",
-      "Oppo Find X10 Pro Max",
+      "OPPO Find X11 Pro Max",
+      "OPPO Reno16 Pro 5G",
+      "Oppo Reno 17",
+      "Oppo Reno 17 Pro",
+      "Peace i18 Air",
+      "Pixel 11 Pro Fold",
+      "POCO M8x",
+      "POCO X7 Pro 12GB RAM",
+      "PS5 Pro",
+      "realme 13 Plus 5G 256GB",
+      "realme 15",
+      "realme GT 2 Pro 5G",
+      "realme GT Neo 3 5G 150W",
+      "realme Narzo Power",
+      "realme P3 Ultra 256GB",
+      "realme P4s 5G",
+      "Red Magic 12 Pro Plus",
       "RedMagic 12 Pro",
+      "Redmi 17 5G",
+      "Redmi Note 17 Pro",
+      "Redmi Note 17 Pro Max",
+      "Samsung Galaxy A18 4G",
+      "Samsung Galaxy A18 5G",
       "Samsung Galaxy A24",
+      "Samsung Galaxy Tab S12 Ultra",
+      "Samsung Galaxy Z Flip 8",
+      "Samsung Galaxy Z Fold 8",
+      "Samsung Galaxy Z Fold 8 Ultra",
+      "Samsung Galaxy Z Tri Fold",
+      "Samsung M47 5G (Blaze Blue, 128 GB)",
+      "Samsung M47 5G (Rogue Red, 128 GB)",
+      "Samsung’s Galaxy S27 Pro",
+      "Sony PS5",
+      "Tecno Spark 50s 5G 8GB RAM",
+      "Tecno Spark Go 3 Pro 4G 128GB",
+      "Vivo S2",
+      "vivo T5 Lite 44W 5G (Twilight Shadow, 256 GB)",
+      "vivo T5 Lite 44W 5G (Wave Blue, 256 GB)",
+      "vivo T5x 5G (Flame Red, 128 GB)",
+      "vivo T5x 5G (Satin Silver, 128 GB)",
+      "vivo T5x 8GB RAM",
+      "Vivo T6x 5G",
+      "Vivo V80 FE",
+      "vivo V80 Lite 5G",
+      "Vivo V90 5G",
       "vivo X500 Pro Max",
-      "vivo X Fold6",
+      "Vivo X Fold 6",
       "vivo X Fold7",
-      "Xiaomi 18"
+      "vivo Y31T 6GB RAM",
+      "Vivo Y37c",
+      "Xiaomi 17T Pro",
+      "Xiaomi 18",
+      "Xiaomi 18 Pro",
+      "Xiaomi Mi 10T Pro",
+      "Xiaomi Poco F9 Pro",
+      "Xiaomi Poco F9 Ultra",
+      "Xiaomi Poco X8 Pro",
+      "Xiaomi Poco X8 Pro Max",
+      "Xiaomi Redmi 15 256GB 8GB RAM",
+      "Xiaomi Redmi 17 5G",
+      "Xiaomi Redmi 17 5G 8GB RAM",
+      "ZTE nubia RedMagic 11S Pro"
     ],
-    "citations": 10,
+    "citations": 65,
     "llm_replies": [
       {
         "task": "extract_claims",
@@ -737,6 +847,737 @@
         "data_sha256": "169afd59c72c330b8889b939df46438b96c6c9babde05557165f16c575a2add0",
         "reply": {
           "mentions": [],
+          "claims": []
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "23110b1a0cfe441d9879c0c65bf0b75c3df8254a0c8a98dcbab395d356e729b0",
+        "data_sha256": "67dac89869c39597ea8e76aaa7246ba0a336e609cdd9f594012d1d6435f3040e",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Tecno Spark Go 3 Pro 4G 128GB",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OPPO A3 Pro 256GB",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "realme 13 Plus 5G 256GB",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Motorola Edge 70 Fusion",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Motorola Edge 60 Fusion",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy F70 Pro 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "POCO X7 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "POCO X7 Pro 12GB RAM",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi Redmi 15 256GB 8GB RAM",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi Redmi 15 8GB RAM",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "realme Narzo Power",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "realme 15",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Nothing Phone 3a",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo T5x",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo T5x 8GB RAM",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Lava Aura Curve 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Tecno Spark 50s 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Tecno Spark 50s 5G 8GB RAM",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy F70 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Motorola Edge 70 Fusion",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 28949.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹28,949",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Motorola Edge 60 Fusion",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 20900.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹20,900",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Samsung Galaxy F70 Pro 5G",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 25869.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹25,869",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "vivo T5x",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 26499.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹26,499",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Samsung Galaxy F70 5G",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 17999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹17,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Xiaomi Redmi 15 256GB 8GB RAM",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "Xiaomi Redmi 15 256GB 8GB RAM, Xiaomi Redmi 15 8GB RAM, and POCO X7 Pro 12GB RAM deliver smooth and lag-free performance",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "realme Narzo Power",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "realme Narzo Power, Motorola Edge 70 Fusion, and realme 15 offer sharp displays with vibrant colours and an enhanced viewing experience.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Nothing Phone 3a",
+              "is_product_type": false,
+              "criterion_key": "camera_quality",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "Nothing Phone 3a, POCO X7 Pro, and POCO X7 Pro 12GB RAM offer detailed images and strong camera performance",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "vivo T5x",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "vivo T5x, vivo T5x 8GB RAM, and realme Narzo Power offer long battery life for extended daily usage.",
+              "polarity": "positive"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "2b3569dec79e17a002ab0474956281d4f863e833b6c2068709664995ba8c81b9",
+        "data_sha256": "33ea39ce7193bb543456b3ddf0ee44dabdac359110cf696f95492231ec38eab3",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Google Pixel 11 (Frost, 256 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Google Pixel 11 (Pistachio, 256 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy A36 5G (Dark Blue, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo T5x 5G (Cosmic Green, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Google Pixel 11 (Obsidian, 256 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Google Pixel 11 (Hibiscus, 256 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "realme P4 5G (Steel Grey, 256 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "REDMI Note 15 SE 5G Snapdragon (Crimson Reserve, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OnePlus N6 5G (Midnight Green, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "IQOO Z11xa 5G (Titan Black, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "POCO X8 5G (Black, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo T5x 5G (Flame Red, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy A36 5G (Dark Green, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo T5x 5G (Satin Silver, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo T5 Lite 44W 5G (Wave Blue, 256 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung M47 5G (Blaze Blue, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OnePlus N6 5G (Fresh Mint, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo T5 Lite 44W 5G (Twilight Shadow, 256 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung M47 5G (Rogue Red, 128 GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Google Pixel 11 (Frost, 256 GB)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 89999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹89,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Google Pixel 11 (Pistachio, 256 GB)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 89999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹89,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Samsung Galaxy A36 5G (Dark Blue, 128 GB)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 28999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹28,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "vivo T5x 5G (Cosmic Green, 128 GB)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 27999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹27,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Google Pixel 11 (Obsidian, 256 GB)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 89999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹89,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Google Pixel 11 (Hibiscus, 256 GB)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 89999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹89,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "realme P4 5G (Steel Grey, 256 GB)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 29999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹29,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "REDMI Note 15 SE 5G Snapdragon (Crimson Reserve, 128 GB)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 25999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹25,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "OnePlus N6 5G (Midnight Green, 128 GB)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 26389.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹26,389",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "IQOO Z11xa 5G (Titan Black, 128 GB)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 26441.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹26,441",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "9e145a74e393bf9e9489d2da840b6d6795db6dcd8cfe9bfec6a7ae0a7cf093cf",
+        "data_sha256": "d536a33c6338840fa827148e3f520df9ed893ec2fcc97514e590390c1e4942e7",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Motorola Edge 70 Fusion",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Realme P4 Power",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo T4 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Nothing Phone (3a)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "2026 Skoda Slavia Facelift",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Motorola Edge 70 Fusion",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 26999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹26,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Motorola Edge 70 Fusion",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": "over 9 hours",
+              "unit": null,
+              "score": null,
+              "quote": "over 9 hours of screen-on time",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Motorola Edge 70 Fusion",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "quad-curved pOLED display; the fabric-inspired finish and Gorilla Glass 7i gave it the best in-hand feel of the group.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Motorola Edge 70 Fusion",
+              "is_product_type": false,
+              "criterion_key": "build_durability",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "IP68/IP69 rating gives it the strongest disclosed water and dust resistance",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Motorola Edge 70 Fusion",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "BGMI ran at a steady 120fps with good thermal control, and Genshin Impact averaged about 40fps",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Realme P4 Power",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 27999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹27,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Realme P4 Power",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": "16 to 18 hours",
+              "unit": null,
+              "score": null,
+              "quote": "recorded 16 to 18 hours of screen-on time, sometimes closer to 20",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Realme P4 Power",
+              "is_product_type": false,
+              "criterion_key": "build_durability",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "IP66, IP68, and IP69",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "vivo T4 5G",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 24999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹24,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "vivo T4 5G",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": "10 to 12 hours",
+              "unit": null,
+              "score": null,
+              "quote": "I got 10 to 12 hours of screen-on time.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Nothing Phone (3a)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 24999.0,
+              "unit": null,
+              "score": null,
+              "quote": "₹24,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Nothing Phone (3a)",
+              "is_product_type": false,
+              "criterion_key": "build_durability",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "IP64 rating is the lowest in this group.",
+              "polarity": "negative"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "5da6c8abd9476337edf5b5d6fcd80d5ca9b2248ae2be0dbd2bd2b7ac523e7e6b",
+        "data_sha256": "662fee5c8d57bdc844a26a350249d347201f8c5b0c44b84d8887e538efda7b0c",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "Oppo Find X10 Pro Max",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ai+ Nova 2 Power",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Mivi One 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Vivo X Fold 6",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Vivo V80",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Redmi Note 17 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Redmi 17 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Pixel 11 Pro Fold",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Google Pixel 11",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Redmi Note 17 Pro Max",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Vivo S2",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy S26 FE",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy Z Flip 8",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy Z Fold 8 Ultra",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy Z Fold 8",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Sony PS5",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "PS5 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPhone Air 2",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Oppo Reno 17 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Oppo Reno 17",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
           "claims": []
         }
       },
@@ -783,6 +1624,12 @@
               "recommends": null
             },
             {
+              "raw_name": "Magic9",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
               "raw_name": "Honor Magic V7",
               "is_product": true,
               "brand": null,
@@ -795,7 +1642,25 @@
               "recommends": null
             },
             {
+              "raw_name": "iPhone 18",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPhone Air 2",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
               "raw_name": "vivo X Fold7",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPhone",
               "is_product": true,
               "brand": null,
               "recommends": null
@@ -808,6 +1673,18 @@
             },
             {
               "raw_name": "OnePlus 16",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Galaxy phones",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple HomeView",
               "is_product": true,
               "brand": null,
               "recommends": null
@@ -831,53 +1708,761 @@
               "recommends": null
             },
             {
+              "raw_name": "Huawei Osta O1 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
               "raw_name": "Xiaomi 18",
               "is_product": true,
               "brand": null,
               "recommends": null
             }
           ],
-          "claims": []
+          "claims": [
+            {
+              "product_mention": "Edge 70 Neo",
+              "is_product_type": false,
+              "criterion_key": "camera_quality",
+              "value": null,
+              "unit": null,
+              "score": null,
+              "quote": "It's got a 50MP Sony Lytia main camera with OIS.",
+              "polarity": "positive"
+            }
+          ]
         }
       },
       {
         "task": "extract_claims",
-        "prompt_sha256": "5da6c8abd9476337edf5b5d6fcd80d5ca9b2248ae2be0dbd2bd2b7ac523e7e6b",
-        "data_sha256": "662fee5c8d57bdc844a26a350249d347201f8c5b0c44b84d8887e538efda7b0c",
-        "reply": {
-          "mentions": [],
-          "claims": []
-        }
-      },
-      {
-        "task": "extract_claims",
-        "prompt_sha256": "9e145a74e393bf9e9489d2da840b6d6795db6dcd8cfe9bfec6a7ae0a7cf093cf",
-        "data_sha256": "d536a33c6338840fa827148e3f520df9ed893ec2fcc97514e590390c1e4942e7",
+        "prompt_sha256": "6c756af235033fe4fc2c6f9ad48289657786f27e6a29aa9a127fdcc58b0a5f38",
+        "data_sha256": "ae5cf8b3b967755d24159278c357d483bfebc94fc5a3e436deca60c03e654263",
         "reply": {
           "mentions": [
             {
+              "raw_name": "Apple iPhone 18 Pro Max",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi Poco F9 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Oppo Find X9 Ultra",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "ZTE nubia RedMagic 11S Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi Poco F9 Ultra",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple iPhone 18 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi 17T Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi Poco X8 Pro Max",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi Poco X8 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy A37",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy A17",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Apple iPhone 18 Pro Max",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 242200.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹ 242,200",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Apple iPhone 18 Pro Max",
+              "is_product_type": false,
+              "criterion_key": "build_durability",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "combining a durable premium build",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Apple iPhone 18 Pro Max",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "a sharp display with a smaller cutout",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Apple iPhone 18 Pro Max",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": null,
+              "unit": null,
+              "score": 10.0,
+              "quote": "class-leading battery life",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Apple iPhone 18 Pro Max",
+              "is_product_type": false,
+              "criterion_key": "camera_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "outstanding cameras",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Apple iPhone 18 Pro Max",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "fluid iOS performance.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi Poco F9 Pro",
+              "is_product_type": false,
+              "criterion_key": "camera_quality",
+              "value": null,
+              "unit": null,
+              "score": 6.0,
+              "quote": "some small drawbacks in the camera department.",
+              "polarity": "negative"
+            },
+            {
+              "product_mention": "Xiaomi Poco F9 Pro",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "the Poco offers flagship-level performance",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi Poco F9 Pro",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "battery life",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi Poco F9 Pro",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "display quality",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Oppo Find X9 Ultra",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 169999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹ 169,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Oppo Find X9 Ultra",
+              "is_product_type": false,
+              "criterion_key": "value_for_money",
+              "value": null,
+              "unit": null,
+              "score": 7.0,
+              "quote": "albeit pricier than other Ultras.",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Oppo Find X9 Ultra",
+              "is_product_type": false,
+              "criterion_key": "camera_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "It's not just a great cameraphone",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Oppo Find X9 Ultra",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "an extra-long battery life",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Oppo Find X9 Ultra",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 8.0,
+              "quote": "a great display, although the full 144Hz is rarely utilized",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Oppo Find X9 Ultra",
+              "is_product_type": false,
+              "criterion_key": "software_updates",
+              "value": "about five major upgrades",
+              "unit": null,
+              "score": null,
+              "quote": "which will get about five major upgrades in the future.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi Poco F9 Ultra",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 10.0,
+              "quote": "The 6.9-inch AMOLED is one of the brightest displays we have measured and is an excellent panel in practically every other respect too.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi 17T Pro",
+              "is_product_type": false,
+              "criterion_key": "camera_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "great camera hardware",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi 17T Pro",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "excellent display",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi 17T Pro",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "high-performance chipset",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi 17T Pro",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "This year, the handset also stands out in the battery life race with solid endurance.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi Poco X8 Pro",
+              "is_product_type": false,
+              "criterion_key": "build_durability",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "a likable and durable body",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi Poco X8 Pro",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "an excellent OLED screen with all sorts of perks and high brightness",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi Poco X8 Pro",
+              "is_product_type": false,
+              "criterion_key": "camera_quality",
+              "value": null,
+              "unit": null,
+              "score": 8.0,
+              "quote": "capable cameras",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi Poco X8 Pro",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": null,
+              "unit": null,
+              "score": 10.0,
+              "quote": "amazing battery life",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Xiaomi Poco X8 Pro",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "impressive raw and sustained performance.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Samsung Galaxy A37",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 49999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹ 49,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Samsung Galaxy A37",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "a bright and smooth AMOLED display",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Samsung Galaxy A37",
+              "is_product_type": false,
+              "criterion_key": "build_durability",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "solid build with proper ingress protection",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Samsung Galaxy A37",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "dependable battery life",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Samsung Galaxy A37",
+              "is_product_type": false,
+              "criterion_key": "software_updates",
+              "value": null,
+              "unit": null,
+              "score": 10.0,
+              "quote": "class-leading long-term support.",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Samsung Galaxy A17",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 22699.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹ 22,699",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Samsung Galaxy A17",
+              "is_product_type": false,
+              "criterion_key": "software_updates",
+              "value": null,
+              "unit": null,
+              "score": 9.0,
+              "quote": "long software support from Samsung",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Apple iPhone 18 Pro",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 160990.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹ 160,990",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "c9375822212b5dfc6463619e58f2cbff8d61c0303dc93a22534b7ae63b328ae7",
+        "data_sha256": "56dd4c59706d1b2e6210f5cbfe04137df9e0990e758ddc213b53f366f6b93f3f",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "vivo V80 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy F70 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OPPO Find X10 Pro Max",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Apple iPhone 18 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iQOO Z11 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OnePlus 16",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Motorola Signature 27",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo V80 Lite 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi 18 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OPPO Reno16 Pro 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Motorola Razr 70 Ultra",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "POCO F9 Pro 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy A18 4G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "realme P4s 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Moto g max 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi Redmi 17 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "POCO X8 Power 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Infinix GT 50 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Ai+ Nova 2 Power 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo V80 Lite 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "vivo V80 5G",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 62999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "vivo V80 5G ₹62,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Samsung Galaxy F70 5G",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 17999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "Samsung Galaxy F70 5G ₹17,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "OPPO Find X10 Pro Max",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 199999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "OPPO Find X10 Pro Max ₹199,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Apple iPhone 18 Pro",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 164900.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "Apple iPhone 18 Pro ₹164,900",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "iQOO Z11 5G",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 34999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "iQOO Z11 5G ₹34,999",
+              "polarity": "neutral"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "a8f5e7a1be184c2cf59248fe8c3ef0a7664f02ce6a9266b1b33d683a3c5cb191",
+        "data_sha256": "8db6ea7b9409b8de4a4eb5447b0c3e9f83b9fefe9869c117d647f21c9bc3c9c8",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "OPPO A5 5G 8GB RAM",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Moto G82 8GB RAM",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OPPO A3 Pro 256GB",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
               "raw_name": "Motorola Edge 70 Fusion",
               "is_product": true,
-              "brand": "Motorola",
-              "recommends": true
+              "brand": null,
+              "recommends": null
             },
             {
-              "raw_name": "Realme P4 Power",
+              "raw_name": "Samsung Galaxy F70 Pro 5G",
               "is_product": true,
-              "brand": "Realme",
-              "recommends": true
+              "brand": null,
+              "recommends": null
             },
             {
-              "raw_name": "vivo T4 5G",
+              "raw_name": "vivo T5x",
               "is_product": true,
-              "brand": "vivo",
-              "recommends": true
+              "brand": null,
+              "recommends": null
             },
             {
-              "raw_name": "Nothing Phone (3a)",
+              "raw_name": "POCO X7 Pro 12GB RAM",
               "is_product": true,
-              "brand": "Nothing",
-              "recommends": true
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi Redmi 15 256GB 8GB RAM",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "realme P3 Ultra 256GB",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "realme GT Neo 3 5G 150W",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "realme Narzo Power",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "realme 15",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi Mi 10T Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "realme GT 2 Pro 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo T5x 8GB RAM",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iQOO Z11xa 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Xiaomi Redmi 17 5G 8GB RAM",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "vivo Y31T 6GB RAM",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy F70 Pro 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "realme P4 Power",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "POCO X8 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
             }
           ],
           "claims": [
@@ -885,101 +2470,490 @@
               "product_mention": "Motorola Edge 70 Fusion",
               "is_product_type": false,
               "criterion_key": "price_inr",
-              "value": 26999.0,
+              "value": 28949.0,
               "unit": "INR",
               "score": null,
-              "quote": "₹26,999",
+              "quote": "₹28,949",
               "polarity": "neutral"
-            },
-            {
-              "product_mention": "Realme P4 Power",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 27999.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹27,999",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "vivo T4 5G",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 24999.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹24,999",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Nothing Phone (3a)",
-              "is_product_type": false,
-              "criterion_key": "price_inr",
-              "value": 24999.0,
-              "unit": "INR",
-              "score": null,
-              "quote": "₹24,999",
-              "polarity": "neutral"
-            },
-            {
-              "product_mention": "Motorola Edge 70 Fusion",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": "over 9 hours",
-              "unit": "hours",
-              "score": null,
-              "quote": "it lasted a full day of heavy use with over 9 hours of screen-on time",
-              "polarity": "positive"
-            },
-            {
-              "product_mention": "Realme P4 Power",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": "16 to 18 hours",
-              "unit": "hours",
-              "score": null,
-              "quote": "I recorded 16 to 18 hours of screen-on time, sometimes closer to 20 with lighter use",
-              "polarity": "positive"
-            },
-            {
-              "product_mention": "vivo T4 5G",
-              "is_product_type": false,
-              "criterion_key": "battery_life",
-              "value": "10 to 12 hours",
-              "unit": "hours",
-              "score": null,
-              "quote": "I got 10 to 12 hours of screen-on time.",
-              "polarity": "positive"
             },
             {
               "product_mention": "Motorola Edge 70 Fusion",
               "is_product_type": false,
               "criterion_key": "processor_speed",
-              "value": "120fps",
-              "unit": "fps",
-              "score": null,
-              "quote": "BGMI ran at a steady 120fps with good thermal control",
+              "value": null,
+              "unit": null,
+              "score": 8.5,
+              "quote": "Snapdragon 7s Gen 4",
               "polarity": "positive"
             },
             {
               "product_mention": "Motorola Edge 70 Fusion",
               "is_product_type": false,
-              "criterion_key": "camera_quality",
-              "value": "best video quality",
+              "criterion_key": "battery_life",
+              "value": "7000 mAh",
               "unit": null,
               "score": null,
-              "quote": "delivered the best video quality of the four phones I tested",
+              "quote": "7000 mAh | 68W Turbo Power Charging",
               "polarity": "positive"
             },
             {
-              "product_mention": "Nothing Phone (3a)",
+              "product_mention": "Motorola Edge 70 Fusion",
               "is_product_type": false,
-              "criterion_key": "camera_quality",
-              "value": "struggled in low light",
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 8.5,
+              "quote": "6.8 inches (17.27 cm) | Extreme AMOLED",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Samsung Galaxy F70 Pro 5G",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 25869.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹25,869",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Samsung Galaxy F70 Pro 5G",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": 8.3,
+              "quote": "Snapdragon 6 Gen 3",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Samsung Galaxy F70 Pro 5G",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": "6000 mAh",
               "unit": null,
               "score": null,
-              "quote": "The telephoto camera worked well in daylight but struggled in low light.",
-              "polarity": "negative"
+              "quote": "6000 mAh | 45W Fast Charging",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "Samsung Galaxy F70 Pro 5G",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 8.3,
+              "quote": "6.7 inches (17.02 cm) | Super AMOLED",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "vivo T5x",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 26499.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹26,499",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "vivo T5x",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": 8.3,
+              "quote": "MediaTek Dimensity 7400 Turbo",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "vivo T5x",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": "7200 mAh",
+              "unit": null,
+              "score": null,
+              "quote": "7200 mAh | 44W Flash Charging",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "vivo T5x",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 8.3,
+              "quote": "6.76 inches (17.17 cm) | LCD",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "realme P4 Power",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 29999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹29,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "realme P4 Power",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": 8.5,
+              "quote": "MediaTek Dimensity 7400 Ultra",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "realme P4 Power",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": "10001 mAh",
+              "unit": null,
+              "score": null,
+              "quote": "10001 mAh | 80W Ultra Charging",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "realme P4 Power",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 8.5,
+              "quote": "6.8 inches (17.27 cm) | AMOLED",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "POCO X8 5G",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 27599.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "₹27,599",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "POCO X8 5G",
+              "is_product_type": false,
+              "criterion_key": "processor_speed",
+              "value": null,
+              "unit": null,
+              "score": 8.3,
+              "quote": "Snapdragon 6s Gen 4",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "POCO X8 5G",
+              "is_product_type": false,
+              "criterion_key": "battery_life",
+              "value": "9000 mAh",
+              "unit": null,
+              "score": null,
+              "quote": "9000 mAh | 67W Hyper Charging",
+              "polarity": "positive"
+            },
+            {
+              "product_mention": "POCO X8 5G",
+              "is_product_type": false,
+              "criterion_key": "display_quality",
+              "value": null,
+              "unit": null,
+              "score": 8.3,
+              "quote": "6.83 inches (17.35 cm) | AMOLED",
+              "polarity": "positive"
+            }
+          ]
+        }
+      },
+      {
+        "task": "extract_claims",
+        "prompt_sha256": "10a132a9b1f7a3e61a85e47c4275a95ca6e9ddcf0828646a772db77b776c7b30",
+        "data_sha256": "e283ce757da1d7d995cecbb6134f4cc2dbdf7d0bdf04f5e0216a053bec223f57",
+        "reply": {
+          "mentions": [
+            {
+              "raw_name": "iPhone 20 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iPhone Air",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Galaxy phones",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iQOO 15",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iQOO 16",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OPPO, OnePlus, and realme devices",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Vivo V80 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OPPO K14 Plus",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy F70",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Vivo S2 FE",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy S26 FE",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OPPO F35 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OPPO Find X10 Pro Max",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Vivo V80 5G (8GB RAM + 256GB)",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung’s Galaxy S27 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OPPO Find X11 Pro Max",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Red Magic 12 Pro Plus",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Vivo T6x 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Vivo V90 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Vivo X500 Pro Max",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Vivo V80 FE",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "OPPO Reno 17 Pro",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Vivo Y37c",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy A18 5G",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "POCO M8x",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "M8 Power",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy Tab S12 Ultra",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Samsung Galaxy Z Tri Fold",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "iKall Z18 2026",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Caul A27 Ultra",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "BlackZone BZ S26 Ultra",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "BlackZone BZ S26 Ultra Plus",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            },
+            {
+              "raw_name": "Peace i18 Air",
+              "is_product": true,
+              "brand": null,
+              "recommends": null
+            }
+          ],
+          "claims": [
+            {
+              "product_mention": "Vivo V80 5G",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 62999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "Vivo V80 5G₹62,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "OPPO K14 Plus",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 33299.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "OPPO K14 Plus₹33,299",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Samsung Galaxy F70",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 21999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "Samsung Galaxy F70₹21,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Vivo S2 FE",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 38999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "Vivo S2 FE₹38,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Samsung Galaxy S26 FE",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 66950.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "Samsung Galaxy S26 FE₹66,950",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "OPPO F35 Pro",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 45999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "OPPO F35 Pro₹45,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "OPPO Find X10 Pro Max",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 199999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "OPPO Find X10 Pro Max₹1,99,999",
+              "polarity": "neutral"
+            },
+            {
+              "product_mention": "Vivo V80 5G (8GB RAM + 256GB)",
+              "is_product_type": false,
+              "criterion_key": "price_inr",
+              "value": 69999.0,
+              "unit": "INR",
+              "score": null,
+              "quote": "Vivo V80 5G (8GB RAM + 256GB)₹69,999",
+              "polarity": "neutral"
             }
           ]
         }

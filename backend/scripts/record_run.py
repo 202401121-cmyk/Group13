@@ -28,6 +28,10 @@ in-memory criteria store, so no database is touched and no saved criteria can hi
 read either, because a hit would hide a call and bring in text this script could not recognise, and the research
 cache is off (RESEARCH_CACHE=off), so every search and page is really fetched.
 
+With --reextract, an existing recording's pages are kept exactly as recorded (its pipeline.json sources, and its
+search and page rows), and only the pipeline after research runs again, live: extraction's calls with today's prompt.
+A hand-written expected list was made from those very pages, so it still fits (US-49).
+
 Besides the calls, a run keeps what the pipeline made of them (US-49), in pipeline.json: the rubric searched, research's
 sources (never a Reddit one), the extraction replies the client accepted (by their prompt's hash), and the result's
 products. evals/gate.py replays extraction from it with no network.
@@ -750,7 +754,7 @@ def is_reddit_source(source: Mapping[str, Any]) -> bool:
     )
 
 
-HAND_WRITTEN = ("expected_products", "expected_note")  # a recording's metadata written by hand, never recorded
+HAND_WRITTEN = ("expected_products", "expected_note", "expected_pages")  # written by hand, never recorded
 
 
 def kept_by_hand(args: argparse.Namespace) -> dict[str, Any]:
@@ -811,6 +815,12 @@ def build_files(
         "recorded_by": args.by,
     }
     manifest = {**manifest, **kept_by_hand(args)}  # a re-recording keeps what was written by hand (US-49)
+    if getattr(args, "reextract", False):
+        old = json.loads((args.root / args.name / MANIFEST).read_text(encoding="utf-8"))
+        manifest["pages_recorded_at"] = old.get("pages_recorded_at", old.get("recorded_at"))
+        manifest["pages_calls"] = old.get(
+            "pages_calls", {k: v for k, v in old.get("calls", {}).items() if k not in LLM_SERVICES}
+        )
     manifest = hide_values(manifest, secrets)
     line = readme_line(args.name, manifest)
     files = {MANIFEST: to_json(manifest), README: line + "\n"}
@@ -818,6 +828,8 @@ def build_files(
         files[f"{service}.json"] = to_json(hide_values([row for row in rows if row["service"] == service], secrets))
     if pipeline:
         files[PIPELINE] = to_json(hide_values(pipeline, secrets))
+    if getattr(args, "reextract", False):
+        files.update(kept_rows(args.root / args.name, files))
     return files, line
 
 
@@ -961,6 +973,70 @@ def run_app(query: str) -> int:
             os.environ["RESEARCH_CACHE"] = cache
 
 
+class _RecordedSources:
+    """Research as an earlier recording found it: its sources, with no call (US-49's --reextract)."""
+
+    def __init__(self, sources: list[Any]) -> None:
+        from app.contracts import StageName
+
+        self.name = StageName.RESEARCH
+        self.is_placeholder = False
+        self.sources = sources
+
+    def run(self, inp: Any, ctx: Any) -> Any:
+        from app.contracts import ResearchResult
+
+        return ResearchResult(queries=["recorded"], sources=self.sources)
+
+    def fallback(self, inp: Any, ctx: Any, error: Exception) -> Any:
+        return self.run(inp, ctx)
+
+
+def reextract_runner(folder: Path) -> Runner:
+    """A run that keeps the recording's pages and sends only what comes after research: extraction's calls."""
+
+    def run(query: str) -> int:
+        from app.api.sessions import new_session_id
+        from app.contracts import Rubric, SearchRequest, Source
+        from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
+
+        recorded = json.loads((folder / PIPELINE).read_text(encoding="utf-8"))[0]
+        sources = [Source.model_validate(s) for s in recorded["sources"]]
+        rubric = Rubric.model_validate(recorded["rubric"])
+        with ACCEPTED_LOCK:
+            ACCEPTED.clear()
+        stages = default_search_stages()
+        stages.research = _RecordedSources(sources)
+        request = SearchRequest(session_id=new_session_id(), raw_query=query, rubric=rubric)
+        result = PipelineRunner(stages, InMemoryResultStore()).run(request)
+        PIPELINE_RUNS.append(pipeline_record(request, sources, result))
+        return 0
+
+    return run
+
+
+def same_pages(folder: Path, files: Mapping[str, str]) -> bool:
+    """A re-extraction keeps the recording's sources exactly: the same addresses and the same text."""
+
+    def pages(text: str) -> list[tuple[str, str]]:
+        runs = json.loads(text)
+        return sorted((s["url"], s["text"]) for s in runs[0]["sources"]) if runs else []
+
+    new = files.get(PIPELINE)
+    return new is not None and pages(new) == pages((folder / PIPELINE).read_text(encoding="utf-8"))
+
+
+KEPT_ON_REEXTRACT = ("serper.json", "pages.json", "jina.json", "youtube.json")  # the calls that found the pages
+
+
+def kept_rows(folder: Path, files: Mapping[str, str]) -> dict[str, str]:
+    """An earlier recording's search and page rows, which a re-extraction keeps as they were: they win over any row of
+    those services the re-extraction made (enrich's and commerce's refused calls), which describe no page."""
+    return {
+        name: (folder / name).read_text(encoding="utf-8") for name in KEPT_ON_REEXTRACT if (folder / name).is_file()
+    }
+
+
 # --- the recordings log (US-49) --------------------------------------------------------------------------------------
 
 
@@ -1038,6 +1114,11 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
         help="change one service's budget",
     )
     parser.add_argument("--force", action="store_true", help="replace an existing recording")
+    parser.add_argument(
+        "--reextract",
+        action="store_true",
+        help="keep an existing recording's pages and run only what follows research again, live (US-49)",
+    )
     parser.add_argument("--keep-failures", action="store_true", help="write the recording even if a call or run failed")
     return parser.parse_args(argv)
 
@@ -1057,7 +1138,12 @@ def main(
     if env is None:
         load_dotenv()  # the root .env, found walking up from here; real environment variables win
         env = os.environ
-    if (root / args.name).exists() and not args.force:
+    if args.reextract:
+        if not (root / args.name / PIPELINE).is_file():
+            print(f"Recording {args.name} has no {PIPELINE}, so there are no pages to keep. Nothing was called.")
+            return 1
+        runner = reextract_runner(root / args.name)
+    elif (root / args.name).exists() and not args.force:
         print(f"Recording {args.name} already exists, so nothing was called. Add --force to replace it.")
         return 1
     if env.get("REDDIT_SOURCE", "").strip().lower() == "official":
@@ -1121,6 +1207,9 @@ def main(
     leaks = sorted({name for text in [*files.values(), index] for name in find_leaks(text, secrets)})
     if leaks:
         print(f"Nothing was written: the values of these variables would have been: {', '.join(leaks)}")
+        return 1
+    if args.reextract and not same_pages(root / args.name, files):
+        print("Nothing was written: the re-extraction's sources differ from the recording's pages, which it must keep.")
         return 1
     write_files(root, args.name, files, index)
     if log is not None and log_path is not None:
