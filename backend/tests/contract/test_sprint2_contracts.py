@@ -677,7 +677,9 @@ def test_post_search_keeps_its_contract() -> None:
         "coverage_note",
         "saved",
         "llm_unavailable",
-    }  # fmt: skip  (citations: S3-0, 1.7.0; llm_unavailable: S4-0, 1.9.0)
+        "cached",
+        "cached_at",
+    }  # fmt: skip  (citations: S3-0, 1.7.0; llm_unavailable: S4-0, 1.9.0; cached, cached_at: S5-0, 1.10.0)
 
 
 # --- Export ----------------------------------------------------------------------------------------

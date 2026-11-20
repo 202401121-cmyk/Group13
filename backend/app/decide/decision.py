@@ -11,10 +11,10 @@ from __future__ import annotations
 import logging
 import time
 
-from app.contracts import DecideInput, DecideResult
+from app.contracts import DecideInput, DecideResult, RankedProduct
 
 from .directions import directions_for
-from .rules import filter_products, index_values
+from .rules import FilterOutcome, filter_products, index_values
 from .scoring import rank_with_notes
 from .simulation import TIME_LIMIT_S, simulate
 
@@ -32,24 +32,36 @@ def decide_with_notes(inp: DecideInput, *, weighted_only: bool = False) -> tuple
     directions = directions_for([w.key for w in rubric.weights], rubric.category)
     ranked, compared = rank_with_notes(outcome.shown, rubric, values, directions)
     weighted = DecideResult(
-        ranked=ranked,
+        ranked=_noted(ranked, outcome),
         filtered=outcome.filtered,
         relaxation_hint=outcome.relaxation_hint,
         method="weighted",
+        checked_values=outcome.checked,
     )
     if weighted_only or not any(r.score is not None for r in ranked):
         return weighted, compared  # asked for, or nothing to rank on: no simulation can say more
     try:
         simulated = DecideResult(
-            ranked=simulate(outcome.shown, rubric, values, directions, inp.seed, deadline=deadline),
+            ranked=_noted(simulate(outcome.shown, rubric, values, directions, inp.seed, deadline=deadline), outcome),
             filtered=outcome.filtered,
             relaxation_hint=outcome.relaxation_hint,
             method="monte_carlo",
+            checked_values=outcome.checked,
         )
     except Exception as exc:  # the plain weighted result stands (build rule 9). The type only, never its text
         log.warning("decide: the simulations failed (%s); the plain weighted ranking stands", type(exc).__name__)
         return weighted, compared
     return simulated, compared
+
+
+def _noted(ranked: list[RankedProduct], outcome: FilterOutcome) -> list[RankedProduct]:
+    """Each shown product with how a RAM or storage rule passed through one of its versions, if one did (S4-24)."""
+    return [
+        RankedProduct.model_validate({**r.model_dump(), "rule_notes": outcome.rule_notes[r.product_id]})
+        if outcome.rule_notes.get(r.product_id)
+        else r
+        for r in ranked
+    ]
 
 
 def decide(inp: DecideInput, *, weighted_only: bool = False) -> DecideResult:

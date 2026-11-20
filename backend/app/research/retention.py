@@ -20,6 +20,11 @@ value, or an alternative's, is replaced by the marker unless every claim it rest
 isn't Reddit; the claims behind it are read from SearchResult.citations. Numbers and true/false are not words, so they
 stay, and so do the claim ids. An alternative's unit is too short for the marker, so it is dropped instead (None).
 
+What the filter read (DecideResult.checked_values, 1.10.0) and a shown product's rule notes repeat those values: for a
+product and attribute whose value was replaced, every string the filter read becomes the same marker, and the product's
+rule notes go. A filter key never rests on Reddit or forum words (S3-10b), but a video with viewers' comments is
+editorial, so its words can (P-23).
+
 Product names are names, not a poster's words, so they stay from any source (US-15; Om, 11 Nov 2026). Community notes
 hold no Reddit text yet: nothing fills them until US-42. tests/unit/research/test_retention.py lists every text field in
 a SearchResult, and fails on a new one, or when US-20 or US-42 makes real the stages whose fields could hold them.
@@ -44,7 +49,7 @@ def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
     saved = copy.deepcopy(result)
     sources = saved.get("sources")
     if not isinstance(sources, list):
-        _strip_values(saved, set())  # with no sources, no source can be known not to be Reddit
+        _strip_decision(saved, _strip_values(saved, set()))  # with no sources, none can be known not to be Reddit
         _drop_cited_quotes(saved, set())
         return saved
     others: set[Any] = set()
@@ -59,7 +64,7 @@ def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
             markers[source.get("id")] = VIDEO_TEXT_NOT_KEPT
         else:
             others.add(source.get("id"))
-    _strip_values(saved, others, markers)
+    _strip_decision(saved, _strip_values(saved, others, markers))
     _strip_quotes(saved, others, markers)
     _drop_cited_quotes(saved, others)
     return saved
@@ -140,12 +145,16 @@ def _marker(claim_ids: Any, kept: set[Any], cited: dict[Any, Any], markers: dict
     return found.pop() if len(found) == 1 else REDDIT_TEXT_NOT_KEPT
 
 
-def _strip_values(saved: dict[str, Any], others: set[Any], markers: dict[Any, str] | None = None) -> None:
+def _strip_values(
+    saved: dict[str, Any], others: set[Any], markers: dict[Any, str] | None = None
+) -> dict[tuple[Any, Any], str]:
     """A resolved value's words, and its alternatives', unless every claim behind them is cited from a source we know
-    isn't Reddit or a video's viewers. A number or true/false is not words, so it stays."""
+    isn't Reddit or a video's viewers. A number or true/false is not words, so it stays. Answers each product and
+    attribute whose words were replaced, with the marker they became."""
+    replaced: dict[tuple[Any, Any], str] = {}
     products = saved.get("products")
     if not isinstance(products, list):
-        return
+        return replaced
     kept = _claims_kept(saved, others)
     cited = _cited_from(saved)
     markers = markers or {}
@@ -155,16 +164,38 @@ def _strip_values(saved: dict[str, Any], others: set[Any], markers: dict[Any, st
             if not isinstance(value, dict):
                 continue
             supporting = value.get("supporting_claim_ids")
+            pair = (value.get("product_id"), value.get("criterion_key"))
             if isinstance(value.get("value"), str) and not _may_keep(supporting, kept):
-                value["value"] = _marker(supporting, kept, cited, markers)
+                value["value"] = replaced[pair] = _marker(supporting, kept, cited, markers)
             alternatives = value.get("alternatives")
             for alternative in alternatives if isinstance(alternatives, list) else []:
                 if not isinstance(alternative, dict) or _may_keep(alternative.get("claim_ids"), kept):
                     continue
                 if isinstance(alternative.get("value"), str):
                     alternative["value"] = _marker(alternative.get("claim_ids"), kept, cited, markers)
+                    replaced.setdefault(pair, alternative["value"])
                 if alternative.get("unit") is not None:
                     alternative["unit"] = None  # too short for the marker (16 characters at most)
+                    replaced.setdefault(pair, _marker(alternative.get("claim_ids"), kept, cited, markers))
+    return replaced
+
+
+def _strip_decision(saved: dict[str, Any], replaced: dict[tuple[Any, Any], str]) -> None:
+    """What the filter read repeats a value's words: for a product and attribute whose value was replaced, every string
+    it read becomes that marker (numbers stay), and the product's rule notes go (1.10.0)."""
+    decision = saved.get("decision")
+    if not replaced or not isinstance(decision, dict):
+        return
+    checked = decision.get("checked_values")
+    for read in checked if isinstance(checked, list) else []:
+        marker = replaced.get((read.get("product_id"), read.get("attribute"))) if isinstance(read, dict) else None
+        if marker is not None and isinstance(read.get("values"), list):
+            read["values"] = [marker if isinstance(v, str) else v for v in read["values"]]
+    touched = {product_id for product_id, _ in replaced}
+    ranked = decision.get("ranked")
+    for item in ranked if isinstance(ranked, list) else []:
+        if isinstance(item, dict) and item.get("product_id") in touched and item.get("rule_notes"):
+            item["rule_notes"] = []
 
 
 def _drop_cited_quotes(saved: dict[str, Any], others: set[Any]) -> None:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field, model_validator
 
@@ -57,6 +57,72 @@ class RankedProduct(Contract):
     gap_to_leader: float = Field(ge=0)
     tied_with: list[ProductId] = Field(default_factory=list, description="'Too close to call'")
     separating_criterion: Slug | None = None
+    rule_notes: list[Annotated[str, Field(min_length=1, max_length=400)]] = Field(
+        default_factory=list,
+        max_length=5,
+        description=(
+            "How a RAM or storage must-have passed through one version of the product, such as 'It meets \"at least "
+            "8 GB RAM\" in its 8 GB version' (US-09, S4-24). Empty when no version decided a rule; before 1.10.0"
+        ),
+    )
+
+
+class CheckedValue(Contract):
+    """A value the filter read for one product (US-23, P-42): its price, or a hard rule's attribute, as decide used it.
+
+    With these the browser can filter again, for a changed budget or rule, with no server call, keeping a rule as decide
+    does (docs/frontend-api.md, "Sprint 5 contracts"):
+    - no values: the filter had nothing to read, so it can't tell;
+    - one value: the rule keeps it or not;
+    - several, not versions (the sides of a disputed value): every side keeps it, it passes; every side breaks it, it
+      fails; else it can't tell. A disputed value with one side alone can't tell either;
+    - versions (any_version): any version keeping the rule is enough. If none does and one can't be compared, it can't
+      tell; if none does and the claims gave a disputed value with one side alone, it can't tell; else it fails.
+    """
+
+    product_id: ProductId
+    attribute: Slug = Field(description="'price_inr', or a hard rule's attribute such as 'ram_gb'")
+    state: ValueState = Field(
+        description=(
+            "The state as the filter read it: unknown when verify gave no value, and known for a value disputed in "
+            "scores only, which the filter checks as an agreed one"
+        )
+    )
+    values: list[float | bool | str] = Field(
+        default_factory=list,
+        max_length=40,
+        description=(
+            "What the filter compared: the price in rupees; a size as a number in `unit`; else the value as its claims "
+            "gave it. Every side of a disputed value, or every version of a RAM or storage size, claims' first"
+        ),
+    )
+    unit: str | None = Field(
+        default=None, max_length=16, description="The numbers' unit: 'INR' for a price, the rule's ('gb'), else None"
+    )
+    any_version: bool = Field(
+        default=False,
+        description="True when values are the versions the product comes in (DR-02): any one keeping a rule is enough",
+    )
+    from_names: int = Field(
+        default=0,
+        ge=0,
+        le=40,
+        description="How many of values, the last ones, are versions only the names state; the rest are the claims.",
+    )
+
+    @model_validator(mode="after")
+    def _check(self) -> CheckedValue:
+        if self.from_names > len(self.values):
+            raise ValueError("from_names counts some of the values")
+        if self.from_names and not self.any_version:
+            raise ValueError("only versions come from a product's names")
+        claims = len(self.values) - self.from_names
+        if claims and self.state in (ValueState.UNKNOWN, ValueState.ESTIMATED):
+            raise ValueError("a value the filter could not read has no values, unless the names state versions")
+        numbers = any(isinstance(v, int | float) and not isinstance(v, bool) for v in self.values)
+        if self.unit is not None and not numbers:
+            raise ValueError("a unit goes with a number in values")
+        return self
 
 
 class DecideResult(Contract):
@@ -66,6 +132,14 @@ class DecideResult(Contract):
         default=None, max_length=300, description="When nothing passes: the one rule whose relaxation helps most"
     )
     method: Literal["monte_carlo", "weighted"]
+    checked_values: list[CheckedValue] = Field(
+        default_factory=list,
+        max_length=5000,
+        description=(
+            "For every product decided, shown, can't tell or filtered out: its price and each hard rule's attribute, "
+            "as the filter read them (US-23, P-42). Empty before 1.10.0"
+        ),
+    )
 
     @model_validator(mode="after")
     def _check(self) -> DecideResult:
@@ -77,6 +151,9 @@ class DecideResult(Contract):
             raise ValueError("a product cannot be both ranked and filtered")
         if not self.ranked and self.relaxation_hint is None and self.filtered:
             raise ValueError("when nothing passes the rules, give a relaxation hint (US-17)")
+        read = [(v.product_id, v.attribute) for v in self.checked_values]
+        if len(read) != len(set(read)):
+            raise ValueError("each product's attribute is in checked_values once")
         unscored = [r.score is None for r in self.ranked]
         if any(unscored) and not all(unscored):
             raise ValueError("every ranked product has no score, or none does")

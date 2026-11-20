@@ -70,7 +70,8 @@
       "tied_with": [
         "prd_kestrel_slim_15"
       ],
-      "separating_criterion": "battery_life"
+      "separating_criterion": "battery_life",
+      "rule_notes": []
     },
     {
       "product_id": "prd_kestrel_slim_15",
@@ -142,7 +143,8 @@
       "tied_with": [
         "prd_nova_book_14"
       ],
-      "separating_criterion": "battery_life"
+      "separating_criterion": "battery_life",
+      "rule_notes": []
     },
     {
       "product_id": "prd_orion_play_15",
@@ -212,7 +214,8 @@
       "label": null,
       "gap_to_leader": 11.25,
       "tied_with": [],
-      "separating_criterion": null
+      "separating_criterion": null,
+      "rule_notes": []
     }
   ],
   "filtered": [
@@ -234,5 +237,113 @@
     }
   ],
   "relaxation_hint": null,
-  "method": "monte_carlo"
+  "method": "monte_carlo",
+  "checked_values": [
+    {
+      "product_id": "prd_nova_book_14",
+      "attribute": "price_inr",
+      "state": "known",
+      "values": [
+        64990.0
+      ],
+      "unit": "INR",
+      "any_version": false,
+      "from_names": 0
+    },
+    {
+      "product_id": "prd_nova_book_14",
+      "attribute": "ram_gb",
+      "state": "known",
+      "values": [
+        16.0
+      ],
+      "unit": "gb",
+      "any_version": false,
+      "from_names": 0
+    },
+    {
+      "product_id": "prd_kestrel_slim_15",
+      "attribute": "price_inr",
+      "state": "known",
+      "values": [
+        67490.0
+      ],
+      "unit": "INR",
+      "any_version": false,
+      "from_names": 0
+    },
+    {
+      "product_id": "prd_kestrel_slim_15",
+      "attribute": "ram_gb",
+      "state": "known",
+      "values": [
+        16.0
+      ],
+      "unit": "gb",
+      "any_version": false,
+      "from_names": 0
+    },
+    {
+      "product_id": "prd_orion_play_15",
+      "attribute": "price_inr",
+      "state": "known",
+      "values": [
+        59990.0
+      ],
+      "unit": "INR",
+      "any_version": false,
+      "from_names": 0
+    },
+    {
+      "product_id": "prd_orion_play_15",
+      "attribute": "ram_gb",
+      "state": "known",
+      "values": [
+        16.0
+      ],
+      "unit": "gb",
+      "any_version": false,
+      "from_names": 0
+    },
+    {
+      "product_id": "prd_aurora_air_13",
+      "attribute": "price_inr",
+      "state": "known",
+      "values": [
+        84990.0
+      ],
+      "unit": "INR",
+      "any_version": false,
+      "from_names": 0
+    },
+    {
+      "product_id": "prd_aurora_air_13",
+      "attribute": "ram_gb",
+      "state": "unknown",
+      "values": [],
+      "unit": null,
+      "any_version": false,
+      "from_names": 0
+    },
+    {
+      "product_id": "prd_vela_pro_14",
+      "attribute": "price_inr",
+      "state": "known",
+      "values": [
+        66990.0
+      ],
+      "unit": "INR",
+      "any_version": false,
+      "from_names": 0
+    },
+    {
+      "product_id": "prd_vela_pro_14",
+      "attribute": "ram_gb",
+      "state": "unknown",
+      "values": [],
+      "unit": null,
+      "any_version": false,
+      "from_names": 0
+    }
+  ]
 }

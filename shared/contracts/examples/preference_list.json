@@ -1,0 +1,55 @@
+{
+  "items": [
+    {
+      "id": "5e6f7a8b-9c0d-4e1f-8a2b-3c4d5e6f7a8b",
+      "kind": "exclusion",
+      "category": null,
+      "criterion_key": null,
+      "text": "No Zenith, in any search",
+      "weight": null,
+      "rule": null,
+      "exclusion": {
+        "kind": "brand",
+        "value": "Zenith",
+        "always": true
+      },
+      "always": true,
+      "created_at": "2026-10-06T10:00:00Z",
+      "updated_at": "2026-10-06T10:00:00Z"
+    },
+    {
+      "id": "4d5e6f7a-8b9c-4d0e-9f1a-2b3c4d5e6f7a",
+      "kind": "hard_rule",
+      "category": "laptop",
+      "criterion_key": null,
+      "text": "At least 16 GB RAM",
+      "weight": null,
+      "rule": {
+        "attribute": "ram_gb",
+        "operator": ">=",
+        "value": 16.0,
+        "unit": "GB",
+        "source_text": "at least 16 GB RAM",
+        "id": "ram_gb_min_1c18a881e7",
+        "active": true
+      },
+      "exclusion": null,
+      "always": false,
+      "created_at": "2026-10-05T10:00:00Z",
+      "updated_at": "2026-10-05T10:00:00Z"
+    },
+    {
+      "id": "3c4d5e6f-7a8b-4c9d-8e0f-1a2b3c4d5e6f",
+      "kind": "weight",
+      "category": "laptop",
+      "criterion_key": "battery_life",
+      "text": "Battery life matters a lot",
+      "weight": 8.0,
+      "rule": null,
+      "exclusion": null,
+      "always": false,
+      "created_at": "2026-10-03T10:00:00Z",
+      "updated_at": "2026-10-04T10:00:00Z"
+    }
+  ]
+}

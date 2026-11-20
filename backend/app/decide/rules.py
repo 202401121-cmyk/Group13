@@ -16,6 +16,10 @@ name is said to come from that name, never from a spec page. A product whose nam
 
 Ruling out a brand rules out the sub-brands config/brand_families.yaml sells under it, and the reason says so ("POCO is
 a Xiaomi brand. You ruled out Xiaomi"); ruling out a sub-brand never rules out its parent (US-10, S4-25, P-26).
+
+What the filter read goes back with the outcome (1.10.0): for every product, its price and each hard rule's attribute
+(every rule, on or off), as CheckedValues the browser can filter with again (US-23, P-42). And for a shown product, how
+a RAM or storage rule passed through one of its versions ("It meets ... in its 8 GB version"), as its rule notes.
 """
 
 from __future__ import annotations
@@ -24,7 +28,7 @@ import logging
 import math
 import re
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
 from typing import Any, Literal
@@ -32,7 +36,16 @@ from typing import Any, Literal
 import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from app.contracts import Budget, Exclusion, FilteredProduct, HardRule, Product, ResolvedValue, ValueState
+from app.contracts import (
+    Budget,
+    CheckedValue,
+    Exclusion,
+    FilteredProduct,
+    HardRule,
+    Product,
+    ResolvedValue,
+    ValueState,
+)
 
 from .features import feature_key
 from .units import (
@@ -54,8 +67,12 @@ from .variants import stated_values
 log = logging.getLogger(__name__)
 
 PRICE_KEY = "price_inr"
+PRICE_UNIT = "INR"
 BUDGET = "budget"
 MAX_REASONS = 10
+MAX_RULE_NOTES = 5  # RankedProduct.rule_notes limit
+MAX_NOTE = 400
+MAX_READ = 40  # CheckedValue.values limit
 MAX_HINT = 300
 NO_SINGLE_CHANGE = "No single change to your rules would let a product through. Try relaxing more than one."
 FROM_A_NAME = ", going by the name a source gave it, not a spec page"  # a version only a product's name states
@@ -83,6 +100,8 @@ class FilterOutcome:
     shown: list[Product]
     filtered: list[FilteredProduct]
     relaxation_hint: str | None
+    checked: list[CheckedValue] = field(default_factory=list)  # what the filter read, for every product
+    rule_notes: dict[str, list[str]] = field(default_factory=dict)  # a shown product's id -> how a rule passed
 
 
 # --- reading values --------------------------------------------------------------------------------------------------
@@ -742,13 +761,129 @@ def filter_products(
     shown: list[Product] = []
     held: list[FilteredProduct] = []
     blocked: list[set[str]] = []
+    checked: list[CheckedValue] = []
+    notes: dict[str, list[str]] = {}
     for product in products:
         checks = checks_for(product, budget, active, unique, values)
         group = _grouped(product, checks)
+        checked += checked_values(product, rules, values)
         if group is None:
             shown.append(product)
+            passed = rule_notes(checks)
+            if passed:
+                notes[product.id] = passed
         else:
             held.append(group)
             blocked.append({c.rule for c in checks if c.verdict != "pass"})
     hint = relaxation_hint(blocked, budget, active, unique) if products and not shown else None
-    return FilterOutcome(shown=shown, filtered=held, relaxation_hint=hint)
+    # By product id, so the products' order in the input changes nothing (US-19); each keeps its price first, then its
+    # rules in the rubric's order.
+    checked.sort(key=lambda v: v.product_id)
+    return FilterOutcome(shown=shown, filtered=held, relaxation_hint=hint, checked=checked, rule_notes=notes)
+
+
+# --- what the filter read (1.10.0) -----------------------------------------------------------------------------------
+
+
+def rule_notes(checks: Sequence[Check]) -> list[str]:
+    """How a rule passed, when the filter can say: a RAM or storage rule kept by one of the product's versions. Only
+    such a pass carries a reason; every other pass is silent. Each once, at most five."""
+    passed = [c.reason[:MAX_NOTE] for c in checks if c.verdict == "pass" and c.reason]
+    return list(dict.fromkeys(passed))[:MAX_RULE_NOTES]
+
+
+def checked_values(product: Product, rules: Sequence[HardRule], values: Values) -> list[CheckedValue]:
+    """The product's price, then each rule's attribute once, on or off: a rule switched on again or changed in the
+    browser can be checked with what the filter read (US-23, P-42). Rules on the price itself read as the price."""
+    out = [_checked_price(product.id, values.get((product.id, PRICE_KEY)))]
+    groups: dict[str, list[HardRule]] = {}
+    for rule in rules:
+        if rule.attribute != PRICE_KEY:
+            groups.setdefault(rule.attribute, []).append(rule)
+    for attribute, group in groups.items():
+        out.append(_checked_rule(group, product, values.get((product.id, attribute))))
+    return out
+
+
+def _read_state(value: ResolvedValue | None) -> ValueState:
+    """The value's state as the filter reads it: one disputed in scores only is checked as an agreed one (known)."""
+    if value is None:
+        return ValueState.UNKNOWN
+    if value.state is ValueState.DISPUTED and not value_disputed(value):
+        return ValueState.KNOWN
+    return value.state
+
+
+def _checked_price(product_id: str, value: ResolvedValue | None) -> CheckedValue:
+    """The price in rupees, as check_budget reads it: every side of a disputed one, a side it can't read as its text."""
+    state = _read_state(value)
+    if value is None or value.state not in _EVIDENCE or rupee_price(value.value) is None:
+        return CheckedValue(product_id=product_id, attribute=PRICE_KEY, state=state)
+    raws = sides(value) if value_disputed(value) else [value.value]
+    read: list[float | bool | str] = []
+    for raw in raws[:MAX_READ]:
+        price = rupee_price(raw)
+        read.append(price if price is not None else _value_text(raw, PRICE_KEY))
+    return CheckedValue(product_id=product_id, attribute=PRICE_KEY, state=state, values=read, unit=PRICE_UNIT)
+
+
+_AS_EQUALS = frozenset({"==", "!=", "in", "not_in"})  # compared as numbers only when plain (_equal, _member)
+_AS_SIZES = frozenset({"<=", ">="})  # compared as numbers whatever words surround them (_at_least)
+
+
+def _target_unit(rule: HardRule) -> str | None:
+    """The unit _numbers compares in: the rule's value's own, else the rule's, else the one its attribute ends with."""
+    options = rule.value if isinstance(rule.value, list) else [rule.value]
+    want = quantity(options[0]) if options and not isinstance(options[0], bool) else None
+    return (want.unit if want is not None else None) or unit_key(rule.unit) or attribute_unit(rule.attribute)
+
+
+def _number(rule: HardRule, raw: object, *, plain_only: bool) -> float | None:
+    """`raw` as a number in the rule's target unit, read as _numbers reads it: its own unit, else the attribute's, else
+    the target's when we know it. None when _numbers couldn't compare it."""
+    have = None if isinstance(raw, bool) else quantity(raw)
+    if have is None or (plain_only and not have.plain):
+        return None
+    want_unit = _target_unit(rule)
+    have_unit = have.unit or attribute_unit(rule.attribute) or (want_unit if known_unit(want_unit) else None)
+    if (want_unit is None) != (have_unit is None):
+        return None
+    have_dimension, have_base = in_base(Quantity(have.number, have_unit), None)
+    want_dimension, one = in_base(Quantity(1.0, want_unit), None)
+    return round(have_base / one, 6) if have_dimension == want_dimension and one else None
+
+
+def _as_given(raw: object) -> float | bool | str:
+    if isinstance(raw, bool | str):
+        return raw
+    if isinstance(raw, int | float):
+        return float(raw)
+    return str(raw)
+
+
+def _checked_rule(group: Sequence[HardRule], product: Product, value: ResolvedValue | None) -> CheckedValue:
+    """An attribute as check_rule reads it, for every rule on it: every version for a RAM or storage size whose names
+    state some, else the value, or every side of a disputed one. A number is read as the rules compare it: in the first
+    rule's unit, and with words around it only when some rule compares sizes ("at least", "at most")."""
+    rule = group[0]
+    stated = stated_values(product, rule.attribute)
+    by_rule = next((r for r in group if _by_version(r)), None)
+    if stated and by_rule is not None:
+        versions = _versions(by_rule, _claimed(value), stated)[:MAX_READ]
+        raws: list[object] = [v.text for v in versions]
+        from_names = sum(1 for v in versions if v.named)
+    else:
+        raws, from_names = _claimed(value)[:MAX_READ], 0
+    operators = {r.operator for r in group}
+    as_numbers = not any(isinstance(r.value, bool) for r in group) and bool(operators & (_AS_EQUALS | _AS_SIZES))
+    plain_only = not operators & _AS_SIZES
+    numbers = [_number(rule, raw, plain_only=plain_only) if as_numbers else None for raw in raws]
+    return CheckedValue(
+        product_id=product.id,
+        attribute=rule.attribute,
+        state=_read_state(value),
+        values=[n if n is not None else _as_given(raw) for n, raw in zip(numbers, raws, strict=True)],
+        unit=_target_unit(rule) if any(n is not None for n in numbers) and _target_unit(rule) else None,
+        any_version=bool(stated) and by_rule is not None,
+        from_names=from_names,
+    )

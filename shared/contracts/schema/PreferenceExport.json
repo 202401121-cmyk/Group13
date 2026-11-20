@@ -1,0 +1,279 @@
+{
+  "$defs": {
+    "Exclusion": {
+      "additionalProperties": false,
+      "description": "Something the user never wants to see (FR-10).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "brand",
+            "model",
+            "feature",
+            "seller"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        },
+        "always": {
+          "default": false,
+          "description": "True = save to memory for future searches",
+          "title": "Always",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind",
+        "value",
+        "always"
+      ],
+      "title": "Exclusion",
+      "type": "object"
+    },
+    "HardRule": {
+      "additionalProperties": false,
+      "description": "A must-have. Hard rules only filter products; they never change the order (DR-08).",
+      "properties": {
+        "attribute": {
+          "description": "Criterion or spec key, e.g. 'weight_kg' or 'has_ois'",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Attribute",
+          "type": "string"
+        },
+        "operator": {
+          "enum": [
+            "<=",
+            ">=",
+            "==",
+            "!=",
+            "in",
+            "not_in",
+            "contains"
+          ],
+          "title": "Operator",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          ],
+          "title": "Value"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "maxLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "source_text": {
+          "description": "What the user actually said",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Source Text",
+          "type": "string"
+        },
+        "id": {
+          "description": "Stable id made from attribute, operator and value (hard_rule_id), so the same rule keeps its id across a rebuild (US-09). Left out, it is made; given, it must match",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "active": {
+          "default": true,
+          "description": "False when the shopper switched this rule to a preference: it then no longer filters (US-09)",
+          "title": "Active",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "attribute",
+        "operator",
+        "value",
+        "unit",
+        "source_text",
+        "id",
+        "active"
+      ],
+      "title": "HardRule",
+      "type": "object"
+    },
+    "PreferenceItem": {
+      "additionalProperties": false,
+      "description": "One thing remembered: a weight for a criterion, a must-have, or a leave-out.\n\nA weight carries its criterion and its 0 to 10 weight; a must-have its rule, in the hard rule's own shape; a\nleave-out its exclusion. Each holds that and nothing of the others. An item belongs to one category, except a brand\nleft out with \"Always\", which holds for every category (US-10).",
+      "properties": {
+        "id": {
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "weight",
+            "hard_rule",
+            "exclusion"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "category": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The category it holds for. None only for a brand left out with Always: every one",
+          "title": "Category"
+        },
+        "criterion_key": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "pattern": "^[a-z0-9]+(?:[_-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A weight's criterion; None for the other kinds",
+          "title": "Criterion Key"
+        },
+        "text": {
+          "description": "What the shopper told us, in plain words, such as 'Battery life matters a lot'",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "maximum": 10.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A weight's 0 to 10 weight; None for the other kinds",
+          "title": "Weight"
+        },
+        "rule": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HardRule"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A must-have's rule; None for the other kinds"
+        },
+        "exclusion": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Exclusion"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "A leave-out; None for the other kinds"
+        },
+        "always": {
+          "default": false,
+          "description": "Kept for every later search; a leave-out's own Always",
+          "title": "Always",
+          "type": "boolean"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        },
+        "updated_at": {
+          "format": "date-time",
+          "title": "Updated At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "category",
+        "criterion_key",
+        "text",
+        "weight",
+        "rule",
+        "exclusion",
+        "always",
+        "created_at",
+        "updated_at"
+      ],
+      "title": "PreferenceItem",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Every remembered item, for the shopper to download (US-11), and when it was made.",
+  "properties": {
+    "exported_at": {
+      "format": "date-time",
+      "title": "Exported At",
+      "type": "string"
+    },
+    "items": {
+      "items": {
+        "$ref": "#/$defs/PreferenceItem"
+      },
+      "maxItems": 500,
+      "title": "Items",
+      "type": "array"
+    }
+  },
+  "required": [
+    "exported_at",
+    "items"
+  ],
+  "title": "PreferenceExport",
+  "type": "object"
+}

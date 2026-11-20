@@ -1,10 +1,11 @@
 """Sprint 3 leftovers on the rubric route (S4-17, US-09, US-10).
 
-- The all-zero note is in the response body (RubricEditResponse.note), and the X-Rubric-Note header stays for one
-  sprint. A page reload (GET /api/presearch/{session_id}) carries the same note in that header while the edits leave
-  every weight at 0, as PresearchSession has no field for it.
+- The all-zero note is in the response body (RubricEditResponse.note). A page reload (GET
+  /api/presearch/{session_id}) carries it in PresearchSession.note (1.10.0) while the edits leave every weight at 0,
+  and the X-Rubric-Note header carries it on both routes for one more sprint (S5-0).
 - "Always" set on a leave-out the request itself named ("no Zenith" in the example intent) is kept across rebuilds:
-  a new answer, a step back and a changed intent, as the shopper's own added leave-outs are.
+  a new answer, a step back and a changed intent, as the shopper's own added leave-outs are. It is stored apart from
+  the added ones (InterviewState.manual_always, 1.10.0), so it counts once against the 30.
 """
 
 from __future__ import annotations
@@ -160,3 +161,35 @@ def test_removing_a_request_leave_out_with_always_removes_it(client: TestClient)
     _set_always(client, True)
     response = _edit(client, {"kind": "remove_exclusion", "exclusion": ZENITH})
     assert RubricEditResponse.model_validate(response.json()).rubric.exclusions == []
+
+
+# --- the note in the session itself (1.10.0, S5-0) -------------------------------------------------------------------
+
+
+def test_the_note_survives_a_reload_in_the_session_itself(client: TestClient) -> None:
+    _start(client)
+    _edit(client, *_zeros())
+    reload = client.get(f"/api/presearch/{SID}")
+    assert reload.status_code == 200
+    assert PresearchSession.model_validate(reload.json()).note == ALL_ZERO_NOTE
+    assert reload.headers[RUBRIC_NOTE_HEADER] == ALL_ZERO_NOTE  # kept one more sprint
+
+
+def test_the_reloaded_session_has_no_note_once_a_weight_counts(client: TestClient) -> None:
+    _start(client)
+    _edit(client, *_zeros())
+    _edit(client, {"kind": "set_weight", "criterion_key": "weight", "weight": 4})
+    assert PresearchSession.model_validate(client.get(f"/api/presearch/{SID}").json()).note is None
+
+
+def test_a_session_with_no_interview_has_no_note(client: TestClient) -> None:
+    assert PresearchSession.model_validate(client.get(f"/api/presearch/{SID}").json()).note is None
+
+
+def test_always_on_a_request_leave_out_reaches_the_session_apart(client: TestClient) -> None:
+    _start(client)
+    _set_always(client, True)
+    state = PresearchSession.model_validate(client.get(f"/api/presearch/{SID}").json()).interview
+    assert state is not None
+    assert [(e.value, e.always) for e in state.manual_always] == [("Zenith", True)]
+    assert state.manual_exclusions_added == []
