@@ -422,12 +422,12 @@ The body holds 1 to 20 edits, applied in order. Each edit carries exactly the fi
 | `kind` | Fields | What it does |
 |---|---|---|
 | `switch_rule` | `rule_id`, `active` | `false` makes the must-have a preference: it stays in `hard_rules` with `active: false` and no longer filters. `true` makes it a must-have again |
-| `add_exclusion` | `exclusion` (`kind`, `value`, `always`) | Adds a leave-out; adding one the shopper removed brings it back |
+| `add_exclusion` | `exclusion` (`kind`, `value`, `always`) | Adds a leave-out; adding one the shopper removed brings it back. Adding one the request itself named, with a different `always`, sets "Always" on it |
 | `remove_exclusion` | `exclusion` | Removes a leave-out, whether the request named it or the shopper added it. Matched on `kind` and `value`, ignoring case |
 | `set_weight` | `criterion_key`, `weight` (0 to 10) | Sets that criterion's weight, with `origin: "manual"` |
 
 The edits are stored on the session, so every later rebuild applies them last: a new answer and going back to a
-question keep them. So does a changed intent: after `PUT /intent` (and `POST /criteria` when the use changed), start
+question keep them, and so does "Always" on a leave-out the request itself named (S4-17). So does a changed intent: after `PUT /intent` (and `POST /criteria` when the use changed), start
 the interview again and the edits are there. What is dropped: a switch for a rule the changed intent no longer has, a
 weight for a criterion the new criteria don't list (kept, but unused), and every edit if the product category itself
 changes, as they belong to the other category's criteria. Example request:
@@ -464,13 +464,18 @@ Response 200 (`RubricEditResponse`; two of the seven weights left out here):
       {"key": "battery_life", "weight": 7.0, "normalized": 0.15555555555555556, "origin": "default", "uncertainty": 0.5},
       {"key": "weight", "weight": 9.0, "normalized": 0.20000000000000007, "origin": "manual", "uncertainty": 0.0}
     ]
-  }
+  },
+  "note": null
 }
 ```
 
 - **Every weight 0:** when the edits leave every weight at 0, the rubric uses the category's usual weights (`origin:
-  "default"`), and the response has an `X-Rubric-Note` header (exposed to the browser through CORS) to show: `Every weight was set to 0, so the usual weights
-  are used until you raise one.` The edits stay stored, so raising one weight counts again.
+  "default"`), and the response's `note` holds the sentence to show: `Every weight was set to 0, so the usual weights
+  are used until you raise one.` Otherwise `note` is `null`. The edits stay stored, so raising one weight counts again.
+  - **After a reload,** `GET /api/presearch/{session_id}` sends the same sentence in an `X-Rubric-Note` header while
+    the edits leave every weight at 0 (`PresearchSession` has no field for it).
+  - **The header** `X-Rubric-Note` (exposed to the browser through CORS) also stays on the rubric route's response
+    for Sprint 4, so a screen may read either; read `note` from now on (S4-17).
 - **Errors:**
   - 404: the session has expired.
   - 409: the interview hasn't started (`The interview hasn't started yet. Please start it first.`).

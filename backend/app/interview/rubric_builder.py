@@ -13,7 +13,8 @@ weight counts again. Answers of 0 alone keep equal shares, as before.
 Hard rules, exclusions, budget, region and use come from the intent: they filter, they never weigh (DR-08). Each hard
 rule keeps the shopper's own words (source_text), and identical rules share one id, so the rubric keeps one rule per id.
 A rule the shopper switched to a preference stays in the list with active false: only active rules filter (S3-10).
-Exclusions are the intent's, plus the ones the shopper added, less the ones they removed.
+Exclusions are the intent's, plus the ones the shopper added, less the ones they removed. "Always" set on one the
+request itself named is stored with the added ones and applied to the request's own (S4-17), so a rebuild keeps it.
 
 A rebuild (a new answer, a step back, a changed intent) applies the stored edits again, so they survive it.
 The interview's beliefs about each weight (US-04) are never changed here: an edit is not an answer.
@@ -154,9 +155,17 @@ def _key(exclusion: Exclusion) -> tuple[str, str]:
 
 
 def _exclusions(state: InterviewState) -> list[Exclusion]:
-    """The request's own exclusions as they were, less the removed ones, then each added one not already there."""
+    """The request's own exclusions as they were, less the removed ones and with the shopper's "Always" on them, then
+    each added one not already there."""
     removed = {_key(e) for e in state.manual_exclusions_removed}
-    kept = [e for e in state.intent.exclusions if _key(e) not in removed]
+    always = {_key(e): e.always for e in state.manual_exclusions_added}
+    kept = [
+        e
+        if always.get(_key(e), e.always) == e.always
+        else Exclusion.model_validate({**e.model_dump(), "always": not e.always})
+        for e in state.intent.exclusions
+        if _key(e) not in removed
+    ]
     present = {_key(e) for e in kept}
     for exclusion in state.manual_exclusions_added:
         if _key(exclusion) not in present and _key(exclusion) not in removed:
@@ -172,7 +181,9 @@ def apply_edits(state: InterviewState, edits: Sequence[RubricEdit]) -> Interview
     """The edits, in order, stored on the state. Raises UnknownEdit for a rule id or criterion key it doesn't have."""
     rule_ids = {r.id for r in state.intent.hard_rules}
     keys = {c.key for c in state.criteria.criteria}
-    request = {_key(e) for e in state.intent.exclusions}
+    request: dict[tuple[str, str], set[bool]] = {}  # each of the request's own leave-outs, and its "Always" flags
+    for own in state.intent.exclusions:
+        request.setdefault(_key(own), set()).add(own.always)
     weights = dict(state.manual_weights)
     switches = dict(state.manual_rule_switches)
     added = list(state.manual_exclusions_added)
@@ -189,7 +200,11 @@ def apply_edits(state: InterviewState, edits: Sequence[RubricEdit]) -> Interview
         elif edit.kind == "add_exclusion" and edit.exclusion is not None:
             key = _key(edit.exclusion)
             removed = [e for e in removed if _key(e) != key]
-            if key not in request and all(_key(e) != key for e in added):
+            if key in request:  # the request's own: only a changed "Always" is stored, and the latest wins (S4-17)
+                added = [e for e in added if _key(e) != key]
+                if request[key] != {edit.exclusion.always}:
+                    added.append(edit.exclusion)
+            elif all(_key(e) != key for e in added):
                 added.append(edit.exclusion)
         elif edit.kind == "remove_exclusion" and edit.exclusion is not None:
             key = _key(edit.exclusion)
@@ -227,6 +242,8 @@ def carry_edits(old: InterviewState | None, intent: Intent, criteria: CriteriaSe
     if old.criteria.category != criteria.category:
         return None
     rule_ids = {r.id for r in intent.hard_rules}
+    # "Always" on a leave-out the old request named goes with it: it never brings back one the new intent dropped.
+    dropped = {_key(e) for e in old.intent.exclusions} - {_key(e) for e in intent.exclusions}
     try:
         return InterviewState.model_validate(
             {
@@ -235,7 +252,9 @@ def carry_edits(old: InterviewState | None, intent: Intent, criteria: CriteriaSe
                 "criteria": criteria.model_dump(),
                 "manual_weights": old.manual_weights,
                 "manual_rule_switches": {k: v for k, v in old.manual_rule_switches.items() if k in rule_ids},
-                "manual_exclusions_added": [e.model_dump() for e in old.manual_exclusions_added],
+                "manual_exclusions_added": [
+                    e.model_dump() for e in old.manual_exclusions_added if _key(e) not in dropped
+                ],
                 "manual_exclusions_removed": [e.model_dump() for e in old.manual_exclusions_removed],
             }
         )

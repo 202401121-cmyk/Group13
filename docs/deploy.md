@@ -110,6 +110,7 @@ and the file name the same ones.
 | `OPENROUTER_API_KEY` | The team's OpenRouter key | **yes** |
 | `CEREBRAS_API_KEY` | The team's Cerebras key | **yes** |
 | `MISTRAL_API_KEY` | The team's Mistral key | **yes** |
+| `DEEPSEEK_API_KEY` | The team's DeepSeek key, on its granted balance only: never add a payment method (D-11). Empty leaves DeepSeek out of the public fallback (US-46). | **yes** |
 | `SERPER_API_KEY` | The team's Serper key | **yes** |
 | `YOUTUBE_API_KEY` | The team's YouTube Data API key, restricted to that API. Empty leaves YouTube out of every search (US-38). | **yes** |
 | `JINA_API_KEY` | Leave empty on staging (section 1). If set, the team's Jina key. | **yes** |

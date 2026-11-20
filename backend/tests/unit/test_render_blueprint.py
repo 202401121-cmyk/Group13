@@ -93,3 +93,19 @@ def test_the_runbook_lists_exactly_the_blueprints_variables(service: dict[str, A
     assert len(section) == 3, "docs/deploy.md must mark its Render variable table with <!-- render-variables -->"
     listed = set(re.findall(r"^\| `([A-Z][A-Z0-9_]+)`", section[1], flags=re.MULTILINE))
     assert listed == set(_variables(service))
+
+
+def test_the_blueprint_lists_every_key_the_app_reads(service: dict[str, Any]) -> None:
+    """Every provider or service key the backend reads is named, so staging can be given it (S4-17: DeepSeek)."""
+    sources = [p for folder in ("app", "config") for p in (BACKEND / folder).rglob("*") if p.suffix in (".py", ".yaml")]
+    read = set(re.findall(r"\b[A-Z][A-Z0-9_]*_API_KEY\b", "\n".join(p.read_text(encoding="utf-8") for p in sources)))
+    assert "DEEPSEEK_API_KEY" in read
+    assert read <= set(_variables(service)), sorted(read - set(_variables(service)))
+
+
+def test_the_example_env_names_the_matcher_with_its_default() -> None:
+    """.env.example names MATCHER with config/matcher.yaml's default (S4-17), each comment on its own line."""
+    lines = (REPO / ".env.example").read_text(encoding="utf-8").splitlines()
+    default = yaml.safe_load((BACKEND / "config" / "matcher.yaml").read_text(encoding="utf-8"))["default"]
+    at = lines.index(f"MATCHER={default}")
+    assert lines[at - 1].startswith("# ") and "fuzzy" in lines[at - 1] and "model" in lines[at - 1]
