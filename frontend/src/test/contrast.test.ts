@@ -58,3 +58,39 @@ describe("muted text contrast", () => {
     }
   }
 });
+
+describe("ink panel contrast (the deep panels on home, sign-in and the profile)", () => {
+  for (const [mode, selector] of [
+    ["light", ":root"],
+    ["dark", ".dark"],
+  ] as const) {
+    for (const surface of ["ink", "ink-raised"]) {
+      for (const text of ["ink-foreground", "ink-muted"]) {
+        it(`--${text} is at least 4.5:1 on --${surface} in ${mode} mode`, () => {
+          const t = tokensOf(selector);
+          expect(contrast(t[text]!, t[surface]!)).toBeGreaterThanOrEqual(4.5);
+        });
+      }
+    }
+    it(`--ink-foreground is at least 4.5:1 on an icon's --ink-well in ${mode} mode`, () => {
+      const t = tokensOf(selector);
+      expect(contrast(t["ink-foreground"]!, t["ink-well"]!)).toBeGreaterThanOrEqual(4.5);
+    });
+    it(`a --glow icon is at least 3:1 on its --ink-well in ${mode} mode`, () => {
+      const t = tokensOf(selector);
+      expect(contrast(t["glow"]!, t["ink-well"]!)).toBeGreaterThanOrEqual(3);
+    });
+  }
+
+  it("the avatar's white initials are at least 4.5:1 on every stop of its disc", () => {
+    const start = css.indexOf("@utility avatar-disc {");
+    expect(start).toBeGreaterThanOrEqual(0);
+    const gradient = css.slice(start, css.indexOf(");", start));
+    const stops = [...gradient.matchAll(/oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)/g)].map(
+      (m) => [Number(m[1]), Number(m[2]), Number(m[3])] as Oklch,
+    );
+    expect(stops).toHaveLength(3);
+    const initials = tokensOf(":root")["ink-foreground"]!;
+    for (const stop of stops) expect(contrast(initials, stop)).toBeGreaterThanOrEqual(4.5);
+  });
+});

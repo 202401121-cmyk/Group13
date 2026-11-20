@@ -21,7 +21,12 @@ import {
 /** The part of a supabase-js session this needs. */
 export interface SessionLike {
   access_token: string;
-  user: { id: string; user_metadata?: unknown };
+  user: {
+    id: string;
+    user_metadata?: unknown;
+    email?: string | undefined;
+    created_at?: string | undefined;
+  };
 }
 
 interface SessionAnswer {
@@ -110,7 +115,12 @@ export function createLiveAuthService(options: LiveAuthOptions): AuthService {
     const next: AuthState = session
       ? {
           status: "signedIn",
-          user: { id: session.user.id, name: nameFrom(session.user.user_metadata) },
+          user: {
+            id: session.user.id,
+            name: nameFrom(session.user.user_metadata),
+            email: session.user.email ?? null,
+            since: session.user.created_at ? Date.parse(session.user.created_at) || null : null,
+          },
         }
       : { status: "guest", error: firstError };
     firstError = undefined; // said once

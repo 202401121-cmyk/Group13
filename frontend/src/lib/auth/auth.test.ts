@@ -89,7 +89,15 @@ describe("returnPath", () => {
     ["https://evil.example/", "/"],
     ["//evil.example/", "/"],
     ["/\\evil.example", "/"],
-  ])("%s comes back to %s", (path, back) => expect(returnPath(path)).toBe(back));
+    // A browser drops tabs and line breaks, so each of these would read as "//evil.example".
+    ["/\t/evil.example", "/"],
+    ["/\n/evil.example", "/"],
+    ["/\r/evil.example", "/"],
+    ["/\t\\evil.example", "/"],
+    ["/\u0000/evil.example", "/"],
+    ["/%09/evil.example", "/%09/evil.example"], // still encoded, so a path on this site
+    ["/my-searches?q=a\\b", "/"],
+  ])("%j comes back to %j", (path, back) => expect(returnPath(path)).toBe(back));
 });
 
 // --- the mock ------------------------------------------------------------------------------------------------------
@@ -179,8 +187,30 @@ describe("live sign-in", () => {
     const { auth } = live(session("u1", "Asha Rao"));
     auth.start();
     await settled();
-    expect(auth.current()).toEqual({ status: "signedIn", user: { id: "u1", name: "Asha Rao" } });
+    expect(auth.current()).toEqual({
+      status: "signedIn",
+      user: { id: "u1", name: "Asha Rao", email: null, since: null },
+    });
     expect(await auth.accessToken()).toBe("token-for-u1");
+  });
+
+  it("keeps the email and the account's start for the profile, and nothing else", async () => {
+    const base = session("u2", "Asha Rao");
+    const { auth } = live({
+      ...base,
+      user: { ...base.user, email: "asha@example.test", created_at: "2026-11-03T09:00:00Z" },
+    });
+    auth.start();
+    await settled();
+    expect(auth.current()).toEqual({
+      status: "signedIn",
+      user: {
+        id: "u2",
+        name: "Asha Rao",
+        email: "asha@example.test",
+        since: Date.parse("2026-11-03T09:00:00Z"),
+      },
+    });
   });
 
   it("a call made before the session is read waits for it, so it carries the token", async () => {
@@ -332,7 +362,10 @@ describe("the service, loaded on first use", () => {
     auth.start();
     await settled();
     await settled();
-    expect(auth.current()).toEqual({ status: "signedIn", user: { id: "u1", name: null } });
+    expect(auth.current()).toEqual({
+      status: "signedIn",
+      user: { id: "u1", name: null, email: null, since: null },
+    });
     expect(await auth.accessToken()).toBe("token-for-u1");
   });
 

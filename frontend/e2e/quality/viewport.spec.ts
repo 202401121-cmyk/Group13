@@ -10,6 +10,7 @@ import {
   reachBrief,
   reachQuestions,
   reachUnderstood,
+  signInTo,
   startScenario,
 } from "./helpers";
 
@@ -62,6 +63,40 @@ test.describe("screen sizes", () => {
       const found = [...(await horizontalOverflow(page)), ...(await smallTargets(page))];
       console.log(`[viewport] menu open @ ${vp.name}: ${found.length ? found.join("; ") : "pass"}`);
       expect.soft(found, `menu open at ${vp.name}`).toEqual([]);
+    }
+  });
+
+  test("sign-in, account and the other information pages", async ({ page }) => {
+    for (const [path, screen] of [
+      ["/sign-in", "sign-in"],
+      ["/features", "features"],
+      ["/faq", "faq"],
+      ["/contact", "contact"],
+      ["/my-searches", "my searches, signed out"],
+      ["/account", "profile, signed out"],
+    ] as const) {
+      await page.goto(path);
+      await checkSizes(page, screen);
+    }
+    await signInTo(page, "/account");
+    await checkSizes(page, "profile");
+    await page.goto("/my-searches");
+    await expect(page.getByRole("main").getByRole("listitem").first()).toBeVisible();
+    await checkSizes(page, "my searches");
+    await page.goto("/sign-in");
+    await expect(page.getByRole("heading", { level: 1, name: "You're signed in" })).toBeVisible();
+    await checkSizes(page, "sign-in, signed in");
+    // The account menu, open, where the navigation shows it (1024 px and up).
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await page.getByRole("button", { name: /account menu$/ }).click();
+    for (const vp of VIEWPORTS.filter((v) => v.width >= 1024)) {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      const found = [...(await horizontalOverflow(page)), ...(await smallTargets(page))];
+      console.log(
+        `[viewport] account menu @ ${vp.name}: ${found.length ? found.join("; ") : "pass"}`,
+      );
+      expect.soft(found, `account menu at ${vp.name}`).toEqual([]);
     }
   });
 

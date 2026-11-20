@@ -39,6 +39,18 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  /* The deep panels (US-30 redesign): dark forest ink with its own text colours, in both themes. */
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-border: var(--ink-border);
+  --color-ink-raised: var(--ink-raised);
+  --color-ink-well: var(--ink-well);
+  --color-ink-track: var(--ink-track);
+  --color-ink-dot: var(--ink-dot);
+  --color-glow: var(--glow);
+  --color-glow-clay: var(--glow-clay);
+  --color-glow-lime: var(--glow-lime);
 }
 
 :root {
@@ -69,9 +81,29 @@
   --border: oklch(0.921 0.011 95.2); /* #E7E5DD */
   --input: oklch(0.885 0.01 90);
   --ring: oklch(0.531 0.047 160.4);
-  --shadow-soft: 0 1px 2px oklch(0.34 0.03 160 / 3%), 0 6px 16px -10px oklch(0.34 0.03 160 / 8%);
+  --shadow-soft:
+    inset 0 1px 0 oklch(1 0 0 / 60%), 0 1px 2px oklch(0.34 0.03 160 / 4%),
+    0 8px 20px -12px oklch(0.34 0.03 160 / 12%);
   --shadow-lift: 0 1px 3px oklch(0.34 0.03 160 / 4%), 0 14px 30px -16px oklch(0.34 0.03 160 / 14%);
   --shadow-primary-glow: 0 3px 16px -5px color-mix(in oklab, var(--primary) 30%, transparent);
+  /* Depth: a hairline, a soft body and a long shadow, and a lit top edge on raised surfaces. */
+  --shadow-float:
+    0 1px 1px oklch(0.34 0.03 160 / 4%), 0 10px 24px -14px oklch(0.34 0.03 160 / 18%),
+    0 34px 70px -36px oklch(0.34 0.03 160 / 26%);
+  --highlight: inset 0 1px 0 oklch(1 0 0 / 75%);
+  --ink: oklch(0.262 0.03 162);
+  --ink-foreground: oklch(0.965 0.008 95);
+  --ink-muted: oklch(0.83 0.02 150); /* at least 4.5:1 on --ink */
+  --ink-border: oklch(0.37 0.03 160);
+  --ink-raised: oklch(0.31 0.032 162); /* a card on an ink panel */
+  --ink-well: oklch(0.4 0.05 158); /* an icon's well on an ink panel */
+  --ink-track: oklch(0.38 0.03 160); /* the empty part of a bar */
+  --ink-dot: oklch(0.5 0.03 160);
+  --glow: oklch(0.8 0.09 155); /* luminous sage: lines and dots only, never text */
+  --glow-clay: oklch(0.8 0.08 58);
+  --glow-lime: oklch(0.86 0.07 120); /* the bright end of a bar */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
   --shadow-status-glow: 0 0 9px color-mix(in oklab, var(--primary) 35%, transparent);
   --gradient-pipeline: linear-gradient(90deg, transparent, var(--primary), transparent);
   --gradient-ambient:
@@ -105,8 +137,25 @@
   --border: oklch(0.385 0.02 155);
   --input: oklch(0.43 0.02 155);
   --ring: oklch(0.74 0.06 155);
-  --shadow-soft: 0 1px 2px oklch(0 0 0 / 18%), 0 6px 16px -10px oklch(0 0 0 / 35%);
+  --shadow-soft:
+    inset 0 1px 0 oklch(1 0 0 / 5%), 0 1px 2px oklch(0 0 0 / 18%),
+    0 8px 20px -12px oklch(0 0 0 / 40%);
   --shadow-lift: 0 1px 3px oklch(0 0 0 / 18%), 0 14px 30px -16px oklch(0 0 0 / 45%);
+  --shadow-float:
+    0 1px 1px oklch(0 0 0 / 20%), 0 10px 24px -14px oklch(0 0 0 / 45%),
+    0 34px 70px -36px oklch(0 0 0 / 55%);
+  --highlight: inset 0 1px 0 oklch(1 0 0 / 6%);
+  --ink: oklch(0.2 0.02 160);
+  --ink-foreground: oklch(0.965 0.008 95);
+  --ink-muted: oklch(0.8 0.02 150);
+  --ink-border: oklch(0.32 0.022 158);
+  --ink-raised: oklch(0.31 0.032 162);
+  --ink-well: oklch(0.4 0.05 158);
+  --ink-track: oklch(0.38 0.03 160);
+  --ink-dot: oklch(0.5 0.03 160);
+  --glow: oklch(0.8 0.09 155);
+  --glow-clay: oklch(0.8 0.08 58);
+  --glow-lime: oklch(0.86 0.07 120);
   --gradient-ambient:
     radial-gradient(55% 60% at 72% 22%, oklch(0.37 0.03 155 / 45%), transparent 70%),
     radial-gradient(42% 48% at 12% 82%, oklch(0.35 0.03 55 / 30%), transparent 70%);
@@ -420,6 +469,320 @@
     transform: translateY(-3px);
   }
 }
+/* --- US-30 redesign: surfaces, light and motion ---------------------------------------------------------------- */
+
+@utility shadow-float {
+  box-shadow: var(--shadow-float);
+}
+
+/* A raised surface: hairline border, layered shadow and a lit top edge. */
+@utility surface-raised {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--highlight), var(--shadow-float);
+}
+
+/* Frosted glass for the floating navigation and menus. */
+@utility surface-glass {
+  background-color: color-mix(in oklab, var(--surface) 82%, transparent);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+}
+
+/* A faint drafting grid that fades out towards the edges. */
+@utility bg-blueprint {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--foreground) 7%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--foreground) 7%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 44px 44px;
+  mask-image: radial-gradient(70% 60% at 50% 40%, black, transparent);
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 40%, black, transparent);
+}
+
+/* The deep panels' own glow: two washes of light in the ink. */
+@utility bg-ink-glow {
+  background-color: var(--ink);
+  background-image:
+    radial-gradient(60% 70% at 85% 0%, oklch(0.45 0.07 158 / 55%), transparent 70%),
+    radial-gradient(50% 60% at 0% 100%, oklch(0.42 0.06 60 / 35%), transparent 70%);
+}
+
+/*
+ * A light that follows the pointer across a card (set --mx and --my from script). Painted as the card's own
+ * background, so it never animates anything's opacity (F-13).
+ */
+.spotlight {
+  --mx: 50%;
+  --my: 0%;
+  background-image: radial-gradient(
+    420px circle at var(--mx) var(--my),
+    color-mix(in oklab, var(--primary) 9%, transparent),
+    transparent 60%
+  );
+}
+
+/* A sheen that crosses a button on hover: a moving band of light, never a change of opacity of the label. */
+.sheen {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    color-mix(in oklab, white 28%, transparent) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  transition: transform 700ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .sheen:hover::after {
+    transform: translateX(120%);
+  }
+}
+
+/* Entrances and loops: transform, scale and stroke only, so text is fully drawn on every frame (F-13). */
+@keyframes rise-in {
+  from {
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes draw-line {
+  from {
+    stroke-dashoffset: var(--line-length, 400);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+/* A short bright dash runs along a thread (paths use pathLength="100"). */
+@keyframes comet {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes ring-pulse {
+  0% {
+    transform: scale(0.85);
+  }
+  70%,
+  100% {
+    transform: scale(1.6);
+  }
+}
+@keyframes menu-in {
+  from {
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    transform: none;
+  }
+}
+.animate-rise {
+  animation: rise-in 700ms var(--ease-out) both;
+}
+.animate-menu {
+  transform-origin: top right;
+  animation: menu-in 180ms var(--ease-out) both;
+}
+/*
+ * The loops live inside a data-motion-loop container (useVisualMotion): they start once the page has loaded
+ * (motion-ready) and run only while it is on screen (motion-visible). Reduced motion leaves them still.
+ */
+.motion-ready .animate-float {
+  animation: float-y 6s ease-in-out infinite paused;
+}
+.motion-ready .animate-orbit {
+  animation: orbit 28s linear infinite paused;
+}
+.motion-ready .animate-ring {
+  animation: ring-pulse 2.4s var(--ease-out) infinite paused;
+}
+.motion-ready .lost-lens {
+  animation: lens-search 7s ease-in-out infinite paused;
+}
+.motion-visible .animate-float,
+.motion-visible .animate-orbit,
+.motion-visible .animate-ring,
+.motion-visible .lost-lens {
+  animation-play-state: running;
+}
+.thread-line {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+}
+.motion-ready .thread-line {
+  --line-length: 100;
+  animation: draw-line 1.6s var(--ease-out) both;
+  animation-delay: var(--line-delay, 0s);
+}
+.thread-comet {
+  stroke-dasharray: 7 93;
+  stroke-dashoffset: 100;
+  animation: comet var(--travel, 3.4s) cubic-bezier(0.45, 0, 0.2, 1) infinite;
+  animation-delay: var(--line-delay, 0s);
+  animation-play-state: paused;
+}
+.motion-visible .thread-comet {
+  animation-play-state: running;
+}
+.bar-fill {
+  transform-origin: left;
+}
+.motion-ready .bar-fill {
+  animation: grow-x 1.1s var(--ease-out) both;
+  animation-delay: var(--bar-delay, 0s);
+}
+
+/*
+ * The evidence picture is drawn on a fixed 480 x 480 stage and zoomed to fit its box, in steps, so its parts keep
+ * their places at every width. zoom (not transform) keeps text sharp and the layout honest.
+ */
+/* A chip and a card floating on an ink panel; the avatar's disc. */
+@utility shadow-ink-chip {
+  box-shadow:
+    0 12px 30px -14px oklch(0 0 0 / 65%),
+    inset 0 1px 0 oklch(1 0 0 / 7%);
+}
+@utility shadow-ink-card {
+  box-shadow:
+    0 30px 80px -30px oklch(0 0 0 / 75%),
+    inset 0 1px 0 oklch(1 0 0 / 8%);
+}
+@utility bg-bar-glow {
+  background-image: linear-gradient(90deg, var(--glow), var(--glow-lime));
+}
+/* The same greens in both themes, dark enough for white initials at well over 4.5:1. */
+@utility avatar-disc {
+  background-image: radial-gradient(
+    120% 120% at 25% 15%,
+    oklch(0.52 0.06 158) 0%,
+    oklch(0.42 0.05 160) 50%,
+    oklch(0.3 0.035 162) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 35%),
+    0 6px 16px -8px oklch(0.3 0.04 160 / 60%);
+  text-shadow: 0 1px 1px oklch(0.2 0.03 160 / 55%);
+}
+
+.evidence-graph {
+  container-type: inline-size;
+}
+@container (width < 480px) {
+  .evidence-stage {
+    zoom: 0.9;
+  }
+}
+@container (width < 432px) {
+  .evidence-stage {
+    zoom: 0.8;
+  }
+}
+@container (width < 384px) {
+  .evidence-stage {
+    zoom: 0.72;
+  }
+}
+@container (width < 346px) {
+  .evidence-stage {
+    zoom: 0.64;
+  }
+}
+@container (width < 308px) {
+  .evidence-stage {
+    zoom: 0.56;
+  }
+}
+@container (width < 272px) {
+  .evidence-stage {
+    zoom: 0.5;
+  }
+}
+@container (width < 242px) {
+  .evidence-stage {
+    zoom: 0.44;
+  }
+}
+@container (width < 214px) {
+  .evidence-stage {
+    zoom: 0.38;
+  }
+}
+
+/* The lost page's lens: it searches the shelf, left to right and back. */
+@keyframes lens-search {
+  0%,
+  100% {
+    transform: translate(8px, 0) rotate(-6deg);
+  }
+  50% {
+    transform: translate(200px, 18px) rotate(8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lost-lens,
+  .animate-rise,
+  .animate-menu,
+  .animate-float,
+  .animate-orbit,
+  .animate-ring,
+  .motion-ready .thread-line,
+  .thread-comet,
+  .motion-ready .bar-fill {
+    animation: none;
+  }
+  .thread-comet {
+    display: none;
+  }
+  .sheen::after {
+    display: none;
+  }
+}
+
 @media (min-width: 640px) {
   .pipeline-connector {
     top: 24px;

@@ -65,6 +65,37 @@ test.describe("motion allowed", () => {
     expect(await wash.evaluate((el) => getComputedStyle(el).animationPlayState)).toBe("paused");
   });
 
+  test("the decorative loops run only on screen, from the hero to the footer", async ({ page }) => {
+    await page.goto("/", { waitUntil: "load" });
+    const graph = page.locator(".evidence-graph");
+    await expect(graph).toHaveClass(/motion-visible/);
+    // Every endless animation, bar the typing cursor's blink: is it running, and is its element on screen?
+    const loops = () =>
+      page.evaluate(() =>
+        document
+          .getAnimations()
+          .filter((a) => a.effect?.getTiming().iterations === Infinity)
+          .map((a) => {
+            const name = (a as CSSAnimation).animationName;
+            const target = (a.effect as KeyframeEffect).target;
+            const box = target?.getBoundingClientRect();
+            const onScreen = !!box && box.bottom > 0 && box.top < window.innerHeight;
+            return { name, running: a.playState === "running", onScreen };
+          })
+          .filter((l) => l.name !== "type-blink"),
+      );
+    const top = await loops();
+    expect(
+      top.filter((l) => l.running).map((l) => l.name),
+      "the hero's picture moves",
+    ).toEqual(expect.arrayContaining(["float-y", "ring-pulse"]));
+    await page.locator("footer").scrollIntoViewIfNeeded();
+    await expect(graph).not.toHaveClass(/motion-visible/);
+    await expect
+      .poll(async () => (await loops()).filter((l) => l.running && !l.onScreen).map((l) => l.name))
+      .toEqual([]);
+  });
+
   test("the background stops drawing when the tab is hidden", async ({ page, context }) => {
     await page.goto("/");
     const other = await context.newPage();

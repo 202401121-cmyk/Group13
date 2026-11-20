@@ -40,6 +40,24 @@ export async function waitForHydration(page: Page, selector: string) {
   }, selector);
 }
 
+/**
+ * Signs in with the mock sign-in, from the sign-in page as a shopper would, and lands on the page given. Mock mode
+ * only: "Continue with Google" there signs in at once.
+ */
+export async function signInTo(page: Page, path: "/account" | "/my-searches") {
+  await page.goto(`/sign-in?next=${encodeURIComponent(path)}`);
+  const google = page.getByRole("button", { name: "Continue with Google" });
+  await expect(google).toBeEnabled(); // enabled once the page has read that nobody is signed in yet
+  await waitForHydration(page, "main button");
+  await google.click();
+  await page.waitForURL((url) => url.pathname === path);
+  if (path === "/account") {
+    // The searches card has loaded: its most-searched list is there.
+    const card = page.getByRole("region", { name: "Your searches" });
+    await expect(card.getByRole("listitem").first()).toBeVisible();
+  } else await expect(page.getByRole("main").getByRole("listitem").first()).toBeVisible();
+}
+
 /** Switches the theme in place, the way the header toggle does, without leaving the current state. */
 export async function setTheme(page: Page, theme: Theme) {
   await page.evaluate((t) => {

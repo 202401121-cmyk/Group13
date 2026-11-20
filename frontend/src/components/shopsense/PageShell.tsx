@@ -5,27 +5,20 @@ import { Footer } from "./Footer";
 export function PageShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
+      {/* A faint drafting grid behind the top of every page, so they share one surface (US-30 redesign). */}
+      <div
+        className="bg-blueprint pointer-events-none absolute inset-x-0 top-0 h-[34rem] opacity-60"
+        aria-hidden
+      />
       <Navbar open={menuOpen} onOpenChange={setMenuOpen} />
       {/* While the small-screen menu is open, nothing behind it can take focus or be pressed. */}
-      <main inert={menuOpen}>{children}</main>
+      <main inert={menuOpen} className="relative">
+        {children}
+      </main>
       <div inert={menuOpen}>
         <Footer />
       </div>
     </div>
-  );
-}
-
-export function ComingSoon({ title, text }: { title: string; text: string }) {
-  return (
-    <PageShell>
-      <section className="mx-auto max-w-3xl px-6 py-32">
-        <p className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-primary">
-          Coming soon
-        </p>
-        <h1 className="mt-3 font-serif text-5xl text-foreground">{title}</h1>
-        <p className="mt-4 text-lg text-muted-foreground">{text}</p>
-      </section>
-    </PageShell>
   );
 }

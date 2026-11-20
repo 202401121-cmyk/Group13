@@ -11,6 +11,22 @@ export interface AuthUser {
   id: string;
   /** The name Google gave, if any. The screen falls back to "Your account". */
   name: string | null;
+  /** The account's email, as Supabase Auth has it: shown to the shopper on their profile only, never stored by us. */
+  email?: string | null | undefined;
+  /** When the account was made, ms since the epoch, if known. */
+  since?: number | null | undefined;
+}
+
+/** "AR" for "Asha Rao", "A" for "asha@example.test": the letters on the shopper's avatar. */
+export function initialsOf(user: Pick<AuthUser, "name" | "email">): string {
+  const source = (user.name ?? user.email ?? "").trim();
+  if (!source) return "?";
+  const words = source.includes("@") ? [source] : source.split(/\s+/);
+  const letters = words.length > 1 ? [words[0]!, words[words.length - 1]!] : [words[0]!];
+  return letters
+    .map((word) => [...word][0] ?? "")
+    .join("")
+    .toUpperCase();
 }
 
 export type AuthState =
@@ -54,7 +70,16 @@ export class SignInNotReady extends Error {
 export function returnPath(full: string): string {
   // Never a fragment: going to "/#how" from "/" would only scroll, and the page must load afresh (D-80).
   const path = full.split("#")[0] ?? "";
-  if (!path.startsWith("/") || path.startsWith("//") || path.startsWith("/\\")) return "/";
+  // A browser drops tabs and line breaks from an address and reads "\\" as "/", so "/<tab>/evil.example" would be
+  // "//evil.example": no control characters or backslashes at all, and the path must stay on this site once parsed.
+  const unsafe = [...path].some((c) => c < " " || c === "\u007F" || c === "\\");
+  if (!path.startsWith("/") || unsafe) return "/";
+  if (
+    path.startsWith("//") ||
+    new URL(path, "https://shopsense.invalid").origin !== "https://shopsense.invalid"
+  ) {
+    return "/";
+  }
   // A sign-in or a sign-out ends the search in progress (D-80), so its own pages have nothing to show afterwards.
   if (/^\/(s\/|research|criteria)/.test(path)) return "/";
   return path;

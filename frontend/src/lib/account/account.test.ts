@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createLiveAccountService } from "./liveAdapter";
 import { createMockAccountService, MOCK_EMPTY_KEY, MOCK_SAVED_COUNT } from "./mockService";
 import { ACCOUNT_MESSAGES, AccountError, PAGE_SIZE } from "./types";
+import { dayHeading, dayKey, matchesFilter } from "./format";
 import { fakeBackend, json, scripted } from "@/test/helpers/fakeBackend";
 import { fakeBearer } from "@/test/helpers/fakeAuth";
 import searchResult from "@contracts/examples/search_result.json";
@@ -143,5 +144,46 @@ describe("the mock account service", () => {
     const saved = await service.search(first!.id);
     expect(saved.result.saved).toBe(true);
     await expect(service.search(ID)).rejects.toMatchObject({ kind: "notFound" });
+  });
+});
+
+describe("My searches: the filter and the day headings", () => {
+  const item = (request: string, category: string | null, topProduct: string | null = null) => ({
+    id: "x",
+    createdAt: 0,
+    request,
+    category,
+    topProduct,
+  });
+
+  it("finds a search by its request, its kind as shown, or its best match", () => {
+    const fries = item("something for crispy fries", "air_fryer", "Orion Crisp 5L");
+    expect(matchesFilter(fries, "air fryer")).toBe(true); // the kind, as the row shows it
+    expect(matchesFilter(fries, "AIR_FRYER")).toBe(true);
+    expect(matchesFilter(fries, " crispy ")).toBe(true);
+    expect(matchesFilter(fries, "orion")).toBe(true);
+    expect(matchesFilter(fries, "laptop")).toBe(false);
+    expect(matchesFilter(item("anything", null), "")).toBe(true);
+  });
+
+  it("says Today, Yesterday by the calendar, the day, and the year only when it isn't this one", () => {
+    const now = new Date(2026, 10, 20, 0, 30).getTime(); // 12:30 am, 20 Nov 2026
+    expect(dayHeading(new Date(2026, 10, 20, 0, 5).getTime(), now)).toBe("Today");
+    expect(dayHeading(new Date(2026, 10, 19, 23, 50).getTime(), now)).toBe("Yesterday");
+    expect(dayHeading(new Date(2026, 10, 19, 0, 10).getTime(), now)).toBe("Yesterday");
+    expect(dayHeading(new Date(2026, 10, 18, 12).getTime(), now)).toBe("Wednesday, 18 November");
+    expect(dayHeading(new Date(2025, 11, 31, 12).getTime(), now)).toBe(
+      "Wednesday, 31 December 2025",
+    );
+    // The first of the month: yesterday is the last day of the month before.
+    const first = new Date(2026, 11, 1, 9).getTime();
+    expect(dayHeading(new Date(2026, 10, 30, 21).getTime(), first)).toBe("Yesterday");
+  });
+
+  it("groups by calendar day, so the same day in two years is two groups", () => {
+    expect(dayKey(new Date(2026, 0, 5, 1).getTime())).toBe(
+      dayKey(new Date(2026, 0, 5, 23).getTime()),
+    );
+    expect(dayKey(new Date(2026, 0, 5).getTime())).not.toBe(dayKey(new Date(2025, 0, 5).getTime()));
   });
 });
