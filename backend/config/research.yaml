@@ -80,6 +80,9 @@ maker_domains:
   sony: [sony.co.in]
   xiaomi: [mi.com]
   bose: [bose.com]
+  noise: [gonoise.com]  # Noise's own store and product pages (S4-17)
+  fire-boltt: [fireboltt.com]  # Fire-Boltt's own site (S4-17)
+  instant: [instantpot.com, instantpot.com.au]  # Instant Pot's own sites: global, and Australia's (S4-17)
 retailer_domains:
   - amazon.in
   - flipkart.com

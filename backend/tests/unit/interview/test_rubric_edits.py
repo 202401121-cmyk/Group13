@@ -206,3 +206,67 @@ def test_the_requests_own_exclusions_pass_through_as_they_were() -> None:
     )
     rubric = build_rubric(InterviewState(session_id=ex.SESSION_ID, intent=twice, criteria=ex.criteria()))
     assert [e.value for e in rubric.exclusions] == ["Zenith", "zenith"]
+
+
+# --- "Always" on the request's own leave-out (S4-17) ------------------------------------------------------------------
+
+
+def _always_zenith(base: InterviewState, always: bool) -> InterviewState:
+    """What the editor sends to set "Always": remove the leave-out, then add it with the flag."""
+    return apply_edits(
+        base,
+        [
+            edit(kind="remove_exclusion", exclusion=ZENITH.model_dump()),
+            edit(kind="add_exclusion", exclusion={**ZENITH.model_dump(), "always": always}),
+        ],
+    )
+
+
+def test_always_on_a_requests_leave_out_is_kept_in_its_place() -> None:
+    edited = _always_zenith(state(), True)
+    assert [(e.value, e.always) for e in build_rubric(edited).exclusions] == [("Zenith", True)]
+
+
+def test_always_on_a_requests_leave_out_survives_a_rebuild_and_a_changed_intent() -> None:
+    edited = _always_zenith(state(), True)
+    later = edited.model_validate({**edited.model_dump(), "history": [answered("cpu_performance", 9).model_dump()]})
+    assert [e.always for e in build_rubric(later).exclusions] == [True]
+    us = ex.intent().model_validate({**ex.intent().model_dump(), "region": "US"})
+    carried = carry_edits(edited, us, ex.criteria())
+    assert carried is not None and [e.always for e in build_rubric(carried).exclusions] == [True]
+
+
+def test_adding_a_requests_leave_out_as_it_was_stores_nothing() -> None:
+    edited = apply_edits(state(), [edit(kind="add_exclusion", exclusion=ZENITH.model_dump())])
+    assert edited.manual_exclusions_added == []
+    cleared = _always_zenith(_always_zenith(state(), True), False)
+    assert cleared.manual_exclusions_added == [] and cleared.manual_exclusions_removed == []
+    assert [e.always for e in build_rubric(cleared).exclusions] == [False]
+
+
+def test_always_follows_every_spelling_of_the_requests_leave_out() -> None:
+    twice = ex.intent().model_validate(
+        {**ex.intent().model_dump(), "exclusions": [ZENITH.model_dump(), {"kind": "brand", "value": "zenith"}]}
+    )
+    base = InterviewState(session_id=ex.SESSION_ID, intent=twice, criteria=ex.criteria())
+    rubric = build_rubric(_always_zenith(base, True))
+    assert [(e.value, e.always) for e in rubric.exclusions] == [("Zenith", True), ("zenith", True)]
+
+
+def test_always_never_brings_back_a_leave_out_the_new_intent_dropped() -> None:
+    edited = _always_zenith(state(), True)
+    none = ex.intent().model_validate({**ex.intent().model_dump(), "exclusions": []})
+    carried = carry_edits(edited, none, ex.criteria())
+    assert carried is not None and build_rubric(carried).exclusions == []
+
+
+def test_clearing_always_on_any_spelling_of_the_requests_leave_out_is_stored() -> None:
+    mixed = ex.intent().model_validate(
+        {
+            **ex.intent().model_dump(),
+            "exclusions": [ZENITH.model_dump(), {"kind": "brand", "value": "zenith", "always": True}],
+        }
+    )
+    base = InterviewState(session_id=ex.SESSION_ID, intent=mixed, criteria=ex.criteria())
+    cleared = apply_edits(base, [edit(kind="add_exclusion", exclusion={"kind": "brand", "value": "zenith"})])
+    assert [e.always for e in build_rubric(cleared).exclusions] == [False, False]
