@@ -12,6 +12,7 @@ import socket
 import threading
 import time
 from collections.abc import Iterator
+from uuid import UUID
 
 import pytest
 from fastapi.testclient import TestClient
@@ -100,7 +101,7 @@ def test_a_database_that_never_answers_gives_saved_false_in_time() -> None:
 class _BrokenDatabase(NullRequestStore):
     """Breaks the promise that save_search never raises, with the worst error text there could be."""
 
-    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject) -> bool:
+    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject, user_id: UUID | None = None) -> bool:
         raise ConnectionError(SECRET_IN_ERROR)
 
 
@@ -154,7 +155,7 @@ class _StuckDatabase(NullRequestStore):
     def __init__(self) -> None:
         self.release = threading.Event()
 
-    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject) -> bool:
+    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject, user_id: UUID | None = None) -> bool:
         self.release.wait(timeout=30)
         return True
 

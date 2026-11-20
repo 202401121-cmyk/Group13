@@ -28,6 +28,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from time import monotonic
 from typing import Literal, Protocol, TypeVar
+from uuid import UUID
 
 import httpx
 from pydantic import ValidationError
@@ -272,12 +273,18 @@ class DatabaseResultStore:
 
     def save(self, result: SearchResult) -> bool:
         request = result.request
+        try:  # the signed-in owner, which the API sets from the checked token (US-30); None for a guest
+            owner = UUID(request.user_id) if request.user_id is not None else None
+        except ValueError:
+            log.warning("search not saved: its user_id is not a user's id")
+            return False
         # mode="json": a plain dump holds datetimes and URLs, which the database module refuses.
         # A saved row stays, and Reddit data may be kept at most 24 hours (D-53), so its text never reaches the row.
         return self.requests.save_search(
             request.session_id,
             request.rubric.model_dump(mode="json"),
             without_reddit_text(result.model_dump(mode="json")),
+            user_id=owner,
         )
 
 

@@ -1,7 +1,9 @@
 """The HTTP API: a health check, the search endpoint (US-52), the pre-search routes (US-05) and search runs (US-12).
 
 Run: uvicorn app.main:app --reload
-No auth yet. Requests and finished searches are saved to Postgres when DATABASE_URL is set (US-01, US-52); the health
+Sign-in (US-30): a bearer token from Supabase Auth names the user, checked against the project's public signing keys
+(app/auth); no token, or a bad one, is a guest. Requests and finished searches are saved to Postgres when
+DATABASE_URL is set (US-01, US-52), a signed-in user's with their id; the health
 check reports the database as "ok", "off" or "down". CORS allows only the origins in FRONTEND_ORIGINS (default
 http://localhost:3000).
 
@@ -25,9 +27,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app import db
-from app.api import SearchRuns, default_runner, load_run_settings, presearch_router, search_runs_router
+from app.api import (
+    SearchRuns,
+    account_router,
+    default_runner,
+    load_run_settings,
+    owned_by,
+    presearch_router,
+    search_runs_router,
+)
 from app.api.exclusions import router as exclusions_router
 from app.api.presearch import plain_validation_message
+from app.auth import OptionalUser
 from app.contracts import SCHEMA_VERSION, SearchRequest, SearchResult
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
 from app.research.cache import sweep_expired_files
@@ -112,9 +123,11 @@ def health() -> dict[str, str]:
     return {"status": "ok", "schema_version": SCHEMA_VERSION, "database": db.default_request_store().health()}
 
 
-def search(request: SearchRequest) -> SearchResult:
+def search(request: SearchRequest, user: OptionalUser) -> SearchResult:
     # A plain `def`, so FastAPI runs the (blocking) pipeline in its thread pool, not on the event loop.
-    return PipelineRunner(default_search_stages(), DatabaseResultStore(db.default_request_store())).run(request)
+    # The owner comes from the checked token, never the body: a guest's search is never linked (US-30, D-36).
+    runner = PipelineRunner(default_search_stages(), DatabaseResultStore(db.default_request_store()))
+    return runner.run(owned_by(request, user))
 
 
 async def plain_validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
@@ -144,7 +157,8 @@ def create_app(env: Mapping[str, str] | None = None) -> FastAPI:
         CORSMiddleware,
         allow_origins=allowed_origins(env),
         allow_methods=["GET", "POST", "PUT", "DELETE"],  # only what the frontend calls; DELETE cancels a search run
-        allow_headers=["Content-Type", "Last-Event-ID"],  # Last-Event-ID resumes a progress stream
+        # Last-Event-ID resumes a progress stream; Authorization carries a signed-in user's token (US-30).
+        allow_headers=["Content-Type", "Last-Event-ID", "Authorization"],
         # So the frontend can read when to try a busy server again, and the rubric editor's note (US-09).
         expose_headers=["Retry-After", "X-Rubric-Note"],
     )
@@ -154,6 +168,7 @@ def create_app(env: Mapping[str, str] | None = None) -> FastAPI:
     app.include_router(presearch_router)
     app.include_router(exclusions_router)  # US-10: stateless, reads exclusions from words
     app.include_router(search_runs_router)
+    app.include_router(account_router)  # US-30: /api/me
     return app
 
 

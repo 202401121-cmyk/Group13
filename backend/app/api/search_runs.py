@@ -18,6 +18,11 @@ make it short.
 A finished run also keeps the claims its result's values cite (never the rest), so the evidence route can show each
 value's sources (app/api/evidence.py). They are never saved, and go with the run.
 
+A signed-in shopper's run is theirs (US-30): its state, its progress stream, its evidence and cancelling it need that
+user's token. Anyone else, with another token or none, gets the same 404 as for an ID that never existed, never 403, and
+such a run leaves no "expired" trace when it goes. Its result is saved with the user's id, then kept without it, so no
+state or event ever shows a user_id. A guest's run works exactly as before.
+
 A finished run goes at its keep-time even while a progress stream reads it, and on an idle server the app's housekeeping
 drops it at the next tick, so the Reddit text in its result and claims is gone before D-53's 24 hours (serve_limit(),
 app/research/reddit/cache.py, leaves room for both). A stream still open then sends the run's final event, with its
@@ -45,6 +50,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, R
 from fastapi.sse import EventSourceResponse, ServerSentEvent
 
 from app import db
+from app.auth import OptionalUser
 from app.contracts import (
     Claim,
     EvidenceResponse,
@@ -67,6 +73,7 @@ from app.pipeline import (
 from app.research.retention import without_reddit_text
 from app.search_run_limits import DEFAULT_KEEP_MINUTES, environment, keep_minutes, number
 
+from .account import owned_by
 from .evidence import NO_PRODUCT, NO_VALUE, SOURCES_GONE, ClaimRecorder, EvidenceUnavailable, cited_claims, evidence_for
 
 log = logging.getLogger(__name__)
@@ -142,6 +149,8 @@ class _Run:
     claims: dict[str, Claim] = field(default_factory=dict)
     # Set when the run is dropped while streams still read it: its final state, with no Reddit text in it (D-53).
     parting: SearchRun | None = None
+    # The signed-in shopper whose run this is (US-30): only their token reads it. None for a guest's run.
+    owner: str | None = None
 
 
 class _Batch(NamedTuple):
@@ -210,7 +219,7 @@ class SearchRuns:
         """Start a run and return its ID at once, or None when every worker is busy."""
         if not self._free.acquire(blocking=False):
             return None
-        run = _Run(search_id=new_search_id())
+        run = _Run(search_id=new_search_id(), owner=request.user_id)
         with self._lock:  # close() takes this lock too, so no run starts once the registry is closed
             if self.closed:
                 self._free.release()
@@ -223,28 +232,31 @@ class SearchRuns:
             worker.start()
         return run.search_id
 
-    def get(self, search_id: str) -> SearchRun:
+    def get(self, search_id: str, viewer: str | None = None) -> SearchRun:
+        """The run's state. `viewer` is the caller's user id (None for a guest): an owned run is only its owner's."""
         with self._lock:
-            return self._state(self._find(search_id))
+            return self._state(self._find(search_id, viewer))
 
-    def cancel(self, search_id: str) -> tuple[SearchRun, bool]:
+    def cancel(self, search_id: str, viewer: str | None = None) -> tuple[SearchRun, bool]:
         """Ask a run to stop before its next stage. Returns its state and whether the request took effect.
 
         It does not when the run has ended, or has started saving its result: then the run ends as it would have.
         """
         with self._lock:
-            run = self._find(search_id)
+            run = self._find(search_id, viewer)
             stopping = run.status not in _ENDED and run.cancel.request()
             return self._state(run), stopping
 
-    def evidence(self, search_id: str, product_id: str, criterion_key: str) -> EvidenceResponse:
+    def evidence(
+        self, search_id: str, product_id: str, criterion_key: str, viewer: str | None = None
+    ) -> EvidenceResponse:
         """The claims behind one value of a finished run, with their sources (US-21).
 
         Raises UnknownRun (ExpiredRun for one that was dropped), or EvidenceUnavailable: 409 while the run is still
         going, 404 when it has no result (it was cancelled or failed) or the value can't be shown.
         """
         with self._lock:
-            run = self._find(search_id)
+            run = self._find(search_id, viewer)
             ended, result, claims = run.status in _ENDED, run.result, run.claims
         if not ended:
             raise EvidenceUnavailable(409, NOT_FINISHED)
@@ -261,14 +273,14 @@ class SearchRuns:
         with self._lock:
             self._forget_old()
 
-    def resume_from(self, search_id: str, last_event_id: str | None) -> int | None:
+    def resume_from(self, search_id: str, last_event_id: str | None, viewer: str | None = None) -> int | None:
         """The event ID a stream starts after, or None when the run has ended and the client has seen all of it.
 
         A Last-Event-ID that is not a whole number between 0 and the newest event's ID is ignored, and the stream
         starts from the first event (clients drop what they already have by ID).
         """
         with self._lock:
-            run = self._find(search_id)
+            run = self._find(search_id, viewer)  # the stream reads only a run this check let through
             ended = run.status in _ENDED
             newest = len(run.events) + (1 if ended else 0)  # the final run event takes the next ID
             raw = (last_event_id or "").strip()
@@ -366,10 +378,13 @@ class SearchRuns:
                 run.events.append(event)
 
     def _end(self, run: _Run, status: SearchRunStatus, result: SearchResult | None, claims: dict[str, Claim]) -> None:
+        shown = _without_owner(result)  # saved with the owner's id already; never shown with it (US-30)
+        if result is not None and shown is None:  # the id can't be left out: show no result rather than the id
+            status, claims = SearchRunStatus.FAILED, {}
         with self._lock:
             now = self._wall()
             run.status = status
-            run.result = result
+            run.result = shown
             run.claims = claims
             run.finished_at = max(now, run.started_at) if run.started_at else now
             run.ended_at = self._clock()
@@ -398,11 +413,14 @@ class SearchRuns:
             events = run.events[sent:]
             return _Batch(events=events, final=self._state(run) if run.status in _ENDED and not events else None)
 
-    def _find(self, search_id: str) -> _Run:
+    def _find(self, search_id: str, viewer: str | None = None) -> _Run:
+        """The run, if `viewer` may read it. A signed-in shopper's run is unknown to everyone else (US-30)."""
         self._forget_old()
         run = self._runs.get(search_id)
         if run is None:
             raise ExpiredRun(search_id) if search_id in self._forgotten else UnknownRun(search_id)
+        if run.owner is not None and run.owner != viewer:
+            raise UnknownRun(search_id)  # the same answer as an ID that never existed: never confirmed
         return run
 
     def _forget_old(self) -> None:
@@ -431,7 +449,8 @@ class SearchRuns:
     def _drop(self, run: _Run) -> None:
         """Forget a finished run. Its result and claims go now, even from a stream that still holds the run (D-53)."""
         del self._runs[run.search_id]
-        self._forgotten.add(run.search_id)
+        if run.owner is None:  # an owned run leaves no trace: its ID is never confirmed to anyone (US-30)
+            self._forgotten.add(run.search_id)
         if run.streams:
             run.parting = _as_saved(self._state(run))
         # Replaced, not cleared: a request already reading the old ones finishes with them.
@@ -451,6 +470,18 @@ class SearchRuns:
 
 
 _Outcome = tuple[SearchRunStatus, SearchResult | None, dict[str, Claim]]
+
+
+def _without_owner(result: SearchResult | None) -> SearchResult | None:
+    """The result as a run keeps and shows it: request.user_id left out (US-30). It was saved with it already."""
+    if result is None or result.request.user_id is None:
+        return result
+    try:
+        request = {**result.request.model_dump(), "user_id": None}
+        return SearchResult.model_validate({**result.model_dump(), "request": request})
+    except Exception as exc:  # never show the id: the run then ends as failed, with no result (build rule 9)
+        log.warning("search run result could not be kept without its owner: %s", type(exc).__name__)
+        return None
 
 
 def _as_saved(state: SearchRun) -> SearchRun | None:
@@ -504,26 +535,37 @@ _UNKNOWN: dict[int | str, dict[str, Any]] = {404: {"description": NOT_FOUND}}
 
 
 @router.post("", status_code=status.HTTP_202_ACCEPTED, responses={503: {"description": BUSY}})
-def start_run(request: SearchRequest, runs: Runs, response: Response) -> SearchRunStarted:
-    search_id = runs.start(request)
+def start_run(request: SearchRequest, runs: Runs, response: Response, user: OptionalUser) -> SearchRunStarted:
+    search_id = runs.start(owned_by(request, user))  # a signed-in user's search is saved with their id (US-30)
     if search_id is None:
         raise HTTPException(503, BUSY, headers={"Retry-After": str(RETRY_AFTER_SECONDS)})
     response.headers["Location"] = f"{router.prefix}/{search_id}"
     return SearchRunStarted(search_id=search_id)
 
 
+def _viewer(user: OptionalUser) -> str | None:
+    """The caller's user id, from a checked token. None for a guest, a bad token or no token (US-30)."""
+    return str(user.id) if user is not None else None
+
+
+Viewer = Annotated[str | None, Depends(_viewer)]
+
+
 @router.get("/{search_id}", responses=_UNKNOWN)
-def run_state(search_id: str, runs: Runs) -> SearchRun:
+def run_state(search_id: str, runs: Runs, viewer: Viewer) -> SearchRun:
     try:
-        return runs.get(search_id)
+        return runs.get(search_id, viewer)
     except UnknownRun:
         raise HTTPException(404, NOT_FOUND) from None
 
 
-def _stream_start(search_id: str, runs: Runs, last_event_id: Annotated[str | None, Header()] = None) -> int:
-    """Checked before the stream opens: an unknown ID is 404, and a client that has seen the end gets 204."""
+def _stream_start(
+    search_id: str, runs: Runs, viewer: Viewer, last_event_id: Annotated[str | None, Header()] = None
+) -> int:
+    """Checked before the stream opens: an unknown ID, or another user's run, is 404; a client that has seen the end
+    gets 204."""
     try:
-        after = runs.resume_from(search_id, last_event_id)
+        after = runs.resume_from(search_id, last_event_id, viewer)
     except UnknownRun:
         raise HTTPException(404, NOT_FOUND) from None
     if after is None:
@@ -555,6 +597,7 @@ _EVIDENCE_ERRORS: dict[int | str, dict[str, Any]] = {
 def run_evidence(
     search_id: str,
     runs: Runs,
+    viewer: Viewer,
     product_id: Annotated[str, Query(min_length=1, description="One of the result's products")],
     criterion_key: Annotated[
         str, Query(min_length=1, description="A criterion or hard-rule attribute with a value for it")
@@ -562,7 +605,7 @@ def run_evidence(
 ) -> EvidenceResponse:
     """The claims behind one value of a finished run, with their sources (US-21). A missing parameter is a plain 422."""
     try:
-        return runs.evidence(search_id, product_id, criterion_key)
+        return runs.evidence(search_id, product_id, criterion_key, viewer)
     except ExpiredRun:
         raise HTTPException(404, RUN_EXPIRED) from None
     except UnknownRun:
@@ -575,9 +618,9 @@ def run_evidence(
     "/{search_id}",
     responses={**_UNKNOWN, 202: {"description": "Asked to stop before its next stage"}},
 )
-def cancel_run(search_id: str, runs: Runs, response: Response) -> SearchRun:
+def cancel_run(search_id: str, runs: Runs, response: Response, viewer: Viewer) -> SearchRun:
     try:
-        state, stopping = runs.cancel(search_id)
+        state, stopping = runs.cancel(search_id, viewer)
     except UnknownRun:
         raise HTTPException(404, NOT_FOUND) from None
     response.status_code = status.HTTP_202_ACCEPTED if stopping else status.HTTP_200_OK

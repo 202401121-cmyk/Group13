@@ -580,6 +580,41 @@ actually saw. Quotes are copied from the provider's page.
 - **Verdict: OK as planned:** a read-only token, and check each model's licence before using it.
 - **If it fails:** models already downloaded keep working; download again later.
 
+### Supabase Auth: checking a sign-in (US-30, P-24)
+
+Read from Supabase's own documentation on 20 Nov 2026: [JWT signing keys](https://supabase.com/docs/guides/auth/signing-keys),
+[JSON Web Token](https://supabase.com/docs/guides/auth/jwts) and [JWT claims](https://supabase.com/docs/guides/auth/jwt-fields).
+
+- **Used for:** knowing who a signed-in shopper is. Google sign-in happens in the browser, through Supabase Auth and
+  the publishable key (D-32). The browser then sends the access token to the backend as `Authorization: Bearer
+  <token>`.
+- **Env:** `SUPABASE_URL` only, the project's address. The backend holds no secret for this, and no key the browser
+  has. Empty turns sign-in off: every caller is a guest.
+- **How the backend checks a token** (`backend/app/auth/`):
+  - **The keys:** the project's asymmetric JWT signing keys, from its JSON Web Key Set at
+    `<SUPABASE_URL>/auth/v1/.well-known/jwks.json`. Supabase recommends ES256 (P-256) and also offers RS256 (RSA
+    2048). The backend uses only those two, never a shared secret (HS256), which Supabase marks as not recommended for
+    production.
+  - **The checks:** the signature, with the key whose `kid` the token names; `exp` and `iat`, with 10 seconds' leeway;
+    `iss` is `<SUPABASE_URL>/auth/v1`; `aud` is `authenticated`. It also checks the token is a signed-in user's:
+    `role` is `authenticated`, `is_anonymous` is not true, and `sub` (the user's id) is a UUID.
+  - **The cache:** the key set is kept at most 10 minutes. Supabase's edge caches the key set for 10 minutes and
+    advises not caching it for longer, so key rotations and revocations are seen.
+  - **An unknown key id** fetches the key set again once, for a key published after the cache was filled. A forged key
+    id can't make it fetch more than once every 30 seconds. A fetch that fails is not retried for 30 seconds.
+  - **While a refresh fails,** keys fetched less than 20 minutes ago stay in use. Supabase says its own caches clear
+    every 20 minutes, so a revoked key is never trusted for longer than Supabase's own services might.
+  - **A fetch has a hard 5-second deadline,** name lookup included, and runs outside the lock that guards the keys. A
+    request that still has usable keys never waits for one.
+  - **When the keys can't be fetched,** sign-in is unavailable: the user routes answer 503, and every other route
+    treats the caller as a guest.
+- **Before turning it on:** the project must use asymmetric signing keys (Supabase > Authentication > JWT Keys). With
+  only the legacy shared secret, the key set is empty, so every sign-in is refused, and the user routes answer 503.
+- **Free limits:** the key set address is public and served by Supabase's edge. The backend fetches it at most once
+  every 10 minutes, plus a refresh for an unknown key id.
+- **If it fails:** searches never need sign-in. A signed-in shopper is treated as a guest, so their search is saved
+  under the session ID only, and `/api/me` answers 503 until the keys can be had again.
+
 ## LLM routing (US-46)
 
 Every LLM call says two things, and `backend/config/models.yaml` turns them into the providers to try, in order.

@@ -23,6 +23,7 @@ CORE_GATE = 70
 DECIDE_GATE = 80
 DECIDE_MODULE = "app/decide"
 CORE_MODULES = (
+    "app/auth",  # sign-in (US-30)
     "app/commerce",
     "app/contracts",
     "app/criteria",

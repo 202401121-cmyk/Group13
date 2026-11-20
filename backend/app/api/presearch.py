@@ -18,6 +18,7 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, Field, ValidationErr
 
 from app import db
 from app import presearch as flow
+from app.auth import OptionalUser
 from app.contracts import (
     MAX_UNCLEAR_ATTEMPTS,
     CriteriaSet,
@@ -116,10 +117,11 @@ class BackRequest(BaseModel):
 
 
 @router.post("/intake", response_model=IntakeResponse)
-def intake(body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests) -> IntakeResponse:
+def intake(body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests, user: OptionalUser) -> IntakeResponse:
     """A new request, or the reply to our clarification question (US-01, US-02).
 
-    A new request is saved once with its session ID; a clarification reply is the same request, so no new row.
+    A new request is saved once with its session ID, and a signed-in user's with their id too (US-30); a guest's
+    never is (D-36). A clarification reply is the same request, so no new row.
     Blank text is not a request: it gets our question, nothing is saved, and the next text is the request.
     """
     session = _load(sessions, body.session_id) if body.session_id else None
@@ -132,7 +134,8 @@ def intake(body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests
         request = body.text  # a new search, or a fresh request in the same session
         attempts = session.unclear_attempts if session is not None and not session.request else 0
         intent = flow.start_request(request, None, attempts, llm=llm)
-        request_saved = requests.save_request(session_id, request, intent) if request else None  # never raises
+        owner = user.id if user is not None else None
+        request_saved = requests.save_request(session_id, request, intent, owner) if request else None  # no raise
     if intent.needs_clarification:
         attempts = min(attempts + 1, MAX_UNCLEAR_ATTEMPTS)  # the second unclear reply shows example requests
     saved = PresearchSession(

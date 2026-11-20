@@ -6,6 +6,9 @@ so a search always finishes (build rule 10). health() answers "ok", "off" or "do
 
 Stored requests and searches come from what people typed and may be personal. They are never sent to Gemini's free
 tier or any other model service that may train on its inputs.
+
+A signed-in shopper's rows carry their user id (US-30), set when the row is inserted and never afterwards: nothing here
+updates a row, so a guest's row is never linked to an account (D-36), and the database refuses it too (S4-27).
 """
 
 from __future__ import annotations
@@ -14,10 +17,14 @@ import json
 import logging
 import re
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Any, Literal, Protocol
+from uuid import UUID, uuid4
 
 from app.contracts import Intent
+
+from .accounts import AccountsUnavailable, PageAfter, SavedSearchRow, UserGone, newest_first, saved_search_row
 
 log = logging.getLogger(__name__)
 
@@ -37,9 +44,10 @@ class RequestRow:
     request_text: str
     intent: Intent | None  # only when the intent is ready for research
     intent_source: Literal["llm", "rules"] | None  # Intent.detected_by
+    user_id: UUID | None = None  # the signed-in owner (US-30); None for a guest
 
 
-def request_row(session_id: str, request_text: str, intent: Intent | None) -> RequestRow:
+def request_row(session_id: str, request_text: str, intent: Intent | None, user_id: UUID | None = None) -> RequestRow:
     """Check a request before any store saves it. Raises ValueError on a bad session ID or text."""
     if not SESSION_ID_RE.match(session_id):
         raise ValueError("session_id does not match the contract's SessionId pattern")
@@ -51,6 +59,7 @@ def request_row(session_id: str, request_text: str, intent: Intent | None) -> Re
         request_text=request_text,
         intent=intent if ready else None,
         intent_source=intent.detected_by if intent is not None else None,
+        user_id=_owner(user_id),
     )
 
 
@@ -61,16 +70,25 @@ class SearchRow:
     session_id: str
     rubric: str
     result: str
+    user_id: UUID | None = None  # the signed-in owner (US-30); None for a guest
 
 
-def search_row(session_id: str, rubric: JsonObject, result: JsonObject) -> SearchRow:
+def search_row(session_id: str, rubric: JsonObject, result: JsonObject, user_id: UUID | None = None) -> SearchRow:
     """Check a search before any store saves it. Raises ValueError or TypeError when it cannot fit the table.
 
     The check runs here, not in the database, so that one bad result is never counted as the database being down.
     """
     if not SESSION_ID_RE.fullmatch(session_id):  # fullmatch: "$" alone would let a trailing newline through
         raise ValueError("session_id does not match the contract's SessionId pattern")
-    return SearchRow(session_id=session_id, rubric=_json_text(rubric), result=_json_text(result))
+    return SearchRow(
+        session_id=session_id, rubric=_json_text(rubric), result=_json_text(result), user_id=_owner(user_id)
+    )
+
+
+def _owner(user_id: object) -> UUID | None:
+    if user_id is not None and not isinstance(user_id, UUID):
+        raise ValueError("user_id is a signed-in user's id (a UUID) or None")
+    return user_id
 
 
 def _json_text(value: JsonObject) -> str:
@@ -82,9 +100,13 @@ def _json_text(value: JsonObject) -> str:
 
 
 class RequestStore(Protocol):
-    def save_request(self, session_id: str, request_text: str, intent: Intent | None) -> SaveOutcome: ...
+    def save_request(
+        self, session_id: str, request_text: str, intent: Intent | None, user_id: UUID | None = None
+    ) -> SaveOutcome: ...
 
-    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject) -> bool: ...
+    def save_search(
+        self, session_id: str, rubric: JsonObject, result: JsonObject, user_id: UUID | None = None
+    ) -> bool: ...
 
     def health(self) -> DbHealth: ...
 
@@ -94,10 +116,12 @@ class RequestStore(Protocol):
 class NullRequestStore:
     """The database is off (no DATABASE_URL): everything works and nothing is saved."""
 
-    def save_request(self, session_id: str, request_text: str, intent: Intent | None) -> SaveOutcome:
+    def save_request(
+        self, session_id: str, request_text: str, intent: Intent | None, user_id: UUID | None = None
+    ) -> SaveOutcome:
         return "off"
 
-    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject) -> bool:
+    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject, user_id: UUID | None = None) -> bool:
         log.info("search not saved: the database is off")  # info, not warning: this is a normal way to run
         return False
 
@@ -108,35 +132,56 @@ class NullRequestStore:
         pass
 
 
+@dataclass(frozen=True)
+class StoredSearch:
+    """A saved search as the in-memory store keeps it, with the id and time the database would add."""
+
+    row: SearchRow
+    id: UUID = field(default_factory=uuid4)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+
+
 class InMemoryRequestStore:
-    """For tests: keeps rows in a list. fail=True makes it behave like a database that is down."""
+    """For tests: keeps rows in a list. fail=True makes it behave like a database that is down.
+
+    It is also an AccountStore (app/db/accounts.py), with the Postgres store's rules: a profile is made once, and a user
+    sees only their own saved searches, newest first.
+    """
 
     def __init__(self, fail: bool = False) -> None:
         self.fail = fail
         self.rows: list[RequestRow] = []
-        self.searches: list[SearchRow] = []
+        self.saved: list[StoredSearch] = []
+        self.profiles: dict[UUID, str | None] = {}
+        self.users: set[UUID] | None = None  # None: every user exists; else the ids auth.users holds
         self._lock = threading.Lock()
 
-    def save_request(self, session_id: str, request_text: str, intent: Intent | None) -> SaveOutcome:
+    @property
+    def searches(self) -> list[SearchRow]:
+        return [stored.row for stored in self.saved]
+
+    def save_request(
+        self, session_id: str, request_text: str, intent: Intent | None, user_id: UUID | None = None
+    ) -> SaveOutcome:
         if self.fail:
             return "failed"
         try:
-            row = request_row(session_id, request_text, intent)
+            row = request_row(session_id, request_text, intent, user_id)
         except ValueError:
             return "failed"
         with self._lock:
             self.rows.append(row)
         return "saved"
 
-    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject) -> bool:
+    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject, user_id: UUID | None = None) -> bool:
         if self.fail:
             return False
         try:
-            row = search_row(session_id, rubric, result)
+            row = search_row(session_id, rubric, result, user_id)
         except (TypeError, ValueError):
             return False
         with self._lock:
-            self.searches.append(row)
+            self.saved.append(StoredSearch(row))
         return True
 
     def health(self) -> DbHealth:
@@ -144,3 +189,29 @@ class InMemoryRequestStore:
 
     def close(self) -> None:
         pass
+
+    # --- AccountStore (US-30) ----------------------------------------------------------------------------
+
+    def ensure_profile(self, user_id: UUID) -> str | None:
+        if self.fail:
+            raise AccountsUnavailable("the database is down")
+        with self._lock:
+            if self.users is not None and user_id not in self.users:
+                raise UserGone("no such user")
+            return self.profiles.setdefault(user_id, None)  # made once; an existing profile is left as it is
+
+    def saved_searches(self, user_id: UUID, after: PageAfter | None, limit: int) -> list[SavedSearchRow]:
+        if self.fail:
+            raise AccountsUnavailable("the database is down")
+        with self._lock:
+            mine = [stored for stored in self.saved if stored.row.user_id == user_id]
+        rows = [saved_search_row(s.id, s.created_at, json.loads(s.row.result), json.loads(s.row.rubric)) for s in mine]
+        return newest_first(rows, after)[:limit]
+
+    def saved_search(self, user_id: UUID, search_id: UUID) -> JsonObject | None:
+        if self.fail:
+            raise AccountsUnavailable("the database is down")
+        with self._lock:
+            found = [s for s in self.saved if s.id == search_id and s.row.user_id == user_id]
+        loaded: JsonObject | None = json.loads(found[0].row.result) if found else None
+        return loaded
