@@ -1,12 +1,12 @@
 {
   "generated": "2026-11-21",
-  "commit": "4276ac9",
+  "commit": "0b0b45c",
   "runner": "python -m evals.citation.run (offline; the model and the matcher from backend/.cache/)",
   "model": {
     "repo": "cross-encoder/nli-deberta-v3-xsmall",
     "revision": "a150876415327c80daeff35ca6f68f5ed8cf5c24",
     "file": "onnx/model_O4.onnx",
-    "load_s": 1.8,
+    "load_s": 4.493,
     "onnxruntime": "1.31.1",
     "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD"
   },
@@ -83,26 +83,22 @@
       "gate_smartwatch"
     ],
     "pairs_per_product": {
-      "median": 3.0,
-      "most": 5
+      "median": 1.0,
+      "most": 3
     },
-    "sentences": {
-      "checked": 20,
-      "passed": 0
-    },
-    "seconds_median": 0.03,
-    "seconds_slowest": 0.043,
+    "seconds_median": 0.044,
+    "seconds_slowest": 0.081,
     "limit_s": 5.0
   },
   "peak_memory": {
-    "start_peak_mb": 67.0,
-    "start_now_mb": 67.0,
-    "with_matcher_peak_mb": 226.1,
-    "with_matcher_now_mb": 97.4,
-    "with_both_peak_mb": 510.6,
-    "with_both_now_mb": 510.6,
-    "after_timing_peak_mb": 550.9,
-    "after_timing_now_mb": 550.7
+    "start_peak_mb": 66.7,
+    "start_now_mb": 66.7,
+    "with_matcher_peak_mb": 226.3,
+    "with_matcher_now_mb": 97.6,
+    "with_both_peak_mb": 510.9,
+    "with_both_now_mb": 510.9,
+    "after_timing_peak_mb": 550.1,
+    "after_timing_now_mb": 550.0
   },
   "measures": [
     {
@@ -123,15 +119,15 @@
     },
     {
       "id": "citation.check_seconds_median",
-      "value": 0.03,
+      "value": 0.044,
       "unit": "seconds",
       "status": "measured",
       "source": "backend/evals/citation/run.py (the recorded runs, replayed offline), app.explain.check",
-      "detail": "the check of one product's paragraph, over the top 3 of 3 recorded runs (6 products)"
+      "detail": "the check of one product's evidence sentences, over the top 3 of 3 recorded runs (6 products)"
     },
     {
       "id": "citation.check_seconds_slowest",
-      "value": 0.043,
+      "value": 0.081,
       "unit": "seconds",
       "status": "measured",
       "source": "backend/evals/citation/run.py (the recorded runs, replayed offline), app.explain.check",

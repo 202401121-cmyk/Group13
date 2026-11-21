@@ -248,11 +248,12 @@ weights:
 | Owner | Rushiraj Navar |
 | Type | Pre-trained NLI cross-encoder, used as it is: [`cross-encoder/nli-deberta-v3-xsmall`](https://huggingface.co/cross-encoder/nli-deberta-v3-xsmall) (Apache-2.0). Its outputs, from `config.json` read on 21 Nov 2026: 0 contradiction, 1 entailment, 2 neutral. It runs on our own server through onnxruntime 1.31.1 and tokenizers 0.23.3 (`backend/app/explain/nli.py`). No quote and no shopper's words reach any provider (P-41) |
 | Hugging Face | Revision `a150876415327c80daeff35ca6f68f5ed8cf5c24`, read on 21 Nov 2026. The file is `onnx/model_O4.onnx` (151,285,017 bytes), sha256 `7f3e118f33944fe2a2bfa50ae889098f12914e4fd5194ab13dbaf82a5bee02c5`. `tokenizer.json` has sha256 `5124ef2ead1a10a717703bc436de7f353da76d6340e4587719b42b1693707964`. All are pinned in `backend/config/nli.yaml`, downloaded once into `backend/.cache/nli/` (git-ignored), and never committed |
-| The check | For each sentence, each cited quote in turn is the premise (a quote over 400 tokens is split into chunks that overlap by 50) and the sentence is the hypothesis; the highest entailment probability counts. A sentence passes at or above the threshold, **0.9608**, and only if every number in it is in a cited quote or in the scoring numbers. A failed sentence is removed or replaced by the template sentence for each top-3 point it names; a paragraph left with nothing gets the full template. Every product's pairs go in one batch, within 5 s |
+| What it checks | Since D-91 (S5-4b): evidence sentences. Code writes every paragraph's personal part (its rank and score, each top-3 criterion and why it matters to the shopper, the trade-off and what could not be verified). For each of the top 3 products, one public-route call (`write_evidence`: Mistral, then Gemini, then Groq as the last resort) gets only the product's name and its public quotes, in groups named t1, t2 ... and never by criterion (a generated criterion's name can hold the shopper's words, D-51), and writes at most one short sentence per group, citing the quotes it used. Code's rules come first (refs it was given, one criterion, numbers in its quotes or code's own, a score, points or rank stated as its own kind's value, no community post's words, no instruction, Grade 9 or under) |
+| The check | Code's own numbers in a sentence (a score, points, the rank, the 0-100 score) pass by the number rule alone, so the phrase stating them is taken out first (A). Then each cited quote in turn is the premise (a quote over 400 tokens is split into chunks that overlap by 50) and the sentence is the hypothesis; the highest entailment probability counts. It passes at or above the threshold, **0.9608**. A failed evidence sentence is dropped; code's sentences always stay, and a paragraph with no evidence sentence left is the template. Every product's pairs go in one batch, within 5 s, through one small interface (`nli.sentence_probabilities`: sentences and quotes in, probabilities out), so P-49 can move the model to its own service |
 | Which file | The rule (S5-4 DECIDED 1): the smallest file in `onnx/` whose entailment probabilities agree with `onnx/model.onnx` within 0.02 on the 40 tuning pairs. The numbers below are from an AVX2 machine (`backend/evals/results/citation-model-check-avx2.json`) |
 | Check on each machine | Before the check uses the model on a machine, it reads 6 reference pairs and compares its probabilities with the full model's (`reference` in `backend/config/nli.yaml`). A difference over 0.02 means that machine never uses the model, with one log line |
 | Data | 100 pairs written by people, by hand (by-hand job 2, D-55): Rushiraj Navar wrote c001 to c050 and Jhanvi Barot c051 to c100 (`backend/evals/citation/pairs.csv`). Each quote was drawn by a seeded script from the recorded runs' public web sources, never Reddit or YouTube comments. Half the sentences are supported and half deliberately wrong. A fixed seed split them 40 to tune (20 and 20) and 60 to test (30 and 30) (`split.json`). No training |
-| Baseline or fallback | **Off by default (P-48):** only `NLI=on` uses the check. Off, explanations are written as before US-22 and the model never loads; staging commits `NLI=off` in `render.yaml`. With `NLI=on`, any failure keeps only sentences that hold at least 6 words of a cited quote in a row, word for word, plus template sentences (`llm_unchecked`), with one log line: the model missing, a wrong sha256, the check above, an error, or the 5 s limit |
+| Baseline or fallback | **On by default since S5-4b** (DECIDED 7 met, below); `NLI=off` switches it off, and staging commits `NLI=off` in `render.yaml` (512 MB, P-10). Without the model (off, or with `NLI=on` the model missing, a wrong sha256, the check above, an error, or the 5 s limit, each with one log line), an evidence sentence stays only when it holds at least 6 words of a cited quote in a row, word for word (`llm_unchecked`). No public provider answering: code's sentences only, the template |
 | Target | Catches 80% or more of wrong claims and rejects at most 15% of right ones, on the 60 held out (both in `backend/evals/thresholds.yaml`) |
 | Sprint | 5 |
 
@@ -290,20 +291,44 @@ only: the most wrong sentences caught with at most 15% of the right ones rejecte
 - **The floors** in `backend/evals/thresholds.yaml` hold this result (caught at least 95%, wrongly rejected at most
   21.7%), with the 80% and 15% targets beside them.
 
-**LLM-style sentences:** 0 of 20 sentences written the way the LLM writes them (code's scores in words, never a quote)
-passed at 0.9608 in the timing run below, so real explanations need P-48's follow-up before the check is switched on.
+**LLM-style sentences (S5-4):** 0 of 20 sentences written the way US-20's private LLM wrote them (code's scores in
+words, never a quote) passed at 0.9608. That is why D-91 (S5-4b) changed what is checked: code now writes the
+personal part, and the LLM writes evidence sentences from public quotes.
+
+**Since D-91 (S5-4b, 22 Nov 2026).**
+- **(a) The 60 test pairs again:** the same as above, at the same threshold (no worse than S5-4).
+- **Live, on the five recorded runs' rankings** (replayed offline, live public calls, `NLI=on`): 6 calls wrote 8
+  evidence sentences. Code's rules dropped 1 (above Grade 9: a processor's long name), and the model kept 6 of the
+  other 7; 6 of the 13 top products had public quotes and got `llm_checked` paragraphs, the rest the template.
+- **(b) 20 evidence sentences this pipeline wrote from the five recorded runs, labelled by people** (D-55): Rushiraj
+  Navar labelled e001 to e010 and Jhanvi Barot e011 to e020, each alone and by hand (`evidence_sheet.csv`): 16
+  supported, 4 unsupported. The recorded runs' top 3 hold public quotes for only 8 criteria, so the sheet went on down
+  each ranking with the same call (17 public calls). Against those labels (`backend/evals/results/citation-evidence.json`):
+
+| On the 20 labelled evidence sentences | The model (threshold 0.9608) | 95% bootstrap interval | The 6-word rule alone | Target (DECIDED 7) |
+|---|---|---|---|---|
+| Supported sentences kept | **93.75%** (15 of 16) | 81.25% to 100% | 25% (4 of 16) | 80% or more: met |
+| Unsupported sentences caught | **100%** (4 of 4) | 100% to 100% | 100% (4 of 4) | 80% or more: met |
+
+- **So NLI is on by default** (DECIDED 7). The one sentence the model dropped though it was labelled supported is
+  e017; the 6-word rule kept it. Only 4 sentences were unsupported, so the caught share rests on few cases.
+- **Without the model** (NLI off, or the model missing), the 6-word rule keeps only a quarter of the good sentences.
 
 **Cost on CPU (P-10; same machine).**
-- **Memory:** with the matcher and this model both loaded, the process held 511 MB (97 MB with the matcher alone), and
-  551 MB after the timing below. In a one-off check on the same machine (each file loaded alone in a fresh process,
+- **Memory (`citation.json`, measured again for S5-4b):** with the matcher and this model both loaded, the process held
+  511 MB (98 MB with the matcher alone), and 550 MB after the timing below. In a one-off check on the same machine (each file loaded alone in a fresh process,
   not in a committed record), `model_O4.onnx` added about 400 MB to the process and the 87 MB int8 file about 300 MB.
 - **So it does not fit the hosted backend's 512 MB.** By P-10's rule, staging runs with `NLI=off`, written in
-  `render.yaml` (explanations as before US-22), and the check runs only on a machine with enough memory
-  (`docs/deploy.md`).
-- **Load:** the model loads from the cache in 1.8 s, in the background while the search runs.
-- **Speed:** the check of one product's paragraph took 0.030 s (median) and 0.043 s at worst, against its 5 s limit.
-  That is the top 3 products of the 3 recorded runs that gave a product with a claim to cite (6 products; 3 pairs at
-  the median and 5 at most, the trade-off's included), replayed offline.
+  `render.yaml`, and the check runs only on a machine with enough memory (`docs/deploy.md`).
+- **A service of its own (P-49, S5-4b; `backend/evals/results/citation-memory.json`):** a fresh process holding only
+  `model_O4.onnx` and its tokenizer, checking the recorded runs' largest batch, peaked at 363.4 MB with onnxruntime's
+  defaults and 363.5 MB with its memory arena and memory pattern off, both under 450 MB, with the same probabilities.
+  That batch is small (3 pairs); a product can send up to 4 criteria with 3 quotes each. No smaller or quantised file
+  was tried: quality must not drop.
+- **Load:** the model loads from the cache in 1.8 to 4.5 s (two runs), in the background while the search runs.
+- **Speed (S5-4b):** checking one product's evidence sentences took 0.044 s (median) and 0.081 s at worst, against
+  its 5 s limit: the top 3 products with public quotes of the 3 recorded runs that have them (6 products; 1 pair at the
+  median and 3 at most), replayed offline.
 
 ## 7. Promotional comment classifier (stretch)
 

@@ -1,0 +1,42 @@
+{
+  "generated": "2026-11-21",
+  "runner": "python -m evals.citation.memory (offline; the model from backend/.cache/nli/)",
+  "model": {
+    "repo": "cross-encoder/nli-deberta-v3-xsmall",
+    "revision": "a150876415327c80daeff35ca6f68f5ed8cf5c24",
+    "file": "onnx/model_O4.onnx"
+  },
+  "machine": {
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "onnxruntime": "1.31.1"
+  },
+  "batch": {
+    "run": "gate_smartphone",
+    "product_id": "prd_vivo_t5x",
+    "sentences": 3,
+    "pairs": 3
+  },
+  "default": {
+    "start_peak_mb": 15.2,
+    "start_now_mb": 15.2,
+    "loaded_peak_mb": 363.4,
+    "loaded_now_mb": 355.2,
+    "scored_peak_mb": 363.4,
+    "scored_now_mb": 363.4
+  },
+  "lean": {
+    "start_peak_mb": 15.2,
+    "start_now_mb": 15.2,
+    "loaded_peak_mb": 363.4,
+    "loaded_now_mb": 355.2,
+    "scored_peak_mb": 363.5,
+    "scored_now_mb": 360.2
+  },
+  "peak_mb": {
+    "default": 363.4,
+    "lean": 363.5
+  },
+  "limit_mb": 450.0,
+  "lean_fits": true,
+  "same_probabilities": true
+}

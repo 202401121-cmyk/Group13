@@ -1,0 +1,266 @@
+[
+  {
+    "id": "e001",
+    "run": "gate_air_fryer",
+    "product_id": "prd_baltra_jwel_baf202_6l_digital_air_fryer",
+    "key": "capacity_liters",
+    "claim_ids": [
+      "clm_44515ba4af73baedbd567294"
+    ],
+    "quotes": [
+      "6 L Capacity"
+    ],
+    "sentence": "It has a 6 L capacity."
+  },
+  {
+    "id": "e002",
+    "run": "gate_smartphone",
+    "product_id": "prd_vivo_t5x",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_526924f14ec2d96455edaa81"
+    ],
+    "quotes": [
+      "7200 mAh | 44W Flash Charging"
+    ],
+    "sentence": "It has a 7200 mAh battery with 44W Flash Charging."
+  },
+  {
+    "id": "e003",
+    "run": "gate_smartphone",
+    "product_id": "prd_vivo_t5x",
+    "key": "display_quality",
+    "claim_ids": [
+      "clm_81f90cb312bc072b1d6d7c07"
+    ],
+    "quotes": [
+      "6.76 inches (17.17 cm) | LCD"
+    ],
+    "sentence": "It has a 6.76-inch LCD screen."
+  },
+  {
+    "id": "e004",
+    "run": "gate_smartwatch",
+    "product_id": "prd_amazfit_balance",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_d5f3976159c1bbb5018ceb00"
+    ],
+    "quotes": [
+      "Upto 14 Days battery life (475 mAh)"
+    ],
+    "sentence": "It has upto 14 Days battery life."
+  },
+  {
+    "id": "e005",
+    "run": "gate_air_fryer",
+    "product_id": "prd_lifelong_llhf_421_4_5_l_air_fryer",
+    "key": "capacity_liters",
+    "claim_ids": [
+      "clm_4b69c59c81773908bbdb0f67"
+    ],
+    "quotes": [
+      "With 4.5 L Food Basket capacity"
+    ],
+    "sentence": "It has a 4.5 L Food Basket capacity."
+  },
+  {
+    "id": "e006",
+    "run": "gate_air_fryer",
+    "product_id": "prd_wonderchef_platinum_manual_4_5l_air_fryer",
+    "key": "capacity_liters",
+    "claim_ids": [
+      "clm_e3b5196078eab4022136a566"
+    ],
+    "quotes": [
+      "4.5 L Capacity"
+    ],
+    "sentence": "It has a 4.5 L Capacity."
+  },
+  {
+    "id": "e007",
+    "run": "gate_smartwatch",
+    "product_id": "prd_amazfit_active_2_square",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_ed1181f6bc988ec75983ebf5"
+    ],
+    "quotes": [
+      "Upto 10 Days battery life (260 mAh)"
+    ],
+    "sentence": "It has upto 10 Days battery life."
+  },
+  {
+    "id": "e008",
+    "run": "gate_smartwatch",
+    "product_id": "prd_fire_boltt_combat",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_458c0200090037a0348f01c4"
+    ],
+    "quotes": [
+      "Upto 8 Days battery life"
+    ],
+    "sentence": "It lasts up to 8 days on a single charge."
+  },
+  {
+    "id": "e009",
+    "run": "gate_smartwatch",
+    "product_id": "prd_beatxp_vega",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_afbd4b7864dc53f9a219ff31"
+    ],
+    "quotes": [
+      "Upto 7 Day battery life (280 mAh)"
+    ],
+    "sentence": "It lasts up to 7 days on a single charge with a 280 mAh battery."
+  },
+  {
+    "id": "e010",
+    "run": "gate_smartwatch",
+    "product_id": "prd_fire_boltt_rise",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_c0bf895a422f119e79debb20"
+    ],
+    "quotes": [
+      "Upto 7 Days battery life"
+    ],
+    "sentence": "It has upto 7 days battery life."
+  },
+  {
+    "id": "e011",
+    "run": "gate_smartwatch",
+    "product_id": "prd_fire_boltt_rise_luxe",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_8823754a7cc56f11857e3997"
+    ],
+    "quotes": [
+      "Upto 7 Days battery life"
+    ],
+    "sentence": "It has upto 7 Days battery life."
+  },
+  {
+    "id": "e012",
+    "run": "gate_smartwatch",
+    "product_id": "prd_fire_boltt_hunter",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_475e00abea8c1e2235b89af6"
+    ],
+    "quotes": [
+      "Upto 6 Days battery life"
+    ],
+    "sentence": "It has upto 6 Days battery life."
+  },
+  {
+    "id": "e013",
+    "run": "gate_smartwatch",
+    "product_id": "prd_fire_boltt_ninja_call_pro_plus",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_36a30c58244de612946f055f"
+    ],
+    "quotes": [
+      "Upto 6 Days battery life"
+    ],
+    "sentence": "It has upto 6 Days battery life."
+  },
+  {
+    "id": "e014",
+    "run": "gate_smartwatch",
+    "product_id": "prd_fire_boltt_ninja_calling_pro",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_5f9ba1e2dc3df872bc0bf0db"
+    ],
+    "quotes": [
+      "Upto 5 Days battery life"
+    ],
+    "sentence": "It has upto 5 Days battery life."
+  },
+  {
+    "id": "e015",
+    "run": "gate_smartphone",
+    "product_id": "prd_realme_p4_power",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_6c2dd231a40ac1b4040290e1"
+    ],
+    "quotes": [
+      "recorded 16 to 18 hours of screen-on time, sometimes closer to 20"
+    ],
+    "sentence": "It has 16 to 18 hours of screen-on time, and sometimes closer to 20."
+  },
+  {
+    "id": "e016",
+    "run": "gate_smartphone",
+    "product_id": "prd_vivo_t4_5g",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_b2fc39aa18ac8d5350e03ac2"
+    ],
+    "quotes": [
+      "I got 10 to 12 hours of screen-on time."
+    ],
+    "sentence": "It gives 10 to 12 hours of screen-on time."
+  },
+  {
+    "id": "e017",
+    "run": "gate_smartphone",
+    "product_id": "prd_motorola_edge_70_fusion",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_a3a744c4bffe1a3ee2af1956",
+      "clm_eb933e5b92efbd5cdecea1e3"
+    ],
+    "quotes": [
+      "7000 mAh | 68W Turbo Power Charging",
+      "over 9 hours of screen-on time"
+    ],
+    "sentence": "It has a 7000 mAh battery with over 9 hours of screen-on time."
+  },
+  {
+    "id": "e018",
+    "run": "gate_smartphone",
+    "product_id": "prd_motorola_edge_70_fusion",
+    "key": "display_quality",
+    "claim_ids": [
+      "clm_6f2bc8b7ea69c63b6f288b0c",
+      "clm_e8ec764c06275269e1e817a7"
+    ],
+    "quotes": [
+      "quad-curved pOLED display; the fabric-inspired finish and Gorilla Glass 7i gave it the best in-hand feel of the group.",
+      "6.8 inches (17.27 cm) | Extreme AMOLED"
+    ],
+    "sentence": "It features a quad-curved pOLED display and 6.8 inches Extreme AMOLED."
+  },
+  {
+    "id": "e019",
+    "run": "gate_smartphone",
+    "product_id": "prd_motorola_edge_70_fusion",
+    "key": "processor_speed",
+    "claim_ids": [
+      "clm_8fc77cf77574efb443d0b341"
+    ],
+    "quotes": [
+      "Snapdragon 7s Gen 4"
+    ],
+    "sentence": "It runs on a Snapdragon 7s Gen 4 processor."
+  },
+  {
+    "id": "e020",
+    "run": "gate_smartphone",
+    "product_id": "prd_samsung_galaxy_f70_pro_5g",
+    "key": "battery_life",
+    "claim_ids": [
+      "clm_bf4ef67e8bd89d4f0be54c9f"
+    ],
+    "quotes": [
+      "6000 mAh | 45W Fast Charging"
+    ],
+    "sentence": "It has a 6000 mAh battery with 45W Fast Charging."
+  }
+]

@@ -7,82 +7,91 @@
         "product_id": "prd_nova_book_14",
         "sentences": [
           {
-            "text": "It fits you well, with a score of 78 out of 100.",
+            "text": "It ranks #1 with a score of 78 out of 100.",
+            "claim_ids": [
+              "clm_bf7c2488fe2eda5f"
+            ]
+          },
+          {
+            "text": "It is too close to call with a product next to it.",
+            "claim_ids": [
+              "clm_bf7c2488fe2eda5f"
+            ]
+          },
+          {
+            "text": "Keyboard comfort, one of your priorities, adds 16 points, with a score of 9 out of 10.",
             "claim_ids": [
               "clm_5807c6297c20c05e"
             ]
           },
           {
-            "text": "Its keyboard is its best point, at 9 out of 10.",
+            "text": "Cpu performance, one of your priorities, adds 15 points, with a score of 7.5 out of 10.",
             "claim_ids": [
-              "clm_5807c6297c20c05e"
+              "clm_053f4bf83174cf53"
             ]
           },
           {
-            "text": "Its speed scores 7.5 and its battery life scores 8.",
+            "text": "Battery life, one of your priorities, adds 13 points, with a score of 8 out of 10.",
             "claim_ids": [
-              "clm_053f4bf83174cf53",
+              "clm_bf7c2488fe2eda5f"
+            ]
+          },
+          {
+            "text": "Its battery life rated 8.0/10 in one review.",
+            "claim_ids": [
               "clm_bf7c2488fe2eda5f"
             ]
           }
         ],
-        "trade_off": "Its build is its weak point, at 7 out of 10.",
+        "trade_off": "Its weak point is build durability, with a score of 7 out of 10.",
         "method": "llm_unchecked"
       },
       {
         "product_id": "prd_kestrel_slim_15",
         "sentences": [
           {
-            "text": "Its speed is its best point, at 8 out of 10.",
-            "claim_ids": [
-              "clm_dc147cd38e1e6839"
-            ]
+            "text": "It ranks #2 with a score of 76 out of 100."
           },
           {
-            "text": "Sources disagree on its battery life, which scores 7.",
-            "claim_ids": [
-              "clm_2c31271c5c981d18",
-              "clm_46feb890769b8225"
-            ]
+            "text": "It is too close to call with a product next to it."
           },
           {
-            "text": "Its keyboard scores 7.5 out of 10.",
-            "claim_ids": [
-              "clm_c6d748e9c7945937"
-            ]
+            "text": "Cpu performance, one of your priorities, adds 16 points, with a score of 8 out of 10."
+          },
+          {
+            "text": "Keyboard comfort, one of your priorities, adds 14 points, with a score of 7.5 out of 10."
+          },
+          {
+            "text": "Battery life, one of your priorities, adds 11 points, with a score of 7 out of 10, but sources disagree."
           }
         ],
-        "trade_off": "Sources disagree on how long its battery lasts.",
-        "method": "llm_unchecked"
+        "trade_off": "Sources disagree on its battery life.",
+        "method": "template"
       },
       {
         "product_id": "prd_orion_play_15",
         "sentences": [
           {
-            "text": "Its speed is the best of all, at 9 out of 10.",
-            "claim_ids": [
-              "clm_e13d8f66bd7c5e47"
-            ]
+            "text": "It ranks #3 with a score of 67 out of 100."
           },
           {
-            "text": "Its keyboard scores 6.5 and its value scores 7.",
-            "claim_ids": [
-              "clm_1cf7047e908108a3",
-              "clm_5139615e2d353cc9"
-            ]
+            "text": "Cpu performance, one of your priorities, adds 18 points, with a score of 9 out of 10."
           },
           {
-            "text": "We could not check its build durability.",
-            "claim_ids": [
-              "clm_e13d8f66bd7c5e47"
-            ]
+            "text": "Keyboard comfort, one of your priorities, adds 12 points, with a score of 6.5 out of 10."
+          },
+          {
+            "text": "Value for money adds 10 points, with a score of 7 out of 10."
+          },
+          {
+            "text": "We could not check its build durability."
           }
         ],
-        "trade_off": "It is heavy, with a weight score of 4 out of 10.",
-        "method": "llm_unchecked",
+        "trade_off": "Its weak point is weight, with a score of 4 out of 10.",
         "unverified": [
           "build_durability"
-        ]
+        ],
+        "method": "template"
       }
     ]
   }

@@ -1,10 +1,10 @@
 """The citation check's settings (US-22, S5-4): config/nli.yaml, and NLI=on|off in the environment.
 
-The check is off unless NLI=on (P-48): it fits only machines with enough memory, and real explanations need the
-follow-up first. Off, explain runs exactly as before US-22 and the model never loads. On, a model that is missing,
-failing or out of time gives the fallback: only sentences that quote their evidence word for word (DECIDED 4). A file
-that can't be read gives settings with no revision, so the model is never loaded and that fallback is used, with one
-log line (build rule 9).
+The model is on unless NLI=off (S5-4b DECIDED 7: on 20 labelled evidence sentences it kept 15 of 16 supported and
+caught 4 of 4 unsupported). A host without the memory for it sets NLI=off, as staging does (render.yaml, P-10). Off,
+it never loads, and an evidence sentence stays only when it quotes a cited quote word for word, as when the model is
+missing, failing or out of time (S5-4b DECIDED 5). A file that can't be read gives settings with no revision, so the
+model is never loaded and that rule is used, with one log line (build rule 9).
 """
 
 from __future__ import annotations
@@ -57,7 +57,7 @@ class NliSettings(BaseModel):
     quoted_words: int = Field(default=6, ge=2)  # the fallback keeps a sentence holding this many quote words in a row
     reference: tuple[ReferencePair, ...] = ()  # checked on each machine before the model is used
     reference_tolerance: float = Field(default=0.02, gt=0.0, le=1.0)
-    enabled: bool = False  # NLI=on only (P-48)
+    enabled: bool = True  # on unless NLI=off (S5-4b DECIDED 7)
 
     @property
     def pinned(self) -> bool:
@@ -74,15 +74,15 @@ class NliSettings(BaseModel):
 
 
 def nli_switch(env: Mapping[str, str]) -> bool:
-    """NLI: "on" switches the check on; unset or "off" keeps it off (P-48). Anything else keeps it off, with a log
-    line."""
+    """NLI: "off" switches the check off; unset or "on" keeps it on (S5-4b DECIDED 7). Anything else keeps it on, with
+    a log line."""
     raw = env.get("NLI", "").strip().lower()
-    if raw == "on":
+    if raw in ("", "on"):
         return True
-    if raw in ("", "off"):
+    if raw == "off":
         return False
-    log.warning("explain: NLI=%r is not on or off; the citation check stays off", raw[:20])
-    return False
+    log.warning("explain: NLI=%r is not on or off; the citation check stays on", raw[:20])
+    return True
 
 
 def load_nli_settings(path: Path | str | None = None, env: Mapping[str, str] | None = None) -> NliSettings:

@@ -38,7 +38,7 @@ class LabelledPair:
     written_by: str
 
 
-def _writer(name: str) -> str | None:
+def writer_name(name: str) -> str | None:
     """The full name of the person a written_by names (their full name or first name, any case), or None."""
     words = name.strip().casefold().split()
     for person in WRITERS:
@@ -68,7 +68,7 @@ def load_pairs(path: Path = sheet.SHEET, drawn: list[sheet.Quote] | None = None)
         seen.add(id_)
         sentence = (row.get("sentence") or "").strip()
         label = (row.get("label") or "").strip().casefold()
-        writer = _writer(row.get("written_by") or "")
+        writer = writer_name(row.get("written_by") or "")
         wrong = [
             why
             for bad, why in (

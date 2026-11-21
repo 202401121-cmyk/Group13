@@ -50,6 +50,7 @@ TASK_STAGES: dict[LLMTask, StageName] = {
     LLMTask.DISCOVER_ALIASES: StageName.MATCH,
     LLMTask.ENRICH_EXTRACT: StageName.ENRICH,
     LLMTask.WRITE_EXPLANATION: StageName.EXPLAIN,
+    LLMTask.WRITE_EVIDENCE: StageName.EXPLAIN,
 }
 
 

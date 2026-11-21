@@ -63,7 +63,7 @@ services:
       - key: MEMORY
         sync: false
       - key: NLI
-        value: "off"  # the citation check's model doesn't fit 512 MB (P-10), and it waits for P-48's follow-up
+        value: "off"  # the citation check's model doesn't fit 512 MB (P-10); P-49 may move it to a service of its own
       - key: EXTRACT_MAX_SOURCES
         sync: false
       - key: SEARCH_RUN_WORKERS

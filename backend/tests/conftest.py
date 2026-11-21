@@ -141,7 +141,7 @@ def _no_real_matcher_model(request: pytest.FixtureRequest, monkeypatch: pytest.M
 def _no_real_nli_model(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     """US-22 (S5-4): no test downloads the citation check's model, whatever the shell sets.
 
-    The default stage sees NLI=off, as on any machine by default (P-48), so a search explains exactly as before US-22.
+    The default stage sees NLI=off, so no test loads the model: evidence sentences face the 6-word rule only.
     Tests of the check give it settings and a fake scorer; only tests marked `live` may fetch the real one. The model
     holders last as long as the process, so each test starts with none.
     """

@@ -207,9 +207,10 @@ task_settings:
     openai/gpt-oss-20b: {reasoning_effort: low, include_reasoning: false}
     qwen/qwen3.8-27b: {reasoning_effort: "none"}
   # US-20: with each model's own reasoning, the explanation call came back invalid twice on gpt-oss-120b (8.1 s, then
-  # 4.7 s) and ran out of explain's 15 s on gpt-oss-20b, in a live check on 16 Nov 2026. It only puts code's facts into
-  # words, so it needs little thinking.
-  write_explanation:
+  # 4.7 s) and ran out of explain's 15 s on gpt-oss-20b, in a live check on 16 Nov 2026. D-91 replaced that call with
+  # write_evidence: public quotes into short sentences, on the public route, where Groq is the last resort. It needs as
+  # little thinking.
+  write_evidence:
     openai/gpt-oss-120b: {reasoning_effort: low, include_reasoning: false}
     openai/gpt-oss-20b: {reasoning_effort: low, include_reasoning: false}
     qwen/qwen3.8-27b: {reasoning_effort: "none"}

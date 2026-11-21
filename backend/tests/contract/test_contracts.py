@@ -383,6 +383,14 @@ def test_personal_tasks_include_everything_with_user_words() -> None:
     assert C.LLMTask.EXTRACT_CLAIMS not in C.PERSONAL_TASKS  # public web text only
 
 
+def test_evidence_sentences_are_public_and_the_old_explanation_call_stays_personal() -> None:
+    """D-91 (US-22, US-20): the evidence call carries only a product's name and public quotes, never the shopper's
+    words, so it may take the public route. WRITE_EXPLANATION is no longer called, and stays private if it ever is."""
+    assert C.LLMTask.WRITE_EVIDENCE.value == "write_evidence"
+    assert C.LLMTask.WRITE_EVIDENCE not in C.PERSONAL_TASKS
+    assert C.LLMTask.WRITE_EXPLANATION in C.PERSONAL_TASKS
+
+
 def test_generate_criteria_is_not_always_personal() -> None:
     # US-46: the criteria call is private only when it carries the shopper's use case. With just our category
     # label it is public, so the call site declares its class instead of the task deciding it.

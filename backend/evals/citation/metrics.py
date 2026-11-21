@@ -99,10 +99,10 @@ def bootstrap(
         c, r = rates(sample, threshold)
         caught.append(c)
         rejected.append(r)
-    return {"caught": _interval(caught), "wrongly_rejected": _interval(rejected)}
+    return {"caught": interval(caught), "wrongly_rejected": interval(rejected)}
 
 
-def _interval(values: list[float]) -> tuple[float, float]:
+def interval(values: list[float]) -> tuple[float, float]:
     ordered = sorted(values)
     low = ordered[int(0.025 * (len(ordered) - 1))]
     high = ordered[round(0.975 * (len(ordered) - 1))]

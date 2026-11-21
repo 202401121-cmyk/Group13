@@ -35,8 +35,7 @@ def test_the_known_call_sites() -> None:
     assert sorted(path for path, _, _ in _complete_calls()) == [
         "app/criteria/stage.py",  # US-03: the criteria
         "app/criteria/stage.py",  # S4-22: and one plain-words re-ask for definitions that are not plain
-        "app/explain/stage.py",  # US-20: the explanations
-        "app/explain/stage.py",  # and their one rewrite when too hard to read
+        "app/explain/stage.py",  # D-91: evidence sentences from a top product's public quotes (US-22, US-20)
         "app/extract/stage.py",
         "app/intake/stage.py",
         "app/interview/replies.py",  # US-39: what kind of reply this is

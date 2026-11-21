@@ -32,7 +32,8 @@ class LLMTask(StrEnum):
     EXTRACT_CLAIMS = "extract_claims"
     DISCOVER_ALIASES = "discover_aliases"
     ENRICH_EXTRACT = "enrich_extract"
-    WRITE_EXPLANATION = "write_explanation"
+    WRITE_EXPLANATION = "write_explanation"  # no longer called (D-91); kept for older call records
+    WRITE_EVIDENCE = "write_evidence"  # D-91: a product's name and public quotes only, never the shopper's words
 
 
 class DataClass(StrEnum):

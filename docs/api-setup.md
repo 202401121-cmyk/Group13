@@ -772,13 +772,14 @@ When a provider's terms change, update its flag, `terms_url` and `terms_checked`
 | `app/criteria/stage.py` | `generate_criteria` | category label and the shopper's use case | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | only a category label from our lexicon (no use case) | public | short |
 | `app/criteria/stage.py` | `generate_criteria` | its one plain-words re-ask (S4-22): the same brief, plus the generated criteria whose definitions are not plain, with the words to avoid, as data. It takes the first call's class, so the same route | as the first call | short |
-| `app/explain/stage.py` | `write_explanation` | code's facts for the top 3 products (criterion names, scores, points and claim refs) and the shopper's top priorities, never a source's words. Its one rewrite, when a paragraph is too hard to read, adds that paragraph (US-20) | private | medium |
+| `app/explain/stage.py` | `write_evidence` | one of the top 3 products: its name and its public quotes (makers, reviews and stores) for the criteria its paragraph is about, as data, in groups named t1, t2 ... in key order, never by a criterion's name (a generated one can hold the shopper's words, D-51). Never a Reddit or video-comment quote, a score, a weight or anything the shopper typed or chose; code writes the personal part (D-91, US-22). One call each, side by side | public | medium |
 | `app/interview/replies.py` | `classify_reply` | the shopper's reply to an interview question, as data, with the question, its criterion's definition and the earlier questions (US-39) | private | short |
 | `app/interview/replies.py` | `answer_user_question` | the shopper's question, as data, with the criterion's name and definition, when the definition doesn't cover it (US-39) | private | short |
 | `app/extract/stage.py` | `extract_claims` | one fetched source's retrieved text, never a search snippet alone. Criterion keys and the category label from our config in every call; any others, which may hold the shopper's words, in Reddit calls only. A public call may also carry a generated criterion's fixed stand-in, known spec keys from the hard rules and `price_inr` with a budget, always as fixed keys with our own definitions (`config/extract.yaml`, US-14) | reddit for Reddit, otherwise public | long |
 
 `detect_intent`, `classify_reply`, `answer_user_question`, `write_question` and `write_explanation` always carry
-the shopper's words, so the wrapper refuses any class but private for them (`PERSONAL_TASKS`). A new call site
+the shopper's words, so the wrapper refuses any class but private for them (`PERSONAL_TASKS`). `write_explanation`
+is no longer called (D-91): explanations' personal part is code's, and `write_evidence` carries public quotes only. A new call site
 must pass `data_class=` and `difficulty=`, and be added to this table and to
 `backend/tests/unit/llm/test_call_sites.py`.
 

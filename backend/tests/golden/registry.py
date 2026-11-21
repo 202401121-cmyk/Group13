@@ -38,6 +38,7 @@ from app.contracts import (
 from app.criteria import CriteriaStage
 from app.criteria.fallback import fallback_set
 from app.explain import ExplainStage, TemplateExplainStage
+from app.explain.nli_settings import NliSettings
 from app.extract import GuardedExtractStage
 from app.intake import IntakeStage
 from app.intake.exclusions import parse_exclusions
@@ -306,11 +307,12 @@ def _is_items_skipped(ran: Ran, given: Given) -> bool:
     return ran.result == []
 
 
-# --- explanations (US-20) --------------------------------------------------------------------------------------------
+# --- explanations: evidence sentences (US-20, US-22, D-91) -----------------------------------------------------------
 
 
 def _explain_input(given: Given) -> ExplainInput:
-    """The example ranking and claims: three made-up laptops whose claims link to them by name."""
+    """The example ranking and claims: three made-up laptops whose claims link to them by name. Each of the top 3 gets
+    an evidence call carrying its public quotes, refs q1, q2 ... in key order; its Reddit quotes are never sent."""
     priorities = [str(key) for key in given.get("priorities", ["cpu_performance", "battery_life", "keyboard_comfort"])]
     return ExplainInput(ranked=examples.decision().ranked, claims=examples.claims(), user_priorities=priorities)
 
@@ -318,7 +320,9 @@ def _explain_input(given: Given) -> ExplainInput:
 def _run_explain(raw: str, given: Given) -> Ran:
     client, log = _client(raw)
     inp, ctx = _explain_input(given), StageContext(search_id=SEARCH_ID)
-    result: ExplainResult = ExplainStage(client).run(inp, ctx)  # no answer it can use: the template, never a raise
+    # NLI off: a sentence is kept only when it quotes a cited quote 6 words in a row (no model loads in a test). Every
+    # call gets this same reply. No answer it can use: code's sentences, the template, never a raise.
+    result: ExplainResult = ExplainStage(client, settings=NliSettings(enabled=False)).run(inp, ctx)
     return Ran(result, result.model_dump(mode="json", exclude_defaults=True), _attempts(log))
 
 
@@ -358,7 +362,7 @@ PARSERS: dict[str, Parser] = {
             "app.explain.parsing",
             _run_explain,
             {"template": _is_template},
-            frozenset({"WRITE_EXPLANATION: RawExplanations"}),
+            frozenset({"WRITE_EVIDENCE: RawEvidence"}),
         ),
         Parser(
             "interview",

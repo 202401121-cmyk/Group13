@@ -2,7 +2,7 @@
 
 render.yaml sits at the repository root, where Render looks for it. Staging's secrets live only in Render's dashboard:
 the file names each variable and holds no value but two settings that are no secret: the Python version, a build
-setting, and NLI=off, so staging can never start the citation check by accident (P-48, P-10).
+setting, and NLI=off, so staging can never start the citation check, whose model doesn't fit its memory (P-10).
 """
 
 from __future__ import annotations
@@ -75,7 +75,7 @@ def test_no_value_is_written_for_any_variable_but_the_two_settings(service: dict
 
 
 def test_staging_runs_with_the_citation_check_off(service: dict[str, Any]) -> None:
-    """The model doesn't fit the free plan's 512 MB (P-10), and real explanations need P-48's follow-up first."""
+    """The app's default is on (S5-4b), but the model doesn't fit the free plan's 512 MB (P-10)."""
     nli = _variables(service)["NLI"]
     assert nli["value"] == "off"
     assert "sync" not in nli  # a value Render applies, never one to type into the dashboard

@@ -7,10 +7,10 @@ Run from backend/:  python -m evals.citation.run  [--write-threshold]
 2. On the 60 test pairs only: the share of deliberately wrong sentences caught (target 80%) and of right ones wrongly
    rejected (target at most 15%), each with a 95% bootstrap interval. The model's probability alone is given too, so
    the number rule's share can be seen.
-3. Time: the check itself (check.py's check_explanation, one batch per product, through the same time-limited call as
-   the stage) on the top 3 products of every recorded run, replayed offline as the quality gate replays them
-   (evals/gate.py). Each paragraph is what the LLM would be asked to say, in code's words: the rank, the top 3 and a
-   written trade-off, each citing its claims. Median and slowest, against the 5 s limit.
+3. Time: the check itself (check.py's checked_by_model, one batch per product, through the check's one interface) on
+   the top 3 products of every recorded run with public quotes, replayed offline as the quality gate replays them
+   (evals/gate.py). Each batch is one sentence per criterion its evidence call is given, read against every quote of
+   that criterion (evidence_batches). Median and slowest, against the 5 s limit.
 4. P-10: the process's peak memory with the trained matcher and this model loaded, and after the timing.
 
 The model must be pinned in config/nli.yaml (python -m evals.citation.model_check --write-config) and, like the
@@ -29,14 +29,14 @@ import time
 from datetime import UTC, datetime
 from typing import Any
 
-from app.contracts import Claim, Explanation, ExplanationSentence
-from app.explain.check import TRADE_OFF, check_explanation, items, quotes_of
+from app.explain.check import checked_by_model
+from app.explain.evidence import evidence_request
 from app.explain.facts import ProductFacts, facts_for
 from app.explain.nli import OnnxNli, load_nli
 from app.explain.nli_settings import NliSettings, load_nli_settings
-from app.explain.templates import strength_sentence
+from app.explain.parsing import Draft
 
-from ..memory_cost import MB, memory_bytes
+from ..memory_probe import MB, memory_bytes
 from ..run_baselines import RESULTS_DIR
 from . import metrics
 from .config_file import write_config
@@ -44,7 +44,7 @@ from .model_check import best_entailment
 from .pairs import LabelledPair, load_pairs, load_split
 
 CITATION_OUT = RESULTS_DIR / "citation.json"
-WRITTEN = 3  # the LLM writes for the top 3 (US-20); the rest get the template, which is never checked
+WRITTEN = 3  # evidence sentences for the top 3 (D-91); the rest get the template, which is never checked
 SOURCE = "backend/evals/citation/ (pairs.csv, by-hand job 2), app.explain.check, app.explain.nli"
 
 
@@ -56,69 +56,53 @@ def scored(scorer: OnnxNli, pairs: list[LabelledPair]) -> list[metrics.Scored]:
     ]
 
 
-def paragraph(facts: ProductFacts) -> Explanation:
-    """What the LLM is asked to say, in code's words, each sentence citing the claims of what it is about."""
-    first = facts.top[0]
-    sentences = [
-        ExplanationSentence(
-            text=f"It ranks #{facts.rank} with a score of {facts.score} out of 100.", claim_ids=list(first.claim_ids)
-        )
-    ]
-    sentences += [
-        ExplanationSentence(text=strength_sentence(f), claim_ids=list(f.claim_ids)) for f in facts.top if f.claim_ids
-    ]
-    trade = facts.trade_off
-    return Explanation(
-        product_id=facts.product_id,
-        sentences=sentences[:4],
-        trade_off=f"Its weakest point is its {trade.fact.label}." if trade is not None else None,
-        unverified=list(facts.unverified),
-        method="llm_unchecked",
-    )
-
-
-def written_products() -> list[tuple[str, ProductFacts, dict[str, Claim]]]:
-    """The top 3 products of every recorded run, as explain would be given them, with a claim to cite."""
+def evidence_batches() -> list[tuple[str, ProductFacts, list[Draft]]]:
+    """Each top-3 product of every recorded run with public quotes, as the evidence check gets it (D-91): one sentence
+    per criterion its call was given, citing every quote of that criterion. With no LLM here, each sentence is its
+    criterion's first quote itself, the longest a sentence may be read against, so each batch is as big as it can be."""
     from ..gate import recordings, replay
 
-    out: list[tuple[str, ProductFacts, dict[str, Claim]]] = []
+    out: list[tuple[str, ProductFacts, list[Draft]]] = []
     for folder in recordings():
         done = replay(folder)
         claims = [c for result in done.results for c in result.claims]
         ranked = done.result.decision.ranked if done.result.decision is not None else []
-        by_id = {c.id: c for c in claims}
         for product in ranked[:WRITTEN]:
             facts = facts_for(product, claims)
-            if facts.score is not None and facts.top and facts.top[0].claim_ids:
-                out.append((folder.name, facts, by_id))
+            request = evidence_request(facts, claims) if facts.score is not None and facts.top else None
+            if request is None:
+                continue
+            drafts = []
+            for key in request.labels:
+                quoted = [q for q in request.quotes if q.key == key]
+                drafts.append(
+                    Draft(key, quoted[0].quote, tuple(q.claim_id for q in quoted), tuple(q.quote for q in quoted))
+                )
+            out.append((folder.name, facts, drafts))
     return out
 
 
+def batch_pairs(scorer: OnnxNli, drafts: list[Draft]) -> int:
+    return sum(len(scorer.premises(q)) for d in drafts for q in d.quotes)
+
+
 def timing(scorer: OnnxNli, settings: NliSettings, threshold: float) -> dict[str, Any]:
-    products = written_products()
+    products = evidence_batches()
     if not products:
-        raise SystemExit("the recorded runs gave no product with a claim to cite")
-    _, facts, claims = products[0]
-    check_explanation(paragraph(facts), facts, claims, scorer, threshold, 60.0)  # warm up
+        raise SystemExit("the recorded runs gave no product with a public quote")
+    _, facts, drafts = products[0]
+    checked_by_model(drafts, facts, scorer, threshold, 60.0)  # warm up
     seconds: list[float] = []
     pairs: list[int] = []
-    checked = passed = 0
-    for _, facts, claims in products:
-        para = paragraph(facts)
-        todo = items(para, facts)  # the sentences and the trade-off, as the check reads them
-        pairs.append(sum(len(scorer.premises(q)) for item in todo for q in quotes_of(item, claims)))
+    for _, facts, drafts in products:
+        pairs.append(batch_pairs(scorer, drafts))
         started = time.perf_counter()
-        out = check_explanation(para, facts, claims, scorer, threshold, 60.0)
+        checked_by_model(drafts, facts, scorer, threshold, 60.0)
         seconds.append(time.perf_counter() - started)
-        checked += len(todo)
-        passed += sum(s.supported is True for s in out.sentences)
-        passed += any(i.index == TRADE_OFF for i in todo) and out.trade_off == para.trade_off
     return {
         "products": len(products),
         "runs": sorted({run for run, _, _ in products}),
         "pairs_per_product": {"median": statistics.median(pairs), "most": max(pairs)},
-        # code's own words restating scores, as the LLM is asked to: how many its quotes back at the threshold
-        "sentences": {"checked": checked, "passed": passed},
         "seconds_median": round(statistics.median(seconds), 3),
         "seconds_slowest": round(max(seconds), 3),
         "limit_s": settings.time_limit_s,
@@ -193,8 +177,8 @@ def run(write_threshold: bool = False) -> dict[str, Any]:
             "unit": "seconds",
             "status": "measured",
             "source": "backend/evals/citation/run.py (the recorded runs, replayed offline), app.explain.check",
-            "detail": f"the check of one product's paragraph, over the top 3 of {len(took['runs'])} recorded runs "
-            f"({took['products']} products)",
+            "detail": f"the check of one product's evidence sentences, over the top 3 of {len(took['runs'])} "
+            f"recorded runs ({took['products']} products)",
         },
         {
             "id": "citation.check_seconds_slowest",
