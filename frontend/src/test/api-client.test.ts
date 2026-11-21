@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ApiError, MESSAGES, TIMEOUTS, apiConfig } from "@/lib/api/client";
 import { fakeBackend, hang, json } from "./helpers/fakeBackend";
+import { fakeBearer } from "./helpers/fakeAuth";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -172,5 +173,66 @@ describe("time limits", () => {
     const pending = client.get("/api/x", { timeoutMs: 10_000, signal: stop.signal });
     stop.abort();
     await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+  });
+});
+
+describe("PATCH, a DELETE with a body, and 204 (US-11)", () => {
+  it("sends a PATCH with its JSON and gives back the answer's headers", async () => {
+    const { client, calls } = fakeBackend(
+      () =>
+        new Response(JSON.stringify({ ok: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", "X-Memory-Note": "a note" },
+        }),
+    );
+    const { data, headers } = await client.patch("/api/x/1", { weight: 6 }, { timeoutMs: 1000 });
+    expect(data).toEqual({ ok: true });
+    expect(headers.get("X-Memory-Note")).toBe("a note");
+    expect(calls[0]).toMatchObject({ method: "PATCH", path: "/api/x/1", body: { weight: 6 } });
+    expect(calls[0]!.headers["Content-Type"]).toBe("application/json");
+  });
+
+  it("sends a DELETE's body only when the route needs one", async () => {
+    const { client, calls } = fakeBackend(() => new Response(null, { status: 204 }));
+    await client.delete("/api/me", { timeoutMs: 1000 }, { confirm: "delete" });
+    await client.delete("/api/x/1", { timeoutMs: 1000 });
+    expect(calls[0]).toMatchObject({ method: "DELETE", body: { confirm: "delete" } });
+    expect(calls[0]!.headers["Content-Type"]).toBe("application/json");
+    expect(calls[1]!.body).toBeUndefined();
+    expect(calls[1]!.headers["Content-Type"]).toBeUndefined();
+  });
+
+  it("takes 204 with no body as done, with no data", async () => {
+    const { client } = fakeBackend(() => new Response(null, { status: 204 }));
+    await expect(client.delete("/api/x/1", { timeoutMs: 1000 })).resolves.toEqual({
+      status: 204,
+      data: undefined,
+    });
+  });
+
+  it("a token read earlier is sent at once, without asking the sign-in again, and keepalive goes with it", async () => {
+    const { bearer, counts } = fakeBearer("now");
+    let keepalive: boolean | undefined;
+    const { client, calls } = fakeBackend((_call, init) => {
+      keepalive = init.keepalive;
+      return new Response(null, { status: 204 });
+    }, bearer);
+    const pending = client.delete("/api/x/1", {
+      timeoutMs: 1000,
+      token: "earlier",
+      keepalive: true,
+    });
+    expect(calls).toHaveLength(1); // sent before anything was awaited
+    await pending;
+    expect(calls[0]!.headers["Authorization"]).toBe("Bearer earlier");
+    expect(keepalive).toBe(true);
+    expect(counts.token).toBe(0);
+  });
+
+  it("still refuses a 200 with no body", async () => {
+    const { client } = fakeBackend(() => new Response(null, { status: 200 }));
+    await expect(client.delete("/api/x/1", { timeoutMs: 1000 })).rejects.toMatchObject({
+      kind: "bad_response",
+    });
   });
 });

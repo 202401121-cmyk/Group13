@@ -11,6 +11,9 @@ import type { IntakeResponse } from "@/types/contracts/IntakeResponse";
 import type { Intent } from "@/types/contracts/Intent";
 import type { InterviewStep } from "@/types/contracts/InterviewStep";
 import type { MeResponse } from "@/types/contracts/MeResponse";
+import type { PreferenceExport } from "@/types/contracts/PreferenceExport";
+import type { PreferenceItem } from "@/types/contracts/PreferenceItem";
+import type { PreferenceList } from "@/types/contracts/PreferenceList";
 import type { PresearchSession } from "@/types/contracts/PresearchSession";
 import type { ProgressEvent } from "@/types/contracts/ProgressEvent";
 import type { ReplyRequest } from "@/types/contracts/ReplyRequest";
@@ -37,6 +40,9 @@ export interface Contracts {
   ExclusionParseResponse: ExclusionParseResponse;
   MeResponse: MeResponse;
   SavedSearchList: SavedSearchList;
+  PreferenceList: PreferenceList;
+  PreferenceItem: PreferenceItem;
+  PreferenceExport: PreferenceExport;
 }
 export type ContractName = keyof Contracts;
 
@@ -58,6 +64,9 @@ const SCHEMAS: Record<ContractName, () => Promise<{ default: unknown }>> = {
   ExclusionParseResponse: () => import("@contracts/schema/ExclusionParseResponse.json"),
   MeResponse: () => import("@contracts/schema/MeResponse.json"),
   SavedSearchList: () => import("@contracts/schema/SavedSearchList.json"),
+  PreferenceList: () => import("@contracts/schema/PreferenceList.json"),
+  PreferenceItem: () => import("@contracts/schema/PreferenceItem.json"),
+  PreferenceExport: () => import("@contracts/schema/PreferenceExport.json"),
 };
 
 /** CommonJS packages arrive as { default } or { default: { default } } depending on the bundler. */

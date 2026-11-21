@@ -19,6 +19,7 @@ import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResearchRouteImport } from './routes/research'
 import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as AccountDeletedRouteImport } from './routes/account_.deleted'
 import { Route as MySearchesIndexRouteImport } from './routes/my-searches.index'
 import { Route as MySearchesSearchIdRouteImport } from './routes/my-searches.$searchId'
 import { Route as SSessionIdBriefRouteImport } from './routes/s.$sessionId.brief'
@@ -76,6 +77,11 @@ const SignInRoute = SignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountDeletedRoute = AccountDeletedRouteImport.update({
+  id: '/account_/deleted',
+  path: '/account/deleted',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MySearchesIndexRoute = MySearchesIndexRouteImport.update({
   id: '/my-searches/',
   path: '/my-searches/',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/sign-in': typeof SignInRoute
+  '/account/deleted': typeof AccountDeletedRoute
   '/my-searches/$searchId': typeof MySearchesSearchIdRoute
   '/my-searches/': typeof MySearchesIndexRoute
   '/s/$sessionId/brief': typeof SSessionIdBriefRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/sign-in': typeof SignInRoute
+  '/account/deleted': typeof AccountDeletedRoute
   '/my-searches/$searchId': typeof MySearchesSearchIdRoute
   '/my-searches': typeof MySearchesIndexRoute
   '/s/$sessionId/brief': typeof SSessionIdBriefRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/research': typeof ResearchRoute
   '/sign-in': typeof SignInRoute
+  '/account_/deleted': typeof AccountDeletedRoute
   '/my-searches/$searchId': typeof MySearchesSearchIdRoute
   '/my-searches/': typeof MySearchesIndexRoute
   '/s/$sessionId/brief': typeof SSessionIdBriefRoute
@@ -175,6 +184,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/research'
     | '/sign-in'
+    | '/account/deleted'
     | '/my-searches/$searchId'
     | '/my-searches/'
     | '/s/$sessionId/brief'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/research'
     | '/sign-in'
+    | '/account/deleted'
     | '/my-searches/$searchId'
     | '/my-searches'
     | '/s/$sessionId/brief'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/research'
     | '/sign-in'
+    | '/account_/deleted'
     | '/my-searches/$searchId'
     | '/my-searches/'
     | '/s/$sessionId/brief'
@@ -230,6 +242,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ResearchRoute: typeof ResearchRoute
   SignInRoute: typeof SignInRoute
+  AccountDeletedRoute: typeof AccountDeletedRoute
   MySearchesSearchIdRoute: typeof MySearchesSearchIdRoute
   MySearchesIndexRoute: typeof MySearchesIndexRoute
   SSessionIdBriefRoute: typeof SSessionIdBriefRoute
@@ -310,6 +323,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignInRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account_/deleted': {
+      id: '/account_/deleted'
+      path: '/account/deleted'
+      fullPath: '/account/deleted'
+      preLoaderRoute: typeof AccountDeletedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-searches/': {
       id: '/my-searches/'
       path: '/my-searches'
@@ -366,6 +386,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ResearchRoute: ResearchRoute,
   SignInRoute: SignInRoute,
+  AccountDeletedRoute: AccountDeletedRoute,
   MySearchesSearchIdRoute: MySearchesSearchIdRoute,
   MySearchesIndexRoute: MySearchesIndexRoute,
   SSessionIdBriefRoute: SSessionIdBriefRoute,

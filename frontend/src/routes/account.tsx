@@ -1,10 +1,19 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Clock, Laptop, LogOut, Search, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Clock,
+  Laptop,
+  LogOut,
+  Search,
+  ShieldCheck,
+  TriangleAlert,
+} from "lucide-react";
 import { PageShell } from "@/components/shopsense/PageShell";
 import { PillButton } from "@/components/shopsense/ui";
 import { pillButton } from "@/components/shopsense/pill-button";
 import { Avatar } from "@/components/account/Avatar";
+import { MemorySection } from "@/components/account/MemorySection";
 import { SignInPrompt } from "@/components/account/SignInPrompt";
 import { useAccountName } from "@/hooks/useAccountName";
 import { useVisualMotion } from "@/hooks/useVisualMotion";
@@ -110,6 +119,7 @@ function Profile({ user }: { user: AuthUser }) {
               <li>
                 Only you can see them, and a search you began as a guest is never linked to you.
               </li>
+              <li>What we remember from your interviews is below. You can change or delete it.</li>
             </ul>
             <Link
               to="/privacy"
@@ -149,7 +159,51 @@ function Profile({ user }: { user: AuthUser }) {
           </section>
         </div>
       </div>
+
+      <div className="mt-5 grid gap-5">
+        <MemorySection userId={user.id} />
+        <DeleteAccount />
+      </div>
     </>
+  );
+}
+
+/** Loaded only when "Delete my account" is pressed, so the dialog library stays out of the page's first load. */
+const DeleteAccountDialog = lazy(() => import("@/components/account/DeleteAccountDialog"));
+
+function DeleteAccount() {
+  const [open, setOpen] = useState(false);
+  return (
+    <section
+      aria-labelledby="delete-title"
+      className="rounded-3xl border border-destructive/40 bg-card p-6 md:p-8"
+    >
+      <div className="flex items-center gap-3">
+        <span className="grid h-10 w-10 place-items-center rounded-2xl bg-secondary text-foreground">
+          <TriangleAlert className="h-5 w-5" aria-hidden />
+        </span>
+        <h2 id="delete-title" className="font-serif text-2xl text-foreground">
+          Delete your account
+        </h2>
+      </div>
+      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        This deletes your saved searches, everything ShopSense remembers about you, your profile and
+        your sign-in. It can't be undone.
+      </p>
+      <PillButton
+        type="button"
+        variant="outline"
+        className="mt-5 border-destructive/60 text-destructive"
+        onClick={() => setOpen(true)}
+      >
+        Delete my account
+      </PillButton>
+      {open && (
+        <Suspense fallback={null}>
+          <DeleteAccountDialog onClose={() => setOpen(false)} />
+        </Suspense>
+      )}
+    </section>
   );
 }
 

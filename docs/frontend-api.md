@@ -706,6 +706,33 @@ sees and changes their own: another shopper's preference id answers 404, never 4
 | 503 | Deleting an account isn't set up on this backend (no secret key), the database didn't answer first, or Supabase didn't answer: nothing was deleted | `Deleting an account isn't available right now. ...` or `We couldn't delete your account just now. ...` |
 | 503 | The account was deleted, but the read-back couldn't confirm all its rows are gone: asking again finishes it | `Your account was deleted, but we couldn't yet confirm that all your saved data is gone. ...` |
 
+### How the account page uses them (US-11, S5-10)
+
+The "What we remember" section and the "Delete your account" dialog on `/account` (`frontend/src/lib/account/memory*.ts`,
+`frontend/src/components/account/`). Every answer is checked against its contract with ajv first.
+
+- **Forget waits 5 seconds.**
+  - The item leaves the list at once, with Undo. Undo sends nothing.
+  - After 5 seconds, one `DELETE /api/me/preferences/{id}` goes.
+  - Pressing "Download my data" sends any delete still waiting at once.
+  - Leaving the page also sends it at once: signing out, closing the tab, or going to another page. It goes with the
+    sign-in read when Forget was pressed, and with fetch `keepalive`, so the delete isn't lost when the sign-in or the
+    page has already gone.
+- **A 404 or a 409** reads the list again and says why. A 503 on the list says the memory can't be reached right now,
+  with "Try again". A 401 signs the shopper out in the browser.
+- **The download** is built field by field from the checked `PreferenceExport`, so the file holds the contract's fields
+  only, and never an embedding, a user id or an email. It is saved as `shopsense-memory.json`.
+- **Changes:** a weight's number box (0 to 10) and its words go in one `PATCH`, with only the fields that changed. A
+  must-have's switch sends `active` alone. `X-Memory-Note` is shown under the item.
+- **"Forget everything"** asks first, then sends `DELETE /api/me/preferences`.
+- **Deleting the account:**
+  - the dialog lists what goes and asks for the word. It is checked as the backend does, ignoring spaces and capitals.
+    Any other word is refused in the browser, and nothing is sent;
+  - each 503 shows the backend's own sentence, and the dialog stays open;
+  - after 204, the browser notes the delete in this tab, signs out and loads `/account/deleted`. That plain page says
+    what went only in the tab that deleted the account. Anyone else is told there is nothing to confirm, or, if
+    signed in, that their account is still here.
+
 ## Sprint 2 contracts
 
 These types are agreed and exported now, so screens can be built against them. The work behind them lands in later
