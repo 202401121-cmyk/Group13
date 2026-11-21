@@ -19,6 +19,7 @@ const ROUTES = [
   "/features",
   "/sign-in",
   "/account",
+  "/account/deleted",
   "/my-searches",
   "/my-searches/00000000-0000-4000-8000-000000000001",
   `/s/${MISSING}/criteria`,
@@ -27,13 +28,28 @@ const ROUTES = [
   `/s/${MISSING}/results`,
 ];
 
+/** Routes that load more for a signed-in shopper: measured signed in too (the mock's session, no network). */
+const SIGNED_IN = ["/account"];
+
 test("first-load JavaScript stays within the budget on every route", async ({
   browser,
   baseURL,
 }) => {
   const rows: string[] = [];
-  for (const route of ROUTES) {
+  const runs = [
+    ...ROUTES.map((route) => ({ route, signedIn: false })),
+    ...SIGNED_IN.map((route) => ({ route, signedIn: true })),
+  ];
+  for (const { route: path, signedIn } of runs) {
+    const route = signedIn ? `${path} (signed in)` : path;
     const context = await browser.newContext();
+    if (signedIn)
+      await context.addInitScript(() =>
+        sessionStorage.setItem(
+          "shopsense.auth.mock",
+          JSON.stringify({ expiresAt: Date.now() + 60 * 60 * 1000 }),
+        ),
+      );
     const page = await context.newPage();
     const scripts = new Map<string, Buffer>();
     page.on("response", async (res) => {
@@ -45,7 +61,7 @@ test("first-load JavaScript stays within the budget on every route", async ({
         /* the page moved on; the file is counted on its next request */
       }
     });
-    await page.goto(route, { waitUntil: "networkidle" });
+    await page.goto(path, { waitUntil: "networkidle" });
     let gz = 0;
     let raw = 0;
     let ajv = false;

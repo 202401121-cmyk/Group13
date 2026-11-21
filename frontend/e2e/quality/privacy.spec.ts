@@ -46,6 +46,29 @@ test.describe("the privacy page", () => {
     }
   });
 
+  test("says what is remembered, where the embedding is made, and how to see and delete it (US-11)", async ({
+    page,
+  }) => {
+    const main = page.locator("main");
+    for (const said of [
+      "must-haves you kept on",
+      "things you chose to leave out with Always",
+      "We never remember your budget",
+      "we remember nothing from a guest's search",
+      "a list of 384",
+      "This happens on the ShopSense server, not at an AI service",
+      "about 46",
+      'under "What we remember"',
+      "no embeddings, no account ID and no email address",
+      "Forgetting something deletes its embedding too",
+      "You can delete your account yourself",
+      'you type the word "delete"',
+      "It can't be undone",
+    ]) {
+      await expect(main.getByText(said).first(), said).toBeVisible();
+    }
+  });
+
   test("passes axe at 390 and 1440 px, light and dark", async ({ page }) => {
     for (const size of [
       { width: 390, height: 844 },

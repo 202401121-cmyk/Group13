@@ -25,8 +25,11 @@ export const Route = createFileRoute("/privacy")({
 // backend/config/models.yaml, and result B3 of the Sprint 1 verification report. Sign-in (US-30): the user tables and
 // row level security in supabase/migrations/*_add_user_tables.sql and *_keep_owner_fixed.sql, the backend's user routes
 // (backend/app/api/account.py), a new session at sign-in and sign-out (D-80), and supabase-js keeping the session in
-// the browser (src/lib/auth/). Change this page whenever one of those changes, and never promise a deletion period
-// that is not built.
+// the browser (src/lib/auth/). What is remembered (US-06) and its controls (US-11): supabase/migrations/
+// *_create_preferences.sql, backend/app/memory/ (the embedding model runs on our server, and recall's 90-day half-life
+// with its 0.7 floor drops an item about 46 days after it was last saved), and backend/app/api/account.py (the routes,
+// the export's fields and the account delete with its read-back). Change this page whenever one of those changes, and
+// never promise a deletion period that is not built.
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -109,13 +112,63 @@ function Privacy() {
             search you began as a guest stays a guest's.
           </p>
           <p>
-            If an account is deleted, its saved requests, searches and profile are deleted with it.
-            The project team can still read all records through the database dashboard, as below.
+            If an account is deleted, its saved requests, searches, profile and everything we
+            remember are deleted with it. You can delete yours yourself, as below.
+          </p>
+        </Section>
+
+        <Section title="What we remember if you sign in">
+          <p>
+            When you finish an interview while signed in, ShopSense remembers a few of your answers
+            for your next search of the same kind of product:
+          </p>
+          <ul className="list-disc space-y-1 pl-6">
+            <li>how much each thing counts for you, such as battery life;</li>
+            <li>must-haves you kept on, such as at least 16 GB of RAM;</li>
+            <li>things you chose to leave out with Always, such as a brand.</li>
+          </ul>
+          <p>
+            Each one is kept in plain words, with the kind of product it was for. A brand you always
+            leave out holds for every search. We never remember your budget, and we remember nothing
+            from a guest's search.
+          </p>
+          <p>
+            To match them to your next search, our own server turns each one into a list of 384
+            numbers, called an embedding. This happens on the ShopSense server, not at an AI
+            service, and the embedding is kept with the item. Once a remembered answer is part of a
+            new search, it is used like the rest of that search, as described below.
+          </p>
+          <p>
+            Older answers count for less. One that hasn't been saved again or changed for about 46
+            days is no longer filled in for you, but it stays on your list until you forget it.
+          </p>
+          <p>
+            You can see everything we remember on your profile page, under "What we remember". There
+            you can change a priority's words or weight, switch a must-have off or on, download it
+            all as a JSON file, and forget one thing or everything. The file holds your preferences
+            only: no embeddings, no account ID and no email address. Forgetting something deletes
+            its embedding too.
+          </p>
+        </Section>
+
+        <Section title="Deleting your account">
+          <p>
+            You can delete your account yourself, from your profile page. That deletes your sign-in
+            and, with it, every request and search saved with your account, your profile and
+            everything we remember. To make sure it isn't a mistake, you type the word "delete"
+            first. We say it's done only after checking that none of it is left. It can't be undone.
+          </p>
+          <p>
+            Searches you made as a guest were never linked to you, so they aren't part of it. Your
+            Google account itself isn't touched.
           </p>
         </Section>
 
         <Section title="Where it is stored and who can read it">
-          <p>These records are stored in a Supabase database in the Mumbai region.</p>
+          <p>
+            These records, and what we remember, are stored in a Supabase database in the Mumbai
+            region.
+          </p>
           <p>
             The ShopSense backend can read them, and so can the project team through the database
             dashboard. With Supabase's public keys, the kind a website uses in the browser, a
@@ -126,8 +179,9 @@ function Privacy() {
 
         <Section title="How long we keep it">
           <p>
-            These records have no deletion date yet. They stay until someone on the project team
-            deletes them.
+            These records have no deletion date yet. If you're signed in, you can delete what we
+            remember, or your whole account, whenever you like. Otherwise they stay until someone on
+            the project team deletes them.
           </p>
         </Section>
 

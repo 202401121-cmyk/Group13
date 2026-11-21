@@ -73,6 +73,13 @@ export interface CallOptions {
   signal?: AbortSignal | undefined;
   /** A search run's own route: a 404 while signed in is retried once with a refreshed token (S4-10). */
   ownedRun?: boolean | undefined;
+  /**
+   * A token read earlier, for a call sent as the page goes (US-11): the sign-in may already be gone, and the request
+   * is then sent at once, before anything else is awaited. Null sends it as a guest's.
+   */
+  token?: string | null | undefined;
+  /** Keeps the request going after the page has gone (fetch keepalive). */
+  keepalive?: boolean | undefined;
 }
 
 /** Where the client gets the signed-in shopper's token: src/lib/auth/service.ts. Null for a guest. */
@@ -116,8 +123,21 @@ export interface ApiClient {
     body: unknown,
     opts: CallOptions,
   ): Promise<{ data: unknown; headers: Headers }>;
-  /** Gives the status too: for a run, 202 and 200 mean different things. */
-  delete(path: string, opts: CallOptions): Promise<{ status: number; data: unknown }>;
+  /** A PATCH, with its answer's headers, such as the memory route's X-Memory-Note (US-11). */
+  patch(
+    path: string,
+    body: unknown,
+    opts: CallOptions,
+  ): Promise<{ data: unknown; headers: Headers }>;
+  /**
+   * Gives the status too: for a run, 202 and 200 mean different things. A body only where the route needs one, such
+   * as DELETE /api/me's confirmation (US-11). A 204 has no body: its `data` is undefined.
+   */
+  delete(
+    path: string,
+    opts: CallOptions,
+    body?: unknown,
+  ): Promise<{ status: number; data: unknown }>;
 }
 
 type FetchLike = (input: string, init: RequestInit) => Promise<Response>;
@@ -146,13 +166,14 @@ export function createApiClient(
         method,
         headers: callHeaders(token, body !== undefined),
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+        ...(opts.keepalive ? { keepalive: true } : {}),
         signal: timeout.signal,
       });
       // The limit covers the body too: an answer that stalls halfway must not leave a screen waiting for ever.
       data = await readJson(response);
     };
     try {
-      const token = await tokenOf(bearer);
+      const token = opts.token !== undefined ? opts.token : await tokenOf(bearer);
       await send(token);
       if (response.status === 404 && token && opts.ownedRun) {
         const fresh = await tokenOf(bearer, true);
@@ -168,7 +189,8 @@ export function createApiClient(
       opts.signal?.removeEventListener("abort", onAbort);
     }
     if (!response.ok) throw errorFor(response.status, data);
-    if (data === undefined)
+    // 204 No Content is the one success with no body (a deleted preference, US-11).
+    if (data === undefined && response.status !== 204)
       throw new ApiError("bad_response", MESSAGES.badResponse, response.status);
     return { status: response.status, data, headers: response.headers };
   }
@@ -181,8 +203,9 @@ export function createApiClient(
       const { data, headers } = await call("POST", path, body, opts);
       return { data, headers };
     },
-    delete: async (path, opts) => {
-      const { status, data } = await call("DELETE", path, undefined, opts);
+    patch: (path, body, opts) => call("PATCH", path, body, opts),
+    delete: async (path, opts, body) => {
+      const { status, data } = await call("DELETE", path, body, opts);
       return { status, data };
     },
   };
