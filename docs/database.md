@@ -1,9 +1,10 @@
 # The database (Supabase Postgres)
 
 ShopSense saves each shopper request, with its session ID, in a Supabase Postgres database (US-01, #14). It also has
-a table for finished searches (US-52), one for product aliases kept between searches (US-15), and a profile for each
-signed-in user (US-30). The database is **optional**: with no `DATABASE_URL` everything works and nothing is saved,
-and when the database is down, slow or paused a search still finishes (build rule 10).
+a table for finished searches (US-52), one for product aliases kept between searches (US-15), a profile for each
+signed-in user (US-30), and what is remembered for a signed-in user (US-06). The database is **optional**: with no
+`DATABASE_URL` everything works and nothing is saved, and when the database is down, slow or paused a search still
+finishes (build rule 10).
 
 ## What is stored, and why
 
@@ -131,7 +132,7 @@ Row level security is on with no policies, and the table is revoked from `anon` 
 guarded, so the migration also runs on a plain Postgres. So the Data API cannot read or write it. **Who can read it:**
 the backend through `DATABASE_URL`, and project members through the Supabase dashboard. The Security Advisor shows
 **RLS Enabled No Policy** (INFO) for this table. That is expected: it is the intended design. Since US-30 it is the only
-table with that finding: the other three have policies.
+table with that finding: the others have policies (`preferences` too, since US-06).
 
 ### Accounts (US-30)
 
@@ -188,6 +189,88 @@ schema with `auth.users (id)` and an `auth.uid()` that reads the user from the r
 Each piece is made only when it is missing, so on Supabase nothing in `auth` is touched. The migration is safe to run
 more than once.
 
+### Preferences (US-06)
+
+What ShopSense remembers for a signed-in shopper: their weights, must-haves and leave-outs, one item a row, in the
+shape of `PreferenceItem` (`backend/app/contracts/memory.py`). The migration `20261121042008_create_preferences` adds
+`public.preferences` and installs pgvector (the `vector` extension, 0.8.2) in the `extensions` schema, never in
+`public`. Nothing writes to the table yet: US-06's memory store and US-11's routes will.
+
+| Column | What it holds |
+|---|---|
+| `id` | A random UUID |
+| `user_id` | The signed-in owner. Required: a guest has no memory at all (D-36) |
+| `kind` | `weight`, `hard_rule` (a must-have) or `exclusion` (a leave-out) |
+| `category` | The category it holds for, such as `laptop`. Empty only for a brand left out with Always, which holds for every category |
+| `criterion_key` | A weight's criterion, such as `battery_life`. A must-have may name one too; a leave-out never does |
+| `text` | What the shopper told us, in plain words: 1 to 200 characters |
+| `weight` | A weight's 0 to 10 weight; empty for the other kinds |
+| `rule` | A must-have's `HardRule` or a leave-out's `Exclusion`, as the contract's JSON; empty for a weight |
+| `always` | Kept for every later search. A leave-out's own `always` in `rule` must be the same |
+| `embedding` | The item's words as 384 numbers (`extensions.vector(384)`), for finding a similar item. Empty until it is made |
+| `created_at`, `updated_at` | When it was saved and last changed. `updated_at` is never earlier |
+
+- **Checks.** They follow the contract, so a row the table keeps always reads back as a `PreferenceItem`:
+  - each kind carries its own fields and none of the others' (`preferences_kind_fields`);
+  - a must-have's `rule` has a `HardRule`'s fields, and a leave-out's names a brand, model, feature or seller and a
+    value (`preferences_rule_shape`);
+  - a leave-out's own `always` matches the item's, and only a brand left out with Always has no category;
+  - `category` and `criterion_key` are slugs, as in the contract: lower-case letters and digits joined by `_` or
+    `-`, at most 64 characters;
+  - `text` has no space at either end, as the contract strips them;
+  - a weight outside 0 to 10, including NaN and infinity, is refused;
+  - an embedding of any other length than 384 is refused ("expected 384 dimensions").
+- **What the memory store must check first.** A few values the contract allows can't be stored: the character
+  NUL in any text, and a weight too small for `real` (such as `1e-46`). US-06's store refuses or rounds them before
+  saving, as `save_search` does with NUL.
+- **Index.** `preferences_user_id_category_idx`, on `(user_id, category)`. Every look-up is one user's items in one
+  category. The policy and deleting a user use its first column.
+- **Who can do what through the Data API.** The same as `requests` and `searches`:
+  - `anon` gets nothing;
+  - `authenticated` reads its own rows, embeddings included (policy `preferences_select_own`,
+    `user_id = (select auth.uid())`);
+  - only the backend inserts, changes or deletes, through `DATABASE_URL`.
+- **The owner never changes (D-72).** The trigger `preferences_user_id_fixed` calls the same
+  `public.keep_user_id_fixed()` as `requests` and `searches`; its comment now names all three. Deleting a user deletes
+  their preferences (`on delete cascade`).
+- **Private.** `text` is what the shopper typed (D-51), and an embedding is made from it, so both are private data. No
+  email, name or IP address is stored.
+- **On a plain Postgres** (the tests), the migration makes the `extensions` schema when it is missing, empty. On
+  Supabase the schema exists and is left as it is. pgvector itself must be on the server: the tests use
+  `pgvector/pgvector:0.8.2-pg17`.
+
+**No vector index (HNSW), decided 21 Nov 2026.** pgvector's README for 0.8.2 (github.com/pgvector/pgvector, tag
+`v0.8.2`, read 21 Nov 2026) says:
+
+- with no index, pgvector finds the nearest rows exactly, so it never misses one;
+- HNSW is approximate: it trades some recall for speed, builds slower and uses more memory;
+- with a `where` filter, an approximate index filters after its scan. It looks at 40 candidates by default
+  (`hnsw.ef_search`) and keeps the ones that match, so a narrow filter can return fewer rows than asked for. Iterative
+  scans (0.8.0 and later, `hnsw.iterative_scan`) find more, at a cost;
+- for a filter that matches few rows, start with an ordinary index on the filter column, which gives fast exact search.
+
+The timing, on 10,000 made-up rows:
+
+- **Set-up.** A local `pgvector/pgvector:0.8.2-pg17`. One user at the 500-item cap (100 in each of 5 categories), and
+  1,900 users with 5 items each. Every row has 384 random numbers.
+- **The look-up.** The 5 nearest by cosine distance, for one user and one category, as the median of 40 runs.
+
+| Look-up | No vector index | HNSW there too (the planner's choice) | HNSW alone | HNSW alone, iterative scan |
+|---|---|---|---|---|
+| User at the cap, one category (100 rows) | 0.24 ms, exact | 0.24 ms: the planner keeps the user-and-category index | 1.4 ms, finds 1 of the 5 | 8.5 ms, 4 of the 5 |
+| User with 5 items, one category (1 row) | 0.05 ms, exact | 0.04 ms, the same index | 1.8 ms, finds none | 70 ms, finds it |
+
+Building HNSW took 4.4 s, and the index was 20 MB, about the size of the table.
+
+So there is no HNSW index:
+
+- A user holds at most 500 items (`MAX_PREFERENCES`), and an exact scan of one user's category takes under a
+  millisecond and never misses a row.
+- At this size the planner doesn't use an HNSW index even when one exists, and on its own it misses rows.
+
+Revisit it only if a look-up across users is added, which this design doesn't have. Then add HNSW in a new migration
+(`create index concurrently ... using hnsw (embedding extensions.vector_cosine_ops)`), with `hnsw.iterative_scan` on.
+
 ## Setting up the project (once, by hand, in the browser)
 
 1. On supabase.com, create a project on the **Free** plan, region **South Asia (Mumbai)**.
@@ -207,7 +290,7 @@ more than once.
 5. Apply the migrations (next section), then open **Advisors > Security**. It should show only **RLS Enabled No
    Policy** (INFO) for `public.product_aliases`, which is expected: see the live check below. Before US-30's migration
    it also shows for `public.requests` and `public.searches`; after it, those two and `public.profiles` have policies
-   (see "Accounts").
+   (see "Accounts"), and so does `public.preferences` (US-06).
 
 `DB_TIMEOUT_SECONDS` (default 2) is how long one save may take before the search carries on without it.
 
@@ -289,6 +372,70 @@ the rule that an owner never changes. Nothing in the backend needs them yet: S4-
 3. The Security Advisor should show **RLS Enabled No Policy** for `public.product_aliases` only. Anything new, such as a
    warning about the policies, goes to Vaishvi before S4-10 merges.
 
+### `create_preferences` (by-hand job 5: after it merges, once, by hand)
+
+The migration `20261121042008_create_preferences` (US-06, #61) is only a file until someone applies it. It needs
+`add_user_tables` and `keep_owner_fixed` applied first, for `auth.users` and `public.keep_user_id_fixed()`. It also
+needs the `vector` extension, which the Supabase project lists as available (0.8.2, read 21 Nov 2026). Nothing in the
+backend needs the table yet: US-06's memory store and US-11's routes do.
+
+1. Vaishvi applies it from a fresh `main`, in her own terminal, from the repository root, with the backend's virtual
+   environment active. First the dry run: it should list `20261121042008_create_preferences` only. If it lists more,
+   stop and tell Om.
+
+   Git Bash:
+
+   ```bash
+   git switch main && git pull --ff-only
+   export DATABASE_URL="$(python -c 'from dotenv import dotenv_values; print(dotenv_values(".env")["DATABASE_URL"])')"
+   npx supabase@2.120.0 db push --db-url "$DATABASE_URL" --dry-run
+   npx supabase@2.120.0 db push --db-url "$DATABASE_URL"
+   unset DATABASE_URL
+   ```
+
+   PowerShell:
+
+   ```powershell
+   git switch main; git pull --ff-only
+   $env:DATABASE_URL = python -c "from dotenv import dotenv_values; print(dotenv_values('.env')['DATABASE_URL'])"
+   npx supabase@2.120.0 db push --db-url "$env:DATABASE_URL" --dry-run
+   npx supabase@2.120.0 db push --db-url "$env:DATABASE_URL"
+   Remove-Item Env:DATABASE_URL
+   ```
+
+   She tells Om.
+2. Om checks it read-only through the Supabase connector:
+   - the migration history lists `20261121042008`;
+   - `pg_extension` shows `vector` 0.8.2 in the schema `extensions`;
+   - `public.preferences` has the columns in "Preferences (US-06)", with `embedding` as `extensions.vector(384)`, and
+     row level security is on;
+   - `pg_policies` lists only `preferences_select_own` on it, for `authenticated`;
+   - `anon` has no privilege on it, and `authenticated` has `select` only;
+   - `pg_trigger` shows `preferences_user_id_fixed` (`before update of user_id`);
+   - `pg_indexes` shows `preferences_pkey` and `preferences_user_id_category_idx`, and no vector index.
+3. The Security Advisor should show nothing new: the table has a policy, and pgvector isn't in `public`. Anything new
+   goes to Vaishvi before US-06's store merges.
+
+**Rolling it back.** Do this only if the team decides to: it deletes every remembered item, with no undo. Migrations
+here move forward only, so the down SQL is in `supabase/rollback/`, and `db push` never reads it. Run it, then mark the
+migration reverted in the history, from the root with the backend's virtual environment active (Git Bash):
+
+```bash
+export DATABASE_URL="$(python -c 'from dotenv import dotenv_values; print(dotenv_values(".env")["DATABASE_URL"])')"
+python -c "import os, pathlib, psycopg; down = pathlib.Path('supabase/rollback/20261121042008_preferences_down.sql'); c = psycopg.connect(os.environ['DATABASE_URL']); c.execute(down.read_text(encoding='utf-8').encode()); c.commit(); c.close()"
+npx supabase@2.120.0 migration repair 20261121042008 --status reverted --db-url "$DATABASE_URL"
+unset DATABASE_URL
+```
+
+The down SQL drops `public.preferences`, with its index, policy and trigger. It puts back the function's earlier
+comment, and drops pgvector unless something else uses it. The `extensions` schema stays. It is safe to run more than
+once. If pgvector was switched on in the dashboard for something else before job 5, and nothing uses it yet, switch it
+on again afterwards.
+
+The migration file is still on `main` after this, so the next `db push` would make the table again. The same pull
+request that decides the rollback also decides what happens to the file: remove it, or replace it with a new
+migration. Never leave the history and the files out of step.
+
 ## "off" and "down"
 
 `GET /api/health` answers `"database": "ok"`, `"off"` or `"down"`. Nothing else about the database is shown.
@@ -345,13 +492,15 @@ A Free project is paused after 7 days of low activity. A paused project shows as
 - **Unit and drill tests** need no database and run everywhere. A plain `pytest` leaves out the drills that really wait
   for a timeout: run those with `pytest -m slow`. CI runs them all. The drills point the backend at a closed local port
   and at a server that never answers, and check that searches still finish and health says `down`.
-- **Integration tests** (marker `db`) need a throwaway Postgres 17. They skip without `TEST_DATABASE_URL`. With
-  `REQUIRE_DB_TESTS=1` a missing database fails them instead. They never run against Supabase: each run creates its
+- **Integration tests** (marker `db`) need a throwaway Postgres 17 with pgvector (`pgvector/pgvector:0.8.2-pg17`). They
+  skip without `TEST_DATABASE_URL`, or on a server without pgvector. With `REQUIRE_DB_TESTS=1` either fails them
+  instead. They never run against Supabase: each run creates its
   own database, applies every migration, checks the tables, row level security and the limits, and drops it. The
-  `backend` job in CI runs them on every pull request against `postgres:17`, with `REQUIRE_DB_TESTS=1`.
+  `backend` job in CI runs them on every pull request against `pgvector/pgvector:0.8.2-pg17`, with
+  `REQUIRE_DB_TESTS=1`.
 - A plain Postgres gives `anon` and `authenticated` nothing, so checking their privileges there proves little. One
-  test in `test_searches_table.py`, and one in `test_user_tables.py`, copy Supabase's default grants first, so a lost
-  `revoke` makes them fail.
+  test each in `test_searches_table.py`, `test_user_tables.py` and `test_preferences_table.py` copies Supabase's
+  default grants first, so a lost `revoke` makes it fail.
 - `test_user_tables.py` checks US-30's migration. Each check acts as the Data API does: it sets the role
   (`authenticated` or `anon`) and the user's claims, in a transaction that is rolled back.
   - user A reads only A's requests, searches and profile, and user B can't read A's;
@@ -370,6 +519,21 @@ A Free project is paused after 7 days of low activity. A paused project shows as
   - the triggers' shape, the function's fixed `search_path`, and no `execute` for `public`, `anon` and
     `authenticated`, also after copying Supabase's default grants on new functions;
   - running the migration again changes nothing, and it runs with no `anon` or `authenticated` role.
+- `test_preferences_table.py` checks US-06's table (#61):
+  - user A can't select user B's preferences, and reads their own, embeddings included;
+  - `anon` reads nothing, even carrying a user's claims, and a session with no user reads nothing;
+  - a user can't insert, change or delete a preference through the Data API;
+  - changing `user_id` is refused, other columns still change, and deleting a user deletes their rows, and only
+    theirs;
+  - an embedding of 383 or 385 numbers is refused; so are empty text, text over 200 characters or with a space at
+    either end, a weight of 11, NaN or infinity, an unknown kind, a kind with another kind's fields or rule, a
+    category or criterion that isn't a slug, and a category or Always that breaks the Always rule;
+  - the contract's example items are saved and read back as the same `PreferenceList`;
+  - pgvector 0.8.2 is in `extensions`, plus the columns, keys, indexes, privileges and the one policy, exactly;
+  - running the migration again changes nothing. It also runs after Supabase's default grants and with no Supabase
+    roles;
+  - after down, the database matches one that never had the migration, and after up again it matches the first up.
+    Down keeps pgvector while another table uses it.
 - `test_product_aliases_table.py` checks the aliases table:
   - its columns and primary key;
   - row level security with no policies, and no access for `anon` and `authenticated` (on a plain Postgres these roles
@@ -386,7 +550,7 @@ made up for this one run, and the database is open only to your own machine.
 
 ```bash
 PGPASS=$(python -c "import secrets; print(secrets.token_hex(16))")
-docker run -d --name shopsense-pg17 -e POSTGRES_PASSWORD="$PGPASS" -p 127.0.0.1:55432:5432 postgres:17
+docker run -d --name shopsense-pg17 -e POSTGRES_PASSWORD="$PGPASS" -p 127.0.0.1:55432:5432 pgvector/pgvector:0.8.2-pg17
 until docker exec shopsense-pg17 pg_isready -q -h 127.0.0.1 -U postgres; do sleep 1; done   # wait until it is ready
 cd backend
 TEST_DATABASE_URL="postgresql://postgres:$PGPASS@127.0.0.1:55432/postgres" pytest -m db -rs
