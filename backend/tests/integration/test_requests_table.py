@@ -1,7 +1,9 @@
 """The requests table on a real Postgres (US-01). Marker `db`; needs TEST_DATABASE_URL.
 
-Run against a throwaway local Postgres with the same major version as the Supabase project (17), for example:
-    docker run -d --name shopsense-pg17 -e POSTGRES_PASSWORD=<local password> -p 127.0.0.1:55432:5432 postgres:17
+Run against a throwaway local Postgres with the same major version as the Supabase project (17), and pgvector
+(US-06's preferences table needs it), for example:
+    docker run -d --name shopsense-pg17 -e POSTGRES_PASSWORD=<local password> -p 127.0.0.1:55432:5432 <image>
+    (with <image> pgvector/pgvector:0.8.2-pg17, as in CI), then
     TEST_DATABASE_URL=postgresql://postgres:<local password>@127.0.0.1:55432/postgres pytest -m db -rs
 
 Without TEST_DATABASE_URL these tests skip (pytest -rs prints why). With REQUIRE_DB_TESTS=1 a missing or unreachable
@@ -39,8 +41,11 @@ def _unavailable(reason: str) -> None:
 
 
 @contextmanager
-def migrated_database(before: Callable[[psycopg.Connection[Any]], None] | None = None) -> Iterator[str]:
-    """A fresh database with every migration applied; dropped afterwards. `before` runs first, on the new database."""
+def migrated_database(
+    before: Callable[[psycopg.Connection[Any]], None] | None = None, leave_out: str | None = None
+) -> Iterator[str]:
+    """A fresh database with every migration applied; dropped afterwards. `before` runs first, on the new database.
+    `leave_out` names one migration file to skip, to compare a database without it (a down SQL's test)."""
     server_url = os.environ.get("TEST_DATABASE_URL", "").strip()
     if not server_url:
         _unavailable("TEST_DATABASE_URL is not set (see docs/database.md, 'Tests')")
@@ -53,6 +58,11 @@ def migrated_database(before: Callable[[psycopg.Connection[Any]], None] | None =
         _unavailable(f"TEST_DATABASE_URL cannot be reached ({type(exc).__name__})")
     name = f"shopsense_test_{secrets.token_hex(4)}"
     with admin:
+        if admin.execute("select 1 from pg_available_extensions where name = 'vector'").fetchone() is None:
+            _unavailable(
+                "the server at TEST_DATABASE_URL has no pgvector; use pgvector/pgvector:0.8.2-pg17 "
+                "(see docs/database.md, 'Tests')"
+            )
         admin.execute(sql.SQL("create database {}").format(sql.Identifier(name)))
         url = make_conninfo(server_url, dbname=name)
         try:
@@ -66,6 +76,8 @@ def migrated_database(before: Callable[[psycopg.Connection[Any]], None] | None =
                 if before is not None:
                     before(conn)
                 for migration in sorted(MIGRATIONS.glob("*.sql")):
+                    if migration.name == leave_out:
+                        continue
                     conn.execute(migration.read_text(encoding="utf-8").encode("utf-8"))
             yield url
         finally:

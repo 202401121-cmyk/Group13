@@ -237,7 +237,8 @@ def test_the_policies_show_a_signed_in_user_only_their_own_rows(database_url: st
     with psycopg.connect(database_url) as conn:
         policies = conn.execute(
             "select tablename, policyname, permissive, roles::text[], cmd, qual, with_check from pg_policies "
-            "where schemaname = 'public' order by tablename, policyname"
+            "where schemaname = 'public' and tablename = any(%s) order by tablename, policyname",
+            (list(TABLES),),
         ).fetchall()
     own_id = "(id = ( SELECT auth.uid() AS uid))"
     own_user = "(user_id = ( SELECT auth.uid() AS uid))"

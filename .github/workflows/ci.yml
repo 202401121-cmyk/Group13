@@ -27,7 +27,7 @@ jobs:
     # Service containers only run on Linux runners, so backend-windows keeps skipping these tests (pytest -rs).
     services:
       postgres:
-        image: postgres:17
+        image: pgvector/pgvector:0.8.2-pg17
         env:
           POSTGRES_PASSWORD: postgres
         ports:
