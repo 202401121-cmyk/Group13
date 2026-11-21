@@ -215,3 +215,15 @@ class InMemoryRequestStore:
             found = [s for s in self.saved if s.id == search_id and s.row.user_id == user_id]
         loaded: JsonObject | None = json.loads(found[0].row.result) if found else None
         return loaded
+
+    def account_rows(self, user_id: UUID) -> dict[str, int]:
+        """The read-back of US-11's account delete. This store holds no preferences (app/memory keeps them)."""
+        if self.fail:
+            raise AccountsUnavailable("the database is down")
+        with self._lock:
+            return {
+                "requests": sum(1 for row in self.rows if row.user_id == user_id),
+                "searches": sum(1 for stored in self.saved if stored.row.user_id == user_id),
+                "profiles": int(user_id in self.profiles),
+                "preferences": 0,
+            }

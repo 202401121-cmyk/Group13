@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import logging
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Any
 
@@ -53,6 +53,9 @@ class Lasting:
     rule: dict[str, Any] | None  # a must-have's HardRule or a leave-out's Exclusion, as the contract's JSON
     always: bool
     topic: str  # the text that is embedded
+    # It came from memory in this interview, unchanged: saving it again only renews a row that still exists. One the
+    # shopper deleted meanwhile (US-11) is never made again by an interview that recalled it before.
+    refresh_only: bool = False
 
     @property
     def key(self) -> tuple[str, ...]:
@@ -88,7 +91,9 @@ def lasting_items(state: InterviewState, rubric: Rubric) -> list[Lasting]:
     """The preferences the finished rubric holds that last. Any item that would break the contract is left out, with a
     log line naming only its kind."""
     criteria = {c.key: c for c in state.criteria.criteria}
-    found = [*_weights(state, rubric, criteria), *_rules(rubric, criteria), *_leave_outs(rubric)]
+    found = [
+        _marked(state, i) for i in [*_weights(state, rubric, criteria), *_rules(rubric, criteria), *_leave_outs(rubric)]
+    ]
     kept: list[Lasting] = []
     for item in found:
         try:
@@ -98,6 +103,18 @@ def lasting_items(state: InterviewState, rubric: Rubric) -> list[Lasting]:
             continue
         kept.append(item)
     return kept
+
+
+def _marked(state: InterviewState, item: Lasting) -> Lasting:
+    """The item marked refresh-only when it came from memory in this interview and the shopper didn't change it: a
+    weight still in the history as "remembered" (not set in the rubric editor), or a must-have or leave-out whose words
+    are those of a remembered one."""
+    if item.kind == "weight":
+        kept = {e.question.criterion_key for e in state.history if e.status == "remembered"} - set(state.manual_weights)
+        from_memory = item.criterion_key in kept
+    else:
+        from_memory = item.text in {r.text for r in state.remembered if r.kind == item.kind}
+    return replace(item, refresh_only=True) if from_memory else item
 
 
 def guessed(entry: AskedQuestion) -> bool:

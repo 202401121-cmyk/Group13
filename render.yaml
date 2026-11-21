@@ -49,6 +49,9 @@ services:
         sync: false
       - key: SUPABASE_URL
         sync: false
+      # Backend only, never the browser (D-32): deletes an account through Supabase's Auth admin API (US-11).
+      - key: SUPABASE_SECRET_KEY
+        sync: false
       - key: DB_TIMEOUT_SECONDS
         sync: false
       - key: MATCHER

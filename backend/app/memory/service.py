@@ -12,6 +12,7 @@ Everything stays on this server: the model runs here, and no text is ever sent t
 from __future__ import annotations
 
 import logging
+import re
 import threading
 import time
 import uuid
@@ -20,16 +21,24 @@ from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import TimeoutError as FutureTimeout
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Protocol
+from typing import Any, Protocol
 
-from app.contracts import Exclusion, HardRule, InterviewState, RememberedPreference, Rubric
+from app.contracts import (
+    Exclusion,
+    HardRule,
+    InterviewState,
+    PreferenceEdit,
+    PreferenceItem,
+    RememberedPreference,
+    Rubric,
+)
 
 from .embedder import Embedder, MemoryUnavailable
 from .lasting import lasting_items
 from .recall import Ranked, rank
 from .settings import MemorySettings
-from .store import NullPreferenceStore, PreferenceStore
-from .text import exclusion_text, rule_text
+from .store import Change, NullPreferenceStore, PreferenceStore, StoredPreference
+from .text import clean_text, exclusion_text, round_weight, rule_text, weight_text
 
 log = logging.getLogger(__name__)
 
@@ -120,6 +129,55 @@ class MemoryService:
             log.warning("memory: nothing saved: the save failed (%s)", type(exc).__name__)
         return 0
 
+    # --- the shopper's own controls (US-11) --------------------------------------------------------------------------
+    # These work whether memory is on or off: what is stored is the shopper's to see and remove. They raise
+    # MemoryUnavailable when the database can't be reached, so the routes can answer 503.
+
+    def listing(self, user_id: uuid.UUID) -> list[StoredPreference]:
+        """Every stored preference of the user, newest first, without embeddings."""
+        return self._store.listing(user_id)
+
+    def edit(self, user_id: uuid.UUID, preference_id: uuid.UUID, change: PreferenceEdit) -> Edited | None:
+        """The preference changed, or None if the user has no preference with this id. A changed text gets a new
+        embedding; if the model can't make one, the row keeps its old one and `embedding_kept` says so. Raises
+        EditRefused (plain words) for a change that doesn't fit the preference, and EditConflict when the preference
+        changed while the edit was made (it is never overwritten with what was read before)."""
+        row = self._store.one(user_id, preference_id)
+        if row is None:
+            return None
+        text, weight, rule, new_words = _changed(row, change)
+        embedding: tuple[float, ...] | None = None
+        kept = False
+        if new_words:  # the shopper's own new words: what they mean now
+            embedding = self._embedding_of(text)
+            kept = embedding is None
+        _check_contract(row, text, weight, rule)
+        updated = self._store.update(user_id, preference_id, Change(text, weight, rule, embedding, row.updated_at))
+        if updated is None:
+            if self._store.one(user_id, preference_id) is not None:
+                raise EditConflict
+            return None
+        return Edited(updated, kept)
+
+    def delete(self, user_id: uuid.UUID, preference_id: uuid.UUID) -> bool:
+        """Delete one preference, its embedding with it. False if the user has no preference with this id."""
+        return self._store.delete(user_id, preference_id)
+
+    def delete_all(self, user_id: uuid.UUID) -> int:
+        """Forget everything remembered for the user; the number deleted."""
+        return self._store.delete_all(user_id)
+
+    def _embedding_of(self, text: str) -> tuple[float, ...] | None:
+        if not self.settings.enabled:
+            return None
+        try:
+            return tuple(self._holder.get(EDIT_WAIT_S).embed([text])[0])
+        except MemoryUnavailable as exc:
+            log.warning("memory: an edited preference kept its old embedding: %s", exc.reason)
+        except Exception as exc:
+            log.warning("memory: an edited preference kept its old embedding (%s)", type(exc).__name__)
+        return None
+
     def close(self) -> None:
         self._workers.shutdown(wait=False, cancel_futures=True)
 
@@ -162,3 +220,87 @@ def _item(ranked: Ranked) -> RememberedItem | None:
 
 def _leave_out_text(exclusion: Exclusion) -> str:
     return exclusion_text(exclusion.value, exclusion.kind)
+
+
+# --- editing one preference (US-11) -------------------------------------------------------------------------------
+
+EDIT_WAIT_S = 3.0  # an edit waits this long for the model; past it the row keeps its old embedding
+_AUTO_WORDS = re.compile(
+    r"^(?P<label>.+): (?:low importance|good enough will do|medium importance|high importance|"
+    r"\d+(?:\.\d+)? out of 10)$"
+)
+
+
+class EditRefused(ValueError):
+    """A change that doesn't fit the preference. The message is one plain sentence for the shopper."""
+
+
+@dataclass(frozen=True)
+class Edited:
+    row: StoredPreference
+    embedding_kept: bool  # the text changed, but the model couldn't embed it: recall still uses the old words
+
+
+class EditConflict(Exception):
+    """The preference changed between reading it and writing the edit (say, a search saved it again)."""
+
+
+def _changed(row: StoredPreference, change: PreferenceEdit) -> tuple[str, float | None, dict[str, Any] | None, bool]:
+    """The row's text, weight and rule after the change, and whether the shopper gave new words. Raises EditRefused.
+
+    Only a weight's words can change: a must-have's and a leave-out's come from the rule itself, which is what the
+    interview uses, so new words there would say one thing and do another."""
+    text, weight = row.text, row.weight
+    rule = dict(row.rule) if row.rule is not None else None
+    if change.always is not None and change.always != row.always:
+        if row.kind == "exclusion":
+            raise EditRefused("A remembered leave-out is kept for every later search. To stop it, delete it.")
+        raise EditRefused("Only a leave-out can be kept for every later search.")
+    if change.active is not None:
+        if row.kind != "hard_rule" or rule is None:
+            raise EditRefused("Only a must-have can be switched on or off.")
+        rule["active"] = change.active
+    new_words: str | None = None
+    if change.text is not None:
+        if row.kind != "weight":
+            raise EditRefused(
+                "Only a remembered weight's words can be changed. To change a must-have or a leave-out, delete it; "
+                "your next search can set it again."
+            )
+        new_words = clean_text(change.text)
+        if not new_words:
+            raise EditRefused("The words can't be empty.")
+        if new_words == row.text:
+            new_words = None  # the same words sent back with a new weight: not new words
+    if change.weight is not None:
+        if row.kind != "weight":
+            raise EditRefused("Only a remembered weight has a weight to change.")
+        weight = round_weight(change.weight)
+        matched = _AUTO_WORDS.match(row.text)
+        if new_words is None and matched:  # the words the app wrote follow the new weight
+            text = weight_text(matched["label"], weight)
+    if new_words is not None:
+        text = new_words
+    return text, weight, rule, new_words is not None
+
+
+def _check_contract(row: StoredPreference, text: str, weight: float | None, rule: dict[str, Any] | None) -> None:
+    """The changed row must still read back as a PreferenceItem, as the table's checks also hold it."""
+    try:
+        PreferenceItem.model_validate(
+            {
+                "id": row.id,
+                "kind": row.kind,
+                "category": row.category,
+                "criterion_key": row.criterion_key,
+                "text": text,
+                "weight": weight,
+                "rule": rule if row.kind == "hard_rule" else None,
+                "exclusion": rule if row.kind == "exclusion" else None,
+                "always": row.always,
+                "created_at": row.created_at,
+                "updated_at": max(row.updated_at, row.created_at),
+            }
+        )
+    except ValueError:
+        raise EditRefused("That change doesn't fit this preference.") from None

@@ -34,6 +34,7 @@ its terms, then update this page.
 | [Firecrawl](#firecrawl) | Reads the pages Jina can't, and backs up Serper (US-38) | `FIRECRAWL_API_KEY` (optional) | OK with limits (D-62) | `smoke_sources --readers` |
 | [Hugging Face](#hugging-face) | Downloads public models (ML track) | `HF_TOKEN` (optional) | OK as planned | skipped (no token) |
 | Supabase | The database (optional) | `DATABASE_URL`, `DB_TIMEOUT_SECONDS` | see [database.md](database.md) | checked by `GET /api/health` |
+| [Supabase Auth admin](#supabase-auth-deleting-an-account-us-11-p-43) | Deleting a shopper's account (US-11) | `SUPABASE_SECRET_KEY` (backend only) | OK as planned (read 21 Nov 2026) | none: Om checks it by hand on a test account |
 | Google Colab | GPU notebooks (ML track) | none | not checked | not part of the smoke test |
 
 ## Smoke test
@@ -614,6 +615,40 @@ Read from Supabase's own documentation on 20 Nov 2026: [JWT signing keys](https:
   every 10 minutes, plus a refresh for an unknown key id.
 - **If it fails:** searches never need sign-in. A signed-in shopper is treated as a guest, so their search is saved
   under the session ID only, and `/api/me` answers 503 until the keys can be had again.
+
+### Supabase Auth: deleting an account (US-11, P-43)
+
+Read from Supabase's own documentation on **21 Nov 2026**:
+[deleteUser](https://supabase.com/docs/reference/javascript/auth-admin-deleteuser),
+[User Management](https://supabase.com/docs/guides/auth/managing-user-data) and
+[Migrating to publishable and secret API keys](https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys).
+
+- **Used for:** one thing, `DELETE /api/me`. It deletes the signed-in shopper's account, and the database's foreign keys
+  then remove their requests, searches, profile and preferences (`on delete cascade`, docs/database.md).
+- **Env:** `SUPABASE_SECRET_KEY`, a secret key (`sb_secret_...`, Supabase > Project Settings > API keys), next to
+  `SUPABASE_URL`. Backend only, never in the browser or the frontend's settings (D-32). It bypasses row level security,
+  so it is never logged, never printed and never committed; the settings object hides it from its own text. Empty:
+  `DELETE /api/me` answers 503 and everything else works.
+- **The method** (`backend/app/db/account_admin.py`):
+  - **The call:** `DELETE <SUPABASE_URL>/auth/v1/admin/users/<user id>`, the Auth admin API's delete-a-user (the
+    client libraries' `auth.admin.deleteUser`, which "requires a `service_role` key").
+  - **A hard delete:** the body says `{"should_soft_delete": false}`. A soft delete is only on request, and it would
+    leave the row in `auth.users`, so the foreign keys would remove nothing.
+  - **The key goes on the `apikey` header only.** The docs: "You can't send a publishable or secret key in the
+    `Authorization: Bearer ...` header. Send it on the `apikey` header instead." A secret key also answers 401 when
+    used from a browser.
+  - **A user already gone** (404) counts as deleted, so asking again after a lost answer is safe. Anything else is a
+    plain 503.
+- **What the docs warn:**
+  - deleting a user doesn't sign them out: their token stays valid until it expires (ShopSense's own rows are gone by
+    then, and `/api/me` answers 401 once the profile can't be made);
+  - a user who owns Storage objects can't be deleted (ShopSense uses no Storage).
+- **Around the call:** the database must answer first, or nothing is deleted (the result couldn't be checked). After
+  the call, the backend reads back the user's rows in `requests`, `searches`, `profiles` and `preferences`, and
+  answers 204 only when there are none. Rows left mean the user wasn't really deleted, so the answer is 503, never
+  204.
+- **Free limits:** one call per account deleted.
+- **If it fails:** 503 and nothing is deleted. Om checks it by hand on a throwaway test account, never a real one.
 
 ## LLM routing (US-46)
 

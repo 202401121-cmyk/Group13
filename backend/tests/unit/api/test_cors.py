@@ -78,9 +78,10 @@ def test_an_unlisted_origin_is_refused() -> None:
 
 def test_only_the_methods_and_headers_the_frontend_uses_are_allowed() -> None:
     with TestClient(create_app(env={})) as client:
-        for method in ("GET", "POST", "PUT", "DELETE"):  # DELETE cancels a search run (US-12)
+        # DELETE cancels a search run (US-12) and deletes what is remembered; PATCH edits a remembered one (US-11)
+        for method in ("GET", "POST", "PUT", "PATCH", "DELETE"):
             assert preflight(client, LOCAL, method=method)["status"] == "200"
-        assert preflight(client, LOCAL, method="PATCH")["status"] == "400"
+        assert preflight(client, LOCAL, method="TRACE")["status"] == "400"
         assert preflight(client, LOCAL, headers="last-event-id")["status"] == "200"  # resuming a progress stream
         assert preflight(client, LOCAL, headers="x-api-key")["status"] == "400"
 
@@ -114,3 +115,25 @@ def test_retry_after_is_readable_by_the_frontend() -> None:
         response = client.get("/api/health", headers={"Origin": LOCAL})
     exposed = [h.strip().lower() for h in response.headers.get("access-control-expose-headers", "").split(",")]
     assert "retry-after" in exposed
+
+
+def test_the_memory_screens_note_and_the_exports_file_name_are_readable_by_the_frontend() -> None:
+    """US-11: an edit's X-Memory-Note and the export's Content-Disposition reach the frontend only if exposed."""
+    with TestClient(create_app(env={})) as client:
+        response = client.get("/api/health", headers={"Origin": LOCAL})
+    exposed = [h.strip().lower() for h in response.headers.get("access-control-expose-headers", "").split(",")]
+    assert {"x-memory-note", "content-disposition"} <= set(exposed)
+
+
+def test_the_memory_screens_routes_pass_the_preflight() -> None:
+    """US-11: the memory screen edits with PATCH and deletes with DELETE, carrying the shopper's token."""
+    with TestClient(create_app(env={})) as client:
+        for method, path in (
+            ("PATCH", "/api/me/preferences/00000000-0000-4000-8000-000000000001"),
+            ("DELETE", "/api/me/preferences/00000000-0000-4000-8000-000000000001"),
+            ("DELETE", "/api/me/preferences"),
+            ("DELETE", "/api/me"),
+            ("GET", "/api/me/preferences/export"),
+        ):
+            answer = preflight(client, LOCAL, method=method, headers="authorization,content-type", path=path)
+            assert answer["status"] == "200", (method, path)

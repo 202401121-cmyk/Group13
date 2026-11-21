@@ -120,6 +120,7 @@ and the file name the same ones.
 | `DATABASE_URL` | The Supabase **Session pooler** string, ending in `?sslmode=require` ([database.md](database.md)). The direct connection is IPv6 only. | **yes** |
 | `DB_TIMEOUT_SECONDS` | `2` | no |
 | `SUPABASE_URL` | The project's address, `https://<project-ref>.supabase.co`, with no slash at the end. The backend checks sign-ins against this project's public signing keys (US-30). Empty turns sign-in off: every caller is a guest. | no |
+| `SUPABASE_SECRET_KEY` | A Supabase secret key (`sb_secret_...`, Supabase > Project Settings > API keys), for one thing: deleting a shopper's account (US-11, [api-setup.md](api-setup.md#supabase-auth-deleting-an-account-us-11-p-43)). Backend only, never the browser (D-32). Empty: `DELETE /api/me` answers 503 and everything else works. | **yes** |
 | `MATCHER` | `model` (see below) | no |
 | `MEMORY` | `on`, the default: a signed-in shopper's preferences are remembered (US-06). `off` switches memory off, and the interview runs as before. | no |
 | `EXTRACT_MAX_SOURCES` | `5` | no |

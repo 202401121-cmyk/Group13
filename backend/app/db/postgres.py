@@ -33,7 +33,7 @@ from psycopg_pool import ConnectionPool
 
 from app.contracts import Intent
 
-from .accounts import AccountsUnavailable, PageAfter, SavedSearchRow, UserGone
+from .accounts import ACCOUNT_TABLES, AccountsUnavailable, PageAfter, SavedSearchRow, UserGone
 from .breaker import CircuitBreaker
 from .settings import DatabaseSettings, describe_host
 from .store import DbHealth, JsonObject, RequestRow, SaveOutcome, SearchRow, request_row, search_row
@@ -71,6 +71,13 @@ limit %s
 FIRST_PAGE = SAVED_SEARCHES.format(after="")
 NEXT_PAGE = SAVED_SEARCHES.format(after="and (s.created_at, s.id) < (%s::timestamptz, %s::uuid)")
 SAVED_SEARCH = "select result from public.searches where id = %s and user_id = %s"
+# Deleting an account (US-11): every table that holds the user's rows, in ACCOUNT_TABLES' order. Each names the user.
+COUNT_ACCOUNT_ROWS = (
+    "select (select count(*) from public.requests where user_id = %(user)s), "
+    "(select count(*) from public.searches where user_id = %(user)s), "
+    "(select count(*) from public.profiles where id = %(user)s), "
+    "(select count(*) from public.preferences where user_id = %(user)s)"
+)
 
 T = TypeVar("T")
 
@@ -128,6 +135,12 @@ class PostgresRequestStore:
 
     def saved_search(self, user_id: UUID, search_id: UUID) -> JsonObject | None:
         return self._read("saved search", lambda: self._one(user_id, search_id))
+
+    # --- deleting an account (US-11) ---------------------------------------------------------------------
+
+    def account_rows(self, user_id: UUID) -> dict[str, int]:
+        """How many of this user's rows each table still holds: the read-back after the user's delete."""
+        return self._read("account read-back", lambda: self._count_rows(user_id))
 
     def close(self) -> None:
         self._close_pool()
@@ -228,6 +241,11 @@ class PostgresRequestStore:
             found = conn.execute(SAVED_SEARCH, (search_id, user_id)).fetchone()
         result = found[0] if found is not None else None
         return result if isinstance(result, dict) else None
+
+    def _count_rows(self, user_id: UUID) -> dict[str, int]:
+        with self._get_pool().connection(timeout=self._timeout_s) as conn:
+            found = conn.execute(COUNT_ACCOUNT_ROWS, {"user": user_id}).fetchone()
+        return dict(zip(ACCOUNT_TABLES, (int(n) for n in (found or (0, 0, 0, 0))), strict=True))
 
     def _ping(self) -> None:
         with self._get_pool().connection(timeout=self._timeout_s) as conn:

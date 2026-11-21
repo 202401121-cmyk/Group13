@@ -21,6 +21,8 @@ import threading
 import time
 import uuid
 from collections.abc import Callable, Sequence
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FutureTimeout
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from typing import Any, Protocol, TypeVar
@@ -65,15 +67,67 @@ class PreferenceStore(Protocol):
         """The user's rows recall may use for this category. Raises MemoryUnavailable."""
         ...
 
+    # The shopper's own controls (US-11). Each names the user, so another user's id finds nothing.
+
+    def listing(self, user_id: uuid.UUID) -> list[StoredPreference]:
+        """Every row of the user, newest first (by created_at), at most MAX_PREFERENCES; embeddings left out."""
+        ...
+
+    def one(self, user_id: uuid.UUID, preference_id: uuid.UUID) -> StoredPreference | None:
+        """The user's row with this id, or None (another user's id included); its embedding left out."""
+        ...
+
+    def update(self, user_id: uuid.UUID, preference_id: uuid.UUID, change: Change) -> StoredPreference | None:
+        """The row changed and its time moved on; None if the user has no row with this id."""
+        ...
+
+    def delete(self, user_id: uuid.UUID, preference_id: uuid.UUID) -> bool:
+        """Delete the row, and with it its embedding (the same row). False if the user has no row with this id."""
+        ...
+
+    def delete_all(self, user_id: uuid.UUID) -> int:
+        """Delete every row of the user; the number deleted."""
+        ...
+
+
+@dataclass(frozen=True)
+class Change:
+    """What an edit sets (US-11). `embedding` None keeps the row's own. `read_at` is the updated_at the edit was made
+    from: a row changed since then (a save in between) is not written over, and update answers None."""
+
+    text: str
+    weight: float | None
+    rule: dict[str, Any] | None
+    embedding: tuple[float, ...] | None = None
+    read_at: datetime | None = None
+
+
+OFF = "the database is off (no DATABASE_URL)"
+
 
 class NullPreferenceStore:
-    """No DATABASE_URL: nothing is kept, so nothing can be recalled."""
+    """No DATABASE_URL: nothing is kept, so nothing can be recalled, listed or changed."""
 
     def save(self, user_id: uuid.UUID, items: Sequence[tuple[Lasting, Vector]]) -> int:
-        raise MemoryUnavailable("the database is off (no DATABASE_URL)")
+        raise MemoryUnavailable(OFF)
 
     def candidates(self, user_id: uuid.UUID, category: str) -> list[StoredPreference]:
-        raise MemoryUnavailable("the database is off (no DATABASE_URL)")
+        raise MemoryUnavailable(OFF)
+
+    def listing(self, user_id: uuid.UUID) -> list[StoredPreference]:
+        raise MemoryUnavailable(OFF)
+
+    def one(self, user_id: uuid.UUID, preference_id: uuid.UUID) -> StoredPreference | None:
+        raise MemoryUnavailable(OFF)
+
+    def update(self, user_id: uuid.UUID, preference_id: uuid.UUID, change: Change) -> StoredPreference | None:
+        raise MemoryUnavailable(OFF)
+
+    def delete(self, user_id: uuid.UUID, preference_id: uuid.UUID) -> bool:
+        raise MemoryUnavailable(OFF)
+
+    def delete_all(self, user_id: uuid.UUID) -> int:
+        raise MemoryUnavailable(OFF)
 
 
 class InMemoryPreferenceStore:
@@ -86,6 +140,7 @@ class InMemoryPreferenceStore:
 
     def save(self, user_id: uuid.UUID, items: Sequence[tuple[Lasting, Vector]]) -> int:
         now = self._clock()
+        written = 0
         with self._lock:
             for item, vector in items:
                 same = next(
@@ -93,12 +148,15 @@ class InMemoryPreferenceStore:
                 )
                 if same is not None:
                     row = replace(same, **_fields(item), embedding=tuple(vector), updated_at=now)
+                elif item.refresh_only:
+                    continue  # deleted by the shopper since it was recalled: never made again
                 else:
                     row = StoredPreference(
                         id=uuid.uuid4(), **_fields(item), created_at=now, updated_at=now, embedding=tuple(vector)
                     )
                 self._rows[row.id] = (user_id, item.key, row)
-        return len(items)
+                written += 1
+        return written
 
     def candidates(self, user_id: uuid.UUID, category: str) -> list[StoredPreference]:
         with self._lock:
@@ -116,6 +174,49 @@ class InMemoryPreferenceStore:
     def count(self) -> int:
         with self._lock:
             return len(self._rows)
+
+    def listing(self, user_id: uuid.UUID) -> list[StoredPreference]:
+        rows = [replace(row, embedding=()) for row in self.rows(user_id)]
+        return sorted(rows, key=lambda r: (r.created_at, str(r.id)), reverse=True)[:MAX_PREFERENCES]
+
+    def one(self, user_id: uuid.UUID, preference_id: uuid.UUID) -> StoredPreference | None:
+        with self._lock:
+            held = self._rows.get(preference_id)
+        return replace(held[2], embedding=()) if held is not None and held[0] == user_id else None
+
+    def update(self, user_id: uuid.UUID, preference_id: uuid.UUID, change: Change) -> StoredPreference | None:
+        with self._lock:
+            held = self._rows.get(preference_id)
+            if held is None or held[0] != user_id:
+                return None
+            owner, key, row = held
+            if change.read_at is not None and row.updated_at != change.read_at:
+                return None  # changed since it was read: never written over
+            changed = replace(
+                row,
+                text=change.text,
+                weight=change.weight,
+                rule=change.rule,
+                embedding=change.embedding if change.embedding is not None else row.embedding,
+                updated_at=max(self._clock(), row.created_at),
+            )
+            self._rows[preference_id] = (owner, key, changed)
+        return replace(changed, embedding=())
+
+    def delete(self, user_id: uuid.UUID, preference_id: uuid.UUID) -> bool:
+        with self._lock:
+            held = self._rows.get(preference_id)
+            if held is None or held[0] != user_id:
+                return False
+            del self._rows[preference_id]
+        return True
+
+    def delete_all(self, user_id: uuid.UUID) -> int:
+        with self._lock:
+            gone = [key for key, (owner, _, _) in self._rows.items() if owner == user_id]
+            for key in gone:
+                del self._rows[key]
+        return len(gone)
 
 
 def _fields(item: Lasting) -> dict[str, Any]:
@@ -155,6 +256,18 @@ CANDIDATES = (
     "from public.preferences where user_id = %s and embedding is not null and (category = %s or category is null) "
     "order by updated_at desc, id limit %s"
 )
+# The shopper's own controls (US-11): no embedding is read; every statement names the user.
+COLUMNS = "id, kind, category, criterion_key, text, weight, rule, always, created_at, updated_at"
+LISTING = f"select {COLUMNS} from public.preferences where user_id = %s order by created_at desc, id desc limit %s"
+ONE = f"select {COLUMNS} from public.preferences where id = %s and user_id = %s"
+EDIT = (
+    "update public.preferences set text = %s, weight = %s, rule = %s, "
+    "embedding = coalesce(%s::extensions.vector, embedding), updated_at = greatest(now(), created_at) "
+    "where id = %s and user_id = %s and (%s::timestamptz is null or updated_at = %s::timestamptz) "
+    f"returning {COLUMNS}"
+)
+DELETE_ONE = "delete from public.preferences where id = %s and user_id = %s"
+DELETE_ALL = "delete from public.preferences where user_id = %s"
 
 
 SAVE_TIMEOUT_S = 10.0  # a save runs after the reply has gone, so it may take longer than a request's 2 s
@@ -172,6 +285,10 @@ class PostgresPreferenceStore:
         self._store = store
         self.breaker = breaker or CircuitBreaker()
         self._save_timeout_s = save_timeout_s
+        # The shopper's controls run on a request (US-11), so each has a wall-clock limit (build rule 9): the pool's
+        # wait and the statement's limit, with a little room.
+        self._control_timeout_s = 2 * store._timeout_s + 0.5
+        self._workers = ThreadPoolExecutor(max_workers=2, thread_name_prefix="memory-db")
 
     def save(self, user_id: uuid.UUID, items: Sequence[tuple[Lasting, Vector]]) -> int:
         if not items:
@@ -181,6 +298,53 @@ class PostgresPreferenceStore:
 
     def candidates(self, user_id: uuid.UUID, category: str) -> list[StoredPreference]:
         return self._guard("be read", lambda conn: _candidates(conn, user_id, category))
+
+    def listing(self, user_id: uuid.UUID) -> list[StoredPreference]:
+        def work(conn: Connection[TupleRow]) -> list[StoredPreference]:
+            return [_row_of(row) for row in conn.execute(LISTING, (user_id, MAX_PREFERENCES)).fetchall()]
+
+        return self._bounded("be read", work)
+
+    def one(self, user_id: uuid.UUID, preference_id: uuid.UUID) -> StoredPreference | None:
+        def work(conn: Connection[TupleRow]) -> StoredPreference | None:
+            found = conn.execute(ONE, (preference_id, user_id)).fetchone()
+            return _row_of(found) if found is not None else None
+
+        return self._bounded("be read", work)
+
+    def update(self, user_id: uuid.UUID, preference_id: uuid.UUID, change: Change) -> StoredPreference | None:
+        vector = _vector_text(change.embedding) if change.embedding is not None else None
+        rule = Jsonb(change.rule) if change.rule is not None else None
+        deadline = time.monotonic() + self._control_timeout_s
+        values = (change.text, change.weight, rule, vector, preference_id, user_id, change.read_at, change.read_at)
+
+        def work(conn: Connection[TupleRow]) -> StoredPreference | None:
+            with conn.transaction():
+                found = conn.execute(EDIT, values).fetchone()
+                if time.monotonic() >= deadline:  # rolled back: an edit reported as failed never lands later
+                    raise TimeoutError("the edit ran past its time limit")
+            return _row_of(found) if found is not None else None
+
+        return self._bounded("be written", work)
+
+    def delete(self, user_id: uuid.UUID, preference_id: uuid.UUID) -> bool:
+        return self._bounded("be written", lambda conn: conn.execute(DELETE_ONE, (preference_id, user_id)).rowcount > 0)
+
+    def delete_all(self, user_id: uuid.UUID) -> int:
+        return self._bounded("be written", lambda conn: max(0, conn.execute(DELETE_ALL, (user_id,)).rowcount))
+
+    def _bounded(self, what: str, work: Callable[[Connection[TupleRow]], T]) -> T:
+        """`_guard` on a worker, waited for at most the control's time limit. Past it: MemoryUnavailable."""
+        try:
+            future = self._workers.submit(self._guard, what, work)
+        except RuntimeError as exc:  # shut down
+            raise MemoryUnavailable(f"the database could not {what} (the store is closed)") from exc
+        try:
+            return future.result(timeout=self._control_timeout_s)
+        except FutureTimeout:
+            future.cancel()
+            self.breaker.record_failure()
+            raise MemoryUnavailable(f"the database could not {what} in time") from None
 
     def _guard(self, what: str, work: Callable[[Connection[TupleRow]], T]) -> T:
         """Run `work` on a pooled connection in this thread; the caller bounds the time (recall's share, a save's
@@ -220,6 +384,8 @@ def _save(
                 key = (user_id, item.category, str(rule.get("kind", "")), str(rule.get("value", "")))
             found = conn.execute(FIND[item.kind], key).fetchone()
             payload = Jsonb(item.rule) if item.rule is not None else None
+            if found is None and item.refresh_only:
+                continue  # deleted by the shopper since it was recalled (US-11): never made again
             if found is not None:
                 conn.execute(
                     UPDATE,
@@ -273,6 +439,23 @@ def _candidates(conn: Connection[TupleRow], user_id: uuid.UUID, category: str) -
         )
         for row in rows
     ]
+
+
+def _row_of(row: TupleRow) -> StoredPreference:
+    """One row read without its embedding (the shopper's own controls never need it)."""
+    return StoredPreference(
+        id=row[0],
+        kind=row[1],
+        category=row[2],
+        criterion_key=row[3],
+        text=row[4],
+        weight=float(row[5]) if row[5] is not None else None,
+        rule=row[6] if isinstance(row[6], dict) else None,
+        always=bool(row[7]),
+        created_at=row[8],
+        updated_at=row[9],
+        embedding=(),
+    )
 
 
 def preference_store_for(store: RequestStore) -> PreferenceStore:

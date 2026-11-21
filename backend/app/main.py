@@ -156,11 +156,14 @@ def create_app(env: Mapping[str, str] | None = None) -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins(env),
-        allow_methods=["GET", "POST", "PUT", "DELETE"],  # only what the frontend calls; DELETE cancels a search run
+        # Only what the frontend calls: DELETE cancels a search run and deletes what is remembered; PATCH edits a
+        # remembered preference (US-11).
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         # Last-Event-ID resumes a progress stream; Authorization carries a signed-in user's token (US-30).
         allow_headers=["Content-Type", "Last-Event-ID", "Authorization"],
-        # So the frontend can read when to try a busy server again, and the rubric editor's note (US-09).
-        expose_headers=["Retry-After", "X-Rubric-Note"],
+        # So the frontend can read when to try a busy server again, the rubric editor's note (US-09), the memory
+        # screen's note on an edit, and the export's file name (US-11).
+        expose_headers=["Retry-After", "X-Rubric-Note", "X-Memory-Note", "Content-Disposition"],
     )
     app.add_exception_handler(RequestValidationError, plain_validation_error)  # type: ignore[arg-type]
     app.get("/api/health")(health)
