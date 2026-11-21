@@ -86,6 +86,11 @@ PLACEHOLDER_RULE: dict[str, tuple[bool, bool | None, str]] = {
     "app.verify.stage.TrustVerifyStage": (False, None, "values settled from the real claims"),
     "app.decide.stage.WeightedDecideStage": (False, None, "ranks the real values in code"),
     "app.explain.stage.ExplainStage": (False, None, "explains code's own numbers"),
+    "app.explain.checked.CheckedExplainStage": (
+        False,
+        None,
+        "explains code's own numbers, each written sentence checked against its quotes",
+    ),
     "app.commerce.stage.ShoppingCommerceStage": (False, None, "real prices, or store search links"),
 }
 # Wrappers take the flag of the stage they wrap, per instance, so they are not stages of their own here.

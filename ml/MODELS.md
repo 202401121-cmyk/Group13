@@ -246,11 +246,64 @@ weights:
 |---|---|
 | Story | US-22 |
 | Owner | Rushiraj Navar |
-| Type | Pre-trained NLI cross-encoder used as-is. Exact model: to be recorded |
-| Data | 100 claim and evidence pairs, half deliberately wrong: the threshold is tuned on 40 and tested on 60 |
-| Baseline or fallback | Only sentences that quote their evidence |
-| Target | Catches 80% or more of wrong claims and rejects at most 15% of right ones |
+| Type | Pre-trained NLI cross-encoder, used as it is: [`cross-encoder/nli-deberta-v3-xsmall`](https://huggingface.co/cross-encoder/nli-deberta-v3-xsmall) (Apache-2.0). Its outputs, from `config.json` read on 21 Nov 2026: 0 contradiction, 1 entailment, 2 neutral. It runs on our own server through onnxruntime 1.31.1 and tokenizers 0.23.3 (`backend/app/explain/nli.py`). No quote and no shopper's words reach any provider (P-41) |
+| Hugging Face | Revision `a150876415327c80daeff35ca6f68f5ed8cf5c24`, read on 21 Nov 2026. The file is `onnx/model_O4.onnx` (151,285,017 bytes), sha256 `7f3e118f33944fe2a2bfa50ae889098f12914e4fd5194ab13dbaf82a5bee02c5`. `tokenizer.json` has sha256 `5124ef2ead1a10a717703bc436de7f353da76d6340e4587719b42b1693707964`. All are pinned in `backend/config/nli.yaml`, downloaded once into `backend/.cache/nli/` (git-ignored), and never committed |
+| The check | For each sentence, each cited quote in turn is the premise (a quote over 400 tokens is split into chunks that overlap by 50) and the sentence is the hypothesis; the highest entailment probability counts. A sentence passes at or above the threshold, **0.9608**, and only if every number in it is in a cited quote or in the scoring numbers. A failed sentence is removed or replaced by the template sentence for each top-3 point it names; a paragraph left with nothing gets the full template. Every product's pairs go in one batch, within 5 s |
+| Which file | The rule (S5-4 DECIDED 1): the smallest file in `onnx/` whose entailment probabilities agree with `onnx/model.onnx` within 0.02 on the 40 tuning pairs. The numbers below are from an AVX2 machine (`backend/evals/results/citation-model-check-avx2.json`) |
+| Check on each machine | Before the check uses the model on a machine, it reads 6 reference pairs and compares its probabilities with the full model's (`reference` in `backend/config/nli.yaml`). A difference over 0.02 means that machine never uses the model, with one log line |
+| Data | 100 pairs written by people, by hand (by-hand job 2, D-55): Rushiraj Navar wrote c001 to c050 and Jhanvi Barot c051 to c100 (`backend/evals/citation/pairs.csv`). Each quote was drawn by a seeded script from the recorded runs' public web sources, never Reddit or YouTube comments. Half the sentences are supported and half deliberately wrong. A fixed seed split them 40 to tune (20 and 20) and 60 to test (30 and 30) (`split.json`). No training |
+| Baseline or fallback | **Off by default (P-48):** only `NLI=on` uses the check. Off, explanations are written as before US-22 and the model never loads; staging commits `NLI=off` in `render.yaml`. With `NLI=on`, any failure keeps only sentences that hold at least 6 words of a cited quote in a row, word for word, plus template sentences (`llm_unchecked`), with one log line: the model missing, a wrong sha256, the check above, an error, or the 5 s limit |
+| Target | Catches 80% or more of wrong claims and rejects at most 15% of right ones, on the 60 held out (both in `backend/evals/thresholds.yaml`) |
 | Sprint | 5 |
+
+**Which file (S5-4, 21 Nov 2026).** The machine was an AMD Ryzen 7 5800HS (AVX2, no AVX-512), running onnxruntime
+1.31.1. Each file read the same 40 tuning pairs, and each was compared with `onnx/model.onnx`:
+
+| File | Bytes | Largest difference | Mean difference | Over 0.02 | ms per pair |
+|---|---|---|---|---|---|
+| `onnx/model_qint8_avx512.onnx` (byte for byte the same as `model_qint8_avx512_vnni` and `model_qint8_arm64`) | 87,377,068 | 0.9186 | 0.4870 | 40 of 40 | 18.2 |
+| `onnx/model_quint8_avx2.onnx` | 87,377,068 | 0.1031 | 0.0097 | 4 of 40 | 18.0 |
+| **`onnx/model_O4.onnx`** (chosen) | 151,285,017 | 0.0049 | 0.0003 | 0 | 23.2 |
+| `onnx/model.onnx` (the reference) | 284,200,859 | 0 | 0 | 0 | 22.6 |
+
+Both 87 MB int8 files fall outside 0.02. The next smallest, `model_O4.onnx`, agrees within 0.0049, so it is the one
+used.
+
+**Not yet measured on an AVX-512 machine.** No AVX-512 machine was at hand. To measure it there, run
+`python -m evals.citation.model_check` from `backend/`; it writes `citation-model-check-avx512.json`. Until then, the
+check on each machine (above) stands in for that measurement: a machine where `model_O4.onnx` drifts never uses it.
+
+**Results (S5-4, 21 Nov 2026; `backend/evals/results/citation.json`).** The threshold was tuned on the 40 tuning pairs
+only: the most wrong sentences caught with at most 15% of the right ones rejected. On them it caught 90% and rejected
+15%. The 60 test pairs were measured once, at that threshold:
+
+| On the 60 held out (30 wrong, 30 right) | Measured | 95% bootstrap interval | Target | |
+|---|---|---|---|---|
+| Wrong sentences caught | 100% (30 of 30) | 100% to 100% | 80% or more | met |
+| Right sentences wrongly rejected | 16.7% (5 of 30) | 3.8% to 30.8% | at most 15% | **not met** |
+
+- **Why it is not met:** one right sentence too many was rejected: 4 of 30 would have met it. All 5 had probabilities
+  from 0.63 to 0.94, under the threshold (`misjudged` in the record). The number rule rejected none of them, so the
+  model's probability alone gives the same result. No wrong sentence passed.
+- **The threshold was not moved to meet it.** The test pairs are for measuring only. The interval is wide on 30 right
+  sentences, and it includes 15%.
+- **The floors** in `backend/evals/thresholds.yaml` hold this result (caught at least 95%, wrongly rejected at most
+  21.7%), with the 80% and 15% targets beside them.
+
+**LLM-style sentences:** 0 of 20 sentences written the way the LLM writes them (code's scores in words, never a quote)
+passed at 0.9608 in the timing run below, so real explanations need P-48's follow-up before the check is switched on.
+
+**Cost on CPU (P-10; same machine).**
+- **Memory:** with the matcher and this model both loaded, the process held 511 MB (97 MB with the matcher alone), and
+  551 MB after the timing below. In a one-off check on the same machine (each file loaded alone in a fresh process,
+  not in a committed record), `model_O4.onnx` added about 400 MB to the process and the 87 MB int8 file about 300 MB.
+- **So it does not fit the hosted backend's 512 MB.** By P-10's rule, staging runs with `NLI=off`, written in
+  `render.yaml` (explanations as before US-22), and the check runs only on a machine with enough memory
+  (`docs/deploy.md`).
+- **Load:** the model loads from the cache in 1.8 s, in the background while the search runs.
+- **Speed:** the check of one product's paragraph took 0.030 s (median) and 0.043 s at worst, against its 5 s limit.
+  That is the top 3 products of the 3 recorded runs that gave a product with a claim to cite (6 products; 3 pairs at
+  the median and 5 at most, the trade-off's included), replayed offline.
 
 ## 7. Promotional comment classifier (stretch)
 

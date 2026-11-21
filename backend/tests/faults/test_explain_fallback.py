@@ -8,7 +8,7 @@ import logging
 import pytest
 
 from app.contracts import ExplainInput, ExplainResult, LLMUnavailable, StageContext, StageStatus
-from app.explain import ExplainStage, TemplateExplainStage
+from app.explain import CheckedExplainStage, ExplainStage, TemplateExplainStage
 from app.pipeline import made_by_placeholder, run_stage
 from tests.fakes.llm import FakeLLMClient
 from tests.unit.explain.build import explain_input
@@ -63,3 +63,19 @@ def test_a_raised_llm_error_is_the_reason_not_its_text() -> None:
     _, report = run_stage(_Down(FakeLLMClient()), explain_input(), _ctx(), 15.0)
     assert report.status is StageStatus.FALLBACK
     assert "shopper words" not in (report.fallback_reason or "")
+
+
+def test_the_checked_stage_hands_any_error_to_the_template_too() -> None:
+    """US-22: a bug in the check is not a crash. The runner's fallback is ExplainStage's, the template, which never
+    needs the model; so no unchecked sentence is ever shown because the check broke."""
+
+    class _BrokenCheck(CheckedExplainStage):
+        def run(self, inp: ExplainInput, ctx: StageContext) -> ExplainResult:
+            raise RuntimeError("secret quote words that must not reach the log")
+
+    stage = _BrokenCheck(FakeLLMClient())
+    inp = explain_input()
+    out, report = run_stage(stage, inp, _ctx(), 15.0)
+    assert report.status is StageStatus.FALLBACK
+    assert out == TemplateExplainStage().run(inp, _ctx())
+    assert not made_by_placeholder(stage, report)

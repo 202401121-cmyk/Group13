@@ -1,7 +1,8 @@
 """DEP-1 (S3-17, P-08): the Render Blueprint that runs the backend on staging, checked against the app and the runbook.
 
 render.yaml sits at the repository root, where Render looks for it. Staging's secrets live only in Render's dashboard:
-the file names each variable and holds no value but the Python version, a build setting.
+the file names each variable and holds no value but two settings that are no secret: the Python version, a build
+setting, and NLI=off, so staging can never start the citation check by accident (P-48, P-10).
 """
 
 from __future__ import annotations
@@ -62,12 +63,22 @@ def test_staging_deploys_only_commits_whose_checks_passed(service: dict[str, Any
     assert service["autoDeployTrigger"] == "checksPass"  # main is not protected: a red commit must not reach staging
 
 
-def test_no_value_is_written_for_any_variable_but_the_python_version(service: dict[str, Any]) -> None:
+COMMITTED = {"PYTHON_VERSION", "NLI"}  # settings, not secrets: their values are in the file
+
+
+def test_no_value_is_written_for_any_variable_but_the_two_settings(service: dict[str, Any]) -> None:
     for key, entry in _variables(service).items():
-        if key == "PYTHON_VERSION":
+        if key in COMMITTED:
             continue
         assert entry.get("sync") is False, key  # asked for in the dashboard when the Blueprint is created
         assert "value" not in entry and "generateValue" not in entry and "fromService" not in entry, key
+
+
+def test_staging_runs_with_the_citation_check_off(service: dict[str, Any]) -> None:
+    """The model doesn't fit the free plan's 512 MB (P-10), and real explanations need P-48's follow-up first."""
+    nli = _variables(service)["NLI"]
+    assert nli["value"] == "off"
+    assert "sync" not in nli  # a value Render applies, never one to type into the dashboard
 
 
 def test_every_variable_is_one_the_backend_reads(service: dict[str, Any]) -> None:

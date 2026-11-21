@@ -195,7 +195,7 @@ On 10 Nov 2026 Om changed D-55, so that two machine labellers may label a batch 
 | Seeded source conflicts | Real spec disagreements; each known answer comes from the maker's page or a lab and is approved by a person | First 15 by the Sprint 2 review, 30 in Sprint 3 | Source trust (US-16) | 5 entered (section 9) |
 | Simulated shoppers | Made by the team | 50 | Smart interview (US-04) | Not built yet |
 | Seeded returning-user sessions | Made by the team | 20 | Preference memory (US-06) | Not built yet |
-| Claim and evidence pairs, half deliberately wrong | Made by the team | 100 | Citation check (US-22) | Not built yet |
+| Claim and evidence pairs, half deliberately wrong | Quotes drawn by a seeded script from the recorded runs' public web sources; each sentence and label written by hand by Rushiraj Navar (c001 to c050) or Jhanvi Barot (c051 to c100) | 100 (40 to tune, 60 to test) | Citation check (US-22) | Done 21 Nov 2026: `backend/evals/citation/pairs.csv` (MODELS.md, card 6) |
 | Sample interview replies, 10 per reply type | Made by the team | 70 | Interview reply understanding (US-39) | Not built yet |
 
 When a dataset arrives, fill in its source, size and licence here in the same pull request.

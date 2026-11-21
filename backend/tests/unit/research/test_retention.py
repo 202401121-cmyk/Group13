@@ -34,7 +34,7 @@ from app.contracts import (
 )
 from app.contracts import examples as ex
 from app.db import InMemoryRequestStore
-from app.explain import ExplainStage
+from app.explain import CheckedExplainStage, ExplainStage
 from app.pipeline import DatabaseResultStore, InMemoryResultStore, PipelineRunner, default_search_stages
 from app.research.cache import ResearchCache, sweep_expired_files
 from app.research.dedupe import merge_near_duplicates
@@ -445,7 +445,10 @@ def test_the_stages_that_could_carry_reddit_words_are_placeholders_or_handled() 
     assert verify_fields["products[].values[].alternatives[].value"] == REDDIT_VALUE
     assert verify_fields["products[].values[].alternatives[].unit"] == UNIT_DROPPED
     # US-20 made explain real: its words come from code's facts only (EXPLAINED_FROM_FACTS), proved by the test below.
-    assert isinstance(stages.explain, ExplainStage)
+    # US-22's check reads each sentence against its quotes on our server, and only ever removes or swaps a sentence for
+    # code's own: it never writes a quote's words (tests/unit/explain/test_checked_stage.py).
+    assert isinstance(stages.explain, CheckedExplainStage)
+    assert isinstance(stages.explain.inner, ExplainStage)
     assert not getattr(stages.explain, "is_placeholder", False)
     explained = sorted(k for k, v in TEXT_FIELDS.items() if v == EXPLAINED_FROM_FACTS)
     assert explained == ["explanations[].sentences[].text", "explanations[].trade_off"]

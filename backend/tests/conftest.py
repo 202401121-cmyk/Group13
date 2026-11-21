@@ -138,6 +138,31 @@ def _no_real_matcher_model(request: pytest.FixtureRequest, monkeypatch: pytest.M
 
 
 @pytest.fixture(autouse=True)
+def _no_real_nli_model(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """US-22 (S5-4): no test downloads the citation check's model, whatever the shell sets.
+
+    The default stage sees NLI=off, as on any machine by default (P-48), so a search explains exactly as before US-22.
+    Tests of the check give it settings and a fake scorer; only tests marked `live` may fetch the real one. The model
+    holders last as long as the process, so each test starts with none.
+    """
+    from app.explain import nli
+
+    tried: list[str] = []
+    if not may_use_network(request.node):
+        monkeypatch.setenv("NLI", "off")
+
+        def no_download(**kwargs: object) -> str:
+            tried.append(str(kwargs.get("filename")))
+            raise RuntimeError("tests never download the citation check's model")
+
+        monkeypatch.setattr(nli, "_hf_download", no_download)
+    nli.clear_shared_nli()
+    yield
+    nli.clear_shared_nli()
+    assert not tried, f"a test tried to download the citation check's model: {tried}"
+
+
+@pytest.fixture(autouse=True)
 def _fresh_aliases() -> Iterator[None]:
     """The in-memory alias store lives as long as the process (US-15): one test's aliases never reach another."""
     shared_memory_aliases().clear()
