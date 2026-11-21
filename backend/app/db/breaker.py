@@ -49,6 +49,12 @@ class CircuitBreaker:
             self._open_until = None
             self._trial_running = False
 
+    def release(self) -> None:
+        """A call that never reached the database (it waited for a worker, US-52): give back the trial slot, count
+        nothing."""
+        with self._lock:
+            self._trial_running = False
+
     def record_failure(self) -> bool:
         """Count a failure. True when this failure opened the breaker (or kept it open after a failed trial)."""
         with self._lock:

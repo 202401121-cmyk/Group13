@@ -115,10 +115,11 @@ live search today, only decide's example ranking). The enrich stub, which adds n
 returns nothing, such as research's one query and no sources, never label it (S4-34, S4-35). If the note would pass
 400 characters, the earlier text is cut, never this sentence. Show the note as it is; don't match on the sentence.
 
-**Time:** the search stops itself after 150 seconds (`SEARCH_TIME_LIMIT_S`), and that includes saving the result: the
-stages stop early enough to leave the save its time (`DB_TIMEOUT_SECONDS`, 2 seconds by default). Each stage also
-has its own limit, and a stage that runs out falls back instead of failing. The frontend gives up after 170 seconds
-(`RESEARCH_TIMEOUT_MS`), which leaves room for the network.
+**Time:** the search stops itself after 150 seconds (`SEARCH_TIME_LIMIT_S`). Saving the result runs after that, for
+up to 15 seconds more (`DB_SAVE_TIMEOUT_SECONDS`, 15 by default and at most, P-38), and the run waits 1 second past
+that at most. While it saves, the progress stream says "Saving your results." once. Each stage also has its own
+limit, and a stage that runs out falls back instead of failing. The frontend gives up after 170 seconds
+(`RESEARCH_TIMEOUT_MS`), which covers the 150, the save and room for the network.
 
 **Errors:**
 

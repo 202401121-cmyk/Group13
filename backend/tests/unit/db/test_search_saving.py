@@ -63,7 +63,7 @@ def closed_port() -> int:
 @pytest.fixture
 def store() -> Iterator[PostgresRequestStore]:
     url = "postgresql://" + "shopper:" + FAKE_PASSWORD + f"@127.0.0.1:{closed_port()}/shopsense"
-    built = PostgresRequestStore(DatabaseSettings(url=url, timeout_s=TIMEOUT_S))
+    built = PostgresRequestStore(DatabaseSettings(url=url, timeout_s=TIMEOUT_S, save_timeout_s=TIMEOUT_S))
     yield built
     built.close()
 

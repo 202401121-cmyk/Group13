@@ -120,17 +120,18 @@ def test_a_failed_insert_gives_saved_false_and_no_row(store: PostgresRequestStor
 
 def test_a_locked_table_gives_saved_false_in_time_and_no_row_lands_later(database_url: str) -> None:
     timeout_s = 0.5
-    built = PostgresRequestStore(DatabaseSettings(url=database_url, timeout_s=timeout_s))
+    built = PostgresRequestStore(DatabaseSettings(url=database_url, timeout_s=timeout_s, save_timeout_s=timeout_s))
     session = new_session()
     try:
-        assert built.health() == "ok"  # warm the pool, so the time below is the save alone
+        built._get_save_pool().wait(timeout=5)  # warm the saves' pool, so the time below is the run and save
         with psycopg.connect(database_url) as blocker:
             blocker.execute("lock table public.searches in access exclusive mode")
             start = time.monotonic()
-            result = PipelineRunner(default_search_stages(), DatabaseResultStore(built)).run(request(session))
+            store = DatabaseResultStore(built, time_limit_s=timeout_s)
+            result = PipelineRunner(default_search_stages(), store).run(request(session))
             assert time.monotonic() - start < timeout_s + 1.0
             blocker.rollback()  # the insert may now go through: it must still not commit
-        built._workers.shutdown(wait=True)  # let the worker finish, so the rows below are final
+        built._save_workers.shutdown(wait=True)  # let the worker finish, so the rows below are final
     finally:
         built.close()
     assert result.saved is False

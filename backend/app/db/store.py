@@ -1,8 +1,9 @@
 """Where requests and finished searches are saved (US-01, US-52), behind one interface so the database is optional.
 
 save_request() answers "saved", "off" (no database configured) or "failed" (configured, but it did not work).
-save_search() answers True only when the row was committed. Neither raises or takes longer than DB_TIMEOUT_SECONDS,
-so a search always finishes (build rule 10). health() answers "ok", "off" or "down" for GET /api/health.
+save_search() answers True only when the row was committed. Neither raises. save_request() takes at most
+DB_TIMEOUT_SECONDS, and save_search() at most its own DB_SAVE_TIMEOUT_SECONDS (P-38), after the search, so a search
+always finishes (build rule 10). health() answers "ok", "off" or "down" for GET /api/health.
 
 Stored requests and searches come from what people typed and may be personal. They are never sent to Gemini's free
 tier or any other model service that may train on its inputs.
@@ -105,8 +106,17 @@ class RequestStore(Protocol):
     ) -> SaveOutcome: ...
 
     def save_search(
-        self, session_id: str, rubric: JsonObject, result: JsonObject, user_id: UUID | None = None
-    ) -> bool: ...
+        self,
+        session_id: str,
+        rubric: JsonObject,
+        result: JsonObject,
+        user_id: UUID | None = None,
+        *,
+        within_s: float | None = None,
+    ) -> bool:
+        """True only when the row was committed. `within_s`: the time the caller has left for it, when shorter than
+        the store's own DB_SAVE_TIMEOUT_SECONDS."""
+        ...
 
     def health(self) -> DbHealth: ...
 
@@ -121,7 +131,15 @@ class NullRequestStore:
     ) -> SaveOutcome:
         return "off"
 
-    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject, user_id: UUID | None = None) -> bool:
+    def save_search(
+        self,
+        session_id: str,
+        rubric: JsonObject,
+        result: JsonObject,
+        user_id: UUID | None = None,
+        *,
+        within_s: float | None = None,
+    ) -> bool:
         log.info("search not saved: the database is off")  # info, not warning: this is a normal way to run
         return False
 
@@ -173,7 +191,15 @@ class InMemoryRequestStore:
             self.rows.append(row)
         return "saved"
 
-    def save_search(self, session_id: str, rubric: JsonObject, result: JsonObject, user_id: UUID | None = None) -> bool:
+    def save_search(
+        self,
+        session_id: str,
+        rubric: JsonObject,
+        result: JsonObject,
+        user_id: UUID | None = None,
+        *,
+        within_s: float | None = None,
+    ) -> bool:
         if self.fail:
             return False
         try:

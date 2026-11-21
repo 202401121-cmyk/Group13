@@ -81,6 +81,7 @@ It runs nowhere else.
 | A Reddit source's URL, community, type, fetch time, publish time, archive, upvotes, comment count and quality | Kept |
 | Each comment's ID, parent, depth, upvotes and quality | Kept |
 | The `quote` of any claim, unless its source is listed and isn't Reddit | The marker. Its value, score and source link stay. A value can be a few of a poster's words, such as "about 8 hours" |
+| A held product's filter reason that quotes a value made of Reddit's or a video's viewers' words (decide quotes up to 80 characters: `It fails "Wi-Fi 7": it has ...`) | The plain reason built from its rule: `It fails "Wi-Fi 7"`, or `We couldn't check "Wi-Fi 7" from its sources`. A reason is matched by the rule it quotes or the attribute it names ("Sources disagree on its ..."), or for "Sources disagree: A or B" by the replaced side it lists, never by loose words. One reason becomes one plain reason. A reason about another attribute, a budget's or a leave-out's holds no one's words and stays (S5-2, D-70) |
 | Web, review and shop sources, and everything else in the result | Saved whole |
 
 Since schema 1.7.0 a result carries `citations`: each claim a value cites, with its source and its quote. A citation's
@@ -315,7 +316,8 @@ row level security, and an id that isn't theirs finds nothing.
    it also shows for `public.requests` and `public.searches`; after it, those two and `public.profiles` have policies
    (see "Accounts"), and so does `public.preferences` (US-06).
 
-`DB_TIMEOUT_SECONDS` (default 2) is how long one save may take before the search carries on without it.
+`DB_TIMEOUT_SECONDS` (default 2) is how long one call may take before the search carries on without it. A finished
+search's save has its own limit, `DB_SAVE_TIMEOUT_SECONDS` (default 15, 2 to 15): see "Saving a finished search".
 
 ## Migrations
 
@@ -469,7 +471,7 @@ migration. Never leave the history and the files out of step.
 | `off` | No `DATABASE_URL` is set | Everything works; nothing is saved |
 | `down` | It is set, but the database did not answer in time (wrong password, network, paused project) | Searches still finish; the request is not saved |
 
-Each save waits at most `DB_TIMEOUT_SECONDS`. After 3 failures in a row the backend stops trying for 30 seconds
+Each request save waits at most `DB_TIMEOUT_SECONDS`. After 3 failures in a row the backend stops trying for 30 seconds
 (saves fail at once, health says `down`), then tries once more. The session remembers the outcome in
 `request_saved`: `saved`, `off` or `failed`. The CLI prints one line, and `--no-db` skips the database.
 
@@ -477,15 +479,38 @@ Logs show only the database host and the error type, never the URL, the password
 
 ### Saving a finished search
 
-`save_search(session_id, rubric, result)` is on every request store, next to `save_request`, and shares its connection
-pool, time limit and circuit breaker. `rubric` and `result` are `model_dump(mode="json")` output. A plain
+`save_search(session_id, rubric, result)` is on every request store, next to `save_request`, and shares its circuit
+breaker. It has a time limit of its own (P-38, US-52), `DB_SAVE_TIMEOUT_SECONDS`, 15 seconds by default and 2 to 15
+allowed; every other call keeps `DB_TIMEOUT_SECONDS`. Why: on 20 Nov S4-11's live check, a signed-in search finished but
+its save timed out at 2 seconds from Om's network, while every other database call worked. A finished search's row is
+the largest one we write. So:
+
+- The save runs after the result is complete and outside the search's 150 seconds, so a slow save never cuts the search
+  short: the stages have the whole 150. The run waits for it at most its limit and one more second, so a search takes
+  at most 150 + 15 + 1 seconds. That is why 15 is also the most allowed: the frontend waits 170 seconds for research,
+  so it always covers the search, the save and a margin. A higher value is refused with a warning, and 15 is used.
+- The Reddit cache allows for the save too: it serves an answer for 24 hours less the longest search, the save (its
+  limit and the 1-second grace), the keep-time, one housekeeping tick and the 60-second margin (`serve_limit()`, D-53),
+  so the margin stays 60 seconds at any allowed save limit. By default that is 23 hours 16 minutes 14 seconds.
+- While it saves, the progress stream says so once: "Saving your results.", as `done` on the line of the last stage that
+  ran OK (the contract has no save stage; a stage that fell back, failed or was skipped keeps its own words). It is not
+  said when nothing will be written: with the database off, or while the breaker skips it.
+- Everything counts against that limit: building the row, waiting for a connection, the statement
+  (`set local statement_timeout` for its one transaction) and the commit. The work must end a tenth of the limit early
+  (at most 1 second), so the commit lands inside it; past that the row is rolled back.
+- Saves have their own two workers and their own pool of two connections, whose connect timeout and
+  `statement_timeout` are the save's limit. Slow saves never hold a connection the other calls need.
+- A save that times out counts once against the breaker, like any other failure. An open or half-open breaker answers
+  `False` at once: a save never takes the one trial call, which a quick call (a request save, the health check) takes
+  instead. A save that only waited behind other saves, and never reached the database, is not counted.
+- The run reports `saved` true or false as before. `rubric` and `result` are `model_dump(mode="json")` output. A plain
 `model_dump()` holds dates and URLs, which are not JSON, so it is refused. `DatabaseResultStore` in
 `backend/app/pipeline.py` calls it at the end of every search, from both the API and the CLI.
 
 It answers `True` only when the row was committed. It never raises, and it answers `False` with one log line when:
 
 - the database is off (this line is at info level, because it is a normal way to run);
-- the database is down, or slower than `DB_TIMEOUT_SECONDS`;
+- the database is down, or slower than `DB_SAVE_TIMEOUT_SECONDS`;
 - the circuit breaker is open, or the store is closed;
 - the insert fails;
 - the search cannot fit the table: a bad session ID, something that is not JSON, a NaN or infinite number, or the NUL

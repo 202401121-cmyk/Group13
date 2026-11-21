@@ -12,8 +12,10 @@ are daemon threads, so a forced stop of the server never waits for a whole searc
 either: it is an async generator that looks for new events every POLL_SECONDS. Each run's state lives in memory
 (build rule 10) and is dropped once its keep-time has passed: at the next request or stream read, and within ten
 minutes even when nobody asks (drop_expired, called by the app's housekeeping in app/main.py). The result itself is
-saved at the end by the runner, as POST /api/search does. The stream sends its own keep-alive comment, so tests can
-make it short.
+saved at the end by the runner, as POST /api/search does: after the search's 150 seconds, with its own limit
+(DB_SAVE_TIMEOUT_SECONDS, P-38). While it saves, the stream says so once, and the run's result and its `saved` flag
+become final only once the save has answered. The stream sends its own keep-alive comment, so tests can make it
+short.
 
 A finished run also keeps the claims its result's values cite (never the rest), so the evidence route can show each
 value's sources (app/api/evidence.py). They are never saved, and go with the run.
@@ -25,10 +27,10 @@ state or event ever shows a user_id. A guest's run works exactly as before.
 
 A finished run goes at its keep-time even while a progress stream reads it, and on an idle server the app's housekeeping
 drops it at the next tick, so the Reddit text in its result and claims is gone before D-53's 24 hours (serve_limit(),
-app/research/reddit/cache.py, leaves room for both). A stream still open then sends the run's final event, with its
-result as it is saved (no Reddit text, app/research/retention.py), and closes. The keep-time runs out on the registry's
-own clock or on the wall clock, whichever is first: a machine that sleeps can stop the first, but Reddit data keeps
-ageing on the second.
+app/research/reddit/cache.py, leaves room for both, and for the search's save before them). A stream still open then
+sends the run's final event, with its result as it is saved (no Reddit text, app/research/retention.py), and closes.
+The keep-time runs out on the registry's own clock or on the wall clock, whichever is first: a machine that sleeps can
+stop the first, but Reddit data keeps ageing on the second.
 """
 
 from __future__ import annotations

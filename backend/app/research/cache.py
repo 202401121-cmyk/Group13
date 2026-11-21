@@ -1,8 +1,8 @@
 """Cache of search results, pages and robots files (US-12, P-12), in memory and in backend/.cache/research/.
 
 D-53 keeps Reddit text at most 24 hours. So every folder that can hold text from a Reddit page is served and kept only
-until serve_limit() (24 hours less the longest search, the time a result is kept, one housekeeping tick and a margin:
-app/research/reddit/cache.py), and a folder that can't keeps the full 24 hours:
+until serve_limit() (24 hours less the longest search, its save, the time a result is kept, one housekeeping tick and
+a margin: app/research/reddit/cache.py), and a folder that can't keeps the full 24 hours:
 
 - searches/      serve_limit()  A web search's results (Serper, Firecrawl search). They hold no Reddit text themselves:
                                 a result on reddit.com never becomes a source. But the search is cached as one answer

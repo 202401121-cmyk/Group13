@@ -37,6 +37,8 @@ from app.contracts import examples as ex
 from app.contracts.pipeline import MAX_RUN_EVENTS
 from app.main import Housekeeping, create_app
 from app.pipeline import (
+    SAVE_GRACE_S,
+    SAVING,
     CancelFlag,
     DatabaseResultStore,
     InMemoryResultStore,
@@ -1168,6 +1170,8 @@ def test_a_run_that_read_a_reddit_answer_at_the_edge_is_gone_before_it_is_24_hou
     """The worst case, with the real cache, run store and timer reading one setting, on an idle server: the edge, the
     longest search, the keep-time, then a full tick before the timer drops the run, with no request in between."""
     monkeypatch.setenv("SEARCH_RUN_KEEP_MINUTES", keep)
+    monkeypatch.setenv("DB_SAVE_TIMEOUT_SECONDS", "15")
+    longest_save_s = 15 + SAVE_GRACE_S  # the save runs after the 150 s, before the run ends (P-38)
     read_at = datetime(2026, 11, 14, 9, 0, tzinfo=UTC)
     wall = [read_at]
     cache = RedditCache(folder=None, now=lambda: wall[0])  # its limit: serve_limit(), from the setting
@@ -1183,9 +1187,10 @@ def test_a_run_that_read_a_reddit_answer_at_the_edge_is_gone_before_it_is_24_hou
     assert search_id is not None
     wait_until(lambda: runs._runs[search_id].ended_at is not None, "the run to end")
 
-    # The longest search, the keep-time and one second (as the other keep-time tests: off the exact boundary), then a
-    # full tick: the run passed its keep-time just after one tick, so the next one is the first to see it.
-    wall[0] += timedelta(seconds=C.SEARCH_TIME_LIMIT_S + settings.keep_s + 1 + SWEEP_EVERY_S)
+    # The longest search, its save, the keep-time and one second (as the other keep-time tests: off the exact
+    # boundary), then a full tick: the run passed its keep-time just after one tick, so the next one is the first to
+    # see it.
+    wall[0] += timedelta(seconds=C.SEARCH_TIME_LIMIT_S + longest_save_s + settings.keep_s + 1 + SWEEP_EVERY_S)
     clock.jumped_s = settings.keep_s + 1 + SWEEP_EVERY_S
     assert search_id in runs._runs  # nothing has asked for it, so it is still held
     Housekeeping(runs, sweep=lambda: None).tick()  # the timer's tick
@@ -1193,3 +1198,22 @@ def test_a_run_that_read_a_reddit_answer_at_the_edge_is_gone_before_it_is_24_hou
     assert wall[0] - read_at == timedelta(hours=24) - SERVE_MARGIN  # ...while the answer is still under 24 hours old
     with pytest.raises(ExpiredRun):
         runs.get(search_id)
+
+
+# --- while a finished search saves, its stream says so once (US-52, P-38) ------------------------------------------
+
+
+def test_while_a_run_saves_its_stream_says_so_once_and_the_run_reports_saved(harness: Harness) -> None:
+    from app.db import InMemoryRequestStore
+
+    database = InMemoryRequestStore()
+    harness.store = DatabaseResultStore(database, time_limit_s=15.0)  # type: ignore[assignment]
+    with TestClient(harness.app()) as client:
+        search_id = start(client)
+        done = finished(client, search_id)
+        status, messages = read(client, search_id)
+    assert done["result"]["saved"] is True and len(database.searches) == 1
+    progress = [json.loads(m["data"]) for m in events(messages) if m.get("event") != "run"]
+    saying = [e for e in progress if e["message"] == SAVING]
+    assert status == 200 and len(saying) == 1
+    assert progress[-1] == saying[0]  # after every stage, before the run's final event

@@ -6,11 +6,11 @@ stops a search (build rule 10).
 
 D-53 keeps Reddit data at most 24 hours, counted from when it was read, and covers every copy we hold. So an answer's
 age is its oldest source's, and storing a thread again with its comments doesn't restart the clock. An answer is served
-only before serve_limit(): 24 hours less the longest search, the time a finished run is kept (SEARCH_RUN_KEEP_MINUTES),
-one housekeeping tick and a margin, so a run holding it, and its file, are gone in time. Files past it are deleted at
-app start-up and then within ten minutes (the app's housekeeping), by each search (the research stage sweeps first,
-whatever else works), and by the first use of a cache. A machine where the app isn't running deletes nothing until it
-starts.
+only before serve_limit(): 24 hours less the longest search, its save, the time a finished run is kept
+(SEARCH_RUN_KEEP_MINUTES), one housekeeping tick and a margin, so a run holding it, and its file, are gone in time.
+Files past it are deleted at app start-up and then within ten minutes (the app's housekeeping), by each search (the
+research stage sweeps first, whatever else works), and by the first use of a cache. A machine where the app isn't
+running deletes nothing until it starts.
 """
 
 from __future__ import annotations
@@ -27,7 +27,8 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from app.contracts import SEARCH_TIME_LIMIT_S, Source
-from app.search_run_limits import SWEEP_EVERY_S, keep_minutes
+from app.db.settings import SAVE_GRACE_S, save_timeout_s
+from app.search_run_limits import SWEEP_EVERY_S, environment, keep_minutes
 
 log = logging.getLogger(__name__)
 
@@ -44,17 +45,22 @@ def _utc_now() -> datetime:
 
 
 def serve_limit(env: Mapping[str, str] | None = None) -> timedelta:
-    """How long a Reddit answer may be served: 24 hours less the longest search, the keep-time, one housekeeping tick
-    and SERVE_MARGIN (D-53).
+    """How long a Reddit answer may be served: 24 hours less the longest search, its save, the keep-time, one
+    housekeeping tick and SERVE_MARGIN (D-53).
 
-    The sum: served at the edge + the longest search (SEARCH_TIME_LIMIT_S, 150 s, which includes saving the result) +
-    the keep-time (SEARCH_RUN_KEEP_MINUTES, 30 by default) + one tick (SWEEP_EVERY_S, 600 s) stays SERVE_MARGIN (60 s)
-    under 24 hours. That holds for the runs in memory, which go at their keep-time even while a progress stream reads
-    them (app/api/search_runs.py) and at the latest at the next tick on an idle server (app/main.py), and for the files
-    on disk, which the next tick deletes once they pass this limit. By default it is 23 hours 16 minutes 30 seconds.
+    The sum: served at the edge + the longest search (SEARCH_TIME_LIMIT_S, 150 s) + its save, which runs after the 150 s
+    (P-38: the run waits at most DB_SAVE_TIMEOUT_SECONDS, 15 s by default and at most, and SAVE_GRACE_S, 1 s) + the
+    keep-time (SEARCH_RUN_KEEP_MINUTES, 30 by default, counted from the run's end, after its save) + one tick
+    (SWEEP_EVERY_S, 600 s) stays SERVE_MARGIN (60 s) under 24 hours, at any allowed save limit. That holds for the runs
+    in memory, which go at their keep-time even while a progress stream reads them (app/api/search_runs.py) and at the
+    latest at the next tick on an idle server (app/main.py), and for the files on disk, which the next tick deletes once
+    they pass this limit. By default it is 23 hours 16 minutes 14 seconds.
     """
-    keep = timedelta(minutes=keep_minutes(env))
-    return DEFAULT_TTL - keep - timedelta(seconds=SEARCH_TIME_LIMIT_S) - timedelta(seconds=SWEEP_EVERY_S) - SERVE_MARGIN
+    values = env if env is not None else environment()
+    keep = timedelta(minutes=keep_minutes(values))
+    search = timedelta(seconds=SEARCH_TIME_LIMIT_S)
+    save = timedelta(seconds=save_timeout_s(values) + SAVE_GRACE_S)
+    return DEFAULT_TTL - search - save - keep - timedelta(seconds=SWEEP_EVERY_S) - SERVE_MARGIN
 
 
 class RedditCache:

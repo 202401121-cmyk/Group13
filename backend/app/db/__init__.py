@@ -18,7 +18,7 @@ from .accounts import (
 from .aliases import AliasStore, InMemoryAliasStore, PostgresAliasStore, alias_store_for, shared_memory_aliases
 from .breaker import CircuitBreaker
 from .postgres import PostgresRequestStore
-from .settings import DatabaseSettings, describe_host, load_settings
+from .settings import DEFAULT_SAVE_TIMEOUT_S, SAVE_GRACE_S, DatabaseSettings, describe_host, load_settings
 from .store import (
     DbHealth,
     InMemoryRequestStore,
@@ -49,6 +49,8 @@ def default_account_store() -> AccountStore:
 
 
 __all__ = [
+    "DEFAULT_SAVE_TIMEOUT_S",
+    "SAVE_GRACE_S",
     "AccountStore",
     "AccountsUnavailable",
     "AliasStore",

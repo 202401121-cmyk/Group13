@@ -54,6 +54,9 @@ services:
         sync: false
       - key: DB_TIMEOUT_SECONDS
         sync: false
+      # A finished search's save only (P-38): 15 s by default and at most (2 to 15), after the search's 150 seconds.
+      - key: DB_SAVE_TIMEOUT_SECONDS
+        sync: false
       - key: MATCHER
         sync: false
       - key: MEMORY

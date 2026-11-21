@@ -3,9 +3,10 @@
 It has its own module because three parts of the app must agree on these. The search runs (app/api/search_runs.py) keep
 a finished run this long, even while a progress stream reads it. The app's housekeeping (app/main.py) drops runs past
 that, and deletes expired cache files, every SWEEP_EVERY_S, search or no search. The Reddit cache
-(app/research/reddit/cache.py) stops serving an answer this much sooner than 24 hours, less the longest search, one
-housekeeping tick and a margin as well (serve_limit()), so a run that read the answer late, and the answer's own file,
-are gone before the data turns 24 hours old even on an idle server (D-53 covers every copy).
+(app/research/reddit/cache.py) stops serving an answer this much sooner than 24 hours, less the longest search, its
+save (DB_SAVE_TIMEOUT_SECONDS and its one-second grace, after the 150 seconds: P-38), one housekeeping tick and a margin
+as well (serve_limit()), so a run that read the answer late, and the answer's own file, are gone before the data turns
+24 hours old even on an idle server (D-53 covers every copy). The margin stays 60 seconds at any allowed save limit.
 """
 
 from __future__ import annotations

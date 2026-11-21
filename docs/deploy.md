@@ -119,6 +119,7 @@ and the file name the same ones.
 | `REDDIT_USER_SALT` | A new random value for staging (`python -c "import secrets; print(secrets.token_hex(32))"`). Never the laptop's. | **yes** |
 | `DATABASE_URL` | The Supabase **Session pooler** string, ending in `?sslmode=require` ([database.md](database.md)). The direct connection is IPv6 only. | **yes** |
 | `DB_TIMEOUT_SECONDS` | `2` | no |
+| `DB_SAVE_TIMEOUT_SECONDS` | `15`, or leave it unset (the same). A finished search's save only, 2 to 15 seconds (a higher value is refused and 15 is used, so the frontend's 170-second wait covers it), after the search's 150 (P-38): on 20 Nov a signed-in search's save timed out at 2 s from a slow network while every other call worked. | no |
 | `SUPABASE_URL` | The project's address, `https://<project-ref>.supabase.co`, with no slash at the end. The backend checks sign-ins against this project's public signing keys (US-30). Empty turns sign-in off: every caller is a guest. | no |
 | `SUPABASE_SECRET_KEY` | A Supabase secret key (`sb_secret_...`, Supabase > Project Settings > API keys), for one thing: deleting a shopper's account (US-11, [api-setup.md](api-setup.md#supabase-auth-deleting-an-account-us-11-p-43)). Backend only, never the browser (D-32). Empty: `DELETE /api/me` answers 503 and everything else works. | **yes** |
 | `MATCHER` | `model` (see below) | no |
