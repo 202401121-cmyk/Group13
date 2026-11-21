@@ -1,0 +1,53 @@
+# The citation check (US-22, S5-4): a local NLI model reads each explanation sentence against the quotes it cites.
+#
+# The model is cross-encoder/nli-deberta-v3-xsmall (Apache-2.0), run on our own server through onnxruntime and its
+# tokenizer.json (P-41): no quote, and no shopper's words, ever reach a provider. Its outputs, from config.json read on
+# 21 Nov 2026: 0 contradiction, 1 entailment, 2 neutral. It is pinned by an exact revision (a commit hash, never "main";
+# ml/MODELS.md card 6). Weights are never in git: the first use downloads the ONNX file and tokenizer.json at this
+# revision into backend/.cache/nli/, and later uses read them from there. A file whose sha256 is not the one below is
+# not used, and neither is a model whose probabilities on this machine differ from the full model's by more than
+# reference_tolerance on the reference pairs.
+#
+# The check is off unless NLI=on (in .env or the environment; P-48): off, explain runs as before US-22 and the model
+# never loads. On, a model missing, failing or past its time gives the fallback: only sentences that quote a cited quote
+# word for word (quoted_words in a row) are kept, with the template sentences (DECIDED 4).
+repo: "cross-encoder/nli-deberta-v3-xsmall"
+revision: "a150876415327c80daeff35ca6f68f5ed8cf5c24"
+# Chosen by python -m evals.citation.model_check: the smallest file in onnx/ whose entailment probabilities agree with
+# onnx/model.onnx within 0.02 on the 40 tuning pairs. Set once the hand-written pairs are done (DECIDED 1).
+model_file: "onnx/model_O4.onnx"
+model_sha256: "7f3e118f33944fe2a2bfa50ae889098f12914e4fd5194ab13dbaf82a5bee02c5"
+tokenizer_file: "tokenizer.json"
+tokenizer_sha256: "5124ef2ead1a10a717703bc436de7f353da76d6340e4587719b42b1693707964"
+labels: 3
+entailment_index: 1
+max_length: 512  # the model's own limit (config.json max_position_embeddings)
+premise_tokens: 400  # a quote longer than this is split into chunks of this many tokens
+premise_overlap: 50  # tokens each chunk shares with the one before it
+# A sentence passes at or above this entailment probability (and only if every number in it is in a cited quote or in
+# the scoring numbers). Tuned on the 40 tuning pairs by python -m evals.citation.run (DECIDED 6).
+threshold: 0.9608
+time_limit_s: 5.0  # the check itself, for every product, inside explain's 15 s (DECIDED 3)
+quoted_words: 6  # the fallback keeps a sentence that holds this many words of a cited quote in a row
+reference_tolerance: 0.02
+reference:  # written by python -m evals.citation.model_check --write-config
+  - premise: Swipe and select the best laptop under Rs.
+    hypothesis: You can swipe through and pick the best laptop below a given price in rupees.
+    entailment: 0.983272
+  - premise: 6.7 inches (17.02 cm) | Super AMOLED
+    hypothesis: Its 6.7-inch screen uses an IPS LCD panel.
+    entailment: 0.000455
+  - premise: Snapdragon SM6475Q/8 GB/128 GB UFC/Qualcomm Adreno GPU
+    hypothesis: Its Snapdragon SM6475Q comes with 8 GB of RAM, 256 GB of UFC storage and a Qualcomm Adreno GPU.
+    entailment: 0.177607
+  - premise: Upto 14 Days battery life (475 mAh)
+    hypothesis: With a 475 mAh battery, it can last up to 14 days.
+    entailment: 0.995565
+  - premise: Price list of latest AGARO Air Fryer in India October 2026.
+    hypothesis: The page lists October 2026 prices for the latest AGARO air fryers in India.
+    entailment: 0.966327
+  - premise: quad-curved pOLED display; the fabric-inspired finish and Gorilla Glass 7i gave it the best in-hand feel
+      of the group.
+    hypothesis: It has a quad-curved pOLED display, and its fabric-inspired finish and Gorilla Glass 7i gave it the
+      best in-hand feel of the group.
+    entailment: 0.993651

@@ -28,7 +28,7 @@ def template(facts: ProductFacts) -> Explanation:
     texts = [f"It ranks #{facts.rank} with a score of {facts.score} out of 100."]
     if facts.tied:
         texts.append(TOO_CLOSE)
-    texts += [_strength(fact) for fact in facts.top]
+    texts += [strength_sentence(fact) for fact in facts.top]
     texts += unverified_sentences([facts.labels[k] for k in facts.unverified])
     return Explanation(
         product_id=facts.product_id,
@@ -49,7 +49,8 @@ def trade_off_text(trade: TradeOff | None) -> str | None:
     return f"Its weak point is {fact.label}, with a score of {shown_score(fact.score)} out of 10{compared}."
 
 
-def _strength(fact: Fact) -> str:
+def strength_sentence(fact: Fact) -> str:
+    """The template's sentence for one of the top 3: what it adds and its score, said as code scored it."""
     name = fact.label[:1].upper() + fact.label[1:]
     adds = f"{name} adds {fact.points} point{'' if fact.points == 1 else 's'}"
     score = shown_score(fact.score)

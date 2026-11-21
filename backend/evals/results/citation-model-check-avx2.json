@@ -1,0 +1,53 @@
+{
+  "generated": "2026-11-21",
+  "runner": "python -m evals.citation.model_check (offline, but for the public model download)",
+  "repo": "cross-encoder/nli-deberta-v3-xsmall",
+  "revision": "a150876415327c80daeff35ca6f68f5ed8cf5c24",
+  "tokenizer_sha256": "5124ef2ead1a10a717703bc436de7f353da76d6340e4587719b42b1693707964",
+  "pairs": 40,
+  "tolerance": 0.02,
+  "machine": {
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "system": "Windows",
+    "avx2": true,
+    "avx512f": false,
+    "avx512_vnni": false,
+    "onnxruntime": "1.31.1",
+    "numpy": "2.4.6"
+  },
+  "files": {
+    "onnx/model.onnx": {
+      "bytes": 284200859,
+      "sha256": "7105da41f625c42eca24e9465ec99150d02a80e644659d7a1daa93a6357155d4",
+      "ms_per_pair": 22.65,
+      "difference_max": 0.0,
+      "difference_mean": 0.0,
+      "over_tolerance": 0
+    },
+    "onnx/model_qint8_avx512.onnx": {
+      "bytes": 87377068,
+      "sha256": "ef41fe8474f6070373f97fbe8362461d55108f387723280fcdb64f8015133db2",
+      "ms_per_pair": 18.21,
+      "difference_max": 0.918562,
+      "difference_mean": 0.486952,
+      "over_tolerance": 40
+    },
+    "onnx/model_quint8_avx2.onnx": {
+      "bytes": 87377068,
+      "sha256": "21b14751a95520953bfcc607ceeb617de7cbeaeb6d60f4c8966716c743985337",
+      "ms_per_pair": 17.97,
+      "difference_max": 0.103112,
+      "difference_mean": 0.00967,
+      "over_tolerance": 4
+    },
+    "onnx/model_O4.onnx": {
+      "bytes": 151285017,
+      "sha256": "7f3e118f33944fe2a2bfa50ae889098f12914e4fd5194ab13dbaf82a5bee02c5",
+      "ms_per_pair": 23.21,
+      "difference_max": 0.004883,
+      "difference_mean": 0.000311,
+      "over_tolerance": 0
+    }
+  },
+  "chosen_here": "onnx/model_O4.onnx"
+}

@@ -1,0 +1,141 @@
+{
+  "generated": "2026-11-21",
+  "commit": "4276ac9",
+  "runner": "python -m evals.citation.run (offline; the model and the matcher from backend/.cache/)",
+  "model": {
+    "repo": "cross-encoder/nli-deberta-v3-xsmall",
+    "revision": "a150876415327c80daeff35ca6f68f5ed8cf5c24",
+    "file": "onnx/model_O4.onnx",
+    "load_s": 1.8,
+    "onnxruntime": "1.31.1",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD"
+  },
+  "threshold": 0.9608,
+  "tuning": {
+    "pairs": 40,
+    "caught": 0.9,
+    "wrongly_rejected": 0.15
+  },
+  "test": {
+    "pairs": 60,
+    "wrong": 30,
+    "right": 30,
+    "caught": 1.0,
+    "wrongly_rejected": 0.1667,
+    "intervals_95": {
+      "caught": [
+        1.0,
+        1.0
+      ],
+      "wrongly_rejected": [
+        0.0385,
+        0.3077
+      ]
+    },
+    "model_alone": {
+      "caught": 1.0,
+      "wrongly_rejected": 0.1667
+    },
+    "misjudged": {
+      "rejected_right": [
+        {
+          "id": "c002",
+          "entailment": 0.8817,
+          "numbers_ok": true
+        },
+        {
+          "id": "c023",
+          "entailment": 0.9128,
+          "numbers_ok": true
+        },
+        {
+          "id": "c042",
+          "entailment": 0.9418,
+          "numbers_ok": true
+        },
+        {
+          "id": "c058",
+          "entailment": 0.6256,
+          "numbers_ok": true
+        },
+        {
+          "id": "c094",
+          "entailment": 0.7989,
+          "numbers_ok": true
+        }
+      ],
+      "passed_wrong": []
+    },
+    "targets": {
+      "caught": 0.8,
+      "wrongly_rejected": 0.15
+    }
+  },
+  "writers": {
+    "Jhanvi Barot": 50,
+    "Rushiraj Navar": 50
+  },
+  "time": {
+    "products": 6,
+    "runs": [
+      "gate_air_fryer",
+      "gate_smartphone",
+      "gate_smartwatch"
+    ],
+    "pairs_per_product": {
+      "median": 3.0,
+      "most": 5
+    },
+    "sentences": {
+      "checked": 20,
+      "passed": 0
+    },
+    "seconds_median": 0.03,
+    "seconds_slowest": 0.043,
+    "limit_s": 5.0
+  },
+  "peak_memory": {
+    "start_peak_mb": 67.0,
+    "start_now_mb": 67.0,
+    "with_matcher_peak_mb": 226.1,
+    "with_matcher_now_mb": 97.4,
+    "with_both_peak_mb": 510.6,
+    "with_both_now_mb": 510.6,
+    "after_timing_peak_mb": 550.9,
+    "after_timing_now_mb": 550.7
+  },
+  "measures": [
+    {
+      "id": "citation.test.caught_wrong",
+      "value": 1.0,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/evals/citation/ (pairs.csv, by-hand job 2), app.explain.check, app.explain.nli",
+      "detail": "share of the deliberately wrong sentences rejected, of the 60 test pairs (30 wrong, 30 right), at the threshold 0.9608 tuned on the other 40; 95% bootstrap interval 1.00 to 1.00"
+    },
+    {
+      "id": "citation.test.wrongly_rejected",
+      "value": 0.1667,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/evals/citation/ (pairs.csv, by-hand job 2), app.explain.check, app.explain.nli",
+      "detail": "share of the right sentences rejected, of the 60 test pairs (30 wrong, 30 right), at the threshold 0.9608 tuned on the other 40; 95% bootstrap interval 0.04 to 0.31"
+    },
+    {
+      "id": "citation.check_seconds_median",
+      "value": 0.03,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/citation/run.py (the recorded runs, replayed offline), app.explain.check",
+      "detail": "the check of one product's paragraph, over the top 3 of 3 recorded runs (6 products)"
+    },
+    {
+      "id": "citation.check_seconds_slowest",
+      "value": 0.043,
+      "unit": "seconds",
+      "status": "measured",
+      "source": "backend/evals/citation/run.py (the recorded runs, replayed offline), app.explain.check",
+      "detail": "the slowest product's check, of 6"
+    }
+  ]
+}

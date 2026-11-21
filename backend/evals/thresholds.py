@@ -33,7 +33,9 @@ import yaml  # type: ignore[import-untyped]  # PyYAML ships no type stubs
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from app.contracts import SEARCH_TIME_LIMIT_S, STAGE_TIME_LIMITS_S, StageName
+from app.explain.nli_settings import NliSettings
 
+from .citation.run import CITATION_OUT
 from .gate import GATE_OUT
 from .interview_sim import FIXED_OUT as SIM_OUT
 from .memory_sim import MEMORY_OUT
@@ -42,7 +44,7 @@ from .stability import STABILITY_OUT
 
 THRESHOLDS = BACKEND / "evals" / "thresholds.yaml"
 LIVE_OUT = RESULTS_DIR / "sprint-4-live.json"  # S4-2: the demo's way, at the normal source cap
-RECORDS = (OFFLINE_OUT, LIVE_OUT, SIM_OUT, STABILITY_OUT, GATE_OUT, MEMORY_OUT)  # every record a floor comes from
+RECORDS = (OFFLINE_OUT, LIVE_OUT, SIM_OUT, STABILITY_OUT, GATE_OUT, MEMORY_OUT, CITATION_OUT)  # every floor's record
 RHO_MARGIN = 0.05  # a Spearman median's floor: the measured value less this (D-74)
 RATE_MARGIN = 0.05
 COUNT_MARGIN = 0.10
@@ -64,7 +66,7 @@ SAFETY: dict[str, str] = {
     "gate.shown_without_source": "No shown product in the recorded runs lacks a source (build rule 5, US-49).",
     "gate.label_disagreements": "Every decide brief's hand-labelled winner is the one the scoring code gives (US-49).",
 }
-AT_MOST = {"matching.stage.different_merged"}  # a rate where lower is better
+AT_MOST = {"matching.stage.different_merged", "citation.test.wrongly_rejected"}  # a rate where lower is better
 EXACT = {"decide.briefs_as_expected"}  # hand-written expectations: right or wrong, so no margin
 PLAN_TARGETS: dict[str, tuple[float, str]] = {
     "matching.model.own_pairs.precision": (
@@ -90,6 +92,14 @@ PLAN_TARGETS: dict[str, tuple[float, str]] = {
     "memory.accuracy_change": (
         0.0,
         "US-06 (S5-3 DECIDED 6): accuracy with memory no lower than without it",
+    ),
+    "citation.test.caught_wrong": (
+        0.8,
+        "US-22: on 100 test pairs with deliberately wrong claims, it catches 80% (measured on the 60 held out)",
+    ),
+    "citation.test.wrongly_rejected": (
+        0.15,
+        "US-22: it wrongly rejects at most 15% of the correct ones (measured on the 60 held out)",
     ),
 }
 
@@ -171,6 +181,9 @@ class Rule:
 
 
 def _stage_limit(measure_id: str) -> tuple[float, str] | None:
+    if measure_id.startswith("citation.check_seconds_"):
+        limit = NliSettings().time_limit_s
+        return limit, f"the check's own limit, {limit:g} s (US-22)"
     if measure_id == "live.search_seconds_max":
         return SEARCH_TIME_LIMIT_S, f"the search's own limit, {SEARCH_TIME_LIMIT_S:g} s"
     prefix = "live.stage_seconds_max."
@@ -213,6 +226,8 @@ WHY: dict[str, str] = {
     "weights give (S5-3).",
     "memory.accuracy_change": "Preference memory (US-06) never costs accuracy against the same shoppers without it "
     "(S5-3).",
+    "citation.test.": "The citation check (US-22, ml/MODELS.md card 6) keeps catching invented statements without "
+    "rejecting right ones, on the 60 hand-written pairs held out from tuning (S5-4).",
     "interview.fixed.": "The fixed question order (US-05) keeps the accuracy it has now on simulated shoppers: "
     "their best match is the one their true weights give. US-04's smart interview is held to it with fewer "
     "questions (S4-3, task #47).",
@@ -297,7 +312,7 @@ def build(records: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
             }
             if m["id"] in PLAN_TARGETS:
                 value, source = PLAN_TARGETS[m["id"]]
-                met = m["value"] >= value
+                met = m["value"] <= value if m["id"] in AT_MOST else m["value"] >= value
                 note = "met" if met else "not met"
                 if m["id"] == "matching.model.own_pairs.precision":
                     note = f"{note} as a number, but not shown: {m['detail']}"

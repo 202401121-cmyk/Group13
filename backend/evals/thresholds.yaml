@@ -6,6 +6,64 @@
 # docs/evaluation/sprint-3-baselines.md and, for the live floors, docs/evaluation/sprint-4-live.md.
 version: 1
 measures:
+  citation.check_seconds_median:
+    kind: quality
+    direction: at_most
+    floor: 5.0
+    measured: 0.03
+    unit: seconds
+    margin: a ceiling at the check's own limit, 5 s (US-22)
+    measured_on: offline
+    source: backend/evals/results/citation.json; backend/evals/citation/run.py (the recorded runs, replayed offline), app.explain.check
+    date: '2026-11-21'
+    commit: 4276ac9
+    rule: No stage may hang (build rule 9).
+  citation.check_seconds_slowest:
+    kind: quality
+    direction: at_most
+    floor: 5.0
+    measured: 0.043
+    unit: seconds
+    margin: a ceiling at the check's own limit, 5 s (US-22)
+    measured_on: offline
+    source: backend/evals/results/citation.json; backend/evals/citation/run.py (the recorded runs, replayed offline), app.explain.check
+    date: '2026-11-21'
+    commit: 4276ac9
+    rule: No stage may hang (build rule 9).
+  citation.test.caught_wrong:
+    kind: quality
+    direction: at_least
+    floor: 0.95
+    measured: 1.0
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: backend/evals/results/citation.json; backend/evals/citation/ (pairs.csv, by-hand job 2), app.explain.check, app.explain.nli
+    date: '2026-11-21'
+    commit: 4276ac9
+    rule: The citation check (US-22, ml/MODELS.md card 6) keeps catching invented statements without rejecting right ones,
+      on the 60 hand-written pairs held out from tuning (S5-4).
+    target:
+      value: 0.8
+      source: 'US-22: on 100 test pairs with deliberately wrong claims, it catches 80% (measured on the 60 held out)'
+      note: met
+  citation.test.wrongly_rejected:
+    kind: quality
+    direction: at_most
+    floor: 0.2167
+    measured: 0.1667
+    unit: rate
+    margin: 0.05 above the measured rate
+    measured_on: offline
+    source: backend/evals/results/citation.json; backend/evals/citation/ (pairs.csv, by-hand job 2), app.explain.check, app.explain.nli
+    date: '2026-11-21'
+    commit: 4276ac9
+    rule: The citation check (US-22, ml/MODELS.md card 6) keeps catching invented statements without rejecting right ones,
+      on the 60 hand-written pairs held out from tuning (S5-4).
+    target:
+      value: 0.15
+      source: 'US-22: it wrongly rejects at most 15% of the correct ones (measured on the 60 held out)'
+      note: not met
   decide.briefs_as_expected:
     kind: quality
     direction: at_least

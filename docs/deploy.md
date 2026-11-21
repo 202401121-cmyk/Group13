@@ -92,6 +92,7 @@ These shape how staging behaves. Check them again before the demo: free plans ch
 
 `render.yaml` sets the rest:
 - Python 3.11 (`PYTHON_VERSION`);
+- the citation check off (`NLI=off`, see below);
 - the start command, `uvicorn app.main:app --host 0.0.0.0 --port $PORT`;
 - the health check, `/api/health`;
 - automatic deploys of each commit on `main` whose CI checks pass (`checksPass`). Render deploys only when a commit
@@ -124,6 +125,7 @@ and the file name the same ones.
 | `SUPABASE_SECRET_KEY` | A Supabase secret key (`sb_secret_...`, Supabase > Project Settings > API keys), for one thing: deleting a shopper's account (US-11, [api-setup.md](api-setup.md#supabase-auth-deleting-an-account-us-11-p-43)). Backend only, never the browser (D-32). Empty: `DELETE /api/me` answers 503 and everything else works. | **yes** |
 | `MATCHER` | `model` (see below) | no |
 | `MEMORY` | `on`, the default: a signed-in shopper's preferences are remembered (US-06). `off` switches memory off, and the interview runs as before. | no |
+| `NLI` | Set by `render.yaml` (`off`, see below). Nothing to enter. `off` is also the app's default: explanations are written as before US-22. `on` checks each written sentence against the quotes it cites, with a model run on the server. | no |
 | `EXTRACT_MAX_SOURCES` | `5` | no |
 | `SEARCH_RUN_WORKERS` | `1` | no |
 | `PYTHON_VERSION` | Set by `render.yaml` (`3.11.15`). Nothing to enter. | no |
@@ -139,6 +141,11 @@ and the file name the same ones.
     `stage match: TimeoutError; using its fallback`, the fallback still matches with fuzzy matching, and the results
     say a simpler fallback was used.
   - If Render's memory graph comes near 512 MB, or the timeouts show up often, set `MATCHER=fuzzy`.
+- **`NLI=off`, written in `render.yaml`.** The citation check's model doesn't fit 512 MB (P-10). S5-4 measured it on
+  21 Nov 2026: with the matcher and this model loaded, the process held 511 MB, and 551 MB after checking
+  (`backend/evals/results/citation.json`). Real explanations also need P-48's follow-up before the check is used. So the
+  value is in the file, not typed in the dashboard, and the app defaults to off as well: staging can never start the
+  check by accident. Explanations on staging are written as before US-22.
 - **`EXTRACT_MAX_SOURCES=5`.** A search reads at most 5 sources: shorter on 0.1 CPU, with fewer model calls.
 - **`SEARCH_RUN_WORKERS=1`.** One search at a time on 512 MB.
 - **`DATABASE_URL` is set** so saving can be proved. A search still finishes without it: the health check then says

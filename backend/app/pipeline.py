@@ -82,7 +82,7 @@ from app.enrich import default_enrich_stage, price_targets
 from app.enrich.stage import prices_note
 from app.enrich.targets import readable_price
 from app.entities import ModelMatchStage, alias_keys
-from app.explain import ExplainStage
+from app.explain import CheckedExplainStage
 from app.extract import default_extract_stage
 from app.extract.schedule import SendWindow, read_in_lanes
 from app.llm.errors import AuthFailed, InvalidOutput, ProviderTimeout, RateLimited, ServerError
@@ -332,7 +332,7 @@ def default_search_stages() -> SearchStages:
         verify=TrustVerifyStage(),
         enrich=default_enrich_stage(),  # prices from store listings (US-41); the stub is its fallback
         decide=WeightedDecideStage(),
-        explain=ExplainStage(),
+        explain=CheckedExplainStage(),  # ExplainStage, its sentences checked against their quotes with NLI=on (US-22)
         commerce=default_commerce_stage(),  # real prices (US-24); the stub is its fallback
     )
 
