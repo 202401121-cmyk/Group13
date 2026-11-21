@@ -12,9 +12,9 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
 - **CORS:** the backend accepts browser calls only from the origins in `FRONTEND_ORIGINS` (comma-separated, in the
   root `.env`; default `http://localhost:3000`, the frontend's dev server). `*` is never allowed. If the browser
   console shows a CORS error, add the page's origin there and restart the backend.
-- **JSON in, JSON out.** Send `Content-Type: application/json`. The backend allows only `GET`, `POST`, `PUT` and
-  `DELETE`, and only the `Content-Type`, `Last-Event-ID` and `Authorization` headers. The frontend may read the
-  `Retry-After` header.
+- **JSON in, JSON out.** Send `Content-Type: application/json`. The backend allows only `GET`, `POST`, `PUT`,
+  `PATCH` and `DELETE`, and only the `Content-Type`, `Last-Event-ID` and `Authorization` headers. The frontend may
+  read the `Retry-After`, `X-Rubric-Note`, `X-Memory-Note` and `Content-Disposition` headers.
 - **Signed in:** send the Supabase access token on every call, as `Authorization: Bearer <access_token>` ([signing
   in](#signing-in-us-30)). Without one, the shopper is a guest.
 - **Errors** are always `{"detail": "<one plain sentence>"}`, never a stack trace. Show `detail` as it is.
@@ -24,7 +24,7 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
 
 ## Every route the backend serves
 
-These twenty routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). `GET /api/health`
+These twenty-six routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). `GET /api/health`
 is for `scripts/dev.py`, to see that the backend is up. The screens do not call `POST /api/search` (they use search runs).
 The brief page's rubric editor (S3-14) calls `POST /api/presearch/{session_id}/rubric` to save the shopper's edits and
 `POST /api/presearch/exclusions/parse` to read leave-outs from their words.
@@ -51,6 +51,12 @@ The brief page's rubric editor (S3-14) calls `POST /api/presearch/{session_id}/r
 | `GET /api/me` | Who is signed in: a guest without a token | none | `MeResponse` | 401, 503 | [signing in](#signing-in-us-30) |
 | `GET /api/me/searches` | The signed-in shopper's saved searches, newest first, 20 a page | none; query `cursor` (optional) | `SavedSearchList` | 401, 422, 503 | [signing in](#signing-in-us-30) |
 | `GET /api/me/searches/{id}` | One of the signed-in shopper's saved searches | none | `SearchResult` (`saved: true`) | 401, 404, 503 | [signing in](#signing-in-us-30) |
+| `GET /api/me/preferences` | Everything remembered for the signed-in shopper, newest first | none | `PreferenceList` | 401, 503 | [what the app remembers](#what-the-app-remembers-and-deleting-the-account-us-11) |
+| `GET /api/me/preferences/export` | The same, as a JSON file to download | none | `PreferenceExport` (`Content-Disposition: attachment`) | 401, 503 | [what the app remembers](#what-the-app-remembers-and-deleting-the-account-us-11) |
+| `PATCH /api/me/preferences/{id}` | Changes one: its words, a weight, a must-have on or off | `PreferenceEdit` | `PreferenceItem` (`X-Memory-Note` when the new words couldn't be matched yet) | 401, 404, 422, 503 | [what the app remembers](#what-the-app-remembers-and-deleting-the-account-us-11) |
+| `DELETE /api/me/preferences/{id}` | Deletes one, its embedding with it | none | 204 | 401, 404, 503 | [what the app remembers](#what-the-app-remembers-and-deleting-the-account-us-11) |
+| `DELETE /api/me/preferences` | Forgets everything remembered | none | 204 | 401, 503 | [what the app remembers](#what-the-app-remembers-and-deleting-the-account-us-11) |
+| `DELETE /api/me` | Deletes the account and everything saved with it | `{"confirm": "delete"}` | 204 | 401, 422, 503 | [what the app remembers](#what-the-app-remembers-and-deleting-the-account-us-11) |
 
 What each error means:
 
@@ -658,6 +664,47 @@ in it: a saved result never keeps them (D-53).
 | 422 | The `cursor` wasn't made by this route | `That page link doesn't work. Please start again from the first page.` |
 | 503 | The database is off or down. Searches still work. | `Your account can't be reached right now. Searching still works; please try again in a minute.` |
 | 503 | Sign-in can't be checked (the backend's `SUPABASE_URL` is unset, or the signing keys can't be fetched) | `We can't check sign-ins right now. Please try again in a minute.` |
+
+## What the app remembers, and deleting the account (US-11)
+
+The memory screen. Every route needs the shopper's token. The owner comes from the token alone, so a shopper only ever
+sees and changes their own: another shopper's preference id answers 404, never 403.
+
+- **`GET /api/me/preferences`** gives a `PreferenceList`, newest first: each remembered weight, must-have and leave-out,
+  in plain words (`text`), with its `kind`, `category` (`null` for a brand left out with Always, which holds for every
+  category), its `weight`, `rule` or `exclusion`, and when it was saved and last changed. There is never an embedding,
+  a user id or an email in it.
+- **`GET /api/me/preferences/export`** gives the same items as a `PreferenceExport`, with `exported_at`, sent as a file
+  to download (`Content-Disposition: attachment; filename="shopsense-memory.json"`).
+- **`PATCH /api/me/preferences/{id}`** takes a `PreferenceEdit` with at least one of these:
+  - `text` (a weight only): new words, 1 to 200 characters. The app works out what they mean, for later searches. If it
+    can't just now, the words are still saved, and the `X-Memory-Note` header says later searches still match the old
+    words. Show that note. A must-have's and a leave-out's words come from the rule itself, so to change one, delete
+    it; the next search can set it again.
+  - `weight` (0 to 10, a weight only): when the words were the app's own ("Battery life: high importance"), they follow
+    the new weight, also when the same words are sent with it.
+  - `active` (a must-have only): `false` keeps it as a preference that no longer filters.
+  - `always`: only its current value. A leave-out is remembered only while it holds Always, so stopping it means
+    deleting it.
+
+  A change that doesn't fit the kind answers 422 with one plain sentence, and nothing changes.
+- **`DELETE /api/me/preferences/{id}`** deletes one, and its embedding with it: 204.
+- **`DELETE /api/me/preferences`** forgets everything remembered: 204.
+- **`DELETE /api/me`** deletes the account and everything saved with it: requests, searches, the profile and
+  everything remembered. The body must be `{"confirm": "delete"}`, typed by the shopper, so a stray call can't do it.
+  204 means the backend read back and found none of their rows left. Then sign the shopper out in the browser: their
+  token stays valid until it expires, but there is no account behind it.
+
+| Status | When | `detail` |
+|---|---|---|
+| 401 | No token, or one that isn't valid | `Please sign in to see what ShopSense remembers about you.` (`DELETE /api/me`: `Please sign in to delete your account.`; a bad token: the usual sign-in sentence) |
+| 404 | That preference isn't this shopper's, or doesn't exist | `We couldn't find that remembered preference.` |
+| 409 | The preference changed while the edit was made (a search saved it again): nothing was written over | `This preference changed while you were editing it. Please look at it again and retry.` |
+| 422 | An edit that doesn't fit the preference's kind | One plain sentence, such as `Only a must-have can be switched on or off.` |
+| 422 | `DELETE /api/me` without the word | `To delete your account, type "delete" to confirm. This can't be undone.` |
+| 503 | The database is off or down | `Your account can't be reached right now. Searching still works; please try again in a minute.` |
+| 503 | Deleting an account isn't set up on this backend (no secret key), the database didn't answer first, or Supabase didn't answer: nothing was deleted | `Deleting an account isn't available right now. ...` or `We couldn't delete your account just now. ...` |
+| 503 | The account was deleted, but the read-back couldn't confirm all its rows are gone: asking again finishes it | `Your account was deleted, but we couldn't yet confirm that all your saved data is gone. ...` |
 
 ## Sprint 2 contracts
 

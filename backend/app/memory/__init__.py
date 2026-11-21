@@ -9,7 +9,7 @@ from app import db
 
 from .embedder import EmbedderHolder, MemoryUnavailable, shared_embedder
 from .lasting import Lasting, lasting_items
-from .service import MemoryService, RememberedItem
+from .service import EditConflict, Edited, EditRefused, MemoryService, RememberedItem
 from .settings import MemorySettings, load_memory_settings
 from .store import (
     InMemoryPreferenceStore,
@@ -29,6 +29,9 @@ def default_memory() -> MemoryService:
 
 
 __all__ = [
+    "EditConflict",
+    "EditRefused",
+    "Edited",
     "EmbedderHolder",
     "InMemoryPreferenceStore",
     "Lasting",

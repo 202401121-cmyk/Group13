@@ -49,12 +49,21 @@ class SavedSearchRow:
     top_product: str | None  # the first-ranked product's name, only when the ranking scored it
 
 
+# The tables that hold a user's rows (each with a key to auth.users, on delete cascade). Deleting an account reads every
+# one back (US-11); tests/integration/test_memory_controls_in_postgres.py fails when a new table with a user isn't here.
+ACCOUNT_TABLES = ("requests", "searches", "profiles", "preferences")
+
+
 class AccountStore(Protocol):
     def ensure_profile(self, user_id: UUID) -> str | None: ...
 
     def saved_searches(self, user_id: UUID, after: PageAfter | None, limit: int) -> list[SavedSearchRow]: ...
 
     def saved_search(self, user_id: UUID, search_id: UUID) -> JsonObject | None: ...
+
+    def account_rows(self, user_id: UUID) -> dict[str, int]:
+        """How many rows of this user each of ACCOUNT_TABLES still holds (US-11's read-back)."""
+        ...
 
 
 class NullAccountStore:
@@ -67,6 +76,9 @@ class NullAccountStore:
         raise AccountsUnavailable("the database is off")
 
     def saved_search(self, user_id: UUID, search_id: UUID) -> JsonObject | None:
+        raise AccountsUnavailable("the database is off")
+
+    def account_rows(self, user_id: UUID) -> dict[str, int]:
         raise AccountsUnavailable("the database is off")
 
 

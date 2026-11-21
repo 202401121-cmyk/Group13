@@ -271,6 +271,29 @@ So there is no HNSW index:
 Revisit it only if a look-up across users is added, which this design doesn't have. Then add HNSW in a new migration
 (`create index concurrently ... using hnsw (embedding extensions.vector_cosine_ops)`), with `hnsw.iterative_scan` on.
 
+### The shopper's controls, and deleting an account (US-11)
+
+The backend's `/api/me/preferences` routes let a signed-in shopper list, edit, export and delete what is remembered
+(docs/frontend-api.md). Each statement names the user (`where user_id = %s`, `backend/app/memory/store.py`), as well as
+row level security, and an id that isn't theirs finds nothing.
+
+- **Deleting a preference deletes its embedding:** the embedding is a column of the same row, so one `delete` takes
+  both. No copy of it is kept anywhere else.
+- **Editing the words** stores a new embedding in the same row. If the model can't make one just then, the row keeps
+  its old one, and the route says so.
+- **Deleting the account** (`DELETE /api/me`) asks Supabase's Auth admin API to delete the user, with the backend's
+  `SUPABASE_SECRET_KEY` (docs/api-setup.md). The row leaves `auth.users`, and the foreign keys
+  (`on delete cascade`) remove the user's rows in `requests`, `searches`, `profiles` and `preferences`.
+- **The read-back:** the backend counts the user's rows in those four tables first (a database that can't answer
+  means nothing is deleted), then again after the user's delete, and answers 204 only at zero. A row left means the
+  user wasn't really deleted, since every one of those tables cascades: the answer is then 503, never 204.
+- **A deleted preference stays deleted:** an interview that recalled it before the shopper deleted it only renews
+  rows that still exist when it saves; it never makes a deleted one again.
+- **Edits never write over a save:** an edit is written only if the row is still as it was read. Otherwise the route
+  answers 409, and the shopper looks again.
+- **A new table with a user:** it needs `on delete cascade` to `auth.users`, and a place in the read-back
+  (`ACCOUNT_TABLES` in `backend/app/db/accounts.py`). `test_memory_controls_in_postgres.py` fails until both are done.
+
 ## Setting up the project (once, by hand, in the browser)
 
 1. On supabase.com, create a project on the **Free** plan, region **South Asia (Mumbai)**.
