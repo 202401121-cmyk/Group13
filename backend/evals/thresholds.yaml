@@ -795,6 +795,54 @@ measures:
     date: '2026-11-14'
     commit: a6148f0
     rule: The match stage must keep folding variants into one product (DR-02, US-15).
+  memory.accuracy:
+    kind: quality
+    direction: at_least
+    floor: 0.55
+    measured: 0.6
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: backend/evals/results/memory-sim.json; backend/evals/memory_sim.py (20 seeded returning shoppers from evals/interview_sim.py),
+      app.memory, app.interview
+    date: '2026-11-21'
+    commit: 0828cd4
+    rule: With preference memory (US-06), returning shoppers' best match stays the one their true weights give (S5-3).
+  memory.accuracy_change:
+    kind: quality
+    direction: at_least
+    floor: -0.05
+    measured: 0.0
+    unit: difference
+    margin: 0.05 below the measured difference of two rates
+    measured_on: offline
+    source: backend/evals/results/memory-sim.json; backend/evals/memory_sim.py (20 seeded returning shoppers from evals/interview_sim.py),
+      app.memory, app.interview
+    date: '2026-11-21'
+    commit: 0828cd4
+    rule: Preference memory (US-06) never costs accuracy against the same shoppers without it (S5-3).
+    target:
+      value: 0.0
+      source: 'US-06 (S5-3 DECIDED 6): accuracy with memory no lower than without it'
+      note: met
+  memory.repeated_reduction:
+    kind: quality
+    direction: at_least
+    floor: 0.575
+    measured: 0.625
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: offline
+    source: backend/evals/results/memory-sim.json; backend/evals/memory_sim.py (20 seeded returning shoppers from evals/interview_sim.py),
+      app.memory, app.interview
+    date: '2026-11-21'
+    commit: 0828cd4
+    rule: Preference memory (US-06) keeps sparing returning shoppers the questions they answered before, on 20 seeded returning
+      shoppers (S5-3).
+    target:
+      value: 0.5
+      source: 'US-06: repeated questions fall by 50% for users with history, measured on 20 seeded sessions'
+      note: met
   research.recorded.source_types:
     kind: quality
     direction: at_least

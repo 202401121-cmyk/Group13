@@ -40,8 +40,9 @@ from app.contracts import (
 )
 
 from .answers import understand_reply
-from .plan import InterviewRules, default_order, load_interview_rules, plan_questions
+from .plan import InterviewRules, asked_count, default_order, load_interview_rules, plan_questions
 from .questions import question_for
+from .remembered import is_remembered_answer
 from .replies import answer_question, classify, criterion_of
 from .rubric_builder import build_rubric, default_rubric
 
@@ -202,7 +203,7 @@ class InterviewStage:
         Raises ValueError if that question has not been answered or skipped yet.
         """
         target = next((e for e in state.history if e.question.id == question_id), None)
-        if target is None or target.status not in ("answered", "skipped"):
+        if target is None or target.status not in ("answered", "skipped", "remembered"):
             raise ValueError(f"question {question_id!r} has not been answered yet")
         history: list[AskedQuestion] = []
         for entry in state.history:
@@ -227,7 +228,7 @@ class InterviewStage:
             history = [e if e is not pending else _abandon(e) for e in state.history]
             asked = {e.question.criterion_key for e in history}
             following = next((c for c in default_order(state.criteria) if c.key not in asked), None)
-            if following is None or len(history) >= MAX_QUESTIONS:
+            if following is None or asked_count(history) >= MAX_QUESTIONS:
                 settled = _state(state, history)
                 return _finished(settled, build_rubric(settled))
             question = question_for(following)
@@ -247,7 +248,7 @@ class InterviewStage:
             return _ask("question", pending.question.text, pending.question, state, ordering)
         plan = plan_questions(state.criteria, state.intent, state.history, self.rules)
         following = next((c for c in state.criteria.criteria if c.key == plan.next_key), None)
-        if following is None or len(state.history) >= MAX_QUESTIONS:
+        if following is None or asked_count(state.history) >= MAX_QUESTIONS:
             return _finished(state, build_rubric(state, plan), ordering)
         question = question_for(following)
         asked = _with(state, AskedQuestion(question=question, status="pending"))
@@ -275,8 +276,11 @@ def _had_answer(entry: AskedQuestion) -> bool:
 
 
 def _restore(entry: AskedQuestion) -> AskedQuestion:
-    """Put a question being corrected back to its earlier answer (or skip)."""
+    """Put a question being corrected back to its earlier answer (or skip). A remembered answer (US-06) the shopper
+    went back to and then left stays remembered."""
     earlier = entry.classification
+    if is_remembered_answer(entry):
+        return _rebuild(entry, status="remembered", unclear_count=0)
     status = "answered" if earlier is not None and earlier.weight is not None else "skipped"
     return _rebuild(entry, status=status, unclear_count=0)
 
@@ -321,7 +325,7 @@ def _ask(
         question=question,
         answer_source=answer_source,
         state=state,
-        questions_asked=len(state.history),
+        questions_asked=asked_count(state.history),
         ordering=ordering,
     )
 
@@ -348,6 +352,6 @@ def _finished(state: InterviewState, rubric: Rubric, ordering: Ordering = "fixed
         message=DONE_MESSAGE,
         rubric=rubric,
         state=state,
-        questions_asked=len(state.history),
+        questions_asked=asked_count(state.history),
         ordering=ordering,
     )

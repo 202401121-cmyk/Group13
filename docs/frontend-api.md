@@ -24,7 +24,7 @@ The pre-search routes (intake, criteria, interview) have their own detailed page
 
 ## Every route the backend serves
 
-These nineteen routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). `GET /api/health`
+These twenty routes are the whole API, and they match the backend's OpenAPI (`GET /openapi.json`). `GET /api/health`
 is for `scripts/dev.py`, to see that the backend is up. The screens do not call `POST /api/search` (they use search runs).
 The brief page's rubric editor (S3-14) calls `POST /api/presearch/{session_id}/rubric` to save the shopper's edits and
 `POST /api/presearch/exclusions/parse` to read leave-outs from their words.
@@ -38,6 +38,7 @@ The brief page's rubric editor (S3-14) calls `POST /api/presearch/{session_id}/r
 | `POST /api/presearch/{session_id}/interview/start` | The first question, in the [smart order](#the-interviews-order-us-04) | none | `InterviewStep` | 404, 409 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewstart) |
 | `POST /api/presearch/{session_id}/interview/reply` | Answers the current question | `reply_text` (1 to 500 characters); `question_id` (optional: makes a repeated reply safe); `level` or `exact_weight` (optional, never both: [rough answers](#rough-answers-us-08)) | `InterviewStep` (next question, rephrase, or finished with the rubric; it may finish before 10 questions) | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewreply) |
 | `POST /api/presearch/{session_id}/interview/back` | Asks an earlier question again; the reply re-plans the rest | `question_id` (1 to 64 characters) | `InterviewStep` | 404, 409, 422 | [presearch.md](api/presearch.md#post-apipresearchsession_idinterviewback) |
+| `POST /api/presearch/{session_id}/interview/forget` | Forgets one remembered preference in this interview | `preference_id` (a `RememberedPreference.preference_id`) | `InterviewStep` | 404, 409, 422 | [remembered preferences](#remembered-preferences-us-06) |
 | `POST /api/presearch/{session_id}/rubric` | The shopper's rubric edits: switch a must-have, add or remove a leave-out, set a weight | `RubricEditRequest` | `RubricEditResponse` (the rebuilt `Rubric`) | 404, 409, 422 | [editing the rubric](#editing-the-rubric-us-09) |
 | `POST /api/presearch/exclusions/parse` | Reads leave-outs from the shopper's words ("no Xiaomi"); needs no session | `text` (1 to 200 characters) | `ExclusionParseResponse` | 422 | [reading leave-outs](#reading-leave-outs-from-words-us-10) |
 | `GET /api/presearch/{session_id}` | Everything about the session, for a page reload | none | the session | 404 | [presearch.md](api/presearch.md#get-apipresearchsession_id) |
@@ -410,6 +411,61 @@ budget rules can still leave a question out, and going back or correcting an ans
   applied whatever the interview asks next, and they survive starting the interview again.
 
 Every step keeps the `InterviewStep` shape described in [api/presearch.md](api/presearch.md).
+
+## Remembered preferences (US-06)
+
+For a signed-in shopper (the request carries their token), the interview starts with up to 5 preferences remembered
+from their earlier searches. A guest's interview never does, and a guest's answers are never kept (D-36).
+
+- **Where they are.** `state.remembered`, on every step, the best first. Each is a `RememberedPreference`:
+  `preference_id`, `kind`, `text` (plain words, such as "Battery life: high importance"), `criterion_key`, `weight`
+  (weights only), `similarity` (0 to 1: how close it is to this search's criterion; 1 for a leave-out marked Always)
+  and `age_days`.
+- **A remembered weight is already answered.** It is in `state.history` with `status: "remembered"`, and its
+  question's `why_asking` says it was remembered. The planner never asks it, and it doesn't count in
+  `questions_asked`. In the rubric its `origin` is `remembered`. Show it as "Remembered", with two buttons:
+  - **Change:** `POST /interview/back` with its `question_id` asks it again, and the reply is an ordinary answer.
+    Going back to another question first leaves it remembered. The rubric editor's `set_weight` changes it too.
+  - **Forget:** `POST /interview/forget`, below. The criterion is then asked like any other.
+- **A remembered must-have** is in the rubric's `hard_rules`, like the request's own, and `switch_rule` switches it.
+  Its `text` is "Must have: " and the rule's own words (the rule's `source_text`); `criterion_key` names the criterion
+  it is about, if any.
+- **A remembered leave-out** (marked Always) is in the rubric's `exclusions` with `always: true`, and
+  `remove_exclusion` removes it. Its `text` is "Never " and the value, with the kind in brackets for a model, feature
+  or seller ("Never Acme Book 14 (model)"). A brand left out with Always comes back in every category; a model,
+  feature or seller only in its own.
+- **Never twice.** A must-have or leave-out the request already has, in the same words, isn't added again, and
+  neither is a leave-out the shopper removed in this session.
+- **Answers first.** The 5 places go to remembered weights and must-haves first. Leave-outs fill the places left,
+  so a shopper's many Always leave-outs never push their remembered answers out.
+- **For the whole session.** What the shopper forgets, or removes from the rubric, stays out for the rest of the
+  session, a restart of the interview included. A restart keeps what was remembered marked as remembered, and keeps
+  a remembered must-have switched off if the shopper switched it off.
+- **Saved when the rubric is final.** When the interview finishes, and again after each rubric edit on a finished
+  interview, the shopper's lasting preferences are saved, after the reply has gone:
+  - weights they answered, kept from memory, or set in the rubric editor. Never skipped ones, ones left at the usual
+    weight, ones a topic rule settled, or a reply the app couldn't read and counted at the usual weight;
+  - must-haves they kept on (never a budget or a rule on the price);
+  - leave-outs marked Always.
+
+  Saving the same one again updates it. Only the shopper who started the interview is saved for: if a guest signs in
+  half way, nothing is saved.
+- **Older counts for less.** A preference counts half as much every 90 days, and one that scores under 0.7 isn't used.
+  So a remembered answer unused for about 46 days is asked again. Each use saves it again, which keeps it fresh.
+- **When memory can't help,** `remembered` is empty and the interview is exactly as it was before US-06, with nothing
+  shown as an error. That happens when memory is off (`MEMORY=off`), there is no database, the model isn't ready
+  within 1.5 seconds, or anything else fails.
+
+### POST /api/presearch/{session_id}/interview/forget
+
+Body: `{"preference_id": "<uuid>"}`. Answers the interview's next `InterviewStep`: the current question again, a new
+one (the forgotten weight's, if it now comes next), or the finished rubric.
+
+- It forgets for this session: a restart of the interview doesn't bring it back. Deleting a preference from memory is
+  the memory screen's job (US-11).
+- 404, `That isn't one of the remembered preferences in this interview.`, when the interview holds no remembered
+  preference with that id.
+- 409 before the interview starts.
 
 ## Editing the rubric (US-09)
 

@@ -191,11 +191,54 @@ Fuzzy stays the default until a larger labelled test part shows the target.
 |---|---|
 | Story | US-06 |
 | Owner | Om Pandya |
-| Type | Pre-trained sentence embeddings used as-is (384 dimensions, run locally). Exact model: to be recorded |
-| Data | 20 seeded returning-user sessions |
-| Baseline or fallback | No pre-filled answers |
-| Target | 50% fewer repeated questions |
+| Type | Pre-trained sentence embeddings, used as they are: [`sentence-transformers/all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) (Apache-2.0, 384 dimensions). It runs on our own server through onnxruntime 1.31.1 and tokenizers 0.23.3, with mean pooling and L2 normalising (`backend/app/memory/embedder.py`). Nothing a shopper typed or the app remembers goes to any provider (P-40, D-51, D-52) |
+| Hugging Face | Revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`, read on 21 Nov 2026 (the repository's last change was on 1 Jun 2026). The file is `onnx/model_O4.onnx` (45,212,349 bytes), sha256 `1667d7f3ba669048b13a96ee3a44456d5e42c8f44588ae8b603430e16160c485`. `tokenizer.json` has sha256 `be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037`. Both are pinned in `backend/config/memory.yaml`, downloaded once into `backend/.cache/memory/` (git-ignored), and never committed |
+| Which file | The rule (S5-3 DECIDED 1): the smallest file in `onnx/` whose vectors agree with `onnx/model.onnx` at a lowest cosine of 0.99 or more, over 200 sentences made by code from our own criteria. The numbers below are from an AVX2 machine (`backend/evals/results/memory-model-check-avx2.json`) |
+| Check on each machine | Before memory uses the model on a machine, it embeds 6 reference sentences and compares them with the full model's vectors (`backend/config/memory_reference.json`). Under 0.99, memory stays off on that machine, with one log line. So a machine where the file's vectors differ never uses them |
+| Data | No training. Measured on 20 seeded returning shoppers, made by code from the S4-3 interview simulator (`backend/evals/memory_sim.py`). No hand labels, and no Reddit text |
+| Baseline or fallback | No pre-filled answers: the interview as it was before US-06. Any failure gives that, with one log line (the model, its sha256, the check above, the database, or recall past its 1.5 s share of the interview turn). `MEMORY=off` switches it off |
+| Target | 50% fewer repeated questions, with accuracy no lower (both in `backend/evals/thresholds.yaml`) |
 | Sprint | 5 |
+
+**Which file (S5-3, 21 Nov 2026).** The machine was an AMD Ryzen 7 5800HS (AVX2, no AVX-512), running onnxruntime
+1.31.1. Each file embedded the same 200 sentences, and each was compared with `onnx/model.onnx`:
+
+| File | Bytes | Lowest cosine | Mean cosine | Under 0.99 | ms per sentence |
+|---|---|---|---|---|---|
+| `onnx/model_qint8_avx512.onnx` (byte for byte the same as `model_qint8_avx512_vnni` and `model_qint8_arm64`) | 23,026,053 | 0.985214 | 0.991257 | 41 of 200 | 2.81 |
+| `onnx/model_quint8_avx2.onnx` | 23,046,789 | 0.984958 | 0.991955 | 29 of 200 | 3.47 |
+| **`onnx/model_O4.onnx`** (chosen) | 45,212,349 | 0.999997 | 0.999999 | 0 | 5.39 |
+| `onnx/model.onnx` (the reference) | 90,405,214 | 1.000000 | 1.000000 | 0 | 5.15 |
+
+Both 23 MB int8 files fall short of 0.99. The next smallest, `model_O4.onnx`, agrees at 0.999997, so it is the one
+used.
+
+**Not yet measured on an AVX-512 machine.** No AVX-512 machine was at hand. To measure it there, run
+`python -m evals.memory_model_check` from `backend/`; it writes `memory-model-check-avx512.json`. Until then, the
+check on each machine (above) stands in for that measurement: a machine where `model_O4.onnx` drifts never uses it.
+
+**Results (S5-3, 21 Nov 2026; `backend/evals/results/memory-sim.json`).** 20 returning shoppers, in the 6 categories
+of the simulator. Each did a first session, then 7 days later a second one in the same category with the same hidden
+weights:
+
+| | Without memory | With memory |
+|---|---|---|
+| Questions in the second session (mean) | 8.0 | 3.0 |
+| Repeated questions (answered in the first session, asked again) | 160 | 60 |
+| Accuracy (best match the one the true weights give) | 0.60 | 0.60 |
+
+- **The target is met:** 62.5% fewer repeated questions (target 50%), with accuracy the same.
+- **Why the 60 are left:** 5 of each shopper's 8 answers were remembered (the most memory keeps), and the other 3 were
+  asked again.
+- **Where it is easy:** the simulator's criteria are worded the same in both sessions, so each remembered weight met its
+  criterion at cosine 1.0. Live criteria from the LLM are worded differently each time, and there the 0.7 threshold
+  decides.
+
+**Cost on CPU (P-10, `backend/evals/results/memory-cost.json`; same machine).**
+- **Memory:** with the matcher and this model both loaded, the process held about 179 MB (96 MB with the matcher
+  alone), and 193 MB after embedding. Its peak was 225 MB, during the matcher's load.
+- **Load:** the model loads from the cache in 0.33 s.
+- **Speed:** embedding 10 criteria takes 31 ms (median of 30 runs), and 34 ms at worst.
 
 ## 6. Citation check
 
