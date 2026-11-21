@@ -23,7 +23,11 @@ stay, and so do the claim ids. An alternative's unit is too short for the marker
 What the filter read (DecideResult.checked_values, 1.10.0) and a shown product's rule notes repeat those values: for a
 product and attribute whose value was replaced, every string the filter read becomes the same marker, and the product's
 rule notes go. A filter key never rests on Reddit or forum words (S3-10b), but a video with viewers' comments is
-editorial, so its words can (P-23).
+editorial, so its words can (P-23). A held product's filter reason can quote such a value too, up to 80 characters
+("It fails "Wi-Fi 7": it has ..."): a reason about an attribute whose value was replaced is saved as the plain reason
+built from its rule instead ('It fails "Wi-Fi 7"', or 'We couldn't check "Wi-Fi 7" from its sources'), matched by the
+rule it quotes or the attribute it names, so a saved row keeps no words from Reddit or a video's comments in any field
+(D-53, D-70; S5-2).
 
 Product names are names, not a poster's words, so they stay from any source (US-15; Om, 11 Nov 2026). Community notes
 hold no Reddit text yet: nothing fills them until US-42. tests/unit/research/test_retention.py lists every text field in
@@ -34,14 +38,32 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import re
+from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Any
+
+from app.decide.units import attribute_words, number_text
 
 from .dedupe import split_merged
 from .reddit.subreddits import load_subreddits
 
 REDDIT_TEXT_NOT_KEPT = "[Reddit text is not kept]"
 VIDEO_TEXT_NOT_KEPT = "[Video text with viewers' comments is not kept]"
+QUOTED_VALUE_CHARS = 80  # decide quotes a text value in a reason up to this long (app/decide/rules.py _value_text)
+MAX_REASONS = 10  # FilteredProduct.reasons
+NOT_CHECKED_RULE = {  # when no rule can be named: still no one's words
+    "filtered_out": "It fails one of your must-haves",
+    "cant_tell": "We couldn't check one of your must-haves",
+}
+
+
+@dataclass
+class _Replaced:
+    """A product and attribute's words that were replaced, and the marker they became."""
+
+    marker: str
+    words: set[str] = field(default_factory=set)
 
 
 def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
@@ -147,11 +169,11 @@ def _marker(claim_ids: Any, kept: set[Any], cited: dict[Any, Any], markers: dict
 
 def _strip_values(
     saved: dict[str, Any], others: set[Any], markers: dict[Any, str] | None = None
-) -> dict[tuple[Any, Any], str]:
+) -> dict[tuple[Any, Any], _Replaced]:
     """A resolved value's words, and its alternatives', unless every claim behind them is cited from a source we know
     isn't Reddit or a video's viewers. A number or true/false is not words, so it stays. Answers each product and
-    attribute whose words were replaced, with the marker they became."""
-    replaced: dict[tuple[Any, Any], str] = {}
+    attribute whose words were replaced, with the marker they became and the words they were."""
+    replaced: dict[tuple[Any, Any], _Replaced] = {}
     products = saved.get("products")
     if not isinstance(products, list):
         return replaced
@@ -166,36 +188,135 @@ def _strip_values(
             supporting = value.get("supporting_claim_ids")
             pair = (value.get("product_id"), value.get("criterion_key"))
             if isinstance(value.get("value"), str) and not _may_keep(supporting, kept):
-                value["value"] = replaced[pair] = _marker(supporting, kept, cited, markers)
+                marker = _marker(supporting, kept, cited, markers)
+                replaced.setdefault(pair, _Replaced(marker)).words.add(value["value"])
+                replaced[pair].marker = marker
+                value["value"] = marker
             alternatives = value.get("alternatives")
             for alternative in alternatives if isinstance(alternatives, list) else []:
                 if not isinstance(alternative, dict) or _may_keep(alternative.get("claim_ids"), kept):
                     continue
+                marker = _marker(alternative.get("claim_ids"), kept, cited, markers)
                 if isinstance(alternative.get("value"), str):
-                    alternative["value"] = _marker(alternative.get("claim_ids"), kept, cited, markers)
-                    replaced.setdefault(pair, alternative["value"])
-                if alternative.get("unit") is not None:
+                    replaced.setdefault(pair, _Replaced(marker)).words.add(alternative["value"])
+                    alternative["value"] = marker
+                unit, number = alternative.get("unit"), alternative.get("value")
+                if unit is not None:
                     alternative["unit"] = None  # too short for the marker (16 characters at most)
-                    replaced.setdefault(pair, _marker(alternative.get("claim_ids"), kept, cited, markers))
+                    side = replaced.setdefault(pair, _Replaced(marker))
+                    if isinstance(number, int | float) and not isinstance(number, bool):
+                        side.words.add(f"{number_text(float(number))} {unit}")  # as decide's sides() writes it
     return replaced
 
 
-def _strip_decision(saved: dict[str, Any], replaced: dict[tuple[Any, Any], str]) -> None:
+def _strip_decision(saved: dict[str, Any], replaced: dict[tuple[Any, Any], _Replaced]) -> None:
     """What the filter read repeats a value's words: for a product and attribute whose value was replaced, every string
-    it read becomes that marker (numbers stay), and the product's rule notes go (1.10.0)."""
+    it read becomes that marker (numbers stay), and the product's rule notes go (1.10.0). A held product's reason that
+    quotes those words becomes the plain reason built from its rule (S5-2)."""
     decision = saved.get("decision")
     if not replaced or not isinstance(decision, dict):
         return
     checked = decision.get("checked_values")
     for read in checked if isinstance(checked, list) else []:
-        marker = replaced.get((read.get("product_id"), read.get("attribute"))) if isinstance(read, dict) else None
-        if marker is not None and isinstance(read.get("values"), list):
-            read["values"] = [marker if isinstance(v, str) else v for v in read["values"]]
+        found = replaced.get((read.get("product_id"), read.get("attribute"))) if isinstance(read, dict) else None
+        if found is not None and isinstance(read.get("values"), list):
+            read["values"] = [found.marker if isinstance(v, str) else v for v in read["values"]]
     touched = {product_id for product_id, _ in replaced}
     ranked = decision.get("ranked")
     for item in ranked if isinstance(ranked, list) else []:
         if isinstance(item, dict) and item.get("product_id") in touched and item.get("rule_notes"):
             item["rule_notes"] = []
+    _strip_reasons(decision, replaced, _hard_rules(saved))
+
+
+def _hard_rules(saved: dict[str, Any]) -> list[dict[str, Any]]:
+    request = saved.get("request")
+    rubric = request.get("rubric") if isinstance(request, dict) else None
+    rules = rubric.get("hard_rules") if isinstance(rubric, dict) else None
+    return [r for r in rules if isinstance(r, dict)] if isinstance(rules, list) else []
+
+
+def _strip_reasons(
+    decision: dict[str, Any], replaced: dict[tuple[Any, Any], _Replaced], rules: list[dict[str, Any]]
+) -> None:
+    """A held product's reason about an attribute whose value was replaced becomes the plain reason built from its rule
+    (S5-2). Each reason is matched by what decide writes (app/decide/rules.py), never by loose words:
+    - one that quotes an active rule ('It fails "Wi-Fi 7": ...') is about that rule's attribute;
+    - "Sources disagree on its Wi-Fi: one says ..." names the attribute in words;
+    - "Sources disagree: A or B" names none, so it is the attribute whose replaced words it lists.
+    One reason becomes one plain reason, so the list never grows. A reason about another attribute, a budget on its
+    own numbers or a leave-out stays as it was. Last, any other reason holding a replaced value's words as a whole
+    becomes the plain reason that names no rule."""
+    held = decision.get("filtered")
+    active = _active(rules)
+    for item in held if isinstance(held, list) else []:
+        if not isinstance(item, dict) or not isinstance(item.get("reasons"), list):
+            continue
+        pid = item.get("product_id")
+        mine = {attribute: found for (product_id, attribute), found in replaced.items() if product_id == pid}
+        if mine:
+            item["reasons"] = list(dict.fromkeys(_plain(r, mine, active) for r in item["reasons"]))[:MAX_REASONS]
+
+
+def _active(rules: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Active rules with their words, once each, as decide checks them."""
+    seen: set[Any] = set()
+    out: list[dict[str, Any]] = []
+    for rule in rules:
+        if rule.get("active", True) is not False and rule.get("source_text") and rule.get("id") not in seen:
+            seen.add(rule.get("id"))
+            out.append(rule)
+    return out
+
+
+def _plain(reason: Any, mine: dict[Any, _Replaced], rules: list[dict[str, Any]]) -> Any:
+    """`reason` as saved: itself, or the plain reason for the replaced attribute it is about."""
+    if not isinstance(reason, str):
+        return reason
+    fails = reason.startswith("It fails")
+    for rule in rules:
+        if f'"{rule["source_text"]}"' in reason:
+            return _plain_for_rule(rule, fails) if rule.get("attribute") in mine else reason
+    for attribute, found in mine.items():
+        words = attribute_words(str(attribute))
+        if reason.startswith(f"Sources disagree on its {words}: "):
+            return _plain_for_attribute(attribute, rules, fails)
+        if reason.startswith("Sources disagree: ") and _lists(reason.removeprefix("Sources disagree: "), found):
+            return _plain_for_attribute(attribute, rules, fails)
+    if any(_holds(reason, word) for found in mine.values() for word in _quoted(found)):
+        return NOT_CHECKED_RULE["filtered_out" if fails else "cant_tell"]
+    return reason
+
+
+def _plain_for_rule(rule: dict[str, Any], fails: bool) -> str:
+    said = rule["source_text"]
+    return f'It fails "{said}"' if fails else f'We couldn\'t check "{said}" from its sources'
+
+
+def _plain_for_attribute(attribute: Any, rules: list[dict[str, Any]], fails: bool) -> str:
+    """The one active rule on the attribute, else the attribute in words: still no one's words."""
+    on_it = [rule for rule in rules if rule.get("attribute") == attribute]
+    if len(on_it) == 1:
+        return _plain_for_rule(on_it[0], fails)
+    words = attribute_words(str(attribute))
+    return f"It fails your must-have on its {words}" if fails else f"We couldn't check its {words} from its sources"
+
+
+def _quoted(found: _Replaced) -> set[str]:
+    """The replaced words as decide quotes them: stripped, at most 80 characters."""
+    return {text for word in found.words if (text := str(word).strip()[:QUOTED_VALUE_CHARS])}
+
+
+def _lists(named: str, found: _Replaced) -> bool:
+    """Does "A, B or C" (decide's either()) list one of the replaced words as a whole item?"""
+    head, _, last = named.rpartition(" or ")
+    items = {item.strip() for item in [*head.split(", "), last] if item.strip()}
+    return bool(items & _quoted(found)) or any(_holds(named, word) for word in _quoted(found))
+
+
+def _holds(text: str, word: str) -> bool:
+    """`word` in `text` as a whole: not "8" inside "₹80,000"."""
+    return re.search(rf"(?<![\w.]){re.escape(word)}(?![\w.])", text) is not None
 
 
 def _drop_cited_quotes(saved: dict[str, Any], others: set[Any]) -> None:

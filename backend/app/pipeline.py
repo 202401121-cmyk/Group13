@@ -1,9 +1,10 @@
 """Search pipeline runner (US-52): research, extract, match, verify, enrich, decide, explain, commerce.
 
 Every stage runs through `run_stage`, which enforces its time limit and swaps in its fallback when it fails,
-so no stage can hang or crash a search (build rule 9). State stays in memory and is saved once at the end, inside
-the search's time limit (D-21). `saved` is true only when the row was committed (D-27), and a save that does not
-happen only sets `saved=False` (build rule 10).
+so no stage can hang or crash a search (build rule 9). State stays in memory and is saved once at the end, after
+the result is complete and outside the search's 150 seconds, with a time limit of its own (P-38, replacing D-21's save
+inside the limit): a slow save never cuts the search short. `saved` is true only when the row was committed (D-27), and
+a save that does not happen only sets `saved=False` (build rule 10).
 
 A search run (US-12, P-07) also passes a progress callback, which hears each stage start and finish, and a cancel
 flag, which stops the search before its next stage. The CLI and POST /api/search pass neither.
@@ -138,6 +139,11 @@ STAGE_DONE = {
 STEP_TOOK_TOO_LONG = "That step took too long, so a simpler way was used."
 # The other outcomes name their fixed reason (below): "That step had a problem: the service was busy. ..."
 MAX_MESSAGE_CHARS = 200  # ProgressEvent.message limit
+SAVING = "Saving your results."  # said once, on the last stage's line, while a finished search is saved (P-38)
+# The save has its store's own limit (DB_SAVE_TIMEOUT_SECONDS), and the store answers within it. This grace only stops
+# a store that never answers; a store that gives no limit gets the default one. It is defined beside the save limit,
+# because the Reddit cache's serve_limit() allows for both.
+SAVE_GRACE_S = db.SAVE_GRACE_S
 
 # Why a stage fell back, in fixed plain words chosen by the error's kind (US-12). An error's own text never leaves the
 # server: an HTTP error's can hold the request URL (some APIs take the key in the query string), and others can hold
@@ -241,8 +247,9 @@ FAILURE_WORDS = {
 class ResultStore(Protocol):
     """Where a finished search is saved. Returns False (or raises) when saving did not work.
 
-    A store whose save can block also has `time_limit_s`, the longest one save may take. The runner sets that time
-    aside from the search's limit. A store without it is taken to be instant.
+    A store whose save can block also has `time_limit_s`, the longest one save may take. The runner waits that long
+    after the search, outside its limit (P-38); for a store without it, the database's default save limit. A store
+    that can write a row also says `saves`, so the progress stream can say a save is happening.
     """
 
     def save(self, result: SearchResult) -> bool: ...
@@ -262,16 +269,27 @@ class InMemoryResultStore:
 class DatabaseResultStore:
     """Saves a finished search through the database module, so `saved` tells the truth (D-27).
 
-    save_search() answers True only when the row was committed, never raises, and gives up after DB_TIMEOUT_SECONDS.
-    A database that is off, down, slow or failing answers False, and the search still finishes (build rule 10).
+    save_search() answers True only when the row was committed, never raises, and gives up after
+    DB_SAVE_TIMEOUT_SECONDS (P-38). A database that is off, down, slow or failing answers False, and the search still
+    finishes (build rule 10).
     """
 
     def __init__(self, requests: db.RequestStore, time_limit_s: float | None = None) -> None:
         self.requests = requests
         # os.environ, because the default also loads .env: default_request_store() has done that if it was needed.
-        self.time_limit_s = db.load_settings(os.environ).timeout_s if time_limit_s is None else time_limit_s
+        self.time_limit_s = db.load_settings(os.environ).save_timeout_s if time_limit_s is None else time_limit_s
+
+    @property
+    def saves(self) -> bool:
+        """Will a save be tried? Not with the database off, nor while its breaker skips it: then no "Saving your
+        results." line is sent, and the answer False comes at once."""
+        if isinstance(self.requests, db.NullRequestStore):
+            return False
+        breaker = getattr(self.requests, "breaker", None)
+        return not isinstance(breaker, db.CircuitBreaker) or breaker.state == "closed"
 
     def save(self, result: SearchResult) -> bool:
+        entered = monotonic()
         request = result.request
         try:  # the signed-in owner, which the API sets from the checked token (US-30); None for a guest
             owner = UUID(request.user_id) if request.user_id is not None else None
@@ -280,12 +298,13 @@ class DatabaseResultStore:
             return False
         # mode="json": a plain dump holds datetimes and URLs, which the database module refuses.
         # A saved row stays, and Reddit data may be kept at most 24 hours (D-53), so its text never reaches the row.
-        return self.requests.save_search(
-            request.session_id,
-            request.rubric.model_dump(mode="json"),
-            without_reddit_text(result.model_dump(mode="json")),
-            user_id=owner,
-        )
+        rubric, row = request.rubric.model_dump(mode="json"), without_reddit_text(result.model_dump(mode="json"))
+        # The runner waits time_limit_s from the call: what building the row took is no longer the database's.
+        left = self.time_limit_s - (monotonic() - entered)
+        if left <= 0:
+            log.warning("search not saved: building its row took all of the save's time")
+            return False
+        return self.requests.save_search(request.session_id, rubric, row, user_id=owner, within_s=left)
 
 
 # --- stages -------------------------------------------------------------------------------------
@@ -484,10 +503,9 @@ class PipelineRunner:
         starts, and before the save, so a stage already running finishes first. Then SearchCancelled is raised, and
         nothing is saved. Once the save has started, a cancel is refused (CancelFlag.request answers False).
         """
-        # D-21: the limit covers the save too, so the stages stop early enough to leave the store its time. That way
-        # a search that runs out of time still gets saved.
-        stage_time_s = max(0.0, self.search_time_limit_s - self.save_time_s)
-        ctx = StageContext(search_id=search_id or new_search_id(), time_limit_s=stage_time_s)
+        # P-38: the stages have the whole limit; the save comes after it, with its own (so a search that runs out of
+        # time is still saved, and a slow save never cuts the search short).
+        ctx = StageContext(search_id=search_id or new_search_id(), time_limit_s=self.search_time_limit_s)
         started_at = datetime.now(UTC)
         search = _Search(self.stages, self.time_limits, request, ctx, cancel, self.extract_workers, self.aliases)
         search.prefetch_aliases()  # read in the background while research runs: match never waits for the database
@@ -513,27 +531,31 @@ class PipelineRunner:
         if cancel is not None and not cancel.start_saving():  # from here on, a cancel comes too late
             _stop_if_cancelled(cancel, ctx.search_id)
         result = search.result(started_at, partial or search.out_of_time)
-        return self._save(result, self.search_time_limit_s - (monotonic() - ctx.started_at))
+        if getattr(self.store, "saves", False):
+            events.saving(search.reports, search.sources_found())
+        return self._save(result)
 
-    def _save(self, result: SearchResult, seconds_left: float) -> SearchResult:
+    def _save(self, result: SearchResult) -> SearchResult:
         """`result` says saved=True, so the stored row and the response agree. If no row was committed, say so."""
-        if self._committed(result, seconds_left):
+        if self._committed(result, self.save_wait_s):
             return result
         return SearchResult.model_validate({**result.model_dump(), "saved": False})
 
-    def _committed(self, result: SearchResult, seconds_left: float) -> bool:
-        """True only when the store reports the row committed. Never raises, and never waits past the search's limit.
+    @property
+    def save_wait_s(self) -> float:
+        """The longest the run waits for its save: the store's own limit (or the default one), and SAVE_GRACE_S."""
+        return (self.save_time_s if self.save_time_s > 0 else db.DEFAULT_SAVE_TIMEOUT_S) + SAVE_GRACE_S
 
-        The store has its own, shorter time limit (D-28). This wait is what holds the 150 seconds whatever the store
-        does; like a timed-out stage, a save cut off here finishes in the background, and nobody waits for it.
+    def _committed(self, result: SearchResult, wait_s: float) -> bool:
+        """True only when the store reports the row committed. Never raises, and never waits past `wait_s`.
+
+        The store answers within its own limit (P-38); this wait only stops a store that never answers. Like a
+        timed-out stage, a save cut off here finishes in the background, and nobody waits for it.
         """
-        if seconds_left <= 0:
-            log.warning("search %s not saved: no time was left", result.search_id)
-            return False
         pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="result-save")
         future = pool.submit(self.store.save, result)
         try:
-            done, _ = wait([future], timeout=seconds_left)
+            done, _ = wait([future], timeout=wait_s)
         finally:
             pool.shutdown(wait=False, cancel_futures=True)
         if not done:
@@ -566,6 +588,14 @@ class _Progress:
     def finished(self, report: StageReport, sources: dict[SourceType, int]) -> None:
         status, message = _outcome(report, sources)
         self._send(report.stage, status, message, sources)
+
+    def saving(self, reports: list[StageReport], sources: dict[SourceType, int]) -> None:
+        """Once, while the finished search is saved, on the line of the last stage that ran OK, as "done": the
+        contract has no event for a save. A stage that fell back, failed or was skipped keeps its own words on its line,
+        so when no stage ran OK nothing is sent."""
+        ran_ok = [report for report in reports if report.status is StageStatus.OK]
+        if ran_ok:
+            self._send(ran_ok[-1].stage, "done", SAVING, sources)
 
     def _send(self, stage: StageName, status: ProgressStatus, message: str, sources: dict[SourceType, int]) -> None:
         if self.callback is None:

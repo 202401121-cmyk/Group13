@@ -66,6 +66,7 @@ no `DATABASE_URL` nothing is saved. Where each key comes from: [api-setup.md](ap
 | `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT` | `backend/app/research/reddit/settings.py`; the smoke test | only with `REDDIT_SOURCE=official` | — | ID and secret: **yes** |
 | `DATABASE_URL` | `backend/app/db/settings.py`; `scripts/doctor.py`; `scripts/check_request_saved.py` | optional (empty: the database is off) | the Session pooler string, see [database.md](database.md) | **yes** |
 | `DB_TIMEOUT_SECONDS` | `backend/app/db/settings.py` | optional | `2` | no |
+| `DB_SAVE_TIMEOUT_SECONDS` | `backend/app/db/settings.py`; the Reddit cache's `serve_limit()` | optional (a finished search's save only, 2 to 15 seconds, after the search's 150: P-38) | `15` | no |
 | `APP_ENV`, `LOG_LEVEL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | nothing yet (kept for later stories, such as login in Sprint 4) | no | — | service-role key: **yes** |
 | `VITE_API_BASE_URL` | `frontend/src/lib/api/client.ts` | optional | `http://localhost:8000` | no (it reaches the browser) |
 | `VITE_API_MODE` | `frontend/src/lib/api/client.ts` | optional | `mock` (default) or `live` | no |

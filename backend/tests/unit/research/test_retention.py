@@ -175,7 +175,9 @@ ID_OR_LINK = "an ID, a link or a subreddit's name: code builds it, and it stays"
 SEARCH_FROM_CODE = "written by code from fixed words, the rubric or numbers"
 FILTER_REASON = (
     "written by code from fixed words, the shopper's rules and values from non-community claims only: verify gives the "
-    "price and hard-rule attributes no value from Reddit or forums (S3-10b, DR-01), so no Reddit words"
+    "price and hard-rule attributes no value from Reddit or forums (S3-10b, DR-01), so no Reddit words. A video with "
+    "viewers' comments is editorial (P-23), so a reason can quote its words: one that does is saved as the plain "
+    "reason built from its rule (S5-2)"
 )
 SHOP_OR_SHOPPER = "from a shop, or the shopper's own words"
 PRODUCT_NAME = (
@@ -956,16 +958,18 @@ def test_a_poster_filling_a_thread_with_merged_lines_cannot_push_the_row_past_it
 @pytest.mark.parametrize(
     ("keep", "limit"),
     [
-        # 24 hours less the keep-time, the longest search (150 s), one housekeeping tick (600 s) and the margin (60 s)
-        ("", timedelta(hours=23, minutes=16, seconds=30)),
-        ("30", timedelta(hours=23, minutes=16, seconds=30)),
-        ("120", timedelta(hours=21, minutes=46, seconds=30)),
-        ("1", timedelta(hours=23, minutes=45, seconds=30)),
-        ("99999", timedelta(hours=21, minutes=46, seconds=30)),  # brought inside 1 to 120
+        # 24 hours less the keep-time, the longest search (150 s), its save (15 s and the 1 s grace, P-38), one
+        # housekeeping tick (600 s) and the margin (60 s)
+        ("", timedelta(hours=23, minutes=16, seconds=14)),
+        ("30", timedelta(hours=23, minutes=16, seconds=14)),
+        ("120", timedelta(hours=21, minutes=46, seconds=14)),
+        ("1", timedelta(hours=23, minutes=45, seconds=14)),
+        ("99999", timedelta(hours=21, minutes=46, seconds=14)),  # brought inside 1 to 120
     ],
 )
 def test_the_cache_stops_serving_in_time_for_a_finished_run_to_go(keep: str, limit: timedelta, monkeypatch) -> None:  # type: ignore[no-untyped-def]
     monkeypatch.setenv("SEARCH_RUN_KEEP_MINUTES", keep)
+    monkeypatch.setenv("DB_SAVE_TIMEOUT_SECONDS", "15")
     now = datetime(2026, 11, 8, 12, 0, tzinfo=UTC)
     moments = [now]
     cache = RedditCache(folder=None, now=lambda: moments[0])
@@ -978,11 +982,12 @@ def test_the_cache_stops_serving_in_time_for_a_finished_run_to_go(keep: str, lim
 
 def test_a_cached_answer_and_a_run_that_read_it_last_are_gone_by_24_hours() -> None:
     longest_search = timedelta(seconds=SEARCH_TIME_LIMIT_S)
+    longest_save = timedelta(seconds=15 + 1)  # after the 150 s (P-38): DB_SAVE_TIMEOUT_SECONDS at most, and the grace
     one_tick = timedelta(seconds=SWEEP_EVERY_S)  # on an idle server the timer drops the run up to a tick late
     for keep in ("1", "30", "120"):
         kept = timedelta(minutes=float(keep))
         limit = serve_limit({"SEARCH_RUN_KEEP_MINUTES": keep})
-        assert limit + longest_search + kept + one_tick + SERVE_MARGIN == timedelta(hours=24)
+        assert limit + longest_search + longest_save + kept + one_tick + SERVE_MARGIN == timedelta(hours=24)
 
 
 def test_a_review_page_still_keeps_24_hours(tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
@@ -1252,3 +1257,331 @@ def test_what_the_filter_read_is_kept_when_nothing_was_replaced() -> None:
         "decision": decision,
     }
     assert without_reddit_text(result)["decision"] == decision
+
+
+# --- a filter reason that quotes a video's viewers (S5-2, D-53, D-70) -----------------------------------------------
+
+VIEWER_RAM = "8 GB, and it cracked, says a viewer"
+VIEWER_WIFI = "Wi-Fi 6, a viewer says, and it drops"
+
+
+def _reasons_decide_writes(product_id: str) -> tuple[list[str], list[str], list[dict[str, Any]]]:
+    """The reasons decide's own rule checks write for values made of a video's viewers' words: a fail (RAM) and a
+    can't tell (Wi-Fi)."""
+    from app.contracts import HardRule
+    from app.decide.rules import check_rule
+    from tests.unit.decide.build import known
+
+    ram = HardRule(attribute="ram_gb", operator=">=", value=16.0, unit="GB", source_text="at least 16 GB RAM")
+    wifi = HardRule(attribute="wifi", operator="==", value="Wi-Fi 7", source_text="Wi-Fi 7")
+    fail = check_rule(ram, known(product_id, "ram_gb", value=VIEWER_RAM))
+    unsure = check_rule(wifi, known(product_id, "wifi", value=VIEWER_WIFI))
+    assert fail.verdict == "fail" and VIEWER_RAM in fail.reason  # what reached a saved row before S5-2
+    assert unsure.verdict == "unknown" and VIEWER_WIFI in unsure.reason
+    return [fail.reason], [unsure.reason], [r.model_dump(mode="json") for r in (ram, wifi)]
+
+
+def test_a_filter_reason_quoting_a_videos_viewers_is_saved_as_the_plain_reason_from_its_rule() -> None:
+    video, page = _video([VIEWER_WORDS]), web_source("https://web.example/a")
+    failed, unsure, rules = _reasons_decide_writes("prd_nova_phone")
+    budget = "₹84,990 is above your ₹70,000 budget"
+    result = {
+        "request": {"rubric": {"hard_rules": rules}},
+        "sources": [video.model_dump(mode="json"), page.model_dump(mode="json")],
+        "citations": [
+            {"claim_id": REDDIT_CLAIM, "source_id": video.id, "quote": VIEWER_WORDS},
+            {"claim_id": OTHER_REDDIT_CLAIM, "source_id": page.id, "quote": "A quote from a web page."},
+        ],
+        "products": [
+            {
+                "values": [
+                    {
+                        "product_id": "prd_nova_phone",
+                        "criterion_key": "wifi",
+                        "value": VIEWER_WIFI,
+                        "supporting_claim_ids": [REDDIT_CLAIM],
+                    },
+                    {
+                        "product_id": "prd_nova_phone",
+                        "criterion_key": "ram_gb",
+                        "value": VIEWER_RAM,
+                        "supporting_claim_ids": [REDDIT_CLAIM],
+                    },
+                    {
+                        "product_id": "prd_orion",
+                        "criterion_key": "wifi",
+                        "value": "Wi-Fi 6E",
+                        "supporting_claim_ids": [OTHER_REDDIT_CLAIM],
+                    },
+                ]
+            }
+        ],
+        "decision": {
+            "filtered": [
+                {
+                    "product_id": "prd_nova_phone",
+                    "group": "filtered_out",
+                    "reasons": [*failed, budget],
+                    "rule_attribute": "ram_gb",
+                },
+                {"product_id": "prd_nova_phone", "group": "cant_tell", "reasons": unsure, "rule_attribute": "wifi"},
+                {
+                    "product_id": "prd_orion",
+                    "group": "filtered_out",
+                    "reasons": [WEB_PAGE_REASON],
+                    "rule_attribute": "wifi",
+                },
+            ]
+        },
+    }
+    saved = without_reddit_text(result)
+    text = json.dumps(saved)
+    assert VIEWER_WIFI not in text and VIEWER_RAM not in text and VIEWER_WORDS not in text
+    fail, cant_tell, other = saved["decision"]["filtered"]
+    assert fail["reasons"] == [PLAIN_FAIL, budget]  # the budget's reason holds no one's words: it stays
+    assert cant_tell["reasons"] == [PLAIN_UNSURE]
+    assert other["reasons"] == [WEB_PAGE_REASON]  # from a web page: kept word for word
+
+
+WEB_PAGE_REASON = 'It fails "Wi-Fi 7": it has Wi-Fi 6E'
+PLAIN_FAIL = 'It fails "at least 16 GB RAM"'
+PLAIN_UNSURE = 'We couldn\'t check "Wi-Fi 7" from its sources'
+
+
+def _strings(node: Any, path: str = "") -> list[tuple[str, str]]:
+    """Every string in a saved row, with where it is: one field at a time."""
+    if isinstance(node, str):
+        return [(path, node)]
+    if isinstance(node, dict):
+        return [found for key, value in node.items() for found in _strings(value, f"{path}.{key}" if path else key)]
+    if isinstance(node, list):
+        return [found for i, value in enumerate(node) for found in _strings(value, f"{path}[{i}]")]
+    return []
+
+
+def test_a_saved_row_with_reddit_and_youtube_sources_keeps_no_comment_words_in_any_field() -> None:
+    """D-53 and D-70, field by field: Reddit's words and a video's viewers' words, planted everywhere a search can put
+    them (the sources, their comments, quotes, values, their other sides, what the filter read, rule notes and filter
+    reasons), reach no field of the row the database is handed."""
+    planted = ex.search_result().model_dump(mode="json")
+    nova = planted["decision"]["ranked"][0]["product_id"]
+    thread_source = _reddit_thread()
+    video = _video([VIEWER_WORDS])
+    failed, unsure, rules = _reasons_decide_writes(nova)
+    planted["request"]["rubric"]["hard_rules"] = rules
+    planted["sources"] += [s.model_dump(mode="json") for s in (thread_source, video)]
+    video_claim, reddit_claim = ("clm_" + c * 16 for c in "de")
+    planted["citations"] += [
+        {"claim_id": video_claim, "source_id": video.id, "quote": VIEWER_WORDS},
+        {"claim_id": reddit_claim, "source_id": thread_source.id, "quote": SECRET_COMMENT},
+    ]
+    values = planted["products"][0]["values"]
+    base = {k: v for k, v in values[0].items() if k not in ("criterion_key", "value", "score")}
+    values += [
+        {
+            **base,
+            "criterion_key": "wifi",
+            "state": "disputed",
+            "score": None,
+            "value": VIEWER_WIFI,
+            "supporting_claim_ids": [video_claim],
+            "conflicting_claim_ids": [reddit_claim],
+            "alternatives": [{"value": SECRET_BODY, "unit": "words", "claim_ids": [reddit_claim]}],
+        },
+        {
+            **base,
+            "criterion_key": "ram_gb",
+            "state": "known",
+            "score": None,
+            "value": VIEWER_RAM,
+            "supporting_claim_ids": [video_claim],
+            "conflicting_claim_ids": [],
+            "alternatives": [],
+        },
+    ]
+    decision = planted["decision"]
+    decision["checked_values"] += [
+        {
+            "product_id": nova,
+            "attribute": "wifi",
+            "state": "disputed",
+            "values": [VIEWER_WIFI, SECRET_BODY],
+            "unit": None,
+            "any_version": False,
+            "from_names": 0,
+        },
+    ]
+    decision["ranked"][0]["rule_notes"] = [f'It meets "at least 16 GB RAM" in its {VIEWER_RAM} version']
+    # The two held products: one filtered out (a viewer's RAM words fail the rule), one can't tell (Wi-Fi words).
+    out, unsure_held = decision["filtered"]
+    assert (out["group"], unsure_held["group"]) == ("filtered_out", "cant_tell")
+    kept_out, kept_unsure = list(out["reasons"]), list(unsure_held["reasons"])
+    by_id = {p["product"]["id"]: p for p in planted["products"]}
+    for held_id, key, words in (
+        (out["product_id"], "ram_gb", VIEWER_RAM),
+        (unsure_held["product_id"], "wifi", VIEWER_WIFI),
+    ):
+        by_id[held_id]["values"].append(
+            {
+                **base,
+                "product_id": held_id,
+                "criterion_key": key,
+                "state": "known",
+                "score": None,
+                "value": words,
+                "supporting_claim_ids": [video_claim],
+                "conflicting_claim_ids": [],
+                "alternatives": [],
+            }
+        )
+    out["reasons"] = [*kept_out, *failed]
+    unsure_held["reasons"] = [*kept_unsure, *unsure]
+    result = SearchResult.model_validate(planted)  # a real result's shape, or this proves nothing
+    store = InMemoryRequestStore()
+    assert DatabaseResultStore(store, time_limit_s=1).save(result)
+    row = json.loads(store.searches[0].result)
+    words = (SECRET_TITLE, SECRET_BODY, SECRET_COMMENT, VIEWER_WORDS, VIEWER_WIFI, VIEWER_RAM[:80])
+    leaks = [(path, word) for path, text in _strings(row) for word in words if word in text]
+    assert leaks == []
+    held = {h["product_id"]: h["reasons"] for h in row["decision"]["filtered"]}
+    assert held[out["product_id"]] == [*kept_out, PLAIN_FAIL]  # the budget's reason stays: no one's words
+    assert held[unsure_held["product_id"]] == [*kept_unsure, PLAIN_UNSURE]
+
+
+# --- which saved reasons are rewritten: matched by the rule or attribute they are about (S5-2) -----------------------
+
+HELD = "prd_vela_phone"
+VIDEO_CLAIM, PAGE_CLAIM = ("clm_" + c * 24 for c in "fg")
+
+
+def _rule(attribute: str, operator: str, value: Any, said: str, **extra: Any) -> Any:
+    from app.contracts import HardRule
+
+    return HardRule(attribute=attribute, operator=operator, value=value, source_text=said, **extra)
+
+
+def _saved_reasons(values: list[dict[str, Any]], reasons: list[str], rules: list[Any], group: str) -> list[str]:
+    """One held product's reasons as saved, its values cited from a video with viewers' comments or a web page."""
+    video, page = _video([VIEWER_WORDS]), web_source("https://web.example/b")
+    result = {
+        "request": {"rubric": {"hard_rules": [r.model_dump(mode="json") for r in rules]}},
+        "sources": [video.model_dump(mode="json"), page.model_dump(mode="json")],
+        "citations": [
+            {"claim_id": VIDEO_CLAIM, "source_id": video.id, "quote": VIEWER_WORDS},
+            {"claim_id": PAGE_CLAIM, "source_id": page.id, "quote": "A quote from a web page."},
+        ],
+        "products": [{"values": [{"product_id": HELD, **v} for v in values]}],
+        "decision": {"filtered": [{"product_id": HELD, "group": group, "reasons": reasons, "rule_attribute": None}]},
+    }
+    saved = without_reddit_text(result)
+    assert VIEWER_WORDS not in json.dumps(saved)
+    reasons_saved: list[str] = saved["decision"]["filtered"][0]["reasons"]
+    return reasons_saved
+
+
+def test_reasons_about_other_rules_or_the_budget_stay_though_they_hold_the_same_short_words() -> None:
+    """A viewer's Wi-Fi value "6" is replaced. "6" also stands in a budget and in another rule's reason: they stay."""
+    from app.decide.rules import check_rule
+    from tests.unit.decide.build import known
+
+    wifi = _rule("wifi", "==", "Wi-Fi 7", "Wi-Fi 7")
+    battery = _rule("battery_hours", ">=", 6.0, "at least 6 hours of battery")
+    about_wifi = check_rule(wifi, known(HELD, "wifi", value="6")).reason
+    about_battery = check_rule(battery, known(HELD, "battery_hours", value=5.0)).reason
+    budget = "₹60,000 is above your ₹56,000 budget"
+    assert '"6"' in about_wifi and "6" in about_battery
+    values = [
+        {"criterion_key": "wifi", "value": "6", "supporting_claim_ids": [VIDEO_CLAIM]},
+        {"criterion_key": "battery_hours", "value": 5.0, "supporting_claim_ids": [PAGE_CLAIM]},
+    ]
+    saved = _saved_reasons(values, [about_wifi, about_battery, budget], [wifi, battery], "filtered_out")
+    assert saved == ['We couldn\'t check "Wi-Fi 7" from its sources', about_battery, budget]
+
+
+def test_sources_disagreeing_on_an_attribute_by_name_give_its_rules_plain_reason() -> None:
+    from app.decide.rules import check_rule
+    from tests.unit.decide.build import disputed
+
+    wifi = _rule("wifi", "==", "Wi-Fi 7", "Wi-Fi 7")
+    reason = check_rule(wifi, disputed(HELD, "wifi", value=VIEWER_WIFI)).reason
+    assert reason.startswith("Sources disagree on its wifi: one says ") and VIEWER_WIFI in reason
+    values = [{"criterion_key": "wifi", "value": VIEWER_WIFI, "supporting_claim_ids": [VIDEO_CLAIM]}]
+    assert _saved_reasons(values, [reason], [wifi], "cant_tell") == [PLAIN_UNSURE]
+
+
+def test_sources_disagreeing_with_no_attribute_named_are_matched_by_the_side_they_list() -> None:
+    """ "Sources disagree: Wi-Fi 6E or <a viewer's words>": the web page's side stays in the values, the reason goes."""
+    from app.decide.rules import check_rule
+    from tests.unit.decide.build import disputed
+
+    wifi = _rule("wifi", "==", "Wi-Fi 7", "Wi-Fi 7")
+    reason = check_rule(wifi, disputed(HELD, "wifi", value="Wi-Fi 6E", others=[(VIEWER_WIFI, None)])).reason
+    assert reason == f"Sources disagree: Wi-Fi 6E or {VIEWER_WIFI}"
+    values = [
+        {
+            "criterion_key": "wifi",
+            "value": "Wi-Fi 6E",
+            "supporting_claim_ids": [PAGE_CLAIM],
+            "alternatives": [{"value": VIEWER_WIFI, "unit": None, "claim_ids": [VIDEO_CLAIM]}],
+        }
+    ]
+    assert _saved_reasons(values, [reason], [wifi], "cant_tell") == [PLAIN_UNSURE]
+
+
+def test_a_side_whose_unit_was_dropped_does_not_come_back_through_a_reason() -> None:
+    """A video's side "12 GB" keeps its number in the values and loses its unit; "8 GB or 12 GB" would restore it."""
+    from app.decide.rules import check_rule
+    from tests.unit.decide.build import disputed
+
+    ram = _rule("ram_gb", ">=", 10.0, "at least 10 GB RAM", unit="GB")
+    reason = check_rule(ram, disputed(HELD, "ram_gb", value=8, others=[(12, "GB")])).reason
+    assert reason == "Sources disagree: 8 GB or 12 GB"
+    values = [
+        {
+            "criterion_key": "ram_gb",
+            "value": 8,
+            "supporting_claim_ids": [PAGE_CLAIM],
+            "alternatives": [{"value": 12, "unit": "GB", "claim_ids": [VIDEO_CLAIM]}],
+        }
+    ]
+    saved = _saved_reasons(values, [reason], [ram], "cant_tell")
+    assert saved == ['We couldn\'t check "at least 10 GB RAM" from its sources']
+
+
+def test_only_active_rules_name_the_plain_reason() -> None:
+    """Decide checks active rules only. With one active rule on Wi-Fi, its words are the plain reason."""
+    from app.decide.rules import check_rule
+    from tests.unit.decide.build import disputed
+
+    wifi = _rule("wifi", "==", "Wi-Fi 7", "Wi-Fi 7")
+    dropped = _rule("wifi", "==", "Wi-Fi 6E", "Wi-Fi 6E is fine too", active=False)
+    reason = check_rule(wifi, disputed(HELD, "wifi", value=VIEWER_WIFI)).reason
+    values = [{"criterion_key": "wifi", "value": VIEWER_WIFI, "supporting_claim_ids": [VIDEO_CLAIM]}]
+    assert _saved_reasons(values, [reason], [wifi, dropped], "cant_tell") == [PLAIN_UNSURE]
+    both = _rule("wifi", "==", "Wi-Fi 6E", "Wi-Fi 6E is fine too")
+    plain = "We couldn't check its wifi from its sources"  # two active rules: the attribute, never a guess
+    assert _saved_reasons(values, [reason], [wifi, both], "cant_tell") == [plain]
+
+
+def test_any_other_reason_holding_the_replaced_words_names_no_rule() -> None:
+    reason = f"A made-up reason quoting {VIEWER_WIFI}"
+    values = [{"criterion_key": "wifi", "value": VIEWER_WIFI, "supporting_claim_ids": [VIDEO_CLAIM]}]
+    assert _saved_reasons(values, [reason], [], "cant_tell") == ["We couldn't check one of your must-haves"]
+    failing = f"It fails a made-up check: {VIEWER_WIFI}"
+    assert _saved_reasons(values, [failing], [], "filtered_out") == ["It fails one of your must-haves"]
+
+
+def test_rewritten_reasons_never_grow_the_list() -> None:
+    """One reason becomes one plain reason, and the same plain reason twice is kept once: at most 10, at least 1."""
+    from app.decide.rules import check_rule
+    from tests.unit.decide.build import disputed, known
+
+    wifi = _rule("wifi", "==", "Wi-Fi 7", "Wi-Fi 7")
+    reasons = [
+        check_rule(wifi, known(HELD, "wifi", value=VIEWER_WIFI)).reason,
+        check_rule(wifi, disputed(HELD, "wifi", value=VIEWER_WIFI)).reason,
+        *(f"A made-up reason {n}" for n in range(8)),
+    ]
+    values = [{"criterion_key": "wifi", "value": VIEWER_WIFI, "supporting_claim_ids": [VIDEO_CLAIM]}]
+    saved = _saved_reasons(values, reasons, [wifi], "cant_tell")
+    assert saved == [PLAIN_UNSURE, *reasons[2:]]

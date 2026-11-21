@@ -300,37 +300,41 @@ def test_with_the_breaker_open_nothing_reaches_the_database(
     with caplog.at_level(logging.DEBUG):
         assert save(store, session) is False
     assert time.monotonic() - start < 0.1  # skipped, not tried
-    assert store._pool is None
+    assert store._pool is None and store._save_pool is None
     [line] = database_lines(caplog)
     assert "circuit breaker is open" in line.getMessage()
     assert count_rows(database_url, session) == 0
 
 
-def test_a_save_works_again_once_the_breaker_lets_a_trial_through(
+def test_a_save_works_again_once_a_quick_trial_call_closes_the_breaker(
     database_url: str,
 ) -> None:
+    """A save never holds the half-open trial (it could take 15 s): it answers False at once, and a quick call, such as
+    the health check, takes the trial instead."""
     built = PostgresRequestStore(DatabaseSettings(url=database_url, timeout_s=2.0))
     built.breaker.cooldown_s = 0.0
-    session = new_session()
+    skipped, session = new_session(), new_session()
     try:
         for _ in range(3):
             built.breaker.record_failure()
         assert built.breaker.state == "half_open"
-        assert save(built, session) is True
+        assert save(built, skipped) is False
+        assert built.health() == "ok"
         assert built.breaker.state == "closed"
+        assert save(built, session) is True
     finally:
         built.close()
-    assert count_rows(database_url, session) == 1
+    assert (count_rows(database_url, skipped), count_rows(database_url, session)) == (0, 1)
 
 
 def test_a_locked_table_answers_false_in_time_and_no_row_lands_later(
     database_url: str, caplog: pytest.LogCaptureFixture
 ) -> None:
     timeout_s = 0.5
-    built = PostgresRequestStore(DatabaseSettings(url=database_url, timeout_s=timeout_s))
+    built = PostgresRequestStore(DatabaseSettings(url=database_url, timeout_s=timeout_s, save_timeout_s=timeout_s))
     session = new_session()
     try:
-        assert built.health() == "ok"  # warm the pool, so the time below is the save alone
+        built._get_save_pool().wait(timeout=5)  # warm the saves' pool, so the time below is the save alone
         with psycopg.connect(database_url) as blocker:
             blocker.execute("lock table public.searches in access exclusive mode")
             start = time.monotonic()
@@ -338,7 +342,7 @@ def test_a_locked_table_answers_false_in_time_and_no_row_lands_later(
                 assert save(built, session) is False
             assert time.monotonic() - start < timeout_s + 0.5
             blocker.rollback()  # the insert may now go through: it must still not commit
-        built._workers.shutdown(wait=True)  # let the worker finish, so the count below is final
+        built._save_workers.shutdown(wait=True)  # let the worker finish, so the count below is final
     finally:
         built.close()
     assert count_rows(database_url, session) == 0
@@ -365,3 +369,42 @@ def test_jsonb_refuses_what_the_row_check_refuses_so_it_must_be_checked_first(da
             conn.execute("select %s::jsonb", (json.dumps({"value": math.nan}),))
         kept = conn.execute("select %s::jsonb", (json.dumps({"quote": "\\u0000"}),)).fetchone()
     assert kept == ({"quote": "\\u0000"},)  # plain text that only looks like the escape is fine
+
+
+# --- the save's own time limit (US-52, P-38) -----------------------------------------------------------------------
+
+SLOW_INSERT = (  # the real insert, one second slow: longer than DB_TIMEOUT_SECONDS below
+    "insert into public.searches (session_id, rubric, result, user_id) "
+    "select %s, %s::jsonb, %s::jsonb, %s from pg_sleep(1.0)"
+)
+
+
+def test_a_save_slower_than_db_timeout_commits_within_its_own_limit(
+    database_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("app.db.postgres.INSERT_SEARCH", SLOW_INSERT)
+    store = PostgresRequestStore(DatabaseSettings(url=database_url, timeout_s=0.5, save_timeout_s=5.0))
+    try:
+        session = new_session()
+        assert save(store, session) is True
+        assert count_rows(database_url, session) == 1
+        with store._get_save_pool().connection() as conn:  # the saves' pool has their limit, and the save's own
+            assert conn.execute("show statement_timeout").fetchone() == ("5s",)  # ended with its transaction
+        with store._get_pool().connection() as conn:  # the other calls keep DB_TIMEOUT_SECONDS
+            assert conn.execute("show statement_timeout").fetchone() == ("500ms",)
+    finally:
+        store.close()
+
+
+def test_a_save_past_its_own_limit_is_rolled_back_and_says_false(
+    database_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("app.db.postgres.INSERT_SEARCH", SLOW_INSERT)
+    store = PostgresRequestStore(DatabaseSettings(url=database_url, timeout_s=0.5, save_timeout_s=0.7))
+    try:
+        session = new_session()
+        assert save(store, session) is False
+        time.sleep(1.5)  # long after the insert would have finished: nothing was committed
+        assert count_rows(database_url, session) == 0
+    finally:
+        store.close()
