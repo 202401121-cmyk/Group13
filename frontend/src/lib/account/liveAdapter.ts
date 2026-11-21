@@ -229,11 +229,10 @@ export function createLiveMemoryService(client: ApiClient, bearer?: BearerSource
           const quiet = () => {
             /* the page is going: nobody is left to tell */
           };
-          if (token === undefined) {
-            forget(id).catch(quiet); // pressed a moment ago: the usual way
-            return;
-          }
-          client.delete(preferencePath(id), { ...options, token, keepalive: true }).catch(quiet);
+          // Always fetch with keepalive and the Authorization header: never sendBeacon, which can't send headers, and
+          // never the token in the address or a body. In the instant before the sign-in has been read, it is read now.
+          const early = token === undefined ? {} : { token };
+          client.delete(preferencePath(id), { ...options, ...early, keepalive: true }).catch(quiet);
         },
       };
     },

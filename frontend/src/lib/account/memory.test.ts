@@ -3,7 +3,7 @@
  * screen's words; the export written field by field, so it never holds an embedding), the account delete (refused
  * without the word "delete", and nothing sent), and the mock's fixture for every state.
  */
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import preferenceList from "@contracts/examples/preference_list.json";
 import preferenceExport from "@contracts/examples/preference_export.json";
 import { fakeBackend, json, scripted } from "@/test/helpers/fakeBackend";
@@ -160,6 +160,43 @@ describe("the live memory service", () => {
       path: `/api/me/preferences/${WEIGHT_ID}`,
     });
     expect(seen[0]).toEqual({ auth: "Bearer t1", keepalive: true });
+    // The token only ever goes in the header: never in the address, and there is no body.
+    expect(backend.calls[0]!.path).not.toContain("t1");
+    expect(backend.calls[0]!.body).toBeUndefined();
+  });
+
+  it("closed in the instant before the sign-in was read, it still goes by fetch with keepalive and the header", async () => {
+    const { bearer } = fakeBearer("t3");
+    const seen: { auth: string | undefined; keepalive: boolean | undefined }[] = [];
+    const backend = fakeBackend((call, init) => {
+      seen.push({ auth: call.headers["Authorization"], keepalive: init.keepalive });
+      return noContent();
+    }, bearer);
+    const service = createLiveMemoryService(backend.client, bearer);
+    service.holdForget(WEIGHT_ID).sendAsPageGoes(); // nothing awaited: the sign-in isn't read yet
+    await vi.waitFor(() => expect(backend.calls).toHaveLength(1));
+    expect(backend.calls[0]).toMatchObject({
+      method: "DELETE",
+      path: `/api/me/preferences/${WEIGHT_ID}`,
+      body: undefined,
+    });
+    expect(seen[0]).toEqual({ auth: "Bearer t3", keepalive: true });
+  });
+
+  it("never uses sendBeacon, which can't send headers", async () => {
+    const beacon = vi.fn(() => true);
+    Object.defineProperty(navigator, "sendBeacon", { value: beacon, configurable: true });
+    try {
+      const { service } = signedIn(noContent);
+      const held = service.holdForget(WEIGHT_ID);
+      await Promise.resolve();
+      held.sendAsPageGoes();
+      service.holdForget(RULE_ID).sendAsPageGoes();
+      await Promise.resolve();
+      expect(beacon).not.toHaveBeenCalled();
+    } finally {
+      Reflect.deleteProperty(navigator, "sendBeacon");
+    }
   });
 
   it("a held forget sent after the Undo goes the usual way, with the sign-in of that moment", async () => {
