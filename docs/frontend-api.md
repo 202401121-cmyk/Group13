@@ -715,9 +715,10 @@ The "What we remember" section and the "Delete your account" dialog on `/account
   - The item leaves the list at once, with Undo. Undo sends nothing.
   - After 5 seconds, one `DELETE /api/me/preferences/{id}` goes.
   - Pressing "Download my data" sends any delete still waiting at once.
-  - Leaving the page also sends it at once: signing out, closing the tab, or going to another page. It goes with the
-    sign-in read when Forget was pressed, and with fetch `keepalive`, so the delete isn't lost when the sign-in or the
-    page has already gone.
+  - Leaving the page also sends it at once: signing out, closing the tab, or going to another page. It always goes by
+    `fetch` with `keepalive` and the `Authorization` header, never `sendBeacon` (which can't send headers), and the
+    token is never in the address or a body. The sign-in is read when Forget is pressed, so the delete isn't lost when
+    the sign-in or the page has already gone.
 - **A 404 or a 409** reads the list again and says why. A 503 on the list says the memory can't be reached right now,
   with "Try again". A 401 signs the shopper out in the browser.
 - **The download** is built field by field from the checked `PreferenceExport`, so the file holds the contract's fields

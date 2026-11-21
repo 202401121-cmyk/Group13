@@ -225,11 +225,7 @@ export function MemorySection({ userId }: { userId: string }) {
       for (const [id, timer] of waitingNow) {
         clearTimeout(timer);
         const hold = held.get(id);
-        if (hold) hold.sendAsPageGoes();
-        else
-          service.forget(id).catch(() => {
-            /* the page is going: nobody is left to tell */
-          });
+        (hold ?? service.holdForget(id)).sendAsPageGoes(); // fetch with keepalive and the header, always
       }
       waitingNow.clear();
       held.clear();
