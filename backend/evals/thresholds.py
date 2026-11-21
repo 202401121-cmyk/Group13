@@ -36,12 +36,13 @@ from app.contracts import SEARCH_TIME_LIMIT_S, STAGE_TIME_LIMITS_S, StageName
 
 from .gate import GATE_OUT
 from .interview_sim import FIXED_OUT as SIM_OUT
+from .memory_sim import MEMORY_OUT
 from .run_baselines import BACKEND, OFFLINE_OUT, RESULTS_DIR
 from .stability import STABILITY_OUT
 
 THRESHOLDS = BACKEND / "evals" / "thresholds.yaml"
 LIVE_OUT = RESULTS_DIR / "sprint-4-live.json"  # S4-2: the demo's way, at the normal source cap
-RECORDS = (OFFLINE_OUT, LIVE_OUT, SIM_OUT, STABILITY_OUT, GATE_OUT)  # every results record a floor is written from
+RECORDS = (OFFLINE_OUT, LIVE_OUT, SIM_OUT, STABILITY_OUT, GATE_OUT, MEMORY_OUT)  # every record a floor comes from
 RHO_MARGIN = 0.05  # a Spearman median's floor: the measured value less this (D-74)
 RATE_MARGIN = 0.05
 COUNT_MARGIN = 0.10
@@ -81,6 +82,14 @@ PLAN_TARGETS: dict[str, tuple[float, str]] = {
     "decide.stability.close_median": (
         0.9,
         "US-19 criterion 4: rank order stable under random 10% weight changes, Spearman 0.9 or better",
+    ),
+    "memory.repeated_reduction": (
+        0.5,
+        "US-06: repeated questions fall by 50% for users with history, measured on 20 seeded sessions",
+    ),
+    "memory.accuracy_change": (
+        0.0,
+        "US-06 (S5-3 DECIDED 6): accuracy with memory no lower than without it",
     ),
 }
 
@@ -198,6 +207,12 @@ WHY: dict[str, str] = {
     "live.pages_": "The page readers keep reading pages (US-38).",
     "live.claims_per_source": "Extraction keeps finding claims in what it reads (US-14).",
     "live.quote_found_share": "A claim's quote is its source's own words (build rule 4, US-14).",
+    "memory.repeated_reduction": "Preference memory (US-06) keeps sparing returning shoppers the questions they "
+    "answered before, on 20 seeded returning shoppers (S5-3).",
+    "memory.accuracy": "With preference memory (US-06), returning shoppers' best match stays the one their true "
+    "weights give (S5-3).",
+    "memory.accuracy_change": "Preference memory (US-06) never costs accuracy against the same shoppers without it "
+    "(S5-3).",
     "interview.fixed.": "The fixed question order (US-05) keeps the accuracy it has now on simulated shoppers: "
     "their best match is the one their true weights give. US-04's smart interview is held to it with fewer "
     "questions (S4-3, task #47).",
@@ -225,6 +240,8 @@ def rule_for(measure: Mapping[str, Any]) -> Rule:
         return Rule("quality", direction, f"{RATE_MARGIN} {side} the measured rate", why)
     if unit == "rho":
         return Rule("quality", direction, f"{RHO_MARGIN} below the measured median", why)
+    if unit == "difference":  # a rate less another (US-06's accuracy with memory less without): may be below 0
+        return Rule("quality", direction, f"{RATE_MARGIN} below the measured difference of two rates", why)
     if unit == "conflicts" and measure_id.endswith("_minus_majority"):
         return Rule("quality", direction, "one conflict below the measured difference (5 conflicts)", why)
     if unit == "conflicts":
@@ -241,6 +258,8 @@ def floor_for(rule: Rule, measured: float) -> float:
         return measured
     if rule.margin.endswith("below the measured median"):  # a Spearman rho: -1 to 1
         return round(min(1.0, max(-1.0, measured - RHO_MARGIN)), 4)
+    if rule.margin.endswith("below the measured difference of two rates"):  # -1 to 1, never clamped at 0
+        return round(min(1.0, max(-1.0, measured - RATE_MARGIN)), 4)
     if rule.margin.startswith(str(RATE_MARGIN)):
         bound = measured + RATE_MARGIN if rule.direction == "at_most" else measured - RATE_MARGIN
         return round(min(1.0, max(0.0, bound)), 4)

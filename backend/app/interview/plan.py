@@ -82,10 +82,24 @@ def default_order(criteria: CriteriaSet) -> list[Criterion]:
 
 
 def answered_weights(history: Sequence[AskedQuestion]) -> dict[str, float]:
+    return _weights_of(history, "answered")
+
+
+def remembered_weights(history: Sequence[AskedQuestion]) -> dict[str, float]:
+    """Weights remembered from an earlier search (US-06): answers the shopper gave before, never asked again."""
+    return _weights_of(history, "remembered")
+
+
+def asked_count(history: Sequence[AskedQuestion]) -> int:
+    """The questions really asked: a remembered answer (US-06) never counts against the 10."""
+    return sum(1 for entry in history if entry.status != "remembered")
+
+
+def _weights_of(history: Sequence[AskedQuestion], status: str) -> dict[str, float]:
     return {
         entry.question.criterion_key: entry.classification.weight
         for entry in history
-        if entry.status == "answered" and entry.classification and entry.classification.weight is not None
+        if entry.status == status and entry.classification and entry.classification.weight is not None
     }
 
 
@@ -99,9 +113,9 @@ def plan_questions(
     """The questions still to ask, worked out from scratch from the criteria and the answers so far."""
     rules = rules or load_interview_rules()
     order = default_order(criteria)
-    done = {e.question.criterion_key for e in history if e.status in ("answered", "skipped")}
+    done = {e.question.criterion_key for e in history if e.status in ("answered", "skipped", "remembered")}
     asked = done | {e.question.criterion_key for e in history if e.status == "pending"}
-    answers = answered_weights(history)
+    answers = {**remembered_weights(history), **answered_weights(history)}  # a remembered answer is an answer (US-06)
 
     premium = frozenset(
         c.key

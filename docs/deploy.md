@@ -121,6 +121,7 @@ and the file name the same ones.
 | `DB_TIMEOUT_SECONDS` | `2` | no |
 | `SUPABASE_URL` | The project's address, `https://<project-ref>.supabase.co`, with no slash at the end. The backend checks sign-ins against this project's public signing keys (US-30). Empty turns sign-in off: every caller is a guest. | no |
 | `MATCHER` | `model` (see below) | no |
+| `MEMORY` | `on`, the default: a signed-in shopper's preferences are remembered (US-06). `off` switches memory off, and the interview runs as before. | no |
 | `EXTRACT_MAX_SOURCES` | `5` | no |
 | `SEARCH_RUN_WORKERS` | `1` | no |
 | `PYTHON_VERSION` | Set by `render.yaml` (`3.11.15`). Nothing to enter. | no |

@@ -1,0 +1,28 @@
+{
+  "generated": "2026-11-21",
+  "runner": "python -m evals.memory_cost (offline, both models from backend/.cache/)",
+  "machine": {
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "system": "Windows",
+    "onnxruntime": "1.31.1"
+  },
+  "matcher": "6a2ce26b0c4caf6fd1655ef88d27e6ee3954b296",
+  "memory_model": "sentence-transformers/all-MiniLM-L6-v2@1110a243fdf4706b3f48f1d95db1a4f5529b4d41 onnx/model_O4.onnx",
+  "peak_memory": {
+    "start_peak_mb": 65.0,
+    "start_now_mb": 65.0,
+    "matcher_load_s": 0.454,
+    "with_matcher_peak_mb": 224.8,
+    "with_matcher_now_mb": 96.3,
+    "memory_load_s": 0.333,
+    "with_both_peak_mb": 224.8,
+    "with_both_now_mb": 178.9,
+    "after_embedding_peak_mb": 224.8,
+    "after_embedding_now_mb": 192.8
+  },
+  "embed_10_criteria_ms": {
+    "runs": 30,
+    "median": 30.8,
+    "slowest": 33.68
+  }
+}

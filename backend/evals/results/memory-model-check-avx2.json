@@ -1,0 +1,57 @@
+{
+  "generated": "2026-11-21",
+  "runner": "python -m evals.memory_model_check (offline, but for the public model download)",
+  "repo": "sentence-transformers/all-MiniLM-L6-v2",
+  "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+  "tokenizer_sha256": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037",
+  "sentences": 200,
+  "min_cosine": 0.99,
+  "machine": {
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "system": "Windows",
+    "avx2": true,
+    "avx512f": false,
+    "avx512_vnni": false,
+    "onnxruntime": "1.31.1",
+    "numpy": "2.4.6"
+  },
+  "files": {
+    "onnx/model.onnx": {
+      "bytes": 90405214,
+      "sha256": "6fd5d72fe4589f189f8ebc006442dbb529bb7ce38f8082112682524616046452",
+      "cosine_min": 1.0,
+      "cosine_mean": 1.0,
+      "cosine_p1": 1.0,
+      "under_min": 0,
+      "ms_per_sentence": 5.148
+    },
+    "onnx/model_qint8_avx512.onnx": {
+      "bytes": 23026053,
+      "sha256": "4278337fd0ff3c68bfb6291042cad8ab363e1d9fbc43dcb499fe91c871902474",
+      "cosine_min": 0.985214,
+      "cosine_mean": 0.991257,
+      "cosine_p1": 0.985698,
+      "under_min": 41,
+      "ms_per_sentence": 2.81
+    },
+    "onnx/model_quint8_avx2.onnx": {
+      "bytes": 23046789,
+      "sha256": "b941bf19f1f1283680f449fa6a7336bb5600bdcd5f84d10ddc5cd72218a0fd21",
+      "cosine_min": 0.984958,
+      "cosine_mean": 0.991955,
+      "cosine_p1": 0.986613,
+      "under_min": 29,
+      "ms_per_sentence": 3.47
+    },
+    "onnx/model_O4.onnx": {
+      "bytes": 45212349,
+      "sha256": "1667d7f3ba669048b13a96ee3a44456d5e42c8f44588ae8b603430e16160c485",
+      "cosine_min": 0.999997,
+      "cosine_mean": 0.999999,
+      "cosine_p1": 0.999998,
+      "under_min": 0,
+      "ms_per_sentence": 5.389
+    }
+  },
+  "chosen_here": "onnx/model_O4.onnx"
+}

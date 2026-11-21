@@ -2,6 +2,7 @@
 
 Every criterion gets a weight, so nothing is left out of the score:
 - answered: the user's weight, origin "answered", uncertainty 0.2;
+- remembered from an earlier search (US-06): that weight, origin "remembered", uncertainty 0.3;
 - settled by a low answer on the same topic: that weight, origin "answered", uncertainty 0.6 (US-04 may ask it);
 - skipped: the default weight, origin "skipped", uncertainty 0.5;
 - never asked: the category's default weight, origin "default", uncertainty 0.5;
@@ -36,9 +37,10 @@ from app.contracts import (
     WeightedCriterion,
 )
 
-from .plan import Plan, answered_weights
+from .plan import Plan, answered_weights, remembered_weights
 
 ANSWERED_UNCERTAINTY = 0.2
+REMEMBERED_UNCERTAINTY = 0.3  # an answer from an earlier search (US-06): a little less sure than one given today
 INFERRED_UNCERTAINTY = 0.6
 DEFAULT_UNCERTAINTY = 0.5
 MANUAL_UNCERTAINTY = 0.0  # the shopper said exactly this
@@ -70,12 +72,15 @@ def rubric_note(state: InterviewState, plan: Plan | None = None) -> str | None:
 
 def _interview_rows(state: InterviewState, plan: Plan | None) -> list[_Row]:
     answers = answered_weights(state.history)
+    remembered = remembered_weights(state.history)
     inferred = plan.inferred if plan else {}
     skipped = {e.question.criterion_key for e in state.history if e.status == "skipped"}
     rows: list[_Row] = []
     for c in state.criteria.criteria:
         if c.key in answers:
             rows.append((c.key, answers[c.key], "answered", ANSWERED_UNCERTAINTY))
+        elif c.key in remembered:
+            rows.append((c.key, remembered[c.key], "remembered", REMEMBERED_UNCERTAINTY))
         elif c.key in inferred:
             rows.append((c.key, inferred[c.key], "answered", INFERRED_UNCERTAINTY))
         elif c.key in skipped:

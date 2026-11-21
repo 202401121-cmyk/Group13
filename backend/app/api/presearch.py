@@ -10,15 +10,18 @@ stack trace, a key or prompt text.
 
 from __future__ import annotations
 
+import threading
+from collections import OrderedDict
 from collections.abc import Mapping, Sequence
 from typing import Annotated, Any
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, ValidationError
 
 from app import db
 from app import presearch as flow
-from app.auth import OptionalUser
+from app.auth import OptionalUser, SignedInUser
 from app.contracts import (
     MAX_UNCLEAR_ATTEMPTS,
     CriteriaSet,
@@ -37,7 +40,9 @@ from app.criteria import CriteriaStore
 from app.intake import EDIT_REFUSED, revise_intent
 from app.interview import place_reply
 from app.interview.plan import load_interview_rules, plan_questions
+from app.interview.remembered import dropped_leave_outs, forget, with_remembered, with_switches, without_remembered
 from app.interview.rubric_builder import UnknownEdit, apply_edits, build_rubric, carry_edits, rubric_note, with_edits_of
+from app.memory import MemoryService, default_memory
 
 from .sessions import InMemorySessionStore, SessionStore, new_session_id
 
@@ -48,6 +53,8 @@ NO_INTERVIEW = "The interview hasn't started yet. Please start it first."
 FINISHED = "The interview is already finished. Go back to a question if you want to change an answer."
 NOT_ANSWERED = "That question hasn't been answered yet, so there is nothing to change."
 NOT_CURRENT = "That isn't the question we're on. To change an earlier answer, go back to that question first."
+NOT_REMEMBERED = "That isn't one of the remembered preferences in this interview."
+MAX_OWNERS = 10_000  # interviews whose signed-in starter is held in memory, the oldest dropped first
 MAX_REPLY_CHARS = 500  # IntakeInput.previous_clarification_reply and InterviewTurn.reply_text limit
 # A plain sentence, when the edits left every weight at 0 (US-09). The rubric route answers it in
 # RubricEditResponse.note (S4-17) and a reload in PresearchSession.note (1.10.0); the header stays one more sprint
@@ -77,10 +84,53 @@ def get_request_store() -> db.RequestStore:
     return db.default_request_store()
 
 
+def get_memory() -> MemoryService:
+    return default_memory()
+
+
 Sessions = Annotated[SessionStore, Depends(get_session_store)]
 Requests = Annotated[db.RequestStore, Depends(get_request_store)]
 LLM = Annotated[LLMClient, Depends(get_llm)]
 Store = Annotated[CriteriaStore, Depends(get_criteria_store)]
+Memory = Annotated[MemoryService, Depends(get_memory)]
+
+
+class _Owners:
+    """Per session, for memory (US-06, D-36), held in memory like the sessions and never shown or logged:
+    - which signed-in user started its interview. A finished rubric is remembered only for the user who started the
+      interview and finished it: a guest who signs in half way never has the guest's answers saved to the account;
+    - the remembered preferences forgotten or removed in it, so a restart of the interview never brings them back."""
+
+    def __init__(self, limit: int = MAX_OWNERS) -> None:
+        self._limit = limit
+        self._owners: OrderedDict[str, tuple[UUID | None, frozenset[UUID]]] = OrderedDict()
+        self._lock = threading.Lock()
+
+    def started(self, session_id: str, user: SignedInUser | None) -> None:
+        """A (re)start: the owner is who started it now. What was forgotten stays forgotten for the same owner."""
+        owner = user.id if user is not None else None
+        with self._lock:
+            held, forgotten = self._owners.pop(session_id, (None, frozenset()))
+            self._owners[session_id] = (owner, forgotten if held == owner and owner is not None else frozenset())
+            while len(self._owners) > self._limit:
+                self._owners.popitem(last=False)
+
+    def owner(self, session_id: str) -> UUID | None:
+        with self._lock:
+            return self._owners.get(session_id, (None, frozenset()))[0]
+
+    def forgotten(self, session_id: str) -> frozenset[UUID]:
+        with self._lock:
+            return self._owners.get(session_id, (None, frozenset()))[1]
+
+    def forget(self, session_id: str, ids: Sequence[UUID]) -> None:
+        with self._lock:
+            if session_id in self._owners and ids:
+                owner, forgotten = self._owners[session_id]
+                self._owners[session_id] = (owner, forgotten | frozenset(ids))
+
+
+_owners = _Owners()
 
 
 # --- request and response bodies (API models; the stage data inside them are contracts) -------------
@@ -112,6 +162,12 @@ class BackRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     question_id: str = Field(min_length=1, max_length=64)
+
+
+class ForgetRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    preference_id: UUID = Field(description="RememberedPreference.preference_id of the one to forget")
 
 
 # --- routes ---------------------------------------------------------------------------------------
@@ -179,11 +235,17 @@ def edit_intent(session_id: str, body: IntentEdit, sessions: Sessions) -> Intent
 
 
 @router.post("/{session_id}/criteria", response_model=CriteriaSet)
-def criteria(session_id: str, sessions: Sessions, llm: LLM, store: Store) -> CriteriaSet:
-    """The criteria for the detected category and use (US-03). Starting again clears any interview."""
+def criteria(
+    session_id: str, sessions: Sessions, llm: LLM, store: Store, memory: Memory, user: OptionalUser
+) -> CriteriaSet:
+    """The criteria for the detected category and use (US-03). Starting again clears any interview.
+
+    For a signed-in shopper, memory's model starts loading here, so it is ready when the interview starts (US-06)."""
     session = _load(sessions, session_id)
     if session.intent is None or not session.intent.ready_for_research:
         raise HTTPException(409, NOT_READY)
+    if user is not None:
+        memory.warm()
     result = flow.make_criteria(session.intent, llm=llm, store=store)  # outside the lock: it may wait on the LLM
     with sessions.lock(session_id):
         latest = _load(sessions, session_id)  # an edit made while the criteria were worked out is kept (US-09)
@@ -194,8 +256,14 @@ def criteria(session_id: str, sessions: Sessions, llm: LLM, store: Store) -> Cri
 
 
 @router.post("/{session_id}/interview/start", response_model=InterviewStep)
-def start_interview(session_id: str, sessions: Sessions) -> InterviewStep:
-    """The first question (US-05). Calling it again restarts the interview."""
+def start_interview(
+    session_id: str, sessions: Sessions, memory: Memory, user: OptionalUser, background: BackgroundTasks
+) -> InterviewStep:
+    """The first question (US-05). Calling it again restarts the interview.
+
+    A signed-in shopper's interview starts with what is remembered (US-06): up to 5 past preferences, each marked
+    "remembered" in InterviewState.remembered. A guest's never does (D-36). Memory that fails or is slow leaves the
+    interview exactly as it is without it."""
     with sessions.lock(session_id):
         session = _load(sessions, session_id)
         if session.intent is None or session.criteria is None:
@@ -204,12 +272,31 @@ def start_interview(session_id: str, sessions: Sessions) -> InterviewStep:
             state = InterviewState(session_id=session.session_id, intent=session.intent, criteria=session.criteria)
         except ValidationError:
             raise HTTPException(409, NO_CRITERIA) from None  # a safety net: intent and criteria must share a category
-        state = with_edits_of(session.interview, state)  # the shopper's rubric edits survive a restart (US-09)
-        return _save_step(sessions, session, flow.interview_turn(InterviewTurn(state=state)))
+        # The shopper's rubric edits survive a restart (US-09). What memory added last time is taken out first and
+        # recalled afresh below, so it keeps its "remembered" mark, and a switch on a remembered rule is kept.
+        earlier = without_remembered(session.interview) if session.interview is not None else None
+        state = with_edits_of(earlier, state)
+        _owners.started(session.session_id, user)
+        if user is not None:
+            forgotten = _owners.forgotten(session.session_id)
+            recalled = [i for i in memory.recall(user.id, state) if i.preference.preference_id not in forgotten]
+            state = with_remembered(state, recalled)
+            if session.interview is not None:
+                state = with_switches(state, session.interview.manual_rule_switches)
+        step = _save_step(sessions, session, flow.interview_turn(InterviewTurn(state=state)))
+        _remember_if_final(background, memory, user, step)
+        return step
 
 
 @router.post("/{session_id}/interview/reply", response_model=InterviewStep)
-def reply(session_id: str, body: ReplyRequest, sessions: Sessions) -> InterviewStep:
+def reply(
+    session_id: str,
+    body: ReplyRequest,
+    sessions: Sessions,
+    memory: Memory,
+    user: OptionalUser,
+    background: BackgroundTasks,
+) -> InterviewStep:
     """The user's reply to the current question: the next question, a rephrase, or the finished rubric.
 
     With question_id a repeated reply is safe (docs/api/presearch.md). The check and the change happen under one
@@ -232,12 +319,14 @@ def reply(session_id: str, body: ReplyRequest, sessions: Sessions) -> InterviewS
                 state=session.interview, reply_text=body.reply_text, level=body.level, exact_weight=body.exact_weight
             )
         )
+        _remember_if_final(background, memory, user, step)
         return _save_step(sessions, session, step)
 
 
 @router.post("/{session_id}/interview/back", response_model=InterviewStep)
 def go_back(session_id: str, body: BackRequest, sessions: Sessions) -> InterviewStep:
-    """Ask an earlier question again; the next reply changes that answer and the later questions update."""
+    """Ask an earlier question again; the next reply changes that answer and the later questions update. A remembered
+    answer (US-06) can be asked again the same way: one click to change it."""
     with sessions.lock(session_id):
         session = _load(sessions, session_id)
         if session.interview is None:
@@ -249,8 +338,44 @@ def go_back(session_id: str, body: BackRequest, sessions: Sessions) -> Interview
         return _save_step(sessions, session, step)
 
 
+@router.post("/{session_id}/interview/forget", response_model=InterviewStep)
+def forget_remembered(
+    session_id: str,
+    body: ForgetRequest,
+    sessions: Sessions,
+    memory: Memory,
+    user: OptionalUser,
+    background: BackgroundTasks,
+) -> InterviewStep:
+    """Forget one remembered preference in this interview (US-06): a weight is then asked like any other, a must-have
+    or a leave-out leaves the rubric. The memory itself is kept; the memory screen deletes it (US-11).
+
+    Answers the interview's next step: the current question, a new one, or the finished rubric. 404 if this interview
+    holds no remembered preference with that id."""
+    with sessions.lock(session_id):
+        session = _load(sessions, session_id)
+        if session.interview is None or session.interview_step is None:
+            raise HTTPException(409, NO_INTERVIEW)
+        try:
+            state = forget(session.interview, body.preference_id)
+        except KeyError:
+            raise HTTPException(404, NOT_REMEMBERED) from None
+        _owners.forget(session.session_id, [body.preference_id])  # a restart never brings it back
+        step = _save_step(sessions, session, flow.interview_turn(InterviewTurn(state=state)))
+        _remember_if_final(background, memory, user, step)
+        return step
+
+
 @router.post("/{session_id}/rubric", response_model=RubricEditResponse)
-def edit_rubric(session_id: str, body: RubricEditRequest, sessions: Sessions, response: Response) -> RubricEditResponse:
+def edit_rubric(
+    session_id: str,
+    body: RubricEditRequest,
+    sessions: Sessions,
+    response: Response,
+    memory: Memory,
+    user: OptionalUser,
+    background: BackgroundTasks,
+) -> RubricEditResponse:
     """The shopper's rubric edits (US-09): switch a must-have to a preference or back, add or remove an exclusion, or
     set a weight from 0 to 10. They are stored on the session and applied last, so any later rebuild keeps them.
 
@@ -269,6 +394,8 @@ def edit_rubric(session_id: str, body: RubricEditRequest, sessions: Sessions, re
         except ValidationError as exc:
             errors = exc.errors(include_input=False, include_url=False)
             raise HTTPException(422, plain_validation_message(errors, "That change doesn't work")) from None
+        state, removed = dropped_leave_outs(state)  # a remembered leave-out the shopper removed: not remembered now
+        _owners.forget(session.session_id, removed)
         plan = plan_questions(state.criteria, state.intent, state.history, load_interview_rules())
         rubric = build_rubric(state, plan)
         step = session.interview_step
@@ -278,6 +405,8 @@ def edit_rubric(session_id: str, body: RubricEditRequest, sessions: Sessions, re
                 changed["rubric"] = rubric.model_dump()
             step = step.model_validate({**step.model_dump(), **changed})
         sessions.put(session.changed(interview=state, interview_step=step))
+        if step is not None:
+            _remember_if_final(background, memory, user, step)  # a finished rubric changed: remembered again (US-06)
         note = rubric_note(state, plan)
         if note is not None:
             response.headers[RUBRIC_NOTE_HEADER] = note
@@ -317,6 +446,18 @@ def _load(sessions: SessionStore, session_id: str) -> PresearchSession:
 def _save_step(sessions: SessionStore, session: PresearchSession, step: InterviewStep) -> InterviewStep:
     sessions.put(session.changed(interview=step.state, interview_step=step))
     return step
+
+
+def _remember_if_final(
+    background: BackgroundTasks, memory: MemoryService, user: SignedInUser | None, step: InterviewStep
+) -> None:
+    """When the rubric is final, save its lasting preferences after the reply has gone (US-06): only for the signed-in
+    user who started this interview, never a guest's (D-36)."""
+    if step.kind != "finished" or step.rubric is None or user is None:
+        return
+    if _owners.owner(step.state.session_id) != user.id:
+        return
+    background.add_task(memory.remember, user.id, step.state, step.rubric)
 
 
 def plain_validation_message(errors: Sequence[Mapping[str, Any]], lead: str) -> str:

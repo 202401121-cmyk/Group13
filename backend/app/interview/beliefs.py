@@ -107,6 +107,7 @@ def beliefs_for(state: InterviewState, settings: BeliefSettings | None = None) -
     for entry in state.history:
         key = entry.question.criterion_key
         weight = entry.classification.weight if entry.classification is not None else None
-        if entry.status == "answered" and weight is not None and key in beliefs:
+        # a remembered answer (US-06) moves the belief as an answer of that level does
+        if entry.status in ("answered", "remembered") and weight is not None and key in beliefs:
             beliefs[key] = updated(beliefs[key], weight, answer_sd(entry, settings))
     return beliefs

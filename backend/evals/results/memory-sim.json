@@ -1,0 +1,286 @@
+{
+  "generated": "2026-11-21",
+  "commit": "0828cd4",
+  "runner": "python -m evals.memory_sim (offline)",
+  "model": {
+    "embedder": "model",
+    "repo": "sentence-transformers/all-MiniLM-L6-v2",
+    "revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "model_file": "onnx/model_O4.onnx"
+  },
+  "settings": {
+    "seed": 62,
+    "shoppers": 20,
+    "gap_days": 7,
+    "categories": [
+      "smartphone",
+      "air_fryer",
+      "laptop",
+      "smartwatch",
+      "earbuds",
+      "headphones"
+    ],
+    "top_k": 5,
+    "min_score": 0.7,
+    "half_life_days": 90.0
+  },
+  "measures": [
+    {
+      "id": "memory.repeated_reduction",
+      "value": 0.625,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/evals/memory_sim.py (20 seeded returning shoppers from evals/interview_sim.py), app.memory, app.interview",
+      "detail": "share fewer repeated questions in the second session with memory (60 against 160 without), over 20 returning shoppers"
+    },
+    {
+      "id": "memory.accuracy",
+      "value": 0.6,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/evals/memory_sim.py (20 seeded returning shoppers from evals/interview_sim.py), app.memory, app.interview",
+      "detail": "share of returning shoppers whose best match with the second session's final rubric, with memory, is the one their true weights give"
+    },
+    {
+      "id": "memory.accuracy_change",
+      "value": 0.0,
+      "unit": "difference",
+      "status": "measured",
+      "source": "backend/evals/memory_sim.py (20 seeded returning shoppers from evals/interview_sim.py), app.memory, app.interview",
+      "detail": "accuracy with memory less accuracy without (0.6 without)"
+    }
+  ],
+  "summary": {
+    "repeated_without": 160,
+    "repeated_with": 60,
+    "repeated_reduction": 0.625,
+    "questions_without_mean": 8.0,
+    "questions_with_mean": 3.0,
+    "remembered_mean": 5.0,
+    "accuracy_without": 0.6,
+    "accuracy_with": 0.6,
+    "target_met": true
+  },
+  "shoppers": [
+    {
+      "category": "smartphone",
+      "index": 0,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "air_fryer",
+      "index": 1,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "laptop",
+      "index": 2,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": false,
+      "same_best_with": false
+    },
+    {
+      "category": "smartwatch",
+      "index": 3,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": false,
+      "same_best_with": false
+    },
+    {
+      "category": "earbuds",
+      "index": 4,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "headphones",
+      "index": 5,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": false,
+      "same_best_with": false
+    },
+    {
+      "category": "smartphone",
+      "index": 6,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": false,
+      "same_best_with": false
+    },
+    {
+      "category": "air_fryer",
+      "index": 7,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "laptop",
+      "index": 8,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": false,
+      "same_best_with": false
+    },
+    {
+      "category": "smartwatch",
+      "index": 9,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "earbuds",
+      "index": 10,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": false,
+      "same_best_with": false
+    },
+    {
+      "category": "headphones",
+      "index": 11,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "smartphone",
+      "index": 12,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "air_fryer",
+      "index": 13,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "laptop",
+      "index": 14,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "smartwatch",
+      "index": 15,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "earbuds",
+      "index": 16,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": false,
+      "same_best_with": false
+    },
+    {
+      "category": "headphones",
+      "index": 17,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "smartphone",
+      "index": 18,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": true,
+      "same_best_with": true
+    },
+    {
+      "category": "air_fryer",
+      "index": 19,
+      "remembered": 5,
+      "questions_without": 8,
+      "questions_with": 3,
+      "repeated_without": 8,
+      "repeated_with": 3,
+      "same_best_without": false,
+      "same_best_with": false
+    }
+  ]
+}

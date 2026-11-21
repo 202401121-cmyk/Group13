@@ -1,0 +1,29 @@
+# Preference memory (US-06, S5-3): the embedding model, and how recall scores a remembered preference.
+#
+# The model is sentence-transformers/all-MiniLM-L6-v2 (Apache-2.0, 384 dimensions), run on our own server through
+# onnxruntime (P-40, D-51, D-52): nothing a shopper typed or the app remembers goes to any provider. It is pinned by an
+# exact revision (a commit hash, never "main"; ml/MODELS.md card 5), read on 21 Nov 2026. Weights are never in git: the
+# first use downloads the ONNX file and tokenizer.json at this revision into backend/.cache/memory/, and later uses read
+# them from there. A file whose sha256 is not the one below is not used, and neither is a model whose vectors on this
+# machine differ from the full model's (config/memory_reference.json, cosine under check_min_cosine).
+#
+# MEMORY=off (in .env or the environment) switches memory off; unset or "on" keeps it on. Any failure gives an empty
+# remembered list and one log line, and the interview runs as it did before US-06 (build rule 10).
+repo: "sentence-transformers/all-MiniLM-L6-v2"
+revision: "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
+model_file: "onnx/model_O4.onnx"  # the smallest file that agrees with onnx/model.onnx: evals/results/memory-model-check-avx2.json
+model_sha256: "1667d7f3ba669048b13a96ee3a44456d5e42c8f44588ae8b603430e16160c485"  # ml/MODELS.md card 5
+tokenizer_file: "tokenizer.json"
+tokenizer_sha256: "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+reference_file: "memory_reference.json"
+dimensions: 384
+max_length: 256  # the model's own limit (sentence_bert_config.json)
+check_min_cosine: 0.99
+# Recall (DECIDED 3): the score is cosine x 0.5 ^ (age_days / half_life_days); the top_k best at or above min_score.
+top_k: 5
+min_score: 0.7
+half_life_days: 90
+# Of the interview turn's 5 seconds, the most recall may take, the model's load and the database included.
+time_share_s: 1.5
+# A save runs after the reply has gone, so it may wait longer for the model's first load.
+save_wait_s: 30

@@ -35,6 +35,7 @@ CORE_MODULES = (
     "app/intake",
     "app/interview",
     "app/llm",
+    "app/memory",  # preference memory (US-06)
     "app/pipeline.py",
     "app/presearch.py",
     "app/search_run_limits.py",

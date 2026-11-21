@@ -33,7 +33,7 @@ from app.contracts import (
 )
 
 from .beliefs import SETTLED_TOP, BeliefSettings, beliefs_for
-from .plan import InterviewRules, default_order, plan_questions
+from .plan import InterviewRules, asked_count, default_order, plan_questions
 from .questions import question_for
 from .rubric_builder import build_rubric
 from .stage import InterviewStage, Ordering, _ask, _finished, _pending, _with
@@ -105,7 +105,7 @@ class AdaptiveInterviewStage(InterviewStage):
         unaskable = skipped | set(plan.inferred) | plan.premium_skipped
         in_play = [key for key in order if key not in unaskable]
         following = None if settled(beliefs, in_play, order, self.settings) else next_key(beliefs, plan.to_ask, order)
-        if following is None or len(state.history) >= MAX_QUESTIONS:
+        if following is None or asked_count(state.history) >= MAX_QUESTIONS:
             return _finished(state, build_rubric(state, plan), self.ordering)
         criterion = next(c for c in state.criteria.criteria if c.key == following)
         # The question says why it comes now (S4-5); a fixed-order question keeps the definition as its reason.

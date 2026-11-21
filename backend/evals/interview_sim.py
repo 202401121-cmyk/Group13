@@ -187,14 +187,19 @@ def state_for(criteria: CriteriaSet) -> InterviewState:
 
 
 def interview(
-    interviewer: Interviewer, criteria: CriteriaSet, shopper: Shopper, planner: str = "fixed"
+    interviewer: Interviewer,
+    criteria: CriteriaSet,
+    shopper: Shopper,
+    planner: str = "fixed",
+    start: InterviewState | None = None,
 ) -> InterviewStep:
     """Answer the interviewer turn by turn until it says it is finished. The stop is always the interviewer's.
 
     The questions are counted here too, as the distinct questions the shopper was shown (a rephrase is the same
-    question), and a planner whose own `questions_asked` differs is an error: US-04 is judged on that count."""
+    question), and a planner whose own `questions_asked` differs is an error: US-04 is judged on that count.
+    `start` is the state to begin from (US-06's memory sim: one with remembered answers); by default a fresh one."""
     ctx = StageContext(search_id="srch_interviewsim")
-    step = interviewer.run(InterviewTurn(state=state_for(criteria)), ctx)
+    step = interviewer.run(InterviewTurn(state=start if start is not None else state_for(criteria)), ctx)
     shown: set[str] = set()
     for _ in range(MAX_TURNS):
         if step.kind == "finished":
