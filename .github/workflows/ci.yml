@@ -65,6 +65,13 @@ jobs:
           git diff --exit-code -- ../shared/contracts || {
             echo "::error::shared/contracts is out of date. Run 'python -m scripts.export_contracts' and commit.";
             exit 1; }
+      # US-23: the browser's re-rank is checked against decide's own scores (frontend src/test/parity.test.ts).
+      - name: Re-rank parity cases are up to date
+        run: |
+          python -m scripts.export_parity_cases
+          git diff --exit-code -- ../frontend/src/test/fixtures/parity.json || {
+            echo "::error::parity.json is out of date. Run 'python -m scripts.export_parity_cases' and commit.";
+            exit 1; }
 
   # Most members build on Windows; this catches encoding and line-ending bugs the Linux job can't see.
   backend-windows:

@@ -3,6 +3,7 @@
  * searched, and every result is marked source "mock". Only a finished mock search needs them, so the mock service
  * fetches this file when a search starts and no page loads it first (D-45 first-load budget).
  */
+import { mockRefilter, mockRerank } from "./mockRerank";
 import type {
   ClaimView,
   CriterionValue,
@@ -410,6 +411,59 @@ export function buildMockResult(
         };
       }
       break;
+    case "refilter": {
+      // US-23: products held back, each for a reason a change can lift, or not (mockRerank.ts). Each card is as the
+      // live adapter makes one for a held product: values and offers, at the price the filter read; no score.
+      const heldCard = (letter: string, rank: number, price: number): ProductResult => {
+        const p = product(letter, cat, rank, 0, r, now);
+        return {
+          id: p.id,
+          name: p.name,
+          imageUrl: null,
+          rank: null,
+          score: null,
+          criteria: p.criteria,
+          offers: p.offers.map((o, i) => ({ ...o, price: price + i * 1500 })),
+          value: null,
+        };
+      };
+      const d = heldCard("D", 4, 84990);
+      const e = heldCard("E", 5, 69990);
+      const f = heldCard("F", 6, 70990);
+      const held = [
+        {
+          product: d,
+          price: 84990,
+          ram: 16,
+          group: "filtered_out" as const,
+          reason: "₹84,990 is above your ₹80,000 budget",
+        },
+        {
+          product: e,
+          price: 69990,
+          ram: null,
+          group: "cant_tell" as const,
+          reason: `We couldn't find its RAM, so we can't check "at least 8 GB RAM"`,
+        },
+        {
+          product: f,
+          price: 70990,
+          ram: 16,
+          group: "filtered_out" as const,
+          reason: "You ruled out Kestrel",
+        },
+      ];
+      res.leftOut = [held[0], held[2]].map((h) => ({ name: h!.product.name, reason: h!.reason }));
+      res.couldntCheck = [{ name: e.name, reason: held[1]!.reason, criterion: "RAM" }];
+      res.rerank = mockRefilter(products, held, r);
+      break;
+    }
+    case "many":
+      // US-23: fifty products, to re-rank on a slow CPU.
+      res.products = Array.from({ length: 50 }, (_, i) =>
+        product(String(i + 1).padStart(2, "0"), cat, i + 1, 75 - i / 2, r, now),
+      );
+      break;
     case "withheld-quote": {
       // A Reddit thread backs A's top value too, but Reddit's words aren't kept in saved results (D-53).
       const row = a.criteria[0];
@@ -460,5 +514,7 @@ export function buildMockResult(
   }
   // As live: only the shown offers with a price say when prices were checked.
   res.pricesCheckedAt = newestPriceTime(res.products);
+  // US-23: what the browser re-ranks and re-filters from, unless the scenario set its own.
+  if (res.rerank === undefined) res.rerank = mockRerank(res.products, r);
   return res;
 }
