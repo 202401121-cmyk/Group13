@@ -12,7 +12,9 @@ No test may ever reach the internet, a real LLM provider or a developer's saved 
 - python-dotenv reads no .env (PYTHON_DOTENV_DISABLED, set before the app is imported), so a test sees the same
   settings on a laptop with a .env as in CI, which has none. The live tests turn it back on for themselves;
 - the cache sweep (at every app start-up and at each search, US-12) sees only empty folders of its own, never a
-  developer's backend/.cache/.
+  developer's backend/.cache/;
+- no model is downloaded: not the matcher's, the citation check's or memory's. Each loads in a thread of its own,
+  which can outlive the test that started it, so a blocker stays in place for the whole session too.
 Tests that need LLM answers build a stage with their own FakeLLMClient; tests that need a database build their
 own store.
 """
@@ -20,11 +22,13 @@ own store.
 from __future__ import annotations
 
 import os
+import threading
 
 os.environ["PYTHON_DOTENV_DISABLED"] = "1"  # before any app import below: app modules call load_dotenv() when used
 
 from collections.abc import Iterator
 from pathlib import Path
+from types import ModuleType
 
 import pytest
 
@@ -112,6 +116,71 @@ def _no_real_database(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("app.db.default_request_store", lambda: store)
 
 
+# Each model loads in a thread of its own, by name: matcher-load (app/entities/model.py), nli-load (app/explain/nli.py)
+# and memory-load (app/memory/embedder.py).
+_REAL_DOWNLOADS: dict[str, object] = {}
+
+
+def _late_download(**kwargs: object) -> str:
+    raise RuntimeError("no model is downloaded in the tests: this load outlived the test that started it")
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _no_model_downloads_this_session() -> Iterator[None]:
+    """A model load runs in a thread of its own, which can reach its download after the test that started it has ended
+    and that test's patches are undone (S5-12's CI flake: a late memory download reached huggingface.co during another
+    test). For the whole session no download reaches the network; a test marked `live` gets the real one back."""
+    from app.entities import model
+    from app.explain import nli
+    from app.memory import embedder
+
+    found = {module: module._hf_download for module in (model, nli, embedder)}
+    for module, download in found.items():
+        _REAL_DOWNLOADS.setdefault(module.__name__, download)
+        module._hf_download = _late_download  # type: ignore[assignment]
+    yield
+    for module, download in found.items():
+        # A session run inside a test (pytester) gives back that test's guard. The real download never comes back:
+        # a load thread still alive as the run ends must not reach the network either.
+        if download is not _REAL_DOWNLOADS[module.__name__]:
+            module._hf_download = download  # type: ignore[assignment]
+
+
+class _DownloadGuard:
+    """One test's guard on one model's download. Blocks every download; counts, against this test, only those from
+    threads started during it, so a load that outlived an earlier test is never blamed here. At the end it waits a
+    moment for this test's own load thread, so its attempts are counted where they belong. Threads are kept as
+    objects, not idents: a thread that ends can hand its ident to a new one."""
+
+    def __init__(
+        self,
+        request: pytest.FixtureRequest,
+        monkeypatch: pytest.MonkeyPatch,
+        module: ModuleType,
+        what: str,
+        thread_name: str,
+    ) -> None:
+        self.what = what
+        self.tried: list[str] = []
+        self._thread_name = thread_name
+        self._earlier = set(threading.enumerate()) - {threading.current_thread()}
+        if may_use_network(request.node):
+            monkeypatch.setattr(module, "_hf_download", _REAL_DOWNLOADS.get(module.__name__, module._hf_download))
+        else:
+            monkeypatch.setattr(module, "_hf_download", self._no_download)
+
+    def _no_download(self, **kwargs: object) -> str:
+        if threading.current_thread() not in self._earlier:
+            self.tried.append(str(kwargs.get("filename")))
+        raise RuntimeError(f"tests never download the {self.what}")
+
+    def finish(self) -> None:
+        for thread in threading.enumerate():
+            if thread.name == self._thread_name and thread not in self._earlier:
+                thread.join(timeout=2.0)
+        assert not self.tried, f"a test tried to download the {self.what}: {self.tried}"
+
+
 @pytest.fixture(autouse=True)
 def _no_real_matcher_model(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
     """US-15 (S3-15): every test sees the default matcher, whatever the shell sets, and none downloads the model.
@@ -123,18 +192,11 @@ def _no_real_matcher_model(request: pytest.FixtureRequest, monkeypatch: pytest.M
 
     monkeypatch.delenv("MATCHER", raising=False)
     monkeypatch.delenv("MATCHER_FORCE_FAIL", raising=False)
-    tried: list[str] = []
-    if not may_use_network(request.node):
-
-        def no_download(**kwargs: object) -> str:
-            tried.append(str(kwargs.get("filename")))
-            raise RuntimeError("tests never download the matcher model")
-
-        monkeypatch.setattr(model, "_hf_download", no_download)
+    guard = _DownloadGuard(request, monkeypatch, model, "matcher model", "matcher-load")
     model.clear_shared_models()
     yield
+    guard.finish()
     model.clear_shared_models()
-    assert not tried, f"a test tried to download the matcher model: {tried}"
 
 
 @pytest.fixture(autouse=True)
@@ -147,19 +209,35 @@ def _no_real_nli_model(request: pytest.FixtureRequest, monkeypatch: pytest.Monke
     """
     from app.explain import nli
 
-    tried: list[str] = []
     if not may_use_network(request.node):
         monkeypatch.setenv("NLI", "off")
-
-        def no_download(**kwargs: object) -> str:
-            tried.append(str(kwargs.get("filename")))
-            raise RuntimeError("tests never download the citation check's model")
-
-        monkeypatch.setattr(nli, "_hf_download", no_download)
+    guard = _DownloadGuard(request, monkeypatch, nli, "citation check's model", "nli-load")
     nli.clear_shared_nli()
     yield
+    guard.finish()
     nli.clear_shared_nli()
-    assert not tried, f"a test tried to download the citation check's model: {tried}"
+
+
+@pytest.fixture(autouse=True)
+def _no_real_memory_model(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """US-06: no test downloads memory's embedding model, whatever the shell sets.
+
+    The app's own memory service sees MEMORY=off, so no test starts loading the model; tests of memory build their own
+    service with a fake or ready model. Only tests marked `live` may fetch the real one. The service and the model
+    holders last as long as the process, so each test starts with none.
+    """
+    from app import memory
+    from app.memory import embedder
+
+    if not may_use_network(request.node):
+        monkeypatch.setenv("MEMORY", "off")
+    guard = _DownloadGuard(request, monkeypatch, embedder, "memory model", "memory-load")
+    memory.default_memory.cache_clear()
+    embedder.clear_shared_embedders()
+    yield
+    guard.finish()
+    memory.default_memory.cache_clear()
+    embedder.clear_shared_embedders()
 
 
 @pytest.fixture(autouse=True)

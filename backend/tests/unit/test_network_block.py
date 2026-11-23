@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import socket
+import textwrap
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -131,3 +132,128 @@ def test_a_live_test_may_use_the_network() -> None:
     other = SimpleNamespace(get_closest_marker=lambda name: None)
     assert may_use_network(live)
     assert not may_use_network(other)
+
+
+# The fixtures that guard model downloads, by name: a star import leaves out names that start with "_".
+GUARDS = (
+    "from tests.conftest import (network_guard, _no_model_downloads_this_session, _no_real_matcher_model,"
+    " _no_real_nli_model, _no_real_memory_model)"
+)
+
+LATE_LOAD = """
+    import threading
+    from app.entities import model
+    from app.explain import nli
+    from app.memory import embedder
+
+    later = threading.Event()
+    done = threading.Event()
+    refused = []
+
+    def load_late():
+        later.wait(30)
+        for module in (model, nli, embedder):
+            try:
+                module._hf_download(repo_id="example/model", filename="model.onnx", revision="main")
+            except Exception as exc:
+                refused.append(type(exc).__name__)
+        done.set()
+
+    def test_starts_a_load_that_outlives_it():
+        threading.Thread(target=load_late, name="memory-load", daemon=True).start()
+
+    def test_runs_while_that_load_downloads():
+        later.set()
+        assert done.wait(30)
+        assert refused == ["RuntimeError"] * 3
+"""
+
+
+def test_a_model_load_that_outlives_its_test_never_reaches_the_network(pytester: pytest.Pytester) -> None:
+    """S5-12's CI flake: each model loads in a thread of its own (matcher-load, nli-load, memory-load), which can reach
+    its download after the test that started it has ended and that test's patches are undone. No such late download
+    may reach the network, or be blamed on the test running then."""
+    pytester.syspathinsert(BACKEND)
+    pytester.makeconftest(GUARDS)
+    pytester.makepyfile(LATE_LOAD)
+    result = pytester.runpytest_inprocess("-p", "no:cacheprovider")
+    result.assert_outcomes(passed=2)
+
+
+BETWEEN_TESTS = """
+    import threading
+    import types
+
+    import pytest
+
+    from app.entities import model
+    from app.explain import nli
+    from app.memory import embedder
+
+    later = threading.Event()
+    done = threading.Event()
+    refusals = []
+
+    def load_late():
+        later.wait(30)
+        for module in (model, nli, embedder):
+            try:
+                module._hf_download(repo_id="example/model", filename="model.onnx", revision="main")
+            except Exception as exc:
+                refusals.append(str(exc))
+        done.set()
+
+    def pytest_runtest_logfinish(nodeid, location):
+        # After the first test's teardown has undone its patches, before the next test's guards are set up.
+        if nodeid.endswith("test_starts_a_load_that_outlives_it"):
+            later.set()
+            done.wait(30)
+
+    @pytest.fixture
+    def late():
+        return types.SimpleNamespace(load=load_late, done=done, refusals=refusals)
+"""
+
+
+def test_a_load_that_downloads_between_two_tests_meets_the_session_blocker(pytester: pytest.Pytester) -> None:
+    """The case the session's blocker is for: a load reaches its download after its own test's patches are undone and
+    before the next test's guards are in place. Only the session's blocker stands then, and it refuses."""
+    pytester.syspathinsert(BACKEND)
+    pytester.makeconftest(GUARDS + "\n" + textwrap.dedent(BETWEEN_TESTS))
+    pytester.makepyfile(
+        """
+        import threading
+
+        def test_starts_a_load_that_outlives_it(late):
+            threading.Thread(target=late.load, name="memory-load", daemon=True).start()
+
+        def test_after_it(late):
+            assert late.done.is_set()
+            assert len(late.refusals) == 3
+            assert all("outlived the test that started it" in r for r in late.refusals)
+        """
+    )
+    result = pytester.runpytest_inprocess("-p", "no:cacheprovider")
+    result.assert_outcomes(passed=2)
+
+
+def test_a_test_that_starts_a_model_download_itself_still_fails(pytester: pytest.Pytester) -> None:
+    pytester.syspathinsert(BACKEND)
+    pytester.makeconftest(GUARDS)
+    pytester.makepyfile(
+        """
+        import threading
+        from app.memory import embedder
+
+        def test_loads_the_memory_model():
+            def load():
+                try:
+                    embedder._hf_download(repo_id="example/model", filename="model.onnx", revision="main")
+                except Exception:
+                    pass
+            threading.Thread(target=load, name="memory-load", daemon=True).start()
+        """
+    )
+    result = pytester.runpytest_inprocess("-p", "no:cacheprovider")
+    result.assert_outcomes(passed=1, errors=1)
+    result.stdout.fnmatch_lines(["*a test tried to download the memory model*"])
