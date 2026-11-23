@@ -15,7 +15,20 @@ export default defineConfig({
     reducedMotion: "reduce", // typing effects finish at once, so every page is checked fully drawn
     trace: "retain-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    // Everything but the timing checks, side by side.
+    { name: "chromium", use: { ...devices["Desktop Chrome"] }, grepInvert: /@timing/ },
+    // The timing checks (INP, the 1 s re-rank) once everything else has finished, one at a time: CPU taken by other
+    // browsers on this machine isn't the shopper's (S5-12, DECIDED 6). Their budgets are unchanged. If a test above
+    // fails, these are reported as not run.
+    {
+      name: "timing",
+      use: { ...devices["Desktop Chrome"] },
+      grep: /@timing/,
+      dependencies: ["chromium"],
+      workers: 1,
+    },
+  ],
   webServer: {
     command: "npm run build && npm start",
     url: `http://localhost:${PORT}`,

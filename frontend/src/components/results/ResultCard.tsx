@@ -642,7 +642,7 @@ const CardBody = memo(
               </p>
             )}
             {p.unverified && p.unverified.length > 0 && (
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p data-names className="mt-2 text-sm text-muted-foreground">
                 <span className="font-semibold text-foreground">Not verified:</span>{" "}
                 {listInWords(p.unverified)}.
               </p>

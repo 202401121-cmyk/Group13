@@ -133,7 +133,9 @@ test.describe("re-rank and compare", () => {
     // A real slowdown fails both tries, and a retried pass is reported as flaky, never hidden.
     test.describe.configure({ retries: 1 });
 
-    test("50 products re-rank within 1 s on a slowed CPU, with no request", async ({ page }) => {
+    test("50 products re-rank within 1 s on a slowed CPU, with no request @timing", async ({
+      page,
+    }) => {
       const id = await reachBrief(page);
       await showResults(page, id, "many");
       await expect(page.locator("article")).toHaveCount(50);

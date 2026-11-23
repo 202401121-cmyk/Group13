@@ -4,6 +4,7 @@ import {
   type Answers,
   type Criterion,
   type QuestionTerm,
+  type RememberedView,
   type Step,
   type Turn,
   type TurnResult,
@@ -36,6 +37,10 @@ export interface InterviewState {
   rubric: RubricItem[] | null;
   /** The words each criterion's question explained when it was asked, so a question reopened by "Go back" keeps them. */
   terms: Record<string, QuestionTerm[]>;
+  /** What this interview remembers from earlier searches (US-06). */
+  remembered: RememberedView[];
+  /** The remembered preference being forgotten now; null otherwise. */
+  forgetting: string | null;
   requestId: number;
 }
 
@@ -49,6 +54,7 @@ export type InterviewAction =
   | { type: "TURN_FAILED"; message: string }
   | { type: "RETRY" }
   | { type: "GO_BACK"; criterionId: string }
+  | { type: "FORGET"; preferenceId: string }
   | { type: "RESTORE"; state: Partial<InterviewState> };
 
 export const initialInterview: InterviewState = {
@@ -64,6 +70,8 @@ export const initialInterview: InterviewState = {
   notice: null,
   rubric: null,
   terms: {},
+  remembered: [],
+  forgetting: null,
   requestId: 0,
 };
 
@@ -98,7 +106,7 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
       return {
         ...s,
         phase: "sending",
-        // Kept with the reply, so "Try again" after a timeout sends the same question_id.
+        forgetting: null, // a reply sent after a failed Forget is the reply, never that forget again
         pending: {
           criterionId: id,
           text,
@@ -124,10 +132,14 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
         step,
         answers,
         pending: null,
+        forgetting: null,
         revising: stillRevising,
         laterChanged,
         notice: a.result.notice ?? null,
         rubric: a.result.rubric ?? null,
+        remembered: a.result.remembered
+          ? keepDates(s.remembered, a.result.remembered)
+          : s.remembered,
         terms:
           step.criterionId && step.terms.length
             ? { ...s.terms, [step.criterionId]: step.terms }
@@ -141,7 +153,7 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
       if (s.phase !== "error") return s;
       return {
         ...s,
-        phase: s.pending ? "sending" : "starting",
+        phase: s.pending || s.forgetting ? "sending" : "starting",
         error: null,
         requestId: s.requestId + 1,
       };
@@ -155,15 +167,44 @@ export function interviewReducer(s: InterviewState, a: InterviewAction): Intervi
         step: questionFor(c, s.terms[c.id] ?? []),
         revising: c.id,
         pending: null,
+        forgetting: null,
         error: null,
         laterChanged: false,
         notice: null,
         rubric: null, // the answer is changing, so the finished weights no longer hold
       };
     }
+    case "FORGET":
+      // One click, whatever the screen shows: a question, the finished brief, or a failed reply.
+      if (s.phase !== "asking" && s.phase !== "finished" && s.phase !== "error") return s;
+      if (!s.remembered.some((r) => r.preferenceId === a.preferenceId)) return s;
+      // A reply waiting to be tried again goes first: a forget now would drop it.
+      if (s.pending) return s;
+      return {
+        ...s,
+        phase: "sending",
+        forgetting: a.preferenceId,
+        pending: null,
+        revising: null,
+        error: null,
+        laterChanged: false,
+        notice: null,
+        requestId: s.requestId + 1,
+      };
     case "RESTORE":
       return { ...s, ...a.state };
   }
+}
+
+/**
+ * The backend counts a remembered preference's age in whole days, so its day can come out one later or earlier as the
+ * clock turns. The day first shown stays for the session, so the label never changes mid-interview.
+ */
+export function keepDates(before: RememberedView[], after: RememberedView[]): RememberedView[] {
+  return after.map((r) => {
+    const shown = before.find((b) => b.preferenceId === r.preferenceId);
+    return shown ? { ...r, since: shown.since } : r;
+  });
 }
 
 export type CriterionStatus = "answered" | "skipped" | "remembered" | "pending" | "not-asked";
@@ -189,7 +230,9 @@ export function toInterviewSnapshot(s: InterviewState): Partial<InterviewState> 
   if (phase === "loading-criteria" || phase === "criteria-error")
     phase = s.criteria.length ? "criteria-ready" : "loading-criteria";
   if (phase === "starting") phase = "criteria-ready";
-  if (phase === "sending" || phase === "error") phase = "asking";
+  // A forget sent from the finished brief restores as finished: there is no question to show.
+  if (phase === "sending" || phase === "error")
+    phase = s.step?.kind === "finished" ? "finished" : "asking";
   return {
     phase,
     criteria: s.criteria,
@@ -199,5 +242,6 @@ export function toInterviewSnapshot(s: InterviewState): Partial<InterviewState> 
     revising: s.revising,
     rubric: s.rubric,
     terms: s.terms,
+    remembered: s.remembered,
   };
 }

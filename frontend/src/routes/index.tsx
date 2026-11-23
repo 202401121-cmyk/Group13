@@ -177,7 +177,7 @@ function Index() {
                 speed={14}
                 start={heroDone}
                 segments={[
-                  "Stop jumping between reviews, product pages and comparison videos. ShopSense researches products against your needs, compares the differences that matter and shows where every fact came from.",
+                  "Stop jumping between reviews, store pages and videos. ShopSense checks products against what you need, compares what matters, and shows where every fact came from.",
                 ]}
               />
               <div className="mt-10 flex flex-wrap items-center gap-3">

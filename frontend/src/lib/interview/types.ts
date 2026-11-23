@@ -19,6 +19,21 @@ export interface CriteriaResult {
 }
 
 export type AnswerStatus = "answered" | "skipped" | "remembered";
+
+/**
+ * A preference remembered from an earlier search (US-06): a weight already answers its question; a must-have or a
+ * leave-out joins the rubric. Each is shown as remembered, and can be changed or forgotten in one click.
+ */
+export interface RememberedView {
+  preferenceId: string;
+  kind: "weight" | "hard_rule" | "exclusion";
+  /** In plain words, such as "Battery life: high importance" or "Never Zenith". */
+  text: string;
+  /** The criterion a remembered weight answers; null for a must-have or leave-out about none. */
+  criterionId: string | null;
+  /** The day it was remembered from, as yyyy-mm-dd. */
+  since: string;
+}
 export interface AnswerRecord {
   status: AnswerStatus;
   value: string | null;
@@ -62,6 +77,8 @@ export interface TurnInput {
   turn?: Turn | undefined;
   /** Mock only: how many unclear replies the current question has had, as the backend counts them (US-39). */
   unclear?: number;
+  /** Mock only: the criteria whose remembered answer was forgotten in this session, so it is asked instead. */
+  forgotten?: string[];
   /** The session the backend keeps this interview in (live mode). */
   sessionId?: string;
 }
@@ -74,6 +91,8 @@ export interface TurnResult {
   rubric?: RubricItem[];
   /** Something the shopper should be told about this turn, shown above the question until the next reply. */
   notice?: string;
+  /** What this interview remembers now (US-06). Missing: unchanged. */
+  remembered?: RememberedView[];
 }
 
 /** What can be left out (US-10). */
@@ -138,6 +157,12 @@ export interface RubricSeed {
 export interface InterviewService {
   getCriteria(brief: Brief, sessionId?: string): Promise<CriteriaResult>;
   turn(input: TurnInput): Promise<TurnResult>;
+  /**
+   * Forgets one remembered preference for this session (US-06): a weight is then asked like any other, a must-have
+   * or leave-out leaves the rubric. Answers the interview's next step. Deleting it from memory is the memory
+   * service's job (US-11), which the screen calls next.
+   */
+  forget(input: TurnInput, preferenceId: string): Promise<TurnResult>;
   /** The rubric to edit, or null when there is none yet (live mode: until the interview is finished). */
   loadRubric(sessionId: string, seed: RubricSeed): Promise<EditableRubric | null>;
   editRubric(sessionId: string, edits: RubricEditView[]): Promise<EditAnswer>;

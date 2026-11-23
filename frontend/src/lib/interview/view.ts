@@ -16,6 +16,20 @@ export function briefCriteria(s: InterviewState) {
   });
 }
 
+/** "Remembered from 14 Nov": the day a preference was remembered from, with its year when not this year (US-06). */
+export function rememberedFromText(since: string, now = new Date()): string {
+  const day = new Date(`${since}T00:00:00Z`);
+  if (Number.isNaN(day.getTime())) return "Remembered from an earlier search";
+  const sameYear = day.getUTCFullYear() === now.getUTCFullYear();
+  const text = day.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    ...(sameYear ? {} : { year: "numeric" }),
+    timeZone: "UTC",
+  });
+  return `Remembered from ${text}`;
+}
+
 /** How far the interview has come. Once it has finished, early or not, every criterion is settled (S4-5). */
 export function progressOf(s: InterviewState) {
   const total = s.criteria.length;
