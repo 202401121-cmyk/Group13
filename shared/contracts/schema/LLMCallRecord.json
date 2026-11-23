@@ -21,7 +21,8 @@
         "extract_claims",
         "discover_aliases",
         "enrich_extract",
-        "write_explanation"
+        "write_explanation",
+        "write_evidence"
       ],
       "title": "LLMTask",
       "type": "string"

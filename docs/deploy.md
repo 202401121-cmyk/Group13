@@ -125,7 +125,7 @@ and the file name the same ones.
 | `SUPABASE_SECRET_KEY` | A Supabase secret key (`sb_secret_...`, Supabase > Project Settings > API keys), for one thing: deleting a shopper's account (US-11, [api-setup.md](api-setup.md#supabase-auth-deleting-an-account-us-11-p-43)). Backend only, never the browser (D-32). Empty: `DELETE /api/me` answers 503 and everything else works. | **yes** |
 | `MATCHER` | `model` (see below) | no |
 | `MEMORY` | `on`, the default: a signed-in shopper's preferences are remembered (US-06). `off` switches memory off, and the interview runs as before. | no |
-| `NLI` | Set by `render.yaml` (`off`, see below). Nothing to enter. `off` is also the app's default: explanations are written as before US-22. `on` checks each written sentence against the quotes it cites, with a model run on the server. | no |
+| `NLI` | Set by `render.yaml` (`off`, see below). Nothing to enter. `off`: an explanation's evidence sentences stay only when they quote their evidence word for word. The app's own default is `on` (S5-4b), which checks each one against the quotes it cites, with a model run on the server. | no |
 | `EXTRACT_MAX_SOURCES` | `5` | no |
 | `SEARCH_RUN_WORKERS` | `1` | no |
 | `PYTHON_VERSION` | Set by `render.yaml` (`3.11.15`). Nothing to enter. | no |
@@ -142,10 +142,11 @@ and the file name the same ones.
     say a simpler fallback was used.
   - If Render's memory graph comes near 512 MB, or the timeouts show up often, set `MATCHER=fuzzy`.
 - **`NLI=off`, written in `render.yaml`.** The citation check's model doesn't fit 512 MB (P-10). S5-4 measured it on
-  21 Nov 2026: with the matcher and this model loaded, the process held 511 MB, and 551 MB after checking
-  (`backend/evals/results/citation.json`). Real explanations also need P-48's follow-up before the check is used. So the
-  value is in the file, not typed in the dashboard, and the app defaults to off as well: staging can never start the
-  check by accident. Explanations on staging are written as before US-22.
+  21 Nov 2026, and S5-4b again: with the matcher and this model loaded, the process held 511 MB, and 550 MB after
+  checking (`backend/evals/results/citation.json`). The app's own default is on since S5-4b, so the value is in the
+  file, not typed in the dashboard: staging can never start the check by accident. On staging, an evidence sentence
+  stays only when it quotes its evidence word for word; code's sentences always appear (D-91). P-49 may move the model
+  to a service of its own: a process holding only the model peaked at 363.5 MB (`citation-memory.json`).
 - **`EXTRACT_MAX_SOURCES=5`.** A search reads at most 5 sources: shorter on 0.1 CPU, with fewer model calls.
 - **`SEARCH_RUN_WORKERS=1`.** One search at a time on 512 MB.
 - **`DATABASE_URL` is set** so saving can be proved. A search still finishes without it: the health check then says

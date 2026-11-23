@@ -1,178 +1,114 @@
-"""The LLM's explanations, read leniently, then checked against code's facts before they become the contract (US-20).
+"""The evidence call's answer (D-91), read leniently, then checked by code one sentence at a time (US-22, US-20).
 
-A paragraph is kept only when every check passes, and never repaired: a guess is how a wrong number reaches a shopper.
-- 2 to 4 sentences;
-- every sentence cites at least one of this product's refs, and only those; they map back to the real claim ids. The
-  one exception is code's own "We could not check its ..." sentence, given to the LLM word for word: nothing can back
-  it, so written exactly and uncited, it carries the paragraph's other claims, as the contract asks every written
-  sentence to cite one;
-- every number it names is one code worked out (DECIDED 2), for a fact that sentence cites (or the product's rank,
-  score or "out of" scale, or a fact with no claim to cite), in its sentences and its trade-off;
-- a sentence that names a score says how it was made: "compared" for a compared one (P-20), "estimate" for an estimate
-  (DR-09) and "disagree" for a Disputed one;
-- it covers its top 3: each one that has claims is cited (criterion 1);
-- it names everything code could not verify, in code's own words (criterion 3);
-- nothing reads as an instruction (build rule 3);
-- the contract accepts it;
-- it reads at Grade 9 or under (DECIDED 3). Only this one is worth asking again, so it says so.
+A sentence is kept only when every rule passes, and never repaired. One that fails is dropped alone, and its reason is
+logged in code's own words, never the LLM's:
+- it cites at least one ref it was given, and only those: an invented ref, or another product's claim, is never one;
+- all its refs are quotes of one criterion, and it is the first sentence kept for that criterion;
+- every number in it is in a quote it cites, or one of code's own numbers for that criterion (DECIDED 3), and a
+  phrase stating a score, points or rank states that kind's own value (codes.py);
+- it holds no run of `quoted_words` words from a community quote of this product, which was never sent (D-53);
+- nothing in it reads as an instruction (build rule 3);
+- it fits the contract (3 to 400 characters) and reads at Grade 9 or under (DECIDED 4).
+
+The old private explanation call and its parser (US-20's RawExplanations) were removed with D-91: code now writes the
+personal part, and nothing else read that answer.
 """
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
+from dataclasses import dataclass
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict
 
-from app.contracts import Explanation, ExplanationSentence
 from app.llm.output import looks_like_instruction
 
-from .facts import OUT_OF, Fact, ProductFacts, allowed_numbers
-from .numbers import matches, numbers_in, unmatched
+from .codes import misstated
+from .evidence import EvidenceRequest
+from .facts import ProductFacts, allowed_numbers
+from .numbers import numbers_in, unmatched
+from .quoted import quotes_words
 from .readability import GRADE_LIMIT, grade
-from .templates import trade_off_text, unverified_sentences
 
-MIN_SENTENCES, MAX_SENTENCES = 2, 4
-# How a score that names its number must be described, by what made it: words that must then be in the sentence.
-COMPARED_WORDS = ("compar",)
-ESTIMATED_WORDS = ("estimat",)
-DISPUTED_WORDS = ("disagree", "disput")
+TEXT_MIN, TEXT_MAX = 3, 400  # ExplanationSentence.text
 
 
-class RawSentence(BaseModel):
+class RawEvidenceSentence(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
+    topic: str | None = None  # the group it was given (t1, t2 ...); code goes by the refs cited
     text: str
-    cites: list[str] = Field(default_factory=list)
+    cites: list[str] = []
 
 
-class RawParagraph(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
-    product: str
-    sentences: list[RawSentence]
-    trade_off: str | None = None
-
-
-class RawExplanations(BaseModel):
-    """What the LLM answers: one paragraph per product it was asked about."""
+class RawEvidence(BaseModel):
+    """What the LLM answers: at most one sentence per criterion it was given."""
 
     model_config = ConfigDict(extra="ignore")
 
-    paragraphs: list[RawParagraph]
+    sentences: list[RawEvidenceSentence]
 
 
-class Rejected(Exception):
-    """Why a paragraph was not kept, in code's own words: never the LLM's text."""
+@dataclass(frozen=True)
+class Draft:
+    """An evidence sentence that passed code's rules, waiting for the citation check."""
 
-    def __init__(self, reason: str, *, too_hard: bool = False) -> None:
-        super().__init__(reason)
-        self.reason = reason
-        self.too_hard = too_hard  # every other check passed: a rewrite may fix it
+    key: str  # its criterion
+    text: str
+    claim_ids: tuple[str, ...]
+    quotes: tuple[str, ...]
 
 
-def to_contract(paragraph: RawParagraph, facts: ProductFacts, refs: Mapping[str, str]) -> Explanation:
-    """The paragraph as an Explanation (method llm_unchecked), or Rejected."""
-    own = {refs[claim_id]: claim_id for claim_id in facts.claim_ids() if claim_id in refs}
-    count = len(paragraph.sentences)
-    if not MIN_SENTENCES <= count <= MAX_SENTENCES:
-        raise Rejected(f"it has {count} sentences, not {MIN_SENTENCES} to {MAX_SENTENCES}")
-    ours = set(unverified_sentences([facts.labels[key] for key in facts.unverified]))
-    written: list[tuple[str, list[str]]] = []  # each sentence, with its claim ids; [] for code's own sentence
-    for sentence in paragraph.sentences:
-        text = sentence.text.strip()
+def drafts_from(
+    answer: RawEvidence,
+    request: EvidenceRequest,
+    facts: ProductFacts,
+    community: Sequence[str] = (),
+    quoted_words: int = 6,
+) -> tuple[list[Draft], list[str]]:
+    """The sentences that pass every rule, in the order of their criteria, and why each other one was dropped."""
+    refs = request.by_ref()
+    kept: dict[str, Draft] = {}
+    dropped: list[str] = []
+    for sentence in answer.sentences:
+        text = " ".join(sentence.text.split())
         cites = list(dict.fromkeys(ref.strip() for ref in sentence.cites))
-        if not cites and text in ours:  # code's own words naming what it couldn't check: nothing can back them
-            written.append((text, []))
+        if not cites or any(ref not in refs for ref in cites):
+            dropped.append("it cites no quote, or one it wasn't given")
             continue
-        if not cites or any(ref not in own for ref in cites):
-            raise Rejected("a sentence cites no claim, or one that isn't about this product")
-        claim_ids = [own[ref] for ref in cites]
-        cited = [f for f in facts.facts() if set(f.claim_ids) & set(claim_ids)]
-        _check(text, facts, cited)
-        written.append((text, claim_ids))
-    # The contract asks every written sentence to cite a claim, so code's own sentence carries the paragraph's: the
-    # sources that were checked, next to the words saying what wasn't.
-    everything = list(dict.fromkeys(claim_id for _, ids in written for claim_id in ids))
-    sentences = [_sentence(text, ids or everything) for text, ids in written]
-    trade_text = (paragraph.trade_off or "").strip()
-    if facts.trade_off is None:
-        trade = None
-    elif trade_text:
-        _check(trade_text, facts, [facts.trade_off.fact])
-        trade = trade_text
-    else:  # none written: the template's, from the same fact
-        trade = trade_off_text(facts.trade_off)
-    explanation = _explanation(facts, sentences, trade)
-    _check_covered(explanation, facts)
-    text = " ".join([*(s.text for s in explanation.sentences), explanation.trade_off or ""])
-    if grade(text) > GRADE_LIMIT:
-        raise Rejected(f"it reads above Grade {GRADE_LIMIT:g}", too_hard=True)
-    return explanation
+        keys = {refs[ref].key for ref in cites}
+        if len(keys) != 1:
+            dropped.append("it cites quotes of more than one criterion")
+            continue
+        (key,) = keys
+        quotes = tuple(refs[ref].quote for ref in cites)
+        reason = _broken(text, key, quotes, facts, community, quoted_words)
+        if reason is None and key in kept:
+            reason = "its criterion already has a sentence"
+        if reason is not None:
+            dropped.append(reason)
+            continue
+        kept[key] = Draft(key, text, tuple(refs[ref].claim_id for ref in cites), quotes)
+    order = list(request.labels)
+    return sorted(kept.values(), key=lambda d: order.index(d.key)), dropped
 
 
-def _explanation(facts: ProductFacts, sentences: list[ExplanationSentence], trade: str | None) -> Explanation:
-    try:
-        return Explanation(
-            product_id=facts.product_id,
-            sentences=sentences,
-            trade_off=trade,
-            unverified=list(facts.unverified),
-            method="llm_unchecked",
-        )
-    except ValidationError:
-        raise Rejected("it doesn't fit the explanation contract") from None
-
-
-def _sentence(text: str, claim_ids: list[str]) -> ExplanationSentence:
-    try:
-        return ExplanationSentence(text=text, claim_ids=claim_ids)
-    except ValidationError:
-        raise Rejected("a sentence is empty or too long") from None
-
-
-def _check(text: str, facts: ProductFacts, cited: Sequence[Fact]) -> None:
-    """One sentence, or the trade-off, about the facts it cites: its numbers, its words and nothing that orders."""
-    if unmatched(text, allowed_numbers(facts, cited)):
-        raise Rejected("a sentence names a number the scores don't have")
+def _broken(
+    text: str, key: str, quotes: Sequence[str], facts: ProductFacts, community: Sequence[str], quoted_words: int
+) -> str | None:
+    """Why this sentence can't be kept, or None."""
+    if not TEXT_MIN <= len(text) <= TEXT_MAX:
+        return "it is empty or too long"
+    cited = [f for f in facts.facts() if f.key == key]
+    allowed = [n.value for quote in quotes for n in numbers_in(quote)] + allowed_numbers(facts, cited)
+    if unmatched(text, allowed):
+        return "it names a number neither its quotes nor the scores hold"
+    if misstated(text, facts, key, quotes):
+        return "it states a score, points or rank that isn't code's"
+    if community and quotes_words(text, community, quoted_words):
+        return "it repeats words of a community post"
     if looks_like_instruction(text):
-        raise Rejected("a sentence reads as an instruction")
-    lower = text.lower()
-    for fact in _scores_named(text, facts, cited):
-        for needed, words, reason in (
-            (fact.basis == "compared", COMPARED_WORDS, "a compared score isn't called compared"),
-            (fact.estimated, ESTIMATED_WORDS, "an estimated score isn't called an estimate"),
-            (fact.disputed, DISPUTED_WORDS, "a disputed score doesn't say sources disagree"),
-        ):
-            if needed and not any(word in lower for word in words):
-                raise Rejected(reason)
-
-
-def _scores_named(text: str, facts: ProductFacts, cited: Sequence[Fact]) -> list[Fact]:
-    """The facts whose score this text names: one it cites, or one with no claim to cite whose score is the only
-    reading of a number here (a number the cited facts or the product's rank and score explain is theirs)."""
-    named = numbers_in(text)
-    explained = [*OUT_OF, float(facts.rank), *(v for f in cited for v in (f.score, float(f.points)))]
-    if facts.score is not None:
-        explained.append(float(facts.score))
-    found: list[Fact] = []
-    for fact in facts.facts():
-        if fact in cited:
-            hit = any(matches(n, fact.score) for n in named)
-        elif not fact.claim_ids:
-            hit = any(matches(n, fact.score) and not any(matches(n, v) for v in explained) for n in named)
-        else:
-            hit = False
-        if hit:
-            found.append(fact)
-    return found
-
-
-def _check_covered(explanation: Explanation, facts: ProductFacts) -> None:
-    """Criterion 1: its top 3 are all there (each one with claims is cited). Criterion 3: what code couldn't verify
-    is named, in code's own words, as the template names it."""
-    cited = {claim_id for s in explanation.sentences for claim_id in s.claim_ids}
-    if any(fact.claim_ids and not set(fact.claim_ids) & cited for fact in facts.top):
-        raise Rejected("it leaves out one of its top 3")
-    text = " ".join([*(s.text for s in explanation.sentences), explanation.trade_off or ""]).lower()
-    if any(facts.labels[key].lower() not in text for key in facts.unverified):
-        raise Rejected("it doesn't name everything we could not check")
+        return "it reads as an instruction"
+    if grade(text) > GRADE_LIMIT:
+        return f"it reads above Grade {GRADE_LIMIT:g}"
+    return None

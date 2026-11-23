@@ -67,14 +67,16 @@ def claim(
     value: float | str | None = None,
     product_type: bool = False,
     quote: str = "A made-up quote about it.",
+    url: str = "https://www.reviews.example/a",
 ) -> Claim:
     """A claim about the product called `name`, as extraction writes it (the name as written, no product id)."""
-    digest = hashlib.sha256(f"{name}|{key}|{n}|{quote}".encode()).hexdigest()[:16]
+    where = "" if url == "https://www.reviews.example/a" else f"|{url}"  # the default keeps the ids tests already use
+    digest = hashlib.sha256(f"{name}|{key}|{n}|{quote}{where}".encode()).hexdigest()[:16]
     return Claim.model_validate(
         {
             "id": f"clm_{digest}",
             "source_id": SOURCE,
-            "source_url": "https://www.reviews.example/a",
+            "source_url": url,
             "product_mention": name,
             "is_product_type": product_type,
             "criterion_key": key,

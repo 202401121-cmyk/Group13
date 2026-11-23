@@ -15,7 +15,7 @@ from app.decide import DecideStage, WeightedDecideStage
 from app.enrich import EnrichStage
 from app.entities import MatchStage
 from app.explain import ExplainStage, TemplateExplainStage
-from app.explain.parsing import RawExplanations
+from app.explain.parsing import RawEvidence
 from app.extract import ExtractStage
 from app.intake import IntakeStage
 from app.interview import AdaptiveInterviewStage, InterviewStage
@@ -67,8 +67,8 @@ CASES: list[tuple[Any, BaseModel, type[BaseModel]]] = [
         C.DecideResult,
     ),
     (
-        # US-20: the real stage asks the LLM, so it gets a canned answer here (no paragraph: every product's template)
-        ExplainStage(FakeLLMClient({C.LLMTask.WRITE_EXPLANATION: RawExplanations(paragraphs=[])})),
+        # D-91: the real stage asks for evidence sentences, so it gets a canned answer here (none: the template)
+        ExplainStage(FakeLLMClient({C.LLMTask.WRITE_EVIDENCE: RawEvidence(sentences=[])})),
         C.ExplainInput(ranked=ex.decision().ranked, claims=ex.claims(), user_priorities=WEIGHT_KEYS[:3]),
         C.ExplainResult,
     ),

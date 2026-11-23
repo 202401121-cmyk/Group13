@@ -85,11 +85,10 @@ PLACEHOLDER_RULE: dict[str, tuple[bool, bool | None, str]] = {
     "app.entities.stage.ModelMatchStage": (False, None, "matches the names research really found"),
     "app.verify.stage.TrustVerifyStage": (False, None, "values settled from the real claims"),
     "app.decide.stage.WeightedDecideStage": (False, None, "ranks the real values in code"),
-    "app.explain.stage.ExplainStage": (False, None, "explains code's own numbers"),
-    "app.explain.checked.CheckedExplainStage": (
+    "app.explain.stage.ExplainStage": (
         False,
         None,
-        "explains code's own numbers, each written sentence checked against its quotes",
+        "explains code's own numbers, with evidence sentences from public quotes checked against them",
     ),
     "app.commerce.stage.ShoppingCommerceStage": (False, None, "real prices, or store search links"),
 }

@@ -45,6 +45,7 @@ RETRIEVED_TEXT_TASKS: frozenset[LLMTask] = frozenset(
         LLMTask.DISCOVER_ALIASES,
         LLMTask.ENRICH_EXTRACT,
         LLMTask.WRITE_EXPLANATION,
+        LLMTask.WRITE_EVIDENCE,
         LLMTask.CLASSIFY_REPLY,
         LLMTask.ANSWER_USER_QUESTION,
     }

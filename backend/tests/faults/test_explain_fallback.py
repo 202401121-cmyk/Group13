@@ -8,7 +8,7 @@ import logging
 import pytest
 
 from app.contracts import ExplainInput, ExplainResult, LLMUnavailable, StageContext, StageStatus
-from app.explain import CheckedExplainStage, ExplainStage, TemplateExplainStage
+from app.explain import ExplainStage, TemplateExplainStage
 from app.pipeline import made_by_placeholder, run_stage
 from tests.fakes.llm import FakeLLMClient
 from tests.unit.explain.build import explain_input
@@ -39,8 +39,9 @@ def test_an_error_hands_over_to_the_template(caplog: pytest.LogCaptureFixture) -
 
 
 def test_every_llm_provider_down_gives_the_template_as_intake_and_criteria_give_their_rules() -> None:
-    """No provider answering is not a crash: the stage gives the template itself, and each explanation says so in its
-    method. (The search's own note already says when every LLM call failed, US-31.)"""
+    """No public provider answering the evidence calls is not a crash (D-91): every paragraph is code's own sentences,
+    the template, and each explanation says so in its method. (The search's own note says when every LLM call failed,
+    US-31.)"""
     stage = ExplainStage(FakeLLMClient())
     out, report = run_stage(stage, explain_input(), _ctx(), 15.0)
     assert report.status is StageStatus.OK
@@ -65,17 +66,18 @@ def test_a_raised_llm_error_is_the_reason_not_its_text() -> None:
     assert "shopper words" not in (report.fallback_reason or "")
 
 
-def test_the_checked_stage_hands_any_error_to_the_template_too() -> None:
-    """US-22: a bug in the check is not a crash. The runner's fallback is ExplainStage's, the template, which never
-    needs the model; so no unchecked sentence is ever shown because the check broke."""
+def test_a_bug_in_the_evidence_call_hands_the_whole_stage_to_the_template() -> None:
+    """US-22, D-91: an error that isn't a provider being down (a bug) is not a crash either. The runner's fallback is
+    the template, which needs no model and no provider: no unchecked sentence is ever shown because the code broke."""
 
-    class _BrokenCheck(CheckedExplainStage):
-        def run(self, inp: ExplainInput, ctx: StageContext) -> ExplainResult:
+    class _Buggy(FakeLLMClient):
+        def complete(self, *args: object, **kwargs: object) -> object:  # type: ignore[override]
             raise RuntimeError("secret quote words that must not reach the log")
 
-    stage = _BrokenCheck(FakeLLMClient())
+    stage = ExplainStage(_Buggy())
     inp = explain_input()
     out, report = run_stage(stage, inp, _ctx(), 15.0)
     assert report.status is StageStatus.FALLBACK
     assert out == TemplateExplainStage().run(inp, _ctx())
     assert not made_by_placeholder(stage, report)
+    assert "secret quote words" not in (report.fallback_reason or "")

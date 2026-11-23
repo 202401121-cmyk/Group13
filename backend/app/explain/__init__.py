@@ -1,7 +1,7 @@
-"""Stage explain (US-20, US-22): why each product fits, from code's numbers. The LLM writes the words, a local NLI
-model checks each sentence against the quotes it cites, and a template backs both."""
+"""Stage explain (US-20, US-22, D-91): why each product fits. Code writes the personal part from its own numbers; a
+public LLM call writes evidence sentences from public quotes only, each checked against the quotes it cites, and the
+template backs both."""
 
-from .checked import CheckedExplainStage
 from .stage import ExplainStage, TemplateExplainStage
 
-__all__ = ["CheckedExplainStage", "ExplainStage", "TemplateExplainStage"]
+__all__ = ["ExplainStage", "TemplateExplainStage"]

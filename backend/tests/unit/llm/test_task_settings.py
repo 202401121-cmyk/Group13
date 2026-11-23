@@ -144,16 +144,17 @@ def test_no_other_task_gets_these_settings(task: LLMTask) -> None:
     assert "include_reasoning" not in body
 
 
-def test_only_extraction_explanations_and_the_reply_calls_have_task_settings() -> None:
+def test_only_extraction_evidence_sentences_and_the_reply_calls_have_task_settings() -> None:
+    """D-91: explanations no longer have an LLM call of their own; their evidence sentences do (WRITE_EVIDENCE)."""
     assert set(load_llm_config().task_settings) == {
         LLMTask.EXTRACT_CLAIMS,
-        LLMTask.WRITE_EXPLANATION,
+        LLMTask.WRITE_EVIDENCE,
         LLMTask.CLASSIFY_REPLY,
         LLMTask.ANSWER_USER_QUESTION,
     }
 
 
-@pytest.mark.parametrize("task", [LLMTask.WRITE_EXPLANATION, LLMTask.CLASSIFY_REPLY, LLMTask.ANSWER_USER_QUESTION])
+@pytest.mark.parametrize("task", [LLMTask.WRITE_EVIDENCE, LLMTask.CLASSIFY_REPLY, LLMTask.ANSWER_USER_QUESTION])
 def test_these_tasks_think_as_little_as_extraction_on_every_groq_model(task: LLMTask) -> None:
     """US-20 and US-39: with each model's own reasoning, an answer came back invalid or too late in live checks; an
     interview turn has 5 seconds for both of its calls."""
@@ -162,18 +163,18 @@ def test_these_tasks_think_as_little_as_extraction_on_every_groq_model(task: LLM
         assert config.request_fields(task, model) == config.request_fields(LLMTask.EXTRACT_CLAIMS, model), model
 
 
-def test_the_explanation_call_sends_low_reasoning() -> None:
+def test_the_evidence_call_sends_low_reasoning_when_groq_is_its_last_resort() -> None:
+    """D-91: public quotes only, so the public route; on Groq, its last resort, it thinks as little as extraction."""
     wire = _Wire()
     _client(wire, Provider.GROQ).complete(
-        LLMTask.WRITE_EXPLANATION,
-        "Explain.",
-        "Made-up facts.",
+        LLMTask.WRITE_EVIDENCE,
+        "Write evidence sentences.",
+        "Made-up public quotes.",
         Answer,
-        data_class=DataClass.PRIVATE,
+        data_class=DataClass.PUBLIC,
         difficulty=Difficulty.MEDIUM,
     )
     (body,) = wire.bodies
-    assert body["model"] == BIG  # a task that isn't bulk work keeps the route's order
     assert (body["reasoning_effort"], body["include_reasoning"]) == ("low", False)
 
 

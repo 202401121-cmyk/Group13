@@ -8,9 +8,9 @@
 # not used, and neither is a model whose probabilities on this machine differ from the full model's by more than
 # reference_tolerance on the reference pairs.
 #
-# The check is off unless NLI=on (in .env or the environment; P-48): off, explain runs as before US-22 and the model
-# never loads. On, a model missing, failing or past its time gives the fallback: only sentences that quote a cited quote
-# word for word (quoted_words in a row) are kept, with the template sentences (DECIDED 4).
+# The model is on unless NLI=off (in .env or the environment; S5-4b DECIDED 7). Off, it never loads. Off, or with the
+# model missing, failing or past its time, an evidence sentence stays only when it quotes a cited quote word for word
+# (quoted_words in a row); code's sentences always stay (S5-4b DECIDED 5).
 repo: "cross-encoder/nli-deberta-v3-xsmall"
 revision: "a150876415327c80daeff35ca6f68f5ed8cf5c24"
 # Chosen by python -m evals.citation.model_check: the smallest file in onnx/ whose entailment probabilities agree with

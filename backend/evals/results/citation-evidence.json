@@ -1,0 +1,189 @@
+{
+  "generated": "2026-11-23",
+  "runner": "python -m evals.citation.evidence_sheet --measure (offline; the model from backend/.cache/nli/)",
+  "sentences": 20,
+  "threshold": 0.9608,
+  "model": {
+    "supported": 16,
+    "unsupported": 4,
+    "kept_supported": 0.9375,
+    "caught_unsupported": 1.0,
+    "intervals_95": {
+      "kept_supported": [
+        0.8125,
+        1.0
+      ],
+      "caught_unsupported": [
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "quote_rule": {
+    "supported": 16,
+    "unsupported": 4,
+    "kept_supported": 0.25,
+    "caught_unsupported": 1.0,
+    "intervals_95": {
+      "kept_supported": [
+        0.0625,
+        0.5
+      ],
+      "caught_unsupported": [
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "targets": {
+    "kept_supported": 0.8,
+    "caught_unsupported": 0.8
+  },
+  "nli_on_by_default": true,
+  "labelled_by": {
+    "Jhanvi Barot": 10,
+    "Rushiraj Navar": 10
+  },
+  "verdicts": [
+    {
+      "id": "e001",
+      "supported": true,
+      "labelled_by": "Rushiraj Navar",
+      "model_kept": true,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e002",
+      "supported": true,
+      "labelled_by": "Rushiraj Navar",
+      "model_kept": true,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e003",
+      "supported": true,
+      "labelled_by": "Rushiraj Navar",
+      "model_kept": true,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e004",
+      "supported": true,
+      "labelled_by": "Rushiraj Navar",
+      "model_kept": true,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e005",
+      "supported": true,
+      "labelled_by": "Rushiraj Navar",
+      "model_kept": true,
+      "quote_rule_kept": true
+    },
+    {
+      "id": "e006",
+      "supported": true,
+      "labelled_by": "Rushiraj Navar",
+      "model_kept": true,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e007",
+      "supported": true,
+      "labelled_by": "Rushiraj Navar",
+      "model_kept": true,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e008",
+      "supported": false,
+      "labelled_by": "Rushiraj Navar",
+      "model_kept": false,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e009",
+      "supported": false,
+      "labelled_by": "Rushiraj Navar",
+      "model_kept": false,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e010",
+      "supported": true,
+      "labelled_by": "Rushiraj Navar",
+      "model_kept": true,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e011",
+      "supported": true,
+      "labelled_by": "Jhanvi Barot",
+      "model_kept": true,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e012",
+      "supported": true,
+      "labelled_by": "Jhanvi Barot",
+      "model_kept": true,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e013",
+      "supported": true,
+      "labelled_by": "Jhanvi Barot",
+      "model_kept": true,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e014",
+      "supported": true,
+      "labelled_by": "Jhanvi Barot",
+      "model_kept": true,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e015",
+      "supported": true,
+      "labelled_by": "Jhanvi Barot",
+      "model_kept": true,
+      "quote_rule_kept": true
+    },
+    {
+      "id": "e016",
+      "supported": true,
+      "labelled_by": "Jhanvi Barot",
+      "model_kept": true,
+      "quote_rule_kept": true
+    },
+    {
+      "id": "e017",
+      "supported": true,
+      "labelled_by": "Jhanvi Barot",
+      "model_kept": false,
+      "quote_rule_kept": true
+    },
+    {
+      "id": "e018",
+      "supported": false,
+      "labelled_by": "Jhanvi Barot",
+      "model_kept": false,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e019",
+      "supported": false,
+      "labelled_by": "Jhanvi Barot",
+      "model_kept": false,
+      "quote_rule_kept": false
+    },
+    {
+      "id": "e020",
+      "supported": true,
+      "labelled_by": "Jhanvi Barot",
+      "model_kept": true,
+      "quote_rule_kept": false
+    }
+  ]
+}

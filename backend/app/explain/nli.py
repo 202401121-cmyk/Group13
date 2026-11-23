@@ -146,12 +146,7 @@ def load_nli(
     """The scorer, from the local cache or, the first time, from Hugging Face. Raises NliUnavailable."""
     if not settings.pinned:
         raise NliUnavailable("no revision, sha256 and threshold are set in config/nli.yaml")
-    fetch = download if download is not None else _hf_download
-    try:
-        model_path = _fetch(fetch, settings, settings.model_file, cache_dir)
-        tokenizer_path = _fetch(fetch, settings, settings.tokenizer_file, cache_dir)
-    except Exception as exc:
-        raise NliUnavailable(f"the download failed ({type(exc).__name__})") from exc
+    model_path, tokenizer_path = pinned_files(settings, cache_dir, download=download)
     if sha256_of(model_path) != settings.model_sha256.lower():
         raise NliUnavailable("the downloaded model is not the pinned one (its sha256 differs)")
     if sha256_of(tokenizer_path) != settings.tokenizer_sha256.lower():
@@ -168,6 +163,21 @@ def load_nli(
         raise NliUnavailable(f"the model could not be loaded ({type(exc).__name__})") from exc
     check_against(scorer, settings.reference, settings.reference_tolerance)
     return scorer
+
+
+def pinned_files(
+    settings: NliSettings, cache_dir: Path = CACHE_DIR, *, download: Download | None = None
+) -> tuple[Path, Path]:
+    """The pinned model file and tokenizer.json, from the cache or downloaded once. Raises NliUnavailable. Their
+    sha256 is load_nli's to check."""
+    fetch = download if download is not None else _hf_download
+    try:
+        return (
+            _fetch(fetch, settings, settings.model_file, cache_dir),
+            _fetch(fetch, settings, settings.tokenizer_file, cache_dir),
+        )
+    except Exception as exc:
+        raise NliUnavailable(f"the download failed ({type(exc).__name__})") from exc
 
 
 def check_against(scorer: PairScorer, reference: Sequence[ReferencePair], tolerance: float) -> float:
@@ -258,6 +268,28 @@ def entailment_within(scorer: PairScorer, pairs: Sequence[Pair], timeout_s: floa
         raise
     except Exception as exc:  # a bug in a library must not stop the search (build rule 9)
         raise NliUnavailable(f"the model failed ({type(exc).__name__})") from exc
+
+
+def sentence_probabilities(
+    scorer: PairScorer, checks: Sequence[tuple[str, Sequence[str]]], timeout_s: float
+) -> list[float]:
+    """The check's one interface (P-49): each sentence with its quotes in, its best entailment probability out.
+
+    Every quote (in chunks when long) is a premise for its sentence, all in one batch, and the highest probability
+    counts; a sentence with no quote gets 0.0. Explain calls the model only through here, so the model can move to a
+    service of its own without touching explain's logic. NliUnavailable for any failure, the tokenizer's included.
+    """
+    pairs: list[Pair] = []
+    spans: list[tuple[int, int]] = []
+    try:
+        for sentence, quotes in checks:
+            first = len(pairs)
+            pairs += [(premise, sentence) for quote in quotes for premise in scorer.premises(quote)]
+            spans.append((first, len(pairs)))
+    except Exception as exc:  # the tokenizer is part of the model: its failure gives the fallback too (DECIDED 5)
+        raise NliUnavailable(f"the model could not read a quote ({type(exc).__name__})") from exc
+    found = entailment_within(scorer, pairs, timeout_s) if pairs else []
+    return [max(found[a:b], default=0.0) for a, b in spans]
 
 
 # --- one model per process, loaded in the background ------------------------------------------------------------------

@@ -34,7 +34,7 @@ from app.contracts import (
 )
 from app.contracts import examples as ex
 from app.db import InMemoryRequestStore
-from app.explain import CheckedExplainStage, ExplainStage
+from app.explain import ExplainStage
 from app.pipeline import DatabaseResultStore, InMemoryResultStore, PipelineRunner, default_search_stages
 from app.research.cache import ResearchCache, sweep_expired_files
 from app.research.dedupe import merge_near_duplicates
@@ -444,19 +444,18 @@ def test_the_stages_that_could_carry_reddit_words_are_placeholders_or_handled() 
     assert verify_fields["products[].values[].value"] == REDDIT_VALUE
     assert verify_fields["products[].values[].alternatives[].value"] == REDDIT_VALUE
     assert verify_fields["products[].values[].alternatives[].unit"] == UNIT_DROPPED
-    # US-20 made explain real: its words come from code's facts only (EXPLAINED_FROM_FACTS), proved by the test below.
-    # US-22's check reads each sentence against its quotes on our server, and only ever removes or swaps a sentence for
-    # code's own: it never writes a quote's words (tests/unit/explain/test_checked_stage.py).
-    assert isinstance(stages.explain, CheckedExplainStage)
-    assert isinstance(stages.explain.inner, ExplainStage)
+    # US-20 made explain real, and D-91 made its words code's own sentences plus evidence sentences written from public
+    # quotes only (EXPLAINED_FROM_FACTS): no community quote is ever sent, and a sentence repeating one is dropped,
+    # proved by the test below and tests/unit/explain/test_stage.py.
+    assert isinstance(stages.explain, ExplainStage)
     assert not getattr(stages.explain, "is_placeholder", False)
     explained = sorted(k for k, v in TEXT_FIELDS.items() if v == EXPLAINED_FROM_FACTS)
     assert explained == ["explanations[].sentences[].text", "explanations[].trade_off"]
 
 
-def test_explain_sends_the_llm_no_words_from_any_claim() -> None:
-    """A Reddit claim's quote, its value as text and the product's name as written never reach the explain prompt, so
-    the LLM can't copy them into an explanation."""
+def test_explain_sends_the_llm_no_words_from_any_reddit_claim() -> None:
+    """D-91: the evidence call carries public quotes only. A Reddit claim's quote and its value as text never reach it,
+    so the LLM can't copy them into an explanation."""
     secret_quote, secret_value = "Secret thread words about its keys.", "secret springy keys"
     name = "Nova Book 14"
     reddit_source = thread("expl01", text="A made-up post.")
@@ -479,24 +478,37 @@ def test_explain_sends_the_llm_no_words_from_any_claim() -> None:
         )
         for n, text_value in enumerate((None, secret_value))
     ]
+    public = "The keys felt springy and quiet over a long day of typing, in our made-up review."
+    claims.append(
+        Claim.model_validate(
+            {
+                **claims[0].model_dump(),
+                "id": "clm_" + "d" * 24,
+                "source_id": "src_" + "e" * 16,
+                "source_url": "https://www.reviews.example/nova",
+                "quote": public,
+            }
+        )
+    )
     inp = ExplainInput(ranked=ex.decision().ranked[:1], claims=claims, user_priorities=["keyboard_comfort"])
     llm = _Recorder()
     ExplainStage(llm).run(inp, StageContext(search_id="srch_retention02"))
     assert llm.prompts, "the stage never asked, so this proves nothing"
+    assert any(public in prompt for prompt in llm.prompts)  # the public quote is the one sent
     for prompt in llm.prompts:
-        for words in (secret_quote, secret_value, name):
+        for words in (secret_quote, secret_value):
             assert words not in prompt
 
 
 class _Recorder:
-    """An LLM client that keeps each prompt and answers with no paragraphs."""
+    """An LLM client that keeps each prompt and answers with no evidence sentences."""
 
     def __init__(self) -> None:
         self.prompts: list[str] = []
 
     def complete(self, task: Any, system: str, user: str, schema: Any, **_: Any) -> Any:
         self.prompts.append(system + "\n" + user)
-        return schema.model_validate({"paragraphs": []})
+        return schema.model_validate({"sentences": []})
 
 
 def test_the_real_verify_leaves_community_empty_until_us_42() -> None:

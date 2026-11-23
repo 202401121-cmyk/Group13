@@ -13,24 +13,25 @@ from app.explain.nli_settings import NliSettings, load_nli_settings, nli_switch
 COMMIT = "a150876415327c80daeff35ca6f68f5ed8cf5c24"
 
 
-def test_nli_is_off_unless_switched_on() -> None:
-    """P-48: the check fits only machines with enough memory, and real explanations need the follow-up first."""
-    assert nli_switch({}) is False
-    assert nli_switch({"NLI": ""}) is False
-    assert nli_switch({"NLI": "OFF"}) is False
+def test_nli_is_on_unless_switched_off() -> None:
+    """S5-4b DECIDED 7: on the 20 labelled evidence sentences the model kept 15 of 16 supported and caught 4 of 4
+    unsupported, both at 80% or more, so the check is on by default. A 512 MB host sets NLI=off (render.yaml, P-10)."""
+    assert nli_switch({}) is True
+    assert nli_switch({"NLI": ""}) is True
     assert nli_switch({"NLI": " On "}) is True
-    assert NliSettings().enabled is False
+    assert nli_switch({"NLI": "OFF"}) is False
+    assert NliSettings().enabled is True
 
 
-def test_an_unknown_value_keeps_it_off_and_says_so(caplog: pytest.LogCaptureFixture) -> None:
+def test_an_unknown_value_keeps_the_default_on_and_says_so(caplog: pytest.LogCaptureFixture) -> None:
     with caplog.at_level(logging.WARNING):
-        assert nli_switch({"NLI": "maybe"}) is False
+        assert nli_switch({"NLI": "maybe"}) is True
     assert "not on or off" in caplog.text
 
 
-def test_the_repository_config_is_off_by_default_and_on_only_with_nli_on() -> None:
-    assert not load_nli_settings(env={}).enabled
-    assert load_nli_settings(env={"NLI": "on"}).enabled
+def test_the_repository_config_is_on_by_default_and_off_only_with_nli_off() -> None:
+    assert load_nli_settings(env={}).enabled
+    assert not load_nli_settings(env={"NLI": "off"}).enabled
 
 
 def test_the_repository_config_pins_the_revision_and_reads_the_models_labels() -> None:
