@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, memo } from "react";
 import { ExternalLink } from "lucide-react";
 import { formatINR } from "@/lib/request/format";
 import { researchLink } from "@/lib/links";
@@ -18,6 +18,7 @@ import { pillButton } from "@/components/shopsense/pill-button";
 import { asOfText, coverageText, ordinal, type TieGroup } from "@/lib/results/view";
 import { listInWords } from "@/lib/text";
 import { ConfidenceIndicator, Disclosure, StatusBadge, ValueStateBadge } from "./primitives";
+import { PillCheckbox } from "./PillCheckbox";
 import type { SentenceSources, SourceTarget } from "./SourceDrawer";
 import { useVisualMotion } from "@/hooks/useVisualMotion";
 
@@ -191,19 +192,7 @@ function CriterionRow({
         {c.state === "disputed" && (
           <>
             <StatusBadge variant="disputed">Sources disagree</StatusBadge>
-            {c.sources && c.sources.length > 0 ? (
-              <ul className="text-xs text-muted-foreground">
-                {c.sources.map((s) => (
-                  <li key={s.source}>
-                    {s.source}: <span className="text-foreground">{s.value}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : c.claims && c.claims.length > 0 ? (
-              <DisputedSides claims={c.claims} />
-            ) : (
-              <p className="text-xs text-muted-foreground">Source details aren't available yet.</p>
-            )}
+            <DisputedDetail c={c} />
           </>
         )}
         {(c.state === "verified" || c.state === "estimated") && c.value && (
@@ -216,6 +205,22 @@ function CriterionRow({
       </span>
     </li>
   );
+}
+
+/** A disputed value's sides, each with its source: from the result's own list, else from its claims. */
+export function DisputedDetail({ c }: { c: CriterionValue }) {
+  if (c.sources && c.sources.length > 0)
+    return (
+      <ul className="text-xs text-muted-foreground">
+        {c.sources.map((s) => (
+          <li key={s.source}>
+            {s.source}: <span className="text-foreground">{s.value}</span>
+          </li>
+        ))}
+      </ul>
+    );
+  if (c.claims && c.claims.length > 0) return <DisputedSides claims={c.claims} />;
+  return <p className="text-xs text-muted-foreground">Source details aren't available yet.</p>;
 }
 
 /** Who is on each side of a disputed value: source names, and a value only when the claim carries one. */
@@ -399,6 +404,10 @@ export function ResultCard({
   ranked = true,
   index,
   onShowSources,
+  move = null,
+  note = null,
+  compare,
+  contain = false,
 }: {
   product: ProductResult;
   tiedWith: string[];
@@ -408,28 +417,31 @@ export function ResultCard({
   index: number;
   /** Opens "Where this comes from". Without it, the card shows no source buttons. */
   onShowSources?: ShowSources | undefined;
+  /** How far it moved since decide's order, after the shopper changed what matters (US-23): "Up 2", "Same". */
+  move?: string | null;
+  /** A line under its name, such as "Not scored for these priorities" for a product a change let back in (P-47). */
+  note?: string | null;
+  /** Picked for "Compare" (US-23). */
+  compare?: { checked: boolean; onChange: (checked: boolean) => void } | undefined;
+  /**
+   * Lay out the body only near the screen (content-visibility), so 50 products re-order within 1 s (US-23). The page
+   * sets it while "Change what matters" is open, so a re-rank never changes it; printing draws every body.
+   */
+  contain?: boolean;
 }) {
   const motionRef = useVisualMotion<HTMLElement>();
   const tied = tiedWith.length > 0;
   const rank =
     !ranked || p.rank == null ? null : tied ? `Tied for ${ordinal(p.rank)}` : `#${p.rank}`;
-  const sorted = [...(p.contributions ?? [])].sort((a, b) => b.points - a.points);
-  const reasons = p.reasons ?? [];
-  // Without main reasons (an older result), the two strongest criteria stand in for them.
-  const strongest = reasons.length > 0 ? [] : sorted.slice(0, 2);
-  const weakest = sorted.length > Math.max(2, reasons.length) ? sorted.at(-1) : undefined;
   const gap =
     p.gapToLeader != null && p.gapToLeader > 0 && !tied
       ? Math.round(p.gapToLeader * 10) / 10
       : null;
-  const showFor = (c: SourceTarget["criterion"]) =>
-    onShowSources ? (opener: HTMLElement) => onShowSources(p, c, opener) : null;
   const cov = p.coverage;
   const validCov = cov && cov.total > 0 && cov.checked >= 0 && cov.checked <= cov.total;
   const coverage = coverageText(p.dataCoverage);
   const headingId = `product-${index}`;
   const img = webAddress(p.imageUrl);
-  const storeSearch = webAddress(p.storeSearchUrl);
 
   return (
     <article
@@ -481,7 +493,18 @@ export function ResultCard({
               </span>
             )}
             {tied && <StatusBadge variant="tie">Tied with {listInWords(tiedWith)}</StatusBadge>}
+            {move && (
+              <span data-move className="text-sm font-semibold text-foreground">
+                <span className="sr-only">Since your original priorities: </span>
+                {move}
+              </span>
+            )}
           </div>
+          {note && (
+            <p data-unscored className="mt-2 text-sm text-foreground">
+              {note}
+            </p>
+          )}
         </div>
         {img && (
           <img
@@ -512,158 +535,231 @@ export function ResultCard({
           </StatusBadge>
         )}
         {p.value?.calculated && <StatusBadge variant="good">{p.value.text}</StatusBadge>}
+        {compare && (
+          <PillCheckbox
+            checked={compare.checked}
+            onChange={compare.onChange}
+            label={`Compare ${p.name}`}
+            className="ml-auto"
+          >
+            Compare
+          </PillCheckbox>
+        )}
       </div>
 
-      {(p.explanation || reasons.length > 0 || strongest.length > 0) && (
-        <section
-          className="mt-6"
-          aria-label={ranked ? `Why ${p.name} ranks here` : `What we found about ${p.name}`}
-        >
-          <h4 className="font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
-            {ranked ? "Why it ranks here" : "What we found"}
-          </h4>
-          {p.explanationParts && p.explanationParts.length > 0 ? (
-            <Explanation
-              parts={p.explanationParts}
-              onShow={
-                onShowSources
-                  ? (part, opener) =>
-                      onShowSources(
-                        p,
-                        {
-                          criterionId: "",
-                          label: sentenceLabel(part.text),
-                          // Not shown for a sentence (the drawer has no badge then): it only lists the claims.
-                          state: "verified",
-                          claims: part.claims,
-                        },
-                        opener,
-                        { supported: part.supported ?? null },
-                      )
-                  : null
-              }
-            />
-          ) : (
-            p.explanation && <p className="mt-2 text-foreground">{p.explanation}</p>
-          )}
-          {p.tradeOff && (
-            <p className="mt-2 text-sm text-foreground">
-              <span className="font-semibold">One trade-off:</span> {p.tradeOff}
-            </p>
-          )}
-          {p.unverified && p.unverified.length > 0 && (
-            <p className="mt-2 text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">Not verified:</span>{" "}
-              {listInWords(p.unverified)}.
-            </p>
-          )}
-          {reasons.length > 0 && (
-            <>
-              <p className="mt-4 text-sm font-semibold text-foreground">Main reasons</p>
-              <ol className="mt-2 space-y-2" aria-label={`Main reasons for ${p.name}`}>
-                {reasons.map((r) => (
-                  <ReasonItem
-                    key={r.criterionId}
-                    reason={r}
-                    onShow={showFor({
-                      criterionId: r.criterionId,
-                      label: r.label,
-                      state: r.state,
-                      claims: r.claims,
-                    })}
-                  />
-                ))}
-              </ol>
-              {weakest && (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">Weakest:</span> {weakest.label}
-                </p>
-              )}
-            </>
-          )}
-          {strongest.length > 0 && (
-            <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
-              <div>
-                <dt className="font-semibold text-foreground">Strongest</dt>
-                {strongest.map((c) => (
-                  <dd key={c.criterionId} className="text-muted-foreground">
-                    {c.label}
-                  </dd>
-                ))}
-              </div>
-              {weakest && (
-                <div>
-                  <dt className="font-semibold text-foreground">Weakest</dt>
-                  <dd className="text-muted-foreground">{weakest.label}</dd>
-                </div>
-              )}
-            </dl>
-          )}
-        </section>
-      )}
-
-      <section className="mt-6" aria-label={`Store offers for ${p.name}`}>
-        <h4 className="font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
-          Store offers
-        </h4>
-        {p.offers.length ? (
-          <ul className="divide-y divide-border">
-            {p.offers.map((o) => (
-              <OfferRow key={`${o.store} ${o.url ?? ""}`} o={o} />
-            ))}
-          </ul>
-        ) : (
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            {/* A price a source gave is not a store's offer: "No price found" would not be true then. */}
-            <StatusBadge variant="no-offer">
-              {p.sourcedPrice ? "No store offer" : "No price found"}
-            </StatusBadge>
-            {storeSearch && (
-              <a
-                href={storeSearch}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(pillButton({ variant: "outline", size: "sm" }), "min-h-11")}
-              >
-                Search stores
-                <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                <span className="sr-only">for {p.name} (opens in a new tab)</span>
-              </a>
-            )}
-          </div>
-        )}
-        {p.offers.length === 0 && p.sourcedPrice && (
-          <SourcedPriceLine
-            price={p.sourcedPrice}
-            onShow={showFor({
-              criterionId: "price_inr",
-              label: "Price",
-              state: p.sourcedPrice.state,
-              claims: p.sourcedPrice.claims,
-            })}
-          />
-        )}
-      </section>
-
-      {p.criteria.length > 0 && (
-        <Disclosure className="mt-5" summary="Show all criteria">
-          <ul className="divide-y divide-border">
-            {p.criteria.map((c) => (
-              <CriterionRow
-                key={c.criterionId}
-                c={c}
-                coverage={coverage}
-                onShow={showFor({
-                  criterionId: c.criterionId,
-                  label: c.label,
-                  state: c.state,
-                  claims: c.claims ?? [],
-                })}
-              />
-            ))}
-          </ul>
-        </Disclosure>
-      )}
+      <CardBody product={p} ranked={ranked} onShowSources={onShowSources} contained={contain} />
     </article>
   );
 }
+
+/** The fields of a product its card's body shows: the same objects after a re-rank, which changes none of them. */
+const BODY_FIELDS = [
+  "id",
+  "name",
+  "explanation",
+  "explanationParts",
+  "tradeOff",
+  "unverified",
+  "reasons",
+  "contributions",
+  "offers",
+  "storeSearchUrl",
+  "sourcedPrice",
+  "criteria",
+  "dataCoverage",
+] as const satisfies readonly (keyof ProductResult)[];
+
+/**
+ * A card's explanation, reasons, offers and criteria. Memoised: a re-rank (US-23) gives a product a new rank, score
+ * and move but the same evidence, so only the card's header is drawn again. That keeps 50 products within 1 s.
+ */
+const CardBody = memo(
+  function CardBody({
+    product: p,
+    ranked,
+    onShowSources,
+    contained,
+  }: {
+    product: ProductResult;
+    ranked: boolean;
+    onShowSources?: ShowSources | undefined;
+    contained: boolean;
+  }) {
+    const sorted = [...(p.contributions ?? [])].sort((a, b) => b.points - a.points);
+    const reasons = p.reasons ?? [];
+    // Without main reasons (an older result), the two strongest criteria stand in for them.
+    const strongest = reasons.length > 0 ? [] : sorted.slice(0, 2);
+    const weakest = sorted.length > Math.max(2, reasons.length) ? sorted.at(-1) : undefined;
+    const showFor = (c: SourceTarget["criterion"]) =>
+      onShowSources ? (opener: HTMLElement) => onShowSources(p, c, opener) : null;
+    const coverage = coverageText(p.dataCoverage);
+    const storeSearch = webAddress(p.storeSearchUrl);
+    return (
+      <div
+        data-card-body
+        className={
+          contained
+            ? // The padding, taken back by the margin, keeps focus rings clear of the containment's clip.
+              "-m-2 p-2 [contain-intrinsic-size:auto_30rem] [content-visibility:auto] print:[content-visibility:visible]"
+            : undefined
+        }
+      >
+        {(p.explanation || reasons.length > 0 || strongest.length > 0) && (
+          <section
+            className="mt-6"
+            aria-label={ranked ? `Why ${p.name} ranks here` : `What we found about ${p.name}`}
+          >
+            <h4 className="font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
+              {ranked ? "Why it ranks here" : "What we found"}
+            </h4>
+            {p.explanationParts && p.explanationParts.length > 0 ? (
+              <Explanation
+                parts={p.explanationParts}
+                onShow={
+                  onShowSources
+                    ? (part, opener) =>
+                        onShowSources(
+                          p,
+                          {
+                            criterionId: "",
+                            label: sentenceLabel(part.text),
+                            // Not shown for a sentence (the drawer has no badge then): it only lists the claims.
+                            state: "verified",
+                            claims: part.claims,
+                          },
+                          opener,
+                          { supported: part.supported ?? null },
+                        )
+                    : null
+                }
+              />
+            ) : (
+              p.explanation && <p className="mt-2 text-foreground">{p.explanation}</p>
+            )}
+            {p.tradeOff && (
+              <p className="mt-2 text-sm text-foreground">
+                <span className="font-semibold">One trade-off:</span> {p.tradeOff}
+              </p>
+            )}
+            {p.unverified && p.unverified.length > 0 && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                <span className="font-semibold text-foreground">Not verified:</span>{" "}
+                {listInWords(p.unverified)}.
+              </p>
+            )}
+            {reasons.length > 0 && (
+              <>
+                <p className="mt-4 text-sm font-semibold text-foreground">Main reasons</p>
+                <ol className="mt-2 space-y-2" aria-label={`Main reasons for ${p.name}`}>
+                  {reasons.map((r) => (
+                    <ReasonItem
+                      key={r.criterionId}
+                      reason={r}
+                      onShow={showFor({
+                        criterionId: r.criterionId,
+                        label: r.label,
+                        state: r.state,
+                        claims: r.claims,
+                      })}
+                    />
+                  ))}
+                </ol>
+                {weakest && (
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    <span className="font-semibold text-foreground">Weakest:</span> {weakest.label}
+                  </p>
+                )}
+              </>
+            )}
+            {strongest.length > 0 && (
+              <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                <div>
+                  <dt className="font-semibold text-foreground">Strongest</dt>
+                  {strongest.map((c) => (
+                    <dd key={c.criterionId} className="text-muted-foreground">
+                      {c.label}
+                    </dd>
+                  ))}
+                </div>
+                {weakest && (
+                  <div>
+                    <dt className="font-semibold text-foreground">Weakest</dt>
+                    <dd className="text-muted-foreground">{weakest.label}</dd>
+                  </div>
+                )}
+              </dl>
+            )}
+          </section>
+        )}
+
+        <section className="mt-6" aria-label={`Store offers for ${p.name}`}>
+          <h4 className="font-mono text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
+            Store offers
+          </h4>
+          {p.offers.length ? (
+            <ul className="divide-y divide-border">
+              {p.offers.map((o) => (
+                <OfferRow key={`${o.store} ${o.url ?? ""}`} o={o} />
+              ))}
+            </ul>
+          ) : (
+            <div className="mt-2 flex flex-wrap items-center gap-3">
+              {/* A price a source gave is not a store's offer: "No price found" would not be true then. */}
+              <StatusBadge variant="no-offer">
+                {p.sourcedPrice ? "No store offer" : "No price found"}
+              </StatusBadge>
+              {storeSearch && (
+                <a
+                  href={storeSearch}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(pillButton({ variant: "outline", size: "sm" }), "min-h-11")}
+                >
+                  Search stores
+                  <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                  <span className="sr-only">for {p.name} (opens in a new tab)</span>
+                </a>
+              )}
+            </div>
+          )}
+          {p.offers.length === 0 && p.sourcedPrice && (
+            <SourcedPriceLine
+              price={p.sourcedPrice}
+              onShow={showFor({
+                criterionId: "price_inr",
+                label: "Price",
+                state: p.sourcedPrice.state,
+                claims: p.sourcedPrice.claims,
+              })}
+            />
+          )}
+        </section>
+
+        {p.criteria.length > 0 && (
+          <Disclosure className="mt-5" summary="Show all criteria">
+            <ul className="divide-y divide-border">
+              {p.criteria.map((c) => (
+                <CriterionRow
+                  key={c.criterionId}
+                  c={c}
+                  coverage={coverage}
+                  onShow={showFor({
+                    criterionId: c.criterionId,
+                    label: c.label,
+                    state: c.state,
+                    claims: c.claims ?? [],
+                  })}
+                />
+              ))}
+            </ul>
+          </Disclosure>
+        )}
+      </div>
+    );
+  },
+  (a, b) =>
+    a.ranked === b.ranked &&
+    a.contained === b.contained &&
+    a.onShowSources === b.onShowSources &&
+    BODY_FIELDS.every((k) => a.product[k] === b.product[k]),
+);

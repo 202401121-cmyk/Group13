@@ -197,7 +197,63 @@ export interface ExcludedProduct {
   criterion?: string | null;
 }
 
+/**
+ * What the browser re-ranks and re-filters from (US-23, P-42), all from the result already loaded: never a new
+ * request. Missing on a result that can't be re-ranked (no rubric weights, or nothing decided).
+ */
+export interface RerankData {
+  /** The search's own rubric, in its order: each criterion's slider weight, 0 to 10. */
+  weights: { criterionId: string; title: string; weight: number }[];
+  /** Decide's shown products, in its order, each with every criterion's score as decide gave it. */
+  scored: {
+    productId: string;
+    contributions: { criterionKey: string; score: number | null; state: string }[];
+  }[];
+  /** The rubric's budget; amounts in its currency. */
+  budget: { min: number | null; max: number | null; currency: string } | null;
+  rules: RerankRule[];
+  /** What decide's filter read for each product (its price and each rule's attribute), by product id. */
+  checked: Record<string, CheckedRead[]>;
+  /** The rubric's leave-outs, in its order: never changed here, but the hint can name one, as decide's does. */
+  exclusions: RerankExclusion[];
+  /** The products decide held back, with its own reasons. */
+  held: { productId: string; group: "filtered_out" | "cant_tell"; reasons: string[] }[];
+  /** A card for each product decide held back, for one a change lets back in (P-47). */
+  others: ProductResult[];
+  /** False for a result from before 1.10.0, which holds no checked values: re-rank only, nothing re-filtered. */
+  canRefilter: boolean;
+}
+
+/** A hard rule as the rubric holds it. `sourceText` is the shopper's own words, which every reason quotes. */
+export interface RerankRule {
+  id: string;
+  attribute: string;
+  operator: string;
+  value: number | string | boolean | string[];
+  unit: string | null;
+  sourceText: string;
+  active: boolean;
+}
+
+/** A leave-out as the rubric holds it: a brand, model, feature or seller, in the shopper's words. */
+export interface RerankExclusion {
+  kind: string;
+  value: string;
+}
+
+/** One value decide's filter read (the contract's CheckedValue): every side or version it compared. */
+export interface CheckedRead {
+  attribute: string;
+  state: string;
+  values: (number | string | boolean)[];
+  unit: string | null;
+  anyVersion: boolean;
+  fromNames: number;
+}
+
 export interface ResearchResult {
+  /** What the browser re-ranks and re-filters from (US-23). */
+  rerank?: RerankData | null;
   /** The run this result came from, which the evidence route needs. */
   searchId?: string | null;
   /** Ranked, eligible products (best first). */

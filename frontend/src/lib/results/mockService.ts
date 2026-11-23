@@ -41,6 +41,8 @@ export const MOCK_SCENARIOS = [
   { id: "partial", label: "Partial results" },
   { id: "relaxation", label: "Relaxation hint" },
   { id: "withheld-quote", label: "A Reddit quote not kept" },
+  { id: "refilter", label: "Budget and must-haves" },
+  { id: "many", label: "Fifty products" },
   { id: "empty", label: "No results" },
   { id: "timeout", label: "Research timeout" },
   { id: "network-retry", label: "Network error, then retry" },

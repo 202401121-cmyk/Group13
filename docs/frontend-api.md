@@ -833,7 +833,8 @@ the backend fills every new field with its default when it sends it.
     equal share.
   - **What it doesn't cover:** re-scoring after a re-filter. A product the browser lets back in has no contributions.
     Compared and estimated scores depend on which products are shown. Leave-outs (brand families, features) aren't in
-    `checked_values`. These are gaps for the US-23 owner to settle.
+    `checked_values`. US-23 settled these: see
+    [compare and re-rank in the browser](#compare-and-re-rank-in-the-browser-us-23).
 - **`CheckedValue`:** `product_id`, `attribute`, `state`, `values`, `unit`, `any_version` and `from_names`.
   - **`state`** is as the filter read it: `unknown` when verify gave no value, and `known` for a value disputed in
     scores only, which the filter checks as an agreed one.
@@ -851,6 +852,91 @@ the backend fills every new field with its default when it sends it.
       can't tell. A disputed value with one side alone can't tell either.
     - **Versions:** any one keeping it, pass. Otherwise, if one can't be compared, or the state is `disputed` and only
       one value came from the claims, can't tell. Else fail.
+
+## Compare and re-rank in the browser (US-23)
+
+On the results page, "Change what matters" re-ranks and re-filters a finished result, and "Compare" puts up to 4
+products side by side. Both work only from the result already loaded: no request is made, and no contract field was
+added (P-42). The screen code is `src/lib/results/score.ts`, `refilter.ts` and `rerank.ts`, and the two lazily loaded
+components `RerankPanel.tsx` and `CompareView.tsx`.
+
+**What it reads.** `request.rubric` (each weight, the budget, every hard rule and the leave-outs), each ranked
+product's `contributions`, `decision.checked_values` and `decision.filtered`. Nothing else. A result where decide
+showed nothing but held products back can still be re-filtered; the weights are then not offered.
+
+**Re-ranking.**
+
+- Each criterion has a slider and a number box, 0 to 10. Every change re-ranks at once.
+- The score is decide's own weighted score, repeated exactly:
+  - shares are renormalised over the criteria some product has a score on;
+  - the score is `round(min(100, Σ score × share × 10), 2)`, with Python's rounding (an exact half goes to even);
+  - a missing score takes the other shown products' average, marked estimated, never 0 (DR-09). Decide never sends
+    one for a product it showed.
+- Decide's criterion scores are kept as they are. Only the weights change; nothing is compared again.
+- The order:
+  - with the weights as decide had them, decide's own order stands (it ranks by chance of being first, from its
+    simulations), and a budget or must-have change only takes products out or lets them in;
+  - with new weights, the order is the new score's, and a tie in score keeps decide's order. Decide's own weighted
+    ranking would break such a tie by coverage, then product ID; the scores are the same.
+- Each card says how far it moved since decide's order: "Up 2", "Down 1" or "Same", in words.
+- After any change, chance of ranking first and confidence are hidden. The page says "Confidence was worked out for your
+  original priorities. So were each product's reasons, points and data coverage." It offers "Back to my original
+  priorities", which gives back decide's result exactly.
+- Hiding the panel keeps the changes; opening it again shows them.
+- With every weight at 0, the all-zero note shows and decide's order and scores stay.
+
+**Parity with decide.**
+
+- `backend/scripts/export_parity_cases.py` writes `frontend/src/test/fixtures/parity.json` (about 580 KB):
+  - 30 re-weighting cases, from the five decide briefs and five recorded runs;
+  - 10 filter cases with 48 changes (the budget lowered, raised and removed, and each rule switched), with each
+    case's leave-outs.
+- `src/test/parity.test.ts` checks the browser gives the same order, and scores and coverage within 1e-6. For the filter
+  cases, it checks the same shown and held products, reasons and hint.
+- CI's step "Re-rank parity cases are up to date" fails when the file differs from what decide gives now. Run it with
+  Python 3.11, CI's version: from 3.12, `sum()` adds floats more exactly.
+
+**Re-filtering.**
+
+- The budget (from and up to) can be changed; a "from" above the "up to" is refused. Each must-have can be switched on
+  or off; its value can't be changed.
+- Each product is checked against what decide's filter read (`checked_values`), with decide's rules and its reading of
+  numbers and units (`units.py`): a second rule in another unit, "1,000 mAh" or "₹1.15 lakh" read as decide reads
+  them. An unknown value stays "Couldn't check", never a fail.
+- Versions: only a rule that compares a size is checked against every version. Any other rule on the same attribute
+  reads the claims' values alone, as decide does.
+- Reasons use decide's own sentence when decide wrote one for that rule. Otherwise they are built the way decide builds
+  them, such as "₹84,990 is above your ₹80,000 budget".
+- Leave-outs (brands, features) aren't in `checked_values`, and can't be changed here. A product left out that way
+  stays left out, with decide's reason.
+- When nothing is shown, the hint names the one change that lets the most products through, as decide's does: the
+  budget, then a must-have, then a leave-out ("Allowing Kestrel again would let 2 products through."). Each leave-out
+  reason is matched to its leave-out by the words after "You ruled out".
+- A must-have that decide never checked (it was off) is worded with the value in the rule's unit ("it has 320 g")
+  where decide would quote the source's own ("0.32 kg"); the verdict is the same.
+- Decide ranks at most 50 products. One it showed beyond those can't come back, whatever the weights.
+- A product a change lets back in joins the end of the list, with no rank number and no score, and says "Not scored for
+  these priorities. Run the search again to score it." (P-47). Decide scored only the products it showed.
+- A result from before 1.10.0 has no `checked_values`. It can be re-ranked, but the must-haves aren't offered.
+
+**Comparing.**
+
+- A "Compare" box on each card. A fifth pick is refused: "You can compare up to 4 products. Remove one to pick
+  another."
+- The table has a row for each criterion and a column for each product. Each value shows its state as the cards do: a
+  disputed value's sides, each with its source; an estimate with its data coverage; "Not verified" for an unknown
+  value. A "Sources" button opens "Where this comes from".
+- A pick a change holds back leaves the comparison.
+- The table sits in its own labelled region, "Comparison table", which scrolls sideways at 390 px. The page itself never
+  does.
+
+**Speed.**
+
+- Both parts load only when opened, so the results page stays within its 170 KB first load (163.7 KB).
+- A re-rank draws each card's header again, never its body (memoised).
+- While "Change what matters" is open, card bodies off screen are laid out only when they come near
+  (`content-visibility`); printing draws them all.
+- `e2e/quality/rerank.spec.ts` checks 50 products re-rank within 1 s on a CPU slowed 4 times, with no request.
 
 ## What the backend cannot do yet
 

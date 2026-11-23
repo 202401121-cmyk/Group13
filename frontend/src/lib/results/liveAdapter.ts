@@ -32,6 +32,7 @@ import type { SearchRun } from "@/types/contracts/SearchRun";
 import {
   ResearchError,
   type CancelOutcome,
+  type CheckedRead,
   type ClaimView,
   type CriterionValue,
   type EvidenceView,
@@ -41,6 +42,7 @@ import {
   type ProductResult,
   type ProgressEvent,
   type ReasonView,
+  type RerankData,
   type ResearchInput,
   type ResearchResult,
   type ResearchService,
@@ -240,6 +242,19 @@ export function resultFromSearch(
     sources: new Map(result.sources.map((s) => [s.id, s])),
   };
 
+  const offersFor = (productId: string): Offer[] =>
+    offers
+      .filter((o) => o.product_id === productId)
+      .map((o): Offer => ({
+        store: o.store,
+        price: o.price && o.price.currency === "INR" ? o.price.amount : null,
+        checkedAt: o.as_of,
+        stale: isPriceStale(o.as_of, now),
+        url: o.url,
+        availability: o.availability,
+        overBudget: o.over_budget,
+      }));
+
   const products: ProductResult[] = ranked.map((r) => {
     const summary = summaries.get(r.product_id);
     const rows = criteriaRows(summary, keys, label, cited);
@@ -292,17 +307,7 @@ export function resultFromSearch(
       label: r.label,
       gapToLeader: r.score === null ? null : r.gap_to_leader,
       criteria: rows,
-      offers: offers
-        .filter((o) => o.product_id === r.product_id)
-        .map((o): Offer => ({
-          store: o.store,
-          price: o.price && o.price.currency === "INR" ? o.price.amount : null,
-          checkedAt: o.as_of,
-          stale: isPriceStale(o.as_of, now),
-          url: o.url,
-          availability: o.availability,
-          overBudget: o.over_budget,
-        })),
+      offers: offersFor(r.product_id),
       storeSearchUrl: result.commerce?.no_offer[r.product_id] ?? null,
       sourcedPrice: offers.some((o) => o.product_id === r.product_id)
         ? null
@@ -325,8 +330,27 @@ export function resultFromSearch(
       }));
 
   const hint = result.decision?.relaxation_hint ?? null;
+  // A held product's card, for when a change lets it back in (US-23, P-47): its values and prices, never a score.
+  const heldCard = (productId: string): ProductResult => {
+    const summary = summaries.get(productId);
+    return {
+      id: productId,
+      name: summary?.product.name ?? productId,
+      imageUrl: null,
+      rank: null,
+      score: null,
+      criteria: criteriaRows(summary, keys, label, cited),
+      offers: offersFor(productId),
+      storeSearchUrl: result.commerce?.no_offer[productId] ?? null,
+      sourcedPrice: offers.some((o) => o.product_id === productId)
+        ? null
+        : sourcedPrice(summary, cited),
+      value: null,
+    };
+  };
   return {
     searchId: result.search_id,
+    rerank: rerankOf(result, ranked, label, heldCard),
     products,
     leftOut: excluded("filtered_out"),
     couldntCheck: excluded("cant_tell"),
@@ -338,6 +362,79 @@ export function resultFromSearch(
     saved: result.saved,
     llmUnavailable: result.llm_unavailable,
     source: "live",
+  };
+}
+
+/**
+ * What the browser re-ranks and re-filters from (US-23, P-42), all from this result: the rubric's weights, budget
+ * and rules, each shown product's criterion scores, and what decide's filter read (checked_values, 1.10.0). Null when
+ * nothing could be scored, as there is nothing to re-rank.
+ */
+function rerankOf(
+  result: SearchResult,
+  ranked: RankedProduct[],
+  label: (key: string) => string,
+  card: (productId: string) => ProductResult,
+): RerankData | null {
+  const decision = result.decision;
+  if (!decision) return null;
+  // Something to re-rank, or (decide showed nothing) products held back that a budget or rule change may let in.
+  const heldOnly =
+    ranked.length === 0 && decision.filtered.length > 0 && decision.checked_values.length > 0;
+  if (!ranked.some((r) => r.score !== null) && !heldOnly) return null;
+  const rubric = result.request.rubric;
+  const money = rubric.budget?.max ?? rubric.budget?.min ?? null;
+  const checked: Record<string, CheckedRead[]> = {};
+  for (const v of decision.checked_values)
+    (checked[v.product_id] ??= []).push({
+      attribute: v.attribute,
+      state: v.state,
+      values: v.values,
+      unit: v.unit ?? null,
+      anyVersion: v.any_version,
+      fromNames: v.from_names,
+    });
+  return {
+    weights: rubric.weights.map((w) => ({
+      criterionId: w.key,
+      title: label(w.key),
+      weight: w.weight,
+    })),
+    scored: ranked.map((r) => ({
+      productId: r.product_id,
+      contributions: r.contributions.map((c) => ({
+        criterionKey: c.criterion_key,
+        score: c.score,
+        state: c.state,
+      })),
+    })),
+    budget: money
+      ? {
+          min: rubric.budget?.min?.amount ?? null,
+          max: rubric.budget?.max?.amount ?? null,
+          currency: money.currency,
+        }
+      : null,
+    rules: rubric.hard_rules.map((r) => ({
+      id: r.id,
+      attribute: r.attribute,
+      operator: r.operator,
+      value: r.value,
+      unit: r.unit ?? null,
+      sourceText: r.source_text,
+      active: r.active,
+    })),
+    checked,
+    exclusions: rubric.exclusions.map((e) => ({ kind: e.kind, value: e.value })),
+    held: decision.filtered.map((f) => ({
+      productId: f.product_id,
+      group: f.group,
+      reasons: f.reasons,
+    })),
+    others: decision.filtered.map((f) => card(f.product_id)),
+    // A result from before 1.10.0 says nothing of what its filter read: it can be re-ranked, never re-filtered.
+    canRefilter:
+      decision.checked_values.length > 0 || decision.ranked.length + decision.filtered.length === 0,
   };
 }
 
