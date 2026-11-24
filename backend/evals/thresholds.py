@@ -8,6 +8,7 @@ Every measured value has exactly one floor. How each floor is set:
 - safety: exact. Zero rule breaks among shown products, zero unsourced shown products, and popularity never wins.
 - quality: the measured value less a stated margin.
   - 0.05 for a rate (US-49 fails a drop of more than 10 points, so a floor never sits outside that).
+  - 0.05 for a Spearman median, never below its plan target while the target is met (P-45).
   - 10% for a count, rounded down.
   - One conflict for the trust counts (out of 5).
   - None for the briefs' hand-written expectations, which are right or wrong.
@@ -84,6 +85,11 @@ PLAN_TARGETS: dict[str, tuple[float, str]] = {
     "decide.stability.close_median": (
         0.9,
         "US-19 criterion 4: rank order stable under random 10% weight changes, Spearman 0.9 or better",
+    ),
+    "decide.stability.close_untied_median": (
+        0.9,
+        "US-19 criterion 4: rank order stable under random 10% weight changes, Spearman 0.9 or better; counted with "
+        "each tie group the app marks as one position (P-45)",
     ),
     "memory.repeated_reduction": (
         0.5,
@@ -178,6 +184,7 @@ class Rule:
     margin: str
     rule: str
     limit: float | None = None
+    least: float | None = None  # a floor never below this: a met plan target (P-45)
 
 
 def _stage_limit(measure_id: str) -> tuple[float, str] | None:
@@ -211,6 +218,8 @@ WHY: dict[str, str] = {
     "gate.claims_kept": "Extraction keeps the claims it keeps now from the recorded runs (US-49).",
     "decide.stability.": "On close products, the rank order keeps the stability it has now under random 10% weight "
     "changes (US-19, D-74).",
+    "decide.stability.close_untied_": "On close products, the order the app claims (each group it marks too close to "
+    "call as one position) keeps the stability it has now under random 10% weight changes (US-19, P-45).",
     "research.recorded.": "Reading the recorded web searches finds the sources it finds now (US-12).",
     "live.briefs_finished": "Every brief finishes, whatever fails on the way (build rules 9 and 10).",
     "live.ranked_products": "Real searches keep showing products.",
@@ -254,6 +263,11 @@ def rule_for(measure: Mapping[str, Any]) -> Rule:
         side = "above" if direction == "at_most" else "below"
         return Rule("quality", direction, f"{RATE_MARGIN} {side} the measured rate", why)
     if unit == "rho":
+        plan = PLAN_TARGETS.get(measure_id)
+        value = measure.get("value")
+        if plan is not None and value is not None and value >= plan[0]:  # a met target is never given back (P-45)
+            margin = f"{RHO_MARGIN} below the measured median, never below the met target of {plan[0]:g}"
+            return Rule("quality", direction, margin, why, least=plan[0])
         return Rule("quality", direction, f"{RHO_MARGIN} below the measured median", why)
     if unit == "difference":  # a rate less another (US-06's accuracy with memory less without): may be below 0
         return Rule("quality", direction, f"{RATE_MARGIN} below the measured difference of two rates", why)
@@ -271,8 +285,9 @@ def floor_for(rule: Rule, measured: float) -> float:
         return float(rule.limit)
     if rule.margin.startswith("none"):
         return measured
-    if rule.margin.endswith("below the measured median"):  # a Spearman rho: -1 to 1
-        return round(min(1.0, max(-1.0, measured - RHO_MARGIN)), 4)
+    if rule.margin.startswith(f"{RHO_MARGIN} below the measured median"):  # a Spearman rho: -1 to 1
+        floor = round(min(1.0, max(-1.0, measured - RHO_MARGIN)), 4)
+        return floor if rule.least is None else max(floor, rule.least)
     if rule.margin.endswith("below the measured difference of two rates"):  # -1 to 1, never clamped at 0
         return round(min(1.0, max(-1.0, measured - RATE_MARGIN)), 4)
     if rule.margin.startswith(str(RATE_MARGIN)):

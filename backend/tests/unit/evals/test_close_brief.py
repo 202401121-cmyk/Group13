@@ -125,7 +125,7 @@ def test_the_record_reports_the_close_brief_beside_the_five() -> None:
     assert close["meets_target"] is (close["median"] >= 0.9)
     if not close["meets_target"]:
         assert "below US-19's target of 0.9" in close["note"]
-    (measure,) = record["measures"]
+    measure = next(m for m in record["measures"] if m["id"] == MEASURE)  # beside it, P-45's number (S5-15)
     assert (measure["id"], measure["value"], measure["status"]) == (MEASURE, close["median"], "measured")
 
 
@@ -133,7 +133,8 @@ def test_the_floor_is_the_measured_median_less_0_05_with_the_target_beside_it() 
     floor = thresholds.load(thresholds.THRESHOLDS).measures[MEASURE]
     median = _record()["close"]["median"]
     assert floor.measured == median
-    assert floor.floor == pytest.approx(round(median - 0.05, 4))
+    lowered = round(median - 0.05, 4)
+    assert floor.floor == pytest.approx(max(lowered, 0.9) if median >= 0.9 else lowered)  # a met target stays (P-45)
     assert floor.target is not None and floor.target.value == 0.9
     assert floor.target.note == ("met" if median >= 0.9 else "not met")
 
