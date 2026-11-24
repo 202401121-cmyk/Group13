@@ -296,9 +296,11 @@ def test_with_the_breaker_open_nothing_reaches_the_database(
     for _ in range(3):
         store.breaker.record_failure()
     assert store.breaker.state == "open"
+    chosen = ex.search_result()  # built before the clock starts, which times the save alone
+    rubric, result = chosen.request.rubric.model_dump(mode="json"), chosen.model_dump(mode="json")
     start = time.monotonic()
     with caplog.at_level(logging.DEBUG):
-        assert save(store, session) is False
+        assert store.save_search(session, rubric, result) is False
     assert time.monotonic() - start < 0.1  # skipped, not tried
     assert store._pool is None and store._save_pool is None
     [line] = database_lines(caplog)

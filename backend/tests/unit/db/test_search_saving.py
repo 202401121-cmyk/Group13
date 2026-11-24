@@ -159,9 +159,10 @@ def test_three_failures_open_the_breaker_and_the_next_save_is_skipped_at_once(
         assert store.save_search(SESSION, rubric_json(), result_json()) is False
     assert store.breaker.state == "open"
     caplog.clear()
+    rubric, result = rubric_json(), result_json()  # built before the clock starts, which times the save alone
     start = time.monotonic()
     with caplog.at_level(logging.DEBUG):
-        assert store.save_search(SESSION, rubric_json(), result_json()) is False
+        assert store.save_search(SESSION, rubric, result) is False
     assert time.monotonic() - start < 0.1  # skipped, not tried
     [line] = database_lines(caplog)
     assert "circuit breaker is open" in line.getMessage()

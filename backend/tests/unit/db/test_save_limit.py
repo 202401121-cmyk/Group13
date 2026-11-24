@@ -51,8 +51,13 @@ def _slow(seconds: float, done: list[str] | None = None, name: str = "") -> Any:
     return work
 
 
+def _payload() -> tuple[dict[str, Any], dict[str, Any]]:
+    """The example rubric and search as save_search takes them. A test timing a save builds them before its clock."""
+    return ex.rubric().model_dump(mode="json"), ex.search_result().model_dump(mode="json")
+
+
 def _save(store: PostgresRequestStore, within_s: float | None = None) -> bool:
-    rubric, result = ex.rubric().model_dump(mode="json"), ex.search_result().model_dump(mode="json")
+    rubric, result = _payload()
     return store.save_search(SESSION, rubric, result, within_s=within_s)
 
 
@@ -108,8 +113,9 @@ def test_an_open_breaker_answers_false_at_once_and_sends_nothing() -> None:
     with _store(timeout_s=0.3, save_timeout_s=15.0, breaker=breaker) as store:
         sent: list[str] = []
         store._insert_search = _slow(0.0, sent, "sent")  # type: ignore[method-assign]
+        rubric, result = _payload()
         started = time.monotonic()
-        assert _save(store) is False
+        assert store.save_search(SESSION, rubric, result) is False
         assert time.monotonic() - started < 0.1
         assert sent == []
 
@@ -229,8 +235,9 @@ def test_a_half_open_breaker_keeps_its_one_trial_for_a_quick_call() -> None:
     with _store(timeout_s=0.3, save_timeout_s=15.0, breaker=breaker) as store:
         sent: list[str] = []
         store._insert_search = _slow(0.0, sent, "sent")  # type: ignore[method-assign]
+        rubric, result = _payload()
         started = time.monotonic()
-        assert _save(store) is False
+        assert store.save_search(SESSION, rubric, result) is False
         assert time.monotonic() - started < 0.1 and sent == []
         store._insert = _slow(0.0)  # type: ignore[method-assign]
         assert store.save_request(SESSION, ex.QUERY, None) == "saved"  # the quick call took the trial
