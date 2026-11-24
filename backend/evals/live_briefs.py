@@ -16,6 +16,20 @@ credits. Extraction reads at most EXTRACT_MAX_SOURCES=8 sources a search, so a b
 
 Each brief also gets a funnel (US-14): where its sources stopped turning into scored products, as counts with a reason
 for each. It holds counts and fixed labels only, like the rest of the record.
+
+S5-6a (US-14, US-46): each brief also says
+- its funnel in eight steps (`steps`): sources found, read, extracted, claims kept, products kept, with a price, with
+  any score, ranked;
+- every model attempt minute by minute (`attempts_by_minute`), per provider: sent, answered, no room (our own pacing
+  or a provider's daily budget held it: nothing was sent), 429 (sent, and the provider refused it), timed out, and any
+  other failure. A call this run's own LLM share refuses reaches the client as a failed request, so it counts as sent
+  and other;
+- each answered attempt's size and time per provider and outcome (`answer_sizes`: [output tokens, seconds]), so an
+  answer cut off at its room can be told from one that ran out of time;
+- whether it ran on an empty research cache (`--cold`). The cache's folders are moved aside before the brief and back
+  after it, never deleted, so the cache's own expiry still deletes what they hold in time (D-53: some hold Reddit
+  titles, links and threads). Its usage counts stay, so the daily caps still hold, and Reddit's own cache
+  (`.cache/reddit`) is never touched.
 """
 
 from __future__ import annotations
@@ -53,6 +67,7 @@ from app.contracts import (
     ValueState,
 )
 from app.extract.settings import ExtractSettings
+from app.llm.client import CUT_OFF_ROOM
 from app.research import usage
 from scripts.find_conflicts import QUERIES, Budget, OverBudget, service_of
 
@@ -73,6 +88,9 @@ MAX_SOURCES = 8
 NOT_FINISHED = ("needs a clarification", "the interview did not finish")
 SOURCE = "backend/evals/live_briefs.py, 5 live briefs, --no-db"
 SEARCH_SNIPPET = "search_snippet"  # Source.via for a search result whose page was never fetched (app/extract/stage.py)
+RESEARCH_CACHE = BACKEND / ".cache" / "research"
+COLD_ASIDE = BACKEND / ".cache" / "research-aside"
+KEPT_IN_CACHE = {"usage.json"}  # the daily and total counts: the caps hold whatever the cache holds (D-78)
 PRICE_ATTRIBUTES = {checks.PRICE_KEY, "price"}  # what decide names a budget hold-back by
 CUT_OFF_SHARE = 0.95  # an unusable answer this close to its output reserve was most likely cut off
 KEY_KINDS = ("rubric", "spec", "neither")
@@ -378,6 +396,119 @@ def tally(rows: Mapping[str, Mapping[str, Any]]) -> tuple[dict[str, int], Counte
     return returned, dropped, price_dropped
 
 
+def steps(record: Mapping[str, Any], result: Any) -> dict[str, int]:
+    """The brief's funnel in eight steps (S5-6a): where sources stopped turning into ranked products.
+
+    read: sent to a model; extracted: a valid answer with at least one claim kept; products kept: after match and
+    verify; with a price: a price claim attached; with any score: a criterion score from any source; ranked: shown with
+    a score."""
+    funnel_ = record.get("funnel", {})
+    scored = sum(1 for summary in result.products if any(v.score is not None for v in summary.values))
+    return {
+        "sources_found": int(funnel_.get("sources", {}).get("found", 0)),
+        "read": int(funnel_.get("extract", {}).get("sent", 0)),
+        "extracted": int(record.get("extraction", {}).get("sources_with_claims", 0)),
+        "claims_kept": int(funnel_.get("claims", {}).get("kept", 0)),
+        "products_kept": len(result.products),
+        "with_a_price": int(funnel_.get("price", {}).get("products_with_a_price", 0)),
+        "with_any_score": scored,
+        "ranked": int(record.get("products", {}).get("with_a_score", 0)),
+    }
+
+
+ATTEMPT_KINDS = ("sent", "answered", "no_room", "refused_429", "timeout", "other")  # keys: a letter first
+
+
+def attempt_kind(call: LLMCallRecord) -> str:
+    """An attempt as S5-6a counts it. Nothing sent (our pacing held it, or the budget refused it) is no room."""
+    if call.outcome == "skipped_budget" or (call.outcome == "rate_limited" and call.input_tokens == 0):
+        return "no_room"
+    if call.outcome == "rate_limited":
+        return "refused_429"
+    if call.outcome == "ok":
+        return "answered"
+    if call.outcome == "timeout":
+        return "timeout"
+    return "other"
+
+
+def attempts_by_minute(calls: Sequence[LLMCallRecord], since: datetime) -> list[dict[str, Any]]:
+    """Every attempt from `since` on, minute by minute (0 is the brief's first minute), per provider: sent and each
+    outcome. A minute with no attempt is left out."""
+    rows: dict[int, dict[str, Counter[str]]] = {}
+    for call in calls:
+        if call.at < since:
+            continue
+        minute = int((call.at - since).total_seconds() // 60)
+        counted = rows.setdefault(minute, {}).setdefault(call.provider.value, Counter())
+        kind = attempt_kind(call)
+        counted[kind] += 1
+        if kind != "no_room":
+            counted["sent"] += 1
+    return [
+        {
+            "minute": minute,
+            "providers": {
+                provider: {k: counted[k] for k in ATTEMPT_KINDS if counted[k]}
+                for provider, counted in sorted(by_provider.items())
+            },
+        }
+        for minute, by_provider in sorted(rows.items())
+    ]
+
+
+def answer_sizes(calls: Sequence[LLMCallRecord], since: datetime) -> dict[str, dict[str, list[list[float]]]]:
+    """Each answered attempt from `since` on, per provider and outcome, as [output tokens, seconds] (S5-6a): how big an
+    answer was and how long it took, so a cut-off answer's room and time can be sized. Numbers only."""
+    sizes: dict[str, dict[str, list[list[float]]]] = {}
+    for call in calls:
+        if call.at < since or call.outcome not in {"ok", "invalid_output", "timeout"}:
+            continue
+        sizes.setdefault(call.provider.value, {}).setdefault(call.outcome, []).append(
+            [call.output_tokens, round(call.duration_ms / 1000, 2)]
+        )
+    return {provider: dict(sorted(kinds.items())) for provider, kinds in sorted(sizes.items())}
+
+
+def set_aside_research_cache(cache: Path = RESEARCH_CACHE, aside: Path = COLD_ASIDE) -> int:
+    """Moves the research cache's folders aside, so the next brief starts cold (S5-6a DECIDED 1). Nothing is deleted,
+    the usage counts stay where they are, and Reddit's own cache (a folder of its own) is never touched. Returns how
+    many folders moved."""
+    if not cache.is_dir():
+        return 0
+    target = aside / datetime.now(UTC).strftime("%Y%m%dT%H%M%S%f")
+    moved = 0
+    for entry in sorted(cache.iterdir()):
+        if entry.name in KEPT_IN_CACHE:
+            continue
+        target.mkdir(parents=True, exist_ok=True)
+        entry.rename(target / entry.name)
+        moved += 1
+    return moved
+
+
+def restore_research_cache(cache: Path = RESEARCH_CACHE, aside: Path = COLD_ASIDE) -> int:
+    """Puts every set-aside file back in its own folder of the research cache, where the cache's own expiry deletes it
+    in time (D-53; app/research/cache.py sweeps each folder's files by age). A file whose key the cache holds again goes
+    back beside it as `<key>.aside-<stamp>.json`: the cache never serves it, and its sweep still deletes it when its
+    time is up. Nothing is deleted here; only the emptied set-aside folders go. Returns how many files went back."""
+    if not aside.is_dir():
+        return 0
+    back = 0
+    for stamp in sorted(p for p in aside.iterdir() if p.is_dir()):
+        for path in sorted(p for p in stamp.rglob("*") if p.is_file()):
+            target = cache / path.relative_to(stamp)
+            if target.exists():
+                target = target.with_name(f"{path.stem}.aside-{stamp.name}{path.suffix}")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            path.rename(target)
+            back += 1
+        for folder in sorted((p for p in stamp.rglob("*") if p.is_dir()), reverse=True):
+            folder.rmdir()
+        stamp.rmdir()
+    return back
+
+
 def run_brief(category: str, query: str) -> dict[str, Any]:
     """One brief through the CLI's flow. Numbers and fixed labels only."""
     from app.api.sessions import new_session_id
@@ -386,6 +517,7 @@ def run_brief(category: str, query: str) -> dict[str, Any]:
     from app.presearch import make_criteria, start_request
 
     timings: dict[str, float] = {}
+    began = datetime.now(UTC)
     started = monotonic()
     intent = start_request(query)
     timings["intake"] = round(monotonic() - started, 2)
@@ -448,6 +580,10 @@ def run_brief(category: str, query: str) -> dict[str, Any]:
         settings=reader.settings,
     )
     record["presearch_seconds"] = timings
+    record["steps"] = steps(record, result)
+    record["attempts_by_minute"] = attempts_by_minute(list(getattr(call_log, "records", [])), began)
+    record["answer_sizes"] = answer_sizes(list(getattr(call_log, "records", [])), began)
+    record["began_utc"] = {"hour": began.hour, "minute": began.minute}  # numbers: the record holds no free text
     return record
 
 
@@ -527,6 +663,7 @@ def _numbers(
         },
         "extraction": {
             "sources_given": len(extractions),
+            "sources_with_claims": sum(1 for out in extractions if out.claims),
             "sources_given_by_type": dict(sorted(given.items())),
             "claims_kept": len(kept_claims),
             "claims_by_source_type": dict(
@@ -744,6 +881,10 @@ def _cut_off(call: LLMCallRecord, reserve: Mapping[DataClass, int], last_resort:
     limit = reserve.get(call.data_class, sys.maxsize)
     if call.data_class is DataClass.PUBLIC and call.provider.value in last_resort:
         limit = min(limit, last_resort[call.provider.value])
+    # The one retry of a cut-off public answer asks for CUT_OFF_ROOM times the room (S5-6a): an answer between the two
+    # rooms came from that retry and was not cut off.
+    if call.data_class is DataClass.PUBLIC and limit < call.output_tokens < CUT_OFF_SHARE * limit * CUT_OFF_ROOM:
+        return False
     return call.output_tokens >= CUT_OFF_SHARE * limit
 
 
@@ -913,9 +1054,28 @@ ALLOWED_TEXT = (
     | {s.value for s in StageStatus}
     | {t.value for t in SourceType}
     | {"api", "direct", "jina", "search_snippet", "firecrawl", "unknown", "live", "offline"}
+    | {"cold", "as_found"}  # S5-6a: the research cache a brief started on
 )
 META_KEYS = {"generated", "commit", "runner", "id", "unit", "status", "source", "detail", "budget_note"}
 _KEY = re.compile(r"[a-z][a-z0-9_.]*")  # a key is a field or label name: never a product name, quote or link
+
+
+def text_paths(record: Any, path: str = "") -> list[str]:
+    """Where text_in finds something, as field paths only ("briefs.0.cache"): what a refused record can say about
+    itself. A key that failed is never shown, as it could be the text; its parent's path is."""
+    if isinstance(record, dict):
+        here = [path or "(top)" for k in record if not _KEY.fullmatch(str(k))]
+        return here + [
+            found
+            for k, v in record.items()
+            if _KEY.fullmatch(str(k))
+            for found in text_paths(v, f"{path}.{k}" if path else str(k))
+        ]
+    if isinstance(record, list):
+        return [found for i, item in enumerate(record) for found in text_paths(item, f"{path}.{i}")]
+    if isinstance(record, str) and path.rsplit(".", 1)[-1] not in META_KEYS and record not in ALLOWED_TEXT:
+        return [path]
+    return []
 
 
 def text_in(record: Any, key: str = "") -> list[str]:
@@ -938,6 +1098,7 @@ class Options:
     max_sources: int
     budget: dict[str, int]
     rebuild: bool
+    cold: bool = False  # S5-6a: each brief starts on an empty research cache
 
 
 def _cap(text: str) -> int:
@@ -973,11 +1134,16 @@ def options(argv: list[str] | None = None) -> Options:
     parser.add_argument(
         "--max-sources", type=_cap, default=MAX_SOURCES, help="EXTRACT_MAX_SOURCES for every brief, 1 to config's cap"
     )
+    parser.add_argument(
+        "--cold",
+        action="store_true",
+        help="before each brief, move the research cache's folders aside (never deleted; its usage counts stay)",
+    )
     for service, limit in BUDGET.items():
         parser.add_argument(f"--budget-{service}", type=int, default=limit, help=f"calls to {service} in all")
     args = parser.parse_args(argv)
     budget = {service: int(getattr(args, f"budget_{service}")) for service in BUDGET}
-    return Options(args.out, tuple(args.categories), args.max_sources, budget, args.rebuild)
+    return Options(args.out, tuple(args.categories), args.max_sources, budget, args.rebuild, args.cold)
 
 
 def run_all(opts: Options, budget: LiveBudget, run: Callable[[str, str], dict[str, Any]]) -> dict[str, Any]:
@@ -985,18 +1151,25 @@ def run_all(opts: Options, budget: LiveBudget, run: Callable[[str, str], dict[st
     from scripts.eval_trust import current_commit
 
     briefs: list[dict[str, Any]] = []
+    if opts.cold:
+        restore_research_cache()  # anything an earlier cold run left aside goes back under the cache's expiry
     for index, category in enumerate(opts.categories):
         left = len(opts.categories) - index
         share = {service: budget.left(service) // left for service in opts.budget}
         before = dict(budget.used)
-        print(f"\n== {category} (share {share})")
+        moved = set_aside_research_cache() if opts.cold else 0
+        print(f"\n== {category} (share {share}){f', research cache set aside ({moved} folders)' if opts.cold else ''}")
         with budget.share(**share):
             try:
                 brief = run(category, QUERIES[category])
             except Exception as exc:  # one brief failing must not lose the others
                 print(f"   failed: {type(exc).__name__}")
                 brief = {"category": category, "finished": False, "why": NOT_FINISHED[1]}
+            finally:
+                if opts.cold:
+                    restore_research_cache()
         brief["calls"] = {service: budget.used.get(service, 0) - before.get(service, 0) for service in opts.budget}
+        brief["cache"] = "cold" if opts.cold else "as_found"
         briefs.append(brief)
         print(f"   {json.dumps({k: v for k, v in brief.items() if k in ('products', 'methods', 'calls')})}")
     return {
@@ -1042,7 +1215,7 @@ def main(argv: list[str] | None = None) -> int:
     record = run_all(opts, budget, run_brief)
     leaked = text_in(record)
     if leaked:  # never write text that could be a quote, a name or a link
-        print(f"refused to write: {len(leaked)} strings are not fixed labels")
+        print(f"refused to write: {len(leaked)} strings are not fixed labels, at {sorted(set(text_paths(record)))}")
         return 1
     _write(opts.out, record)
     print(f"\ncalls used: {budget.used} of {opts.budget}")

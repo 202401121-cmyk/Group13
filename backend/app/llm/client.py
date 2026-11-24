@@ -64,6 +64,11 @@ log = logging.getLogger(__name__)
 T = TypeVar("T", bound=BaseModel)
 
 MAX_INVALID_OUTPUT_RETRIES = 1  # retry the same model once, then move on
+# S5-6a (US-14): an unusable answer this close to its output room was cut off at it. In the cold live runs of
+# 24 Nov 2026, 12 of 13 unusable answers stopped at 1,996 of Gemini's 2,000 (its thinking counts against the room),
+# and the one retry, asking for the same room, was cut off again. That retry asks for CUT_OFF_ROOM times the room.
+CUT_OFF_SHARE = 0.95
+CUT_OFF_ROOM = 2
 MAX_FAILURE_RETRIES = 1  # US-31: one retry after a timeout, 5xx or connection error (or a 429), then move on
 
 ModelState = Literal["go", "busy", "no"]  # send it; no room yet, come back; or leave this model for this call
@@ -347,16 +352,18 @@ class WrapperLLMClient:
             pending = [p for p in pending if p is not pending[0] and p is not second]
         retries: dict[str, int] = {}  # per model, for the whole call: coming back to a busy model is not a new retry
         failure_retries: dict[str, int] = {}  # the same, for the one retry after a failure (US-31)
+        roomier: dict[str, _Plan] = {}  # the same, for the retry of an answer cut off at its room (S5-6a)
         while pending:
             busy: list[_Plan] = []
             for at, plan in enumerate(pending):
                 last = at == len(pending) - 1
-                result, state = self._try_model(call, plan, retries, failure_retries, last)
+                result, state = self._try_model(call, plan, retries, failure_retries, last, roomier)
                 if result is not None:
                     return result
                 if state == "busy":
                     busy.append(plan)
-            if not self._wait_for_room(call, busy):
+            # A model busy for the bigger retry of a cut-off answer waits for room of that size (S5-6a).
+            if not self._wait_for_room(call, [roomier.get(p.model.model, p) for p in busy]):
                 break
             pending = busy
         raise LLMUnavailable(f"no LLM provider could complete the {task.value} task")
@@ -445,23 +452,35 @@ class WrapperLLMClient:
         retries: dict[str, int],
         failure_retries: dict[str, int],
         last: bool,
+        roomier: dict[str, _Plan] | None = None,
     ) -> tuple[T | None, ModelState]:
         """One model, retrying invalid output once, and a failure once (US-31). A busy model is left to come back to.
 
         `last`: no other model on the route is waiting for this call, so a 429 that says how long to wait may be
-        waited out. Otherwise the next model is tried at once, which is quicker (F-6)."""
+        waited out. Otherwise the next model is tried at once, which is quicker (F-6).
+
+        `roomier`: per model, the plan for the retry of an answer cut off at its room (S5-6a). It books its own slot
+        through the same pacing, so it waits for real room of its size; a model that was busy for it keeps it when it
+        comes back, and one whose budget can never give it retries at the room it had, as before."""
         name = plan.model.model
+        rooms: dict[str, _Plan] = {} if roomier is None else roomier
         held: Exception | None = None  # a failure set aside for its retry: counted after all if the retry can't go
         while True:
-            state, booking = self._may_call(call, plan)
+            tried = rooms.get(name, plan)
+            state, booking = self._may_call(call, tried)
+            if state == "no" and tried is not plan:
+                # The bigger room can never be had in this call (a daily or public-share budget): the one retry goes
+                # at the room the answer had, as before (US-14: retried once).
+                del rooms[name]
+                continue
             if state != "go":
                 if held is not None:
-                    self._count_failure(plan, held)
+                    self._count_failure(tried, held)
                 return None, state
             # One retry a model in a call, of either kind: a failure's, or invalid output's (US-31).
             used = retries.get(name, 0) + failure_retries.get(name, 0)
             may_retry = used < MAX_FAILURE_RETRIES
-            result, outcome, wait, held = self._attempt(call, plan, booking, may_retry=may_retry, last=last)
+            result, outcome, wait, held, cut_off = self._attempt(call, tried, booking, may_retry=may_retry, last=last)
             if result is not None:
                 return result, "go"
             if wait is not None:
@@ -472,6 +491,31 @@ class WrapperLLMClient:
             if not should_retry(outcome, used):
                 return None, "no"
             retries[name] = retries.get(name, 0) + 1
+            if cut_off:
+                rooms[name] = self._roomier(call, tried)
+
+    def _roomier(self, call: _Call[T], plan: _Plan) -> _Plan:
+        """The plan for the one retry of an answer cut off at its room (S5-6a): the same input, with CUT_OFF_ROOM times
+        the room, within the model's own output limit, the pool's answer size for a public page's last resort and a
+        pool member's minute. The same plan when no more room can be had, or the input would not go whole beside it.
+        Only public text: Reddit-class work keeps the room its search's Reddit budget counts on (US-14, D-76)."""
+        if call.data_class is not DataClass.PUBLIC:
+            return plan
+        reserve = reserve_output(plan.model, plan.reserve * CUT_OFF_ROOM)
+        if self._last_resort(plan.model, call.task, call.data_class) and self.config.pool.public_output_tokens:
+            reserve = min(reserve, self.config.pool.public_output_tokens)
+        if reserve <= plan.reserve or plan.fitted.mode == "chunked":
+            return plan
+        try:
+            budget = plan.model.input_budget(reserve_output=reserve)
+        except ValueError:
+            return plan
+        ceiling = self.pool.token_ceiling(plan.model, call.keep_free)
+        if ceiling is not None:
+            budget = min(budget, ceiling - reserve)
+        if estimate_tokens(call.system) + estimate_tokens(plan.fitted.texts[0]) > budget:
+            return plan
+        return _Plan(plan.model, plan.fitted, reserve, planned_tokens(call.system, plan.fitted, reserve))
 
     def _in_send_window(self) -> bool:
         until = window_until()
@@ -666,12 +710,13 @@ class WrapperLLMClient:
         *,
         may_retry: bool = False,
         last: bool = False,
-    ) -> tuple[T | None, AttemptOutcome, float | None, Exception | None]:
+    ) -> tuple[T | None, AttemptOutcome, float | None, Exception | None, bool]:
         """One attempt on one model: every chunk is sent and parsed. Always writes one call record.
 
         The third value is the wait before the one retry this failure gets (US-31), or None for no retry. A failure
         about to be retried is not counted against the provider's health yet: it comes back as the fourth value, and
-        the caller counts it if the retry never goes out. Otherwise only a failure that repeats is counted."""
+        the caller counts it if the retry never goes out. Otherwise only a failure that repeats is counted. The fifth
+        says an unusable answer was cut off at its room (S5-6a): never for a chunked attempt, whose chunks add up."""
         model, fitted, system = plan.model, plan.fitted, call.system
         provider, member = model.provider, self._member(model)
         adapter = self.adapters[provider]
@@ -730,7 +775,10 @@ class WrapperLLMClient:
         self.requests.settle(provider, plan.requests, sent)  # each request that went out counts, whatever came back
         duration_ms = int((monotonic() - started) * 1000)
         self._record(call, plan, outcome, tokens_in + unanswered, tokens_out, duration_ms, started_at)
-        return result, outcome, wait, error if wait is not None else None
+        cut_off = (
+            outcome == "invalid_output" and fitted.mode != "chunked" and tokens_out >= CUT_OFF_SHARE * plan.reserve
+        )
+        return result, outcome, wait, error if wait is not None else None, cut_off
 
     def _count_failure(self, plan: _Plan, error: Exception) -> None:
         """A failure set aside for a retry that never went out (no room, no budget): it counts after all."""
