@@ -1,11 +1,11 @@
-# Each store's own website (US-24, D-67). Serper shopping gives only Google Shopping links for India; for an offer at
-# one of these stores, commerce asks Serper web search for the product on the store's own site, and a page that names
-# the same model replaces the Google link. A store not listed here keeps its Google link. Team's choice; add a store
-# here, with its own domain, to search it too.
+# Known stores' own websites (US-24). A speed-up, not a gate (D-99, which replaced D-67's list as the gate): commerce
+# looks for the store's own page at any store, and checks it before a link is shown (app/commerce/store_pages.py).
 #
-# product_path: how the store's own product pages look (a regular expression on the page's path). Anything else on the
-# site (a search, a list of products, a blog, a brand page) is never taken for the product's page. A wrong pattern only
-# keeps Google's link. Flipkart's and Amazon's were seen live (S4-14, S4-26); the others are the stores' usual form.
+# - domain: the store's own site. "Amazon" means amazon.in here, never another Amazon.
+# - product_path: how the store's own product pages look (a regular expression on the page's path). When a page's
+#   address matches, it is a product page without being read. Anything else on the site (a search, a list of products,
+#   a blog, a brand page) is read and checked like any store's page. A wrong pattern only means the page is read.
+#   Flipkart's and Amazon's were seen live (S4-14, S4-26); the others are the stores' usual form.
 stores:
   - name: Flipkart
     domain: flipkart.com

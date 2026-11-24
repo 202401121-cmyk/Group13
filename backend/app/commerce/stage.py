@@ -7,13 +7,16 @@ unreadable price is no price. Every price carries the time it was fetched (DR-04
 (DR-01). A product with no accepted listing, or none with a readable price, gets a store search link (no_offer).
 
 Links: a store's own page is kept as it is, and a Google redirect to one is unwrapped. For India, Serper gives only
-Google Shopping links (live, 15 Nov 2026). For an offer at a store in config/stores.yaml, one Serper web search a
-product looks for the same model on the store's own site, and a page that matches replaces the Google link (links.py,
-D-67); the price and its time stay the shopping result's. Otherwise the Google link is kept and its store named
-"... via Google Shopping", so the page never passes Google's page off as the store's. The app never checks out.
+Google Shopping links (live, 15 Nov 2026). For any store (D-99, which replaces D-67's store list), one search a priced
+product looks for the exact model, Firecrawl first and Serper when Firecrawl can't, and the store's own page replaces
+its Google link only once code has checked it (links.py, store_pages.py); the price and its time stay the shopping
+result's. Otherwise the Google link is kept and its store named "... via Google Shopping", so the page never passes
+Google's page off as the store's. The app never checks out.
 
-Every request follows S4-12's one-retry rule, inside this stage's 15 seconds, and takes a Serper unit. When some
-look-ups failed and others answered, the coverage note says how many products could not be priced.
+Every request follows S4-12's one-retry rule, inside this stage's 15 seconds, except a Safe Browsing check, which an
+error simply fails. A shopping look-up or a Serper search takes a Serper unit; a Firecrawl search or read takes
+credits, a Jina read a Jina page, and a robots.txt request a page. When some look-ups failed and others answered, the
+coverage note says how many products could not be priced.
 
 CommerceStage is the Sprint 1 stub, kept as the baseline: its run() returns the example offers, for tests and the
 sample walk-through only. It is the real stage's fallback, and its fallback is honest: no offers at all, only a store
@@ -55,18 +58,22 @@ from app.decide.units import rupee_price
 from app.llm.retry import RetryClock
 from app.research.cache import ResearchCache
 from app.research.client import build_research_client
+from app.research.readers import FirecrawlClient, JinaReader
 from app.research.serper import SerperSource, host_of, shared_limiter
 from app.research.settings import ResearchSettings, load_research_settings
 from app.research.shopping import Listing, SerperShopping, ShoppingResult
 from app.research.usage import SearchUsage, UsageBook
 
-from .links import REGION, VIA_GOOGLE, WebSearchLike, load_stores, sites_for, store_key, with_store_pages
+from .links import REGION, VIA_GOOGLE, WebSearchLike, google_store, load_stores, store_key, with_page
 from .matching import accepts, query_for, store_search_url, variant_for
+from .safe_browsing import SafeBrowsing
+from .store_pages import FirecrawlFirst, StorePageChecker
 
 log = logging.getLogger(__name__)
 
 MAX_LOOKUPS = 3  # the top 3 shown products (team's choice): at most 3 Serper shopping queries a search
-MAX_STORE_SEARCHES = 3  # one web search a priced product, for its stores' own pages: at most 3 more (D-67)
+MAX_STORE_SEARCHES = 3  # one search a priced product, for its stores' own pages: at most 3 more (D-99)
+MAX_CHECKS_AT_ONCE = 6  # store pages checked at the same time, once the searches are back
 MAX_OFFERS = 3  # a product's offers: one a store, cheapest first
 LOOKUP_DEADLINE_S = 12.0  # inside the stage's 15 s: a late look-up is no answer, and the others are kept
 STAGE_LIMIT_S = STAGE_TIME_LIMITS_S[StageName.COMMERCE]
@@ -122,11 +129,14 @@ class ShoppingCommerceStage:
         shopping: ShoppingLike | None = None,
         *,
         web: WebSearchLike | None = None,
+        pages: StorePageChecker | None = None,
         usage: UsageBook | None = None,
         settings: ResearchSettings | None = None,
     ) -> None:
         self._shopping = shopping
-        self._web = web  # with an injected shopping client, store pages are looked up only if this is given too
+        # With an injected shopping client, store pages are looked up only if both of these are given too.
+        self._web = web
+        self._pages = pages
         self._usage = usage
         self._settings = settings
         self._lock = threading.Lock()
@@ -141,7 +151,7 @@ class ShoppingCommerceStage:
         shopping_retry = RetryClock(time_left=lambda: lookups_end - monotonic())
         web_retry = RetryClock(time_left=lambda: ends - monotonic())
         top = inp.products[:MAX_LOOKUPS]
-        shopping, web, client = self._wire(shopping_retry, web_retry)
+        shopping, web, pages, client = self._wire(shopping_retry, web_retry)
         pool = ThreadPoolExecutor(max_workers=len(top), thread_name_prefix="commerce")
         pending: list[Future[Any]] = []
         try:
@@ -160,9 +170,9 @@ class ShoppingCommerceStage:
             if failed:
                 self._keep(ctx.search_id, _not_priced(failed, len(answers)))
             offers = [_offers(product, answer, inp) for product, answer in zip(top, answers, strict=True)]
-            if web is not None and ends - monotonic() >= WEB_MIN_S:
+            if web is not None and pages is not None and ends - monotonic() >= WEB_MIN_S:
                 try:
-                    offers = _with_store_pages(top, offers, web, usage, pool, ends, pending)
+                    offers = _with_store_pages(top, offers, web, pages, usage, pool, ends, pending)
                 except Exception as exc:  # the prices are good already: their Google links stay
                     log.warning("commerce: the store page search failed (%s); Google links stay", type(exc).__name__)
         finally:
@@ -192,18 +202,31 @@ class ShoppingCommerceStage:
 
     def _wire(
         self, shopping_retry: RetryClock, web_retry: RetryClock
-    ) -> tuple[ShoppingLike, WebSearchLike | None, httpx.Client | None]:
+    ) -> tuple[ShoppingLike, WebSearchLike | None, StorePageChecker | None, httpx.Client | None]:
         if self._shopping is not None:
-            return self._shopping, self._web, None
+            return self._shopping, self._web, self._pages, None
         settings = self._settings or load_research_settings()
         client = build_research_client()
         load_dotenv()
         key = os.environ.get("SERPER_API_KEY", "").strip() or None
+        firecrawl_key = os.environ.get("FIRECRAWL_API_KEY", "").strip() or None
+        jina_key = os.environ.get("JINA_API_KEY", "").strip() or None
+        safe_key = os.environ.get("SAFE_BROWSING_API_KEY", "").strip() or None
         cache = ResearchCache(enabled=settings.cache_on)
         limiter = shared_limiter(settings.serper_interval_s)
         shopping = SerperShopping(client, key, cache=cache, limiter=limiter, retry=shopping_retry)
-        web = SerperSource(client, key, cache=cache, limiter=limiter, retry=web_retry)
-        return shopping, web, client
+        serper = SerperSource(client, key, cache=cache, limiter=limiter, retry=web_retry)
+        firecrawl = FirecrawlClient(client, firecrawl_key, cache=cache, retry=web_retry) if firecrawl_key else None
+        pages = StorePageChecker(
+            client,
+            cache=cache,
+            safe_browsing=SafeBrowsing(client, safe_key),
+            firecrawl=firecrawl,
+            jina=JinaReader(client, jina_key, retry=web_retry),
+            max_crawl_delay_s=settings.max_crawl_delay_s,
+            retry=web_retry,
+        )
+        return shopping, FirecrawlFirst(firecrawl, serper), pages, client
 
 
 def _close_when_done(client: httpx.Client, pending: list[Future[Any]]) -> None:
@@ -235,40 +258,65 @@ def _with_store_pages(
     top: list[Product],
     offers: list[list[Offer]],
     web: WebSearchLike,
+    pages: StorePageChecker,
     usage: SearchUsage,
     pool: ThreadPoolExecutor,
     ends: float,
     pending: list[Future[Any]],
 ) -> list[list[Offer]]:
-    """Each product's offers, with Google Shopping links at mapped stores swapped for the store's own page where one
-    web search a product finds it (links.py). At most MAX_STORE_SEARCHES a search; a late answer changes nothing."""
-    stores = load_stores()
+    """Each product's offers, with each Google Shopping link swapped for the store's own page where the product's one
+    search finds it and every check passes (store_pages.py). One search a priced product with a Google link, at most
+    MAX_STORE_SEARCHES a search, with only the model's name in it (D-99 #8). A late answer changes nothing."""
     jobs: list[tuple[int, Future[Any]]] = []
     for index, (product, each) in enumerate(zip(top, offers, strict=True)):
-        sites = sites_for(each, stores)
-        if not sites or len(jobs) >= MAX_STORE_SEARCHES:
+        priced = any(offer.price is not None for offer in each)
+        if not priced or not any(google_store(offer) for offer in each) or len(jobs) >= MAX_STORE_SEARCHES:
             continue
-        domains = [store.domain for store in sites]
-        jobs.append((index, pool.submit(web.search, query_for(product), REGION, usage, domains)))
+        jobs.append((index, pool.submit(web.search, query_for(product), REGION, usage)))
     if not jobs:
         return offers
     done, _ = wait([future for _, future in jobs], timeout=max(0.0, ends - monotonic()))
     pending += [future for _, future in jobs if future not in done]
-    swapped = list(offers)
-    for index, future in jobs:
-        if future not in done:
-            continue
+    checks = ThreadPoolExecutor(max_workers=MAX_CHECKS_AT_ONCE, thread_name_prefix="store-pages")
+    asked: list[tuple[int, int, str, Future[str | None]]] = []
+    try:
+        for index, future in jobs:
+            found = _found(future) if future in done else None
+            if found is None:
+                continue
+            for position, offer in enumerate(offers[index]):
+                name = google_store(offer)
+                if name is not None:
+                    check = checks.submit(pages.store_page, top[index], name, found, usage, ends)
+                    asked.append((index, position, name, check))
+        checked, _ = wait([check for *_, check in asked], timeout=max(0.0, ends - monotonic()))
+        pending += [check for *_, check in asked if check not in checked]
+    finally:
+        checks.shutdown(wait=False, cancel_futures=True)
+    swapped = [list(each) for each in offers]
+    for index, position, name, check in asked:
         try:
-            found = future.result()
-        except Exception as exc:  # one search's error keeps that product's Google links, and the others' pages
-            log.warning("commerce: a store page search failed (%s); its Google links stay", type(exc).__name__)
+            url = check.result() if check in checked else None
+        except Exception as exc:  # one check's error keeps that offer's Google link, and every other page
+            log.warning("commerce: a store page check failed (%s); its Google link stays", type(exc).__name__)
             continue
-        failure = getattr(found, "failure", None)
-        if failure is not None:
-            log.info("commerce: a store page search failed (%s); its Google links stay", failure.reason)
-            continue
-        swapped[index] = with_store_pages(top[index], offers[index], getattr(found, "sources", ()), stores)
+        if url:
+            swapped[index][position] = with_page(offers[index][position], url, name)
     return swapped
+
+
+def _found(future: Future[Any]) -> tuple[Any, ...] | None:
+    """A store-page search's results, or None when it raised or failed: then that product's Google links stay."""
+    try:
+        found = future.result()
+    except Exception as exc:  # one search's error keeps that product's Google links, and the others' pages
+        log.warning("commerce: a store page search failed (%s); its Google links stay", type(exc).__name__)
+        return None
+    failure = getattr(found, "failure", None)
+    if failure is not None:
+        log.info("commerce: a store page search failed (%s); its Google links stay", failure.reason)
+        return None
+    return tuple(getattr(found, "sources", ()))
 
 
 def _offers(product: Product, answer: ShoppingResult, inp: CommerceInput) -> list[Offer]:

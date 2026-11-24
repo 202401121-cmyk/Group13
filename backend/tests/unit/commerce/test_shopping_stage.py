@@ -11,10 +11,12 @@ from app import contracts as C
 from app.commerce import CommerceStage, ShoppingCommerceStage, default_commerce_stage
 from app.commerce import stage as stage_module
 from app.commerce.stage import LOOKUP_DEADLINE_S, MARGIN_S, MAX_LOOKUPS, STAGE_LIMIT_S, PricesUnavailable
+from app.commerce.store_pages import FirecrawlFirst, StorePageChecker
 from app.contracts import Budget, CommerceInput, CommerceResult, Money, Product, StageContext, Variant
 from app.contracts import examples as ex
 from app.llm.retry import RetryClock
 from app.pipeline import as_clause, build_coverage_note, plain_reason, run_stage
+from app.research.readers import FirecrawlClient
 from app.research.serper import SerperSource
 from app.research.settings import ProviderCap, ResearchSettings
 from app.research.shopping import Listing, SerperShopping, ShoppingResult
@@ -263,9 +265,9 @@ def test_a_shopping_retry_stops_at_the_look_up_deadline_and_a_store_page_retry_a
     clocks: list[RetryClock] = []
     stage = ShoppingCommerceStage(usage=_usage())
 
-    def wire(shopping_retry: RetryClock, web_retry: RetryClock) -> tuple[FakeShopping, None, None]:
+    def wire(shopping_retry: RetryClock, web_retry: RetryClock) -> tuple[FakeShopping, None, None, None]:
         clocks.extend([shopping_retry, web_retry])
-        return FakeShopping({}), None, None
+        return FakeShopping({}), None, None, None
 
     stage._wire = wire  # type: ignore[method-assign]
     stage.run(CommerceInput(products=[VICTUS], budget=BUDGET), ctx())
@@ -273,14 +275,31 @@ def test_a_shopping_retry_stops_at_the_look_up_deadline_and_a_store_page_retry_a
     assert shopping_left <= LOOKUP_DEADLINE_S < web_left <= STAGE_LIMIT_S - MARGIN_S
 
 
-def test_the_stages_clocks_reach_both_serper_clients(monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.mark.parametrize("firecrawl_key", ["", "fc-made-up"])
+def test_the_stages_clocks_reach_every_client(monkeypatch: pytest.MonkeyPatch, firecrawl_key: str) -> None:
+    """Shopping's clock reaches Serper shopping; the stage's reaches the store-page search (Firecrawl first, when it
+    has a key, then Serper) and the page readers (D-99)."""
     monkeypatch.setattr(stage_module, "load_dotenv", lambda: None)  # never the real .env
     monkeypatch.setenv("SERPER_API_KEY", "made-up-key")
+    monkeypatch.setenv("FIRECRAWL_API_KEY", firecrawl_key)
+    monkeypatch.delenv("JINA_API_KEY", raising=False)
+    monkeypatch.delenv("SAFE_BROWSING_API_KEY", raising=False)
     shopping_retry, web_retry = RetryClock(time_left=lambda: 1.0), RetryClock(time_left=lambda: 2.0)
-    shopping, web, client = ShoppingCommerceStage(settings=ResearchSettings())._wire(shopping_retry, web_retry)
+    stage = ShoppingCommerceStage(settings=ResearchSettings())
+    shopping, web, pages, client = stage._wire(shopping_retry, web_retry)
     try:
         assert isinstance(shopping, SerperShopping) and shopping.retry is shopping_retry
-        assert isinstance(web, SerperSource) and web.retry is web_retry
+        assert isinstance(web, FirecrawlFirst) and isinstance(web.serper, SerperSource)
+        assert web.serper.retry is web_retry
+        assert isinstance(pages, StorePageChecker)
+        readers = [type(reader).__name__ for reader in pages.readers]
+        if firecrawl_key:
+            assert isinstance(web.firecrawl, FirecrawlClient) and web.firecrawl.retry is web_retry
+            assert readers == ["FirecrawlClient", "JinaReader"]
+        else:
+            assert web.firecrawl is None and readers == ["JinaReader"]
+        assert all(reader.retry is web_retry for reader in pages.readers)
+        assert repr(pages.safe_browsing) == "SafeBrowsing(key_set=False)"
     finally:
         assert client is not None
         client.close()

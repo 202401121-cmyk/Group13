@@ -42,6 +42,8 @@ services:
         sync: false
       - key: FIRECRAWL_API_KEY
         sync: false
+      - key: SAFE_BROWSING_API_KEY # optional (US-24, D-99): checks a store page before a link to it is shown
+        sync: false
       - key: REDDIT_SOURCE
         sync: false
       - key: REDDIT_USER_SALT
