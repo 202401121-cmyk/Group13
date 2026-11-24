@@ -67,6 +67,9 @@ function asEdited(
   ];
 }
 
+/** When the results page's code is fetched, at the latest, after the brief is shown. */
+const PRELOAD_RESULTS_AFTER_MS = 3_000;
+
 function BriefReview() {
   const { sessionId } = Route.useParams();
   const navigate = useNavigate();
@@ -88,11 +91,29 @@ function BriefReview() {
   const hasRubric = rubricNow !== null;
 
   // Fetch the results page's code while the shopper reads the brief. Otherwise, on a slow connection,
-  // "Start research" waits for it and the page then jumps well after the tap (CLS).
+  // "Start research" waits for it and the page then jumps well after the tap (CLS). The brief's first paint
+  // doesn't need it (S5-12, D-45), so it is fetched once the shopper first acts on the page, or after 3 s.
   useEffect(() => {
-    void router.preloadRoute({ to: "/s/$sessionId/results", params: { sessionId } }).catch(() => {
-      /* a failed preload only means the page loads on click, as before */
-    });
+    const events = ["pointerdown", "keydown", "touchstart"] as const;
+    let done = false;
+    const stop = () => {
+      clearTimeout(timer);
+      for (const e of events) window.removeEventListener(e, preload);
+    };
+    const preload = () => {
+      if (done) return;
+      done = true;
+      stop();
+      void router.preloadRoute({ to: "/s/$sessionId/results", params: { sessionId } }).catch(() => {
+        /* a failed preload only means the page loads on click, as before */
+      });
+    };
+    for (const e of events) window.addEventListener(e, preload, { passive: true });
+    const timer = setTimeout(preload, PRELOAD_RESULTS_AFTER_MS);
+    return () => {
+      done = true;
+      stop();
+    };
   }, [router, sessionId]);
 
   useEffect(() => {

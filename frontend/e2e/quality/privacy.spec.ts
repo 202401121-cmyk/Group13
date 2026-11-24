@@ -35,7 +35,7 @@ test.describe("the privacy page", () => {
       "your priorities",
       "the whole result",
       "You don't need an account",
-      "Supabase database in the Mumbai region",
+      "a Supabase database in Mumbai",
       "the project team through the database dashboard",
       "have no deletion date yet",
       "2 hours after your last step",

@@ -420,6 +420,8 @@ test.describe("keyboard only", () => {
 
 test.describe("axe, at 390 and 1440 px, light and dark", () => {
   test("the list, a change, Undo, the dialogs and the confirmation page", async ({ page }) => {
+    // Time runs as usual, except while axe checks Undo (below).
+    await page.clock.install();
     await page.setViewportSize({ width: 1440, height: 900 });
     await openMemory(page);
     for (const size of SIZES) {
@@ -435,8 +437,12 @@ test.describe("axe, at 390 and 1440 px, light and dark", () => {
       await page.getByRole("button", { name: "Cancel" }).click();
       await page.getByRole("button", { name: `Forget "${BATTERY}"` }).click();
       await expect(page.getByRole("button", { name: /^Undo/ })).toBeVisible();
-      await checkRow(page, `memory undo (${size.width} px)`);
+      // Undo lasts 5 seconds; axe in two themes can take longer when the machine is busy. The clock is held still
+      // while axe runs, so Undo is still there to press after it.
+      await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 50);
+      await checkRow(page, `memory undo (${size.width} px)`, { paused: true });
       await page.getByRole("button", { name: /^Undo/ }).click();
+      await page.clock.resume();
       await memory(page).getByRole("button", { name: "Forget everything" }).click();
       await expect(page.getByRole("alertdialog")).toBeVisible();
       await checkRow(page, `forget everything dialog (${size.width} px)`);

@@ -94,3 +94,62 @@ describe("ink panel contrast (the deep panels on home, sign-in and the profile)"
     for (const stop of stops) expect(contrast(initials, stop)).toBeGreaterThanOrEqual(4.5);
   });
 });
+
+/**
+ * US-33 (S5-12 DECIDED 4): every text token on every surface it is used on is at least 4.5:1, and every control's
+ * edge (a field's border, the focus ring, a slider or a checked box, a checkbox's box) at least 3:1 against what it
+ * sits on (WCAG 1.4.11), in light and dark mode.
+ */
+const SURFACES = ["background", "surface", "card"] as const;
+const TEXT_PAIRS: [text: string, surface: string][] = [
+  ...(
+    [
+      "background",
+      "surface",
+      "card",
+      "popover",
+      "muted",
+      "secondary",
+      "accent",
+      "primary-soft",
+    ] as const
+  ).map((s) => ["foreground", s] as [string, string]),
+  ["card-foreground", "card"],
+  ["popover-foreground", "popover"],
+  ["primary-foreground", "primary"],
+  ["destructive-foreground", "destructive"],
+  ["primary-soft-foreground", "primary-soft"],
+  ["champagne-foreground", "champagne"],
+  ["secondary-foreground", "secondary"],
+  ["accent-foreground", "accent"],
+  ...(["surface", "primary-soft"] as const).map((s) => ["muted-foreground", s] as [string, string]),
+  // Links and errors are text in a colour of their own.
+  // On a hover's --primary-soft, a text button takes --primary-soft-foreground (tested above).
+  ...(["background", "surface", "card"] as const).map((s) => ["primary", s] as [string, string]),
+  ...SURFACES.map((s) => ["destructive", s] as [string, string]),
+];
+const CONTROL_PAIRS: [edge: string, surface: string][] = (
+  ["input", "ring", "primary", "muted-foreground"] as const
+).flatMap((edge) => SURFACES.map((s) => [edge, s] as [string, string]));
+
+describe("every text and control token pair (WCAG AA)", () => {
+  for (const [mode, selector] of [
+    ["light", ":root"],
+    ["dark", ".dark"],
+  ] as const) {
+    for (const [text, surface] of TEXT_PAIRS) {
+      it(`text --${text} is at least 4.5:1 on --${surface} in ${mode} mode`, () => {
+        const t = { ...tokensOf(":root"), ...tokensOf(selector) };
+        expect(t[text], `--${text}`).toBeDefined();
+        expect(t[surface], `--${surface}`).toBeDefined();
+        expect(contrast(t[text]!, t[surface]!)).toBeGreaterThanOrEqual(4.5);
+      });
+    }
+    for (const [edge, surface] of CONTROL_PAIRS) {
+      it(`a control's --${edge} edge is at least 3:1 on --${surface} in ${mode} mode`, () => {
+        const t = { ...tokensOf(":root"), ...tokensOf(selector) };
+        expect(contrast(t[edge]!, t[surface]!)).toBeGreaterThanOrEqual(3);
+      });
+    }
+  }
+});

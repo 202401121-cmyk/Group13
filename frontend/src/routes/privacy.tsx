@@ -60,8 +60,8 @@ function Privacy() {
             <li>what you typed, exactly as you typed it;</li>
             <li>a session ID: a random code that links the steps of one search;</li>
             <li>
-              what we understood (the product, what it's for, your region, your budget, must-haves
-              and things to leave out), once it was clear enough to research;
+              what we understood: the product, what it's for, your region, your budget, your
+              must-haves and things to leave out. We save it once it is clear enough to research;
             </li>
             <li>whether a language model or our simple keyword rules worked that out;</li>
             <li>when it was saved.</li>
@@ -112,15 +112,15 @@ function Privacy() {
             search you began as a guest stays a guest's.
           </p>
           <p>
-            If an account is deleted, its saved requests, searches, profile and everything we
-            remember are deleted with it. You can delete yours yourself, as below.
+            When an account is deleted, everything saved with it goes too: its requests, searches
+            and profile, and what we remember. You can delete yours yourself, as shown below.
           </p>
         </Section>
 
         <Section title="What we remember if you sign in">
           <p>
-            When you finish an interview while signed in, ShopSense remembers a few of your answers
-            for your next search of the same kind of product:
+            If you are signed in when you finish the questions, ShopSense keeps a few of your
+            answers. It uses them the next time you look for the same kind of product:
           </p>
           <ul className="list-disc space-y-1 pl-6">
             <li>how much each thing counts for you, such as battery life;</li>
@@ -165,15 +165,11 @@ function Privacy() {
         </Section>
 
         <Section title="Where it is stored and who can read it">
+          <p>We keep these records, and what we remember, in a Supabase database in Mumbai.</p>
           <p>
-            These records, and what we remember, are stored in a Supabase database in the Mumbai
-            region.
-          </p>
-          <p>
-            The ShopSense backend can read them, and so can the project team through the database
-            dashboard. With Supabase's public keys, the kind a website uses in the browser, a
-            signed-in person can read only their own records, and a guest's records can't be read at
-            all.
+            The ShopSense server can read them, and so can the project team through the database
+            dashboard. With the public key a website uses in your browser, a signed-in person can
+            read only their own records. No one can read a guest's records that way.
           </p>
         </Section>
 

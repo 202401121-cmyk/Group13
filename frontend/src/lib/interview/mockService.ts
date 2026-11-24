@@ -7,7 +7,8 @@
  * - mentions price / cost / budget / brand        -> redirect (note, keep question)
  * - "test a conflict"                             -> what a live 409 ends in: nothing recorded, a notice
  * - otherwise                                     -> recorded as the answer
- * Remembered answers come from MEMORY_FIXTURE when that criterion is reached.
+ * Remembered answers come from MEMORY_FIXTURE when that criterion is reached. Forget hides one for the session (kept in
+ * sessionStorage, so a reload keeps it gone), and its criterion is asked instead.
  * A product named "Test error" fails criteria loading once.
  */
 import type { Brief } from "@/lib/request/types";
@@ -20,6 +21,7 @@ import type {
   CriteriaResult,
   QuestionTerm,
   InterviewService,
+  RememberedView,
   Step,
   TurnInput,
   TurnResult,
@@ -243,7 +245,57 @@ export const rephraseMessage = (label: string) =>
 const joined = (first: string, then: string | null) => (then ? `${first} ${then}` : first);
 
 /** Stand-in for the future memory service. */
-export const MEMORY_FIXTURE: Record<string, string> = { weight: "under 1.5 kg" };
+// Words the brief reads as a level, as a live remembered weight has one ("Weight: high importance"), so it is weighed
+// as remembered; never a button's own word, so it is told apart from an answer.
+export const MEMORY_FIXTURE: Record<string, string> = { weight: "Very important" };
+
+/**
+ * Each remembered answer's preference: the memory mock's own id for it (src/lib/account/memoryMock.ts, the laptop's
+ * weight), so Forget's delete finds it there too, and the day it was remembered from.
+ */
+export const MEMORY_PREFERENCES: Record<string, { id: string; since: string }> = {
+  weight: { id: "00000000-0000-4000-9000-000000000002", since: "2026-11-14" },
+};
+
+const forgottenKey = (sessionId: string) => `shopsense.interview.forgotten.${sessionId}`;
+
+/** The criteria whose remembered answer this session forgot. */
+export function forgottenIn(sessionId: string | undefined): string[] {
+  if (!sessionId) return [];
+  try {
+    const saved: unknown = JSON.parse(sessionStorage.getItem(forgottenKey(sessionId)) ?? "[]");
+    return Array.isArray(saved) ? saved.filter((x): x is string => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveForgotten(sessionId: string | undefined, criteria: string[]) {
+  if (!sessionId) return;
+  try {
+    sessionStorage.setItem(forgottenKey(sessionId), JSON.stringify(criteria));
+  } catch {
+    /* storage blocked: forgotten until the page goes */
+  }
+}
+
+/** The remembered answers in these answers, as the screen shows them. */
+export function rememberedViews(criteria: Criterion[], answers: Answers): RememberedView[] {
+  return criteria.flatMap((c) => {
+    const memo = MEMORY_PREFERENCES[c.id];
+    const a = answers[c.id];
+    if (!memo || a?.status !== "remembered") return [];
+    return [
+      {
+        preferenceId: memo.id,
+        kind: "weight" as const,
+        text: `${c.title}: ${a.value ?? ""}`,
+        criterionId: c.id,
+        since: memo.since,
+      },
+    ];
+  });
+}
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -252,13 +304,17 @@ export function criteriaFor(brief: Brief): CriteriaResult {
   return fixture ? { criteria: fixture, fallback: false } : { criteria: FALLBACK, fallback: true };
 }
 
-function nextStep(criteria: Criterion[], answers: Answers): { step: Step; answers: Answers } {
+function nextStep(
+  criteria: Criterion[],
+  answers: Answers,
+  forgotten: string[] = [],
+): { step: Step; answers: Answers } {
   const next = { ...answers };
   const answered = Object.values(next).filter((a) => a?.status === "answered").length;
   for (const c of criteria) {
     if (answered >= SETTLED_AFTER) break;
     if (next[c.id]) continue;
-    const memo = MEMORY_FIXTURE[c.id];
+    const memo = forgotten.includes(c.id) ? undefined : MEMORY_FIXTURE[c.id];
     if (memo) {
       next[c.id] = { status: "remembered", value: memo };
       continue;
@@ -279,7 +335,12 @@ function nextStep(criteria: Criterion[], answers: Answers): { step: Step; answer
   };
 }
 
-export function runTurn({ criteria, answers, turn, unclear = 0 }: TurnInput): TurnResult {
+export function runTurn(input: TurnInput): TurnResult {
+  const result = turnOf(input);
+  return { ...result, remembered: rememberedViews(input.criteria, result.answers) };
+}
+
+function turnOf({ criteria, answers, turn, unclear = 0, forgotten = [] }: TurnInput): TurnResult {
   let current = { ...answers };
   let laterChanged = false;
 
@@ -296,7 +357,7 @@ export function runTurn({ criteria, answers, turn, unclear = 0 }: TurnInput): Tu
       const earlier = current[c.id];
       const kept = earlier?.status === "answered" || earlier?.status === "remembered";
       if (!kept) current[c.id] = { status: "skipped", value: null };
-      const r = nextStep(criteria, current);
+      const r = nextStep(criteria, current, forgotten);
       return {
         step: { ...r.step, note: joined(kept ? keptNote(c.title) : SKIPPED_NOTE, r.step.note) },
         answers: r.answers,
@@ -306,7 +367,11 @@ export function runTurn({ criteria, answers, turn, unclear = 0 }: TurnInput): Tu
 
     if (typed) {
       if (/^test a conflict$/i.test(t)) {
-        return { ...nextStep(criteria, current), laterChanged, notice: ALREADY_ANSWERED };
+        return {
+          ...nextStep(criteria, current, forgotten),
+          laterChanged,
+          notice: ALREADY_ANSWERED,
+        };
       }
       if (/\b(price|cost|budget|brand|discount)\b/i.test(t)) {
         if (unclear >= 1) return giveUp();
@@ -361,9 +426,28 @@ export function runTurn({ criteria, answers, turn, unclear = 0 }: TurnInput): Tu
     }
   }
 
-  const r = nextStep(criteria, current);
+  const r = nextStep(criteria, current, forgotten);
   current = r.answers;
   return { step: r.step, answers: current, laterChanged };
+}
+
+/** Forgets a remembered answer for the session: it is asked like any other, and a reload keeps it gone (US-06). */
+export function runForget(input: TurnInput, preferenceId: string): TurnResult {
+  const criterionId = Object.keys(MEMORY_PREFERENCES).find(
+    (id) => MEMORY_PREFERENCES[id]!.id === preferenceId,
+  );
+  if (!criterionId || input.answers[criterionId]?.status !== "remembered")
+    throw new Error("That isn't one of the remembered preferences in this interview.");
+  const forgotten = [...new Set([...(input.forgotten ?? []), criterionId])];
+  const answers = { ...input.answers };
+  delete answers[criterionId];
+  const r = nextStep(input.criteria, answers, forgotten);
+  return {
+    step: r.step,
+    answers: r.answers,
+    laterChanged: false,
+    remembered: rememberedViews(input.criteria, r.answers),
+  };
 }
 
 export function createMockInterviewService(latency = 600): InterviewService {
@@ -396,7 +480,7 @@ export function createMockInterviewService(latency = 600): InterviewService {
       await delay(latency);
       const id = input.turn?.criterionId ?? null;
       const now = id !== null && id === asking ? unclear : 0;
-      const result = runTurn({ ...input, unclear: now });
+      const result = runTurn({ ...input, unclear: now, forgotten: forgottenIn(input.sessionId) });
       // A question back leaves the count as it was; an answer, a skip or another question clears it.
       const kind = result.step.kind;
       unclear =
@@ -405,6 +489,18 @@ export function createMockInterviewService(latency = 600): InterviewService {
           : kind === "answer_then_repeat"
             ? now
             : 0;
+      asking = result.step.criterionId;
+      return result;
+    },
+    async forget(input, preferenceId) {
+      await delay(latency);
+      const forgotten = forgottenIn(input.sessionId);
+      const result = runForget({ ...input, forgotten }, preferenceId);
+      const criterionId = Object.keys(MEMORY_PREFERENCES).find(
+        (id) => MEMORY_PREFERENCES[id]!.id === preferenceId,
+      )!;
+      saveForgotten(input.sessionId, [...new Set([...forgotten, criterionId])]);
+      unclear = 0;
       asking = result.step.criterionId;
       return result;
     },

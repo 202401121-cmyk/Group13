@@ -73,9 +73,10 @@ function About() {
         </h2>
         <div className="space-y-5 text-lg leading-relaxed text-muted-foreground">
           <p>
-            Buying a laptop or a pair of earbuds means a dozen tabs: spec sheets, reviews that
+            Buying a laptop or earbuds can mean a dozen open tabs: spec sheets, reviews that
             disagree, Reddit threads, videos and store pages with different prices. The answer is in
-            there, but finding it takes hours, and it is hard to tell a fact from a sales pitch.
+            there somewhere. But finding it takes hours, and it is hard to tell a fact from a sales
+            pitch.
           </p>
           <p>
             ShopSense does that reading for you, and keeps the receipts. You can see why a product

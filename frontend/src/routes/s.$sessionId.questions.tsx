@@ -40,6 +40,8 @@ function QuestionsPage() {
   const cardRef = useRef<HTMLElement>(null);
   const typedRef = useRef(false);
   const prevPhase = useRef(state.phase);
+  // After Forget, its button is gone: focus goes to what the interview shows next.
+  const focusAfterForget = useRef(false);
 
   // Begin (or resume) as soon as criteria are available.
   useEffect(() => {
@@ -51,6 +53,10 @@ function QuestionsPage() {
     const was = prevPhase.current;
     prevPhase.current = state.phase;
     if (was === "sending" && (state.phase === "asking" || state.phase === "finished")) {
+      if (focusAfterForget.current) {
+        focusAfterForget.current = false;
+        requestAnimationFrame(() => document.getElementById("current-question")?.focus());
+      }
       if (typedRef.current) {
         setDraft("");
         if (state.phase === "asking") composerRef.current?.focus();
@@ -90,6 +96,10 @@ function QuestionsPage() {
   }, [state.phase, state.step, state.error, state.laterChanged, state.notice, thinking]);
 
   const busy = state.phase === "sending" || state.phase === "starting";
+  // The brief stays on screen while a forget sent from it runs, or after it fails: no question flashes up.
+  const done =
+    state.phase === "finished" ||
+    (state.step?.kind === "finished" && (state.phase === "sending" || state.phase === "error"));
   const asking = state.phase === "asking" || state.phase === "sending" || state.phase === "error";
   const step = state.step;
 
@@ -133,6 +143,7 @@ function QuestionsPage() {
       : null;
 
   function goBack(id: string) {
+    focusAfterForget.current = false;
     dispatch({ type: "GO_BACK", criterionId: id });
     requestAnimationFrame(() => {
       const el = document.getElementById("current-question");
@@ -160,7 +171,7 @@ function QuestionsPage() {
             >
               <ArrowLeft className="h-4 w-4" aria-hidden /> Criteria
             </Link>
-            {state.phase !== "finished" && (
+            {!done && (
               <div className="mt-2 flex items-baseline justify-between gap-3">
                 <p className="font-serif text-2xl text-foreground">
                   Question {idx >= 0 ? idx + 1 : progress.settled + 1}{" "}
@@ -226,14 +237,14 @@ function QuestionsPage() {
               onRetry={retryCriteria}
             />
           )}
-          {state.phase === "error" && !state.pending && !step && (
+          {state.phase === "error" && !state.pending && (!step || step.kind === "finished") && (
             <InlineError
               message={state.error ?? "Something went wrong."}
               onRetry={() => dispatch({ type: "RETRY" })}
             />
           )}
 
-          {state.phase === "finished" && (
+          {done && (
             <Completion
               sessionId={sessionId}
               counts={counts(state.answers)}
@@ -255,19 +266,29 @@ function QuestionsPage() {
               error={state.phase === "error" ? state.error : null}
               onReply={(text) => {
                 typedRef.current = false;
+                focusAfterForget.current = false;
                 dispatch({ type: "SEND", text });
               }}
               onSkip={() => {
                 typedRef.current = false;
+                focusAfterForget.current = false;
                 dispatch({ type: "SEND", text: null });
               }}
               onRetry={() => dispatch({ type: "RETRY" })}
             />
           )}
 
-          <AnswersSoFar state={state} onChange={goBack} />
+          <AnswersSoFar
+            state={state}
+            onChange={goBack}
+            onForget={(preferenceId) => {
+              focusAfterForget.current = true;
+              typedRef.current = false; // a forget never clears what the shopper typed
+              dispatch({ type: "FORGET", preferenceId });
+            }}
+          />
 
-          {state.phase !== "finished" && (
+          {!done && (
             <>
               <a
                 href="#current-question"
@@ -284,6 +305,7 @@ function QuestionsPage() {
                 onSend={() => {
                   if (!draft.trim()) return;
                   typedRef.current = true;
+                  focusAfterForget.current = false;
                   dispatch({ type: "SEND", text: draft });
                 }}
               />

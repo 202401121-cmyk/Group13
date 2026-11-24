@@ -79,7 +79,7 @@
   --destructive: oklch(0.52 0.17 27);
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(0.921 0.011 95.2); /* #E7E5DD */
-  --input: oklch(0.885 0.01 90);
+  --input: oklch(0.645 0.01 90); /* a field's edge: at least 3:1 on every surface (WCAG 1.4.11, US-33) */
   --ring: oklch(0.531 0.047 160.4);
   --shadow-soft:
     inset 0 1px 0 oklch(1 0 0 / 60%), 0 1px 2px oklch(0.34 0.03 160 / 4%),
@@ -135,7 +135,7 @@
   --destructive: oklch(0.72 0.15 25);
   --destructive-foreground: oklch(0.2 0.02 25);
   --border: oklch(0.385 0.02 155);
-  --input: oklch(0.43 0.02 155);
+  --input: oklch(0.565 0.02 155); /* at least 3:1 on every surface, as in light mode */
   --ring: oklch(0.74 0.06 155);
   --shadow-soft:
     inset 0 1px 0 oklch(1 0 0 / 5%), 0 1px 2px oklch(0 0 0 / 18%),

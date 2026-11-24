@@ -9,6 +9,9 @@
  *
  * The rubric editor (US-09, US-10) reads the rubric from GET /{id}, saves edits through POST /{id}/rubric (whose
  * X-Rubric-Note header carries a sentence to show) and reads leave-outs from words through POST /exclusions/parse.
+ *
+ * What a signed-in shopper's interview remembers (US-06) comes with every step, and POST /{id}/interview/forget
+ * forgets one for the session.
  */
 import { ApiError, MESSAGES, SESSION_ID_PATTERN, TIMEOUTS, type ApiClient } from "@/lib/api/client";
 import { checkContract } from "@/lib/api/schemas";
@@ -27,6 +30,7 @@ import type {
   EditableRubric,
   ExclusionView,
   InterviewService,
+  RememberedView,
   RubricEditView,
   Step,
   Turn,
@@ -80,6 +84,29 @@ export function answersFromState(state: InterviewState): Answers {
     }
   }
   return answers;
+}
+
+const DAY_MS = 86_400_000;
+
+/**
+ * The day a remembered preference is from: its age in whole days before now, as yyyy-mm-dd in the shopper's own time
+ * zone. The backend sends whole days only, so the day can be one off (a gap listed for the contract owners).
+ */
+export function rememberedSince(ageDays: number, now = Date.now()): string {
+  const day = new Date(now - Math.max(0, ageDays) * DAY_MS);
+  const two = (n: number) => String(n).padStart(2, "0");
+  return `${day.getFullYear()}-${two(day.getMonth() + 1)}-${two(day.getDate())}`;
+}
+
+/** What the interview remembers, as the screen shows it, best first as the backend sends it. */
+export function rememberedFrom(state: InterviewState, now = Date.now()): RememberedView[] {
+  return state.remembered.map((r) => ({
+    preferenceId: r.preference_id,
+    kind: r.kind,
+    text: r.text,
+    criterionId: r.criterion_key,
+    since: rememberedSince(r.age_days, now),
+  }));
 }
 
 const ORIGINS: Record<string, WeightOrigin | undefined> = {
@@ -260,7 +287,32 @@ export function createLiveInterviewService(client: ApiClient): InterviewService 
         answers,
         laterChanged:
           t?.revise && !outOfDate ? laterChanged(input.answers, answers, t.criterionId) : false,
+        remembered: rememberedFrom(result.state),
         ...(outOfDate ? { notice: ALREADY_ANSWERED } : {}),
+        ...(result.kind === "finished" && result.rubric
+          ? { rubric: rubricItems(result.rubric, input.criteria) }
+          : {}),
+      };
+    },
+    async forget(input, preferenceId) {
+      const id = checkedSessionId(input.sessionId);
+      let result: InterviewStep;
+      try {
+        result = await step(id, "forget", { preference_id: preferenceId });
+      } catch (e) {
+        // A forget whose answer was lost has already happened: the backend then answers 404 (no longer remembered) or
+        // 409. The step it is on now stands, so trying again never fails for good.
+        const refused = e instanceof ApiError && (e.status === 404 || e.kind === "conflict");
+        const latest = refused ? await latestStep(id).catch(() => null) : null;
+        if (!latest || latest.state.remembered.some((r) => r.preference_id === preferenceId))
+          throw e;
+        result = latest;
+      }
+      return {
+        step: viewStep(result),
+        answers: answersFromState(result.state),
+        laterChanged: false,
+        remembered: rememberedFrom(result.state),
         ...(result.kind === "finished" && result.rubric
           ? { rubric: rubricItems(result.rubric, input.criteria) }
           : {}),

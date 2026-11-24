@@ -117,40 +117,57 @@ test.describe("web vitals", () => {
     expect.soft(v.CLS ?? 0).toBeLessThanOrEqual(0.1);
   });
 
-  test("questions: INP while typing and pressing quick replies under 4x CPU slowdown", async ({
-    page,
+  /**
+   * INP moves with the machine's own load (S4-21 saw 40 to 328 ms for the same steps), so the same steps run 5
+   * times, each in a fresh page under the same 4x slowdown, and the check passes on the median (S4-F5, D-81). The
+   * 200 ms budget is never loosened; all five are reported. CLS must hold on every run.
+   */
+  test("questions: INP while typing and pressing quick replies under 4x CPU slowdown, median of 5 @timing", async ({
+    context,
   }) => {
-    await recordVitals(page);
-    await reachQuestions(page);
-    // CLS counts from the first question on; the request and criteria pages before it are not part of this.
-    const start = await page.evaluate(() => performance.now());
-    await slowCpu(page, 4);
-    const composer = page.getByLabel("Or type your answer");
-    await composer.tap();
-    await page.keyboard.type("Is it about how fast it builds code?", { delay: 40 });
-    await composer.press("Enter");
-    await expect(page.getByText(/^Good question/).first()).toBeVisible();
-    const replies = page.getByRole("group", { name: /Quick replies/ });
-    for (let i = 0; i < 3; i++) {
-      await expect(replies.getByRole("button", { name: "High" })).toBeEnabled();
-      await replies.getByRole("button", { name: "High" }).tap();
-      await expect(
-        replies.getByRole("button", { name: "High" }).or(page.getByText("Your brief is ready")),
-      ).toBeEnabled();
+    test.setTimeout(400_000);
+    const runs: { inp: number; cls: number }[] = [];
+    for (let run = 1; run <= 5; run++) {
+      const page = await context.newPage();
+      await recordVitals(page);
+      await reachQuestions(page);
+      // CLS counts from the first question on; the request and criteria pages before it are not part of this.
+      const start = await page.evaluate(() => performance.now());
+      await slowCpu(page, 4);
+      const composer = page.getByLabel("Or type your answer");
+      await composer.tap();
+      await page.keyboard.type("Is it about how fast it builds code?", { delay: 40 });
+      await composer.press("Enter");
+      await expect(page.getByText(/^Good question/).first()).toBeVisible();
+      const replies = page.getByRole("group", { name: /Quick replies/ });
+      for (let i = 0; i < 3; i++) {
+        await expect(replies.getByRole("button", { name: "High" })).toBeEnabled();
+        await replies.getByRole("button", { name: "High" }).tap();
+        await expect(
+          replies.getByRole("button", { name: "High" }).or(page.getByText("Your brief is ready")),
+        ).toBeEnabled();
+      }
+      // INP is reported once the page is hidden or after interactions; hiding it flushes the last value.
+      await page.evaluate(() => {
+        Object.defineProperty(document, "visibilityState", { value: "hidden", configurable: true });
+        document.dispatchEvent(new Event("visibilitychange"));
+      });
+      const v = await vitalsOf(page);
+      const cls = await shiftTotal(page, start);
+      console.log(
+        `[vitals] questions run ${run}: INP ${Math.round(v.INP ?? -1)} ms, CLS ${cls.toFixed(3)}; shifts: ${(await shiftsOf(page, start)).join("; ") || "none"}`,
+      );
+      expect(v.INP, `INP was measured on run ${run}`).toBeDefined();
+      expect.soft(cls, `CLS on run ${run}`).toBeLessThanOrEqual(0.1);
+      runs.push({ inp: v.INP!, cls });
+      await page.close();
     }
-    // INP is reported once the page is hidden or after interactions; hiding it flushes the last value.
-    await page.evaluate(() => {
-      Object.defineProperty(document, "visibilityState", { value: "hidden", configurable: true });
-      document.dispatchEvent(new Event("visibilitychange"));
-    });
-    const v = await vitalsOf(page);
-    const cls = await shiftTotal(page, start);
+    const sorted = runs.map((r) => r.inp).sort((a, b) => a - b);
+    const median = sorted[2]!;
     console.log(
-      `[vitals] questions: INP ${Math.round(v.INP ?? -1)} ms, CLS ${cls.toFixed(3)}; shifts: ${(await shiftsOf(page, start)).join("; ") || "none"}`,
+      `[vitals] questions INP, 5 runs: ${runs.map((r) => Math.round(r.inp)).join(", ")} ms; median ${Math.round(median)} ms (budget 200)`,
     );
-    expect(v.INP, "INP was measured").toBeDefined();
-    expect.soft(v.INP!).toBeLessThanOrEqual(200);
-    expect.soft(cls).toBeLessThanOrEqual(0.1);
+    expect(median, "median INP of 5 runs").toBeLessThanOrEqual(200);
   });
 });
 

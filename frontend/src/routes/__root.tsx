@@ -113,15 +113,18 @@ const Toaster = lazy(() =>
 );
 
 /**
- * Only the pages of a search raise toasts, so the library is fetched there and never on a first visit. Once fetched it
- * stays mounted, because a toast has to outlive the page that raised it.
+ * Only a search's results page raises toasts (stopping a search), so the library is fetched there, never with the
+ * first load of another page (S5-12: the brief page's budget, D-45). Once fetched it stays mounted, because a toast has
+ * to outlive the page that raised it.
  */
 function Toasts() {
-  const inSearch = useRouterState({ select: (s) => s.location.pathname.startsWith("/s/") });
+  const onResults = useRouterState({
+    select: (s) => /^\/s\/[^/]+\/results\/?$/.test(s.location.pathname),
+  });
   const [needed, setNeeded] = useState(false);
   useEffect(() => {
-    if (inSearch) setNeeded(true);
-  }, [inSearch]);
+    if (onResults) setNeeded(true);
+  }, [onResults]);
 
   if (!needed) return null;
   return (

@@ -26,6 +26,7 @@ function liveService(baseUrl: string): InterviewService {
   return {
     getCriteria: async (brief, sessionId) => (await adapter()).getCriteria(brief, sessionId),
     turn: async (input) => (await adapter()).turn(input),
+    forget: async (input, preferenceId) => (await adapter()).forget(input, preferenceId),
     loadRubric: async (sessionId, seed) => (await adapter()).loadRubric(sessionId, seed),
     editRubric: async (sessionId, edits) => (await adapter()).editRubric(sessionId, edits),
     parseExclusions: async (text) => (await adapter()).parseExclusions(text),

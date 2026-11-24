@@ -6,7 +6,7 @@ import { pillButton } from "@/components/shopsense/pill-button";
 import { ExactValue } from "./ExactValue";
 import { InlineError, StatusChip } from "./shared";
 import { TermHelp } from "./TermHelp";
-import { stepDisplay } from "@/lib/interview/view";
+import { rememberedFromText, stepDisplay } from "@/lib/interview/view";
 import { statusOf, type InterviewState } from "@/lib/interview/reducer";
 import { exactFromAnswer, levelOf } from "@/lib/interview/roughLevels";
 import { ANSWER_COUNTER_FROM, MAX_ANSWER_LENGTH, type Step } from "@/lib/interview/types";
@@ -165,15 +165,46 @@ export const FocusCard = forwardRef<
 export function AnswersSoFar({
   state,
   onChange,
+  onForget,
 }: {
   state: InterviewState;
   onChange: (id: string) => void;
+  /** Forgets a remembered preference (US-06). Without it, no Forget button. */
+  onForget?: ((preferenceId: string) => void) | undefined;
 }) {
   const [open, setOpen] = useState(false);
   const rows = state.criteria.filter(
     (c) => state.answers[c.id] || state.pending?.criterionId === c.id,
   );
   const locked = state.phase === "sending" || state.phase === "starting";
+  // Each row's words keep at least 9rem: on a phone the buttons wrap below them, never squeeze a word in two.
+  // A remembered weight shows on its criterion's row; a must-have or leave-out (or a weight with no row) on its own.
+  const shownOnRows = new Set(
+    rows.filter((c) => state.answers[c.id]?.status === "remembered").map((c) => c.id),
+  );
+  const memoryOf = (id: string) =>
+    state.remembered.find((r) => r.kind === "weight" && r.criterionId === id);
+  // A remembered weight shows only on its own row while it stands; once changed, the shopper's answer replaces it.
+  const alsoRemembered = state.remembered.filter(
+    (r) =>
+      r.kind !== "weight" ||
+      (!shownOnRows.has(r.criterionId ?? "") &&
+        !state.criteria.some((c) => c.id === r.criterionId)),
+  );
+  // A reply waiting to be tried again goes first.
+  const forgetLocked = locked || state.pending !== null;
+  const forgetButton = (preferenceId: string, name: string) =>
+    onForget && (
+      <button
+        type="button"
+        disabled={forgetLocked}
+        onClick={() => onForget(preferenceId)}
+        aria-label={`Forget ${name}`}
+        className="min-h-11 rounded-full px-3 text-sm font-medium text-primary hover:bg-primary-soft hover:text-primary-soft-foreground disabled:opacity-40"
+      >
+        Forget
+      </button>
+    );
   return (
     <section
       aria-labelledby="answers-title"
@@ -199,9 +230,9 @@ export function AnswersSoFar({
         />
       </button>
       <div id="answers-list" className={cn(open ? "block" : "hidden", "lg:block")}>
-        {rows.length === 0 ? (
+        {rows.length === 0 && alsoRemembered.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">Your answers will appear here.</p>
-        ) : (
+        ) : rows.length === 0 ? null : (
           <ul className="mt-2 divide-y divide-border">
             {rows.map((c) => {
               const status = statusOf(state, c.id);
@@ -209,19 +240,23 @@ export function AnswersSoFar({
               const pendingText =
                 state.pending?.criterionId === c.id ? (state.pending.text ?? "Skipping") : null;
               const value =
-                status === "pending"
-                  ? pendingText
-                  : a?.status === "remembered"
-                    ? `Remembered: ${a.value}`
-                    : a?.status === "skipped"
-                      ? "Skipped"
-                      : a?.value;
+                status === "pending" ? pendingText : a?.status === "skipped" ? "Skipped" : a?.value;
               const current = state.step?.criterionId === c.id && state.phase !== "finished";
+              const memory = a?.status === "remembered" ? memoryOf(c.id) : undefined;
               return (
-                <li key={c.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-3">
-                  <span className="min-w-0 flex-1">
+                <li
+                  key={c.id}
+                  data-remembered={memory ? "" : undefined}
+                  className="flex flex-wrap items-center gap-x-3 gap-y-1 py-3"
+                >
+                  <span className="min-w-36 flex-1">
                     <span className="block text-sm font-medium text-foreground">{c.title}</span>
                     <span className="block break-words text-sm text-muted-foreground">{value}</span>
+                    {memory && (
+                      <span data-remembered-from className="block text-xs text-muted-foreground">
+                        {rememberedFromText(memory.since)}
+                      </span>
+                    )}
                   </span>
                   <StatusChip status={status} />
                   {status !== "pending" && !current && (
@@ -230,15 +265,41 @@ export function AnswersSoFar({
                       disabled={locked}
                       onClick={() => onChange(c.id)}
                       aria-label={`${status === "skipped" ? "Answer now:" : "Change"} ${c.title}`}
-                      className="min-h-11 rounded-full px-3 text-sm font-medium text-primary hover:bg-primary-soft disabled:opacity-40"
+                      className="min-h-11 rounded-full px-3 text-sm font-medium text-primary hover:bg-primary-soft hover:text-primary-soft-foreground disabled:opacity-40"
                     >
                       {status === "skipped" ? "Answer now" : "Change"}
                     </button>
                   )}
+                  {memory && forgetButton(memory.preferenceId, c.title)}
                 </li>
               );
             })}
           </ul>
+        )}
+        {alsoRemembered.length > 0 && (
+          <section aria-labelledby="also-remembered" className="mt-3">
+            <h3 id="also-remembered" className="text-sm font-semibold text-foreground">
+              Also remembered from your earlier searches
+            </h3>
+            <ul className="mt-1 divide-y divide-border">
+              {alsoRemembered.map((r) => (
+                <li
+                  key={r.preferenceId}
+                  data-remembered=""
+                  className="flex flex-wrap items-center gap-x-3 gap-y-1 py-3"
+                >
+                  <span className="min-w-36 flex-1">
+                    <span className="block break-words text-sm text-foreground">{r.text}</span>
+                    <span data-remembered-from className="block text-xs text-muted-foreground">
+                      {rememberedFromText(r.since)}
+                    </span>
+                  </span>
+                  <StatusChip status="remembered" />
+                  {forgetButton(r.preferenceId, r.text)}
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
       </div>
     </section>
@@ -368,7 +429,7 @@ export function Completion({
                   type="button"
                   onClick={() => onAnswer(c.id)}
                   aria-label={`Answer now: ${c.title}`}
-                  className="min-h-11 rounded-full px-3 text-sm font-medium text-primary hover:bg-primary-soft"
+                  className="min-h-11 rounded-full px-3 text-sm font-medium text-primary hover:bg-primary-soft hover:text-primary-soft-foreground"
                 >
                   Answer now
                 </button>
