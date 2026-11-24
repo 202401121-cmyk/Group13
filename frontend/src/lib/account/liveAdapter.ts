@@ -14,7 +14,7 @@
  */
 import { ApiError, TIMEOUTS, type ApiClient, type BearerSource } from "@/lib/api/client";
 import { checkContract } from "@/lib/api/schemas";
-import { resultFromSearch } from "@/lib/results/liveAdapter";
+import { resultFromSearch, savedSearchKey } from "@/lib/results/liveAdapter";
 import type { PreferenceExport } from "@/types/contracts/PreferenceExport";
 import type { PreferenceItem } from "@/types/contracts/PreferenceItem";
 import {
@@ -94,9 +94,9 @@ export function createLiveAccountService(client: ApiClient): AccountService {
           request: wire.request.raw_query,
           category: wire.request.rubric.category,
           finishedAt: Date.parse(wire.finished_at),
-          // A saved search's run is long gone: its sources come from the result's own citations, never the
-          // evidence route.
-          result: { ...resultFromSearch(wire, []), searchId: null, saved: true },
+          // A saved search's run is long gone: its sources come from its saved row's evidence route (US-29),
+          // and from the result's own citations when that can't answer.
+          result: { ...resultFromSearch(wire, []), searchId: savedSearchKey(id), saved: true },
         };
       } catch (e) {
         throw asAccountError(e);

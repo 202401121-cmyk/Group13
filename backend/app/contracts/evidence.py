@@ -3,6 +3,10 @@
 A citation is what a saved result keeps of a claim a value cites: its id, its source and, if it may be kept, its quote.
 Reddit's words are never kept past 24 hours (D-53), so a saved citation from Reddit has no quote
 (app/research/retention.py). The evidence route then says why the quote is missing.
+
+Since 1.11.0 (US-29) a citation also keeps what the claim said and when, so a saved result reopens with the same
+evidence: its value (or the marker, for a text value from Reddit or a video's comments) or its score, unit, polarity,
+type and retrieval time. A citation saved before 1.11.0 has none of these; the saved evidence route says so.
 """
 
 from __future__ import annotations
@@ -39,6 +43,26 @@ class Citation(Contract):
         max_length=600,
         description="The claim's exact words. None when not kept: Reddit's words are not saved (D-53)",
     )
+    value: ClaimValue | None = Field(
+        default=None,
+        description=(
+            "What the claim said, as a number or text. A text value from Reddit or a video's comments is saved as "
+            "the marker (D-53). None for a score, or in a citation from before 1.11.0"
+        ),
+    )
+    unit: str | None = Field(default=None, max_length=16)
+    score: StrictScore10 | None = Field(default=None, description="The claim's 0 to 10 judgement, when it gave one")
+    polarity: Literal["positive", "negative", "neutral"] | None = None
+    claim_type: ClaimType | None = None
+    retrieved_at: UtcDatetime | None = Field(
+        default=None, description="When the claim's source was fetched (build rule 4). None before 1.11.0"
+    )
+
+    @model_validator(mode="after")
+    def _one_reading(self) -> Citation:
+        if self.value is not None and self.score is not None:
+            raise ValueError("a citation keeps a claim's value or its score, never both")
+        return self
 
 
 class EvidenceSource(Contract):

@@ -40,7 +40,7 @@ from app.research.cache import ResearchCache, sweep_expired_files
 from app.research.dedupe import merge_near_duplicates
 from app.research.reddit.archive import add_comments
 from app.research.reddit.cache import SERVE_MARGIN, RedditCache, serve_limit
-from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
+from app.research.retention import REDDIT_TEXT_NOT_KEPT, VIDEO_TEXT_NOT_KEPT, without_reddit_text
 from app.search_run_limits import SWEEP_EVERY_S
 from app.verify import TrustVerifyStage
 from tests.fakes.live_run import use_live_shaped_run
@@ -208,7 +208,18 @@ UNIT_DROPPED = (
     "cited from a source we know isn't Reddit. It is too short for the marker"
 )
 
+CITED_VALUE = (
+    "what a cited claim said (US-29, 1.11.0): a text value becomes the marker on save unless its citation's source is "
+    "listed and not Reddit or a video with viewers' comments; a number or a yes or no is not words, and stays"
+)
+CITED_UNIT = (
+    "a cited claim's unit (US-29, 1.11.0): dropped (None) on save unless its citation's source is listed and not "
+    "Reddit or a video with viewers' comments, with a number too, as an alternative's unit is (UNIT_DROPPED)"
+)
+
 TEXT_FIELDS = {
+    "citations[].value": CITED_VALUE,
+    "citations[].unit": CITED_UNIT,
     "citations[].claim_id": ID_OR_LINK,
     "citations[].source_id": ID_OR_LINK,
     "citations[].quote": DROPPED,
@@ -651,17 +662,49 @@ def test_a_citation_whose_source_is_not_listed_loses_its_quote() -> None:
     assert [c["quote"] for c in no_sources] == [None, None]  # with no sources, none can be known not to be Reddit
 
 
+def test_a_cited_claims_text_value_from_reddit_or_a_videos_viewers_is_the_marker_on_save() -> None:
+    """D-53, US-29: the claim's own words never reach the saved row, not even until a later sweep: the save marks them.
+    A number stays with its unit; a value cited from a page we know isn't Reddit stays whole."""
+    reddit = thread("t3_madeup9", "A made-up thread").model_dump(mode="json")
+    video = {
+        **web_source("https://www.youtube.com/watch?v=madeup00001").model_dump(mode="json"),
+        "data_class": "reddit",
+    }
+    web = web_source("https://www.example.com/page").model_dump(mode="json")
+    result = {
+        "sources": [reddit, video, web],
+        "citations": [
+            {"claim_id": "clm_" + "a" * 24, "source_id": reddit["id"], "value": "lasts all day", "unit": "days"},
+            {"claim_id": "clm_" + "b" * 24, "source_id": video["id"], "value": "really bright", "unit": "nits"},
+            {"claim_id": "clm_" + "c" * 24, "source_id": reddit["id"], "value": 6.0, "unit": "hours"},
+            {"claim_id": "clm_" + "d" * 24, "source_id": web["id"], "value": "Wi-Fi 7", "unit": None},
+        ],
+    }
+    saved = without_reddit_text(result)["citations"]
+    assert [(c["value"], c["unit"]) for c in saved] == [
+        (REDDIT_TEXT_NOT_KEPT, None),
+        (VIDEO_TEXT_NOT_KEPT, None),
+        (6.0, None),  # the number stays; its unit is the claim's word, so it goes
+        ("Wi-Fi 7", None),
+    ]
+    alone = without_reddit_text({"citations": [dict(result["citations"][3])]})["citations"]
+    assert alone[0]["value"] == REDDIT_TEXT_NOT_KEPT  # with no sources, none can be known not to be Reddit
+
+
 def test_every_field_the_table_says_is_dropped_really_is() -> None:
-    marked = sorted(path for path, kind in TEXT_FIELDS.items() if kind in (DROPPED, UNIT_DROPPED))
+    marked = sorted(path for path, kind in TEXT_FIELDS.items() if kind in (DROPPED, UNIT_DROPPED, CITED_UNIT))
     assert marked == [
         "citations[].quote",
+        "citations[].unit",
         "products[].values[].alternatives[].unit",
     ], "extend this test for a new field that is dropped"
     result = _cites_reddit(_deep_thread())
     result["citations"][0]["quote"] = "Secret words in a quote."
+    result["citations"][0]["unit"] = "hourz"
     result["products"][0]["values"][0]["alternatives"][0] |= {"value": 6.0, "unit": "hourz"}
     saved = without_reddit_text(result)
     assert saved["citations"][0]["quote"] is None
+    assert saved["citations"][0]["unit"] is None
     assert saved["products"][0]["values"][0]["alternatives"][0]["unit"] is None
     assert "Secret words in a quote." not in json.dumps(saved)
     assert "hourz" not in json.dumps(saved)
