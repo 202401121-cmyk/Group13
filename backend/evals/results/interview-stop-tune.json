@@ -1,0 +1,387 @@
+{
+  "generated": "2026-11-24",
+  "commit": "3f28947",
+  "runner": "python -m evals.interview_stop (offline)",
+  "settings": {
+    "seed": 4747,
+    "shoppers_per_category": 50,
+    "categories": [
+      "smartphone",
+      "air_fryer",
+      "laptop",
+      "smartwatch",
+      "earbuds",
+      "headphones"
+    ],
+    "shares": [
+      0.51,
+      0.52,
+      0.53,
+      0.54,
+      0.55,
+      0.56,
+      0.57,
+      0.58,
+      0.59,
+      0.6,
+      0.61,
+      0.62,
+      0.63,
+      0.64,
+      0.65,
+      0.66,
+      0.67,
+      0.68,
+      0.69,
+      0.7,
+      0.71,
+      0.72,
+      0.73,
+      0.74,
+      0.75,
+      0.76,
+      0.77,
+      0.78,
+      0.79,
+      0.8,
+      0.81,
+      0.82,
+      0.83,
+      0.84,
+      0.85,
+      0.86,
+      0.87,
+      0.88,
+      0.89,
+      0.9,
+      0.91,
+      0.92,
+      0.93,
+      0.94,
+      0.95,
+      0.96,
+      0.97,
+      0.98,
+      0.99
+    ],
+    "min_answers": 3,
+    "simulations": 1000
+  },
+  "rule": "accuracy first (Om, 17 Nov 2026): keep the shares at least as accurate as the fixed order on the tuning seed; then the fewest questions; then the share nearest 0.9; then the higher share",
+  "fixed": {
+    "shoppers": 300,
+    "questions_mean": 8.0,
+    "mae_mean": 0.9903,
+    "top3_share": 0.3467,
+    "accuracy": 0.6033
+  },
+  "start": {
+    "share": 0.9,
+    "questions": 7.9567,
+    "accuracy": 0.6033,
+    "mae": 0.9932
+  },
+  "chosen": {
+    "share": 0.61,
+    "questions": 7.1867,
+    "accuracy": 0.6067,
+    "mae": 1.0548
+  },
+  "keeps_fixed_accuracy": true,
+  "rows": [
+    {
+      "share": 0.51,
+      "questions": 6.2033,
+      "accuracy": 0.5867,
+      "mae": 1.1599
+    },
+    {
+      "share": 0.52,
+      "questions": 6.2867,
+      "accuracy": 0.5867,
+      "mae": 1.151
+    },
+    {
+      "share": 0.53,
+      "questions": 6.49,
+      "accuracy": 0.59,
+      "mae": 1.1329
+    },
+    {
+      "share": 0.54,
+      "questions": 6.6067,
+      "accuracy": 0.5967,
+      "mae": 1.118
+    },
+    {
+      "share": 0.55,
+      "questions": 6.6533,
+      "accuracy": 0.6,
+      "mae": 1.1114
+    },
+    {
+      "share": 0.56,
+      "questions": 6.7133,
+      "accuracy": 0.6,
+      "mae": 1.1062
+    },
+    {
+      "share": 0.57,
+      "questions": 6.79,
+      "accuracy": 0.5933,
+      "mae": 1.0993
+    },
+    {
+      "share": 0.58,
+      "questions": 6.9433,
+      "accuracy": 0.5967,
+      "mae": 1.0834
+    },
+    {
+      "share": 0.59,
+      "questions": 7.0267,
+      "accuracy": 0.5967,
+      "mae": 1.072
+    },
+    {
+      "share": 0.6,
+      "questions": 7.0867,
+      "accuracy": 0.6,
+      "mae": 1.0664
+    },
+    {
+      "share": 0.61,
+      "questions": 7.1867,
+      "accuracy": 0.6067,
+      "mae": 1.0548
+    },
+    {
+      "share": 0.62,
+      "questions": 7.2267,
+      "accuracy": 0.61,
+      "mae": 1.0513
+    },
+    {
+      "share": 0.63,
+      "questions": 7.27,
+      "accuracy": 0.6133,
+      "mae": 1.0447
+    },
+    {
+      "share": 0.64,
+      "questions": 7.3367,
+      "accuracy": 0.6167,
+      "mae": 1.0378
+    },
+    {
+      "share": 0.65,
+      "questions": 7.38,
+      "accuracy": 0.6167,
+      "mae": 1.0332
+    },
+    {
+      "share": 0.66,
+      "questions": 7.42,
+      "accuracy": 0.6133,
+      "mae": 1.0319
+    },
+    {
+      "share": 0.67,
+      "questions": 7.4633,
+      "accuracy": 0.6133,
+      "mae": 1.0306
+    },
+    {
+      "share": 0.68,
+      "questions": 7.5267,
+      "accuracy": 0.6133,
+      "mae": 1.0222
+    },
+    {
+      "share": 0.69,
+      "questions": 7.54,
+      "accuracy": 0.6133,
+      "mae": 1.0217
+    },
+    {
+      "share": 0.7,
+      "questions": 7.5933,
+      "accuracy": 0.6133,
+      "mae": 1.0192
+    },
+    {
+      "share": 0.71,
+      "questions": 7.62,
+      "accuracy": 0.61,
+      "mae": 1.0174
+    },
+    {
+      "share": 0.72,
+      "questions": 7.6467,
+      "accuracy": 0.61,
+      "mae": 1.0152
+    },
+    {
+      "share": 0.73,
+      "questions": 7.6633,
+      "accuracy": 0.61,
+      "mae": 1.0134
+    },
+    {
+      "share": 0.74,
+      "questions": 7.6933,
+      "accuracy": 0.61,
+      "mae": 1.0126
+    },
+    {
+      "share": 0.75,
+      "questions": 7.7067,
+      "accuracy": 0.61,
+      "mae": 1.0122
+    },
+    {
+      "share": 0.76,
+      "questions": 7.73,
+      "accuracy": 0.6067,
+      "mae": 1.0085
+    },
+    {
+      "share": 0.77,
+      "questions": 7.7367,
+      "accuracy": 0.6067,
+      "mae": 1.009
+    },
+    {
+      "share": 0.78,
+      "questions": 7.7633,
+      "accuracy": 0.6067,
+      "mae": 1.008
+    },
+    {
+      "share": 0.79,
+      "questions": 7.7933,
+      "accuracy": 0.6033,
+      "mae": 1.0077
+    },
+    {
+      "share": 0.8,
+      "questions": 7.8267,
+      "accuracy": 0.6033,
+      "mae": 1.0047
+    },
+    {
+      "share": 0.81,
+      "questions": 7.85,
+      "accuracy": 0.6033,
+      "mae": 0.9999
+    },
+    {
+      "share": 0.82,
+      "questions": 7.86,
+      "accuracy": 0.6033,
+      "mae": 0.9961
+    },
+    {
+      "share": 0.83,
+      "questions": 7.8733,
+      "accuracy": 0.6033,
+      "mae": 0.9957
+    },
+    {
+      "share": 0.84,
+      "questions": 7.88,
+      "accuracy": 0.6033,
+      "mae": 0.9941
+    },
+    {
+      "share": 0.85,
+      "questions": 7.9033,
+      "accuracy": 0.6033,
+      "mae": 0.994
+    },
+    {
+      "share": 0.86,
+      "questions": 7.9167,
+      "accuracy": 0.6033,
+      "mae": 0.9941
+    },
+    {
+      "share": 0.87,
+      "questions": 7.93,
+      "accuracy": 0.6033,
+      "mae": 0.9942
+    },
+    {
+      "share": 0.88,
+      "questions": 7.94,
+      "accuracy": 0.6033,
+      "mae": 0.9933
+    },
+    {
+      "share": 0.89,
+      "questions": 7.9533,
+      "accuracy": 0.6033,
+      "mae": 0.9932
+    },
+    {
+      "share": 0.9,
+      "questions": 7.9567,
+      "accuracy": 0.6033,
+      "mae": 0.9932
+    },
+    {
+      "share": 0.91,
+      "questions": 7.9633,
+      "accuracy": 0.6033,
+      "mae": 0.9924
+    },
+    {
+      "share": 0.92,
+      "questions": 7.97,
+      "accuracy": 0.6033,
+      "mae": 0.9928
+    },
+    {
+      "share": 0.93,
+      "questions": 7.9767,
+      "accuracy": 0.6033,
+      "mae": 0.9924
+    },
+    {
+      "share": 0.94,
+      "questions": 7.9833,
+      "accuracy": 0.6033,
+      "mae": 0.9916
+    },
+    {
+      "share": 0.95,
+      "questions": 7.99,
+      "accuracy": 0.6033,
+      "mae": 0.9911
+    },
+    {
+      "share": 0.96,
+      "questions": 7.9933,
+      "accuracy": 0.6033,
+      "mae": 0.9911
+    },
+    {
+      "share": 0.97,
+      "questions": 7.9933,
+      "accuracy": 0.6033,
+      "mae": 0.9911
+    },
+    {
+      "share": 0.98,
+      "questions": 8.0,
+      "accuracy": 0.6033,
+      "mae": 0.9903
+    },
+    {
+      "share": 0.99,
+      "questions": 8.0,
+      "accuracy": 0.6033,
+      "mae": 0.9903
+    }
+  ]
+}
