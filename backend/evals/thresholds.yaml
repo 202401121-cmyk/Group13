@@ -135,13 +135,32 @@ measures:
     measured_on: offline
     source: backend/evals/results/us19-stability.json; backend/tests/fixtures/decide/stability/close_earbuds.json (made up),
       100 weight changes of up to 10%, seed 19, app.decide
-    date: '2026-11-18'
-    commit: b2eac63
+    date: '2026-11-24'
+    commit: f1cee7e
     rule: On close products, the rank order keeps the stability it has now under random 10% weight changes (US-19, D-74).
     target:
       value: 0.9
       source: 'US-19 criterion 4: rank order stable under random 10% weight changes, Spearman 0.9 or better'
       note: not met
+  decide.stability.close_untied_median:
+    kind: quality
+    direction: at_least
+    floor: 0.95
+    measured: 1.0
+    unit: rho
+    margin: 0.05 below the measured median, never below the met target of 0.9
+    measured_on: offline
+    source: backend/evals/results/us19-stability.json; backend/tests/fixtures/decide/stability/close_earbuds.json (made up),
+      100 weight changes of up to 10%, seed 19, app.decide
+    date: '2026-11-24'
+    commit: f1cee7e
+    rule: On close products, the order the app claims (each group it marks too close to call as one position) keeps the stability
+      it has now under random 10% weight changes (US-19, P-45).
+    target:
+      value: 0.9
+      source: 'US-19 criterion 4: rank order stable under random 10% weight changes, Spearman 0.9 or better; counted with
+        each tie group the app marks as one position (P-45)'
+      note: met
   gate.claims_kept:
     kind: quality
     direction: at_least

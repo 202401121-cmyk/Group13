@@ -1,6 +1,6 @@
 {
-  "generated": "2026-11-18",
-  "commit": "b2eac63",
+  "generated": "2026-11-24",
+  "commit": "f1cee7e",
   "story": "US-19 (S4-7): the rank order under random 10% weight changes",
   "runner": "python -m evals.stability (offline)",
   "briefs": "backend/tests/fixtures/decide (5 made-up briefs)",
@@ -9,11 +9,22 @@
   "shift": 0.1,
   "change_seed": 19,
   "decide_seed": "each brief's own DecideInput.seed",
+  "what_counts": {
+    "median": "Today's number compares the places of every shown product, each in its own position.",
+    "untied": "The second number gives each group of products the app marks \"too close to call\" one shared place, the average of its members' places, so a reorder inside a group moves nothing and any other move counts."
+  },
   "target_median": 0.9,
   "median": 1.0,
   "lowest": 1.0,
   "meets_target": true,
   "note": "No change reordered any of the five briefs' shown products: in them they are far apart, so this shows the order holds there, not how close products behave. The close brief beside them (`close`, D-74) is the check that can fail: there, changes do reorder the shown products.",
+  "untied": {
+    "median": 1.0,
+    "lowest": 1.0,
+    "target_median": 0.9,
+    "meets_target": true,
+    "note": null
+  },
   "per_brief": {
     "ereader_8k": {
       "shown": 0,
@@ -23,25 +34,53 @@
       "shown": 3,
       "counted": true,
       "median": 1.0,
-      "lowest": 1.0
+      "lowest": 1.0,
+      "untied": {
+        "positions": 3,
+        "tie_groups": [],
+        "median": 1.0,
+        "lowest": 1.0,
+        "note": null
+      }
     },
     "laptop_coding_70k": {
       "shown": 3,
       "counted": true,
       "median": 1.0,
-      "lowest": 1.0
+      "lowest": 1.0,
+      "untied": {
+        "positions": 3,
+        "tie_groups": [],
+        "median": 1.0,
+        "lowest": 1.0,
+        "note": null
+      }
     },
     "monitor_27_gaming": {
       "shown": 3,
       "counted": true,
       "median": 1.0,
-      "lowest": 1.0
+      "lowest": 1.0,
+      "untied": {
+        "positions": 3,
+        "tie_groups": [],
+        "median": 1.0,
+        "lowest": 1.0,
+        "note": null
+      }
     },
     "phone_camera_30k": {
       "shown": 2,
       "counted": true,
       "median": 1.0,
-      "lowest": 1.0
+      "lowest": 1.0,
+      "untied": {
+        "positions": 2,
+        "tie_groups": [],
+        "median": 1.0,
+        "lowest": 1.0,
+        "note": null
+      }
     }
   },
   "close": {
@@ -52,7 +91,27 @@
     "target_median": 0.9,
     "meets_target": false,
     "top3_reordered": 87,
-    "note": "The median Spearman, 0.8929, is below US-19's target of 0.9: on close products a 10% change of the weights reorders the shown products often enough to miss it. Reported as it is, never tuned to pass."
+    "note": "The median Spearman, 0.8929, is below US-19's target of 0.9: on close products a 10% change of the weights reorders the shown products often enough to miss it. Reported as it is, never tuned to pass.",
+    "untied": {
+      "positions": 3,
+      "tie_groups": [
+        [
+          "prd_pike_air",
+          "prd_wren_buds_2",
+          "prd_lark_fit",
+          "prd_moss_quiet"
+        ],
+        [
+          "prd_kite_lite",
+          "prd_opal_mini"
+        ]
+      ],
+      "median": 1.0,
+      "lowest": 1.0,
+      "note": null,
+      "target_median": 0.9,
+      "meets_target": true
+    }
   },
   "measures": [
     {
@@ -62,6 +121,14 @@
       "status": "measured",
       "source": "backend/tests/fixtures/decide/stability/close_earbuds.json (made up), 100 weight changes of up to 10%, seed 19, app.decide",
       "detail": "The close brief's median Spearman between its shown order and each changed one."
+    },
+    {
+      "id": "decide.stability.close_untied_median",
+      "value": 1.0,
+      "unit": "rho",
+      "status": "measured",
+      "source": "backend/tests/fixtures/decide/stability/close_earbuds.json (made up), 100 weight changes of up to 10%, seed 19, app.decide",
+      "detail": "The close brief's median Spearman with each tie group the app marks as one position (P-45)."
     }
   ]
 }

@@ -187,6 +187,9 @@ Fuzzy stays the default until a larger labelled test part shows the target.
 | Baseline or fallback | Plain weighted score |
 | Target | Spearman of 0.9 or more under 10% weight changes, and the same seed gives the same output |
 | Sprint | 4 |
+| How it's checked | `python -m evals.stability` makes 100 random weight changes of up to 10% (seed 19). It compares each changed order with the order before the change. It checks the five decide briefs and, beside them, a made-up brief with close earbuds (D-74). Record: `backend/evals/results/us19-stability.json`. Two numbers come from the same changes (P-45, S5-15) |
+| What the two numbers count | Today's number compares the places of every shown product, each in its own position. The second number gives each group of products the app marks "too close to call" one shared place, the average of its members' places, so a reorder inside a group moves nothing and any other move counts. |
+| Results | **The five briefs:** median and lowest 1.0 both ways. Their shown products are far apart, and none are tied. **The close brief, today's number:** median 0.8929, lowest 0.7143. **Target not met** (floor 0.8429). **The close brief, second number:** median 1.0 and lowest 1.0, over 3 positions: the four closest products, Fern Talk, then Kite Lite and Opal Mini. With only 3 positions the number is coarse (Moss Quiet slipping one place, below Fern Talk, would still score 0.97, above the target), so this 1.0 is coarse evidence; the claim it supports is that no change moved a product out of its "too close to call" group. Target met (floor 0.95). In all 100 changes, every product that moved stayed inside a group the app already shows as too close to call |
 
 ## 5. Preference memory
 
