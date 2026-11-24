@@ -1146,7 +1146,22 @@ class _Search:
             if cited:
                 log.warning("search %s: citations left out, as a cited claim is not the run's", self.ctx.search_id)
             return []
-        return [Citation(claim_id=c.id, source_id=c.source_id, quote=c.quote) for c in found if c is not None]
+        # What the claim said and when, too (US-29, 1.11.0): a saved result reopens with the same evidence.
+        return [
+            Citation(
+                claim_id=c.id,
+                source_id=c.source_id,
+                quote=c.quote,
+                value=c.value,
+                unit=c.unit,
+                score=c.score,
+                polarity=c.polarity,
+                claim_type=c.claim_type,
+                retrieved_at=c.retrieved_at,
+            )
+            for c in found
+            if c is not None
+        ]
 
 
 def _still_dropped(out: VerifyResult, dropped: Sequence[str]) -> VerifyResult:

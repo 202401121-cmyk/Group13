@@ -589,6 +589,13 @@ const REOPEN_WAIT_MS = 3_000;
 
 const runPath = (searchId: string) => `/api/search/runs/${searchId}`;
 
+/**
+ * A saved search stands in for its long-gone run by this key (US-29): its evidence comes from its saved row, at
+ * GET /api/me/searches/{id}/evidence, owner only. The account adapter gives a saved result this key as its search ID.
+ */
+const SAVED_KEY = "saved:";
+export const savedSearchKey = (id: string) => `${SAVED_KEY}${id}`;
+
 function checkedId(searchId: string) {
   if (!SEARCH_ID_PATTERN.test(searchId)) {
     throw new ResearchError("notFound", "We couldn't find that search.");
@@ -743,14 +750,16 @@ export function createLiveResearchService(
       };
       if (!searchId) return fromCitations;
       const query = `product_id=${encodeURIComponent(productId)}&criterion_key=${encodeURIComponent(criterionId)}`;
+      const saved = searchId.startsWith(SAVED_KEY) ? searchId.slice(SAVED_KEY.length) : null;
+      const path = saved
+        ? `/api/me/searches/${encodeURIComponent(saved)}/evidence?${query}`
+        : `${runPath(encodeURIComponent(searchId))}/evidence?${query}`;
       try {
-        const raw = await client.get(`${runPath(encodeURIComponent(searchId))}/evidence?${query}`, {
-          timeoutMs: TIMEOUTS.step,
-          ownedRun: true,
-        });
+        // A run's 404 may be a stale token for an owned run; a saved row's 404 never is (a bad token is a 401).
+        const raw = await client.get(path, { timeoutMs: TIMEOUTS.step, ownedRun: saved === null });
         const ev = await checkContract("EvidenceResponse", raw);
         const same =
-          ev.search_id === searchId &&
+          (saved !== null || ev.search_id === searchId) && // a saved answer names its run's search ID
           ev.product_id === productId &&
           ev.criterion_key === criterionId;
         return same ? evidenceView(ev) : fromCitations;

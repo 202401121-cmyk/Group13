@@ -73,6 +73,7 @@ def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(sources, list):
         _strip_decision(saved, _strip_values(saved, set()))  # with no sources, none can be known not to be Reddit
         _drop_cited_quotes(saved, set())
+        _mark_cited_values(saved, set())
         return saved
     others: set[Any] = set()
     markers: dict[Any, str] = {}  # a stripped source's id -> the marker its words become
@@ -89,6 +90,7 @@ def without_reddit_text(result: dict[str, Any]) -> dict[str, Any]:
     _strip_decision(saved, _strip_values(saved, others, markers))
     _strip_quotes(saved, others, markers)
     _drop_cited_quotes(saved, others)
+    _mark_cited_values(saved, others, markers)
     return saved
 
 
@@ -327,6 +329,24 @@ def _drop_cited_quotes(saved: dict[str, Any], others: set[Any]) -> None:
     for citation in citations:
         if isinstance(citation, dict) and citation.get("source_id") not in others:
             citation["quote"] = None
+
+
+def _mark_cited_values(saved: dict[str, Any], others: set[Any], markers: dict[Any, str] | None = None) -> None:
+    """A citation's text value from a source we can't name as not Reddit becomes the marker at the save, and its unit
+    goes (US-29, 1.11.0; D-53): the claim's own words never reach the saved row. A unit is the claim's words too, as an
+    alternative's is (UNIT_DROPPED), so it goes with a number as well. A number, a yes or no and a score are not words,
+    so they stay, as resolved values' do."""
+    markers = markers or {}
+    citations = saved.get("citations")
+    if not isinstance(citations, list):
+        return
+    for citation in citations:
+        if not isinstance(citation, dict) or citation.get("source_id") in others:
+            continue
+        if isinstance(citation.get("value"), str):
+            citation["value"] = markers.get(citation.get("source_id"), REDDIT_TEXT_NOT_KEPT)
+        if "unit" in citation:
+            citation["unit"] = None
 
 
 def _strip_quotes(node: Any, others: set[Any], markers: dict[Any, str] | None = None) -> None:

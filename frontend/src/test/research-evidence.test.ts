@@ -238,3 +238,44 @@ describe("evidence (mock)", () => {
     expect(ev).toEqual(FELL_BACK);
   });
 });
+
+describe("a saved search's evidence (US-29)", () => {
+  const SAVED_ID = "a0000000-0000-4000-8000-00000000000a";
+
+  it("asks the saved row's evidence route, owner only, and maps its answer", async () => {
+    const { svc, calls } = live(() => json(200, evidenceDisputed));
+    const ev = await svc.evidence(`saved:${SAVED_ID}`, PRODUCT, CRITERION, FALLBACK);
+    expect(calls.map((c) => [c.method, c.path])).toEqual([
+      [
+        "GET",
+        `/api/me/searches/${SAVED_ID}/evidence?product_id=${PRODUCT}&criterion_key=${CRITERION}`,
+      ],
+    ]);
+    expect(ev.from).not.toBe("citations");
+    expect(ev.claims.length).toBe(evidenceDisputed.claims.length);
+  });
+
+  it("falls back to the result's own citations when the saved row can't answer", async () => {
+    const { svc, calls } = live(() =>
+      json(404, { detail: "This search was saved before its sources' details were kept." }),
+    );
+    expect(await svc.evidence(`saved:${SAVED_ID}`, PRODUCT, CRITERION, FALLBACK)).toEqual(
+      FELL_BACK,
+    );
+    expect(calls.map((c) => c.path)).toEqual([
+      `/api/me/searches/${SAVED_ID}/evidence?product_id=${PRODUCT}&criterion_key=${CRITERION}`,
+    ]); // the saved row was asked, once: never the run's route, and no second try with a fresh token
+  });
+
+  it("never takes an answer about another product or criterion", async () => {
+    const { svc, calls } = live(() =>
+      json(200, { ...evidenceDisputed, product_id: "prd_someone_else" }),
+    );
+    expect(await svc.evidence(`saved:${SAVED_ID}`, PRODUCT, CRITERION, FALLBACK)).toEqual(
+      FELL_BACK,
+    );
+    expect(calls.map((c) => c.path)).toEqual([
+      `/api/me/searches/${SAVED_ID}/evidence?product_id=${PRODUCT}&criterion_key=${CRITERION}`,
+    ]); // the saved row was asked, once: never the run's route, and no second try with a fresh token
+  });
+});

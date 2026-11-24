@@ -37,9 +37,11 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from app import db
+from app.api.evidence import EvidenceUnavailable, saved_evidence_for
 from app.auth import Caller, SignedInUser, who_is_asking
 from app.auth.settings import load_admin_settings
 from app.contracts import (
+    EvidenceResponse,
     MeResponse,
     PreferenceEdit,
     PreferenceExport,
@@ -176,6 +178,43 @@ def my_search(search_id: str, caller: Asking, accounts: Accounts) -> SearchResul
         log.warning("a saved search could not be read back as a result")  # the type only: never its text
         raise HTTPException(404, NOT_FOUND) from None
     return SearchResult.model_validate({**result.model_dump(), "saved": True})  # it was read from its saved row
+
+
+@router.get(
+    "/searches/{search_id}/evidence",
+    response_model=EvidenceResponse,
+    responses={**_ERRORS, 404: {"description": f"{NOT_FOUND} Or that value's sources can't be shown"}},
+)
+def my_search_evidence(
+    search_id: str,
+    caller: Asking,
+    accounts: Accounts,
+    product_id: Annotated[str, Query(min_length=1, description="One of the saved result's products")],
+    criterion_key: Annotated[
+        str, Query(min_length=1, description="A criterion or hard-rule attribute with a value for it")
+    ],
+) -> EvidenceResponse:
+    """The claims behind one value of a saved result, from its saved row alone (US-29): the same answer as the run's
+    evidence route, with no Reddit words (D-53). Only the owner's: another user's id, a guest's or a made-up one all
+    answer 404, as the saved result does. A search saved before 1.11.0 answers 404 for a value, saying why."""
+    user = _signed_in(caller)
+    try:
+        wanted = UUID(search_id)
+    except ValueError:
+        raise HTTPException(404, NOT_FOUND) from None
+    with _account_errors():
+        saved = accounts.saved_search(user.id, wanted)
+    if saved is None:
+        raise HTTPException(404, NOT_FOUND)
+    try:
+        result = SearchResult.model_validate(saved)
+    except ValidationError:
+        log.warning("a saved search could not be read back as a result")  # the type only: never its text
+        raise HTTPException(404, NOT_FOUND) from None
+    try:
+        return saved_evidence_for(result, product_id, criterion_key)
+    except EvidenceUnavailable as unavailable:
+        raise HTTPException(unavailable.status_code, unavailable.detail) from None
 
 
 # --- what the app remembers (US-11) -------------------------------------------------------------------------------

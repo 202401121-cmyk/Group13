@@ -797,7 +797,21 @@ def search_result() -> SearchResult:
         return StageReport(stage=stage, status=status, duration_ms=ms, fallback_reason=reason)
 
     cited = {i for s in products for v in s.values for i in (*v.supporting_claim_ids, *v.conflicting_claim_ids)}
-    citations = [Citation(claim_id=c.id, source_id=c.source_id, quote=c.quote) for c in claims() if c.id in cited]
+    citations = [  # what each cited claim said and when, too (US-29, 1.11.0)
+        Citation(
+            claim_id=c.id,
+            source_id=c.source_id,
+            quote=c.quote,
+            value=c.value,
+            unit=c.unit,
+            score=c.score,
+            polarity=c.polarity,
+            claim_type=c.claim_type,
+            retrieved_at=c.retrieved_at,
+        )
+        for c in claims()
+        if c.id in cited
+    ]
 
     return SearchResult(
         search_id=SEARCH_ID,

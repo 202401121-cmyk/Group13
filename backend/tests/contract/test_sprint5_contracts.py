@@ -76,10 +76,12 @@ XIAOMI = C.Exclusion(kind="brand", value="Xiaomi", always=True)
 # --- the version and an old result ---------------------------------------------------------------------------------
 
 
-def test_the_schema_version_is_1_10_0() -> None:
-    assert C.SCHEMA_VERSION == "1.10.0"
-    assert ex.search_result().schema_version == "1.10.0"
-    assert (SHARED / "VERSION").read_text(encoding="utf-8").strip() == "1.10.0"
+def test_the_schema_version_is_1_10_0_or_later() -> None:
+    """US-29 moved it to 1.11.0 (tests/contract/test_us29_contracts.py)."""
+    version = tuple(int(part) for part in C.SCHEMA_VERSION.split("."))
+    assert version >= (1, 10, 0)
+    assert ex.search_result().schema_version == C.SCHEMA_VERSION
+    assert (SHARED / "VERSION").read_text(encoding="utf-8").strip() == C.SCHEMA_VERSION
 
 
 def test_a_1_9_0_result_still_validates_and_is_not_cached() -> None:

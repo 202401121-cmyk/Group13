@@ -72,7 +72,7 @@ describe("the live account service", () => {
     );
     expect(saved.category).toBe("laptop");
     expect(saved.result.saved).toBe(true);
-    expect(saved.result.searchId).toBeNull();
+    expect(saved.result.searchId).toBe(`saved:${ID}`); // its evidence comes from its saved row (US-29)
     expect(saved.result.products.length).toBeGreaterThan(0);
   });
 

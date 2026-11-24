@@ -51,6 +51,7 @@ The brief page's rubric editor (S3-14) calls `POST /api/presearch/{session_id}/r
 | `GET /api/me` | Who is signed in: a guest without a token | none | `MeResponse` | 401, 503 | [signing in](#signing-in-us-30) |
 | `GET /api/me/searches` | The signed-in shopper's saved searches, newest first, 20 a page | none; query `cursor` (optional) | `SavedSearchList` | 401, 422, 503 | [signing in](#signing-in-us-30) |
 | `GET /api/me/searches/{id}` | One of the signed-in shopper's saved searches | none | `SearchResult` (`saved: true`) | 401, 404, 503 | [signing in](#signing-in-us-30) |
+| `GET /api/me/searches/{id}/evidence` | The sources behind one value of a saved search, from its saved row (US-29) | none; query `product_id`, `criterion_key` | `EvidenceResponse` | 401, 404, 422, 503 | [signing in](#signing-in-us-30) |
 | `GET /api/me/preferences` | Everything remembered for the signed-in shopper, newest first | none | `PreferenceList` | 401, 503 | [what the app remembers](#what-the-app-remembers-and-deleting-the-account-us-11) |
 | `GET /api/me/preferences/export` | The same, as a JSON file to download | none | `PreferenceExport` (`Content-Disposition: attachment`) | 401, 503 | [what the app remembers](#what-the-app-remembers-and-deleting-the-account-us-11) |
 | `PATCH /api/me/preferences/{id}` | Changes one: its words, a weight, a must-have on or off | `PreferenceEdit` | `PreferenceItem` (`X-Memory-Note` when the new words couldn't be matched yet) | 401, 404, 422, 503 | [what the app remembers](#what-the-app-remembers-and-deleting-the-account-us-11) |
@@ -656,6 +657,26 @@ One saved search, as the `SearchResult` it finished with, with `saved: true`. On
 id, a guest's, or one that doesn't exist all answer the same 404, so an id is never confirmed. Reddit's words are not
 in it: a saved result never keeps them (D-53).
 
+### GET /api/me/searches/{id}/evidence?product_id=&criterion_key=
+
+The sources behind one value of a saved search (US-29): the same `EvidenceResponse` as
+[the run's evidence route](#sources-behind-a-value-us-21), built from the saved row alone, so it answers long after
+the run is gone. Only the owner gets it; anyone else's id, a guest's or a made-up one answer the same 404 as the
+saved search.
+
+- **Reddit and a video's viewers:** a claim from them comes with its source (link, community) and its time, but its
+  quote is `null` and `quote_withheld_reason` says why; a text value it gave is the marker (`[Reddit text is not
+  kept]`). A saved row never keeps those words (D-53). Numbers and scores are kept.
+- **A disputed value** lists both sides; **an estimated one** has no winning claims (`state: "estimated"`), as on the
+  run's route.
+- **A search saved before 1.11.0** still opens (`GET /api/me/searches/{id}`), and its result's citations still carry
+  their quotes. Its values' evidence answers 404: `This search was saved before its sources' details were kept, so only
+  its quotes can be shown.` Show the citations then, as before.
+
+The results page asks this route for a saved search: the account adapter gives a saved result the search ID
+`saved:<id>`, and the results adapter sends that to this route instead of the run's. Whatever it can't answer falls
+back to the result's own citations.
+
 ### Errors on these three routes
 
 | Status | When | `detail` |
@@ -806,6 +827,13 @@ The frontend doesn't receive these two yet. They are listed so the shapes aren't
   `experience` or `spec`. Example: `product_type_claim.json`.
 - **`RecommenderCount`** has `product_mention`, `distinct_recommenders` and `threads`, and is listed in
   `ResearchResult.recommender_counts`. Code counts these, never an LLM. Example: `recommender_counts.json`.
+
+## US-29 contracts (1.11.0)
+
+A `Citation` keeps what its claim said and when, so a saved result reopens with the same evidence: `value` (or the
+marker, for text from Reddit or a video's viewers), `unit`, `score`, `polarity`, `claim_type` and `retrieved_at`. All
+are optional: a citation from before 1.11.0 has only `claim_id`, `source_id` and `quote`, and still reads. A citation
+keeps a value or a score, never both. Contract sign-off: Yashkumar and Manu (D-23).
 
 ## Sprint 5 contracts (1.10.0)
 

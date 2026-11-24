@@ -93,8 +93,24 @@ fails until someone decides. It also fails when US-16, US-20 or US-42 makes real
 Reddit's words (resolved values, community notes, explanations). Handle those in `retention.py` first. US-15 made match
 real: product names are kept as names, from any source (Om, 11 Nov 2026), and the test records why.
 
-**For US-29 (Sprint 5):** a reopened search shows Reddit evidence as links, not quotes. Show the marker's meaning in plain
-words, and link to the thread by its URL. The words can only be read on Reddit, as they were never kept.
+Since schema 1.11.0 (US-29) a citation also keeps what its claim said and when: its value or score, unit, polarity,
+type and retrieval time. A text value from Reddit or a video's viewers becomes the marker at the save (with its unit
+dropped), so the claim's own words never reach the row; a number, a yes or no and a score stay. So every claim a value
+cites is in the row with its source id, its quote (or `null` for Reddit), and its time, and
+`GET /api/me/searches/{id}/evidence` rebuilds the same evidence the run gave.
+
+**Every ranking decision names the claims behind it** through the value it read, already in the row: a contribution
+(`decision.ranked[].contributions[]`) and a checked value (`decision.checked_values[]`) name a product and a criterion
+or attribute, a held product (`decision.filtered[]`) names its `rule_attribute`, and `products[].values[]` holds that
+product's value for it, with its supporting and conflicting claim ids. No new column or table was needed.
+
+A reopened search shows Reddit evidence as links, not quotes: the marker's meaning in plain words, and the thread's URL.
+The words can only be read on Reddit, as they were never kept.
+
+**The random-claim test** (`tests/integration/test_saved_evidence_in_postgres.py`, `db`): each of the five recorded
+gate runs is replayed and saved as the pipeline saves it; then 20 of its cited claims, picked with a fixed seed, are
+found by SQL alone in the saved row, each with its source, its quote (or `null` for Reddit) and its time. Another test
+checks that no Reddit or video-viewer text reaches a saved row.
 
 Row level security is on, the same as `public.requests`: `anon` has no access, and a signed-in user may read their own
 rows only (see "Accounts"). **Who can read it:** the backend through `DATABASE_URL`, project members through the

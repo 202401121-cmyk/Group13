@@ -5,6 +5,12 @@ the extract stage in a ClaimRecorder, and once the run ends it keeps, in memory,
 (`cited_claims`). Like the run's result, they are served for at most SEARCH_RUN_KEEP_MINUTES (120 at most) after it
 ended, even while a progress stream reads the run, go with the run and are never saved. `evidence_for` builds one
 value's EvidenceResponse from the two.
+
+A saved result (US-29) keeps what each cited claim said and when in its citations (1.11.0), with no Reddit words
+(D-53): `saved_evidence_for` builds the same EvidenceResponse from the saved row alone, for
+GET /api/me/searches/{id}/evidence. A Reddit claim comes with its source and time; its quote is withheld and the
+response says so, and a text value it gave is the marker. A citation saved before 1.11.0 can't say what its claim
+said: such a value's evidence answers 404 with SAVED_BEFORE, and the saved result itself still opens.
 """
 
 from __future__ import annotations
@@ -17,6 +23,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from app.contracts import (
+    Citation,
     Claim,
     ClaimEvidence,
     EvidenceResponse,
@@ -38,6 +45,7 @@ NO_PRODUCT = "This search didn't keep that product."
 NO_VALUE = "That product has no value for that criterion."
 SOURCES_GONE = "The sources for this value are no longer kept."
 QUOTE_WITHHELD = "Some of these sources' words are not kept."
+SAVED_BEFORE = "This search was saved before its sources' details were kept, so only its quotes can be shown."
 
 MAX_CLAIMS = 200  # what one EvidenceResponse may hold
 MAX_NAME_CHARS = 120  # EvidenceSource.name
@@ -146,14 +154,85 @@ def evidence_for(
     sources = {source.id: source for source in result.sources}
     winning = _shown(supporting, claims, sources)
     others = _shown([i for i in conflicting if i not in supporting], claims, sources)
-    winning, others = _within_limit(winning, others)
+    return _response(result, product_id, criterion_key, value, winning, others)
 
+
+def saved_evidence_for(result: SearchResult, product_id: str, criterion_key: str) -> EvidenceResponse:
+    """The claims behind one value of a saved result, from its citations and sources alone (US-29). The same answer,
+    claim for claim, as `evidence_for` gave while the run was in memory, but for the words D-53 never lets a saved row
+    keep: a withheld quote (the response says why) and a text value from Reddit or a video's comments (the marker).
+
+    Raises EvidenceUnavailable (404): NO_PRODUCT or NO_VALUE as the run route; SAVED_BEFORE when a cited claim's
+    reading was not saved (a row from before 1.11.0); SOURCES_GONE when too little is left to answer validly."""
+    summary = next((p for p in result.products if p.product.id == product_id), None)
+    if summary is None:
+        raise EvidenceUnavailable(404, NO_PRODUCT)
+    value = next((v for v in summary.values if v.criterion_key == criterion_key), None)
+    if value is None:
+        raise EvidenceUnavailable(404, NO_VALUE)
+    supporting, conflicting = _sides(value)
+    citations = {citation.claim_id: citation for citation in result.citations}
+    wanted = [*supporting, *(i for i in conflicting if i not in supporting)]
+    if wanted and (not citations or any(i in citations and not _read(citations[i]) for i in wanted)):
+        raise EvidenceUnavailable(404, SAVED_BEFORE)  # citations came in 1.7.0, what they said in 1.11.0
+    sources = {source.id: source for source in result.sources}
+    winning = _cited(supporting, citations, sources)
+    others = _cited([i for i in conflicting if i not in supporting], citations, sources)
+    return _response(result, product_id, criterion_key, value, winning, others)
+
+
+def _read(citation: Citation) -> bool:
+    """Was what the claim said saved with its citation (1.11.0)?"""
+    has_reading = (citation.value is None) != (citation.score is None)
+    return has_reading and citation.polarity is not None and citation.claim_type is not None
+
+
+def _cited(
+    claim_ids: Sequence[str], citations: Mapping[str, Citation], sources: Mapping[str, Source]
+) -> list[ClaimEvidence]:
+    shown: list[ClaimEvidence] = []
+    for claim_id in dict.fromkeys(claim_ids):
+        citation = citations.get(claim_id)
+        source = sources.get(citation.source_id) if citation is not None else None
+        if citation is None or source is None:
+            continue
+        try:
+            shown.append(_citation_evidence(citation, source))
+        except ValidationError as exc:  # left out, like a claim that was not kept
+            log.warning("a saved claim was left out of the evidence: %s", type(exc).__name__)
+    return shown
+
+
+def _citation_evidence(citation: Citation, source: Source) -> ClaimEvidence:
+    return ClaimEvidence(
+        claim_id=citation.claim_id,
+        quote=citation.quote,
+        value=citation.value,
+        unit=citation.unit,
+        score=citation.score,
+        polarity=citation.polarity,
+        claim_type=citation.claim_type,
+        retrieved_at=citation.retrieved_at or source.fetched_at,
+        source=_evidence_source(source),
+    )
+
+
+def _response(
+    result: SearchResult,
+    product_id: str,
+    criterion_key: str,
+    value: ResolvedValue,
+    winning: list[ClaimEvidence],
+    others: list[ClaimEvidence],
+) -> EvidenceResponse:
+    """The answer, from one value's two sides, as both routes give it."""
+    winning, others = _within_limit(winning, others)
     if value.state in (ValueState.KNOWN, ValueState.DISPUTED) and not winning:
         raise EvidenceUnavailable(404, SOURCES_GONE)
     if value.state is ValueState.DISPUTED and not others:
         raise EvidenceUnavailable(404, SOURCES_GONE)
     shown = [*winning, *others]
-    withheld = any(claim.quote is None for claim in shown)  # never in memory, but the contract asks for a reason then
+    withheld = any(claim.quote is None for claim in shown)
     try:
         return EvidenceResponse(
             search_id=result.search_id,
@@ -202,14 +281,18 @@ def _claim_evidence(claim: Claim, source: Source) -> ClaimEvidence:
         polarity=claim.polarity,
         claim_type=claim.claim_type,
         retrieved_at=claim.retrieved_at,
-        source=EvidenceSource(
-            id=source.id,
-            url=source.url,
-            name=source_name(source),
-            type=source.type,
-            tier=source.tier,
-            fetched_at=source.fetched_at,
-        ),
+        source=_evidence_source(source),
+    )
+
+
+def _evidence_source(source: Source) -> EvidenceSource:
+    return EvidenceSource(
+        id=source.id,
+        url=source.url,
+        name=source_name(source),
+        type=source.type,
+        tier=source.tier,
+        fetched_at=source.fetched_at,
     )
 
 
