@@ -357,11 +357,12 @@ def simulate(
     shoppers: int = SHOPPERS,
     categories: Sequence[str] = CATEGORIES,
     make: Callable[[], Interviewer] | None = None,
+    make_for: Callable[[Brief], Interviewer] | None = None,
 ) -> dict[str, Any]:
     """One planner on every shopper: the record without its date, commit and runner. Same seed, same output.
 
-    `make` builds the interviewer in place of PLANNERS[planner], so the tuning can try other numbers under one name."""
-    build = make or PLANNERS[planner]
+    `make` builds the interviewer in place of PLANNERS[planner], so the tuning can try other numbers under one name.
+    `make_for` builds it from the category's brief instead: the product-aware stop (D-75, evals/interview_stop.py)."""
     results: list[ShopperResult] = []
     orderings: set[str] = set()
     briefs: dict[str, Any] = {}
@@ -371,7 +372,8 @@ def simulate(
         briefs[category] = {p.name: brief.scores[p.id] for p in brief.products}
         for index in range(shoppers):
             shopper = make_shopper(criteria, index, seed)
-            step = interview(build(), criteria, shopper, planner)
+            interviewer = make_for(brief) if make_for is not None else (make or PLANNERS[planner])()
+            step = interview(interviewer, criteria, shopper, planner)
             orderings.add(step.ordering)
             results.append(score(criteria, shopper, step, brief))
     overall = _summary(results)
