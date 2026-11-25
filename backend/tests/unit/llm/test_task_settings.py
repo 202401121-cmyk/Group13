@@ -130,7 +130,6 @@ def test_each_extraction_route_sends_its_settings() -> None:
         LLMTask.GENERATE_CRITERIA,
         LLMTask.WRITE_QUESTION,
         LLMTask.DISCOVER_ALIASES,
-        LLMTask.ENRICH_EXTRACT,
     ],
 )
 def test_no_other_task_gets_these_settings(task: LLMTask) -> None:
@@ -145,16 +144,20 @@ def test_no_other_task_gets_these_settings(task: LLMTask) -> None:
 
 
 def test_only_extraction_evidence_sentences_and_the_reply_calls_have_task_settings() -> None:
-    """D-91: explanations no longer have an LLM call of their own; their evidence sentences do (WRITE_EVIDENCE)."""
+    """D-91: explanations no longer have an LLM call of their own; their evidence sentences do (WRITE_EVIDENCE).
+    D-101: enrich's one fact-reading call reads public passages as extraction reads pages (ENRICH_EXTRACT)."""
     assert set(load_llm_config().task_settings) == {
         LLMTask.EXTRACT_CLAIMS,
+        LLMTask.ENRICH_EXTRACT,
         LLMTask.WRITE_EVIDENCE,
         LLMTask.CLASSIFY_REPLY,
         LLMTask.ANSWER_USER_QUESTION,
     }
 
 
-@pytest.mark.parametrize("task", [LLMTask.WRITE_EVIDENCE, LLMTask.CLASSIFY_REPLY, LLMTask.ANSWER_USER_QUESTION])
+@pytest.mark.parametrize(
+    "task", [LLMTask.WRITE_EVIDENCE, LLMTask.CLASSIFY_REPLY, LLMTask.ANSWER_USER_QUESTION, LLMTask.ENRICH_EXTRACT]
+)
 def test_these_tasks_think_as_little_as_extraction_on_every_groq_model(task: LLMTask) -> None:
     """US-20 and US-39: with each model's own reasoning, an answer came back invalid or too late in live checks; an
     interview turn has 5 seconds for both of its calls."""

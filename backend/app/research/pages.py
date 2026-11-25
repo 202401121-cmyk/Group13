@@ -243,6 +243,23 @@ class ReviewPages:
             self.sites.record(attempt.site_url or url, attempt.site)  # the site's own reply; never a reader's
         return result
 
+    def take_read(self, url: str, title: str, text: str, usage: SearchUsage) -> PageResult:
+        """A page whose text a search brought back already (D-101: Firecrawl's search reads its results in the same
+        call), held to the rules a page fetched here is: a configured site, robots.txt allowing the page, and enough
+        text. No request goes to the page itself; its site's robots.txt may be fetched (kept 24 hours). Not cached
+        here: the caller keeps the pages it uses."""
+        found = self.kind_of(url)
+        if found is None or is_logged_in_page(url):
+            return PageResult(reason="not_found")
+        domain, kind = found
+        problem = self._may_fetch(url, domain, usage, self.domain_of)
+        if problem is not None:
+            return PageResult(reason=problem[0])
+        if len(text) < self.settings.min_page_chars:
+            return PageResult(reason="not_found")
+        source = self._source(url, domain, kind, title, text, "firecrawl")
+        return PageResult(source=source) if source is not None else PageResult(reason="error")
+
     def read_reddit(self, url: str, usage: SearchUsage) -> PageResult:
         """A Reddit thread the archive lacks, through Firecrawl only (US-38): robots.txt first, Reddit data after.
 

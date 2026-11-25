@@ -119,4 +119,7 @@ def test_private_and_reddit_tasks_never_reach_a_training_member_or_cerebras(
     assert called == {Provider.GROQ}
     groq = adapters[Provider.GROQ]
     assert isinstance(groq, FakeAdapter)
-    assert {c.model for c in groq.calls} == set(_groq_models(client))
+    if task in client.config.fastest:  # D-101: one attempt on one model, never a second (test_fastest.py)
+        assert len(groq.calls) == 1 and groq.calls[0].model in set(_groq_models(client))
+    else:
+        assert {c.model for c in groq.calls} == set(_groq_models(client))

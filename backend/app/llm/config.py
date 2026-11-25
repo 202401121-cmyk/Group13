@@ -146,6 +146,16 @@ class HedgeSettings(BaseModel):
     model: str = Field(min_length=1, description="The model the second request goes to")
 
 
+class FastestSettings(BaseModel):
+    """A task whose one call has a short window (D-101): it goes to the model with room whose answers to the tasks in
+    `measured_by` have been quickest in this process, and gets one attempt (app/llm/answer_times.py)."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    measured_by: tuple[LLMTask, ...] = Field(min_length=1, description="The tasks whose answer times rank the models")
+    unmeasured_s: float = Field(gt=0, description="The answer time taken for a model not measured yet")
+
+
 # Which providers a call may use, in order, by what its prompt carries and how big the job is (US-46).
 Routes = dict[DataClass, dict[Difficulty, list[Provider]]]
 
@@ -170,6 +180,9 @@ class LLMConfig(BaseModel):
             "The share of a call's time limit one attempt of this task may take. A task not listed keeps the "
             "wrapper's ATTEMPT_SHARE (0.6), which leaves another model time if the first hangs (US-39)"
         ),
+    )
+    fastest: dict[LLMTask, FastestSettings] = Field(
+        default_factory=dict, description="A task's one call goes to the quickest model with room, once (D-101)"
     )
 
     @model_validator(mode="after")
@@ -247,6 +260,9 @@ class LLMConfig(BaseModel):
         unknown = sorted({h.model for h in self.hedge.values()} - known_models)
         if unknown:
             raise ValueError(f"hedge names no such model: {unknown}")
+        both = sorted(task.value for task in self.hedge if task in self.fastest)
+        if both:
+            raise ValueError(f"a fastest task sends one request, so it is never hedged: {both}")
 
     def _check_first_attempt_share(self) -> None:
         wrong = sorted(task.value for task, share in self.first_attempt_share.items() if not 0 < share <= 1)
@@ -331,6 +347,7 @@ def with_env_overrides(config: LLMConfig, env: Mapping[str, str]) -> LLMConfig:
                 "task_settings": config.task_settings,
                 "first_attempt_share": config.first_attempt_share,
                 "hedge": config.hedge,
+                "fastest": config.fastest,
                 "force_ipv4": config.force_ipv4,
             }
         )

@@ -161,6 +161,45 @@ measures:
       source: 'US-19 criterion 4: rank order stable under random 10% weight changes, Spearman 0.9 or better; counted with
         each tie group the app marks as one position (P-45)'
       note: met
+  enrich.top5_evidence_after:
+    kind: quality
+    direction: at_least
+    floor: 0.0464
+    measured: 0.0964
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: live
+    source: 'backend/evals/results/us41-enrich-coverage.json; backend/evals/enrich_coverage.py: the recorded gate runs replayed
+      with live enrich, and the hand-written decide briefs run live (evals/live_briefs.py --briefs)'
+    date: '2026-11-25'
+    commit: 21fefc6
+    rule: 'mean over 6 runs'' first top 5: the share of the shopper''s weight with evidence, after enrich''s look-ups'
+  enrich.top5_evidence_before:
+    kind: quality
+    direction: at_least
+    floor: 0.0464
+    measured: 0.0964
+    unit: rate
+    margin: 0.05 below the measured rate
+    measured_on: live
+    source: 'backend/evals/results/us41-enrich-coverage.json; backend/evals/enrich_coverage.py: the recorded gate runs replayed
+      with live enrich, and the hand-written decide briefs run live (evals/live_briefs.py --briefs)'
+    date: '2026-11-25'
+    commit: 21fefc6
+    rule: 'mean over 6 runs'' first top 5: the share of the shopper''s weight with evidence'
+  enrich.top5_evidence_gain:
+    kind: quality
+    direction: at_least
+    floor: -0.05
+    measured: 0.0
+    unit: difference
+    margin: 0.05 below the measured difference of two rates
+    measured_on: live
+    source: 'backend/evals/results/us41-enrich-coverage.json; backend/evals/enrich_coverage.py: the recorded gate runs replayed
+      with live enrich, and the hand-written decide briefs run live (evals/live_briefs.py --briefs)'
+    date: '2026-11-25'
+    commit: 21fefc6
+    rule: 'the after rate less the before rate: what enrich''s look-ups added (US-41)'
   gate.claims_kept:
     kind: quality
     direction: at_least

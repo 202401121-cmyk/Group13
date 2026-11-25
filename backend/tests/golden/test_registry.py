@@ -118,7 +118,7 @@ def _app(tmp_path: Path, files: dict[str, str]) -> Path:
 
 def test_a_new_parsing_module_is_found(tmp_path: Path) -> None:
     files = {
-        "enrich/parsing.py": "",
+        "alerts/parsing.py": "",
         "explain/reply_parsing.py": "",
         "verify/parsing/__init__.py": "",
         "match/parser.py": "",
@@ -126,7 +126,7 @@ def test_a_new_parsing_module_is_found(tmp_path: Path) -> None:
         "decide/parsers/one.py": "",
     }
     found = {
-        "app.enrich.parsing",
+        "app.alerts.parsing",
         "app.explain.reply_parsing",
         "app.verify.parsing",
         "app.match.parser",

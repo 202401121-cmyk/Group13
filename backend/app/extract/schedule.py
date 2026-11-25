@@ -8,6 +8,8 @@ So a search reads its sources in two lanes, sharing one set of workers:
 
 - Reddit-class sources (Reddit threads, and YouTube videos with comments, which carry the reddit data class and go to
   Groq only) and search snippets keep their own lane and rules: the extract stage's Reddit share and budget decide.
+  A thread is sent when Groq's Reddit lane has room for it (D-95 b), and its 15 seconds start then; one the window
+  closes on first is "not reached", never a failure for no room. A snippet is never sent, so it never waits.
 - Public pages wait in one queue, ordered maker, store, review site, then any other page, as the price is likeliest
   there. The head of the queue is sent when the LLM client says a public provider has room for it. Its 15 seconds
   start when it is sent, so time in the queue is not its own.
@@ -141,6 +143,17 @@ def read_in_lanes(
 
     def feed_community(pool: ThreadPoolExecutor) -> None:
         for at, index in enumerate(community):
+            if sources[index].via != SNIPPET:
+                # D-95 (b): a Reddit thread or a video's comments waits here for Groq's Reddit lane, inside the window,
+                # rather than being sent to wait out its own 15 s and fail for no room.
+                verdict = _room_for(sources[index], window, room, stop)
+                if verdict == "closed":
+                    missed(community[at:])
+                    return
+                if verdict == "halted":
+                    return
+            else:
+                verdict = "unchecked"
             community_slots.acquire()
             slots.acquire()
             sent = False
@@ -156,6 +169,8 @@ def read_in_lanes(
                 if not sent:
                     slots.release()
                     community_slots.release()
+            if verdict == "room":
+                pause(SENT_GAP_S)  # the sent thread books its slot before the next one looks
 
     with ThreadPoolExecutor(max_workers=max(1, workers), thread_name_prefix="extract-source") as pool:
         feeder = threading.Thread(target=feed_community, args=(pool,), name="extract-community", daemon=True)

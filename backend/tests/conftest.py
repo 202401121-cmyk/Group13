@@ -65,6 +65,22 @@ def _no_real_cache_sweep(monkeypatch: pytest.MonkeyPatch, _empty_cache_root: Pat
 
 
 @pytest.fixture(autouse=True)
+def _no_real_usage_file(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The stages' shared usage books count in backend/.cache/research/usage.json, the app's real daily caps (US-12).
+    A test's fake search must never count there: on 25 Nov 2026 test runs took 38 of the day's 80 Serper units with no
+    request sent. So every test gets books with no file; a test that wants a file gives its own."""
+    from app.research.settings import load_research_settings
+    from app.research.usage import UsageBook
+
+    def book(*_: object) -> UsageBook:
+        return UsageBook(load_research_settings(env={}).caps, path=None)
+
+    monkeypatch.setattr("app.commerce.stage._shared_book", book)
+    monkeypatch.setattr("app.enrich.stage._shared_book", book)
+    monkeypatch.setattr("app.research.stage._shared_book", book)
+
+
+@pytest.fixture(autouse=True)
 def _no_live_llm(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("app.presearch.default_llm", lambda: FakeLLMClient())
     monkeypatch.setattr("app.cli.default_llm", lambda: FakeLLMClient())

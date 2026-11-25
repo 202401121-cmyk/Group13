@@ -123,8 +123,8 @@ def test_two_threads_cannot_both_take_the_last_unit(tmp_path: Path) -> None:
     together = threading.Barrier(2, timeout=0.2)
 
     class Waiting(UsageBook):
-        def _left(self, provider: str, used_in_search: int, allowance: int | None = None) -> int:
-            left = super()._left(provider, used_in_search, allowance)
+        def _left(self, provider: str, used_in_search: int, allowance: int | None = None, keep: int = 0) -> int:
+            left = super()._left(provider, used_in_search, allowance, keep)
             with contextlib.suppress(threading.BrokenBarrierError):
                 together.wait()
             return left

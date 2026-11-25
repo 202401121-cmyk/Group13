@@ -25,7 +25,7 @@ import secrets
 import threading
 from collections.abc import Callable, Collection, Iterable, Sequence
 from concurrent.futures import ThreadPoolExecutor, wait
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from time import monotonic
 from typing import Literal, Protocol, TypeVar
@@ -58,6 +58,7 @@ from app.contracts import (
     ProductMention,
     ProductSummary,
     ProgressEvent,
+    RankedProduct,
     RecommenderCount,
     ResearchInput,
     ResearchResult,
@@ -71,6 +72,7 @@ from app.contracts import (
     StageName,
     StageReport,
     StageStatus,
+    ValueState,
     VerifyInput,
     VerifyResult,
     examples,
@@ -79,12 +81,16 @@ from app.decide import PRICE_KEY, WeightedDecideStage
 from app.decide.features import feature_key, known_feature
 from app.decide.rules import NO_SINGLE_CHANGE
 from app.enrich import default_enrich_stage, price_targets
-from app.enrich.stage import prices_note
-from app.enrich.targets import readable_price
+from app.enrich.facts import FactAsk, stand_in_label
+from app.enrich.stage import LATER_S as ENRICH_LATER_S
+from app.enrich.stage import MIN_LOOKUP_S as ENRICH_MIN_LOOKUP_S
+from app.enrich.stage import facts_note, prices_note
+from app.enrich.targets import fact_targets, readable_price, shared_targets
 from app.entities import ModelMatchStage, alias_keys
 from app.explain import ExplainStage
 from app.extract import default_extract_stage
 from app.extract.schedule import SendWindow, read_in_lanes
+from app.extract.settings import load_extract_settings
 from app.llm.errors import AuthFailed, InvalidOutput, ProviderTimeout, RateLimited, ServerError
 from app.research import default_research_stage
 from app.research.readers import FIRECRAWL, JINA
@@ -104,6 +110,9 @@ MAX_CATEGORY_LABEL = 60  # ExtractInput.category_label limit, under the 64 a rub
 MAX_MENTIONS = 1000  # MatchInput.mentions limit
 _PRODUCT_ID = re.compile(r"^prd_[A-Za-z0-9_-]{3,64}$")  # a stored alias must point at a valid ProductId
 MAX_CLAIMS = 5000  # VerifyInput.claims limit
+MAX_VERIFY_SOURCES = 60  # VerifyInput.sources limit: research's own sources and enrich's must fit together
+FIRST_RANKING = "_first"  # the first ranking's search ID ends so (US-41): never the real search's own
+SEARCH_SNIPPET = "search_snippet"  # Source.via for a search result never read in full
 MAX_VERIFY_KEYS = 30  # VerifyInput.criterion_keys limit
 MAX_REPORT_NOTES = 20  # StageReport.notes limit
 MAX_EXPLAINED = 10  # ExplainInput.ranked limit
@@ -670,6 +679,7 @@ class _Search:
         self.decide_note: str | None = None
         self.enrich_note: str | None = None  # how many prices came from store listings (US-41)
         self.enrich_sources: list[Source] = []  # the listings enrich's claims came from, once verify took them
+        self._fact_ranking: list[str] = []  # the first ranking's product ids, best first (D-101)
         self.commerce_note: str | None = None  # how many products couldn't be priced (US-24, S4-26)
         self.recommender_counts: list[
             RecommenderCount
@@ -948,32 +958,90 @@ class _Search:
         return [p for p in (self.match_out.products if self.match_out else []) if p.id not in dropped]
 
     def enrich(self) -> StageReport:
-        """Prices from store listings for the kept products whose price is unknown (US-41, P-34). The targets are
-        picked here, in code. New claims go through verify again, so decide sees them; any failure changes nothing."""
+        """Prices from store listings for the kept products whose price is unknown (US-41, P-34), and the top products'
+        missing facts from maker and review pages (US-41, S5-6). The targets are picked here, in code: the facts after a
+        first ranking. New claims go through verify again, so decide sees them; any failure changes nothing."""
         stage = self.stages.enrich
         products = self._kept_products()
         targets = self._enrich_targets(products)
         _hook("use_products", getattr(stage, "use_products", None), self.ctx.search_id, products)
+        _hook("use_search", getattr(stage, "use_search", None), self.ctx.search_id, self._fact_ask())
         self.enrich_out, report = self._run(stage, EnrichInput(targets=targets))
         found = _hook("sources_for", getattr(stage, "sources_for", None), self.ctx.search_id)
         sources = [s for s in found if isinstance(s, Source)] if isinstance(found, list) else []
         claims = self.enrich_out.new_claims if self.enrich_out is not None else []
-        taken = self._reverified(claims, sources)
-        if taken:  # the prices verify took, never those only found: else it would say what didn't happen
-            self.enrich_note = prices_note(taken)
+        prices, facts = self._reverified(claims, sources)
+        # What verify took, never what was only found: else the note would say what didn't happen.
+        notes = [*([prices_note(prices)] if prices else []), *([facts_note(facts)] if facts else [])]
+        if notes:
+            self.enrich_note = " ".join(notes)
         return report
+
+    def _fact_ask(self) -> FactAsk:
+        """What the fact look-up may know of this search: its category and region, the pages research read, and the
+        first ranking's order, which splits the look-ups between Serper and Firecrawl (D-101)."""
+        research = self.research_out
+        read = frozenset(str(s.url) for s in research.sources) if research is not None else frozenset()
+        ranked = tuple(self._fact_ranking)
+        return FactAsk(category=self.rubric.category, region=self.rubric.region, known_urls=read, ranked=ranked)
 
     def _enrich_targets(self, products: list[Product]) -> list[EnrichTarget]:
         """None unless verify finished OK with values of its own. A stub's are examples, which a price can't change;
-        after a fallback, verify run again would give values its report says it didn't."""
+        after a fallback, verify run again would give values its report says it didn't. Prices and facts share enrich's
+        searches (DECIDED 1)."""
         stub = bool(getattr(self.stages.verify, "is_placeholder", False))
         if self.verify_out is None or self.match_out is None or stub or not self.verify_ok:
             return []
         source_of = {claim.id: claim.source_id for claim in self.claims}
-        return price_targets(self.rubric, products, self.verify_out.values, self.match_out.alias_map, source_of)
+        prices = price_targets(self.rubric, products, self.verify_out.values, self.match_out.alias_map, source_of)
+        return shared_targets(prices, self._fact_targets(products))
 
-    def _reverified(self, claims: Sequence[Claim], sources: Sequence[Source]) -> int:
-        """Verify again with enrich's claims (US-41, P-34 item 4). How many products now have a price from them.
+    def _fact_targets(self, products: list[Product]) -> list[EnrichTarget]:
+        """The top products' criteria with no evidence, after a first ranking (US-41, DECIDED 1). Only a criterion with
+        a fixed public stand-in can be searched for (D-51)."""
+        match = self.match_out
+        ranked = self._first_ranking(products)
+        self._fact_ranking = [item.product_id for item in ranked]
+        if not ranked or match is None:
+            return []
+        settings = load_extract_settings()
+        category = self.rubric.category
+        known: dict[str, bool] = {}
+
+        def searchable(key: str) -> bool:
+            if key not in known:
+                known[key] = stand_in_label(category, key, settings) is not None
+            return known[key]
+
+        return fact_targets(self.rubric, ranked, {p.id: p for p in products}, match.alias_map, searchable)
+
+    def _first_ranking(self, products: list[Product]) -> list[RankedProduct]:
+        """Decide's ranking on what verify found so far, for the fact look-ups' targets only (US-41). Its report is
+        never added and its note is read away, so the result shows only the real decide's. A stub decide, a fallback or
+        no time gives none: then no fact is looked up."""
+        verified = self.verify_out
+        decide_s = self.limits[StageName.DECIDE]
+        if verified is None or bool(getattr(self.stages.decide, "is_placeholder", False)) or self.out_of_time:
+            return []
+        if self.ctx.seconds_left < decide_s + ENRICH_LATER_S + ENRICH_MIN_LOOKUP_S:  # enrich would have no time
+            return []
+        inp = DecideInput(rubric=self.rubric, products=products, values=verified.values, community=verified.community)
+        # Under a search ID of its own: a note it keeps, even late after a time-out, is never the real decide's.
+        first = replace(self.ctx, search_id=f"{self.ctx.search_id}{FIRST_RANKING}")
+        try:
+            out, report = run_stage(self.stages.decide, inp, first, min(decide_s, self.ctx.seconds_left))
+        except Exception as exc:  # build rule 9: no first ranking, so no fact look-ups
+            log.warning("the first ranking for enrich did not run: %s", type(exc).__name__)
+            return []
+        finally:
+            _hook("coverage_note", getattr(self.stages.decide, "coverage_note", None), first.search_id)
+        if out is None or report.status is not StageStatus.OK:
+            return []
+        return list(without_products(out, self.dropped).ranked)
+
+    def _reverified(self, claims: Sequence[Claim], sources: Sequence[Source]) -> tuple[int, int]:
+        """Verify again with enrich's claims (US-41, P-34 item 4). How many products now have a price from them, and
+        how many facts (a criterion other than the price, for one product) now rest on them.
 
         Only a claim whose source enrich handed back is used, and only a source research didn't find. Verify's own
         limit holds. A run that doesn't finish OK, or in which no listing's price is taken, keeps the first values, and
@@ -986,39 +1054,42 @@ class _Search:
         known = {source.id: source for source in sources if source.id not in have}
         new = [claim for claim in claims if claim.source_id in known]
         if research is None or not new or first is None:
-            return 0
-        added = list(known.values())
+            return 0, 0
+        kept, added = fit_sources(research.sources, list(known.values()), self.claims)
+        new = [claim for claim in new if claim.source_id in {source.id for source in added}]
+        if not new:
+            return 0, 0
         all_claims = [*self.claims[: MAX_CLAIMS - len(new)], *new]  # the new ones always reach verify
         try:
-            inp = self._verify_input(all_claims, [*research.sources, *added])
+            inp = self._verify_input(all_claims, [*kept, *added])
             limit = min(self.limits[StageName.VERIFY], self.ctx.seconds_left)
             out, report = run_stage(self.stages.verify, inp, self.ctx, limit)
             self._with_report_notes(self.stages.verify, report)  # read, so none is kept for this search
         except Exception as exc:  # build rule 9: the first values stand
-            log.warning("verify with enrich's prices did not run: %s", type(exc).__name__)
-            return False
+            log.warning("verify with enrich's claims did not run: %s", type(exc).__name__)
+            return 0, 0
         finally:
             self._forget_filter_keys()
         if out is None or report.status is not StageStatus.OK:
-            log.info("search %s: enrich's prices left out, as verify did not finish again", self.ctx.search_id)
-            return 0
+            log.info("search %s: enrich's claims left out, as verify did not finish again", self.ctx.search_id)
+            return 0, 0
         out = _still_dropped(out, first.dropped_unsourced)
         ids = {claim.id for claim in new}
-        taken = sum(
+        resting = [value for value in out.values if ids.intersection(value.supporting_claim_ids)]
+        taken = sum(1 for value in resting if value.criterion_key == PRICE_KEY and readable_price(value))
+        facts = sum(
             1
-            for value in out.values
-            if value.criterion_key == PRICE_KEY
-            and readable_price(value)
-            and ids.intersection(value.supporting_claim_ids)
+            for value in resting
+            if value.criterion_key != PRICE_KEY and value.state in (ValueState.KNOWN, ValueState.DISPUTED)
         )
-        if not taken:
-            log.info("search %s: verify took none of enrich's prices", self.ctx.search_id)
-            return 0
+        if not taken and not facts:
+            log.info("search %s: verify took none of enrich's claims", self.ctx.search_id)
+            return 0, 0
         self.verify_out = out
         self.claims = [*self.claims, *new]
         self.enrich_sources = added
         _hook("keep_claims", getattr(self.stages.extract, "keep_claims", None), new)  # so the source drawer has them
-        return taken
+        return taken, facts
 
     def decide(self) -> StageReport:
         verified = _require(self.verify_out, "verify")
@@ -1179,6 +1250,21 @@ def _still_dropped(out: VerifyResult, dropped: Sequence[str]) -> VerifyResult:
 
 def _label_at(position: int) -> Literal["best_match", "runner_up"] | None:
     return "best_match" if position == 0 else "runner_up" if position == 1 else None
+
+
+def fit_sources(
+    research: Sequence[Source], added: Sequence[Source], claims: Sequence[Claim]
+) -> tuple[list[Source], list[Source]]:
+    """Research's sources and enrich's, within verify's MAX_VERIFY_SOURCES (US-41). A search snippet no claim cites
+    makes room first: it was never read for claims, and every product is named by a source that was. If that is not
+    enough room, only the enrich sources that fit go, in enrich's order (prices first)."""
+    over = len(research) + len(added) - MAX_VERIFY_SOURCES
+    if over <= 0:
+        return list(research), list(added)
+    cited = {claim.source_id for claim in claims}
+    spare = [s.id for s in reversed(research) if s.via == SEARCH_SNIPPET and s.id not in cited][:over]
+    kept = [s for s in research if s.id not in set(spare)]
+    return kept, list(added)[: max(0, MAX_VERIFY_SOURCES - len(kept))]
 
 
 def without_products(decision: DecideResult, dropped: Collection[str]) -> DecideResult:

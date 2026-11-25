@@ -1,23 +1,34 @@
-"""Which products enrich looks a price up for (US-41, P-34 item 1). Code decides; nothing here is sent anywhere.
+"""What enrich looks up (US-41). Code decides; nothing here is sent anywhere.
 
-Only when the price can hold a product back: the rubric has a budget, or a hard rule on the price. Then every kept
-product whose price decide can't read (no value, an Unknown or Estimated one, or text that is no price) is a target.
-The products many sources talk about come first; that orders the look-ups only and never scores anything (DR-10). At
-most MAX_ENRICH_SEARCHES, one Serper shopping query each.
+Prices (P-34 item 1): only when the price can hold a product back, the rubric having a budget or a hard rule on the
+price. Then every kept product whose price decide can't read (no value, an Unknown or Estimated one, or text that is no
+price) is a target. The products closest to being ranked come first (D-95 c): the fewest of the rubric's top weights
+with no evidence, then the ones many sources talk about. That orders the look-ups only and never scores anything
+(DR-10). At most MAX_ENRICH_SEARCHES, one Serper shopping query each.
+
+Facts (US-41, DECIDED 1): after the first ranking, each of the top ENRICH_TOP_N products' criteria with no evidence
+(Unknown or Estimated), highest weight first, at most FACTS_PER_PRODUCT each, and only a criterion with a fixed public
+stand-in, as only that may be searched for (D-51). One web search each.
+
+The two share enrich's MAX_ENRICH_SEARCHES: prices first, but at most PRICES_WITH_FACTS when there are fact gaps
+(`shared_targets`).
 """
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 
-from app.contracts import EnrichTarget, Product, ResolvedValue, Rubric, ValueState
-from app.contracts.enrich import MAX_ENRICH_SEARCHES
+from app.contracts import EnrichTarget, Product, RankedProduct, ResolvedValue, Rubric, ValueState
+from app.contracts.enrich import ENRICH_TOP_N, MAX_ENRICH_SEARCHES
 from app.decide.rules import PRICE_KEY
 from app.decide.units import rupee_price
 
 MAX_TARGETS = MAX_ENRICH_SEARCHES
 MAX_NAME = 150  # EnrichTarget.product_name and Claim.product_mention
 _READABLE = (ValueState.KNOWN, ValueState.DISPUTED)  # what decide's budget check reads a price from
+TOP_WEIGHTS = 3  # D-95 (c): a price goes first to the product with the fewest of these with no evidence
+FACTS_PER_PRODUCT = 2  # a top product's highest-weight gaps looked up, at most
+PRICES_WITH_FACTS = 3  # DECIDED 1: price look-ups when there are fact gaps too; facts get the rest
 
 
 def wants_prices(rubric: Rubric) -> bool:
@@ -40,7 +51,8 @@ def price_targets(
     if not wants_prices(rubric):
         return []
     prices = {v.product_id: v for v in values if v.criterion_key == PRICE_KEY}
-    found: list[tuple[int, int, EnrichTarget]] = []
+    top = top_weights(rubric)
+    found: list[tuple[int, int, int, EnrichTarget]] = []
     for order, product in enumerate(products):
         if readable_price(prices.get(product.id)):
             continue
@@ -49,9 +61,63 @@ def price_targets(
             continue
         sources = _distinct_sources(product.id, values, source_of)
         target = EnrichTarget(product_id=product.id, product_name=name, criterion_key=PRICE_KEY)
-        found.append((-sources, order, target))
-    found.sort(key=lambda each: (each[0], each[1]))
-    return [target for _, _, target in found[:MAX_TARGETS]]
+        found.append((unknowns_among(product.id, top, values), -sources, order, target))
+    found.sort(key=lambda each: (each[0], each[1], each[2]))
+    return [target for *_, target in found[:MAX_TARGETS]]
+
+
+def top_weights(rubric: Rubric) -> list[str]:
+    """The rubric's TOP_WEIGHTS highest-weight criteria, the price aside: ties by key, so the order is fixed."""
+    weights = sorted((w for w in rubric.weights if w.key != PRICE_KEY), key=lambda w: (-w.normalized, w.key))
+    return [w.key for w in weights[:TOP_WEIGHTS]]
+
+
+def unknowns_among(product_id: str, keys: Sequence[str], values: Sequence[ResolvedValue]) -> int:
+    """How many of these criteria have no evidence for this product: no value, or an Unknown or Estimated one."""
+    known = {v.criterion_key for v in values if v.product_id == product_id and v.state in _READABLE}
+    return sum(1 for key in keys if key not in known)
+
+
+def fact_targets(
+    rubric: Rubric,
+    ranked: Sequence[RankedProduct],
+    products: Mapping[str, Product],
+    alias_map: Mapping[str, str],
+    searchable: Callable[[str], bool],
+) -> list[EnrichTarget]:
+    """The top ENRICH_TOP_N ranked products' criteria with no evidence, highest weight first (then the higher rank),
+    at most FACTS_PER_PRODUCT a product. `searchable` says a criterion has a fixed public stand-in (D-51): only those
+    can be searched for. The price is left to price_targets."""
+    weight = {w.key: w.normalized for w in rubric.weights}
+    found: list[tuple[float, int, str, EnrichTarget]] = []
+    for item in ranked[:ENRICH_TOP_N]:
+        product = products.get(item.product_id)
+        name = mention_for(product, alias_map) if product is not None else None
+        if product is None or name is None:
+            continue
+        gaps = sorted(
+            {
+                c.criterion_key
+                for c in item.contributions
+                if c.state in (ValueState.UNKNOWN, ValueState.ESTIMATED)
+                and c.criterion_key != PRICE_KEY
+                and weight.get(c.criterion_key, 0) > 0
+                and searchable(c.criterion_key)
+            },
+            key=lambda key: (-weight[key], key),
+        )
+        for key in gaps[:FACTS_PER_PRODUCT]:
+            target = EnrichTarget(product_id=product.id, product_name=name, criterion_key=key)
+            found.append((-weight[key], item.rank, key, target))
+    found.sort(key=lambda each: (each[0], each[1], each[2]))
+    return [target for *_, target in found]
+
+
+def shared_targets(prices: Sequence[EnrichTarget], facts: Sequence[EnrichTarget]) -> list[EnrichTarget]:
+    """Enrich's MAX_ENRICH_SEARCHES, shared (DECIDED 1): prices first, but at most PRICES_WITH_FACTS when there are
+    fact gaps; facts get the rest. Never more than MAX_ENRICH_SEARCHES in all."""
+    taken = list(prices[: PRICES_WITH_FACTS if facts else MAX_ENRICH_SEARCHES])
+    return taken + list(facts[: MAX_ENRICH_SEARCHES - len(taken)])
 
 
 def mention_for(product: Product, alias_map: Mapping[str, str]) -> str | None:

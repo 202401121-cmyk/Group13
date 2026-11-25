@@ -255,15 +255,37 @@ class GuardedExtractStage:
                 self._for(search_id).not_reached += count
 
     def room_for(self, search_id: str, inp: ExtractInput, within_s: float) -> bool | None:
-        """Wait, up to `within_s`, until a public provider has room for this page (US-46). True at once for a client
-        that can't say: None, so it is sent at once, as before. Only looks: the call books its own slot."""
-        wait = getattr(self.llm, "wait_for_public_room", None)
-        if wait is None:
-            return None
+        """Wait, up to `within_s`, until a provider on this source's route has room for it (US-46): a public provider
+        for a page, Groq's Reddit lane for a Reddit thread or a video's comments (D-95 b). None for a client that can't
+        say, so the source is sent at once, as before. Only looks: the call books its own slot.
+
+        A Reddit-class source the search's Reddit share or budget can't take is not waited for: None sends it at once,
+        and run() counts it as over the share or the budget, as before."""
         data_class = inp.source.data_class
         criteria = allowed_criteria(inp, data_class, self._ask_for(search_id), self.settings)
         sent_in = _FULL_SYSTEM_TOKENS + estimate_tokens(user_message(inp.source, criteria))
-        return bool(wait(LLMTask.EXTRACT_CLAIMS, sent_in, self.settings.output_tokens(data_class), within_s))
+        answer = self.settings.output_tokens(data_class)
+        if data_class is DataClass.REDDIT:
+            wait_any = getattr(self.llm, "wait_for_room", None)
+            if wait_any is None or not self._reddit_may_take(search_id, sent_in + answer):
+                return None
+            return bool(wait_any(LLMTask.EXTRACT_CLAIMS, DataClass.REDDIT, sent_in, answer, within_s))
+        wait = getattr(self.llm, "wait_for_public_room", None)
+        if wait is None:
+            return None
+        return bool(wait(LLMTask.EXTRACT_CLAIMS, sent_in, answer, within_s))
+
+    def _reddit_may_take(self, search_id: str, booking: int) -> bool:
+        """Could this search's Reddit share and budget take a thread of this size, now or once its running calls end?
+        Looks only, as _may_send would see it; books nothing."""
+        with self._lock:
+            counts = self._counts.get(search_id)
+            if counts is None:
+                return booking <= self.settings.reddit_tokens_per_search
+            if self._over_share(counts):
+                return False
+            fits = counts.reddit_booked + booking <= self.settings.reddit_tokens_per_search
+            return fits or self._running_calls_may_free(counts, booking)
 
     def counts_for(self, search_id: str) -> dict[str, int] | None:
         """A copy of this search's counts so far, or None. Unlike coverage_note, reading them clears nothing."""

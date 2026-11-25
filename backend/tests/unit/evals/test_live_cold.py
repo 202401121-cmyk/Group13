@@ -198,3 +198,51 @@ def test_an_answer_between_the_two_rooms_came_from_the_bigger_retry_and_was_not_
     assert not live_briefs._cut_off(sized(2600), reserve, {})  # the bigger retry's answer, unusable but whole
     assert live_briefs._cut_off(sized(3996), reserve, {})  # the bigger retry, cut off too
     assert not live_briefs._cut_off(sized(800), reserve, {})
+
+
+def test_the_fact_call_is_recorded_with_its_size_and_time() -> None:
+    """D-101: the hand-over reports the fact call's input size and time before and after."""
+    fact = call(Provider.GEMINI, "ok", 4).model_copy(update={"task": LLMTask.ENRICH_EXTRACT})
+    rows = live_briefs.fact_calls([call(Provider.GEMINI, "ok", 2), fact, fact.model_copy(update={"at": T0})], T0)
+    assert (
+        rows
+        == [
+            {"provider": "gemini", "outcome": "ok", "input_tokens": 900, "output_tokens": 200, "seconds": 1.0},
+        ]
+        * 2
+    )  # extraction's calls are left out; both fact calls from the brief's start are in
+    assert live_briefs.text_in({"fact_call": rows}) == []
+
+
+def _firecrawl(path: str, body: object) -> Any:
+    import json
+
+    import httpx
+
+    content = body if isinstance(body, bytes) else json.dumps(body).encode()
+    return httpx.Request("POST", f"https://api.firecrawl.dev{path}", content=content)
+
+
+@pytest.mark.parametrize(
+    ("path", "body", "cost"),
+    [
+        ("/v2/search", {"query": "q", "limit": 3, "scrapeOptions": {"formats": ["markdown"]}}, 5),
+        ("/v2/search", {"query": "q", "limit": 10}, 2),  # a plain search: its results aren't read
+        ("/v2/search", {"query": "q"}, 2),  # no limit given: the guard's own price
+        ("/v2/search", b"not json", 2),
+        ("/v2/search", ["not", "an", "object"], 2),
+        ("/v2/scrape", {"url": "https://www.reviews.example/a"}, 1),
+    ],
+)
+def test_the_guard_prices_a_firecrawl_search_by_what_it_reads(path: str, body: object, cost: int) -> None:
+    request = _firecrawl(path, body)
+    budget = live_briefs.LiveBudget({"firecrawl": 10})
+    budget.admit(request)
+    assert budget.used["firecrawl"] == cost == live_briefs.firecrawl_cost(request, 2 if "search" in path else 1)
+
+
+def test_a_firecrawl_search_over_the_budget_is_refused_before_it_leaves() -> None:
+    budget = live_briefs.LiveBudget({"firecrawl": 4})
+    with pytest.raises(live_briefs.OverBudget):
+        budget.admit(_firecrawl("/v2/search", {"query": "q", "limit": 3, "scrapeOptions": {"formats": ["markdown"]}}))
+    assert budget.used["firecrawl"] == 0

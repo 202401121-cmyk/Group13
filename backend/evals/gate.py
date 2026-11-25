@@ -32,7 +32,7 @@ import re
 import sys
 import threading
 import time
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, TypeVar
@@ -276,8 +276,10 @@ class Replay:
         self.pages = pages  # (labelled pages, of them answered in this recording)
 
 
-def replay(folder: Path) -> Replay:
-    """Replay one recording offline: its sources, the real extract stage on its recorded replies, then the rest."""
+def replay(folder: Path, adjust: Callable[[Any], Any] | None = None) -> Replay:
+    """Replay one recording offline: its sources, the real extract stage on its recorded replies, then the rest.
+
+    `adjust` may change the stages before the run (US-41's coverage harness puts a live enrich and recorders in)."""
     from app.decide import WeightedDecideStage
     from app.enrich import EnrichStage
     from app.entities import FuzzyMatchStage
@@ -307,6 +309,8 @@ def replay(folder: Path) -> Replay:
         explain=TemplateExplainStage(),
         commerce=_NoPrices(),
     )
+    if adjust is not None:
+        stages = adjust(stages)
     rubric = Rubric.model_validate(run["rubric"])
     request = SearchRequest(session_id=SESSION, raw_query=manifest["request"], rubric=rubric)
     result = PipelineRunner(stages, InMemoryResultStore()).run(request)

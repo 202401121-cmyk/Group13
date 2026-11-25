@@ -405,6 +405,14 @@ def test_the_real_client_is_built_as_commerces(monkeypatch: pytest.MonkeyPatch) 
     assert out.new_claims == [] and out.searches_used == 0 and len(built) == 1
 
 
+@pytest.mark.parametrize("status", [401, 403])
+def test_a_key_serper_refused_sent_its_request_and_is_counted(status: int) -> None:
+    """A refused key went out (D-78): it counts, unlike a missing key, which sends nothing."""
+    refused = ShoppingResult(failure="blocked", detail=f"shopping: HTTP {status} (refused)")
+    out = _run(_stage(FakeShopping({"Vela Pro 14": refused})), [VELA])
+    assert out.searches_used == 1 and out.new_claims == []
+
+
 def test_the_stub_stays_as_the_fallback() -> None:
     stage = PriceLookupStage(FakeShopping({}))
     inp = EnrichInput(targets=[_target(VELA)])

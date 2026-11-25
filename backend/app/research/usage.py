@@ -119,25 +119,29 @@ class UsageBook:
             self._read()
             return {name: self._counts_total.get(name, 0) for name in self.caps}
 
-    def _left(self, provider: str, used_in_search: int, allowance: int | None = None) -> int:
+    def _left(self, provider: str, used_in_search: int, allowance: int | None = None, keep: int = 0) -> int:
         """How many more may be sent. Call with the lock held and the counts fresh. `allowance` is the search's own
-        per-search room, if it has one."""
+        per-search room, if it has one. `keep`: units of today's cap this sender must leave for others (D-101)."""
         cap = self.caps.get(provider)
         if cap is None:
             return 0
         per_search = cap.per_search if allowance is None else allowance
-        room = [per_search - used_in_search, cap.per_day - self._counts_today.get(provider, 0)]
+        room = [per_search - used_in_search, cap.per_day - keep - self._counts_today.get(provider, 0)]
         if cap.total is not None:
             room.append(cap.total - self._counts_total.get(provider, 0))
         return max(0, min(room))
 
-    def _take(self, provider: str, used_in_search: int, allowance: int | None = None) -> bool:
+    def _take(
+        self, provider: str, used_in_search: int, allowance: int | None = None, keep: int = 0, count: int = 1
+    ) -> bool:
+        """`count` units at once, or none: a request that needs several (a Firecrawl search's credits) never holds a
+        part of them when the rest can't be had."""
         with self._lock:
             self._read()
-            if self._left(provider, used_in_search, allowance) <= 0:
+            if self._left(provider, used_in_search, allowance, keep) < count:
                 return False
-            self._counts_today[provider] = self._counts_today.get(provider, 0) + 1
-            self._counts_total[provider] = self._counts_total.get(provider, 0) + 1
+            self._counts_today[provider] = self._counts_today.get(provider, 0) + count
+            self._counts_total[provider] = self._counts_total.get(provider, 0) + count
             self._save()
             return True
 
@@ -149,10 +153,10 @@ class UsageBook:
                 counts[provider] = max(0, counts.get(provider, 0) - 1)
             self._save()
 
-    def _room(self, provider: str, used_in_search: int, allowance: int | None = None) -> int:
+    def _room(self, provider: str, used_in_search: int, allowance: int | None = None, keep: int = 0) -> int:
         with self._lock:
             self._read()
-            return self._left(provider, used_in_search, allowance)
+            return self._left(provider, used_in_search, allowance, keep)
 
     def _read(self) -> None:
         day = self._today().isoformat()
@@ -212,21 +216,24 @@ class SearchUsage:
         cap = self._book.caps.get(provider)
         return cap.per_search if cap is not None else 0
 
-    def take(self, provider: str) -> bool:
+    def take(self, provider: str, *, keep: int = 0, count: int = 1) -> bool:
         """True if one more request may be sent, which is then counted. False if any cap says no.
 
         The unit is counted now, so threads sending at once can't pass a cap. If the request is then refused before it
-        leaves, `not_sent(provider)` on this thread gives the unit back."""
+        leaves, `not_sent(provider)` on this thread gives the unit back. `keep`: units of today's cap that must stay
+        for others after it (D-101: the fact look-ups leave Serper's last 25 to research and commerce). `count`: the
+        units the request needs, all taken or none."""
         with self._lock:
-            if not self._book._take(provider, self.used.get(provider, 0), self._allowance.get(provider)):
+            used = self.used.get(provider, 0)
+            if not self._book._take(provider, used, self._allowance.get(provider), keep, count):
                 return False
-            self.used[provider] = self.used.get(provider, 0) + 1
-        _waiting().setdefault(provider, deque(maxlen=MAX_WAITING)).append(self)
+            self.used[provider] = used + count
+        _waiting().setdefault(provider, deque(maxlen=MAX_WAITING)).extend([self] * count)
         return True
 
-    def left(self, provider: str) -> int:
+    def left(self, provider: str, *, keep: int = 0) -> int:
         with self._lock:
-            return self._book._room(provider, self.used.get(provider, 0), self._allowance.get(provider))
+            return self._book._room(provider, self.used.get(provider, 0), self._allowance.get(provider), keep)
 
     def _give_back(self, provider: str) -> None:
         with self._lock:
@@ -235,9 +242,17 @@ class SearchUsage:
             self.used[provider] -= 1
         self._book._give_back(provider)
 
+    def untake(self, provider: str) -> None:
+        """A unit this thread just took for a request that then didn't go (D-78): back to the search, the day and the
+        total, and no longer waiting on this thread to be said sent or refused."""
+        waiting = _waiting().get(provider)
+        if waiting is not None and self in waiting:
+            waiting.remove(self)
+        self._give_back(provider)
+
 
 _local = threading.local()
-MAX_WAITING = 4  # one request takes at most 3 units of a provider (a Firecrawl search); older ones are long sent
+MAX_WAITING = 8  # one request takes at most 5 units of a provider (a Firecrawl search reading 3 results, D-101)
 
 
 def _waiting() -> dict[str, deque[SearchUsage]]:
