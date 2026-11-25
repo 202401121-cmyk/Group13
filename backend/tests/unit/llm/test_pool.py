@@ -205,12 +205,13 @@ def test_a_backup_model_answers_an_interactive_task_when_the_first_is_cooling() 
 
 
 def test_bulk_tasks_rotate() -> None:
+    """Enrich's fact call is bulk work too, but goes to the quickest model with room instead (D-101, test_fastest)."""
     assert {LLMTask.EXTRACT_CLAIMS, LLMTask.ENRICH_EXTRACT} == BULK_TASKS
     groq = GroqFake()
     client = _client(groq, Clock())
     for _ in range(3):
         client.complete(
-            LLMTask.ENRICH_EXTRACT, SYSTEM, "A thread.", Answer, data_class=DataClass.REDDIT, difficulty=Difficulty.LONG
+            LLMTask.EXTRACT_CLAIMS, SYSTEM, "A thread.", Answer, data_class=DataClass.REDDIT, difficulty=Difficulty.LONG
         )
     assert groq.calls == [BIG, SMALL, QWEN]
 
@@ -224,7 +225,7 @@ def test_public_bulk_work_rotates_across_its_providers() -> None:
     client = WrapperLLMClient(config, adapters, InMemoryCallLog(), limiters={}, pool=pool)
     for _ in range(3):
         client.complete(
-            LLMTask.ENRICH_EXTRACT, SYSTEM, "A page.", Answer, data_class=DataClass.PUBLIC, difficulty=Difficulty.LONG
+            LLMTask.EXTRACT_CLAIMS, SYSTEM, "A page.", Answer, data_class=DataClass.PUBLIC, difficulty=Difficulty.LONG
         )
     assert isinstance(client.call_log, InMemoryCallLog)
     assert [r.provider for r in client.call_log.records] == [Provider.GEMINI, Provider.MISTRAL, Provider.GEMINI]

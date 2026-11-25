@@ -58,6 +58,8 @@ from app.contracts import (
     ExtractionResult,
     InterviewState,
     LLMCallRecord,
+    LLMTask,
+    Provider,
     Rubric,
     SearchRequest,
     SearchResult,
@@ -69,14 +71,22 @@ from app.contracts import (
 from app.extract.settings import ExtractSettings
 from app.llm.client import CUT_OFF_ROOM
 from app.research import usage
+from app.research.readers import search_credits
 from scripts.find_conflicts import QUERIES, Budget, OverBudget, service_of
 
 from . import checks
 from .run_baselines import BACKEND, RESULTS_DIR, measure
 
 LIVE_OUT = RESULTS_DIR / "sprint-3-live.json"
-CATEGORIES = ("smartphone", "air_fryer", "laptop", "smartwatch", "earbuds")  # most rows in listings.csv, in order
-BUDGET = {"llm": 60, "serper": 30, "reddit": 30, "jina": 30, "firecrawl": 10}
+CATEGORIES = ("smartphone", "air_fryer", "laptop", "smartwatch", "earbuds")
+BRIEF_CATEGORIES = (
+    "ereader",
+    "headphones",
+    "monitor",
+    "phone",
+)  # US-41: the hand-written decide briefs'  # most rows in listings.csv, in order
+# Firecrawl in credits: a fact search that reads its results costs 5 (D-101), so a brief needs about 15 of them.
+BUDGET = {"llm": 60, "serper": 30, "reddit": 30, "jina": 30, "firecrawl": 75}
 # The run budget's services, and what the app counts for each call (D-78): a refused call gives those units back.
 APP_COUNTED: dict[str, tuple[str, ...]] = {
     "serper": ("serper",),
@@ -131,14 +141,30 @@ def price_problem(value: object, unit: str | None) -> str | None:
 __all__ = ["BUDGET", "CATEGORIES", "LIVE_OUT", "LiveBudget", "OverBudget", "funnel", "main", "options", "text_in"]
 
 
+def firecrawl_cost(request: httpx.Request, cost: int) -> int:
+    """A Firecrawl search that reads its results costs a credit for each result as well (D-101): 2 for each 10 results,
+    and 1 a result read, as Firecrawl charges (app/research/readers.py, search_credits)."""
+    if request.url.host != "api.firecrawl.dev" or "search" not in request.url.path:
+        return cost
+    try:
+        body = json.loads(request.content or b"{}")
+    except ValueError:
+        return cost
+    limit = body.get("limit") if isinstance(body, dict) else None
+    if not isinstance(limit, int) or limit < 1:
+        return cost
+    return search_credits(limit, read="scrapeOptions" in body)  # any scrape options: priced as reading them
+
+
 class LiveBudget(Budget):
     """find_conflicts' guard, with Reddit's archives counted against their share instead of always refused.
 
     A call it refuses never leaves the machine, so it counts nothing against the app's own caps either (D-78): the unit
-    the app took for it goes back (app/research/usage.py, APP_COUNTED)."""
+    the app took for it goes back (app/research/usage.py, APP_COUNTED). A Firecrawl search is priced by its body."""
 
     def admit(self, request: httpx.Request) -> None:
         service, cost = service_of(request.url)
+        cost = firecrawl_cost(request, cost) if service == "firecrawl" else cost
         if service is None:
             return
         with self._lock:
@@ -470,6 +496,22 @@ def answer_sizes(calls: Sequence[LLMCallRecord], since: datetime) -> dict[str, d
     return {provider: dict(sorted(kinds.items())) for provider, kinds in sorted(sizes.items())}
 
 
+def fact_calls(calls: Sequence[LLMCallRecord], since: datetime) -> list[dict[str, Any]]:
+    """Enrich's fact-reading call from `since` on (D-101): which provider it went to, how it ended, its input and
+    output tokens and its seconds, so its size and time can be reported before and after. Numbers and labels only."""
+    return [
+        {
+            "provider": call.provider.value,
+            "outcome": call.outcome,
+            "input_tokens": call.input_tokens,
+            "output_tokens": call.output_tokens,
+            "seconds": round(call.duration_ms / 1000, 2),
+        }
+        for call in calls
+        if call.at >= since and call.task is LLMTask.ENRICH_EXTRACT
+    ]
+
+
 def set_aside_research_cache(cache: Path = RESEARCH_CACHE, aside: Path = COLD_ASIDE) -> int:
     """Moves the research cache's folders aside, so the next brief starts cold (S5-6a DECIDED 1). Nothing is deleted,
     the usage counts stay where they are, and Reddit's own cache (a folder of its own) is never touched. Returns how
@@ -536,7 +578,10 @@ def run_brief(category: str, query: str) -> dict[str, Any]:
     from app.llm import load_llm_config
     from app.presearch import default_llm
 
+    from .enrich_coverage import Recorder, top5_evidence
+
     stages = default_search_stages()
+    stages.decide, stages.enrich = Recorder(stages.decide), Recorder(stages.enrich)  # US-41: before and after
     reader: Any = stages.extract
     returned = _Returned(reader.llm)
     reader.llm = returned
@@ -581,8 +626,10 @@ def run_brief(category: str, query: str) -> dict[str, Any]:
     )
     record["presearch_seconds"] = timings
     record["steps"] = steps(record, result)
+    record["top5_evidence"] = top5_evidence(stages.decide, stages.enrich)  # type: ignore[arg-type]
     record["attempts_by_minute"] = attempts_by_minute(list(getattr(call_log, "records", [])), began)
     record["answer_sizes"] = answer_sizes(list(getattr(call_log, "records", [])), began)
+    record["fact_call"] = fact_calls(list(getattr(call_log, "records", [])), began)
     record["began_utc"] = {"hour": began.hour, "minute": began.minute}  # numbers: the record holds no free text
     return record
 
@@ -1049,12 +1096,25 @@ def measures(briefs: list[dict[str, Any]], source: str, max_sources: int = MAX_S
 
 
 ALLOWED_TEXT = (
-    {*CATEGORIES, *NOT_FINISHED, "model", "fuzzy", "learned", "tier_order", "monte_carlo", "weighted", "independent"}
+    {
+        *CATEGORIES,
+        *BRIEF_CATEGORIES,
+        *NOT_FINISHED,
+        "model",
+        "fuzzy",
+        "learned",
+        "tier_order",
+        "monte_carlo",
+        "weighted",
+        "independent",
+    }
     | {s.value for s in StageName}
     | {s.value for s in StageStatus}
     | {t.value for t in SourceType}
     | {"api", "direct", "jina", "search_snippet", "firecrawl", "unknown", "live", "offline"}
     | {"cold", "as_found"}  # S5-6a: the research cache a brief started on
+    | {p.value for p in Provider}  # D-101: the provider the fact call went to, and how it ended
+    | {"ok", "invalid_output", "rate_limited", "timeout", "error", "skipped_budget"}
 )
 META_KEYS = {"generated", "commit", "runner", "id", "unit", "status", "source", "detail", "budget_note"}
 _KEY = re.compile(r"[a-z][a-z0-9_.]*")  # a key is a field or label name: never a product name, quote or link
@@ -1099,6 +1159,7 @@ class Options:
     budget: dict[str, int]
     rebuild: bool
     cold: bool = False  # S5-6a: each brief starts on an empty research cache
+    briefs: tuple[tuple[str, str], ...] = ()  # US-41: (category, request) pairs from a file, in place of QUERIES
 
 
 def _cap(text: str) -> int:
@@ -1139,11 +1200,32 @@ def options(argv: list[str] | None = None) -> Options:
         action="store_true",
         help="before each brief, move the research cache's folders aside (never deleted; its usage counts stay)",
     )
+    parser.add_argument(
+        "--briefs",
+        type=Path,
+        default=None,
+        help='a JSON list of {"category": ..., "request": ...}, run in place of the fixed queries; never written out',
+    )
     for service, limit in BUDGET.items():
         parser.add_argument(f"--budget-{service}", type=int, default=limit, help=f"calls to {service} in all")
     args = parser.parse_args(argv)
     budget = {service: int(getattr(args, f"budget_{service}")) for service in BUDGET}
-    return Options(args.out, tuple(args.categories), args.max_sources, budget, args.rebuild, args.cold)
+    return Options(
+        args.out, tuple(args.categories), args.max_sources, budget, args.rebuild, args.cold, _briefs(args.briefs)
+    )
+
+
+def _briefs(path: Path | None) -> tuple[tuple[str, str], ...]:
+    """People-written briefs (US-41, DECIDED 7): each a known category and its request. The request is sent to the
+    app as the shopper's words, and never reaches the record."""
+    if path is None:
+        return ()
+    rows = json.loads(path.read_text(encoding="utf-8"))
+    briefs = tuple((str(row["category"]), str(row["request"])) for row in rows)
+    unknown = sorted({category for category, _ in briefs if category not in (*CATEGORIES, *BRIEF_CATEGORIES)})
+    if unknown:
+        raise SystemExit(f"--briefs: {len(unknown)} categories are not among {CATEGORIES}")
+    return briefs
 
 
 def run_all(opts: Options, budget: LiveBudget, run: Callable[[str, str], dict[str, Any]]) -> dict[str, Any]:
@@ -1153,15 +1235,16 @@ def run_all(opts: Options, budget: LiveBudget, run: Callable[[str, str], dict[st
     briefs: list[dict[str, Any]] = []
     if opts.cold:
         restore_research_cache()  # anything an earlier cold run left aside goes back under the cache's expiry
-    for index, category in enumerate(opts.categories):
-        left = len(opts.categories) - index
+    runs = list(opts.briefs) or [(category, QUERIES[category]) for category in opts.categories]
+    for index, (category, query) in enumerate(runs):
+        left = len(runs) - index
         share = {service: budget.left(service) // left for service in opts.budget}
         before = dict(budget.used)
         moved = set_aside_research_cache() if opts.cold else 0
         print(f"\n== {category} (share {share}){f', research cache set aside ({moved} folders)' if opts.cold else ''}")
         with budget.share(**share):
             try:
-                brief = run(category, QUERIES[category])
+                brief = run(category, query)
             except Exception as exc:  # one brief failing must not lose the others
                 print(f"   failed: {type(exc).__name__}")
                 brief = {"category": category, "finished": False, "why": NOT_FINISHED[1]}

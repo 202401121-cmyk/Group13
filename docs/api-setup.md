@@ -589,6 +589,16 @@ actually saw. Quotes are copied from the provider's page.
   copy. The archive's copy is always preferred.
 - **If it fails:** HTTP 401 or 402 switches it off for the rest of the run, and 429 cools it for a minute. The page is
   skipped and the coverage note names Firecrawl. Without `FIRECRAWL_API_KEY` it is simply not used.
+- **Fact look-ups (US-41, D-101):** the first ranking's products 3 to 5 search Firecrawl with the top 3 results read in
+  the same call (`POST /v2/search` with `scrapeOptions`: markdown, onlyMainContent, maxAge one day, no PDF parsing).
+  Reddit and YouTube are left out of the search (`excludeDomains`, D-53). Firecrawl's `timeout` is the time left before
+  the call's cut-off, and each result's read gets 2 s less, so one slow page comes back unread instead of making the
+  whole reply late; with under 3 s left, nothing is sent. That costs 2 credits for the search and 1 for each result,
+  5 in all, counted before it is sent, all or none; credits Firecrawl reports beyond those are counted after. It is
+  never retried. A page that comes back is held to the rules a page read here is (a maker or review site, robots.txt)
+  and kept 7 days in enrich's cache; the search's list of pages is kept only when no read failed and no page was refused
+  for a reason that may pass. While Serper's count for the day leaves fewer than 25 queries for research and commerce,
+  every fact look-up goes this way; without a key, every one goes to Serper.
 - **Smoke test:** `python -m scripts.smoke_sources --readers` reads example.com through Jina and through Firecrawl
   (1 credit), printing statuses and lengths only.
 - **Verdict: OK with these limits:** public pages, plus Reddit threads as above.
@@ -760,7 +770,12 @@ Each Groq text model is a member of the pool with its own limits. Read from
   first attempt may use its whole deadline (4 s of the interview's 5 s turn). Its `hedge` sends the same request to
   `openai/gpt-oss-20b` if `openai/gpt-oss-120b` hasn't answered by 1.5 s: the first valid answer wins and the other is
   ignored, both booked and counted. No other task hedges. If neither answers by the deadline, the reply counts as an
-  answer (US-39). httpx applies a timeout to each phase of a request, and a provider that keeps sending keep-alive bytes resets
+  answer (US-39). A task listed under `fastest` (D-101: only `enrich_extract`, enrich's fact call) goes, once, to the
+  quickest model, by the median of its last 20 answers in this process to the tasks in its `measured_by` (an answer,
+  valid or not, or a timeout), whose wait for room and answer time (its 90th percentile, or `unmeasured_s`, 5 s, until
+  it has 3 answers) fit the call's time; then to one with room now. A model cooling after a failure is passed over,
+  and one that refuses before anything is sent passes the call on. No retry, no second model, no hedge. Its caller asks
+  `answer_time_s` for that answer time and starts the call that long before its own end (at least 2 s). httpx applies a timeout to each phase of a request, and a provider that keeps sending keep-alive bytes resets
   its read timer: in P18's drill an OpenRouter attempt allowed 9 s ran 27.6 s. So the adapter reads the reply as it
   arrives and cuts the attempt off at the first chunk past its timeout (F-6). The bound is that timeout plus one gap
   between chunks, since httpx's read timeout still ends a silence; a connection that sends nothing at all is ended by
@@ -816,6 +831,7 @@ When a provider's terms change, update its flag, `terms_url` and `terms_checked`
 | `app/criteria/stage.py` | `generate_criteria` | category label and the shopper's use case | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | only a category label from our lexicon (no use case) | public | short |
 | `app/criteria/stage.py` | `generate_criteria` | its one plain-words re-ask (S4-22): the same brief, plus the generated criteria whose definitions are not plain, with the words to avoid, as data. It takes the first call's class, so the same route | as the first call | short |
+| `app/enrich/facts.py` | `enrich_extract` | US-41: after the first ranking, up to 6 maker or review pages as passages (the text around the product's name and its looked-up criteria, D-101), each named with the one product it was read for (only a page that names it is sent) and the criteria to look for, as fixed keys with our own definitions (D-51). Never the shopper's words, a generated criterion's text, Reddit or video text. One batched call a search, to the quickest model with room (`fastest`), cached 7 days by its content | public | long |
 | `app/explain/stage.py` | `write_evidence` | one of the top 3 products: its name and its public quotes (makers, reviews and stores) for the criteria its paragraph is about, as data, in groups named t1, t2 ... in key order, never by a criterion's name (a generated one can hold the shopper's words, D-51). Never a Reddit or video-comment quote, a score, a weight or anything the shopper typed or chose; code writes the personal part (D-91, US-22). One call each, side by side | public | medium |
 | `app/interview/replies.py` | `classify_reply` | the shopper's reply to an interview question, as data, with the question, its criterion's definition and the earlier questions (US-39) | private | short |
 | `app/interview/replies.py` | `answer_user_question` | the shopper's question, as data, with the criterion's name and definition, when the definition doesn't cover it (US-39) | private | short |

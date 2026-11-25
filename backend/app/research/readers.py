@@ -55,6 +55,9 @@ SEARCH_RESULTS = 10
 SCRAPE_CREDITS = 1
 SEARCH_CREDITS = 2  # per 10 results
 SNAPSHOT_MAX_CHARS = 1_500_000  # a page's HTML kept for commerce's checks, as research.yaml's max_page_bytes
+SEARCH_PAGES = 3  # D-101: the results a search has Firecrawl read in the same call (2 credits, and 1 a page)
+FIRECRAWL_MIN_S = 1.0  # Firecrawl's least timeout: a request due sooner isn't sent
+SEARCH_STEP_S = 2.0  # of a reading search's time, kept for Firecrawl's search itself and its reply, beyond the reads
 JINA, FIRECRAWL = "Jina Reader", "Firecrawl"  # the names the coverage note uses (app/pipeline.py)
 
 _IMAGE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
@@ -83,6 +86,31 @@ class PageSnapshot:
     final_url: str
     title: str
     html: str
+
+
+@dataclass(frozen=True)
+class SearchedPage:
+    """One search result Firecrawl read in the search's own call (D-101): the address it landed on, as plain text."""
+
+    url: str
+    title: str
+    text: str
+
+
+@dataclass(frozen=True)
+class SearchPages:
+    """A search with its results read: the pages that came back with text, in the search's order, or why none did.
+    `unread`: results that came back without text (a read that failed or timed out, a status other than 200), which a
+    later search may well read."""
+
+    pages: tuple[SearchedPage, ...] = ()
+    failure: SourceFailure | None = None
+    unread: int = 0
+
+
+def search_credits(results: int, *, read: bool) -> int:
+    """What a Firecrawl search costs: 2 credits for each 10 results, and 1 for each result it reads (D-101)."""
+    return SEARCH_CREDITS * -(-results // SEARCH_RESULTS) + (results * SCRAPE_CREDITS if read else 0)
 
 
 def reader_failure(reader: str, reason: FailureReason, detail: str, kind: SourceType) -> SourceFailure:
@@ -207,12 +235,14 @@ class FirecrawlGate:
         self._wait_s = wait_s
         self._slots = threading.BoundedSemaphore(known.at_once)
         self._lock = threading.Lock()
+        self._mine = threading.local()  # this thread's place in the minute, while its request is held
         self._started: deque[float] = deque()
         self._dead: FailureReason | None = None
         self._cool_until = 0.0
 
-    def try_start(self) -> FailureReason | None:
-        """None means go (a slot is taken, so finish() must follow). Otherwise why not.
+    def try_start(self, wait_s: float | None = None) -> FailureReason | None:
+        """None means go (a slot is taken, so finish() must follow). Otherwise why not. `wait_s`: the longest a slot is
+        waited for, when less than the gate's own (D-101: a search whose answer is due inside a window).
 
         The minute's place is held before waiting for a slot, so requests waiting together can't pass 10 a minute, and
         Firecrawl's health is read again after the wait: another request may have just switched it off or cooled it.
@@ -227,7 +257,8 @@ class FirecrawlGate:
             if len(self._started) >= self._per_minute:
                 return "rate_limited"
             self._started.append(now)
-        if not self._slots.acquire(timeout=self._wait_s):
+            self._mine.place = now
+        if not self._slots.acquire(timeout=self._wait_s if wait_s is None else min(self._wait_s, wait_s)):
             self._give_back(now)
             return "rate_limited"
         with self._lock:
@@ -261,6 +292,12 @@ class FirecrawlGate:
         """A held place in the minute whose request never went out."""
         with self._lock, contextlib.suppress(ValueError):
             self._started.remove(started)
+
+    def unsent(self) -> None:
+        """This thread's request never went (no time left, or a cap refused it): its slot and its place in the minute
+        go back, so 10 a minute counts only requests sent."""
+        self._slots.release()
+        self._give_back(getattr(self._mine, "place", -1.0))
 
     def finish(self, status: int | None) -> None:
         """The request is over: give its slot back, and note what its status says about Firecrawl."""
@@ -414,42 +451,103 @@ class FirecrawlClient:
         self.cache.put_text((*key, "reddit_titles"), "\n".join(found.reddit_titles))
         return found
 
+    def search_pages(
+        self,
+        query: str,
+        region: str,
+        usage: SearchUsage,
+        *,
+        results: int = SEARCH_PAGES,
+        until: float,
+        exclude: Sequence[str] = (),
+    ) -> SearchPages:
+        """One search whose top results Firecrawl reads in the same call (D-101), so no read step follows. Its credits
+        (search_credits) are all counted before it is sent, and it is never retried. Its answer is due by `until`, on
+        the monotonic clock: a slot isn't waited for past that, Firecrawl's own timeout is what is left once it goes,
+        and with less than FIRECRAWL_MIN_S left it isn't sent. `exclude`: sites Firecrawl must not search, so it never
+        reads their pages (D-53: Reddit and YouTube).
+
+        A result comes back only with its page's text, read as plain text: one Firecrawl couldn't read (an error, or a
+        status other than 200) is left out. Nothing is cached here: the caller keeps only the pages it may use."""
+        if not self._api_key:
+            return SearchPages(failure=_search_failure("blocked", "FIRECRAWL_API_KEY is not set").failure)
+        credits = search_credits(results, read=True)
+        if usage.left("firecrawl") < credits:
+            return SearchPages(failure=_search_failure("quota_exhausted", "a cap is reached").failure)
+        body: dict[str, Any] = {
+            "query": query,
+            "limit": results,
+            "country": region.upper() if len(region) == 2 else COUNTRY,
+            # PDFs aren't parsed: a parsed PDF costs a credit a page, and only one a result is counted.
+            "scrapeOptions": {"formats": ["markdown"], "onlyMainContent": True, "maxAge": MAX_AGE_MS, "parsers": []},
+        }
+        if exclude:
+            body["excludeDomains"] = list(exclude)
+        reply = self._post(FIRECRAWL_SEARCH_URL, body, usage, credits, retry=False, until=until)
+        if isinstance(reply, tuple):
+            return SearchPages(failure=_search_failure(*reply).failure)
+        _count_more(usage, reply.get("creditsUsed"), credits)
+        data = reply.get("data")
+        web = data.get("web") if isinstance(data, dict) else None
+        if not isinstance(web, list):
+            return SearchPages(failure=_search_failure("error", "the reply had no results list").failure)
+        pages = tuple(page for item in web if (page := _searched_page(item)) is not None)
+        return SearchPages(pages, unread=sum(1 for item in web if isinstance(item, dict)) - len(pages))
+
     def _post(
-        self, url: str, body: dict[str, Any], usage: SearchUsage, credits: int, *, page: bool = False
+        self,
+        url: str,
+        body: dict[str, Any],
+        usage: SearchUsage,
+        credits: int,
+        *,
+        page: bool = False,
+        retry: bool = True,
+        until: float | None = None,
     ) -> dict[str, Any] | tuple[FailureReason, str]:
-        problem = self.gate.try_start()
+        """One request through the gate, its credits counted before it goes, all of them or none (D-78). `retry`: the
+        one retry a failure may get (US-31). `until`: when its answer is due (D-101): the slot is waited for no longer,
+        Firecrawl's timeout fields become the time then left, and with less than FIRECRAWL_MIN_S left it isn't sent."""
+        least = FIRECRAWL_MIN_S + (SEARCH_STEP_S if "scrapeOptions" in body else 0.0)
+        if until is not None and until - time.monotonic() < least:
+            return "timeout", "no time left to ask"
+        slot_s = None if until is None else max(0.0, until - time.monotonic() - least)
+        problem = self.gate.try_start(slot_s)
         if problem is not None:
             return problem, "switched off for this run" if problem in ("blocked", "quota_exhausted") else "paced"
         status: int | None = None
+        went = False
+        timeout_s = READER_TIMEOUT_S
         try:
-            if page and not usage.take("firecrawl_pages"):
-                return "quota_exhausted", "a cap is reached"
-            if not all(usage.take("firecrawl") for _ in range(credits)):
+            if until is not None:
+                left = until - time.monotonic()
+                if left < least:
+                    return "timeout", "no time left to ask"
+                body = _with_timeout(body, int(left * 1000))
+                timeout_s = left + 1.0  # our own wait: a little past Firecrawl's
+            if not self._take(usage, credits, page):
                 return "quota_exhausted", "a cap is reached"
 
             def again() -> bool:
                 """A retry costs what the first request did: a place in the minute, its page and its credits (US-31)."""
-                if not self.gate.book_retry():
-                    return False
-                if page and not usage.take("firecrawl_pages"):
-                    return False
-                return all(usage.take("firecrawl") for _ in range(credits))
+                return retry and self.gate.book_retry() and self._take(usage, credits, page)
 
+            went = True
             response = send_once_more(
                 lambda: self.http.post(
                     url,
                     json=body,
                     headers={"Authorization": f"Bearer {self._api_key or ''}"},
-                    timeout=READER_TIMEOUT_S,
+                    timeout=timeout_s,
                 ),
                 self.retry,
-                READER_TIMEOUT_S,
+                timeout_s,
                 again,
                 "Firecrawl",
                 rate_limits=False,  # its 429 pauses Firecrawl for the whole process (cool_s): never retried
             )
             if isinstance(response, httpx.TimeoutException):
-                return "timeout", f"no reply within {READER_TIMEOUT_S:g}s"
+                return "timeout", f"no reply within {timeout_s:g}s"
             if isinstance(response, httpx.HTTPError):
                 return "error", f"request failed ({type(response).__name__})"
             status = response.status_code
@@ -463,11 +561,62 @@ class FirecrawlClient:
                 return "error", "the reply said it failed"
             return reply
         finally:
-            self.gate.finish(status)
+            if went:
+                self.gate.finish(status)
+            else:
+                self.gate.unsent()
+
+    @staticmethod
+    def _take(usage: SearchUsage, credits: int, page: bool) -> bool:
+        """A request's page (a scrape) and all its credits, or nothing: a page taken before the credits ran out is
+        given back, so a request that never goes counts nothing (D-78)."""
+        if page and not usage.take("firecrawl_pages"):
+            return False
+        if usage.take("firecrawl", count=credits):
+            return True
+        if page:
+            usage.untake("firecrawl_pages")
+        return False
+
+
+def _with_timeout(body: dict[str, Any], ms: int) -> dict[str, Any]:
+    """The request with Firecrawl's own timeout set. A search that reads its results gives each read SEARCH_STEP_S
+    less, so one slow page comes back as unread instead of making the whole reply late."""
+    timed = {**body, "timeout": ms}
+    if isinstance(body.get("scrapeOptions"), dict):
+        timed["scrapeOptions"] = {**body["scrapeOptions"], "timeout": ms - int(SEARCH_STEP_S * 1000)}
+    return timed
+
+
+def _count_more(usage: SearchUsage, reported: object, counted: int) -> None:
+    """Credits Firecrawl says a request used beyond those counted before it went: spent, so counted too, as far as
+    the caps let them be (the day's and the total's counts then stay true)."""
+    if not isinstance(reported, int) or reported <= counted:
+        return
+    taken = sum(1 for _ in range(reported - counted) if usage.take("firecrawl"))
+    if taken < reported - counted:
+        log.warning("research: Firecrawl used %d credits more than its caps had room for", reported - counted - taken)
 
 
 def _search_failure(reason: FailureReason, detail: str) -> SerperResult:
     return SerperResult(failure=reader_failure(FIRECRAWL, reason, f"search {detail}", SourceType.WEB_SEARCH))
+
+
+def _searched_page(item: object) -> SearchedPage | None:
+    """One result of a search that read its results (D-101): its landed address and its text as plain text. None for a
+    result Firecrawl couldn't read: no text, an error, or a status other than 200."""
+    if not isinstance(item, dict):
+        return None
+    meta = item.get("metadata")
+    meta = meta if isinstance(meta, dict) else {}
+    markdown, status = item.get("markdown"), meta.get("statusCode")
+    if not isinstance(markdown, str) or meta.get("error") or (status is not None and status != 200):
+        return None
+    url = next((u for u in (meta.get("url"), meta.get("sourceURL"), item.get("url")) if isinstance(u, str) and u), None)
+    if url is None:
+        return None
+    title = next((t for t in (meta.get("title"), item.get("title")) if isinstance(t, str)), "")
+    return SearchedPage(url=url, title=title, text=plain_text(markdown))
 
 
 class SearchWithBackup:

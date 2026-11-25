@@ -16,9 +16,9 @@ import contextvars
 import logging
 import os
 import random
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from time import monotonic
@@ -39,6 +39,7 @@ from app.contracts import (
     Provider,
 )
 
+from .answer_times import AnswerTimes
 from .config import LLMConfig, load_llm_config, with_env_overrides
 from .errors import (
     AttemptOutcome,
@@ -69,6 +70,11 @@ MAX_INVALID_OUTPUT_RETRIES = 1  # retry the same model once, then move on
 # and the one retry, asking for the same room, was cut off again. That retry asks for CUT_OFF_ROOM times the room.
 CUT_OFF_SHARE = 0.95
 CUT_OFF_ROOM = 2
+# D-95 (a): a public page's first extraction attempt may use the call's whole time when no other model on its route
+# has room for it at that moment, as the time the share leaves them could not be used. In S5-6a's live runs, 10 of
+# Mistral's 12 extraction sends timed out at the 0.6 share's 9 s, while Groq, the only model after it, had no room.
+WHOLE_WHEN_ALONE = frozenset({LLMTask.EXTRACT_CLAIMS})
+WHOLE_MARGIN_S = 2.0  # one late chunk past an attempt's deadline (providers.py) and the runner's margin
 MAX_FAILURE_RETRIES = 1  # US-31: one retry after a timeout, 5xx or connection error (or a 429), then move on
 
 ModelState = Literal["go", "busy", "no"]  # send it; no room yet, come back; or leave this model for this call
@@ -168,6 +174,7 @@ class _Call(Generic[T]):
     stage_ends_at: float  # the pool's clock
     first_choice: ModelLimits | None  # whose turn this call claimed
     keep_free: int = 0  # tokens of a pool member's minute this call must leave for shoppers
+    route: tuple[ModelLimits, ...] = ()  # every model this call may try, in order (D-95 a)
 
     @property
     def latest_start(self) -> float:
@@ -224,6 +231,9 @@ class WrapperLLMClient:
         self.rng = rng if rng is not None else random.Random()  # the retry's jitter (US-31)
         self._reported_missing: set[Provider] = set()
         self._reported_dead: set[tuple[Provider, str | None]] = set()
+        # D-101: each model's recent answer times, for the tasks a fastest task is ranked by (models.yaml `fastest`).
+        self.times = AnswerTimes()
+        self._timed = frozenset(task for each in config.fastest.values() for task in each.measured_by)
 
     def candidates(self, data_class: DataClass, difficulty: Difficulty) -> list[ModelLimits]:
         """The models to try, in order. The class filter runs again here, whatever the routes table says."""
@@ -240,11 +250,65 @@ class WrapperLLMClient:
         rotation.
         """
         models = self.candidates(data_class, difficulty)
+        if task in self.config.fastest:
+            return self._quickest_first(task, models)
         if task not in BULK_TASKS:
             return self.pool.order(models, data_class, rotate=False)
         turns = [m for m in models if self._takes_turns(m, task, data_class)]
         rest = [m for m in models if not self._takes_turns(m, task, data_class)]
         return [*self.pool.order(turns, data_class, rotate=True), *rest]
+
+    def _quickest_first(self, task: LLMTask, models: Sequence[ModelLimits]) -> list[ModelLimits]:
+        """D-101: the models by the median of their measured answers, quickest first; those not measured yet follow, in
+        the route's order. A fastest task takes no turn, so no rotation moves."""
+        tasks = self.config.fastest[task].measured_by
+        medians = [self.times.median((m.provider, m.model), tasks) for m in models]
+        ranked = sorted(range(len(models)), key=lambda i: (medians[i] is None, medians[i] or 0.0, i))
+        return [models[i] for i in ranked]
+
+    def answer_time_s(
+        self,
+        task: LLMTask,
+        data_class: DataClass,
+        difficulty: Difficulty,
+        input_tokens: int,
+        max_output_tokens: int,
+        within_s: float,
+    ) -> float | None:
+        """D-101: the time to leave a fastest task's one call if it must answer within `within_s`: the answer time of
+        the model it would go to by _in_time's rule (its measured 90th percentile, or models.yaml `unmeasured_s` for one
+        not measured yet). None when no model could take a call of this size, or the task is not a fastest task."""
+        if task not in self.config.fastest:
+            return None
+        sizes = [(model, input_tokens, max_output_tokens) for model in self.order(task, data_class, difficulty)]
+        chosen = self._in_time(task, data_class, sizes, within_s)
+        return chosen[0][1] if chosen else None
+
+    def _in_time(
+        self, task: LLMTask, data_class: DataClass, sizes: Sequence[tuple[ModelLimits, int, int]], within_s: float
+    ) -> list[tuple[ModelLimits, float]]:
+        """D-101: the models a fastest task's call may go to, in the order it tries them, each with its answer time
+        (measured 90th percentile, or `unmeasured_s`). First those whose room comes in time for an answer within
+        `within_s` (the room's wait and the answer time together), quickest first; then those with room now whose
+        answer time is longer (an answer may still come sooner). The given sizes are in quickest-first order. A model
+        cooling after a failure, or one that could never take the call, is left out. Looks only; books nothing."""
+        settings = self.config.fastest[task]
+        keep_free = self.pool.keep_free(task)
+        fits: list[tuple[ModelLimits, float]] = []
+        rest: list[tuple[ModelLimits, float]] = []
+        for model, input_tokens, output_tokens in sizes:
+            if self.health.state(model.provider, self._member(model)) == "cooling":
+                continue
+            wait = self._room_in(model, task, input_tokens, output_tokens, keep_free, data_class)
+            if wait is None:
+                continue
+            p90 = self.times.p90((model.provider, model.model), settings.measured_by)
+            answer = settings.unmeasured_s if p90 is None else p90
+            if wait + answer <= within_s:
+                fits.append((model, answer))
+            elif wait <= 0:
+                rest.append((model, answer))
+        return [*fits, *rest]
 
     def wait_for_public_room(self, task: LLMTask, input_tokens: int, max_output_tokens: int, within_s: float) -> bool:
         """Wait, up to `within_s`, until a provider on the public route has room for a call of this size (US-46).
@@ -253,9 +317,16 @@ class WrapperLLMClient:
         small): waiting can't help then, and the call may go and say so. False when the time ran out first. It only
         looks: the call itself books its slot, so no per-minute or daily limit can be passed.
         """
+        return self.wait_for_room(task, DataClass.PUBLIC, input_tokens, max_output_tokens, within_s)
+
+    def wait_for_room(
+        self, task: LLMTask, data_class: DataClass, input_tokens: int, max_output_tokens: int, within_s: float
+    ) -> bool:
+        """As wait_for_public_room, for any data class's route: a Reddit thread waits for room in Groq's Reddit lane
+        (D-95 b, D-76) the same way a public page waits for a public provider."""
         until = self.pool.now() + max(0.0, within_s)
         while True:
-            wait = self.public_room_in(task, input_tokens, max_output_tokens)
+            wait = self.room_in(task, data_class, input_tokens, max_output_tokens)
             if wait is None or wait <= 0:
                 return True
             left = until - self.pool.now()
@@ -270,23 +341,34 @@ class WrapperLLMClient:
         rather than counted out. Groq's models, the last resort for a public page, must leave the shoppers' reserve
         free, keep to the public share of their day, and take the page whole at the pool's public answer size.
         """
+        return self.room_in(task, DataClass.PUBLIC, input_tokens, max_output_tokens)
+
+    def room_in(self, task: LLMTask, data_class: DataClass, input_tokens: int, max_output_tokens: int) -> float | None:
+        """As public_room_in, on this data class's route. For Reddit text, each Groq model's Reddit lane counts too
+        (pool.reddit_minute_share, D-76), as it does when the call books its slot."""
         keep_free = self.pool.keep_free(task)
         soonest: float | None = None
-        for model in self.candidates(DataClass.PUBLIC, Difficulty.LONG):
-            wait = self._room_in(model, task, input_tokens, max_output_tokens, keep_free)
+        for model in self.candidates(data_class, Difficulty.LONG):
+            wait = self._room_in(model, task, input_tokens, max_output_tokens, keep_free, data_class)
             if wait is not None and (soonest is None or wait < soonest):
                 soonest = wait
         return soonest
 
     def _room_in(
-        self, model: ModelLimits, task: LLMTask, input_tokens: int, max_output_tokens: int, keep_free: int
+        self,
+        model: ModelLimits,
+        task: LLMTask,
+        input_tokens: int,
+        max_output_tokens: int,
+        keep_free: int,
+        data_class: DataClass = DataClass.PUBLIC,
     ) -> float | None:
         provider, member = model.provider, self._member(model)
         health = self.health.state(provider, member)
         if health == "dead":
             return None
         reserve = reserve_output(model, max_output_tokens)
-        if self._last_resort(model, task, DataClass.PUBLIC) and self.config.pool.public_output_tokens is not None:
+        if self._last_resort(model, task, data_class) and self.config.pool.public_output_tokens is not None:
             reserve = min(reserve, self.config.pool.public_output_tokens)
         try:
             if input_tokens > model.input_budget(reserve_output=reserve):
@@ -299,10 +381,10 @@ class WrapperLLMClient:
         if self.pool.has(model):
             ceiling = self.pool.token_ceiling(model, keep_free)
             today = self.pool.tokens_left_today(model)
-            public = self.pool.public_tokens_left_today(model)
+            public = self.pool.public_tokens_left_today(model) if data_class is DataClass.PUBLIC else None
             if any(left is not None and planned > left for left in (ceiling, today, public)):
                 return None
-            wait = self.pool.seconds_until_room(model, planned, keep_free)
+            wait = self.pool.seconds_until_room(model, planned, keep_free, data_class=data_class)
         else:
             limiter = self.limiters.get(provider)
             wait = 0.0 if limiter is None else limiter.seconds_until_room(planned)
@@ -339,9 +421,20 @@ class WrapperLLMClient:
         first = order[0] if order else None
         ends_at = self.pool.now() + limit_s - time_already_spent()
         call = _Call(
-            task, data_class, full_system, schema, search_id, limit_s, ends_at, first, self.pool.keep_free(task)
+            task,
+            data_class,
+            full_system,
+            schema,
+            search_id,
+            limit_s,
+            ends_at,
+            first,
+            self.pool.keep_free(task),
+            tuple(order),
         )
         pending = [plan for model in order if (plan := self._plan(call, model, user, max_output_tokens))]
+        if task in self.config.fastest:
+            return self._one_call(call, pending, max_output_tokens)
         hedge = self.config.hedge.get(task) if task not in BULK_TASKS else None
         second = next((p for p in pending[1:] if hedge and p.model.model == hedge.model), None)
         if hedge is not None and second is not None:
@@ -353,13 +446,16 @@ class WrapperLLMClient:
         retries: dict[str, int] = {}  # per model, for the whole call: coming back to a busy model is not a new retry
         failure_retries: dict[str, int] = {}  # the same, for the one retry after a failure (US-31)
         roomier: dict[str, _Plan] = {}  # the same, for the retry of an answer cut off at its room (S5-6a)
+        finished: set[str] = set()  # the models that gave up on this call: no time is kept for them (D-95 a)
         while pending:
             busy: list[_Plan] = []
             for at, plan in enumerate(pending):
                 last = at == len(pending) - 1
-                result, state = self._try_model(call, plan, retries, failure_retries, last, roomier)
+                result, state = self._try_model(call, plan, retries, failure_retries, last, roomier, finished)
                 if result is not None:
                     return result
+                if state == "no":
+                    finished.add(plan.model.model)
                 if state == "busy":
                     busy.append(plan)
             # A model busy for the bigger retry of a cut-off answer waits for room of that size (S5-6a).
@@ -367,6 +463,29 @@ class WrapperLLMClient:
                 break
             pending = busy
         raise LLMUnavailable(f"no LLM provider could complete the {task.value} task")
+
+    def _one_call(self, call: _Call[T], plans: Sequence[_Plan], max_output_tokens: int) -> T:
+        """D-101: a fastest task's one call, to the first model by _in_time's rule (the quickest whose room and answer
+        fit the call's time) that takes the input whole, in one attempt: no retry, no second model, no hedge. A model
+        that refuses before anything is sent (busy, out of budget) passes it to the next; once a request has gone, any
+        failure ends the call."""
+        whole = [plan for plan in plans if plan.fitted.mode == "as_is"]
+        sizes = [
+            (plan.model, estimate_tokens(call.system) + estimate_tokens(plan.fitted.texts[0]), max_output_tokens)
+            for plan in whole
+        ]
+        left = max(0.0, call.stage_ends_at - self.pool.now())
+        for model, _answer in self._in_time(call.task, call.data_class, sizes, left):
+            plan = next(each for each in whole if each.model is model)
+            once = replace(call, first_choice=plan.model)  # no turn was claimed, so none moves on (BULK_TASKS)
+            state, booking = self._may_call(once, plan)
+            if state != "go":
+                continue  # nothing was sent
+            result, *_ = self._attempt(once, plan, booking)
+            if result is not None:
+                return result
+            break  # one request went out: never a second
+        raise LLMUnavailable(f"no LLM provider could complete the {call.task.value} task")
 
     def _hedged(self, call: _Call[T], first: _Plan, second: _Plan, after_s: float) -> T | None:
         """The first model, and the second as well if the first hasn't answered by `after_s` (US-39, config `hedge`).
@@ -453,6 +572,7 @@ class WrapperLLMClient:
         failure_retries: dict[str, int],
         last: bool,
         roomier: dict[str, _Plan] | None = None,
+        finished: Collection[str] = (),
     ) -> tuple[T | None, ModelState]:
         """One model, retrying invalid output once, and a failure once (US-31). A busy model is left to come back to.
 
@@ -480,7 +600,10 @@ class WrapperLLMClient:
             # One retry a model in a call, of either kind: a failure's, or invalid output's (US-31).
             used = retries.get(name, 0) + failure_retries.get(name, 0)
             may_retry = used < MAX_FAILURE_RETRIES
-            result, outcome, wait, held, cut_off = self._attempt(call, tried, booking, may_retry=may_retry, last=last)
+            whole = used == 0 and self._alone(call, tried, finished)
+            result, outcome, wait, held, cut_off = self._attempt(
+                call, tried, booking, may_retry=may_retry, last=last, whole=whole
+            )
             if result is not None:
                 return result, "go"
             if wait is not None:
@@ -698,9 +821,29 @@ class WrapperLLMClient:
     def _default_timeout_s(self, model: ModelLimits, call: _Call[T]) -> float:
         return min(self.config.provider(model.provider).request_timeout_s, call.limit_s * ATTEMPT_SHARE)
 
-    def _timeout_s(self, call: _Call[T], model: ModelLimits) -> float:
+    def _timeout_s(self, call: _Call[T], model: ModelLimits, whole: bool = False) -> float:
+        """The time this attempt may take. `whole`: the call's whole time (D-95 a), within the provider's own limit."""
         left = max(call.stage_ends_at - self.pool.now(), CALL_MARGIN_S)
-        return min(self._full_timeout_s(call, model), left)
+        share = min(self._full_timeout_s(call, model), left)
+        if whole:  # the call's whole time, less what keeps the attempt inside the source's limit; never less than share
+            own = self.config.provider(model.provider).request_timeout_s
+            return max(share, min(own, left - WHOLE_MARGIN_S))
+        return share
+
+    def _alone(self, call: _Call[T], plan: _Plan, finished: Collection[str] = ()) -> bool:
+        """D-95 (a): may a public page's first extraction attempt on this model use the call's whole time? Only when no
+        other model on its route has room for it at this moment: then the time a share would keep for them could not
+        be used. Looks only; books nothing."""
+        if call.task not in WHOLE_WHEN_ALONE or call.data_class is not DataClass.PUBLIC:
+            return False
+        sent_in = estimate_tokens(call.system) + estimate_tokens(plan.fitted.texts[0])
+        for other in call.route:
+            if (other.provider, other.model) == (plan.model.provider, plan.model.model) or other.model in finished:
+                continue  # a model that already gave up on this call can't use the time either
+            wait = self._room_in(other, call.task, sent_in, plan.reserve, call.keep_free)
+            if wait is not None and wait <= 0:
+                return False
+        return True
 
     def _attempt(
         self,
@@ -710,6 +853,7 @@ class WrapperLLMClient:
         *,
         may_retry: bool = False,
         last: bool = False,
+        whole: bool = False,
     ) -> tuple[T | None, AttemptOutcome, float | None, Exception | None, bool]:
         """One attempt on one model: every chunk is sent and parsed. Always writes one call record.
 
@@ -720,7 +864,7 @@ class WrapperLLMClient:
         model, fitted, system = plan.model, plan.fitted, call.system
         provider, member = model.provider, self._member(model)
         adapter = self.adapters[provider]
-        timeout_s = self._timeout_s(call, model)
+        timeout_s = self._timeout_s(call, model, whole)
         started = monotonic()
         started_at = datetime.now(UTC)
         tokens_in = tokens_out = 0
@@ -775,10 +919,27 @@ class WrapperLLMClient:
         self.requests.settle(provider, plan.requests, sent)  # each request that went out counts, whatever came back
         duration_ms = int((monotonic() - started) * 1000)
         self._record(call, plan, outcome, tokens_in + unanswered, tokens_out, duration_ms, started_at)
+        self._time(call, plan, outcome, cut_short, duration_ms)
         cut_off = (
             outcome == "invalid_output" and fitted.mode != "chunked" and tokens_out >= CUT_OFF_SHARE * plan.reserve
         )
         return result, outcome, wait, error if wait is not None else None, cut_off
+
+    def _time(self, call: _Call[T], plan: _Plan, outcome: AttemptOutcome, cut_short: bool, duration_ms: int) -> None:
+        """D-101: a public answer's time, for the tasks a fastest task is ranked by. Only a real answer, valid or not,
+        or a timeout: at the attempt's full length, or any of a fastest task's own, as its caller left it the time it
+        was cut at (it took at least that long). One request, never a chunked attempt's several."""
+        fastest = self.config.fastest.get(call.task)
+        timed_out = outcome == "timeout" and (not cut_short or fastest is not None)
+        answered = outcome in ("ok", "invalid_output") or timed_out
+        one_public_answer = call.data_class is DataClass.PUBLIC and plan.requests == 1 and answered
+        if call.task not in self._timed or not one_public_answer:
+            return
+        key = (plan.model.provider, plan.model.model)
+        seconds = duration_ms / 1000
+        if fastest is not None and outcome == "timeout" and cut_short:  # it took at least this long: never quicker
+            seconds = max(seconds, self.times.median(key, fastest.measured_by) or 0.0)
+        self.times.note(key, call.task, seconds)
 
     def _count_failure(self, plan: _Plan, error: Exception) -> None:
         """A failure set aside for a retry that never went out (no room, no budget): it counts after all."""

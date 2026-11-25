@@ -49,6 +49,10 @@ SEARCH_TEXT = "search_text"  # the titles and links of a search's results on red
 PAGES = "sources"  # review pages read in full: 24 hours
 ROBOTS = "text"  # robots.txt files: 24 hours
 SITES = "sites"  # each site's failure score (US-31): 24 hours
+# Enrich's fact look-up (US-41): its own folder, kept 7 days. Public pages only: a Reddit or YouTube address is refused
+# before it is read, and its search results are kept as the maker and review links they gave, nothing else.
+ENRICH_FOLDER = "enrich"
+ENRICH_TTL = timedelta(days=7)
 
 
 def _is_page(key: CacheKey) -> bool:
@@ -65,6 +69,11 @@ def _is_site(key: CacheKey) -> bool:
 
 def _utc_now() -> datetime:
     return datetime.now(UTC)
+
+
+def enrich_cache_dir(folder: Path | None = None) -> Path:
+    """Enrich's fact look-up cache, beside research's: `<research folder's parent>/enrich`."""
+    return (folder if folder is not None else DEFAULT_CACHE_DIR).parent / ENRICH_FOLDER
 
 
 def sweep_expired_files(
@@ -85,6 +94,8 @@ def sweep_expired_files(
         delete_expired(folder / name, serve_limit(), now)
     for name in (PAGES, ROBOTS, SITES):
         delete_expired(folder / name, DEFAULT_TTL, now)
+    for name in (PAGES, SEARCH_TEXT):  # enrich's fact look-ups: public pages and links only, 7 days (US-41)
+        delete_expired(enrich_cache_dir(folder) / name, ENRICH_TTL, now)
 
 
 class ResearchCache:

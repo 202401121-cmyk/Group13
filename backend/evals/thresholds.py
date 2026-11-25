@@ -37,6 +37,7 @@ from app.contracts import SEARCH_TIME_LIMIT_S, STAGE_TIME_LIMITS_S, StageName
 from app.explain.nli_settings import NliSettings
 
 from .citation.run import CITATION_OUT
+from .enrich_coverage import OUT as ENRICH_OUT
 from .gate import GATE_OUT
 from .interview_sim import FIXED_OUT as SIM_OUT
 from .memory_sim import MEMORY_OUT
@@ -45,7 +46,16 @@ from .stability import STABILITY_OUT
 
 THRESHOLDS = BACKEND / "evals" / "thresholds.yaml"
 LIVE_OUT = RESULTS_DIR / "sprint-4-live.json"  # S4-2: the demo's way, at the normal source cap
-RECORDS = (OFFLINE_OUT, LIVE_OUT, SIM_OUT, STABILITY_OUT, GATE_OUT, MEMORY_OUT, CITATION_OUT)  # every floor's record
+RECORDS = (  # every floor's record
+    OFFLINE_OUT,
+    LIVE_OUT,
+    SIM_OUT,
+    STABILITY_OUT,
+    GATE_OUT,
+    MEMORY_OUT,
+    CITATION_OUT,
+    ENRICH_OUT,
+)
 RHO_MARGIN = 0.05  # a Spearman median's floor: the measured value less this (D-74)
 RATE_MARGIN = 0.05
 COUNT_MARGIN = 0.10
