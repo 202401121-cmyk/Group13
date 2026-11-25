@@ -305,7 +305,7 @@ def test_the_caps_in_config_are_the_decided_ones() -> None:
     settings = load_research_settings(env={})
     assert settings.caps["jina"].per_search == 10
     assert settings.caps["firecrawl_pages"].per_search == 4
-    assert settings.caps["firecrawl"].per_day == 30
+    assert settings.caps["firecrawl"] == ProviderCap(per_search=30, per_day=300, total=9000)  # D-99, 25 Nov 2026
     assert (settings.max_maker_pages, settings.max_store_pages) == (3, 3)
 
 

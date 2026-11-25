@@ -68,16 +68,28 @@ def _default_caps() -> dict[str, ProviderCap]:
         "reddit_archive": ProviderCap(per_search=14, per_day=500),
         "pages": ProviderCap(per_search=24, per_day=200),
         # The page readers (US-38, team's choice): Jina pages, Firecrawl pages, and Firecrawl credits (a page is 1, a
-        # search 2), all well inside Firecrawl's free 1,000 a month (D-62).
+        # search 2), for research and for commerce's store pages (US-24).
         "jina": ProviderCap(per_search=10, per_day=200),
         "firecrawl_pages": ProviderCap(per_search=4, per_day=30),
-        "firecrawl": ProviderCap(per_search=30, per_day=30),
+        # D-99 (Om's student credits): 300 a day, and the total stops Firecrawl for good.
+        "firecrawl": ProviderCap(per_search=30, per_day=300, total=9000),
         # YouTube (US-38): search.list calls (YouTube allows 100 a day; the team's cap is 80), and quota units for
         # videos.list and commentThreads.list (1 each, from 10,000 a day): one search, one videos call and five
         # comment reads a search, with room for the one retry a failed call gets (US-31).
         "youtube_search": ProviderCap(per_search=2, per_day=80),
         "youtube": ProviderCap(per_search=8, per_day=9000),
     }
+
+
+class FirecrawlLimits(BaseModel):
+    """Firecrawl's own limits for our plan (docs.firecrawl.dev/rate-limits): readers.FirecrawlGate keeps inside them.
+    The defaults are the free plan's (read 25 Nov 2026): 10 requests a minute, 2 at once; a 429 pauses it a minute."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    per_minute: int = Field(default=10, ge=1)
+    at_once: int = Field(default=2, ge=1)
+    cool_s: float = Field(default=60.0, ge=0)
 
 
 class ResearchSettings(BaseModel):
@@ -100,6 +112,7 @@ class ResearchSettings(BaseModel):
     page_interval_s: float = Field(default=2.0, ge=0)
     max_crawl_delay_s: float = Field(default=10.0, ge=0)
     caps: dict[str, ProviderCap] = Field(default_factory=_default_caps)
+    firecrawl_limits: FirecrawlLimits = Field(default_factory=FirecrawlLimits)
     review_domains: tuple[str, ...] = DEFAULT_REVIEW_DOMAINS
     # Maker pages are tier 1 and store pages tier 5 (DR-03). Found by search and read like review pages (US-38).
     maker_domains: dict[str, tuple[str, ...]] = Field(default_factory=dict, description="Brand -> its own domains")

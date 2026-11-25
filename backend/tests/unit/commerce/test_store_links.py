@@ -1,5 +1,6 @@
-"""US-24 (S4-26, D-67): a Google Shopping link becomes the store's own page when one web search a product finds this
-exact model on the store's own site. Fake shopping and web search; made-up products, pages and stores.
+"""US-24 (S4-26; D-99 since S5-16): a Google Shopping link becomes the store's own page when the product's one search
+finds this exact model on the store's own site and the page passes the checks (store_pages.py). Fake shopping and web
+search, and a made-up web for the checks (tests/fakes/store_web.py); made-up products, pages and stores.
 """
 
 from __future__ import annotations
@@ -23,6 +24,7 @@ from app.research.settings import ProviderCap
 from app.research.shopping import Listing, ShoppingResult
 from app.research.usage import SearchUsage, UsageBook
 from tests.fakes.research import web_source
+from tests.fakes.store_web import StoreWeb, book
 from tests.unit.commerce.test_shopping_stage import (
     BUDGET,
     FETCHED,
@@ -34,7 +36,6 @@ from tests.unit.commerce.test_shopping_stage import (
     FakeShopping,
     _answer,
     _listing,
-    _usage,
     ctx,
 )
 
@@ -63,7 +64,8 @@ def _priced(
     products: list[Product],
     usage: UsageBook | None = None,
 ) -> CommerceResult:
-    stage = ShoppingCommerceStage(FakeShopping(answers), web=web, usage=usage or _usage())
+    _, pages = StoreWeb().wiring()  # robots.txt allows, Safe Browsing finds nothing; known stores need no read
+    stage = ShoppingCommerceStage(FakeShopping(answers), web=web, pages=pages, usage=usage or book())
     return stage.run(CommerceInput(products=products, budget=BUDGET), ctx())
 
 
@@ -97,14 +99,15 @@ def test_no_match_keeps_the_google_link_and_its_label() -> None:
     assert str(offer.url) == SHOPPING_OFFER and offer.store == "Flipkart via Google Shopping"
 
 
-def test_a_store_not_in_the_map_is_not_searched() -> None:
+def test_a_store_not_in_the_list_is_searched_too() -> None:
+    """D-99: no store list decides which stores are tried. Flipkart's page is no page of Gadgets Now's."""
     web = FakeWeb(web_source(VICTUS_PAGE, title="HP Victus 15 Gaming Laptop"))
     result = _priced(web, {"HP Victus 15": _answer(_google("HP Victus 15 Laptop", "Gadgets Now"))}, [VICTUS])
-    assert web.asked == []
+    assert web.asked == [("HP Victus 15", "IN", ())]
     assert result.offers[0].store == "Gadgets Now via Google Shopping"
 
 
-def test_one_web_search_a_product_with_a_site_for_each_offer_store() -> None:
+def test_one_search_a_product_for_the_model_alone() -> None:
     web = FakeWeb()
     answers = {
         "HP Victus 15": _answer(
@@ -114,7 +117,7 @@ def test_one_web_search_a_product_with_a_site_for_each_offer_store() -> None:
         )
     }
     _priced(web, answers, [VICTUS])
-    assert web.asked == [("HP Victus 15", "IN", ("flipkart.com", "amazon.in"))]  # Croma's link is its own already
+    assert web.asked == [("HP Victus 15", "IN", ())]  # one search, no site: list (D-99)
 
 
 def test_at_most_three_extra_queries_a_search() -> None:

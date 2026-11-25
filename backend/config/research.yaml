@@ -45,10 +45,13 @@ caps:
   firecrawl_pages:
     per_search: 4
     per_day: 30
-  # Firecrawl credits, for pages (1 each) and Serper's backup (2 a query). Its free plan has 1,000 a month.
+  # Firecrawl credits, for pages (1 each) and searches (2 a query): research's backup search and commerce's store-page
+  # search and page checks (US-24, D-99). Om's student credits (D-99, 25 Nov 2026): 300 a day, and the total stops
+  # Firecrawl for good once 9,000 have been used.
   firecrawl:
     per_search: 30
-    per_day: 30
+    per_day: 300
+    total: 9000
   # YouTube (US-38, docs/api-setup.md). search.list has its own allowance of 100 calls a day; the team's cap is 80.
   # One call a search, and room for its one retry if it fails (US-31): the retry counts toward the 80 too.
   youtube_search:
@@ -60,6 +63,14 @@ caps:
   youtube:
     per_search: 8
     per_day: 9000
+
+# Firecrawl's own limits for our plan (docs.firecrawl.dev/rate-limits, read 25 Nov 2026: the free plan allows 10
+# requests a minute and 2 at once; a paid plan allows more). FirecrawlGate keeps inside them; a 429 pauses Firecrawl
+# for cool_s. Change them here if the plan changes, never in the code.
+firecrawl_limits:
+  per_minute: 10
+  at_once: 2
+  cool_s: 60
 
 # Maker pages (tier 1) and store pages (tier 5), found by search and read like review pages, at most 3 of each a
 # search (US-38). They obey robots.txt, and a logged-in page (login, account, cart, checkout) is never read.

@@ -116,6 +116,7 @@ and the file name the same ones.
 | `YOUTUBE_API_KEY` | The team's YouTube Data API key, restricted to that API. Empty leaves YouTube out of every search (US-38). | **yes** |
 | `JINA_API_KEY` | Leave empty on staging (section 1). If set, the team's Jina key. | **yes** |
 | `FIRECRAWL_API_KEY` | Leave empty on staging: its 1,000 credits a month are the team's (section 1). | **yes** |
+| `SAFE_BROWSING_API_KEY` | Optional (US-24, D-99): the team's Google Safe Browsing key, restricted to that API. Empty skips the check, said once in the log; store pages are still checked by code otherwise. | **yes** |
 | `REDDIT_SOURCE` | `archive` | no |
 | `REDDIT_USER_SALT` | A new random value for staging (`python -c "import secrets; print(secrets.token_hex(32))"`). Never the laptop's. | **yes** |
 | `DATABASE_URL` | The Supabase **Session pooler** string, ending in `?sslmode=require` ([database.md](database.md)). The direct connection is IPv6 only. | **yes** |

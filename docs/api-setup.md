@@ -31,7 +31,8 @@ its terms, then update this page.
 | [Reddit](#reddits-own-api) | Community evidence | archives: none; own API: `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT` | Own API: **not OK** (closed to us); archives in use | skipped (no keys) |
 | [YouTube](#youtube) | Video titles, descriptions, comments | `YOUTUBE_API_KEY` | OK with limits (no transcripts) | ok |
 | [Jina Reader](#jina-reader) | Reads public web pages as text | `JINA_API_KEY` (optional) | OK with limits | ok |
-| [Firecrawl](#firecrawl) | Reads the pages Jina can't, and backs up Serper (US-38) | `FIRECRAWL_API_KEY` (optional) | OK with limits (D-62) | `smoke_sources --readers` |
+| [Firecrawl](#firecrawl) | Reads the pages Jina can't, and backs up Serper (US-38); searches for and reads store pages (US-24) | `FIRECRAWL_API_KEY` (optional) | OK with limits (D-62, D-99) | `smoke_sources --readers` |
+| [Google Safe Browsing](#google-safe-browsing) | Checks a store page before a link to it is shown (US-24, D-99) | `SAFE_BROWSING_API_KEY` (optional) | OK: free for non-commercial use | none: checked in the live check |
 | [Hugging Face](#hugging-face) | Downloads public models (ML track) | `HF_TOKEN` (optional) | OK as planned | skipped (no token) |
 | Supabase | The database (optional) | `DATABASE_URL`, `DB_TIMEOUT_SECONDS` | see [database.md](database.md) | checked by `GET /api/health` |
 | [Supabase Auth admin](#supabase-auth-deleting-an-account-us-11-p-43) | Deleting a shopper's account (US-11) | `SUPABASE_SECRET_KEY` (backend only) | OK as planned (read 21 Nov 2026) | none: Om checks it by hand on a test account |
@@ -419,7 +420,8 @@ actually saw. Quotes are copied from the provider's page.
   answer is in `backend/tests/fixtures/commerce/serper_shopping_in.json`.
 - **Our limits:**
   - at most 3 shopping queries a search, one for each of the top 3 products, sent in parallel;
-  - then at most 3 web searches, one for each priced product, for the stores' own pages (below);
+  - then at most 3 store-page searches, one for each priced product with a Google Shopping link (below): Firecrawl
+    first, so most of them cost Firecrawl credits, not Serper units;
   - each request counts one Serper unit in the same 60 a day and 2,400 in total as web search (`usage.json`), and a
     retry counts too;
   - commerce's own cap is 6 a search (`research.yaml`);
@@ -435,19 +437,36 @@ actually saw. Quotes are copied from the provider's page.
   model codes agreeing (the match stage's own parsing, never fuzzy). Accessories "for" the model and second-hand
   listings are refused. Prices are read by the same reader as US-17; an unreadable price is no price. A price above the
   budget is flagged (DR-01), and every price carries its as-of time (DR-04).
-- **Links (S4-26, D-67):**
+- **Links (S4-26; D-99, 25 Nov 2026, which replaces D-67's store list as the gate):**
   - **Already the store's:** a store's own page is kept as it is, and a Google redirect to one is unwrapped.
-  - **The store-page search:** for a Google Shopping offer link (all India gets) at a store in
-    `backend/config/stores.yaml`, one Serper web search a product asks for its name on those stores' own sites, such as
-    `HP Victus 15 (site:flipkart.com OR site:amazon.in)`, through the web search client, with its cap and cache.
-  - **The swap:** a result replaces that store's Google link only when it is on the store's own site (the domain,
-    `www.` or `m.`), its path has the store's product-page form (`product_path` in the map, such as Flipkart's `/p/itm…`
-    or Amazon's `/dp/…`), and its title names the same model (the same check as listings). A search page, a list of
-    products or a brand page is never taken.
-  - **What stays:** the price and its time are still the shopping result's.
-  - **The map:** Flipkart, Amazon (`amazon.in`), Croma, Reliance Digital and Vijay Sales (team's choice; add a store
-    there to search it too). Flipkart's and Amazon's page forms were seen live; the others are the stores' usual form,
-    and a wrong one only keeps the Google link.
+  - **The store-page search, for any store:** for each of the top 3 priced products with a Google Shopping offer link
+    (all India gets), one search for the exact model: its brand and name, such as `HP Victus 15`, with no `site:` and
+    nothing the shopper typed. Firecrawl search first; Serper web search when Firecrawl has no key, no room or fails.
+    Each is cached 24 hours.
+  - **Which result is the store's:** its host is the store's own site, with `www.` or `m.` at most: the domain the
+    offer shows (`gadgetsclub.in`), a known store's domain in `backend/config/stores.yaml` (`Amazon` is `amazon.in`), or
+    a domain whose registered name is the store's name in letters and digits under `.in`, `.co.in` or `.com`
+    (`Gadgets Now` is `gadgetsnow.com`; `GameLoot` is never `gameloot.shop`). A look-alike never is
+    (`gadgetsclub.in.example.com`, `gadgets-club.in`), and each shop on shared hosting (such as `*.myshopify.com`) is its
+    own site. Its title or address must name the model, each model code as a whole token: `X1504VA` never stands for
+    `X1504VAP`, nor the reverse.
+  - **The checks before a link is shown, all in code** (`app/commerce/store_pages.py`), any failure keeping the Google
+    link: https only; never a site research never reads (Reddit, YouTube, social sites); never a login, account, cart,
+    checkout or search page; robots.txt allows us, read as research reads it (the raw path, a crawl delay over
+    `max_crawl_delay_s` refused, one retry, 5 seconds to arrive, kept 24 hours); [Google Safe
+    Browsing](#google-safe-browsing) reports no threat; and the page is a product page. A known store's `product_path` proves that from the address, with no read. Otherwise the page is
+    read by Firecrawl (`/v2/scrape`, format `rawHtml`, 1 credit), or Jina when Firecrawl has no room or fails: it must
+    open with 200, stay https on the same registered domain after redirects, hold schema.org Product data (JSON-LD or
+    microdata) and name the exact model in its title or its Product's name. The link shown is where the page ended;
+    when that is another address, it passes the address checks (robots.txt and Safe Browsing included) itself.
+  - **What stays:** the price and its time are still the shopping result's; the page's own price is never used.
+  - **Kept verdicts:** per model and store host, in the research cache: a verified link or a failed check for a day
+    (the cache keeps such entries a little under 24 hours), a Safe Browsing threat for 30 minutes (Google's terms). A
+    reader or Safe Browsing that is down, a robots.txt that couldn't be read, or commerce's own time running out is
+    never kept: the next search tries again.
+  - **The known stores:** Flipkart, Amazon (`amazon.in`), Croma, Reliance Digital and Vijay Sales. A speed-up, not a
+    gate: their `product_path` spares a read. Flipkart's and Amazon's page forms were seen live; a wrong one only means
+    the page is read.
   - **One offer a store:** a store's own page and its Google Shopping link count as one store.
   - **No match:** the Google link stays, and the store is named "... via Google Shopping", so the page never passes it
     off as the store's own page.
@@ -459,8 +478,9 @@ actually saw. Quotes are copied from the provider's page.
     refused the request, or could not be reached).
   - **1 or 2 of the 3 fail:** the others keep their prices, and `coverage_note` says how many couldn't be priced
     ("We couldn't check prices for 1 of the top 3 products, because the price search failed.").
-  - **A store-page search fails, errs or is late:** that product's Google links stay; the other products keep the pages
-    found. With under 3 seconds of commerce's time left, none is sent.
+  - **A store-page search or check fails, errs or is late:** that product's or offer's Google link stays; the others
+    keep the pages found. With under 3 seconds of commerce's time left, no search is sent, and no check starts a
+    request with under half a second left.
 
 ### Reddit's own API
 
@@ -547,15 +567,21 @@ actually saw. Quotes are copied from the provider's page.
 - **Used for** (US-38, D-62): the last step of the page reader chain, for a page Jina can't read either; a Reddit
   thread that search found but the archive didn't return (only with `REDDIT_SOURCE` on); and Serper's backup, when
   Serper errors, is capped for the day or has no credits. Its search answers become `web_search` snippets. Pages
-  say `via: firecrawl`.
+  say `via: firecrawl`. Since D-99 (US-24), also commerce's store-page search (Firecrawl first, Serper as its backup)
+  and the reading of a store page before a link to it is shown (format `rawHtml`, for the page's status, its address
+  after redirects and its schema.org data).
 - **Requests** (API v2, [docs](https://docs.firecrawl.dev/api-reference/endpoint/scrape), read 13 Nov 2026), with a
   Bearer key: `POST /v2/scrape` with formats markdown, onlyMainContent true, maxAge 86,400,000 ms (a copy up to a day
   old), location country IN and a 10,000 ms timeout; `POST /v2/search` with country IN and 10 results.
-- **Free plan** (D-62, read 11 Nov 2026): 1,000 credits a month, 2 requests at once, 10 a minute on /scrape and
-  /search. A scrape is 1 credit; a search 2 credits per 10 results.
-- **Our caps** (team's choice, `caps:` in research.yaml): 4 pages a search (`firecrawl_pages`), and 30 credits a day
-  (`firecrawl`), which also covers the search backup. Paced at 2 at a time and 10 a minute for the whole app; a full
-  minute is not waited for, the page is skipped. Every page and search is kept 24 hours, so a repeat costs nothing.
+- **Limits** ([rate limits](https://docs.firecrawl.dev/rate-limits), read 25 Nov 2026): the free plan allows 10
+  requests a minute on /scrape and /search and 2 at once; Hobby 100 a minute and 5 at once. Past them, HTTP 429; out of
+  credits, HTTP 402. A scrape is 1 credit (rawHtml costs no more); a search 2 credits per 10 results. Our pacing is in
+  `firecrawl_limits:` in research.yaml (10 a minute, 2 at once, a 429 pauses it 60 seconds), never in the code: change
+  it there if the plan changes.
+- **Our caps** (`caps:` in research.yaml; D-99, Om's student credits, 25 Nov 2026): 4 pages a search
+  (`firecrawl_pages`, 30 a day), and 30 credits a search, 300 a day and 9,000 in all (`firecrawl`), which also cover
+  the search backup and commerce's store pages. The total stops Firecrawl for good once reached. A full minute is not
+  waited for, the page is skipped. Every page and search is kept 24 hours, so a repeat costs nothing.
 - **Never sent:** YouTube, social sites, a logged-in page (login, account, cart, checkout, or HTTP 401), or a page
   robots.txt disallows.
 - **Reddit (D-53):** a thread read through Firecrawl is Reddit data: extracted only by Groq, with every username and
@@ -566,6 +592,24 @@ actually saw. Quotes are copied from the provider's page.
 - **Smoke test:** `python -m scripts.smoke_sources --readers` reads example.com through Jina and through Firecrawl
   (1 credit), printing statuses and lengths only.
 - **Verdict: OK with these limits:** public pages, plus Reddit threads as above.
+
+### Google Safe Browsing
+
+- **Used for** (US-24, D-99): one check of a store page's address before a link to it replaces a Google Shopping link.
+- **The request** ([Lookup API v4](https://developers.google.com/safe-browsing/v4/lookup-api), read 25 Nov 2026):
+  `POST https://safebrowsing.googleapis.com/v4/threatMatches:find` with the page's address alone, threat types
+  `MALWARE`, `SOCIAL_ENGINEERING`, `UNWANTED_SOFTWARE` and `POTENTIALLY_HARMFUL_APPLICATION`. The key goes in the
+  `x-goog-api-key` header (Google's API key docs), never in the address, so no log can hold it. An empty answer means
+  the address is on none of Google's lists; `matches` means it is.
+- **Key:** `SAFE_BROWSING_API_KEY`, optional. Make one in a Google Cloud project with the Safe Browsing API enabled,
+  and restrict it to that API.
+- **Terms:** free, for non-commercial use only (this is a student project); the default quota is shown in the Cloud
+  console. Google lets an address be treated as unsafe only on an answer at most 30 minutes old, so a threat verdict is
+  kept no longer.
+- **If it fails:** without the key the check is skipped, said once in the log, and the other checks still decide. An
+  error, a timeout (3 seconds) or a reply we can't read keeps the Google link, and is not kept, so the next search asks
+  again.
+- **Verdict: OK** for this use.
 
 ### Hugging Face
 

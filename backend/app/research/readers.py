@@ -2,10 +2,13 @@
 
 - Jina Reader (r.jina.ai) is tried first: it keeps no request data, and works without a key (JINA_API_KEY raises its
   limit). Then Firecrawl /v2/scrape, when Jina fails or its text is also thin.
-- Firecrawl's free plan (D-62, read 11 Nov 2026): 1,000 credits a month, 2 requests at once, 10 a minute. A scrape is 1
-  credit; a search 2 credits per 10 results. Our own caps (research.yaml) keep a search and a day well inside that.
-  HTTP 401 or 402 switches Firecrawl off for the run; 429 cools it for a minute. Its pacing never waits for the minute:
-  a full minute means the page is skipped, and the coverage note says so.
+- Firecrawl's limits (docs.firecrawl.dev/rate-limits, read 25 Nov 2026): the free plan allows 10 requests a minute
+  and 2 at once. They live in research.yaml (firecrawl_limits), not here (D-99). A scrape is 1 credit; a search 2
+  credits per 10 results. Our own caps (research.yaml) keep a search, a day and the plan's credits inside that.
+  HTTP 401 or 402 switches Firecrawl off for the run; 429 cools it. Its pacing never waits for the minute: a full minute
+  means the page is skipped, and the coverage note says so.
+- Commerce (US-24, D-99) asks either reader for a page's snapshot: its own HTTP status, its address after redirects,
+  its title and its HTML as served, so code can check the page is a product page before a link to it is shown.
 
 The caller decides what may be read: robots.txt first, and never YouTube, social sites or logged-in pages (pages.py).
 Reader text goes through the one cleaning function, and the stage caps it, as for every page. Keys never reach a log or
@@ -23,6 +26,7 @@ from collections import deque
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from functools import cache
 from typing import Any
 
 import httpx
@@ -35,6 +39,7 @@ from .cleaning import clean_text
 from .reddit.base import FailureReason
 from .retrying import send_once_more
 from .serper import SerperResult, read_results
+from .settings import FirecrawlLimits, load_research_settings
 from .usage import SearchUsage
 
 log = logging.getLogger(__name__)
@@ -49,14 +54,13 @@ COUNTRY = "IN"
 SEARCH_RESULTS = 10
 SCRAPE_CREDITS = 1
 SEARCH_CREDITS = 2  # per 10 results
-PER_MINUTE = 10
-AT_ONCE = 2
-COOL_S = 60.0
+SNAPSHOT_MAX_CHARS = 1_500_000  # a page's HTML kept for commerce's checks, as research.yaml's max_page_bytes
 JINA, FIRECRAWL = "Jina Reader", "Firecrawl"  # the names the coverage note uses (app/pipeline.py)
 
 _IMAGE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
 _LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 _JINA_BODY = "Markdown Content:"
+_JINA_STATUS = re.compile(r"returned error (\d{3})")  # its warning when the page itself answered with an error
 
 
 def _utc_now() -> datetime:
@@ -67,6 +71,18 @@ def _utc_now() -> datetime:
 class ReaderText:
     title: str
     text: str
+
+
+@dataclass(frozen=True)
+class PageSnapshot:
+    """A page as a reader opened it, for commerce's checks (D-99), never shown to anyone: the page's own HTTP status
+    (None when the reader didn't say), its address after redirects ("" when the reader didn't say), its title and its
+    HTML as served, scripts kept, up to SNAPSHOT_MAX_CHARS."""
+
+    status: int | None
+    final_url: str
+    title: str
+    html: str
 
 
 def reader_failure(reader: str, reason: FailureReason, detail: str, kind: SourceType) -> SourceFailure:
@@ -105,11 +121,48 @@ class JinaReader:
         return f"JinaReader(key_set={self._api_key is not None})"
 
     def read(self, url: str, usage: SearchUsage) -> ReaderText | tuple[FailureReason, str]:
+        response = self._get(url, usage, {"Accept": "text/plain", "X-Return-Format": "markdown"})
+        if isinstance(response, tuple):
+            return response
+        title, _, body = response.text.partition(_JINA_BODY)
+        found = re.search(r"^Title:\s*(.+)$", title, re.MULTILINE)
+        return ReaderText(found.group(1).strip() if found else "", plain_text(body if body else response.text))
+
+    def snapshot(self, url: str, usage: SearchUsage) -> PageSnapshot | tuple[FailureReason, str]:
+        """The page as JSON with its HTML (x-respond-with: html; the HTML is under data.html, or data.content): its
+        address after loading, its title, and a status read from Jina's warning when the page answered with an error.
+        No warning is taken as the page's 200."""
+        response = self._get(url, usage, {"Accept": "application/json", "X-Respond-With": "html"})
+        if isinstance(response, tuple):
+            return response
+        try:
+            reply = response.json()
+        except ValueError:
+            return "error", "the reply was not JSON"
+        data = reply.get("data") if isinstance(reply, dict) else None
+        html = (
+            next((data[k] for k in ("html", "content") if isinstance(data.get(k), str)), None)
+            if isinstance(data, dict)
+            else None
+        )
+        if not isinstance(data, dict) or html is None:
+            return "error", "the reply had no page"
+        final, title, warning = data.get("url"), data.get("title"), data.get("warning")
+        said = _JINA_STATUS.search(warning) if isinstance(warning, str) else None
+        status = int(said.group(1)) if said else (None if isinstance(warning, str) else 200)
+        return PageSnapshot(
+            status,
+            final if isinstance(final, str) else "",
+            title if isinstance(title, str) else "",
+            html[:SNAPSHOT_MAX_CHARS],
+        )
+
+    def _get(self, url: str, usage: SearchUsage, headers: dict[str, str]) -> httpx.Response | tuple[FailureReason, str]:
+        """One read of the page through Jina, with its one retry: the reply, or why there is none."""
         if not usage.take("jina"):
             return "quota_exhausted", "a cap is reached"
-        headers = {"Accept": "text/plain", "X-Return-Format": "markdown"}
         if self._api_key:
-            headers["Authorization"] = f"Bearer {self._api_key}"
+            headers = {**headers, "Authorization": f"Bearer {self._api_key}"}
         response = send_once_more(
             lambda: self.http.get(f"{JINA_URL}{url}", headers=headers, timeout=READER_TIMEOUT_S),
             self.retry,
@@ -123,25 +176,36 @@ class JinaReader:
             return "error", f"request failed ({type(response).__name__})"
         if response.status_code != 200:
             return _reason(response.status_code), f"HTTP {response.status_code}"
-        title, _, body = response.text.partition(_JINA_BODY)
-        found = re.search(r"^Title:\s*(.+)$", title, re.MULTILINE)
-        return ReaderText(found.group(1).strip() if found else "", plain_text(body if body else response.text))
+        return response
+
+
+@cache
+def firecrawl_limits() -> FirecrawlLimits:
+    """Firecrawl's limits from research.yaml, read once a process (no .env needed: they are not secrets)."""
+    return load_research_settings(env={}).firecrawl_limits
 
 
 class FirecrawlGate:
-    """Firecrawl's limits for the whole process: 2 at once, 10 a minute, and its health for the run.
+    """Firecrawl's limits for the whole process: so many at once and a minute (research.yaml), and its health.
 
-    A third request waits briefly for a slot. A full minute is not waited for: the page is skipped. 401 or 402 switches
-    Firecrawl off until the process restarts; 429 cools it for COOL_S.
+    A request past the ones at once waits briefly for a slot. A full minute is not waited for: the page is skipped. 401
+    or 402 switches Firecrawl off until the process restarts; 429 cools it for the configured seconds.
     """
 
     def __init__(
-        self, clock: Callable[[], float] = time.monotonic, *, per_minute: int = PER_MINUTE, wait_s: float = 5.0
+        self,
+        clock: Callable[[], float] = time.monotonic,
+        *,
+        limits: FirecrawlLimits | None = None,
+        per_minute: int | None = None,
+        wait_s: float = 5.0,
     ) -> None:
+        known = limits if limits is not None else firecrawl_limits()
         self._clock = clock
-        self._per_minute = per_minute
+        self._per_minute = per_minute if per_minute is not None else known.per_minute
+        self._cool_s = known.cool_s
         self._wait_s = wait_s
-        self._slots = threading.BoundedSemaphore(AT_ONCE)
+        self._slots = threading.BoundedSemaphore(known.at_once)
         self._lock = threading.Lock()
         self._started: deque[float] = deque()
         self._dead: FailureReason | None = None
@@ -205,11 +269,14 @@ class FirecrawlGate:
                 self._dead = "blocked" if status == 401 else "quota_exhausted"
                 log.warning("research: Firecrawl switched off for this run (HTTP %d)", status)
             elif status == 429:
-                self._cool_until = max(self._cool_until, self._clock() + COOL_S)
+                self._cool_until = max(self._cool_until, self._clock() + self._cool_s)
         self._slots.release()
 
 
-_SHARED_GATE = FirecrawlGate()
+@cache
+def shared_gate() -> FirecrawlGate:
+    """The one gate every Firecrawl client in the process shares, made when first needed."""
+    return FirecrawlGate()
 
 
 class FirecrawlClient:
@@ -230,7 +297,7 @@ class FirecrawlClient:
         self.http = http
         self._api_key = api_key
         self.cache = cache
-        self.gate = gate if gate is not None else _SHARED_GATE
+        self.gate = gate if gate is not None else shared_gate()
         self._now = now
         self.retry = retry if retry is not None else RetryClock()  # the one retry (US-31)
 
@@ -275,6 +342,38 @@ class FirecrawlClient:
         if before_cleaning is not None:
             markdown = before_cleaning(markdown)
         return ReaderText(title if isinstance(title, str) else "", plain_text(markdown))
+
+    def snapshot(self, url: str, usage: SearchUsage) -> PageSnapshot | tuple[FailureReason, str]:
+        """The page's own status, its address after redirects, its title and its raw HTML (rawHtml keeps the page's
+        scripts, so its schema.org data). One credit and one page, as any scrape."""
+        if not self._api_key:
+            return "blocked", "FIRECRAWL_API_KEY is not set"
+        if usage.left("firecrawl_pages") < 1 or usage.left("firecrawl") < SCRAPE_CREDITS:
+            return "quota_exhausted", "a cap is reached"
+        body: dict[str, Any] = {
+            "url": url,
+            "formats": ["rawHtml"],
+            "maxAge": MAX_AGE_MS,
+            "location": {"country": COUNTRY},
+            "timeout": FIRECRAWL_TIMEOUT_MS,
+        }
+        reply = self._post(FIRECRAWL_SCRAPE_URL, body, usage, SCRAPE_CREDITS, page=True)
+        if isinstance(reply, tuple):
+            return reply
+        data = reply.get("data")
+        html = data.get("rawHtml") if isinstance(data, dict) else None
+        meta = data.get("metadata") if isinstance(data, dict) else None
+        if not isinstance(html, str) or not isinstance(meta, dict):
+            return "error", "the reply had no page"
+        status, final, title = meta.get("statusCode"), meta.get("url"), meta.get("title")
+        if isinstance(title, list):
+            title = next((t for t in title if isinstance(t, str)), "")
+        return PageSnapshot(
+            status if isinstance(status, int) and not isinstance(status, bool) else None,
+            final if isinstance(final, str) else "",
+            title if isinstance(title, str) else "",
+            html[:SNAPSHOT_MAX_CHARS],
+        )
 
     def search(self, query: str, region: str, usage: SearchUsage, sites: Sequence[str] = ()) -> SerperResult:
         """The same query Serper would get, as web_search snippets (via search_snippet). Kept 24 hours."""
@@ -347,7 +446,7 @@ class FirecrawlClient:
                 READER_TIMEOUT_S,
                 again,
                 "Firecrawl",
-                rate_limits=False,  # its 429 pauses Firecrawl for the whole process (COOL_S): never retried
+                rate_limits=False,  # its 429 pauses Firecrawl for the whole process (cool_s): never retried
             )
             if isinstance(response, httpx.TimeoutException):
                 return "timeout", f"no reply within {READER_TIMEOUT_S:g}s"
