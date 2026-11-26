@@ -30,6 +30,16 @@ S5-6a (US-14, US-46): each brief also says
   after it, never deleted, so the cache's own expiry still deletes what they hold in time (D-53: some hold Reddit
   titles, links and threads). Its usage counts stay, so the daily caps still hold, and Reddit's own cache
   (`.cache/reddit`) is never touched.
+
+S5-21 (US-34, D-94): `--early` answers the interview as a shopper would, each answer ANSWER_GAP_S after the one
+before, while the session's research and extraction run from the first answer on, as the app's reply route starts them
+(app/early_search.py). The confirm comes EARLY_ANSWERS times ANSWER_GAP_S after the first answer, however many
+questions the interview asked, so every brief gives the job the same time; the search then takes it over. Each brief
+records the time from the confirm to the result (`confirm_to_result_seconds`, in every run), its answers, whether the
+job was taken over, and the pages asked again for keys the interview added (`asked_again`), which `read` leaves out.
+The job's calls and the parser's drops count with the search's.
+`--compare BASE` prints, with no call, each brief's pages read, sources with claims, priced and ranked products and
+time from confirm to result, from BASE and from the record named by --out.
 """
 
 from __future__ import annotations
@@ -43,10 +53,12 @@ import re
 import statistics
 import sys
 import threading
+import time
 from collections import Counter
 from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from functools import partial
 from pathlib import Path
 from time import monotonic
 from typing import Any
@@ -54,9 +66,12 @@ from typing import Any
 import httpx
 
 from app.contracts import (
+    CriteriaSet,
     DataClass,
     ExtractionResult,
+    Intent,
     InterviewState,
+    InterviewStep,
     LLMCallRecord,
     LLMTask,
     Provider,
@@ -95,7 +110,15 @@ APP_COUNTED: dict[str, tuple[str, ...]] = {
     "reddit": ("reddit_archive",),
 }
 MAX_SOURCES = 8
+EARLY_ANSWERS = 8  # S5-21: the simulated shopper's timed answers, each ANSWER_GAP_S after the one before
+ANSWER_GAP_S = 10.0
+COMPARED = ("pages_read", "sources_with_claims", "priced_products", "ranked_products", "confirm_to_result_seconds")
 NOT_FINISHED = ("needs a clarification", "the interview did not finish")
+COLD_REFUSED = "the research cache could not be set aside"  # S5-21: that brief fails alone, never the whole run
+# Windows refuses to move a folder while a file in it is open: a scan of files just written, or a write just ending
+# (S5-21's first early run stopped there). Such a lock lasts moments, so a move is tried again.
+RENAME_TRIES = 5
+RENAME_PAUSE_S = 1.0
 SOURCE = "backend/evals/live_briefs.py, 5 live briefs, --no-db"
 SEARCH_SNIPPET = "search_snippet"  # Source.via for a search result whose page was never fetched (app/extract/stage.py)
 RESEARCH_CACHE = BACKEND / ".cache" / "research"
@@ -220,7 +243,8 @@ class _KeepExtract(_Keep):
 
     def __init__(self, inner: Any, returned: _Returned | None = None) -> None:
         super().__init__(inner)
-        self.counts: dict[str, int] | None = None
+        self.counts: dict[str, int] | None = None  # the first search's: the brief's own reading
+        self.counts_again: dict[str, int] = {}  # S5-21: any later search's, its pages asked again, added up
         self.fallbacks: Counter[str] = Counter()
         self.returned = returned
         self.sources: dict[str, dict[str, Any]] = {}  # per source id: its row (labels and counts only)
@@ -279,8 +303,12 @@ class _KeepExtract(_Keep):
 
     def coverage_note(self, search_id: str) -> str | None:
         read = getattr(self.inner, "counts_for", None)
-        if read is not None:
-            self.counts = read(search_id)
+        found = read(search_id) if read is not None else None
+        if found is not None and self.counts is None:
+            self.counts = dict(found)
+        elif found is not None:  # S5-21: the search asking the early job's pages again: not pages read
+            held = self.counts_again
+            self.counts_again = {key: held.get(key, 0) + found.get(key, 0) for key in {*held, *found}}
         note = getattr(self.inner, "coverage_note", None)
         return note(search_id) if note is not None else None
 
@@ -524,9 +552,20 @@ def set_aside_research_cache(cache: Path = RESEARCH_CACHE, aside: Path = COLD_AS
         if entry.name in KEPT_IN_CACHE:
             continue
         target.mkdir(parents=True, exist_ok=True)
-        entry.rename(target / entry.name)
+        _rename(entry, target / entry.name)
         moved += 1
     return moved
+
+
+def _rename(path: Path, target: Path) -> None:
+    """Move `path`, trying RENAME_TRIES times in all while Windows holds a file in it open."""
+    for _ in range(RENAME_TRIES - 1):
+        try:
+            path.rename(target)
+            return
+        except PermissionError:
+            time.sleep(RENAME_PAUSE_S)
+    path.rename(target)  # the last try: its error goes to the caller
 
 
 def restore_research_cache(cache: Path = RESEARCH_CACHE, aside: Path = COLD_ASIDE) -> int:
@@ -543,7 +582,7 @@ def restore_research_cache(cache: Path = RESEARCH_CACHE, aside: Path = COLD_ASID
             if target.exists():
                 target = target.with_name(f"{path.stem}.aside-{stamp.name}{path.suffix}")
             target.parent.mkdir(parents=True, exist_ok=True)
-            path.rename(target)
+            _rename(path, target)
             back += 1
         for folder in sorted((p for p in stamp.rglob("*") if p.is_dir()), reverse=True):
             folder.rmdir()
@@ -551,12 +590,24 @@ def restore_research_cache(cache: Path = RESEARCH_CACHE, aside: Path = COLD_ASID
     return back
 
 
-def run_brief(category: str, query: str) -> dict[str, Any]:
-    """One brief through the CLI's flow. Numbers and fixed labels only."""
+def run_brief(
+    category: str,
+    query: str,
+    early: bool = False,
+    gap_s: float = ANSWER_GAP_S,
+    pause: Callable[[float], None] = time.sleep,
+) -> dict[str, Any]:
+    """One brief through the CLI's flow. Numbers and fixed labels only.
+
+    `early` (S5-21): the interview is answered on a clock (`gap_s` apart, waited with `pause`) while the session's
+    research and extraction run from the first answer, and the search takes that job over."""
     from app.api.sessions import new_session_id
     from app.cli import run_interview
+    from app.early_search import EarlySearches
     from app.pipeline import InMemoryResultStore, PipelineRunner, default_search_stages
     from app.presearch import make_criteria, start_request
+
+    from .enrich_coverage import Recorder
 
     timings: dict[str, float] = {}
     began = datetime.now(UTC)
@@ -568,18 +619,7 @@ def run_brief(category: str, query: str) -> dict[str, Any]:
     mark = monotonic()
     criteria = make_criteria(intent)
     timings["criteria"] = round(monotonic() - mark, 2)
-    mark = monotonic()
-    session_id = new_session_id()
-    step = run_interview(InterviewState(session_id=session_id, intent=intent, criteria=criteria), interactive=False)
-    timings["interview"] = round(monotonic() - mark, 2)
-    if step.rubric is None:
-        return {"category": category, "finished": False, "why": NOT_FINISHED[1], "presearch_seconds": timings}
-
-    from app.llm import load_llm_config
-    from app.presearch import default_llm
-
-    from .enrich_coverage import Recorder, top5_evidence
-
+    # The stages before the interview: the early job, run during it, reads through the same wrappers as the search.
     stages = default_search_stages()
     stages.decide, stages.enrich = Recorder(stages.decide), Recorder(stages.enrich)  # US-41: before and after
     reader: Any = stages.extract
@@ -588,19 +628,113 @@ def run_brief(category: str, query: str) -> dict[str, Any]:
     extract = _KeepExtract(reader, returned)
     research, match, verify = (_Keep(s) for s in (stages.research, stages.match, stages.verify))
     stages.research, stages.extract, stages.match, stages.verify = research, extract, match, verify
-    dropped = _Dropped(extract)
-    parser_log = logging.getLogger("app.extract.parsing")
-    parser_log.addHandler(dropped)
-    level = parser_log.level
-    parser_log.setLevel(logging.INFO)
-    unwatch = returned.watch()
+
+    def runner() -> PipelineRunner:
+        return PipelineRunner(stages, InMemoryResultStore())
+
+    mark = monotonic()
+    session_id = new_session_id()
+    state = InterviewState(session_id=session_id, intent=intent, criteria=criteria)
+    jobs = EarlySearches(runner, threading.BoundedSemaphore(2), enabled=True)
+    watching = _Watching(extract, returned)  # from here: the early job's calls and drops count for this brief too
     try:
-        request = SearchRequest(session_id=session_id, raw_query=query, rubric=step.rubric)
-        result = PipelineRunner(stages, InMemoryResultStore()).run(request)
+        answers = 0
+        if early:
+            begin = partial(_begin, jobs, session_id, query, intent, criteria)
+            step, answers = timed_interview(state, begin, gap_s, pause)
+        else:
+            step = run_interview(state, interactive=False)
+        timings["interview"] = round(monotonic() - mark, 2)
+        if step.rubric is None:
+            return {"category": category, "finished": False, "why": NOT_FINISHED[1], "presearch_seconds": timings}
+        record = _search_brief(category, query, session_id, step.rubric, jobs, runner(), began, timings, watching)
+        record["answers"] = answers
+        return record
     finally:
-        parser_log.removeHandler(dropped)
-        parser_log.setLevel(level)
-        unwatch()
+        watching.stop()
+        jobs.close()  # a job not taken over stops with its brief
+
+
+class _Watching:
+    """The parser's drop log and the call outcomes, watched from the interview on (S5-21) until stop(), once."""
+
+    def __init__(self, extract: _KeepExtract, returned: _Returned) -> None:
+        self.dropped = _Dropped(extract)
+        self._log = logging.getLogger("app.extract.parsing")
+        self._log.addHandler(self.dropped)
+        self._level = self._log.level
+        self._log.setLevel(logging.INFO)
+        self._undo = returned.watch()
+        self._on = True
+
+    def stop(self) -> None:
+        if self._on:
+            self._on = False
+            self._log.removeHandler(self.dropped)
+            self._log.setLevel(self._level)
+            self._undo()
+
+
+def _begin(jobs: Any, session_id: str, query: str, intent: Intent, criteria: CriteriaSet) -> None:
+    """The first answer is in: the session's job begins, as the app's reply route begins it (a guest's, D-36)."""
+    jobs.start(session_id, None, query, intent, criteria)
+
+
+def timed_interview(
+    state: InterviewState, begin: Callable[[], None], gap_s: float, pause: Callable[[float], None]
+) -> tuple[InterviewStep, int]:
+    """S5-21: every question answered "Skip", as the CLI's own run does, and the number of answers. Each of the first
+    EARLY_ANSWERS answers is followed by a `gap_s` wait, and a shorter interview waits out the rest, so the confirm
+    always comes EARLY_ANSWERS waits after the first answer; any answer past them comes at once. The job begins with
+    the first answer, as in the app."""
+    from app.cli import MAX_TURNS, SKIP_REPLY
+    from app.contracts import InterviewTurn
+    from app.presearch import interview_turn
+
+    step = interview_turn(InterviewTurn(state=state))
+    answers = 0
+    while answers < MAX_TURNS and step.kind != "finished" and step.question is not None:
+        step = interview_turn(InterviewTurn(state=step.state, reply_text=SKIP_REPLY))
+        answers += 1
+        if answers == 1:
+            begin()
+        if answers <= EARLY_ANSWERS:
+            pause(gap_s)
+    if answers:
+        for _ in range(EARLY_ANSWERS - min(answers, EARLY_ANSWERS)):
+            pause(gap_s)
+    return step, answers
+
+
+def _search_brief(
+    category: str,
+    query: str,
+    session_id: str,
+    rubric: Rubric,
+    jobs: Any,
+    search_runner: Any,
+    began: datetime,
+    timings: dict[str, float],
+    watching: _Watching,
+) -> dict[str, Any]:
+    """The confirmed search, taking over the session's early job when there is one, and the brief's record."""
+    from app.llm import load_llm_config
+    from app.presearch import default_llm
+
+    from .enrich_coverage import top5_evidence
+
+    stages = search_runner.stages
+    extract, research, match, verify = stages.extract, stages.research, stages.match, stages.verify
+    reader: Any = extract.inner
+    confirmed = monotonic()
+    claimed, usable = jobs.claim(session_id, None, rubric)
+    job = claimed if usable else None
+    try:
+        request = SearchRequest(session_id=session_id, raw_query=query, rubric=rubric)
+        result = search_runner.run(request, **({"early": job} if job is not None else {}))
+    finally:
+        watching.stop()
+    confirm_to_result = round(monotonic() - confirmed, 2)
     rows, outputs = extract.snapshot()
     used, drops, price_drops = tally(rows)
     with extract._lock:
@@ -619,14 +753,18 @@ def run_brief(category: str, query: str) -> dict[str, Any]:
         returned=used,
         alias_map=match.outputs[0].alias_map if match.outputs else {},
         calls=list(getattr(call_log, "records", [])),
+        search_ids=[claimed.search.ctx.search_id] if claimed is not None else [],  # the job's calls are this brief's
         reserve={data_class: reader.settings.output_tokens(data_class) for data_class in DataClass},
         last_resort={m.provider.value: pool.public_output_tokens for m in pool.members if pool.public_output_tokens},
         spec_keys=set(reader.settings.public_spec_keys),
         settings=reader.settings,
     )
+    record["confirm_to_result_seconds"] = confirm_to_result
+    record["early_taken_over"] = job is not None
+    record["asked_again"] = int(extract.counts_again.get("sent", 0))
     record["presearch_seconds"] = timings
     record["steps"] = steps(record, result)
-    record["top5_evidence"] = top5_evidence(stages.decide, stages.enrich)  # type: ignore[arg-type]
+    record["top5_evidence"] = top5_evidence(stages.decide, stages.enrich)
     record["attempts_by_minute"] = attempts_by_minute(list(getattr(call_log, "records", [])), began)
     record["answer_sizes"] = answer_sizes(list(getattr(call_log, "records", [])), began)
     record["fact_call"] = fact_calls(list(getattr(call_log, "records", [])), began)
@@ -752,6 +890,7 @@ def funnel(
     price_dropped: Mapping[str, int] | None = None,
     per_source: Mapping[str, Mapping[str, Any]] | None = None,
     calls: Sequence[LLMCallRecord],
+    search_ids: Collection[str] = (),
     reserve: Mapping[DataClass, int],
     spec_keys: Collection[str],
     settings: ExtractSettings | None = None,
@@ -791,7 +930,8 @@ def funnel(
         for c in kept
         if product_of(c.product_mention) is None
     )
-    own = [c for c in calls if c.search_id == result.search_id]
+    ids = {result.search_id, *search_ids}  # S5-21: and the early job's, whose reading this search took over
+    own = [c for c in calls if c.search_id in ids]
     outcomes = Counter[str](c.outcome for c in own)
     by_provider: dict[str, Counter[str]] = {}
     by_provider_outcome: dict[str, Counter[str]] = {}
@@ -1100,6 +1240,7 @@ ALLOWED_TEXT = (
         *CATEGORIES,
         *BRIEF_CATEGORIES,
         *NOT_FINISHED,
+        COLD_REFUSED,
         "model",
         "fuzzy",
         "learned",
@@ -1159,6 +1300,8 @@ class Options:
     budget: dict[str, int]
     rebuild: bool
     cold: bool = False  # S5-6a: each brief starts on an empty research cache
+    early: bool = False  # S5-21: a timed interview, with research and extraction begun at its first answer
+    compare: Path | None = None  # S5-21: print the comparison with this record, and make no call
     briefs: tuple[tuple[str, str], ...] = ()  # US-41: (category, request) pairs from a file, in place of QUERIES
 
 
@@ -1201,6 +1344,14 @@ def options(argv: list[str] | None = None) -> Options:
         help="before each brief, move the research cache's folders aside (never deleted; its usage counts stay)",
     )
     parser.add_argument(
+        "--early",
+        action="store_true",
+        help=f"answer {EARLY_ANSWERS} questions {ANSWER_GAP_S:g} s apart; research and extraction begin at the first",
+    )
+    parser.add_argument(
+        "--compare", type=Path, default=None, help="print BASE against the --out record, brief by brief; no call"
+    )
+    parser.add_argument(
         "--briefs",
         type=Path,
         default=None,
@@ -1211,7 +1362,15 @@ def options(argv: list[str] | None = None) -> Options:
     args = parser.parse_args(argv)
     budget = {service: int(getattr(args, f"budget_{service}")) for service in BUDGET}
     return Options(
-        args.out, tuple(args.categories), args.max_sources, budget, args.rebuild, args.cold, _briefs(args.briefs)
+        args.out,
+        tuple(args.categories),
+        args.max_sources,
+        budget,
+        args.rebuild,
+        args.cold,
+        briefs=_briefs(args.briefs),
+        early=args.early,
+        compare=args.compare,
     )
 
 
@@ -1240,19 +1399,23 @@ def run_all(opts: Options, budget: LiveBudget, run: Callable[[str, str], dict[st
         left = len(runs) - index
         share = {service: budget.left(service) // left for service in opts.budget}
         before = dict(budget.used)
-        moved = set_aside_research_cache() if opts.cold else 0
-        print(f"\n== {category} (share {share}){f', research cache set aside ({moved} folders)' if opts.cold else ''}")
+        print(f"\n== {category} (share {share})")
         with budget.share(**share):
+            why = COLD_REFUSED
             try:
+                if opts.cold:
+                    print(f"   research cache set aside ({set_aside_research_cache()} folders)")
+                why = NOT_FINISHED[1]
                 brief = run(category, query)
             except Exception as exc:  # one brief failing must not lose the others
                 print(f"   failed: {type(exc).__name__}")
-                brief = {"category": category, "finished": False, "why": NOT_FINISHED[1]}
+                brief = {"category": category, "finished": False, "why": why}
             finally:
                 if opts.cold:
-                    restore_research_cache()
+                    _restore_or_say()
         brief["calls"] = {service: budget.used.get(service, 0) - before.get(service, 0) for service in opts.budget}
         brief["cache"] = "cold" if opts.cold else "as_found"
+        brief["early"] = opts.early
         briefs.append(brief)
         print(f"   {json.dumps({k: v for k, v in brief.items() if k in ('products', 'methods', 'calls')})}")
     return {
@@ -1264,6 +1427,35 @@ def run_all(opts: Options, budget: LiveBudget, run: Callable[[str, str], dict[st
         "measures": measures(briefs, SOURCE, opts.max_sources),
         "briefs": briefs,
     }
+
+
+def compared(base: Mapping[str, Any], early: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """S5-21: each category both records ran, with COMPARED from each. A record from before S5-21 has no confirm time:
+    its search's own seconds stand for it, as its search began at the confirm."""
+
+    def row(brief: Mapping[str, Any]) -> dict[str, Any]:
+        found = brief.get("steps", {})
+        seconds = brief.get("confirm_to_result_seconds", brief.get("search_seconds"))
+        values = (found.get("read"), found.get("extracted"), found.get("with_a_price"), found.get("ranked"), seconds)
+        return dict(zip(COMPARED, values, strict=True))
+
+    def by_category(record: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+        return {b["category"]: row(b) for b in record.get("briefs", []) if b.get("finished")}
+
+    before, after = by_category(base), by_category(early)
+    return [
+        {"category": category, "base": before[category], "early": after[category]}
+        for category in before
+        if category in after
+    ]
+
+
+def _restore_or_say() -> None:
+    """Put the set-aside files back. One still locked stays aside, and the next brief's restore tries it again."""
+    try:
+        restore_research_cache()
+    except OSError as exc:
+        print(f"   some set-aside cache files are not back yet ({type(exc).__name__}); the next restore tries again")
 
 
 def _write(path: Path, record: Mapping[str, Any]) -> None:
@@ -1282,6 +1474,11 @@ def main(argv: list[str] | None = None) -> int:
     opts = options(argv)
     if isinstance(sys.stdout, io.TextIOWrapper):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if opts.compare is not None:
+        base = json.loads(opts.compare.read_text(encoding="utf-8"))
+        early = json.loads(opts.out.read_text(encoding="utf-8"))
+        print(json.dumps(compared(base, early), indent=2))
+        return 0
     if opts.rebuild:
         recorded = json.loads(opts.out.read_text(encoding="utf-8"))
         recorded["measures"] = measures(recorded["briefs"], SOURCE, _recorded_cap(recorded, opts.max_sources))
@@ -1295,7 +1492,7 @@ def main(argv: list[str] | None = None) -> int:
     os.environ["MATCHER"] = "fuzzy"  # the default (S3-15), stated so a developer's .env can't change it
     budget = LiveBudget(opts.budget)
     budget.install()  # kept until the process ends: a stage thread still running after a brief counts too
-    record = run_all(opts, budget, run_brief)
+    record = run_all(opts, budget, partial(run_brief, early=opts.early))
     leaked = text_in(record)
     if leaked:  # never write text that could be a quote, a name or a link
         print(f"refused to write: {len(leaked)} strings are not fixed labels, at {sorted(set(text_paths(record)))}")

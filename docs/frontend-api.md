@@ -185,6 +185,17 @@ retry-after: 30
 {"detail":"ShopSense is busy with other searches right now. Please try again in a moment."}
 ```
 
+Nothing changes for the frontend when the search began during the interview (US-34). Once the criteria are final and the
+shopper has answered a question that doesn't finish the interview, the backend starts that session's research and
+extraction on one of these same workers, so the search has more time with the AI services. The confirm takes it over
+when it is the same session, the same owner (signed in, or the same guest) and the same category, use, budget, region
+and criteria; it never reads a page twice. Otherwise the normal search runs, on the job's worker if it still had one.
+Either way the stream sends every stage, `started` then `done`: research, and extraction when it was already done, just
+come straight away. The 150 seconds still count from the confirm. A job holding a worker while every other one is busy
+can make another shopper's confirm get the 503 above; it gives the worker back when its reading ends, at the latest 5
+minutes after it began. A confirm that gets the 503 keeps its own job for the next try. `EARLY_RESEARCH=off` turns this
+off.
+
 ### Following its progress
 
 ```ts

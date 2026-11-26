@@ -89,7 +89,7 @@ from app.enrich.targets import fact_targets, readable_price, shared_targets
 from app.entities import ModelMatchStage, alias_keys
 from app.explain import ExplainStage
 from app.extract import default_extract_stage
-from app.extract.schedule import SendWindow, read_in_lanes
+from app.extract.schedule import SendWindow, public_page, read_in_lanes
 from app.extract.settings import load_extract_settings
 from app.llm.errors import AuthFailed, InvalidOutput, ProviderTimeout, RateLimited, ServerError
 from app.research import default_research_stage
@@ -166,6 +166,11 @@ SOMETHING_WENT_WRONG = "something went wrong"
 
 ProgressStatus = Literal["started", "done", "fallback", "failed"]
 ProgressCallback = Callable[[ProgressEvent], None]
+# US-34 (D-94): a search taking over reading begun during the interview waits this long past its own window for the
+# reads still going, each of which ends within its own limit.
+JOIN_GRACE_S = 1.0
+EARLY_UNFINISHED = "the reading begun during the interview did not finish in time"
+READ_HERE = "the reading begun during the interview did not finish, so this search read its sources"
 
 
 def new_search_id() -> str:
@@ -504,6 +509,7 @@ class PipelineRunner:
         search_id: str | None = None,
         progress: ProgressCallback | None = None,
         cancel: CancelFlag | None = None,
+        early: EarlyHandover | None = None,
     ) -> SearchResult:
         """Run the search, save it and return it. The CLI and POST /api/search pass only `request`.
 
@@ -511,12 +517,18 @@ class PipelineRunner:
         a `cancel` flag. Cancelling is cooperative: the flag is read before each stage, before each source extract
         starts, and before the save, so a stage already running finishes first. Then SearchCancelled is raised, and
         nothing is saved. Once the save has started, a cancel is refused (CancelFlag.request answers False).
+
+        `early`: research and extraction begun during the interview (US-34, D-94). Research is taken over as it is, and
+        extraction once it ends, within this search's own window; both still report, as stages already done. The
+        search's 150 seconds count from here, as before.
         """
         # P-38: the stages have the whole limit; the save comes after it, with its own (so a search that runs out of
         # time is still saved, and a slow save never cuts the search short).
         ctx = StageContext(search_id=search_id or new_search_id(), time_limit_s=self.search_time_limit_s)
         started_at = datetime.now(UTC)
-        search = _Search(self.stages, self.time_limits, request, ctx, cancel, self.extract_workers, self.aliases)
+        search = _Search(
+            self.stages, self.time_limits, request, ctx, cancel, self.extract_workers, self.aliases, early=early
+        )
         search.prefetch_aliases()  # read in the background while research runs: match never waits for the database
         events = _Progress(ctx.search_id, progress)
 
@@ -575,6 +587,28 @@ class PipelineRunner:
         except Exception as exc:  # only the error's type: its text could hold a connection string
             log.error("could not save search %s: %s", result.search_id, type(exc).__name__)
             return False
+
+
+class EarlyHandover(Protocol):
+    """Research and extraction begun while the shopper answered the interview (US-34, D-94), for the confirmed search
+    to take over: app/early_search.py's job. The search never runs research again, and reads no source twice."""
+
+    def researched(self) -> tuple[_Search, StageReport]:
+        """The early search, its research done, and research's report."""
+        ...
+
+    def extracted(self, until: float, wait_s: float, stopped: Callable[[], bool]) -> StageReport | None:
+        """Extraction's report once it has ended. It sends nothing new after `until` (the monotonic clock), and is
+        waited for at most `wait_s`, or until `stopped` (the search's cancel) says so. None when it didn't end with a
+        report: the search then reads the sources itself, if its window is still open."""
+        ...
+
+
+def early_search(runner: PipelineRunner, request: SearchRequest, cancel: CancelFlag, limit_s: float) -> _Search:
+    """A search's research and extraction, begun before the shopper confirms it (US-34, D-94): the same stages, limits,
+    caps and data-class rules as the search's own, on `request`'s early rubric, with `limit_s` for the reading."""
+    ctx = StageContext(search_id=new_search_id(), time_limit_s=limit_s)
+    return _Search(runner.stages, runner.time_limits, request, ctx, cancel, runner.extract_workers, runner.aliases)
 
 
 def _stop_if_cancelled(cancel: CancelFlag | None, search_id: str) -> None:
@@ -657,9 +691,12 @@ class _Search:
         cancel: CancelFlag | None = None,
         extract_workers: int = EXTRACT_WORKERS,
         aliases: db.AliasStore | None = None,
+        early: EarlyHandover | None = None,
     ) -> None:
         self.stages = stages
         self.cancel = cancel
+        self.early = early  # reading begun during the interview, taken over by research and extract (US-34)
+        self._early: _Search | None = None
         self.extract_workers = extract_workers
         self.aliases = aliases if aliases is not None else db.shared_memory_aliases()
         self.decide_is_sample = False  # set when the decide stub made the ranking: decide fell back to it
@@ -749,11 +786,21 @@ class _Search:
     # Each step runs one stage, keeps its output and returns its report.
 
     def research(self) -> StageReport:
+        if self.early is not None:  # done during the interview, on what it couldn't change (US-34, D-94)
+            self._early, report = self.early.researched()
+            self.research_out, self.sample_sources = self._early.research_out, self._early.sample_sources
+            self.used_placeholder = self.used_placeholder or self._early.used_placeholder  # the sample note shows
+            return report
         self.research_out, report = self._run(self.stages.research, ResearchInput(rubric=self.rubric))
         self.sample_sources = made_by_placeholder(self.stages.research, report)
         return report
 
     def extract(self) -> StageReport:
+        if self.early is not None:
+            return self._extract_early(self.early)
+        return self._extract_sources()
+
+    def _extract_sources(self) -> StageReport:
         sources = _require(self.research_out, "research").sources
         if not sources:
             return _skipped(StageName.EXTRACT, "there were no sources to read")
@@ -841,6 +888,105 @@ class _Search:
         if not done:
             return _skipped(StageName.EXTRACT, "the search stopped before any source was read")
         return _merge(StageName.EXTRACT, [report for _, report in done], int((monotonic() - started) * 1000))
+
+    def _extract_early(self, early: EarlyHandover) -> StageReport:
+        """Extraction begun during the interview (US-34, D-94): waited for inside this search's own send window, then
+        taken over as it is. A rule key or a ruled-out feature the interview added, with no claim yet, is then asked of
+        the pages that gave claims, in the time left (_read_added_keys); without time it stays Unknown (DR-09)."""
+        started = monotonic()
+        window = self._send_window()
+        open_s = window.seconds_open()
+
+        def cancelled() -> bool:
+            return self.cancel is not None and self.cancel.requested
+
+        wait_s = open_s + self.limits[StageName.EXTRACT] + JOIN_GRACE_S
+        report = early.extracted(monotonic() + open_s, wait_s, cancelled)
+        done = self._early
+        if report is None or done is None:
+            if cancelled() or not self._send_window().is_open():
+                return _skipped(StageName.EXTRACT, EARLY_UNFINISHED)
+            # The job failed outside its stage: this search reads its sources in the time left (build rule 9).
+            own = self._extract_sources()
+            notes = [*own.notes, READ_HERE]
+            return StageReport.model_validate({**own.model_dump(), "notes": notes})
+        self.used_placeholder = self.used_placeholder or done.used_placeholder
+        self.claims, self.mentions = list(done.claims), list(done.mentions)
+        self.extract_note, self.llm_unavailable = done.extract_note, done.llm_unavailable
+        self.recommender_counts = list(done.recommender_counts)
+        _hook("keep_claims", getattr(self.stages.extract, "keep_claims", None), self.claims)  # their sources open
+        more = self._read_added_keys()
+        if not more:
+            return report
+        asked = _merge(StageName.EXTRACT, more, int((monotonic() - started) * 1000))
+        worst = max((report, asked), key=lambda r: _SEVERITY[r.status])
+        reasons = [r.fallback_reason for r in (report, asked) if r.fallback_reason]
+        return StageReport(
+            stage=StageName.EXTRACT,
+            status=worst.status,
+            duration_ms=report.duration_ms + asked.duration_ms,
+            fallback_reason="; ".join(reasons)[:MAX_REASON_CHARS] if reasons else None,
+            notes=[*report.notes, f"asked {len(more)} sources again for keys added in the interview"],
+        )
+
+    def _read_added_keys(self) -> list[StageReport]:
+        """The rule keys and ruled-out features the final rubric has and no claim covers yet (US-34, D-94 item 3),
+        asked of the public pages that gave claims, within this search's window. Only a key a public call can ask for
+        counts (a known spec key, as extraction asks: app/extract/prompts.py), so no page is read again for nothing,
+        and only claims on those keys are kept: the criteria were read already. Keys and names from our config only."""
+        ask_for_specs = getattr(self.stages.extract, "ask_for_specs", None)
+        if ask_for_specs is None:
+            return []
+        settings = getattr(self.stages.extract, "settings", None)
+        askable = set(getattr(settings, "public_spec_keys", None) or load_extract_settings().public_spec_keys)
+        claimed = {claim.criterion_key for claim in self.claims}
+        own = set(self.weight_keys)  # read under the criteria already
+        rules = [key for key in self.rule_keys if key in askable and key not in own and key not in claimed]
+        takes_features = _takes(ask_for_specs, "features")
+        features = [n for n in self.features if feature_key(n) not in claimed] if takes_features else []
+        wanted = set(rules) | {key for key in (feature_key(name) for name in features) if key is not None}
+        if not wanted:
+            return []
+        cited = {claim.source_id for claim in self.claims}
+        research = _require(self.research_out, "research")
+        sources = [source for source in research.sources if source.id in cited and public_page(source)]
+        if not sources:
+            return []
+        if takes_features:
+            _hook("ask_for_specs", ask_for_specs, self.ctx.search_id, rules, False, features=features)
+        else:
+            _hook("ask_for_specs", ask_for_specs, self.ctx.search_id, rules, False)
+        label = self.rubric.category[:MAX_CATEGORY_LABEL]
+        window = self._send_window()
+        stage = self.stages.extract
+        _hook(
+            "open_window", getattr(stage, "open_window", None), self.ctx.search_id, monotonic() + window.seconds_open()
+        )
+
+        def read(source: Source) -> tuple[ExtractionResult | None, StageReport] | None:
+            if self.out_of_time or self.ctx.seconds_left <= 0 or (self.cancel is not None and self.cancel.requested):
+                return None
+            inp = ExtractInput(source=source, criterion_keys=self.weight_keys, category_label=label)
+            return self._run(stage, inp)
+
+        sent = read_in_lanes(sources, read, workers=min(self.extract_workers, len(sources)), window=window, room=None)
+        added = [
+            claim for out, _ in sent.results if out is not None for claim in out.claims if claim.criterion_key in wanted
+        ]
+        self.claims += added
+        _hook("keep_claims", getattr(stage, "keep_claims", None), added)
+        note = self._stage_note(stage)  # the asking again's own counts, for this search
+        if note:
+            self.extract_note = f"{self.extract_note} {note}" if self.extract_note else note
+        return [report for _, report in sent.results]
+
+    def _send_window(self) -> SendWindow:
+        """New sends while the time left covers one source's limit and every later stage's (build rule 9)."""
+        return SendWindow(
+            seconds_left=lambda: self.ctx.seconds_left,
+            later_stages_s=self._later_stages_s(),
+            source_s=self.limits[StageName.EXTRACT],
+        )
 
     def _later_stages_s(self) -> float:
         """Every stage after extraction, at its own limit: what the send window leaves them (build rule 9)."""

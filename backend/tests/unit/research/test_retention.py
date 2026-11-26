@@ -41,7 +41,7 @@ from app.research.dedupe import merge_near_duplicates
 from app.research.reddit.archive import add_comments
 from app.research.reddit.cache import SERVE_MARGIN, RedditCache, serve_limit
 from app.research.retention import REDDIT_TEXT_NOT_KEPT, VIDEO_TEXT_NOT_KEPT, without_reddit_text
-from app.search_run_limits import SWEEP_EVERY_S
+from app.search_run_limits import EARLY_KEEP_S, SWEEP_EVERY_S
 from app.verify import TrustVerifyStage
 from tests.fakes.live_run import use_live_shaped_run
 from tests.fakes.reddit import NOW
@@ -1016,13 +1016,13 @@ def test_a_poster_filling_a_thread_with_merged_lines_cannot_push_the_row_past_it
 @pytest.mark.parametrize(
     ("keep", "limit"),
     [
-        # 24 hours less the keep-time, the longest search (150 s), its save (15 s and the 1 s grace, P-38), one
-        # housekeeping tick (600 s) and the margin (60 s)
-        ("", timedelta(hours=23, minutes=16, seconds=14)),
-        ("30", timedelta(hours=23, minutes=16, seconds=14)),
-        ("120", timedelta(hours=21, minutes=46, seconds=14)),
-        ("1", timedelta(hours=23, minutes=45, seconds=14)),
-        ("99999", timedelta(hours=21, minutes=46, seconds=14)),  # brought inside 1 to 120
+        # 24 hours less early reading's keep time (15 min, US-34), the keep-time, the longest search (150 s), its save
+        # (15 s and the 1 s grace, P-38), one housekeeping tick (600 s) and the margin (60 s)
+        ("", timedelta(hours=23, minutes=1, seconds=14)),
+        ("30", timedelta(hours=23, minutes=1, seconds=14)),
+        ("120", timedelta(hours=21, minutes=31, seconds=14)),
+        ("1", timedelta(hours=23, minutes=30, seconds=14)),
+        ("99999", timedelta(hours=21, minutes=31, seconds=14)),  # brought inside 1 to 120
     ],
 )
 def test_the_cache_stops_serving_in_time_for_a_finished_run_to_go(keep: str, limit: timedelta, monkeypatch) -> None:  # type: ignore[no-untyped-def]
@@ -1042,10 +1042,11 @@ def test_a_cached_answer_and_a_run_that_read_it_last_are_gone_by_24_hours() -> N
     longest_search = timedelta(seconds=SEARCH_TIME_LIMIT_S)
     longest_save = timedelta(seconds=15 + 1)  # after the 150 s (P-38): DB_SAVE_TIMEOUT_SECONDS at most, and the grace
     one_tick = timedelta(seconds=SWEEP_EVERY_S)  # on an idle server the timer drops the run up to a tick late
+    early = timedelta(seconds=EARLY_KEEP_S)  # held by reading begun during the interview, before the search (US-34)
     for keep in ("1", "30", "120"):
         kept = timedelta(minutes=float(keep))
         limit = serve_limit({"SEARCH_RUN_KEEP_MINUTES": keep})
-        assert limit + longest_search + longest_save + kept + one_tick + SERVE_MARGIN == timedelta(hours=24)
+        assert limit + early + longest_search + longest_save + kept + one_tick + SERVE_MARGIN == timedelta(hours=24)
 
 
 def test_a_review_page_still_keeps_24_hours(tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]

@@ -1097,10 +1097,11 @@ App-only, read-only sign-in: no Reddit password is ever used.
 **Keeping Reddit data.** D-53 allows it at most 24 hours, counted from when it was read, and covers every copy we hold. Storing
 a thread again with its comments doesn't restart the clock.
 
-- **The cache** serves an answer only while it is younger than 24 hours less `SEARCH_RUN_KEEP_MINUTES`, less the longest a
-  search may take (150 seconds), its save after that (`DB_SAVE_TIMEOUT_SECONDS`, 15 seconds, and a 1-second grace),
-  one tick of the backend's own timer (10 minutes) and a 60-second margin: 23 hours 16 minutes 14 seconds by default
-  (`serve_limit()`). So does a cached web search, kept as one answer with the titles and links of its
+- **The cache** serves an answer only while it is younger than 24 hours less the time reading begun during the
+  interview may hold it (15 minutes, US-34: a job is dropped 15 minutes after it began, taken over or not), less
+  `SEARCH_RUN_KEEP_MINUTES`, less the longest a search may take (150 seconds), its save after that
+  (`DB_SAVE_TIMEOUT_SECONDS`, 15 seconds, and a 1-second grace), one tick of the backend's own timer (10 minutes) and a
+  60-second margin: 23 hours 1 minute 14 seconds by default (`serve_limit()`). So does a cached web search, kept as one answer with the titles and links of its
   results on reddit.com, which are Reddit text (`backend/.cache/research/searches` and `search_text`). Review pages and
   robots files keep their full 24 hours: they hold no Reddit text, as reddit.com is never read as a page.
 - **A finished run** stays in the server's memory for `SEARCH_RUN_KEEP_MINUTES`, limited to 1 to 120 minutes, and that copy does

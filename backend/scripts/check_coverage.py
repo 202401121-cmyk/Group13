@@ -28,6 +28,7 @@ CORE_MODULES = (
     "app/contracts",
     "app/criteria",
     "app/db",
+    "app/early_search.py",  # research begun during the interview (US-34)
     "app/enrich",
     "app/entities",
     "app/explain",

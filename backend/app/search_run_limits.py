@@ -23,6 +23,9 @@ log = logging.getLogger(__name__)
 DEFAULT_KEEP_MINUTES = 30.0
 MIN_KEEP_MINUTES, MAX_KEEP_MINUTES = 1.0, 120.0
 SWEEP_EVERY_S = 600.0  # the team's choice (US-12): expired Reddit text goes within ten minutes, search or no search
+# US-34 (D-94): research and extraction begun during the interview are kept at most this long, taken over or not.
+# The Reddit cache allows for it (serve_limit()), so Reddit text an early job holds still goes within 24 hours.
+EARLY_KEEP_S = 15 * 60.0
 
 
 def environment() -> dict[str, str]:
