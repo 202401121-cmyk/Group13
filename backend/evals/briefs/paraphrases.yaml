@@ -1,0 +1,122 @@
+# US-51 paraphrase consistency (D-55, by-hand job 3): 10 pairs of shopping requests, written by people.
+# The two requests of a pair ask for the same thing in different words. Both run live through the real pipeline, and
+# the same simulated shopper (S4-3's simulator, seeded by the pair's id) answers both interviews, so the pair differs
+# only in wording. Target: the top pick matches in at least 8 of the 10 pairs.
+#
+# Rules:
+# - made-up requests only: no real person, address or contact detail;
+# - category: one of smartphone, air_fryer, laptop, smartwatch, earbuds, headphones;
+# - id: short, unique, letters, digits and dashes (p01 to p10 is fine);
+# - a and b: plain English, as a shopper would type them; same budget and same needs, reworded.
+#
+# Fill in written_by with your names, then the pairs. Example of one entry (not counted, as it is a comment):
+#   - id: p01
+#     category: earbuds
+#     a: "wireless earbuds under 3000 for the gym"
+#     b: "I need workout earphones, no wires, budget around 3k"
+
+
+written_by:
+  - Rushiraj Navar
+  - Om Pandya
+
+pairs:
+  - id: p01
+    category: smartphone
+    a: "Can you suggest a phone within ₹20,000 for everyday use? I mostly use WhatsApp, make calls and use Google Maps. Battery life is my biggest priority, followed by smooth performance."
+    b: "I need a new smartphone that can handle navigation, messaging on WhatsApp and regular phone calls without slowing down. Having a battery that lasts well matters more to me than speed, and I can't spend more than 20k."
+
+  - id: p02
+    category: air_fryer
+    a: "Looking for an air fryer around ₹7,000 for a family of four. We'll mainly use it for frozen snacks and cooking vegetables. It should have enough space for the whole family and be easy to clean afterwards."
+    b: "We're four people at home and want to spend roughly 7k on an air fryer. I'd like to prepare vegetables and frozen snacks without having to cook everything in several batches. Cleaning it after cooking shouldn't be a hassle either."
+
+  - id: p03
+    category: laptop
+    a: "I'm starting college and need a laptop for programming and regular coursework. My maximum budget is ₹60,000. I want something lightweight with good battery backup since I'll be carrying it to classes."
+    b: "What laptop would you recommend for a college student who needs to code and complete assignments? I'll be taking it to class every day, so it shouldn't weigh me down or need frequent charging. I can spend up to 60k."
+
+  - id: p04
+    category: smartwatch
+    a: "I want a smartwatch within ₹5,000 to keep track of my daily steps and sleep. Good battery life is especially important because I don't want another device that needs charging every night."
+    b: "Is there a decent smartwatch costing no more than 5k that can monitor how much I walk each day and how I sleep? My main priority is getting good battery backup rather than having to plug it in every evening."
+
+  - id: p05
+    category: earbuds
+    a: "Need wireless earbuds for gym workouts with a maximum budget of ₹3,000. They should resist sweat and fit securely without becoming uncomfortable while exercising."
+    b: "My budget is 3k at most for a pair of wireless earbuds. I move around quite a bit at the gym, so I need something that won't keep slipping out, feels comfortable during workouts and can handle sweaty exercise sessions."
+
+  - id: p06
+    category: headphones
+    a: "I'm looking for wireless over-ear headphones within ₹8,000 for long train journeys. Noise cancellation and comfort are the two things I care about most since I'll be wearing them for several hours."
+    b: "Can you recommend Bluetooth headphones that cover the ears completely? I travel by train for hours and would prefer something comfortable that cancels out the surrounding noise. My spending limit is 8k, and those two features matter most."
+
+  - id: p07
+    category: smartphone
+    a: "Planning to spend around ₹35,000 on a smartphone, mainly for taking photos and videos of my kids indoors. A good camera in indoor lighting and plenty of storage for those memories are my priorities."
+    b: "Most of the pictures and videos I take are of my children at home. I'd like a phone that captures them well even in indoor lighting and has enough space to keep lots of photos and recordings. I'm thinking of a budget of roughly 35k."
+
+  - id: p08
+    category: laptop
+    a: "Suggest a laptop costing no more than ₹80,000 for regular photo editing and occasional 1080p video editing. A colour-accurate display is particularly important to me. I won't be using it for gaming."
+    b: "I'm not buying a laptop to play games. It'll mainly be used to edit photos and sometimes work on Full HD videos. Getting colours right on the screen matters a lot for my work, and 80k is the most I can spend."
+
+  - id: p09
+    category: air_fryer
+    a: "I live alone and need a small air fryer within ₹4,500 for reheating leftovers and making small portions of snacks. My kitchen has limited counter space, and I'd prefer simple controls."
+    b: "What's a good air fryer for someone cooking for just one person? I mostly want to warm up leftover food and prepare the occasional small serving of snacks. It needs to fit on a crowded kitchen counter, be straightforward to operate and cost no more than 4,500 rupees."
+
+  - id: p10
+    category: earbuds
+    a: "Looking for wireless earbuds around ₹5,000 for taking work calls during my daily commute and listening to podcasts. Clear microphone quality in noisy surroundings is my biggest concern, followed by comfort."
+    b: "I listen to podcasts and attend work calls while travelling to and from work. I'd like wireless earbuds that let the person on the other end hear me clearly despite background noise. A comfortable fit comes next on my priority list, and I'm looking to spend about 5k."
+    
+  - id: p11
+    category: smartphone
+    a: "I want to buy a smartphone for my mother without spending more than ₹15,000. She mainly makes calls and watches YouTube. A large, easy-to-read screen and a loud, clear speaker are more important than advanced features."
+    b: "Could you recommend a phone for someone who mostly talks on the phone and watches YouTube videos? It's for my mother, so I'd rather have a big readable display and clear, sufficiently loud sound than fancy features. My maximum budget is 15k."
+
+  - id: p12
+    category: laptop
+    a: "Looking for a laptop around ₹45,000 for working from home. Most of my work involves Excel, emails and video meetings. A comfortable keyboard and a decent webcam would be my main priorities."
+    b: "My daily office work at home involves replying to emails, working with Excel sheets and joining video calls. I need a laptop that's comfortable to type on and has a reasonably good camera for meetings. I'm planning to spend roughly 45k."
+
+  - id: p13
+    category: air_fryer
+    a: "Can you suggest an air fryer within ₹10,000 that I can use for cooking chicken and baking small batches of cookies? Adjustable temperature and a cooking timer are essential because different recipes need different settings."
+    b: "I'd like to try making chicken dishes and small batches of homemade cookies in an air fryer. I need to be able to set the cooking temperature and duration according to the recipe. What would you recommend with a spending limit of 10k?"
+
+  - id: p14
+    category: smartwatch
+    a: "I'm looking for a smartwatch around ₹8,000 for outdoor running. It must have built-in GPS so I can leave my phone at home, and the display should be clearly visible in sunlight."
+    b: "I don't enjoy carrying my phone on outdoor runs, but I still want to record my running route. Can you recommend a smartwatch with its own GPS and a screen that's easy to read outdoors in bright sunlight? My budget is approximately 8k."
+
+  - id: p15
+    category: earbuds
+    a: "Need wireless earbuds costing no more than ₹2,500 for watching movies on my phone and casual mobile gaming. I mainly care about low audio delay and a stable Bluetooth connection."
+    b: "I hate it when the sound doesn't match what's happening on screen or the connection keeps dropping. I'm after Bluetooth earbuds for watching films and playing games casually on my phone, with minimal audio lag and reliable connectivity. I have a maximum budget of 2,500 rupees."
+
+  - id: p16
+    category: headphones
+    a: "I'm looking for wired headphones within ₹3,500 for attending online classes and making voice calls on my laptop. They must have a clear microphone and should be comfortable enough to wear for several hours."
+    b: "My ears get uncomfortable when I wear headphones for hours during online lectures and calls. I need a comfortable wired pair to use with my laptop, with a microphone that picks up my voice clearly. Can't go beyond 3.5k."
+
+  - id: p17
+    category: smartphone
+    a: "Planning to spend around ₹45,000 on a smartphone mainly for gaming. I usually play for long sessions, so consistent gaming performance and avoiding excessive heating matter more to me than camera quality."
+    b: "I'm after a gaming-friendly phone in the 45k range. The camera isn't a major concern for me. What matters is that games continue running smoothly during extended sessions without the phone getting excessively hot."
+
+  - id: p18
+    category: laptop
+    a: "I need a laptop with a maximum budget of ₹95,000 for software development, running virtual machines and multitasking. It must have at least 16 GB of RAM with the option to upgrade it later."
+    b: "I often have several development tools and virtual machines running at the same time. I'd like a laptop that comes with a minimum of 16 GB memory and lets me increase the RAM in the future. My spending limit is 95k."
+
+  - id: p19
+    category: headphones
+    a: "Suggest some wired over-ear headphones around ₹12,000 for listening to music at home. I prefer balanced sound rather than exaggerated bass, and I'd like replaceable ear cushions so I can keep using them for years."
+    b: "I'm after a pair of full-size wired headphones for enjoying music at home, with a budget of roughly 12k. I don't want the bass overpowering everything else. I'd prefer a balanced sound and ear pads that can be replaced when they wear out."
+
+  - id: p20
+    category: smartwatch
+    a: "Looking for a basic smartwatch within ₹2,500 that lets me answer phone calls through Bluetooth and receive message notifications. I prefer simple controls because I don't want to deal with complicated menus."
+    b: "I mainly want a watch that shows me incoming messages and allows me to take calls from my connected phone over Bluetooth. It should be straightforward to operate without confusing menus. What's a good basic smartwatch for a maximum of 2.5k?"

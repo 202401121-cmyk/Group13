@@ -1,0 +1,271 @@
+# The 20-brief study (D-55, by-hand job 3; #83, also used by S5-7 and US-51): 20 shopping requests written by people,
+# across 4 categories, 2 of them "unseen" (not among the six the app's data covers best:
+# smartphone, air_fryer, laptop, smartwatch, earbuds, headphones). Five briefs a category.
+#
+# Rules:
+# - made-up requests only: no real person, address or contact detail;
+# - id: short, unique, letters, digits and dashes (b01 to b20 is fine);
+# - category: the product kind in lower case with underscores (for example laptop, air_fryer, electric_kettle);
+# - unseen: true for the 2 categories outside the six above, false otherwise;
+# - request: plain English, as a shopper would type it, with a budget.
+#
+# Fill in written_by, then the briefs. Example of one entry (not counted, as it is a comment):
+#   - id: b01
+#     category: laptop
+#     unseen: false
+#     request: "a light laptop for college under 60000 that lasts all day"
+written_by:
+  - Rushiraj Navar
+  - Om Pandya
+
+briefs:
+  - id: b01
+    category: smartphone
+    unseen: false
+    request: "My current phone barely makes it to lunchtime without a charge. I spend a lot of time travelling and using Maps and WhatsApp. What would you buy for under ₹18,000 if battery life was the main concern?"
+
+  - id: b02
+    category: smartphone
+    unseen: false
+    request: "I've got around ₹30,000 to spend on a new phone. Mostly interested in taking nice pictures of people indoors, where my current phone struggles. I don't play games on it."
+
+  - id: b03
+    category: smartphone
+    unseen: false
+    request: "Any decent gaming phone under ₹25,000? I usually play BGMI for an hour or two at a stretch and don't want the frame rate dropping once the phone gets warm."
+
+  - id: b04
+    category: smartphone
+    unseen: false
+    request: "Buying a phone for my dad. He uses YouTube, WhatsApp and makes a lot of calls. Something with a readable screen and loud call audio would be ideal. Budget is ₹12,000 max."
+
+  - id: b05
+    category: smartphone
+    unseen: false
+    request: "I tend to keep my phones for four or five years. Can spend up to ₹40,000 this time, but I'd rather buy something that gets updates for a long time than pay for a fancy camera."
+
+  - id: b06
+    category: laptop
+    unseen: false
+    request: "Starting engineering college soon and need a laptop for coding, assignments and online lectures. I have ₹55,000 to work with. Would prefer something I can carry to campus every day without much trouble."
+
+  - id: b07
+    category: laptop
+    unseen: false
+    request: "Is ₹35,000 enough for a laptop just for Excel, emails and billing at a small shop? It will be plugged in most of the day, so battery backup isn't a major issue."
+
+  - id: b08
+    category: laptop
+    unseen: false
+    request: "I do freelance video editing, mostly short 1080p videos. My old laptop takes forever to export them. Looking to upgrade with a budget of around ₹85,000."
+
+  - id: b09
+    category: laptop
+    unseen: false
+    request: "Need a laptop for work trips. I spend most of my time in the browser, on calls or editing presentations. I can go up to ₹70,000, but I'd like it to be light and last well on battery."
+
+  - id: b10
+    category: laptop
+    unseen: false
+    request: "Can you suggest a gaming laptop below ₹90,000? Mainly want to play AAA games at 1080p. I'm fine with medium graphics settings as long as the games run smoothly."
+
+  - id: b11
+    category: electric_kettle
+    unseen: true
+    request: "Moving into a hostel and need an electric kettle to boil water for tea and instant coffee. Anything reliable for ₹800 or less?"
+
+  - id: b12
+    category: electric_kettle
+    unseen: true
+    request: "There are five of us at home and we're always boiling water for tea. I'd like a kettle that can hold around 1.5 to 2 litres, ideally under ₹1,800."
+
+  - id: b13
+    category: electric_kettle
+    unseen: true
+    request: "The plastic kettle at home leaves a strange smell in the water. Looking for one with a stainless steel interior for up to ₹1,500. Nothing fancy."
+
+  - id: b14
+    category: electric_kettle
+    unseen: true
+    request: "We have hard water at home and my old kettle has become a pain to clean. Can you recommend one with a wide opening so I can scrub the inside easily? Around ₹2,000 would be fine."
+
+  - id: b15
+    category: electric_kettle
+    unseen: true
+    request: "Need an electric kettle for my parents. I'd prefer one with automatic shut-off and a handle that's comfortable to grip. Trying to stay below ₹1,300."
+
+  - id: b16
+    category: vacuum_cleaner
+    unseen: true
+    request: "There's so much dust coming in from the road that sweeping once a day isn't enough anymore. What's a decent vacuum for tiled floors under ₹6,000?"
+
+  - id: b17
+    category: vacuum_cleaner
+    unseen: true
+    request: "My dog sheds all over the sofa and rugs. I'm willing to spend up to ₹15,000 on a vacuum if it actually picks up the hair instead of just pushing it around."
+
+  - id: b18
+    category: vacuum_cleaner
+    unseen: true
+    request: "Looking for a small vacuum for my flat. Mostly need it for crumbs, dust and the spaces around furniture. I don't have much room to store it. Budget around ₹5,000."
+
+  - id: b19
+    category: vacuum_cleaner
+    unseen: true
+    request: "I want to clean the car seats and the footwells myself instead of paying for it every time. Is there a good portable vacuum within ₹3,000 that can reach between the seats?"
+
+  - id: b20
+    category: vacuum_cleaner
+    unseen: true
+    request: "We have a few thick carpets at home and the current vacuum doesn't do a great job on them. Can spend up to ₹10,000 for something that pulls dirt out properly. A cord is fine."
+
+  - id: b21
+    category: smartphone
+    unseen: false
+    request: "Looking for a small-ish phone, preferably one I can comfortably use with one hand. Mostly calls, messages and reading the news. I'd like to keep it within ₹45,000."
+
+  - id: b22
+    category: smartphone
+    unseen: false
+    request: "I record cooking videos for social media on my phone. The footage from my current one looks shaky even when I'm moving slowly. What's worth getting under ₹35,000 for video recording?"
+
+  - id: b23
+    category: smartphone
+    unseen: false
+    request: "My phone keeps telling me there's no storage left. I take quite a few videos and keep a lot of music offline, so I'd like 256 GB of space this time. Is there anything decent below ₹22,000?"
+
+  - id: b24
+    category: smartphone
+    unseen: false
+    request: "Need a basic 5G phone for my younger brother. It'll mostly be used for classes, browsing and messaging. Not looking for anything premium, just something that won't lag all the time for ₹13,000 or less."
+
+  - id: b25
+    category: smartphone
+    unseen: false
+    request: "I do delivery work and the phone stays mounted on my bike for most of the day. A screen I can see outdoors is really important, along with good battery backup. My limit is ₹20,000."
+
+  - id: b26
+    category: smartphone
+    unseen: false
+    request: "What's a good phone around ₹60,000 for recording concerts? I often end up far from the stage, so usable zoom and decent video in low light matter to me more than gaming performance."
+
+  - id: b27
+    category: smartphone
+    unseen: false
+    request: "I'm tired of all the random notifications and apps that came preinstalled on my last phone. Is there something under ₹28,000 with a cleaner software experience and good everyday performance?"
+
+  - id: b28
+    category: smartphone
+    unseen: false
+    request: "I use two SIMs, one for work and one for personal calls. Looking for a reliable dual-SIM phone under ₹16,000 with good call quality. Don't really care about the camera."
+
+  - id: b29
+    category: laptop
+    unseen: false
+    request: "I teach online and spend about four hours a day on video calls. My current laptop's camera is awful. I'd like a new one with a decent webcam and a comfortable keyboard, ideally within ₹48,000."
+
+  - id: b30
+    category: laptop
+    unseen: false
+    request: "My daughter has started learning digital illustration and wants to draw directly on the screen. Are there any decent touchscreen laptops with pen support for around ₹75,000?"
+
+  - id: b31
+    category: laptop
+    unseen: false
+    request: "I need a machine for Android development. The emulator and IDE running together make my current laptop crawl. Budget is ₹80,000 max and I'd prefer RAM that can be upgraded later."
+
+  - id: b32
+    category: laptop
+    unseen: false
+    request: "Most of what I do is read PDFs, write reports and keep a ridiculous number of browser tabs open. I don't need gaming graphics. What's a sensible laptop around ₹42,000 that won't struggle with this?"
+
+  - id: b33
+    category: laptop
+    unseen: false
+    request: "I'm getting into photography and want to edit RAW files in Lightroom. I can spend up to ₹95,000. More than anything I want a screen where the colours look right."
+
+  - id: b34
+    category: laptop
+    unseen: false
+    request: "Can anyone recommend a laptop under ₹65,000 with a full-size keyboard including the number pad? I work with accounts all day and hate having to use the row of numbers at the top."
+
+  - id: b35
+    category: laptop
+    unseen: false
+    request: "The laptop I have now is noisy whenever I'm working in the library. I'd like a reasonably quiet replacement for research, writing and browsing. Have about ₹58,000 to spend."
+
+  - id: b36
+    category: electric_kettle
+    unseen: true
+    request: "I'd like a kettle with different temperature settings for green tea and coffee. I don't want to bring the water to a full boil every time. Is there a good one within ₹3,500?"
+
+  - id: b37
+    category: electric_kettle
+    unseen: true
+    request: "I keep a kettle on my office desk and only make one cup at a time. A huge one would just get in the way. Looking for something small under ₹1,200."
+
+  - id: b38
+    category: electric_kettle
+    unseen: true
+    request: "My little one keeps touching things on the kitchen counter. I'd like an electric kettle with a cool-touch outer body and a lid that closes securely. Budget is ₹2,500 max."
+
+  - id: b39
+    category: electric_kettle
+    unseen: true
+    request: "Our kettle gets used all day at the office pantry, probably ten or fifteen times. The last one stopped working after a few months. Any sturdy options for around ₹2,800?"
+
+  - id: b40
+    category: electric_kettle
+    unseen: true
+    request: "Can you suggest a glass electric kettle below ₹1,700? I like being able to see how much water is left without opening the lid. An automatic shut-off would be useful too."
+
+  - id: b41
+    category: electric_kettle
+    unseen: true
+    request: "I'm replacing a kettle that drips water all over the counter whenever I pour from it. I only use it for hot water, so a simple one with a decent spout will do. Don't want to spend more than ₹1,000."
+
+  - id: b42
+    category: electric_kettle
+    unseen: true
+    request: "I want to buy an electric kettle for my grandmother. She makes tea several times a day but finds heavy kettles difficult to lift. Something lightweight with a comfortable handle for up to ₹1,600, please."
+
+  - id: b43
+    category: electric_kettle
+    unseen: true
+    request: "We do a lot of short road trips and stay in budget hotels. Thinking of carrying our own electric kettle for making tea. Anything compact enough to pack in a bag for around ₹1,400?"
+
+  - id: b44
+    category: vacuum_cleaner
+    unseen: true
+    request: "Our flat gets dusty very quickly and I'm not home until late in the evening. Thinking of getting a robot vacuum to run daily on the tiles. Is ₹25,000 enough for one that navigates around furniture properly?"
+
+  - id: b45
+    category: vacuum_cleaner
+    unseen: true
+    request: "I need a vacuum for the balcony and utility area where I sometimes have to clean up spilled water as well as dry dirt. Something wet and dry within ₹8,000 would be useful."
+
+  - id: b46
+    category: vacuum_cleaner
+    unseen: true
+    request: "My main issue is dust on the mattress and fabric chairs. I don't really need a machine for the floors. What sort of vacuum should I look at with a budget of ₹4,500?"
+
+  - id: b47
+    category: vacuum_cleaner
+    unseen: true
+    request: "The cord on my old vacuum drives me mad when I move from one room to another. Looking for a cordless one for quick daily cleaning of a two-bedroom flat. Can stretch to ₹18,000."
+
+  - id: b48
+    category: vacuum_cleaner
+    unseen: true
+    request: "My nose gets irritated every time I empty the dust container on our vacuum. I want a bagged vacuum with good dust filtration, mainly for cleaning bedroom floors and rugs. Budget is up to ₹12,000."
+
+  - id: b49
+    category: vacuum_cleaner
+    unseen: true
+    request: "Our current vacuum is so loud that I avoid using it while the baby is asleep. Can you suggest a quieter model for cleaning ordinary tiled floors? Around ₹9,000 is what I'd like to spend."
+
+  - id: b50
+    category: vacuum_cleaner
+    unseen: true
+    request: "I have to carry the vacuum up and down stairs quite often. I'd like a lighter machine that can also clean the corners of the steps properly. My budget is ₹7,500 max."
+
