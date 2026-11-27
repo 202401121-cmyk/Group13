@@ -50,7 +50,7 @@ from app.pipeline import (
 from app.research import ResearchStage
 from app.research.reddit.cache import SERVE_MARGIN, RedditCache
 from app.research.retention import REDDIT_TEXT_NOT_KEPT, without_reddit_text
-from app.search_run_limits import SWEEP_EVERY_S
+from app.search_run_limits import EARLY_KEEP_S, SWEEP_EVERY_S
 from tests.fakes.live_run import use_live_shaped_run
 from tests.fakes.research import thread
 
@@ -1167,8 +1167,9 @@ def test_a_finished_run_goes_at_its_keep_time_on_the_wall_clock_too(harness: Har
 def test_a_run_that_read_a_reddit_answer_at_the_edge_is_gone_before_it_is_24_hours_old(
     harness: Harness, keep: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """The worst case, with the real cache, run store and timer reading one setting, on an idle server: the edge, the
-    longest search, the keep-time, then a full tick before the timer drops the run, with no request in between."""
+    """The worst case, with the real cache, run store and timer reading one setting, on an idle server: the edge, an
+    early job holding the answer for its whole keep time (US-34), the longest search, the keep-time, then a full tick
+    before the timer drops the run, with no request in between."""
     monkeypatch.setenv("SEARCH_RUN_KEEP_MINUTES", keep)
     monkeypatch.setenv("DB_SAVE_TIMEOUT_SECONDS", "15")
     longest_save_s = 15 + SAVE_GRACE_S  # the save runs after the 150 s, before the run ends (P-38)
@@ -1190,7 +1191,9 @@ def test_a_run_that_read_a_reddit_answer_at_the_edge_is_gone_before_it_is_24_hou
     # The longest search, its save, the keep-time and one second (as the other keep-time tests: off the exact
     # boundary), then a full tick: the run passed its keep-time just after one tick, so the next one is the first to
     # see it.
-    wall[0] += timedelta(seconds=C.SEARCH_TIME_LIMIT_S + longest_save_s + settings.keep_s + 1 + SWEEP_EVERY_S)
+    wall[0] += timedelta(
+        seconds=EARLY_KEEP_S + C.SEARCH_TIME_LIMIT_S + longest_save_s + settings.keep_s + 1 + SWEEP_EVERY_S
+    )
     clock.jumped_s = settings.keep_s + 1 + SWEEP_EVERY_S
     assert search_id in runs._runs  # nothing has asked for it, so it is still held
     Housekeeping(runs, sweep=lambda: None).tick()  # the timer's tick

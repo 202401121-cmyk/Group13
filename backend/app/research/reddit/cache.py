@@ -28,7 +28,7 @@ from pydantic import ValidationError
 
 from app.contracts import SEARCH_TIME_LIMIT_S, Source
 from app.db.settings import SAVE_GRACE_S, save_timeout_s
-from app.search_run_limits import SWEEP_EVERY_S, environment, keep_minutes
+from app.search_run_limits import EARLY_KEEP_S, SWEEP_EVERY_S, environment, keep_minutes
 
 log = logging.getLogger(__name__)
 
@@ -45,22 +45,24 @@ def _utc_now() -> datetime:
 
 
 def serve_limit(env: Mapping[str, str] | None = None) -> timedelta:
-    """How long a Reddit answer may be served: 24 hours less the longest search, its save, the keep-time, one
-    housekeeping tick and SERVE_MARGIN (D-53).
+    """How long a Reddit answer may be served: 24 hours less the time early reading may hold it, the longest search, its
+    save, the keep-time, one housekeeping tick and SERVE_MARGIN (D-53).
 
-    The sum: served at the edge + the longest search (SEARCH_TIME_LIMIT_S, 150 s) + its save, which runs after the 150 s
-    (P-38: the run waits at most DB_SAVE_TIMEOUT_SECONDS, 15 s by default and at most, and SAVE_GRACE_S, 1 s) + the
-    keep-time (SEARCH_RUN_KEEP_MINUTES, 30 by default, counted from the run's end, after its save) + one tick
+    The sum: served at the edge + reading begun during the interview, which is kept at most EARLY_KEEP_S (15 minutes,
+    US-34) before its search takes it over + the longest search (SEARCH_TIME_LIMIT_S, 150 s) + its save, which runs
+    after the 150 s (P-38: the run waits at most DB_SAVE_TIMEOUT_SECONDS, 15 s by default and at most, and SAVE_GRACE_S,
+    1 s) + the keep-time (SEARCH_RUN_KEEP_MINUTES, 30 by default, counted from the run's end, after its save) + one tick
     (SWEEP_EVERY_S, 600 s) stays SERVE_MARGIN (60 s) under 24 hours, at any allowed save limit. That holds for the runs
     in memory, which go at their keep-time even while a progress stream reads them (app/api/search_runs.py) and at the
     latest at the next tick on an idle server (app/main.py), and for the files on disk, which the next tick deletes once
-    they pass this limit. By default it is 23 hours 16 minutes 14 seconds.
+    they pass this limit. By default it is 23 hours 1 minute 14 seconds.
     """
     values = env if env is not None else environment()
     keep = timedelta(minutes=keep_minutes(values))
     search = timedelta(seconds=SEARCH_TIME_LIMIT_S)
     save = timedelta(seconds=save_timeout_s(values) + SAVE_GRACE_S)
-    return DEFAULT_TTL - search - save - keep - timedelta(seconds=SWEEP_EVERY_S) - SERVE_MARGIN
+    early = timedelta(seconds=EARLY_KEEP_S)  # held by reading begun during the interview, before the search (US-34)
+    return DEFAULT_TTL - early - search - save - keep - timedelta(seconds=SWEEP_EVERY_S) - SERVE_MARGIN
 
 
 class RedditCache:

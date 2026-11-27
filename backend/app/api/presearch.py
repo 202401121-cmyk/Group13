@@ -6,6 +6,11 @@ Each new request is saved once, with its session ID, through the request store (
 down or slow never stops the route (build rule 10).
 Dependencies come from small functions so tests can swap in fakes. Error messages are plain sentences: never a
 stack trace, a key or prompt text.
+
+Once the criteria are final and the shopper has answered the first question, the session's research and extraction
+begin in the background (US-34, D-94, app/early_search.py), so its search has minutes more of provider room; an answer
+that finishes the interview starts none. A change of category, use, budget or region, new criteria or a new request
+drops that job; so does another owner's turn (D-80). Each start and drop happens under the session's lock.
 """
 
 from __future__ import annotations
@@ -37,6 +42,7 @@ from app.contracts import (
     RubricEditResponse,
 )
 from app.criteria import CriteriaStore
+from app.early_search import EarlySearches
 from app.intake import EDIT_REFUSED, revise_intent
 from app.interview import place_reply
 from app.interview.plan import load_interview_rules, plan_questions
@@ -44,6 +50,7 @@ from app.interview.remembered import dropped_leave_outs, forget, with_remembered
 from app.interview.rubric_builder import UnknownEdit, apply_edits, build_rubric, carry_edits, rubric_note, with_edits_of
 from app.memory import MemoryService, default_memory
 
+from .search_runs import Runs
 from .sessions import InMemorySessionStore, SessionStore, new_session_id
 
 EXPIRED = "This session has expired. Please start a new search."
@@ -88,11 +95,17 @@ def get_memory() -> MemoryService:
     return default_memory()
 
 
+def get_early_searches(runs: Runs) -> EarlySearches:
+    """The search runs' own early jobs (US-34): through get_search_runs, so a test's registry is the one used."""
+    return runs.early
+
+
 Sessions = Annotated[SessionStore, Depends(get_session_store)]
 Requests = Annotated[db.RequestStore, Depends(get_request_store)]
 LLM = Annotated[LLMClient, Depends(get_llm)]
 Store = Annotated[CriteriaStore, Depends(get_criteria_store)]
 Memory = Annotated[MemoryService, Depends(get_memory)]
+Early = Annotated[EarlySearches, Depends(get_early_searches)]
 
 
 class _Owners:
@@ -174,7 +187,9 @@ class ForgetRequest(BaseModel):
 
 
 @router.post("/intake", response_model=IntakeResponse)
-def intake(body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests, user: OptionalUser) -> IntakeResponse:
+def intake(
+    body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests, user: OptionalUser, early: Early
+) -> IntakeResponse:
     """A new request, or the reply to our clarification question (US-01, US-02).
 
     A new request is saved once with its session ID, and a signed-in user's with their id too (US-30); a guest's
@@ -203,12 +218,15 @@ def intake(body: IntakeRequest, sessions: Sessions, llm: LLM, requests: Requests
         request_saved=request_saved,
     )
     if request or session is None or not session.request:  # stray blank text never clears a request
-        sessions.put(saved)
+        with sessions.lock(session_id):  # a reply's early job starts under this lock: it can't start on the old brief
+            sessions.put(saved)
+            if session is not None and request:
+                early.cancel(session_id)  # a new request: what was read for the last one is dropped (US-34)
     return IntakeResponse(session_id=saved.session_id, intent=intent, ready_for_research=intent.ready_for_research)
 
 
 @router.put("/{session_id}/intent", response_model=Intent)
-def edit_intent(session_id: str, body: IntentEdit, sessions: Sessions) -> Intent:
+def edit_intent(session_id: str, body: IntentEdit, sessions: Sessions, early: Early) -> Intent:
     """The user's edits to what we understood (US-02 'shown back to the user, who can edit it').
 
     Under the session's lock, as it reads and writes the shopper's rubric edits (US-09).
@@ -227,6 +245,8 @@ def edit_intent(session_id: str, body: IntentEdit, sessions: Sessions) -> Intent
         # The interview copies the intent, so any edit restarts it; a new use also needs new criteria. The shopper's
         # rubric edits are kept on a fresh, unstarted state, so the restarted interview keeps them (US-09). With no
         # criteria yet (a new use, waiting for POST /criteria), the edits ride on the state that already holds them.
+        if _ground(intent) != _ground(session.intent):
+            early.cancel(session_id)  # US-34: early reading used the category, use, budget and region
         criteria = session.criteria if intent.use_case == session.intent.use_case else None
         held = session.criteria or (session.interview.criteria if session.interview is not None else None)
         kept = carry_edits(session.interview, intent, held) if held is not None else None
@@ -236,7 +256,7 @@ def edit_intent(session_id: str, body: IntentEdit, sessions: Sessions) -> Intent
 
 @router.post("/{session_id}/criteria", response_model=CriteriaSet)
 def criteria(
-    session_id: str, sessions: Sessions, llm: LLM, store: Store, memory: Memory, user: OptionalUser
+    session_id: str, sessions: Sessions, llm: LLM, store: Store, memory: Memory, user: OptionalUser, early: Early
 ) -> CriteriaSet:
     """The criteria for the detected category and use (US-03). Starting again clears any interview.
 
@@ -252,12 +272,13 @@ def criteria(
         intent = latest.intent if latest.intent is not None else session.intent
         kept = carry_edits(latest.interview, intent, result)
         sessions.put(latest.changed(criteria=result, interview=kept, interview_step=None))
+        early.cancel(session_id)  # new criteria and no interview: early reading asked for the old ones (US-34)
     return result
 
 
 @router.post("/{session_id}/interview/start", response_model=InterviewStep)
 def start_interview(
-    session_id: str, sessions: Sessions, memory: Memory, user: OptionalUser, background: BackgroundTasks
+    session_id: str, sessions: Sessions, memory: Memory, user: OptionalUser, background: BackgroundTasks, early: Early
 ) -> InterviewStep:
     """The first question (US-05). Calling it again restarts the interview.
 
@@ -277,6 +298,8 @@ def start_interview(
         earlier = without_remembered(session.interview) if session.interview is not None else None
         state = with_edits_of(earlier, state)
         _owners.started(session.session_id, user)
+        if early.running(session_id) and early.owner_of(session_id) != _owner(user):
+            early.cancel(session_id)  # D-80: another owner's interview never reads on with this one's job
         if user is not None:
             forgotten = _owners.forgotten(session.session_id)
             recalled = [i for i in memory.recall(user.id, state) if i.preference.preference_id not in forgotten]
@@ -296,6 +319,7 @@ def reply(
     memory: Memory,
     user: OptionalUser,
     background: BackgroundTasks,
+    early: Early,
 ) -> InterviewStep:
     """The user's reply to the current question: the next question, a rephrase, or the finished rubric.
 
@@ -320,7 +344,13 @@ def reply(
             )
         )
         _remember_if_final(background, memory, user, step)
-        return _save_step(sessions, session, step)
+        saved = _save_step(sessions, session, step)
+        if step.kind != "finished":
+            # An answer is in: the session's research and extraction begin, once (US-34, D-94). Under the lock, so a
+            # new request, new criteria or an edit (each of which cancels under it) never meets a job on the old
+            # brief. A reply that finishes the interview starts none: its confirm comes at once.
+            early.start(session_id, _owner(user), session.request, session.interview.intent, session.interview.criteria)
+        return saved
 
 
 @router.post("/{session_id}/interview/back", response_model=InterviewStep)
@@ -434,6 +464,16 @@ def get_session(session_id: str, sessions: Sessions, response: Response) -> Pres
 
 
 # --- helpers ----------------------------------------------------------------------------------------
+
+
+def _owner(user: SignedInUser | None) -> str | None:
+    """The owner a search is saved under (app/api/account.py's owned_by): the user's id, or None for a guest."""
+    return str(user.id) if user is not None else None
+
+
+def _ground(intent: Intent) -> tuple[object, ...]:
+    """What early reading used of the intent (US-34): category, use, budget and region."""
+    return intent.category, intent.use_case, intent.budget, intent.region
 
 
 def _load(sessions: SessionStore, session_id: str) -> PresearchSession:

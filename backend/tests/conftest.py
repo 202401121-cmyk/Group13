@@ -81,6 +81,13 @@ def _no_real_usage_file(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture(autouse=True)
+def _no_early_search(monkeypatch: pytest.MonkeyPatch) -> None:
+    """US-34: the app begins a session's research after its first interview answer. A test's app never does unless
+    the test asks (tests/unit/api/test_early_search_api.py), so no other test starts the real stages in a thread."""
+    monkeypatch.setattr("app.early_search.DEFAULT_ON", False)
+
+
+@pytest.fixture(autouse=True)
 def _no_live_llm(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("app.presearch.default_llm", lambda: FakeLLMClient())
     monkeypatch.setattr("app.cli.default_llm", lambda: FakeLLMClient())

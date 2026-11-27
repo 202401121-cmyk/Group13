@@ -25,6 +25,10 @@ user's token. Anyone else, with another token or none, gets the same 404 as for 
 such a run leaves no "expired" trace when it goes. Its result is saved with the user's id, then kept without it, so no
 state or event ever shows a user_id. A guest's run works exactly as before.
 
+A run confirmed for a session whose research and extraction began during the interview takes them over (US-34,
+D-94, app/early_search.py): the same owner and brief only, joined if still going, never repeated, with the job's
+worker. The early jobs share this pool, and go with this registry's housekeeping and shutdown.
+
 A finished run goes at its keep-time even while a progress stream reads it, and on an idle server the app's housekeeping
 drops it at the next tick, so the Reddit text in its result and claims is gone before D-53's 24 hours (serve_limit(),
 app/research/reddit/cache.py, leaves room for both, and for the search's save before them). A stream still open then
@@ -64,6 +68,7 @@ from app.contracts import (
     SearchRunStatus,
 )
 from app.contracts.pipeline import MAX_RUN_EVENTS
+from app.early_search import EarlyJob, EarlySearches, early_on
 from app.pipeline import (
     CancelFlag,
     DatabaseResultStore,
@@ -112,6 +117,7 @@ class RunSettings:
     keep_s: float = DEFAULT_KEEP_MINUTES * 60  # how long a finished run's state stays in memory
     ping_s: float = DEFAULT_PING_SECONDS  # the longest a stream stays silent; then it sends a keep-alive
     max_kept: int = DEFAULT_MAX_KEPT  # finished runs kept at once, whatever their age
+    early: bool = False  # research and extraction begun during the interview (US-34): on in the app (EARLY_RESEARCH)
 
 
 def load_run_settings(env: Mapping[str, str] | None = None) -> RunSettings:
@@ -127,7 +133,7 @@ def load_run_settings(env: Mapping[str, str] | None = None) -> RunSettings:
     keep = keep_minutes(env)
     ping = number(env, "SEARCH_RUN_PING_SECONDS", DEFAULT_PING_SECONDS, MIN_PING_SECONDS, MAX_PING_SECONDS)
     kept = number(env, "SEARCH_RUN_MAX_KEPT", DEFAULT_MAX_KEPT, MIN_MAX_KEPT, MAX_MAX_KEPT, whole=True)
-    return RunSettings(workers=int(workers), keep_s=keep * 60, ping_s=ping, max_kept=int(kept))
+    return RunSettings(workers=int(workers), keep_s=keep * 60, ping_s=ping, max_kept=int(kept), early=early_on(env))
 
 
 # --- the registry -------------------------------------------------------------------------------
@@ -208,6 +214,8 @@ class SearchRuns:
         self._forgotten = RecentIds(MAX_FORGOTTEN_IDS)
         self._open_streams = 0
         self.closed = False
+        # Each session's research and extraction begun during the interview, on these same workers (US-34, D-94).
+        self.early = EarlySearches(runner_factory, self._free, enabled=self.settings.early)
 
     @property
     def open_streams(self) -> int:
@@ -218,19 +226,30 @@ class SearchRuns:
     # Starting, reading and cancelling.
 
     def start(self, request: SearchRequest) -> str | None:
-        """Start a run and return its ID at once, or None when every worker is busy."""
-        if not self._free.acquire(blocking=False):
+        """Start a run and return its ID at once, or None when every worker is busy.
+
+        A job begun for this session during the interview, by the same owner on the same brief, is taken over, with its
+        worker if it is still going (US-34): its research and extraction are never repeated. Anything else is dropped,
+        and the search runs as before, on the dropped job's worker if it still held one. A job taken over when no
+        worker is free is kept for the shopper's next try."""
+        claimed, usable = self.early.claim(request.session_id, request.user_id, request.rubric)
+        job = claimed if usable else None  # a job not taken over is already stopped
+        handed = claimed is not None and claimed.hand_slot()
+        if not handed and not self._free.acquire(blocking=False):
+            if job is not None:
+                self.early.give_back(job)
             return None
         run = _Run(search_id=new_search_id(), owner=request.user_id)
         with self._lock:  # close() takes this lock too, so no run starts once the registry is closed
             if self.closed:
                 self._free.release()
+                _stop(job)
                 return None
             self._forget_old()
             self._runs[run.search_id] = run
             # A daemon thread: a forced stop of the server drops the search instead of waiting up to 150 s for it.
             # The worker waits for this lock before it touches the run.
-            worker = threading.Thread(target=self._work, args=(run, request), name="search-run", daemon=True)
+            worker = threading.Thread(target=self._work, args=(run, request, job), name="search-run", daemon=True)
             worker.start()
         return run.search_id
 
@@ -274,6 +293,7 @@ class SearchRuns:
         """
         with self._lock:
             self._forget_old()
+        self.early.drop_expired()
 
     def resume_from(self, search_id: str, last_event_id: str | None, viewer: str | None = None) -> int | None:
         """The event ID a stream starts after, or None when the run has ended and the client has seen all of it.
@@ -343,18 +363,20 @@ class SearchRuns:
             self.closed = True
             for run in self._runs.values():
                 run.cancel.request()
+        self.early.close()
 
     # Inside.
 
-    def _work(self, run: _Run, request: SearchRequest) -> None:
+    def _work(self, run: _Run, request: SearchRequest, early: EarlyJob | None = None) -> None:
         outcome: _Outcome = (SearchRunStatus.FAILED, None, {})
         try:
-            outcome = self._execute(run, request)
+            outcome = self._execute(run, request, early)
         finally:
+            _stop(early)  # a joined job still reading stops with its search, whatever ended it
             self._free.release()  # first, so a client that sees the run end can start the next one
             self._end(run, *outcome)
 
-    def _execute(self, run: _Run, request: SearchRequest) -> _Outcome:
+    def _execute(self, run: _Run, request: SearchRequest, early: EarlyJob | None = None) -> _Outcome:
         with self._lock:
             if run.cancel.requested:
                 return SearchRunStatus.CANCELLED, None, {}
@@ -362,8 +384,9 @@ class SearchRuns:
             run.started_at = self._wall()
         try:
             runner, recorder = _recording(self._runner_factory())
+            handover = {"early": early} if early is not None else {}  # a runner that never takes one is still run
             result = runner.run(
-                request, search_id=run.search_id, progress=lambda e: self._add(run, e), cancel=run.cancel
+                request, search_id=run.search_id, progress=lambda e: self._add(run, e), cancel=run.cancel, **handover
             )
         except SearchCancelled:
             return SearchRunStatus.CANCELLED, None, {}
@@ -472,6 +495,11 @@ class SearchRuns:
 
 
 _Outcome = tuple[SearchRunStatus, SearchResult | None, dict[str, Claim]]
+
+
+def _stop(job: EarlyJob | None) -> None:
+    if job is not None:
+        job.stop.request()
 
 
 def _without_owner(result: SearchResult | None) -> SearchResult | None:

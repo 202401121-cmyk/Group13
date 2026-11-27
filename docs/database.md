@@ -505,9 +505,10 @@ the largest one we write. So:
   short: the stages have the whole 150. The run waits for it at most its limit and one more second, so a search takes
   at most 150 + 15 + 1 seconds. That is why 15 is also the most allowed: the frontend waits 170 seconds for research,
   so it always covers the search, the save and a margin. A higher value is refused with a warning, and 15 is used.
-- The Reddit cache allows for the save too: it serves an answer for 24 hours less the longest search, the save (its
-  limit and the 1-second grace), the keep-time, one housekeeping tick and the 60-second margin (`serve_limit()`, D-53),
-  so the margin stays 60 seconds at any allowed save limit. By default that is 23 hours 16 minutes 14 seconds.
+- The Reddit cache allows for the save too: it serves an answer for 24 hours less the time reading begun during the
+  interview may hold it (15 minutes, US-34), the longest search, the save (its limit and the 1-second grace), the
+  keep-time, one housekeeping tick and the 60-second margin (`serve_limit()`, D-53), so the margin stays 60 seconds at
+  any allowed save limit. By default that is 23 hours 1 minute 14 seconds.
 - While it saves, the progress stream says so once: "Saving your results.", as `done` on the line of the last stage that
   ran OK (the contract has no save stage; a stage that fell back, failed or was skipped keeps its own words). It is not
   said when nothing will be written: with the database off, or while the breaker skips it.
