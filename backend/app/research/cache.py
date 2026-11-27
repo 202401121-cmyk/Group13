@@ -50,7 +50,7 @@ PAGES = "sources"  # review pages read in full: 24 hours
 ROBOTS = "text"  # robots.txt files: 24 hours
 SITES = "sites"  # each site's failure score (US-31): 24 hours
 # Enrich's fact look-up (US-41): its own folder, kept 7 days. Public pages only: a Reddit or YouTube address is refused
-# before it is read, and its search results are kept as the maker and review links they gave, nothing else.
+# before it is read, and its search results are kept as the readable links they gave (D-102), nothing else.
 ENRICH_FOLDER = "enrich"
 ENRICH_TTL = timedelta(days=7)
 

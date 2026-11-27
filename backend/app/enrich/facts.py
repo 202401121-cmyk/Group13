@@ -1,10 +1,16 @@
-"""Missing facts for the top products (US-41): a web search, a maker or review page, one batched LLM call.
+"""Missing facts for the top products (US-41): a web search, a checked public page, one batched LLM call.
 
 For each product with fact targets (a top product's criteria with no evidence, picked in code: targets.py), one search
 asks for the product and the criterion's fixed public stand-in, never the shopper's words or a generated key (D-51).
-Only a maker's or a review site's page is used (never Reddit, YouTube or a store), with research's own readers, rules
-and caps, and one page a product. A page research already read is skipped, and so is one that doesn't name its product,
-so the product's name sent with it is the page's own words.
+A target may also be a hard rule's spec that held a product back ("can't tell"), searched by its own key's words
+(spec_label) and asked for as extraction asks a rule's key (D-102 item 1).
+
+The page is a maker's, then a review site's, then any other public page (D-102 item 2): never Reddit, YouTube, a social
+site, a forum or Q&A site, a store's page, or a login or checkout page (other_page), with research's own readers, rules
+and caps (robots.txt first), and one page a product. Another page is read by a plain fetch, or as Firecrawl's search
+brought it back, and gets the lowest tier (research's OTHER_TIER). A page research already read is skipped, and
+so is one that doesn't name its product, its words whole and in order, so the product's name sent with it is the page's
+own words.
 
 D-101 (Om, 25 Nov 2026), so the pages and the call fit enrich's window:
 - Split by rank, in parallel: the top SERPER_TOP products search Serper (about 1 s) and their links are read by the
@@ -26,7 +32,9 @@ goes on (build rule 9). If the call fails, nothing is added and the values stay 
 
 from __future__ import annotations
 
+import functools
 import hashlib
+import ipaddress
 import json
 import logging
 import re
@@ -37,6 +45,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from time import monotonic
 from typing import Literal, Protocol
+from urllib.parse import urlsplit
 
 from pydantic import ValidationError
 
@@ -52,17 +61,18 @@ from app.contracts import (
     LLMUnavailable,
     Product,
     Source,
+    SourceType,
 )
 from app.contracts.enrich import MAX_ENRICH_SEARCHES
 from app.criteria.fallback import fallback_criteria
 from app.extract.parsing import RawExtraction, to_extraction_result
-from app.extract.prompts import PromptCriteria, allowed_criteria, public_prompt_keys, source_text
+from app.extract.prompts import PromptCriteria, SpecAsk, allowed_criteria, public_prompt_keys, source_text
 from app.extract.settings import ExtractSettings
 from app.extract.stage import _under_own_keys
 from app.llm.pool import CALL_MARGIN_S, time_limit_s
 from app.llm.usage import TokenMeter
 from app.research.cache import ResearchCache
-from app.research.pages import NEVER_FETCH, PageResult, page_kind
+from app.research.pages import NEVER_FETCH, NEVER_READ, PageResult, is_logged_in_page, page_kind
 from app.research.readers import SearchPages
 from app.research.serper import SerperResult, host_is_under, host_of
 from app.research.settings import ResearchSettings
@@ -86,7 +96,103 @@ CALL_S = 5.0  # the call's time when no client measures it (a test's fake): mode
 PAID_READERS = ("jina", "firecrawl", "firecrawl_pages")  # no room for these once the window is over
 ANSWER_TOKENS = 3000  # a short answer and Gemini's thinking, which counts against it (S5-6a)
 PLANNED_TOKENS = MAX_PAGES * PAGE_CHARS // 3 + 1500  # the call's input at most: its pages' passages and the criteria
-READ_KINDS = ("maker", "review")  # never a store's page, a checkout, Reddit or YouTube
+READ_KINDS = ("maker", "review")  # the listed sites read: never a store's page, a checkout, Reddit or YouTube
+PREFERENCE = {"maker": 0, "review": 1}  # D-102: a maker's page, then a review site's, then any other checked page
+OTHER_KIND = 2
+# D-102 item 2: a site no list names is never a forum, a Q&A site or a store. These words in a subdomain or a folder, or
+# these sites, say it may be one. Calling a real page a forum or a store is the safer mistake: the fact is not taken.
+FORUM_WORDS = frozenset(
+    {
+        "answers",
+        "board",
+        "boards",
+        "communities",
+        "community",
+        "discuss",
+        "discussion",
+        "discussions",
+        "forum",
+        "forums",
+        "qa",
+        "question",
+        "questions",
+        "thread",
+        "threads",
+        "topic",
+        "topics",
+    }
+)
+STORE_WORDS = frozenset(
+    {
+        "addtocart",
+        "bag",
+        "basket",
+        "buy",
+        "buynow",
+        "cart",
+        "checkout",
+        "dp",
+        "gp",
+        "item",
+        "itm",
+        "offer",
+        "offers",
+        "product",
+        "products",
+        "shop",
+        "shopping",
+        "store",
+    }
+)
+QA_SITES = ("quora.com", "stackexchange.com", "stackoverflow.com", "superuser.com", "answers.com", "brainly.in")
+# A forum's own name inside a site's name: xdaforums.com. Folder words a forum's pages use: /t/, showthread.php.
+FORUM_PARTS = ("forum", "community", "discuss")
+FORUM_PAGES = frozenset({"t", "showthread", "viewtopic", "viewthread"})
+# Social sites research's NEVER_READ doesn't list yet, and archives, which hold copies of any page, Reddit's too.
+SOCIAL_SITES = (
+    "bsky.app",
+    "discord.com",
+    "discord.gg",
+    "snapchat.com",
+    "t.me",
+    "telegram.org",
+    "threads.com",
+    "tumblr.com",
+    "vk.com",
+    "weibo.com",
+    "whatsapp.com",
+)
+ARCHIVE_SITES = ("archive.org", "archive.is", "archive.li", "archive.ph", "archive.today", "ghostarchive.org")
+COPIED = ("reddit.com", "redd.it", "youtube.com", "youtu.be")  # anywhere in an address: a copy, never read (D-53)
+STORE_SITES = (
+    "aliexpress.com",
+    "amazon.com",
+    "amazon.in",
+    "bajajelectronics.com",
+    "bestbuy.com",
+    "croma.com",
+    "ebay.com",
+    "ebay.in",
+    "flipkart.com",
+    "girias.com",
+    "indiamart.com",
+    "jiomart.com",
+    "lotmobiles.com",
+    "meesho.com",
+    "myntra.com",
+    "paiinternational.in",
+    "paytmmall.com",
+    "poorvika.com",
+    "reliancedigital.in",
+    "sangeethamobiles.com",
+    "shopclues.com",
+    "snapdeal.com",
+    "tatacliq.com",
+    "vijaysales.com",
+    "walmart.com",
+)
+INTERNAL_ENDINGS = (".corp", ".home", ".internal", ".intranet", ".lan", ".local", ".localhost")
+UNIT_WORDS = frozenset({"g", "gb", "h", "hz", "in", "kg", "mah", "mm", "w"})  # a spec key's unit: not searched for
 MIN_CALL_S = 1.0  # with less left for the call, none is sent: no model answers that soon
 CALL_FLOOR_S = CALL_MARGIN_S + MIN_CALL_S  # the least the cut-off leaves the call: the client starts none at its end
 ANSWER_MARGIN_S = 1.0  # the call ends this long before the look-up does, so its answer is read in time
@@ -162,6 +268,23 @@ def stand_in_label(category: str, key: str, settings: ExtractSettings) -> str | 
     labels = {c.key: c.label for c in fallback_criteria(category).criteria}
     fixed = next((k for k in public.criteria if public.renames.get(k, k) == key), None)
     return labels.get(fixed) if fixed is not None else None
+
+
+def spec_label(key: str, settings: ExtractSettings) -> str | None:
+    """A known spec key's own words, for a search (D-102 item 1): "ram_gb" is searched as "ram", "has_backlit_keyboard"
+    as "backlit keyboard". Only config's public spec keys have one, so a search holds our keys' words only (D-51)."""
+    if key not in settings.public_spec_keys:
+        return None
+    words = key.removeprefix("has_").split("_")
+    if len(words) > 1 and words[-1] in UNIT_WORDS:
+        words = words[:-1]
+    return " ".join(words)
+
+
+def search_label(category: str, key: str, settings: ExtractSettings) -> str | None:
+    """What a target is searched by: a known spec key's own words ("ram", not its criterion's "RAM and storage"), else a
+    criterion's fixed label (D-51)."""
+    return spec_label(key, settings) or stand_in_label(category, key, settings)
 
 
 def names_product(text: str, name: str) -> bool:
@@ -249,17 +372,110 @@ def _plain(name: str) -> str:
 
 
 def readable(url: str, settings: ResearchSettings) -> bool:
-    """A maker's or a review site's page, and never Reddit or YouTube, whatever the config says (D-53)."""
+    """A maker's or a review site's page, or another checked public page (D-102), and never Reddit or YouTube, whatever
+    the config says (D-53). Never a forum either, even on a maker's or a review site's own domain (D-102)."""
     host = host_of(url)
-    if host is None or any(host_is_under(host, never) for never in NEVER_FETCH):
+    if host is None or any(host_is_under(host, never) for never in NEVER_FETCH) or _forum(url, host):
         return False
     kind = page_kind(url, settings)
-    return kind is not None and kind[1] in READ_KINDS
+    if kind is not None:
+        return kind[1] in READ_KINDS
+    return other_page(url, settings)
 
 
-def _maker(url: str, settings: ResearchSettings) -> bool:
+def other_page(url: str, settings: ResearchSettings) -> bool:
+    """A page on a site no list names that a fact may come from (D-102 item 2). Never Reddit, YouTube, a copy of either
+    or an archive, a social site, a forum or a Q&A site, a store's page, or a login, account, cart or checkout page; a
+    listed site keeps its own kind, and a listed store is never read for a fact. Only a named host on the open internet:
+    never an address, localhost, a name with no dot or an internal one, or another port. robots.txt is the reader's to
+    obey, and the reader checks the name's addresses before anything is sent (research's pages.py)."""
+    host = host_of(url)
+    if host is None or page_kind(url, settings) is not None or is_logged_in_page(url) or not _named_host(url, host):
+        return False
+    lowered = url.lower()
+    if any(copy in lowered for copy in COPIED) or _forum(url, host):
+        return False
+    never = (*NEVER_READ, *SOCIAL_SITES, *ARCHIVE_SITES, *QA_SITES, *STORE_SITES, *_store_domains())
+    if any(host_is_under(host, site) for site in never):
+        return False
+    return _words(host.split(".")[:-2]).isdisjoint(STORE_WORDS) and _folders(url).isdisjoint(STORE_WORDS)
+
+
+def _named_host(url: str, host: str) -> bool:
+    """A host name on the open internet, on the usual port: never an address (127.0.0.1, [::1], 169.254.169.254),
+    localhost, a name with no dot, or a name ending as internal ones do (.local, .internal)."""
+    try:
+        port = urlsplit(url).port
+    except ValueError:
+        return False
+    if port not in (None, 80, 443):
+        return False
+    bare = host.strip("[]")
+    try:
+        ipaddress.ip_address(bare)
+    except ValueError:
+        return "." in bare and bare != "localhost" and not bare.endswith(INTERNAL_ENDINGS)
+    return False
+
+
+def _forum(url: str, host: str) -> bool:
+    """A forum or a Q&A site: a site trust.yaml calls community, a forum's name inside the site's ("xdaforums"), a forum
+    word in a subdomain or a folder, or a forum's own page names (/t/, showthread)."""
+    if any(host_is_under(host, site) for site in (*QA_SITES, *_community_sites())):
+        return True
+    labels = host.split(".")
+    if any(part in label for label in labels[:-1] for part in FORUM_PARTS):
+        return True
+    folders = _folders(url)
+    return not (_words(labels[:-2]) | folders).isdisjoint(FORUM_WORDS) or not folders.isdisjoint(FORUM_PAGES)
+
+
+def _words(labels: Sequence[str]) -> set[str]:
+    return {word for label in labels for word in re.split(r"[-_]", label) if word}
+
+
+def _folders(url: str) -> set[str]:
+    """Every word of the address's folders and page: "/buy-online/x.php" gives buy, online, x and php."""
+    return {word for part in _path_of(url).split("/") for word in re.split(r"[-_.]", part) if word}
+
+
+@functools.cache
+def _community_sites() -> tuple[str, ...]:
+    """The sites config/trust.yaml calls community evidence: forums and Q&A sites (US-16)."""
+    try:
+        from app.verify.trust import default_trust_table
+
+        return tuple(domain for domain, site in default_trust_table().sites.items() if site.tier == "community")
+    except Exception as exc:  # the lists above still hold (build rule 9)
+        log.warning("enrich: trust.yaml's community sites were not read (%s)", type(exc).__name__)
+        return ()
+
+
+@functools.cache
+def _store_domains() -> tuple[str, ...]:
+    """The stores config/stores.yaml knows (US-24): never read for a fact."""
+    from app.commerce.links import load_stores
+
+    return tuple(store.domain for store in load_stores())
+
+
+def _path_of(url: str) -> str:
+    """The URL's path in lower case, or "" when it has none or isn't a URL."""
+    try:
+        return (urlsplit(url).path or "").lower()
+    except ValueError:
+        return ""
+
+
+def preference(url: str, settings: ResearchSettings) -> int:
+    """D-102: a maker's page first, then a review site's, then any other checked page."""
     kind = page_kind(url, settings)
-    return kind is not None and kind[1] == "maker"
+    return PREFERENCE.get(kind[1], OTHER_KIND) if kind is not None else OTHER_KIND
+
+
+def other_site(source: Source) -> bool:
+    """Is this fact page another checked page, not a maker's or a review site's? Research types those as web pages."""
+    return source.type is SourceType.WEB_SEARCH and source.via != "search_snippet"
 
 
 @dataclass
@@ -333,7 +549,7 @@ class FactLookup:
         labelled = [
             (t, p, label)
             for t, p in targets
-            if t.criterion_key in answerable and (label := stand_in_label(ask.category, t.criterion_key, self.extract))
+            if t.criterion_key in answerable and (label := search_label(ask.category, t.criterion_key, self.extract))
         ]
         if not labelled or searches <= 0:
             return NOTHING
@@ -365,8 +581,15 @@ class FactLookup:
         keys = list(dict.fromkeys(t.criterion_key for t, _ in targets))[:10]
         if not keys:
             return set()
-        public = public_prompt_keys(ask.category, keys, (), False, self.extract)
-        return {public.renames.get(key, key) for key in public.criteria}
+        specs = self._specs(keys)
+        criteria = [key for key in keys if key not in specs]
+        public = public_prompt_keys(ask.category, criteria, specs, False, self.extract)
+        return {public.renames.get(key, key) for key in public.criteria} | (set(public.specs) & set(specs))
+
+    def _specs(self, keys: Sequence[str]) -> tuple[str, ...]:
+        """The keys that are a rule's known spec, asked for as extraction asks a rule's key: never as a criterion, which
+        a synonym could turn into another one (ram_gb is never memory_and_storage)."""
+        return tuple(key for key in keys if spec_label(key, self.extract) is not None)
 
     # --- searches and pages -----------------------------------------------------------------------------------------
 
@@ -430,24 +653,26 @@ class FactLookup:
             if job is not None:
                 pending[job] = first
             other: Path | None = OTHER[first]
+            waiting: Source | None = None  # another site's page, kept while the other path may bring a listed one
             while True:
-                if other is not None and (not pending or monotonic() >= switch_at):
+                if other is not None and (not pending or monotonic() >= switch_at or waiting is not None):
                     job = self._start(other, query, product, run)
                     if job is not None:
                         pending[job] = other
                     other = None
                 left = run.window.left()
                 if not pending or left < MIN_LEFT_S:
-                    return None
+                    return waiting
                 until = left if other is None else min(left, max(0.0, switch_at - monotonic()))
                 done, _ = wait(list(pending), timeout=until, return_when=FIRST_COMPLETED)
                 if not done and other is None:
-                    return None  # the window is over: the clock isn't read again for it (see MIN_LEFT_S)
+                    return waiting  # the window is over: the clock isn't read again for it (see MIN_LEFT_S)
                 for job in done:
                     del pending[job]
                     page = None if job.cancelled() else job.result()
-                    if page is not None:
+                    if page is not None and not other_site(page):
                         return page
+                    waiting = waiting or page
         except Exception as exc:  # build rule 9: one product's look-up failing loses only its own page
             log.info("enrich: a fact look-up failed (%s)", type(exc).__name__)
             return None
@@ -486,8 +711,8 @@ class FactLookup:
             else:
                 pages = self._searched(key, query, run)
             usable = [p for p in pages if str(p.url) not in run.ask.known_urls and names_product(p.text, product.name)]
-            makers = [p for p in usable if _maker(str(p.url), self.research)]
-            return next(iter([*makers, *usable]), None)
+            ranked = sorted(usable, key=lambda page: preference(str(page.url), self.research))  # makers, reviews, other
+            return next(iter(ranked), None)
         except Exception as exc:  # build rule 9
             log.info("enrich: a Firecrawl fact search failed (%s)", type(exc).__name__)
             return None
@@ -545,13 +770,15 @@ class FactLookup:
         share = min(PAGE_S, run.window.left() / 2)
         reading = UntilWindowEnds(run.usage, run.window)
         pending: dict[Future[Source | None], int] = {}
+        listed: set[Future[Source | None]] = set()  # reads of a maker's or a review site's page, still going
+        waiting: Source | None = None  # another site's page, kept while a listed page may still come (D-102)
         started = 0
         next_start = monotonic()
         more = True
         while True:
             now = monotonic()
             if run.window.left() < MIN_LEFT_S:
-                return None
+                return waiting
             if more and (not pending or now >= next_start):
                 url = next(remaining, None)
                 if url is None:
@@ -564,23 +791,31 @@ class FactLookup:
                         return None
                     self.in_flight.append(job)
                 pending[job] = started
+                if preference(url, self.research) < OTHER_KIND:
+                    listed.add(job)
                 started += 1
                 next_start = now + share
                 continue
             if not pending:
-                return None  # every link was read, and none names the product
+                return waiting  # every link was read: another site's page if one named the product, else none
             ends = run.window.ends
             until = min(ends, next_start) if more else ends
             done, _ = wait(list(pending), timeout=max(0.0, until - now), return_when=FIRST_COMPLETED)
             if not done and until == ends:
-                return None  # the window is over: the clock isn't read again for it (see MIN_LEFT_S)
+                return waiting  # the window is over: the clock isn't read again for it (see MIN_LEFT_S)
             for job in sorted(done, key=pending.__getitem__):
                 del pending[job]
+                listed.discard(job)
                 if job.cancelled():  # the reads were shut before it started
                     continue
                 page = job.result()
-                if page is not None and names_product(page.text, product.name):
+                if page is None or not names_product(page.text, product.name):
+                    continue
+                if not other_site(page):
                     return page
+                waiting = waiting or page
+            if waiting is not None and not listed:
+                return waiting  # no maker's or review page is still coming (they are read first): another site's
 
     def _links(self, query: str, run: _Run) -> list[str]:
         """Serper's readable links, maker pages first. Cached as those links only: nothing from Reddit is kept."""
@@ -601,7 +836,7 @@ class FactLookup:
         if failure is not None:
             return []
         hits = [str(s.url) for s in result.sources if readable(str(s.url), self.research)]
-        links = list(dict.fromkeys([*(u for u in hits if _maker(u, self.research)), *hits]))
+        links = list(dict.fromkeys(sorted(hits, key=lambda url: preference(url, self.research))))  # makers first
         self.cache.put_text(key, json.dumps(links))
         return links
 
@@ -632,9 +867,15 @@ class FactLookup:
         search_id: str | None,
     ) -> FactsFound:
         keys = list(dict.fromkeys(t.criterion_key for t, _ in targets))[:10]
+        specs = self._specs(keys)
+        own = [key for key in keys if key not in specs]
+        # The call needs one criterion to carry it: with only specs looked up, the category's first fixed one, whose
+        # claims are left out below, as nothing asked for it.
+        carried = own or [fallback_criteria(ask.category).criteria[0].key]
         criteria = allowed_criteria(
-            ExtractInput(source=pages[0][0], criterion_keys=keys, category_label=ask.category[:60]),
+            ExtractInput(source=pages[0][0], criterion_keys=carried, category_label=ask.category[:60]),
             DataClass.PUBLIC,
+            specs=SpecAsk(attributes=specs),
             settings=self.extract,
         )
         message = facts_message(

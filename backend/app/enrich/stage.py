@@ -1,8 +1,9 @@
 """Stage enrich (US-41, FR-24): prices from store listings, and missing facts for the top products.
 
 Facts (US-41, S5-6): targets other than the price are the top products' criteria with no evidence, picked by the
-pipeline after a first ranking (targets.py). FactLookup (facts.py) reads a maker's or review page for each and asks one
-batched LLM call; it runs beside the price look-ups, and both share enrich's MAX_ENRICH_SEARCHES searches a search: the
+pipeline after a first ranking (targets.py), and, when few rank, a "can't tell" product's unknown spec (D-102).
+FactLookup (facts.py) reads a checked public page for each, a maker's or review site's first, and asks one batched LLM
+call; it runs beside the price look-ups, and both share enrich's MAX_ENRICH_SEARCHES searches a search: the
 prices' Serper look-ups first, then the facts' searches on Serper or Firecrawl (D-101).
 
 PriceLookupStage is the real stage (P-34, first slice). The pipeline picks the targets in code (targets.py) and hands
@@ -74,7 +75,7 @@ from app.research.settings import ResearchSettings, load_research_settings
 from app.research.shopping import Listing, SerperShopping, ShoppingResult
 from app.research.usage import SearchUsage, UsageBook
 
-from .facts import NOTHING, FactAsk, FactLookup, FactsFound, nothing_sent
+from .facts import NOTHING, FactAsk, FactLookup, FactsFound, nothing_sent, other_page
 
 log = logging.getLogger(__name__)
 
@@ -303,7 +304,15 @@ class PriceLookupStage:
         serper = SerperSource(
             client, key, cache=research_cache, limiter=shared_limiter(settings.serper_interval_s), retry=retry
         )
-        pages = ReviewPages(client, settings, cache=research_cache, readers=readers, retry=retry)
+        # D-102: the fact pages may be on a site no list names, held to other_page's checks and robots.txt.
+        pages = ReviewPages(
+            client,
+            settings,
+            cache=research_cache,
+            readers=readers,
+            retry=retry,
+            other_pages=lambda url: other_page(url, settings),
+        )
         own = ResearchCache(folder=enrich_cache_dir(), ttl=ENRICH_TTL, reddit_ttl=ENRICH_TTL, enabled=settings.cache_on)
         llm = default_llm()
         lookup = FactLookup(
@@ -344,11 +353,22 @@ def look_up(shopping: ShoppingLike, query: str, usage: SearchUsage, ends: float)
     return shopping.search(query, usage)
 
 
-def facts_note(count: int) -> str:
-    """The coverage note's sentence for the facts verify took from maker and review pages (US-41, DECIDED 5)."""
-    if count == 1:
-        return "1 missing fact was found on a maker's or review page."
-    return f"{count} missing facts were found on maker and review pages."
+def facts_note(count: int, other: int = 0) -> str:
+    """The coverage note's sentence for the facts verify took (US-41, DECIDED 5): from maker and review pages, and
+    apart, those from other websites only (D-102), which count for less."""
+    if other <= 0:
+        if count == 1:
+            return "1 missing fact was found on a maker's or review page."
+        return f"{count} missing facts were found on maker and review pages."
+    if other >= count:
+        if count == 1:
+            return "1 missing fact was found on another website, so it counts for less."
+        return f"{count} missing facts were found on other websites, so they count for less."
+    listed = count - other
+    return (
+        f"{count} missing facts were found: {listed} on maker and review pages, and {other} on other websites, "
+        f"which count for less."
+    )
 
 
 def prices_note(count: int) -> str:
