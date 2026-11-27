@@ -1,0 +1,216 @@
+# US-51 personalisation strength (D-55, by-hand job 3): 5 personas on one shared brief, written by people.
+# One live research runs for the shared brief; then decide runs once per persona on the same verified values, so only
+# the priorities differ. Target: the 5 personas produce at least 3 different top picks.
+#
+# The shared brief uses the smartphone fixed criteria set (config/criteria_fallback.yaml), so every persona gives a
+# level for each of its 8 keys:
+#   camera_quality, battery_life, processor_speed, display_quality, software_updates, storage_space,
+#   build_durability, value_for_money
+# Levels (the interview's own buttons, US-08): high (8), medium (5), good_enough (3), low (2), not_at_all (0).
+# Every persona gives a level for all 8 keys: a missing key is an error that names the persona and the key. A persona
+# whose levels are all not_at_all is kept and listed with the all-zero note (the category's usual weights are then
+# used), never dropped.
+#
+# Rules: made-up personas only (no real person); priorities says who they are and what matters, in plain words.
+#
+# Fill in written_by, the shared brief (one made-up smartphone request, with a budget), then the personas.
+# Example of one persona (not counted, as it is a comment):
+#   - id: photographer
+#     priorities: "Takes photos of everything on trips; the camera matters most, then battery."
+#     levels:
+#       camera_quality: high
+#       battery_life: high
+#       processor_speed: medium
+#       display_quality: medium
+#       software_updates: low
+#       storage_space: medium
+#       build_durability: low
+#       value_for_money: medium
+
+
+written_by:
+  - Rushiraj Navar
+  - Om Pandya
+
+shared_brief: "I'm due for a new smartphone and can spend up to ₹35,000. I'd like to compare a few reliable options in this price range before deciding which one to buy. I use my phone for a bit of everything."
+
+personas:
+  - id: photographer
+    priorities: "This shopper takes lots of photos at family gatherings and records videos on weekend outings. Getting good pictures and having enough room to keep them are what matter most. A decent screen is useful for reviewing photos, and battery life and price still matter. Ordinary performance and a reasonably sturdy body are fine, and long software support is not much of a selling point."
+    levels:
+      camera_quality: high
+      battery_life: medium
+      processor_speed: good_enough
+      display_quality: medium
+      software_updates: low
+      storage_space: high
+      build_durability: good_enough
+      value_for_money: medium
+
+  - id: gamer
+    priorities: "A college student who spends much of their free time playing mobile games. They care most about smooth gameplay and a screen that makes games look and feel good. Battery backup, room for games and getting a fair deal also matter. A reasonably solid phone is fine, but camera quality and long-term software support are low on their list."
+    levels:
+      camera_quality: low
+      battery_life: medium
+      processor_speed: high
+      display_quality: high
+      software_updates: low
+      storage_space: medium
+      build_durability: good_enough
+      value_for_money: medium
+
+  - id: field_worker
+    priorities: "This shopper travels between work sites and spends much of the day away from a charger. Their biggest concerns are running out of battery and damaging the phone through everyday knocks. A readable screen is useful outdoors, and price matters too. Basic speed and storage are sufficient; photography and the length of software support are lower priorities."
+    levels:
+      camera_quality: low
+      battery_life: high
+      processor_speed: good_enough
+      display_quality: medium
+      software_updates: low
+      storage_space: good_enough
+      build_durability: high
+      value_for_money: medium
+
+  - id: long_term_owner
+    priorities: "An office worker who usually keeps the same phone for several years. They place the greatest importance on continued security and software updates. They also appreciate a sturdy build, enough storage, dependable performance and reasonable battery life over the years. A fair price matters, but an ordinary screen is fine and photography is rarely a consideration."
+    levels:
+      camera_quality: low
+      battery_life: medium
+      processor_speed: medium
+      display_quality: good_enough
+      software_updates: high
+      storage_space: medium
+      build_durability: medium
+      value_for_money: medium
+
+  - id: practical_buyer
+    priorities: "A shopper who mainly uses their phone for messaging, banking, calls and browsing. They could spend the full budget but would rather not pay extra for improvements they are unlikely to notice. Getting good value is their main concern, followed by battery life and software support. As long as the camera, screen, speed, storage and build are adequate for ordinary use, they are satisfied."
+    levels:
+      camera_quality: good_enough
+      battery_life: medium
+      processor_speed: good_enough
+      display_quality: good_enough
+      software_updates: medium
+      storage_space: good_enough
+      build_durability: good_enough
+      value_for_money: high
+
+  - id: entertainment_lover
+    priorities: "This shopper spends most evenings watching movies, web series and YouTube on their phone. A good-looking screen and enough battery to watch comfortably for hours matter most. Storage for downloaded content and a reasonable price are also important. Basic performance, durability and software support are sufficient, while camera quality is rarely a concern."
+    levels:
+      camera_quality: low
+      battery_life: high
+      processor_speed: good_enough
+      display_quality: high
+      software_updates: good_enough
+      storage_space: medium
+      build_durability: good_enough
+      value_for_money: medium
+
+  - id: small_business_owner
+    priorities: "Runs a small online shop and regularly photographs products, replies to customers and manages orders using their phone. Camera quality and getting good value for the money spent are the biggest priorities. Battery life, smooth multitasking, storage, a decent display and software support also matter. An ordinarily sturdy phone is sufficient."
+    levels:
+      camera_quality: high
+      battery_life: medium
+      processor_speed: medium
+      display_quality: medium
+      software_updates: medium
+      storage_space: medium
+      build_durability: good_enough
+      value_for_money: high
+
+  - id: busy_parent
+    priorities: "This shopper relies on their phone throughout the day for coordinating family activities, answering calls, messaging and taking occasional family photos. They mainly want a battery that will not run out before bedtime. Camera quality, smooth performance, software support, durability and value are secondary considerations. A basic display and ordinary storage capacity are enough."
+    levels:
+      camera_quality: medium
+      battery_life: high
+      processor_speed: medium
+      display_quality: good_enough
+      software_updates: medium
+      storage_space: good_enough
+      build_durability: medium
+      value_for_money: medium
+
+  - id: security_conscious_professional
+    priorities: "Uses their smartphone extensively for banking, work emails and managing personal accounts. Regular security and software updates matter far more than entertainment features. They also appreciate reliable performance, reasonable battery life, a sturdy build and fair pricing. Basic storage and display quality are sufficient, and photography is not important to them."
+    levels:
+      camera_quality: not_at_all
+      battery_life: medium
+      processor_speed: medium
+      display_quality: good_enough
+      software_updates: high
+      storage_space: good_enough
+      build_durability: medium
+      value_for_money: medium
+
+  - id: frequent_traveller
+    priorities: "Frequently travels between cities and likes keeping maps, music, documents and videos available offline. Having plenty of storage is the main priority. Battery backup, a readable display, durability and reasonable pricing also matter during travel. A basic camera, everyday processing speed and ordinary software support are sufficient."
+    levels:
+      camera_quality: good_enough
+      battery_life: medium
+      processor_speed: good_enough
+      display_quality: medium
+      software_updates: good_enough
+      storage_space: high
+      build_durability: medium
+      value_for_money: medium
+
+  - id: productivity_multitasker
+    priorities: "A working professional who frequently switches between spreadsheets, messaging apps, emails and documents on their phone. Fast and responsive performance is their biggest priority because slow apps interrupt their work. Battery life, display quality, storage, software support and reasonable pricing also matter. Standard build quality is acceptable, and the camera is rarely used."
+    levels:
+      camera_quality: low
+      battery_life: medium
+      processor_speed: high
+      display_quality: medium
+      software_updates: medium
+      storage_space: medium
+      build_durability: good_enough
+      value_for_money: medium
+
+  - id: daily_reader
+    priorities: "Enjoys reading ebooks, news articles and educational material on their smartphone for extended periods. A sharp, comfortable-to-read display is particularly important, but they also want good value rather than paying for features they barely use. Battery life matters moderately. Ordinary performance, storage, software support and durability are enough, and camera quality has no influence on their decision."
+    levels:
+      camera_quality: not_at_all
+      battery_life: medium
+      processor_speed: good_enough
+      display_quality: high
+      software_updates: good_enough
+      storage_space: good_enough
+      build_durability: good_enough
+      value_for_money: high
+
+  - id: outdoor_enthusiast
+    priorities: "Spends weekends hiking, cycling and exploring outdoor locations. Their biggest concern is whether the phone can withstand everyday bumps and rough handling. Battery life, outdoor screen visibility, taking occasional scenic photos and reasonable pricing also matter. Basic processing speed, storage and software support are sufficient for their needs."
+    levels:
+      camera_quality: medium
+      battery_life: medium
+      processor_speed: good_enough
+      display_quality: medium
+      software_updates: good_enough
+      storage_space: good_enough
+      build_durability: high
+      value_for_money: medium
+
+  - id: digital_archivist
+    priorities: "Prefers keeping years of personal documents, messages, photos and downloaded files on the same smartphone instead of frequently clearing storage. Generous storage and continued software support are the most important considerations. They also appreciate reasonable battery life, dependable performance, durability and fair pricing. An ordinary display is sufficient, and producing high-quality photographs is not a priority."
+    levels:
+      camera_quality: low
+      battery_life: medium
+      processor_speed: medium
+      display_quality: good_enough
+      software_updates: high
+      storage_space: high
+      build_durability: medium
+      value_for_money: medium
+
+  - id: frugal_household_buyer
+    priorities: "Uses a smartphone mainly for calls, messaging, online payments and occasional browsing. They see a phone as a practical purchase rather than a luxury item. Getting the best value and buying something physically dependable are their biggest concerns. Continued software support is useful, while basic battery life, performance, display quality and storage are enough. Camera quality is a low priority."
+    levels:
+      camera_quality: low
+      battery_life: good_enough
+      processor_speed: good_enough
+      display_quality: good_enough
+      software_updates: medium
+      storage_space: good_enough
+      build_durability: high
+      value_for_money: high
