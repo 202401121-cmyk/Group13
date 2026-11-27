@@ -40,6 +40,7 @@ from app import db
 from app.api.evidence import EvidenceUnavailable, saved_evidence_for
 from app.auth import Caller, SignedInUser, who_is_asking
 from app.auth.settings import load_admin_settings
+from app.cache import forget_user
 from app.contracts import (
     EvidenceResponse,
     MeResponse,
@@ -329,6 +330,7 @@ def delete_account(
             "account delete: rows were left in %s after the user's delete", sorted(t for t, n in left.items() if n)
         )
         raise HTTPException(503, DELETE_NOT_FINISHED)
+    forget_user(str(user.id))  # its searches kept for a repeat (US-34) go too: they could never be served again
     log.info("account delete: an account and all its rows were deleted")
     return Response(status_code=204)
 

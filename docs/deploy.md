@@ -128,6 +128,7 @@ and the file name the same ones.
 | `SUPABASE_SECRET_KEY` | A Supabase secret key (`sb_secret_...`, Supabase > Project Settings > API keys), for one thing: deleting a shopper's account (US-11, [api-setup.md](api-setup.md#supabase-auth-deleting-an-account-us-11-p-43)). Backend only, never the browser (D-32). Empty: `DELETE /api/me` answers 503 and everything else works. | **yes** |
 | `MATCHER` | `model` (see below) | no |
 | `MEMORY` | `on`, the default: a signed-in shopper's preferences are remembered (US-06). `off` switches memory off, and the interview runs as before. | no |
+| `RESULT_CACHE` | `on`, the default: an exact repeat of a search (the same request, category and priorities, and a signed-in shopper's stored preferences) answers from `backend/.cache/results/` until its Reddit limit, without Reddit text (US-34). The disk is wiped at each spin-down, so the cache starts empty. `off` runs every search. | no |
 | `NLI` | Set by `render.yaml` (`off`, see below). Nothing to enter. `off`: an explanation's evidence sentences stay only when they quote their evidence word for word. The app's own default is `on` (S5-4b), which checks each one against the quotes it cites, with a model run on the server. | no |
 | `EXTRACT_MAX_SOURCES` | `5` | no |
 | `SEARCH_RUN_WORKERS` | `1` | no |

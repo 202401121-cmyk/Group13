@@ -35,6 +35,7 @@ import httpx
 from pydantic import ValidationError
 
 from app import db
+from app.cache.results import Lookup, ResultCache, as_hit
 from app.commerce import default_commerce_stage
 from app.contracts import (
     SEARCH_TIME_LIMIT_S,
@@ -499,9 +500,11 @@ class PipelineRunner:
         search_time_limit_s: float = SEARCH_TIME_LIMIT_S,
         extract_workers: int = EXTRACT_WORKERS,
         aliases: db.AliasStore | None = None,
+        cache: ResultCache | None = None,
     ) -> None:
         self.stages = stages
         self.store = store
+        self.cache = cache  # an exact repeat answers from here (US-34, D-80); the API's searches pass one, the CLI none
         # Product aliases (DR-06): Postgres with memory underneath when the result store saves to Postgres, else memory.
         self.aliases = aliases if aliases is not None else db.alias_store_for(getattr(store, "requests", None))
         self.time_limits = {**STAGE_TIME_LIMITS_S, **(time_limits or {})}
@@ -533,6 +536,13 @@ class PipelineRunner:
         # time is still saved, and a slow save never cuts the search short).
         ctx = StageContext(search_id=search_id or new_search_id(), time_limit_s=self.search_time_limit_s)
         started_at = datetime.now(UTC)
+        found = self.cache.lookup(request) if self.cache is not None else None  # its key made once, here
+        hit = self._hit(found, request, ctx.search_id)
+        if hit is not None:  # the same request, category and priorities (and stored preferences) within the limit
+            _stop_if_cancelled(cancel, ctx.search_id)
+            if cancel is not None and not cancel.start_saving():
+                _stop_if_cancelled(cancel, ctx.search_id)
+            return self._save(hit)
         search = _Search(
             self.stages, self.time_limits, request, ctx, cancel, self.extract_workers, self.aliases, early=early
         )
@@ -561,7 +571,21 @@ class PipelineRunner:
         result = search.result(started_at, partial or search.out_of_time)
         if getattr(self.store, "saves", False):
             events.saving(search.reports, search.sources_found())
-        return self._save(result)
+        saved = self._save(result)
+        if self.cache is not None and found is not None:
+            self.cache.keep(found.key, saved)  # a full result only, without Reddit text; never fails the search
+        return saved
+
+    @staticmethod
+    def _hit(found: Lookup | None, request: SearchRequest, search_id: str) -> SearchResult | None:
+        """The kept result as this search, or None to run it: any fault making it runs the search (build rule 9)."""
+        if found is None or found.hit is None:
+            return None
+        try:
+            return as_hit(*found.hit, request, search_id, datetime.now(UTC))
+        except Exception as exc:
+            log.warning("result cache: a kept result could not be served (%s); searching", type(exc).__name__)
+            return None
 
     def _save(self, result: SearchResult) -> SearchResult:
         """`result` says saved=True, so the stored row and the response agree. If no row was committed, say so."""

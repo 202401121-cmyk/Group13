@@ -64,6 +64,8 @@ services:
         sync: false
       - key: MEMORY
         sync: false
+      - key: RESULT_CACHE
+        sync: false
       - key: NLI
         value: "off"  # the citation check's model doesn't fit 512 MB (P-10); P-49 may move it to a service of its own
       - key: EXTRACT_MAX_SOURCES

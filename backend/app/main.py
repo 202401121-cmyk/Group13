@@ -39,6 +39,7 @@ from app.api import (
 from app.api.exclusions import router as exclusions_router
 from app.api.presearch import plain_validation_message
 from app.auth import OptionalUser
+from app.cache import default_result_cache, sweep_results
 from app.contracts import SCHEMA_VERSION, SearchRequest, SearchResult
 from app.pipeline import DatabaseResultStore, PipelineRunner, default_search_stages
 from app.research.cache import sweep_expired_files
@@ -66,9 +67,11 @@ class Housekeeping:
         sweep: Callable[[], None] = sweep_expired_files,
         every_s: float = SWEEP_EVERY_S,
         wait: Callable[[float], Awaitable[None]] = anyio.sleep,
+        sweep_results: Callable[[], None] = sweep_results,
     ) -> None:
         self.runs = runs
         self.sweep = sweep
+        self.sweep_results = sweep_results  # whole searches kept for a repeat (US-34), past serve_limit
         self.every_s = every_s
         self.wait = wait
         self.ticks = 0
@@ -76,7 +79,12 @@ class Housekeeping:
         self.running = False
 
     def tick(self) -> None:
-        for part, job in (("run store", self.runs.drop_expired), ("cache sweep", self.sweep)):
+        jobs = (
+            ("run store", self.runs.drop_expired),
+            ("cache sweep", self.sweep),
+            ("result cache", self.sweep_results),
+        )
+        for part, job in jobs:
             try:
                 job()
             except Exception as exc:  # never let housekeeping stop the app, a request or the next tick
@@ -126,7 +134,8 @@ def health() -> dict[str, str]:
 def search(request: SearchRequest, user: OptionalUser) -> SearchResult:
     # A plain `def`, so FastAPI runs the (blocking) pipeline in its thread pool, not on the event loop.
     # The owner comes from the checked token, never the body: a guest's search is never linked (US-30, D-36).
-    runner = PipelineRunner(default_search_stages(), DatabaseResultStore(db.default_request_store()))
+    store = DatabaseResultStore(db.default_request_store())
+    runner = PipelineRunner(default_search_stages(), store, cache=default_result_cache())  # an exact repeat (US-34)
     return runner.run(owned_by(request, user))
 
 

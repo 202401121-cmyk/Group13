@@ -229,3 +229,11 @@ def test_a_failure_outside_the_jobs_is_logged_and_the_timer_goes_on(
     assert keeper.ticks == 1  # the first tick never started; the next one ran
     assert "housekeeping: a tick failed (RuntimeError)" in caplog.text
     assert "secret" not in caplog.text
+
+
+def test_each_tick_sweeps_the_result_cache_too() -> None:
+    """US-34 (S5-7): whole searches kept for a repeat go at serve_limit, search or no search (D-53)."""
+    swept: list[str] = []
+    keeper = Housekeeping(Runs(), sweep=lambda: swept.append("research"), sweep_results=lambda: swept.append("results"))  # type: ignore[arg-type]
+    keeper.tick()
+    assert swept == ["research", "results"]

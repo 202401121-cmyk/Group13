@@ -57,6 +57,7 @@ from fastapi.sse import EventSourceResponse, ServerSentEvent
 
 from app import db
 from app.auth import OptionalUser
+from app.cache import default_result_cache
 from app.contracts import (
     Claim,
     EvidenceResponse,
@@ -81,7 +82,16 @@ from app.research.retention import without_reddit_text
 from app.search_run_limits import DEFAULT_KEEP_MINUTES, environment, keep_minutes, number
 
 from .account import owned_by
-from .evidence import NO_PRODUCT, NO_VALUE, SOURCES_GONE, ClaimRecorder, EvidenceUnavailable, cited_claims, evidence_for
+from .evidence import (
+    NO_PRODUCT,
+    NO_VALUE,
+    SOURCES_GONE,
+    ClaimRecorder,
+    EvidenceUnavailable,
+    cited_claims,
+    evidence_for,
+    saved_evidence_for,
+)
 
 log = logging.getLogger(__name__)
 
@@ -283,6 +293,8 @@ class SearchRuns:
             raise EvidenceUnavailable(409, NOT_FINISHED)
         if result is None:
             raise EvidenceUnavailable(404, NO_RESULTS)
+        if result.cached:  # a repeat answered from the cache (US-34) read no source: its kept citations answer
+            return saved_evidence_for(result, product_id, criterion_key)
         return evidence_for(result, claims, product_id, criterion_key)  # `claims` is replaced, never changed
 
     def drop_expired(self) -> None:
@@ -546,8 +558,10 @@ def _recording(runner: PipelineRunner) -> tuple[PipelineRunner, ClaimRecorder | 
 
 
 def default_runner() -> PipelineRunner:
-    """The runner POST /api/search uses: the default stages, saving to the database when one is set (FX-4)."""
-    return PipelineRunner(default_search_stages(), DatabaseResultStore(db.default_request_store()))
+    """The runner POST /api/search uses: the default stages, saving to the database when one is set (FX-4), and the
+    result cache for an exact repeat (US-34, D-80; RESULT_CACHE=off runs every search)."""
+    store = DatabaseResultStore(db.default_request_store())
+    return PipelineRunner(default_search_stages(), store, cache=default_result_cache())
 
 
 # --- the routes ---------------------------------------------------------------------------------

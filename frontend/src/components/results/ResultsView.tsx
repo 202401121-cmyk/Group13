@@ -20,6 +20,7 @@ import {
 } from "@/components/results/ResultCard";
 import { SourceDrawer, type SourceTarget } from "@/components/results/SourceDrawer";
 import { formatCheckTime, giveFocusBack, latestOnly, tieGroups, tiesFor } from "@/lib/results/view";
+import { cachedLine } from "@/lib/results/cachedLine";
 import { moveText } from "@/lib/results/moves";
 import { sourcesFor } from "@/lib/results/controller";
 import type { Outcome } from "@/lib/results/rerank";
@@ -286,6 +287,8 @@ export function ResultsView({
 
   // An LLM outage priced nothing, so it says nothing about when prices were checked.
   const pricesTime = result.llmUnavailable ? null : formatCheckTime(result.pricesCheckedAt);
+  // A repeat answered from the cache (US-34) says when its search was made.
+  const fromCache = cachedLine(result.cachedAt, Date.now());
 
   return (
     <section aria-labelledby="results-title">
@@ -303,6 +306,7 @@ export function ResultsView({
           <StatusBadge variant="neutral">Preview: mock data, not a live search</StatusBadge>
         </p>
       )}
+      {fromCache && <p className="mt-3 text-sm text-muted-foreground">{fromCache}</p>}
       <p className="sr-only" aria-live="polite">
         {announce}
       </p>
