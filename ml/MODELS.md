@@ -157,6 +157,14 @@ Fuzzy stays the default until a larger labelled test part shows the target.
 | Target | More of the 30 seeded conflicts resolved correctly than majority vote |
 | Sprint | 3 |
 
+**Pages on sites no list names (US-41, D-102, 27 Nov 2026).** Enrich's fact look-ups may now read a public page on a site
+that `config/trust.yaml` doesn't list, when it names the exact model and holds the quote word for word. Such a page is
+typed a web page with the lowest tier (5), and starts at web search's default trust, 55: the same trust research already
+gives any unknown page. So in verify it ranks below review sites (70) and makers, but above Reddit (45) and stores (40).
+Why: it is a page about the product written by a site, not an owner's post or a shop's listing, and nothing is known
+about the site either way. A lower trust for these pages would be a change to verify, which the team kept out of this
+story.
+
 ## 3. Smart interview
 
 | | |

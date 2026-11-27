@@ -58,7 +58,6 @@ from app.contracts import (
     ProductMention,
     ProductSummary,
     ProgressEvent,
-    RankedProduct,
     RecommenderCount,
     ResearchInput,
     ResearchResult,
@@ -77,15 +76,23 @@ from app.contracts import (
     VerifyResult,
     examples,
 )
+from app.contracts.enrich import ENRICH_TOP_N
 from app.decide import PRICE_KEY, WeightedDecideStage
 from app.decide.features import feature_key, known_feature
 from app.decide.rules import NO_SINGLE_CHANGE
 from app.enrich import default_enrich_stage, price_targets
-from app.enrich.facts import FactAsk, stand_in_label
+from app.enrich.facts import FactAsk, other_site, spec_label, stand_in_label
 from app.enrich.stage import LATER_S as ENRICH_LATER_S
 from app.enrich.stage import MIN_LOOKUP_S as ENRICH_MIN_LOOKUP_S
 from app.enrich.stage import facts_note, prices_note
-from app.enrich.targets import fact_targets, readable_price, shared_targets
+from app.enrich.targets import (
+    fact_targets,
+    filled_targets,
+    held_keys,
+    provisional_ranking,
+    readable_price,
+    shared_targets,
+)
 from app.entities import ModelMatchStage, alias_keys
 from app.explain import ExplainStage
 from app.extract import default_extract_stage
@@ -717,6 +724,7 @@ class _Search:
         self.enrich_note: str | None = None  # how many prices came from store listings (US-41)
         self.enrich_sources: list[Source] = []  # the listings enrich's claims came from, once verify took them
         self._fact_ranking: list[str] = []  # the first ranking's product ids, best first (D-101)
+        self.enrich_other_facts = 0  # of the facts verify took, those from another checked page only (D-102)
         self.commerce_note: str | None = None  # how many products couldn't be priced (US-24, S4-26)
         self.recommender_counts: list[
             RecommenderCount
@@ -1105,8 +1113,9 @@ class _Search:
 
     def enrich(self) -> StageReport:
         """Prices from store listings for the kept products whose price is unknown (US-41, P-34), and the top products'
-        missing facts from maker and review pages (US-41, S5-6). The targets are picked here, in code: the facts after a
-        first ranking. New claims go through verify again, so decide sees them; any failure changes nothing."""
+        missing facts from checked public pages, makers' and review sites' first (US-41, S5-6, D-102). The targets are
+        picked here, in code: the facts after a first ranking, filled from "can't tell" when few rank. New claims go
+        through verify again, so decide sees them; any failure changes nothing."""
         stage = self.stages.enrich
         products = self._kept_products()
         targets = self._enrich_targets(products)
@@ -1118,7 +1127,10 @@ class _Search:
         claims = self.enrich_out.new_claims if self.enrich_out is not None else []
         prices, facts = self._reverified(claims, sources)
         # What verify took, never what was only found: else the note would say what didn't happen.
-        notes = [*([prices_note(prices)] if prices else []), *([facts_note(facts)] if facts else [])]
+        notes = [
+            *([prices_note(prices)] if prices else []),
+            *([facts_note(facts, self.enrich_other_facts)] if facts else []),
+        ]
         if notes:
             self.enrich_note = " ".join(notes)
         return report
@@ -1140,16 +1152,20 @@ class _Search:
             return []
         source_of = {claim.id: claim.source_id for claim in self.claims}
         prices = price_targets(self.rubric, products, self.verify_out.values, self.match_out.alias_map, source_of)
-        return shared_targets(prices, self._fact_targets(products))
+        return self._fact_targets(products, prices)
 
-    def _fact_targets(self, products: list[Product]) -> list[EnrichTarget]:
-        """The top products' criteria with no evidence, after a first ranking (US-41, DECIDED 1). Only a criterion with
-        a fixed public stand-in can be searched for (D-51)."""
-        match = self.match_out
-        ranked = self._first_ranking(products)
+    def _fact_targets(self, products: list[Product], prices: list[EnrichTarget]) -> list[EnrichTarget]:
+        """The top products' criteria with no evidence, after a first ranking (US-41, DECIDED 1), sharing enrich's
+        searches with the prices. Only a criterion with a fixed public stand-in can be searched for (D-51). When fewer
+        than ENRICH_TOP_N products rank, the rest come from decide's "can't tell" group, each with the unknown that held
+        it back first (D-102 item 1, filled_targets)."""
+        match = _require(self.match_out, "match")
+        verified = _require(self.verify_out, "verify")
+        first = self._first_ranking(products)
+        ranked = list(first.ranked) if first is not None else []
         self._fact_ranking = [item.product_id for item in ranked]
-        if not ranked or match is None:
-            return []
+        if first is None:
+            return shared_targets(prices, [])
         settings = load_extract_settings()
         category = self.rubric.category
         known: dict[str, bool] = {}
@@ -1159,18 +1175,44 @@ class _Search:
                 known[key] = stand_in_label(category, key, settings) is not None
             return known[key]
 
-        return fact_targets(self.rubric, ranked, {p.id: p for p in products}, match.alias_map, searchable)
+        by_id = {p.id: p for p in products}
+        held = [each for each in first.filtered if each.group == "cant_tell"]
+        usual = shared_targets(prices, fact_targets(self.rubric, ranked, by_id, match.alias_map, searchable))
+        if len(ranked) >= ENRICH_TOP_N or not held:
+            return usual
 
-    def _first_ranking(self, products: list[Product]) -> list[RankedProduct]:
-        """Decide's ranking on what verify found so far, for the fact look-ups' targets only (US-41). Its report is
-        never added and its note is read away, so the result shows only the real decide's. A stub decide, a fallback or
-        no time gives none: then no fact is looked up."""
+        def askable(key: str) -> bool:
+            return spec_label(key, settings) is not None
+
+        try:
+            holding = [by_id[each.product_id] for each in held if each.product_id in by_id]
+            return filled_targets(
+                self.rubric,
+                ranked,
+                held,
+                provisional_ranking(self.rubric, holding, verified.values),
+                by_id,
+                verified.values,
+                match.alias_map,
+                searchable,
+                askable,
+                prices,
+                held_keys(self.rubric, first.checked_values),
+            )
+        except Exception as exc:  # build rule 9: the usual look-ups, and the search goes on
+            log.warning("enrich's look-ups from can't tell were not picked: %s", type(exc).__name__)
+            return usual
+
+    def _first_ranking(self, products: list[Product]) -> DecideResult | None:
+        """Decide's ranking on what verify found so far, for the fact look-ups' targets only (US-41): its ranked and its
+        "can't tell" products. Its report is never added and its note is read away, so the result shows only the real
+        decide's. A stub decide, a fallback or no time gives none: then no fact is looked up."""
         verified = self.verify_out
         decide_s = self.limits[StageName.DECIDE]
         if verified is None or bool(getattr(self.stages.decide, "is_placeholder", False)) or self.out_of_time:
-            return []
+            return None
         if self.ctx.seconds_left < decide_s + ENRICH_LATER_S + ENRICH_MIN_LOOKUP_S:  # enrich would have no time
-            return []
+            return None
         inp = DecideInput(rubric=self.rubric, products=products, values=verified.values, community=verified.community)
         # Under a search ID of its own: a note it keeps, even late after a time-out, is never the real decide's.
         first = replace(self.ctx, search_id=f"{self.ctx.search_id}{FIRST_RANKING}")
@@ -1178,12 +1220,12 @@ class _Search:
             out, report = run_stage(self.stages.decide, inp, first, min(decide_s, self.ctx.seconds_left))
         except Exception as exc:  # build rule 9: no first ranking, so no fact look-ups
             log.warning("the first ranking for enrich did not run: %s", type(exc).__name__)
-            return []
+            return None
         finally:
             _hook("coverage_note", getattr(self.stages.decide, "coverage_note", None), first.search_id)
         if out is None or report.status is not StageStatus.OK:
-            return []
-        return list(without_products(out, self.dropped).ranked)
+            return None
+        return without_products(out, self.dropped)
 
     def _reverified(self, claims: Sequence[Claim], sources: Sequence[Source]) -> tuple[int, int]:
         """Verify again with enrich's claims (US-41, P-34 item 4). How many products now have a price from them, and
@@ -1231,6 +1273,16 @@ class _Search:
         if not taken and not facts:
             log.info("search %s: verify took none of enrich's claims", self.ctx.search_id)
             return 0, 0
+        # D-102: a fact resting on other checked pages only gets its own words in the note: it counts for less.
+        others = {source.id for source in added if other_site(source)}
+        source_of = {claim.id: claim.source_id for claim in new}
+        self.enrich_other_facts = sum(
+            1
+            for value in resting
+            if value.criterion_key != PRICE_KEY
+            and value.state in (ValueState.KNOWN, ValueState.DISPUTED)
+            and all(source_of[claim] in others for claim in ids.intersection(value.supporting_claim_ids))
+        )
         self.verify_out = out
         self.claims = [*self.claims, *new]
         self.enrich_sources = added

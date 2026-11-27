@@ -1,13 +1,13 @@
 {
-  "generated": "2026-11-25",
-  "commit": "21fefc6",
+  "generated": "2026-11-27",
+  "commit": "a66437c",
   "runner": "python -m evals.enrich_coverage (live)",
   "briefs": 10,
-  "budget_note": "limits {'llm': 100, 'serper': 75, 'reddit': 0, 'jina': 30, 'firecrawl': 75}",
+  "budget_note": "limits {'llm': 20, 'serper': 10, 'reddit': 0, 'jina': 5, 'firecrawl': 50}",
   "measures": [
     {
       "id": "enrich.top5_evidence_before",
-      "value": 0.0964,
+      "value": 0.1016,
       "unit": "rate",
       "status": "measured",
       "source": "backend/evals/enrich_coverage.py: the recorded gate runs replayed with live enrich, and the hand-written decide briefs run live (evals/live_briefs.py --briefs)",
@@ -15,7 +15,7 @@
     },
     {
       "id": "enrich.top5_evidence_after",
-      "value": 0.0964,
+      "value": 0.1069,
       "unit": "rate",
       "status": "measured",
       "source": "backend/evals/enrich_coverage.py: the recorded gate runs replayed with live enrich, and the hand-written decide briefs run live (evals/live_briefs.py --briefs)",
@@ -23,11 +23,43 @@
     },
     {
       "id": "enrich.top5_evidence_gain",
-      "value": 0.0,
+      "value": 0.0053,
       "unit": "difference",
       "status": "measured",
       "source": "backend/evals/enrich_coverage.py: the recorded gate runs replayed with live enrich, and the hand-written decide briefs run live (evals/live_briefs.py --briefs)",
       "detail": "the after rate less the before rate: what enrich's look-ups added (US-41)"
+    },
+    {
+      "id": "enrich.ranked_before",
+      "value": 33,
+      "unit": "count",
+      "status": "measured",
+      "source": "backend/evals/enrich_coverage.py: the recorded gate runs replayed with live enrich, and the hand-written decide briefs run live (evals/live_briefs.py --briefs)",
+      "detail": "products ranked with a score over 9 runs, before enrich's look-ups"
+    },
+    {
+      "id": "enrich.ranked_after",
+      "value": 33,
+      "unit": "count",
+      "status": "measured",
+      "source": "backend/evals/enrich_coverage.py: the recorded gate runs replayed with live enrich, and the hand-written decide briefs run live (evals/live_briefs.py --briefs)",
+      "detail": "products ranked with a score over 9 runs, after enrich's look-ups"
+    },
+    {
+      "id": "enrich.looked_up_evidence_before",
+      "value": 0.0801,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/evals/enrich_coverage.py: the recorded gate runs replayed with live enrich, and the hand-written decide briefs run live (evals/live_briefs.py --briefs)",
+      "detail": "mean over 9 runs' looked-up products, ranked or can't tell: the share of the shopper's weight with evidence, before enrich's look-ups"
+    },
+    {
+      "id": "enrich.looked_up_evidence_after",
+      "value": 0.083,
+      "unit": "rate",
+      "status": "measured",
+      "source": "backend/evals/enrich_coverage.py: the recorded gate runs replayed with live enrich, and the hand-written decide briefs run live (evals/live_briefs.py --briefs)",
+      "detail": "mean over 9 runs' looked-up products, ranked or can't tell: the share of the shopper's weight with evidence, after enrich's look-ups"
     }
   ],
   "runs": {
@@ -37,14 +69,19 @@
       "after": 0.2315,
       "after_final_top": 0.2315,
       "rankings": 2,
+      "ranked_before": 4,
+      "ranked_after": 4,
       "look_ups": {
-        "price_targets": 3,
-        "fact_targets": 3,
-        "searches": 3,
-        "llm_calls": 0,
-        "fact_claims": 0,
+        "price_targets": 1,
+        "fact_targets": 5,
+        "searches": 5,
+        "llm_calls": 1,
+        "fact_claims": 1,
         "price_claims": 0
-      }
+      },
+      "looked_up": 5,
+      "looked_up_before": 0.1852,
+      "looked_up_after": 0.1852
     },
     "gate_earbuds": {
       "top": 1,
@@ -52,14 +89,19 @@
       "after": 0.0,
       "after_final_top": 0.0,
       "rankings": 2,
+      "ranked_before": 0,
+      "ranked_after": 0,
       "look_ups": {
-        "price_targets": 3,
+        "price_targets": 4,
         "fact_targets": 2,
-        "searches": 2,
+        "searches": 4,
         "llm_calls": 0,
         "fact_claims": 0,
         "price_claims": 0
-      }
+      },
+      "looked_up": 5,
+      "looked_up_before": 0.0,
+      "looked_up_after": 0.0
     },
     "gate_laptop": {
       "top": 5,
@@ -67,29 +109,39 @@
       "after": 0.0549,
       "after_final_top": 0.0549,
       "rankings": 2,
+      "ranked_before": 0,
+      "ranked_after": 0,
       "look_ups": {
         "price_targets": 3,
         "fact_targets": 3,
-        "searches": 3,
+        "searches": 5,
         "llm_calls": 0,
         "fact_claims": 0,
         "price_claims": 1
-      }
+      },
+      "looked_up": 6,
+      "looked_up_before": 0.0458,
+      "looked_up_after": 0.0458
     },
     "gate_smartphone": {
       "top": 5,
       "before": 0.084,
-      "after": 0.084,
-      "after_final_top": 0.084,
+      "after": 0.116,
+      "after_final_top": 0.116,
       "rankings": 2,
+      "ranked_before": 16,
+      "ranked_after": 16,
       "look_ups": {
         "price_targets": 3,
         "fact_targets": 3,
-        "searches": 3,
-        "llm_calls": 0,
-        "fact_claims": 0,
+        "searches": 1,
+        "llm_calls": 1,
+        "fact_claims": 1,
         "price_claims": 0
-      }
+      },
+      "looked_up": 6,
+      "looked_up_before": 0.0933,
+      "looked_up_after": 0.12
     },
     "gate_smartwatch": {
       "top": 5,
@@ -97,77 +149,102 @@
       "after": 0.1191,
       "after_final_top": 0.1191,
       "rankings": 2,
+      "ranked_before": 10,
+      "ranked_after": 10,
       "look_ups": {
         "price_targets": 3,
         "fact_targets": 3,
-        "searches": 3,
+        "searches": 1,
         "llm_calls": 1,
         "fact_claims": 0,
         "price_claims": 0
-      }
+      },
+      "looked_up": 6,
+      "looked_up_before": 0.0496,
+      "looked_up_after": 0.0496
     },
     "brief_ereader_1": {
       "top": 0,
       "before": null,
       "after": null,
-      "after_final_top": 0.1176,
-      "rankings": 2,
-      "look_ups": {
-        "price_targets": 6,
-        "fact_targets": 0,
-        "searches": 6,
-        "llm_calls": 0,
-        "fact_claims": 0,
-        "price_claims": 3
-      }
-    },
-    "brief_headphones_2": {
-      "top": 0,
-      "before": null,
-      "after": null,
       "after_final_top": null,
       "rankings": 2,
+      "ranked_before": 0,
+      "ranked_after": 0,
       "look_ups": {
-        "price_targets": 4,
-        "fact_targets": 0,
+        "price_targets": 5,
+        "fact_targets": 1,
         "searches": 4,
         "llm_calls": 0,
         "fact_claims": 0,
-        "price_claims": 2
-      }
+        "price_claims": 0
+      },
+      "looked_up": 5,
+      "looked_up_before": 0.0,
+      "looked_up_after": 0.0
+    },
+    "brief_headphones_2": {
+      "top": 3,
+      "before": 0.12,
+      "after": 0.12,
+      "after_final_top": 0.12,
+      "rankings": 2,
+      "ranked_before": 3,
+      "ranked_after": 3,
+      "look_ups": {
+        "price_targets": 2,
+        "fact_targets": 4,
+        "searches": 5,
+        "llm_calls": 0,
+        "fact_claims": 0,
+        "price_claims": 1
+      },
+      "looked_up": 4,
+      "looked_up_before": 0.165,
+      "looked_up_after": 0.165
     },
     "brief_laptop_3": {
-      "top": 1,
-      "before": 0.0889,
-      "after": 0.0889,
-      "after_final_top": 0.0889,
+      "top": 0,
+      "before": null,
+      "after": null,
+      "after_final_top": 0.0,
       "rankings": 2,
+      "ranked_before": 0,
+      "ranked_after": 0,
       "look_ups": {
-        "price_targets": 3,
-        "fact_targets": 2,
-        "searches": 5,
-        "llm_calls": 1,
+        "price_targets": 5,
+        "fact_targets": 1,
+        "searches": 3,
+        "llm_calls": 0,
         "fact_claims": 0,
         "price_claims": 2
-      }
+      },
+      "looked_up": 5,
+      "looked_up_before": 0.0,
+      "looked_up_after": 0.0
     },
-    "brief_monitor_1": {
+    "brief_monitor_4": {
       "top": 0
     },
-    "brief_phone_2": {
+    "brief_phone_5": {
       "top": 0,
       "before": null,
       "after": null,
       "after_final_top": null,
       "rankings": 2,
+      "ranked_before": 0,
+      "ranked_after": 0,
       "look_ups": {
-        "price_targets": 6,
-        "fact_targets": 0,
+        "price_targets": 5,
+        "fact_targets": 1,
         "searches": 6,
         "llm_calls": 0,
         "fact_claims": 0,
-        "price_claims": 3
-      }
+        "price_claims": 2
+      },
+      "looked_up": 5,
+      "looked_up_before": 0.1818,
+      "looked_up_after": 0.1818
     }
   }
 }

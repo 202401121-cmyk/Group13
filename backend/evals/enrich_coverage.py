@@ -12,7 +12,11 @@ has: that is exactly the gap a look-up can fill, so it is counted here.
                                                            no call: the record's replays, and each live brief's
                                                            top5_evidence from evals/live_briefs.py's record B.json
 
-The live briefs record the same two numbers (evals/live_briefs.py, `top5_evidence`). The record holds numbers and fixed
+S5-23 (D-102): when few products rank, the look-ups also reach "can't tell" products, so each run also records the
+products looked up and their coverage before and after (`looked_up`, `looked_up_before`, `looked_up_after`), and the
+products ranked with a score before and after (`ranked_before`, `ranked_after`).
+
+The live briefs record the same numbers (evals/live_briefs.py, `top5_evidence`). The record holds numbers and fixed
 labels only. Every call is held to its service's budget (scripts/find_conflicts.py's guard); Reddit's is 0 here.
 """
 
@@ -92,6 +96,8 @@ def top5_evidence(decide: Recorder, enrich: Recorder | None = None) -> dict[str,
         "after": None if after is None else round(after, 4),
         "after_final_top": _rounded(evidence_share(last_in.rubric, final_ids, last_in.values)),
         "rankings": len(rankings),
+        "ranked_before": _scored(first_out),
+        "ranked_after": _scored(last_out),
     }
     calls = [(i, o) for i, o in (enrich.calls if enrich else []) if isinstance(i, EnrichInput)]
     if calls:
@@ -105,7 +111,16 @@ def top5_evidence(decide: Recorder, enrich: Recorder | None = None) -> dict[str,
             "fact_claims": sum(1 for c in result.new_claims if c.criterion_key != PRICE_KEY),
             "price_claims": sum(1 for c in result.new_claims if c.criterion_key == PRICE_KEY),
         }
+        looked = list(dict.fromkeys(t.product_id for t in inp.targets))  # ranked or "can't tell" (D-102)
+        record["looked_up"] = len(looked)
+        record["looked_up_before"] = _rounded(evidence_share(first_in.rubric, looked, first_in.values))
+        record["looked_up_after"] = _rounded(evidence_share(last_in.rubric, looked, last_in.values))
     return record
+
+
+def _scored(decision: DecideResult) -> int:
+    """The products a decision ranks with a score."""
+    return sum(1 for item in decision.ranked if item.score is not None)
 
 
 def _rounded(value: float | None) -> float | None:
@@ -129,8 +144,49 @@ def replay_coverage(folder: Path, enrich: Callable[[], Any]) -> dict[str, Any]:
 
 
 def measures(runs: dict[str, dict[str, Any]], source: str) -> list[dict[str, Any]]:
-    """The before and after means, and the gain, over the runs with a first ranking."""
+    """The before and after means, and the gain, over the runs with a first ranking; then, over every run that
+    recorded them (S5-23), the products ranked before and after, and the looked-up products' coverage."""
     pairs = [(r["before"], r["after"]) for r in runs.values() if r.get("before") is not None]
+    return [*_top5_measures(pairs, source), *_d102_measures(runs, source)]
+
+
+def _d102_measures(runs: dict[str, dict[str, Any]], source: str) -> list[dict[str, Any]]:
+    ranked = [(r["ranked_before"], r["ranked_after"]) for r in runs.values() if "ranked_before" in r]
+    looked = [
+        (r["looked_up_before"], r["looked_up_after"]) for r in runs.values() if r.get("looked_up_before") is not None
+    ]
+    out: list[dict[str, Any]] = []
+    if ranked:
+        for at, when in enumerate(("before", "after")):
+            out.append(
+                {
+                    "id": f"enrich.ranked_{when}",
+                    "value": sum(pair[at] for pair in ranked),
+                    "unit": "count",
+                    "status": "measured",
+                    "source": source,
+                    "detail": f"products ranked with a score over {len(ranked)} runs, {when} enrich's look-ups",
+                }
+            )
+    if looked:
+        for at, when in enumerate(("before", "after")):
+            out.append(
+                {
+                    "id": f"enrich.looked_up_evidence_{when}",
+                    "value": round(statistics.fmean(pair[at] for pair in looked), 4),
+                    "unit": "rate",
+                    "status": "measured",
+                    "source": source,
+                    "detail": (
+                        f"mean over {len(looked)} runs' looked-up products, ranked or can't tell: the share of the "
+                        f"shopper's weight with evidence, {when} enrich's look-ups"
+                    ),
+                }
+            )
+    return out
+
+
+def _top5_measures(pairs: list[tuple[float, float]], source: str) -> list[dict[str, Any]]:
     if not pairs:
         return []
     before = statistics.fmean(b for b, _ in pairs)

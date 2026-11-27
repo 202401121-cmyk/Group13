@@ -12,15 +12,35 @@ stand-in, as only that may be searched for (D-51). One web search each.
 
 The two share enrich's MAX_ENRICH_SEARCHES: prices first, but at most PRICES_WITH_FACTS when there are fact gaps
 (`shared_targets`).
+
+When fewer than ENRICH_TOP_N products rank (D-102 item 1), the rest of the five come from decide's "can't tell" group:
+the products with the fewest of the rubric's top weights with no evidence first, then the higher score decide's own
+scoring gives them as if shown, then decide's order (`filled_targets`). For each, the unknowns that hold it back go
+first (`held_keys`, from what decide's filter read): its price, then each active hard rule's known spec key (RAM, say),
+which the fact look-up searches by the key's own words. A product none of whose holds can be looked up isn't chosen.
+Then its criteria with no evidence, as for a ranked product. The same MAX_ENRICH_SEARCHES in all: those holds first,
+then the ranked products' gaps, then the held products' gaps, then the other prices. This orders the look-ups only:
+decide's rules and its ranking never change (DR-10).
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping, Sequence
 
-from app.contracts import EnrichTarget, Product, RankedProduct, ResolvedValue, Rubric, ValueState
+from app.contracts import (
+    CheckedValue,
+    EnrichTarget,
+    FilteredProduct,
+    Product,
+    RankedProduct,
+    ResolvedValue,
+    Rubric,
+    ValueState,
+)
 from app.contracts.enrich import ENRICH_TOP_N, MAX_ENRICH_SEARCHES
-from app.decide.rules import PRICE_KEY
+from app.decide.directions import directions_for
+from app.decide.rules import PRICE_KEY, index_values
+from app.decide.scoring import rank
 from app.decide.units import rupee_price
 
 MAX_TARGETS = MAX_ENRICH_SEARCHES
@@ -118,6 +138,94 @@ def shared_targets(prices: Sequence[EnrichTarget], facts: Sequence[EnrichTarget]
     fact gaps; facts get the rest. Never more than MAX_ENRICH_SEARCHES in all."""
     taken = list(prices[: PRICES_WITH_FACTS if facts else MAX_ENRICH_SEARCHES])
     return taken + list(facts[: MAX_ENRICH_SEARCHES - len(taken)])
+
+
+def provisional_ranking(
+    rubric: Rubric, products: Sequence[Product], values: Sequence[ResolvedValue]
+) -> list[RankedProduct]:
+    """Decide's own scoring of these products as if they were shown: their scores and each criterion's state, for the
+    look-ups' order and gaps only (D-102 item 1). Never a ranking: the filter still holds them, and decide's result is
+    its own."""
+    if not products:
+        return []
+    indexed = index_values(values, {product.id for product in products})
+    directions = directions_for([w.key for w in rubric.weights], rubric.category)
+    return rank(products, rubric, indexed, directions)
+
+
+def held_keys(rubric: Rubric, checked: Sequence[CheckedValue]) -> dict[str, list[str]]:
+    """Each product's unknowns that can hold it back, as decide's filter read them: its price when the price can (a
+    budget, or a rule on it), then each active hard rule's attribute, in that order. Known or disputed values aren't."""
+    active = {rule.attribute for rule in rubric.hard_rules if rule.active}
+    prices = wants_prices(rubric)
+    out: dict[str, list[str]] = {}
+    for value in checked:
+        if value.state in _READABLE:
+            continue
+        if (value.attribute == PRICE_KEY and prices) or (value.attribute != PRICE_KEY and value.attribute in active):
+            out.setdefault(value.product_id, []).append(value.attribute)
+    return out
+
+
+def filled_targets(
+    rubric: Rubric,
+    ranked: Sequence[RankedProduct],
+    held: Sequence[FilteredProduct],
+    provisional: Sequence[RankedProduct],
+    products: Mapping[str, Product],
+    values: Sequence[ResolvedValue],
+    alias_map: Mapping[str, str],
+    searchable: Callable[[str], bool],
+    askable: Callable[[str], bool],
+    prices: Sequence[EnrichTarget],
+    unknown: Mapping[str, Sequence[str]] | None = None,
+) -> list[EnrichTarget]:
+    """The look-ups when fewer than ENRICH_TOP_N products rank (D-102 item 1): the ranked ones' gaps, as fact_targets
+    gives them, and up to ENRICH_TOP_N in all from the "can't tell" products (`held`, in decide's order). `provisional`
+    is decide's scoring of the held products as if shown (provisional_ranking); `askable` says a rule's key is a known
+    spec the fact look-up can search for and ask; `unknown` is each product's holds (held_keys), else the one decide
+    named. Each held product's own holds go first; one with none that can be looked up isn't chosen. `prices`
+    (price_targets) fill what is left. Never more than MAX_ENRICH_SEARCHES."""
+    top = list(ranked[:ENRICH_TOP_N])
+    ranked_gaps = fact_targets(rubric, top, products, alias_map, searchable)
+    slots = ENRICH_TOP_N - len(top)
+    scored = {item.product_id: item for item in provisional}
+    keys = top_weights(rubric)
+
+    def order(entry: tuple[int, FilteredProduct]) -> tuple[int, float, int]:
+        at, product = entry
+        score = scored[product.product_id].score if product.product_id in scored else None
+        return unknowns_among(product.product_id, keys, values), -score if score is not None else 1.0, at
+
+    def holds_of(each: FilteredProduct) -> list[str]:
+        named = unknown.get(each.product_id) if unknown is not None else None
+        keys = list(named) if named else [each.rule_attribute] if each.rule_attribute else []
+        return [key for key in dict.fromkeys(keys) if key == PRICE_KEY or askable(key)]
+
+    candidates = [
+        (at, each)
+        for at, each in enumerate(held)
+        if each.group == "cant_tell"
+        and each.product_id in products
+        and mention_for(products[each.product_id], alias_map) is not None
+        and holds_of(each)
+    ]
+    chosen = [each for _, each in sorted(candidates, key=order)][: max(0, slots)]
+    holds: list[EnrichTarget] = []
+    for each in chosen:
+        product = products[each.product_id]
+        name = mention_for(product, alias_map) or product.name
+        holds += [EnrichTarget(product_id=product.id, product_name=name, criterion_key=key) for key in holds_of(each)]
+    held_gaps = fact_targets(
+        rubric,
+        [scored[each.product_id] for each in chosen if each.product_id in scored],
+        products,
+        alias_map,
+        searchable,
+    )
+    priced = {target.product_id for target in holds if target.criterion_key == PRICE_KEY}
+    rest = [target for target in prices if target.product_id not in priced]
+    return [*holds, *ranked_gaps, *held_gaps, *rest][:MAX_TARGETS]
 
 
 def mention_for(product: Product, alias_map: Mapping[str, str]) -> str | None:

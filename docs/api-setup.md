@@ -595,10 +595,28 @@ actually saw. Quotes are copied from the provider's page.
   the call's cut-off, and each result's read gets 2 s less, so one slow page comes back unread instead of making the
   whole reply late; with under 3 s left, nothing is sent. That costs 2 credits for the search and 1 for each result,
   5 in all, counted before it is sent, all or none; credits Firecrawl reports beyond those are counted after. It is
-  never retried. A page that comes back is held to the rules a page read here is (a maker or review site, robots.txt)
-  and kept 7 days in enrich's cache; the search's list of pages is kept only when no read failed and no page was refused
+  never retried. A page that comes back is held to the rules a page read here is (robots.txt, and a maker's or review
+  site's page, or another checked public page: D-102, below) and kept 7 days in enrich's cache; the search's list of pages is kept only when no read failed and no page was refused
   for a reason that may pass. While Serper's count for the day leaves fewer than 25 queries for research and commerce,
   every fact look-up goes this way; without a key, every one goes to Serper.
+- **Which pages a fact may come from (US-41, D-102):** a maker's page first, then a review site's, then any other public
+  page that names the exact model, its words whole and in order, with the quote found on it word for word. Another
+  site's page is used only when no maker's or review page still being read could come instead. It has the lowest source
+  tier, and the coverage note says how many facts came from other websites.
+  - **Never:** Reddit, YouTube, a copy of either or an archive, a social site, a forum or Q&A site (even on a maker's
+    or review site's own domain, and every site `config/trust.yaml` calls community), a store's page (`config/stores.yaml`'s
+    and a code list, or a store's word in the address), or a login or checkout page.
+  - **Only the open internet:** never an address such as `127.0.0.1`, `localhost`, a name with no dot or an internal one,
+    or another port. Before anything goes to such a site, robots.txt included, every address its name resolves to must
+    be public, at each redirect too.
+  - **How it is read:** robots.txt is obeyed. It is read by a plain fetch, or as Firecrawl's search brought it back,
+    never through Jina, and kept only in enrich's 7-day cache, never in research's.
+  - **Its trust in verify:** a site no list names starts at web search's default trust (55), below maker and review
+    pages, but above Reddit and store listings.
+- **Which products are looked up (US-41, D-102):** the first ranking's top 5. When fewer than 5 rank, the rest come from
+  decide's "can't tell" group: the fewest unknowns among the top weights first, then the score decide's own scoring
+  would give them. Each one's own hold goes first: its price (a store listing), or a hard rule's known spec, such as
+  RAM, searched by the key's own words. All in the same 6 searches and the one call.
 - **Smoke test:** `python -m scripts.smoke_sources --readers` reads example.com through Jina and through Firecrawl
   (1 credit), printing statuses and lengths only.
 - **Verdict: OK with these limits:** public pages, plus Reddit threads as above.
@@ -831,7 +849,7 @@ When a provider's terms change, update its flag, `terms_url` and `terms_checked`
 | `app/criteria/stage.py` | `generate_criteria` | category label and the shopper's use case | private | short |
 | `app/criteria/stage.py` | `generate_criteria` | only a category label from our lexicon (no use case) | public | short |
 | `app/criteria/stage.py` | `generate_criteria` | its one plain-words re-ask (S4-22): the same brief, plus the generated criteria whose definitions are not plain, with the words to avoid, as data. It takes the first call's class, so the same route | as the first call | short |
-| `app/enrich/facts.py` | `enrich_extract` | US-41: after the first ranking, up to 6 maker or review pages as passages (the text around the product's name and its looked-up criteria, D-101), each named with the one product it was read for (only a page that names it is sent) and the criteria to look for, as fixed keys with our own definitions (D-51). Never the shopper's words, a generated criterion's text, Reddit or video text. One batched call a search, to the quickest model with room (`fastest`), cached 7 days by its content | public | long |
+| `app/enrich/facts.py` | `enrich_extract` | US-41: after the first ranking, up to 6 checked public pages (a maker's or review site's first, D-102) as passages (the text around the product's name and its looked-up criteria, D-101), each named with the one product it was read for (only a page that names it is sent) and the criteria to look for, as fixed keys with our own definitions (D-51). Never the shopper's words, a generated criterion's text, Reddit or video text. One batched call a search, to the quickest model with room (`fastest`), cached 7 days by its content | public | long |
 | `app/explain/stage.py` | `write_evidence` | one of the top 3 products: its name and its public quotes (makers, reviews and stores) for the criteria its paragraph is about, as data, in groups named t1, t2 ... in key order, never by a criterion's name (a generated one can hold the shopper's words, D-51). Never a Reddit or video-comment quote, a score, a weight or anything the shopper typed or chose; code writes the personal part (D-91, US-22). One call each, side by side | public | medium |
 | `app/interview/replies.py` | `classify_reply` | the shopper's reply to an interview question, as data, with the question, its criterion's definition and the earlier questions (US-39) | private | short |
 | `app/interview/replies.py` | `answer_user_question` | the shopper's question, as data, with the criterion's name and definition, when the definition doesn't cover it (US-39) | private | short |

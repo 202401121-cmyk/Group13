@@ -10,6 +10,13 @@ JavaScript) goes to Jina Reader, then to Firecrawl when Jina fails or is thin to
 said yes by then: a page it disallows never reaches a reader, and neither does one that asks for a login (HTTP 401).
 Reader text goes through the same cleaning and cap, and the Source says via jina or via firecrawl.
 
+A reader built with `other_pages` (enrich's fact pages only, US-41, D-102) may also read a page on a site no list
+names, when that test says yes: it is an "other" page, a web page of the lowest tier (OTHER_TIER), held to every rule
+above, robots.txt first. Before anything goes to its site, every address its name resolves to must be on the open
+internet: never this machine, a private network or a cloud's metadata address, at each redirect too. It is read by a
+plain fetch, or taken as a search brought it back, never through a reader, and never kept in research's cache, so
+research's own reader is never given a page from a site it doesn't read.
+
 Robots follow RFC 9309 (robots.py): a missing file allows, and an unreachable one (5xx, 429, no reply, or a redirect off
 the configured sites) disallows until the next search asks again. We also take 401 and 403 as a no, the cautious
 reading. A failed fetch is never cached, and nothing here raises.
@@ -21,11 +28,14 @@ MAX_FETCH_S to arrive once it has started.
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import logging
 import re
+import socket
 import threading
 import time
-from collections.abc import Callable
+from collections import OrderedDict
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import partial
@@ -36,7 +46,7 @@ from urllib.parse import urljoin
 import httpx
 from pydantic import ValidationError
 
-from app.contracts import Source, SourceFailure, SourceType
+from app.contracts import Source, SourceFailure, SourceTier, SourceType
 from app.contracts.research import DEFAULT_TIER, MAX_SOURCE_CHARS
 from app.llm.retry import RetryClock
 
@@ -83,12 +93,32 @@ _USERNAME = re.compile(
 )
 _PROFILE_LINK = re.compile(r"\[[^\]]*\]\(\s*(?:https?://)?(?:[a-z]+\.)?reddit\.com/(?:user|u)/[^)]*\)", re.IGNORECASE)
 _DISALLOW_ALL = "User-agent: *\nDisallow: /\n"
-Kind = Literal["review", "maker", "store"]
+Kind = Literal["review", "maker", "store", "other"]
 _TYPES: dict[Kind, SourceType] = {
     "review": SourceType.REVIEW_SITE,
     "maker": SourceType.MANUFACTURER,
     "store": SourceType.RETAILER,
+    "other": SourceType.WEB_SEARCH,  # a page on a site no list names, found by a web search (D-102)
 }
+OTHER_TIER = SourceTier.RETAILER  # D-102: an other page gets the lowest tier there is (DR-03)
+MAX_LIMITERS = 512  # sites whose pacing is kept at once: other pages could otherwise add one for every site ever read
+
+
+def addresses_of(host: str) -> Sequence[str]:
+    """The addresses a host name resolves to, as the client would connect."""
+    return [str(info[4][0]) for info in socket.getaddrinfo(host, None, type=socket.SOCK_STREAM)]
+
+
+def on_open_internet(host: str, resolve: Callable[[str], Sequence[str]] = addresses_of) -> bool:
+    """Does every address this name resolves to belong to the open internet? Never this machine, a private network, a
+    link-local or cloud metadata address (169.254.169.254) or anything reserved. A name that won't resolve: no."""
+    try:
+        found = list(resolve(host))
+        return bool(found) and all(ipaddress.ip_address(a.split("%", 1)[0]).is_global for a in found)
+    except (OSError, ValueError, UnicodeError):
+        return False
+
+
 # What a plain fetch can end with besides a page. "refused" (HTTP 403) is often a bot check, so a reader may try.
 # A plain fetch's reply, or why it failed. "refused" is a 403, "down" a 5xx or a broken connection (US-31: the site's
 # own failure, which its memory counts), both after the one retry.
@@ -190,9 +220,13 @@ class ReviewPages:
         sleep: Callable[[float], None] = time.sleep,
         retry: RetryClock | None = None,
         sites: SiteMemory | None = None,
+        other_pages: Callable[[str], bool] | None = None,
+        resolve: Callable[[str], Sequence[str]] = addresses_of,
     ) -> None:
         self.http = http
         self.settings = settings
+        self.other_pages = other_pages  # which page on a site no list names may be read (enrich's facts, D-102)
+        self._resolve = resolve  # an other page's name, checked before anything goes to its site
         self.cache = cache
         self.readers = readers if readers is not None else PageReaders()
         self._now = now
@@ -210,7 +244,11 @@ class ReviewPages:
         self._robots_locks: dict[str, threading.Lock] = {}
 
     def kind_of(self, url: str) -> tuple[str, Kind] | None:
-        return page_kind(url, self.settings)
+        found = page_kind(url, self.settings)
+        if found is not None or self.other_pages is None or not self.other_pages(url):
+            return found
+        site = site_of(url)
+        return (site, "other") if site is not None else None
 
     def domain_of(self, url: str) -> str | None:
         """The configured site this URL is on, or None."""
@@ -237,7 +275,8 @@ class ReviewPages:
         if result.source is None and attempt.reader_url is not None and landed is not None:
             result = self._read_through(attempt.reader_url, *landed, usage, plain=result)
         if result.source is not None:
-            self.cache.put_sources(("page", url), [result.source])
+            if result.source.type is not SourceType.WEB_SEARCH:  # another site's page: the caller's to keep (D-102)
+                self.cache.put_sources(("page", url), [result.source])
             self.sites.record(url, "ok")  # read, by any route: the site works
         elif attempt.site is not None:
             self.sites.record(attempt.site_url or url, attempt.site)  # the site's own reply; never a reader's
@@ -252,6 +291,8 @@ class ReviewPages:
         if found is None or is_logged_in_page(url):
             return PageResult(reason="not_found")
         domain, kind = found
+        if not self._reachable(url, kind):
+            return PageResult(reason="blocked")
         problem = self._may_fetch(url, domain, usage, self.domain_of)
         if problem is not None:
             return PageResult(reason=problem[0])
@@ -324,7 +365,7 @@ class ReviewPages:
         current = url
         for _ in range(MAX_REDIRECTS + 1):
             found = self.kind_of(current)
-            if found is None:
+            if found is None or not self._reachable(current, found[1]):
                 return _Attempt(PageResult(reason="blocked"))
             domain = found[0]
             problem = self._may_fetch(current, domain, usage, self.domain_of)
@@ -354,6 +395,13 @@ class ReviewPages:
                 continue
             return self._page(current, domain, found[1], outcome)
         return _Attempt(PageResult(reason="error"))
+
+    def _reachable(self, url: str, kind: Kind) -> bool:
+        """A listed site's page always is. Another site's only when its name resolves to the open internet alone."""
+        if kind != "other":
+            return True
+        host = host_of(url)
+        return host is not None and on_open_internet(host, self._resolve)
 
     def _may_fetch(
         self, url: str, domain: str, usage: SearchUsage, site_of: Callable[[str], str | None]
@@ -571,7 +619,7 @@ class ReviewPages:
                 id=f"src_{hashlib.sha256(url.encode()).hexdigest()[:16]}",
                 url=url,
                 type=kind_type,
-                tier=DEFAULT_TIER[kind_type],
+                tier=OTHER_TIER if kind == "other" else DEFAULT_TIER[kind_type],
                 title=title[:300],
                 text=body,
                 text_hash=hashlib.sha256(body.encode()).hexdigest(),
@@ -589,7 +637,7 @@ def _reddit_site(url: str) -> str | None:
     return "reddit.com" if host is not None and host_is_under(host, "reddit.com") else None
 
 
-_page_limiters: dict[tuple[str, int, int], IntervalLimiter] = {}
+_page_limiters: OrderedDict[tuple[str, int, int], IntervalLimiter] = OrderedDict()
 _page_limiters_lock = threading.Lock()
 
 
@@ -602,6 +650,9 @@ def _shared_page_limiter(
         limiter = _page_limiters.get(key)
         if limiter is None:
             limiter = _page_limiters[key] = IntervalLimiter(interval, clock=clock, sleep=sleep)
+            while len(_page_limiters) > MAX_LIMITERS:  # the site used longest ago goes first
+                _page_limiters.popitem(last=False)
         elif limiter.interval_s < interval:
             limiter.interval_s = interval  # in place: its memory of the last request must not be lost
+        _page_limiters.move_to_end(key)
         return limiter
