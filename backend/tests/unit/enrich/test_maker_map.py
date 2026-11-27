@@ -184,6 +184,7 @@ def test_searches_and_maps_together_stay_at_most_six(tmp_path: Path) -> None:
     lookup = _lookup(tmp_path, search, FakePages({REVIEW: "A page about another laptop."}), _llm())
     lookup.firecrawl = maps = Maps([])  # type: ignore[assignment]
     lookup.find(targets, FactAsk("laptop", "IN"), _usage(), monotonic() + 30, "srch_map04")
-    # Four searches (two by Serper, two by Firecrawl, D-101), then two maps: the four products' maps get only the two
-    # searches left, whatever the order.
-    assert MAX_ENRICH_SEARCHES == 6 and (len(search.asked) + len(maps.searched), len(maps.asked)) == (4, 2)
+    # Four products want a search each (two by Serper, two by Firecrawl, D-101) and a map each: eight, for six. The
+    # paths run at once, so which come first varies; together they are exactly six, and at least two are maps.
+    searched, mapped = len(search.asked) + len(maps.searched), len(maps.asked)
+    assert MAX_ENRICH_SEARCHES == 6 and searched + mapped == 6 and searched <= 4 and mapped >= 2
