@@ -570,20 +570,77 @@ actually saw. Quotes are copied from the provider's page.
   say `via: firecrawl`. Since D-99 (US-24), also commerce's store-page search (Firecrawl first, Serper as its backup)
   and the reading of a store page before a link to it is shown (format `rawHtml`, for the page's status, its address
   after redirects and its schema.org data).
-- **Requests** (API v2, [docs](https://docs.firecrawl.dev/api-reference/endpoint/scrape), read 13 Nov 2026), with a
-  Bearer key: `POST /v2/scrape` with formats markdown, onlyMainContent true, maxAge 86,400,000 ms (a copy up to a day
-  old), location country IN and a 10,000 ms timeout; `POST /v2/search` with country IN and 10 results.
+- **Requests** (API v2, docs read 27 Nov 2026: [billing](https://docs.firecrawl.dev/billing),
+  [rate limits](https://docs.firecrawl.dev/rate-limits), [map](https://docs.firecrawl.dev/features/map),
+  [advanced scraping](https://docs.firecrawl.dev/advanced-scraping-guide),
+  [scrape](https://docs.firecrawl.dev/api-reference/endpoint/scrape) and
+  [batch scrape](https://docs.firecrawl.dev/api-reference/endpoint/batch-scrape)), with a Bearer key:
+  - `POST /v2/scrape`: formats markdown, onlyMainContent true, maxAge 86,400,000 ms (our 24-hour page cache: a copy up
+    to a day old costs less; Firecrawl caps maxAge at 7 days), location IN, a 10,000 ms timeout, and `proxy: basic`.
+  - `POST /v2/search`: country IN, 10 results.
+  - `POST /v2/map` (D-100 items 2 and 9): one site's own https address, `search` the product's name only, `limit` 20,
+    no subdomains, location IN. Its links are kept 24 hours.
+- **The reader ladder (US-38, D-100 item 1):** a plain fetch, then Jina, then a Firecrawl scrape, then a Firecrawl
+  scrape with the page rendered. Each step goes only when the one before failed or gave too little text, all inside
+  research's deadline.
+  - **Rendered:** `waitFor` 2,000 ms for the page's scripts, then actions that only scroll down, with short waits.
+  - **Never a click (a narrowing of D-100 item 1, approved by Om, 27 Nov 2026):** D-100 allowed scrolling and opening
+    sections; the rendered step only scrolls and waits. A click on a section that isn't on the page (a
+    "Specifications" tab, "show more") fails the whole scrape, and CSS can't pick a button by its words.
+  - **When it goes:** only after a Firecrawl scrape that gave too little text, never after one that failed: a failing
+    Firecrawl would otherwise spend a page on each step and its retry for one page. Tried once, never retried. Not
+    with under 6 seconds left before the stage's deadline (research's, or enrich's reading window), checked again
+    after the wait for a slot, and never longer than 15 seconds.
+  - **Firecrawl's cache:** a rendered scrape asks for a fresh page (`maxAge` 0), as the plain scrape just read
+    Firecrawl's copy, and is never kept there, as actions turn `storeInCache` off.
+  - **The note:** the coverage note says how many hard pages each reader read, and how many after the page's scripts
+    ran. A failed rendered step is named as Firecrawl's.
+  - **Maps and robots.txt (Om, 27 Nov 2026):** robots.txt isn't read before a map, as a map asks Firecrawl for a
+    site's addresses and reads no page. The page a map finds is read only after its site's robots.txt allows it.
+- **Costs** (billing, read 27 Nov 2026):
+  - **Scrape:** 1 credit, with or without actions and waitFor.
+  - **Map:** 1 credit a call, however many links.
+  - **Search:** 2 credits per 10 results, rounded up, and 1 for each page it scrapes.
+  - **Batch scrape:** 1 credit a page.
+  - **Every request asks for the basic proxy:** never Firecrawl's enhanced (anti-bot) proxy, which its default `auto`
+    may step up to (D-100 item 7).
+- **Map for a maker's page (D-100 item 2):** when a product's fact search found no maker's page, map looks on the
+  maker's own site (`maker_domains:` in research.yaml) by the product's name. At most once a product, and its answer
+  is kept 7 days in enrich's cache. The page it finds must name the model, and is read like any other. A map sent is
+  one of enrich's 6 fact searches (US-41, Om 27 Nov 2026); one kept in enrich's cache, or refused before it left, is
+  not.
+- **Map for a store's own page (D-100 item 9):** when commerce's search found no page on an offer's store, map looks on
+  that store's own site (`config/stores.yaml`, or the store's name) by the model's name. At most 3 a search, inside
+  commerce's time. The address it finds then passes S5-16's same checks. The checks for different offers already run
+  at once.
+- **Search with its results scraped in one call (D-100 item 3):** used where a stage needs both, enrich's fact search
+  (D-101). Research's backup search is not: the plain fetch reads its results for free, so a reading search would only
+  cost more.
+- **Batch scrape (D-100 item 4):** in the client (`batch_scrape`), not used.
+  - **Why it doesn't beat single calls:** research reads at most 4 Firecrawl pages a search, so single calls fit inside
+    10 a minute and 2 at once, and a batch runs the same 2 at once.
+  - **The docs disagree:** the rate-limits page says a batch shares /crawl's 2 a minute, the billing page that it
+    shares /scrape's 10.
+  - **It also waits:** a batch is asynchronous, polled until done, which adds to a page's time. Switch it on only if a
+    plan with more requests a minute makes stages wait for the minute.
+- **Not used, and why (D-100 item 6):**
+  - **LLM or JSON extraction** (+4 credits a page): claims must quote the page word for word, which extract does.
+  - **Crawling whole sites:** map, then one targeted scrape, costs far less.
+  - **Interact and agent:** billed by session time, and unpredictable.
 - **Limits** ([rate limits](https://docs.firecrawl.dev/rate-limits), read 25 Nov 2026): the free plan allows 10
   requests a minute on /scrape and /search and 2 at once; Hobby 100 a minute and 5 at once. Past them, HTTP 429; out of
   credits, HTTP 402. A scrape is 1 credit (rawHtml costs no more); a search 2 credits per 10 results. Our pacing is in
   `firecrawl_limits:` in research.yaml (10 a minute, 2 at once, a 429 pauses it 60 seconds), never in the code: change
   it there if the plan changes.
-- **Our caps** (`caps:` in research.yaml; D-99, Om's student credits, 25 Nov 2026): 4 pages a search
-  (`firecrawl_pages`, 30 a day), and 30 credits a search, 300 a day and 9,000 in all (`firecrawl`), which also cover
-  the search backup and commerce's store pages. The total stops Firecrawl for good once reached. A full minute is not
-  waited for, the page is skipped. Every page and search is kept 24 hours, so a repeat costs nothing.
+- **Our caps** (`caps:` in research.yaml; D-99, Om's student credits, 25 Nov 2026; D-100, 27 Nov): 8 pages a stage's
+  search (`firecrawl_pages`, 150 a day), shared by the ladder's two Firecrawl steps, and 30 credits a stage's search,
+  300 a day and 9,000 in all (`firecrawl`), which also cover the search backup, maps and commerce's store pages.
+  Research, enrich and commerce each count their own search's spend; the day and the total are shared. The total
+  stops Firecrawl for good once reached. A full minute is not waited for, the page is skipped. Every page and search
+  is kept 24 hours, so a repeat costs nothing.
 - **Never sent:** YouTube, social sites, a logged-in page (login, account, cart, checkout, or HTTP 401), or a page
-  robots.txt disallows.
+  robots.txt disallows: robots.txt is read before any reader. No CAPTCHA is solved and no stealth or anti-bot proxy is
+  used. Only a public page's address and a product's name go to Firecrawl, never the shopper's words.
 - **Reddit (D-53):** a thread read through Firecrawl is Reddit data: extracted only by Groq, with every username and
   profile link removed from its text, kept at most 24 hours, and sent with `storeInCache: false` so Firecrawl keeps no
   copy. The archive's copy is always preferred.

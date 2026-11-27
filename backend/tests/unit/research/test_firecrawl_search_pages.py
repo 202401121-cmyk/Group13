@@ -86,6 +86,7 @@ def test_a_search_reads_its_results_in_the_same_call_and_every_credit_is_counted
         "onlyMainContent": True,
         "maxAge": 86_400_000,
         "parsers": [],  # no PDF is parsed: that costs a credit a page, and one a result is counted
+        "proxy": "basic",  # never Firecrawl's anti-bot proxy (D-100 item 7)
         "timeout": body["timeout"] - 2000,  # each read leaves the search step its 2 s: a slow page comes back unread
     }
     assert found.unread == 4  # the 404, the error, the one with no text and the one with no address

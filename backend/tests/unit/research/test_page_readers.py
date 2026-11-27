@@ -157,6 +157,7 @@ def test_both_readers_failing_skip_the_page_with_a_note() -> None:
     )
     found = _pages(web).fetch(PAGE, _usage())
     assert found.source is None
+    # Firecrawl's scrape failed (HTTP 500): the rendered step follows only thin text (D-100 item 1), so none.
     assert [f.detail.split(":")[0] for f in found.lost_to] == ["Jina Reader", "Firecrawl"]
     assert all(f.source_type is SourceType.REVIEW_SITE for f in found.lost_to)
 
@@ -304,7 +305,8 @@ def test_the_caps_in_config_are_the_decided_ones() -> None:
 
     settings = load_research_settings(env={})
     assert settings.caps["jina"].per_search == 10
-    assert settings.caps["firecrawl_pages"].per_search == 4
+    # D-100 (Om, 27 Nov 2026): the rendered step reads a page again, so 8 a search and 150 a day.
+    assert settings.caps["firecrawl_pages"] == ProviderCap(per_search=8, per_day=150)
     assert settings.caps["firecrawl"] == ProviderCap(per_search=30, per_day=300, total=9000)  # D-99, 25 Nov 2026
     assert (settings.max_maker_pages, settings.max_store_pages) == (3, 3)
 

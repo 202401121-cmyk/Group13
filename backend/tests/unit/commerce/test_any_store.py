@@ -107,7 +107,8 @@ def test_at_most_three_store_searches_a_search_and_only_for_priced_products() ->
         query_for(IDEAPAD): _answer(_listing("Lenovo IdeaPad Slim 3 15IAH8", "", store="Aajjo", link=SHOPPING_OFFER)),
     }
     _run(web, answers, [VIVOBOOK, VICTUS, IDEAPAD])
-    queries = [json.loads(r.content)["query"] for r in web.sent_to("api.firecrawl.dev")]
+    searches = [r for r in web.sent_to("api.firecrawl.dev") if r.url.path.endswith("/search")]  # maps aside (D-100)
+    queries = [json.loads(r.content)["query"] for r in searches]
     assert sorted(queries) == ["ASUS Vivobook 15 X1504VA", "HP Victus 15"]  # the IdeaPad has no price
     assert MAX_STORE_SEARCHES == 3
 

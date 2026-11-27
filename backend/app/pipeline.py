@@ -725,6 +725,7 @@ class _Search:
         self.enrich_sources: list[Source] = []  # the listings enrich's claims came from, once verify took them
         self._fact_ranking: list[str] = []  # the first ranking's product ids, best first (D-101)
         self.enrich_other_facts = 0  # of the facts verify took, those from another checked page only (D-102)
+        self.research_note: str | None = None  # which readers read the hard pages (D-100 item 1)
         self.commerce_note: str | None = None  # how many products couldn't be priced (US-24, S4-26)
         self.recommender_counts: list[
             RecommenderCount
@@ -798,9 +799,11 @@ class _Search:
             self._early, report = self.early.researched()
             self.research_out, self.sample_sources = self._early.research_out, self._early.sample_sources
             self.used_placeholder = self.used_placeholder or self._early.used_placeholder  # the sample note shows
+            self.research_note = self._early.research_note
             return report
         self.research_out, report = self._run(self.stages.research, ResearchInput(rubric=self.rubric))
         self.sample_sources = made_by_placeholder(self.stages.research, report)
+        self.research_note = self._stage_note(self.stages.research)  # which readers read hard pages (D-100)
         return report
 
     def extract(self) -> StageReport:
@@ -1369,6 +1372,7 @@ class _Search:
             partial,
             older_archive=older_archive,
             extract_note=self.extract_note,
+            research_note=self.research_note,
             decide_note=self.decide_note,
             enrich_note=self.enrich_note,
             commerce_note=self.commerce_note,
@@ -1539,12 +1543,13 @@ def build_coverage_note(
     enrich_note: str | None = None,
     commerce_note: str | None = None,
     llm_unavailable: bool = False,
+    research_note: str | None = None,
 ) -> str | None:
     """Plain-English summary of everything that did not go to plan. None when everything did.
 
     Every LLM provider failing comes first (US-31): it explains the rest. The stages' own notes come last: decide's
-    (criteria left out, or nothing ranked), then extract's (sources not read), so a note too long to fit never costs
-    the sentences above."""
+    (criteria left out, or nothing ranked), then research's (which readers read the hard pages, D-100), then extract's
+    (sources not read), so a note too long to fit never costs the sentences above."""
     parts: list[str] = [LLM_UNAVAILABLE_NOTE] if llm_unavailable else []
     skipped: dict[str, list[str]] = {}
     for r in reports:
@@ -1581,6 +1586,8 @@ def build_coverage_note(
         parts.append(enrich_note)
     if commerce_note:
         parts.append(commerce_note)
+    if research_note:  # which readers read the hard pages (D-100 item 1)
+        parts.append(research_note)
     if extract_note:  # last, so a note too long to fit never costs the sentences above
         parts.append(extract_note)
 

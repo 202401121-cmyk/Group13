@@ -17,6 +17,11 @@ site. Then every check is code, and any check that fails keeps the Google link:
    microdata), and names this exact model, whole tokens, in its title or its Product's name. The link shown is where
    the page ended, so when that differs from the search's link it passes checks 2 to 4 itself.
 
+When the search finds no page on an offer's store (D-100 item 9), Firecrawl's map looks on that store's own site,
+known from config/stores.yaml or the store's name, with the model's name as its search term: 1 credit, at most
+MAX_STORE_MAPS a search, inside commerce's time. The address it finds then passes the same checks, 1 to 5. The checks
+for different offers run at once (commerce's own pool), inside commerce's limit.
+
 The price and its time stay the shopping result's: a store page's own price never replaces it (D-99 #4).
 
 Verdicts are kept per (model, store host) in the research cache: a verified link, or a page that failed a check, for a
@@ -31,6 +36,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import threading
 from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -57,12 +63,16 @@ from app.research.usage import SearchUsage
 from .links import (
     Store,
     WebSearchLike,
+    address_words,
     candidate,
     is_search_page,
+    is_store_host,
     known_product_page,
     load_stores,
     names_model,
     registrable,
+    shown_domain,
+    store_for,
 )
 from .matching import query_for
 from .safe_browsing import SafeBrowsing
@@ -76,6 +86,7 @@ STEP_MIN_S = 0.5  # a request is started only with this much of the stage left
 ROBOTS_TIMEOUT_S = 5.0  # a robots.txt request, its retry and its body, all of it
 MAX_ROBOTS_BYTES = 500 * 1024  # RFC 9309's limit
 MAX_REDIRECTS = 3
+MAX_STORE_MAPS = 3  # D-100 item 9: Firecrawl maps a search may send for store pages, 1 credit each
 MAX_CRAWL_DELAY_S = ResearchSettings().max_crawl_delay_s  # research.yaml's; the stage passes the file's value
 _DISALLOW_ALL = "User-agent: *\nDisallow: /\n"
 _LD_TYPE = "application/ld+json"
@@ -207,6 +218,9 @@ class StorePageChecker:
         self.cache = cache
         self.safe_browsing = safe_browsing
         self.readers = [reader for reader in (firecrawl, jina) if reader is not None]
+        self.firecrawl = firecrawl
+        self.maps = 0  # Firecrawl maps sent for this search's store pages (MAX_STORE_MAPS)
+        self._maps_lock = threading.Lock()
         self.stores = tuple(stores) if stores is not None else load_stores()
         self.max_crawl_delay_s = max_crawl_delay_s
         self.retry = retry if retry is not None else RetryClock()  # robots.txt's one retry (S4-12's rule)
@@ -218,7 +232,7 @@ class StorePageChecker:
         self, product: Product, name: str, found: Sequence[Source], usage: SearchUsage, ends: float
     ) -> str | None:
         """The checked store page for this offer's store, or None to keep the Google link."""
-        link = candidate(product, name, found, self.stores)
+        link = candidate(product, name, found, self.stores) or self._mapped(product, name, usage, ends)
         if link is None:
             return None
         key = ("store_page", _model(product), host_of(link) or "")
@@ -230,6 +244,31 @@ class StorePageChecker:
             self._keep(key, verdict.url, verdict.keep)
         log.info("commerce: a store page was %s (%s)", "used" if verdict.url else "not used", verdict.why)
         return verdict.url
+
+    def _mapped(self, product: Product, name: str, usage: SearchUsage, ends: float) -> str | None:
+        """The store's own page for this model, found by Firecrawl's map on the store's own site when the search found
+        none (D-100 item 9): the first address on that site naming the model in its title or its words. None when the
+        store's site isn't known, Firecrawl isn't there, MAX_STORE_MAPS were sent, or commerce's time is short."""
+        known = store_for(name, self.stores)
+        domain = shown_domain(name) or (known.domain if known is not None else None)
+        mapping = getattr(self.firecrawl, "map", None)
+        if domain is None or mapping is None or ends - self._clock() < STEP_MIN_S:
+            return None
+        with self._maps_lock:
+            if self.maps >= MAX_STORE_MAPS:
+                return None
+            self.maps += 1
+        found = mapping(f"https://www.{domain}", query_for(product), usage, until=ends)
+        if isinstance(found, tuple):
+            log.info("commerce: a store's site was not mapped (%s)", found[0])
+            return None
+        for each in found:
+            host = host_of(each.url) or ""
+            if is_store_host(name, host, self.stores) and (
+                names_model(product, each.title) or names_model(product, address_words(each.url))
+            ):
+                return str(each.url)
+        return None
 
     def verify(self, product: Product, link: str, usage: SearchUsage, ends: float) -> Verdict:
         address = self._address(link, usage, ends)

@@ -76,6 +76,7 @@ class StoreWeb:
         self.scraped: dict[str, dict[str, Any]] = {}  # page url -> Firecrawl's data
         self.firecrawl_status = 200
         self.firecrawl_found: list[dict[str, str]] = []
+        self.mapped: dict[str, list[object]] = {}  # a site's https address -> what Firecrawl's map finds there (D-100)
         self.serper_found: list[dict[str, str]] = []
         self.jina: dict[str, dict[str, Any]] = {}  # page url -> Jina's data
         self.jina_status = 200
@@ -110,6 +111,8 @@ class StoreWeb:
         body = json.loads(request.content)
         if request.url.path.endswith("/search"):
             return httpx.Response(200, json={"success": True, "data": {"web": self.firecrawl_found}})
+        if request.url.path.endswith("/map"):
+            return httpx.Response(200, json={"success": True, "links": self.mapped.get(body["url"], [])})
         data = self.scraped.get(body["url"])
         return httpx.Response(200, json={"success": data is not None, "data": data or {}})
 

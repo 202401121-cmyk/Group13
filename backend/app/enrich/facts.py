@@ -5,6 +5,9 @@ asks for the product and the criterion's fixed public stand-in, never the shoppe
 A target may also be a hard rule's spec that held a product back ("can't tell"), searched by its own key's words
 (spec_label) and asked for as extraction asks a rule's key (D-102 item 1).
 
+When a product's search gives no maker's page, Firecrawl's map looks for one on the maker's own site by the product's
+name (D-100 item 2): 1 credit, at most once a product, its answer kept 7 days, the page it finds read like any other.
+
 The page is a maker's, then a review site's, then any other public page (D-102 item 2): never Reddit, YouTube, a social
 site, a forum or Q&A site, a store's page, or a login or checkout page (other_page), with research's own readers, rules
 and caps (robots.txt first), and one page a product. Another page is read by a plain fetch, or as Firecrawl's search
@@ -44,7 +47,7 @@ from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from dataclasses import dataclass, field
 from datetime import datetime
 from time import monotonic
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 from urllib.parse import urlsplit
 
 from pydantic import ValidationError
@@ -72,7 +75,7 @@ from app.extract.stage import _under_own_keys
 from app.llm.pool import CALL_MARGIN_S, time_limit_s
 from app.llm.usage import TokenMeter
 from app.research.cache import ResearchCache
-from app.research.pages import NEVER_FETCH, NEVER_READ, PageResult, is_logged_in_page, page_kind
+from app.research.pages import NEVER_FETCH, NEVER_READ, PageResult, ReviewPages, is_logged_in_page, page_kind
 from app.research.readers import SearchPages
 from app.research.serper import SerperResult, host_is_under, host_of
 from app.research.settings import ResearchSettings
@@ -473,6 +476,16 @@ def preference(url: str, settings: ResearchSettings) -> int:
     return PREFERENCE.get(kind[1], OTHER_KIND) if kind is not None else OTHER_KIND
 
 
+def _maps_to(link: Any, product: Product, settings: ResearchSettings) -> bool:
+    """A mapped address is the product's maker page: on the maker's site, readable, and naming the model in its
+    title or its address's words."""
+    url = str(getattr(link, "url", ""))
+    if preference(url, settings) != 0 or not readable(url, settings):
+        return False
+    words = " ".join(re.split(r"[/_.\-]+", _path_of(url)))
+    return names_product(str(getattr(link, "title", "")), product.name) or names_product(words, product.name)
+
+
 def other_site(source: Source) -> bool:
     """Is this fact page another checked page, not a maker's or a review site's? Research types those as web pages."""
     return source.type is SourceType.WEB_SEARCH and source.via != "search_snippet"
@@ -487,6 +500,7 @@ class _Run:
     window: Window
     searches: int
     sent: int = 0
+    mapped: set[str] = field(default_factory=set)  # products whose maker's site was mapped: once each (D-100)
     paths: ThreadPoolExecutor = field(default_factory=lambda: ThreadPoolExecutor(12, thread_name_prefix="enrich-path"))
     reads: ThreadPoolExecutor = field(
         default_factory=lambda: ThreadPoolExecutor(MAX_READS_AT_ONCE, thread_name_prefix="enrich-pages")
@@ -562,6 +576,8 @@ class FactLookup:
             log.info("enrich: too little time to read fact pages and leave the call its time")
             return NOTHING
         run = _Run(ask, usage, Window(cut_off), searches)
+        if isinstance(self.pages, ReviewPages):  # the ladder's rendered step goes only before the reads end (D-100)
+            self.pages.ends = cut_off
         pages = self._read(labelled, run)
         if not pages:
             return FactsFound(claims=[], sources=[], searches=run.sent)
@@ -694,6 +710,10 @@ class FactLookup:
         """Serper's path: a web search, then its readable links through research's readers (_first_naming)."""
         try:
             links = [url for url in self._links(query, run) if url not in run.ask.known_urls]
+            if not any(preference(url, self.research) == 0 for url in links):
+                mapped = self._maker_by_map(product, run)
+                if mapped is not None:
+                    return mapped
             return self._first_naming(links, product, run)
         except Exception as exc:  # build rule 9
             log.info("enrich: a Serper fact search failed (%s)", type(exc).__name__)
@@ -712,6 +732,10 @@ class FactLookup:
                 pages = self._searched(key, query, run)
             usable = [p for p in pages if str(p.url) not in run.ask.known_urls and names_product(p.text, product.name)]
             ranked = sorted(usable, key=lambda page: preference(str(page.url), self.research))  # makers, reviews, other
+            if not ranked or preference(str(ranked[0].url), self.research) != 0:
+                mapped = self._maker_by_map(product, run)
+                if mapped is not None:
+                    return mapped
             return next(iter(ranked), None)
         except Exception as exc:  # build rule 9
             log.info("enrich: a Firecrawl fact search failed (%s)", type(exc).__name__)
@@ -747,6 +771,38 @@ class FactLookup:
         if not passing:  # the list is kept 7 days only when nothing in it could come out otherwise next time
             self.cache.put_text(key, json.dumps(kept))
         return pages
+
+    def _maker_by_map(self, product: Product, run: _Run) -> Source | None:
+        """The maker's page for this exact model, found by Firecrawl's map on the maker's own site (D-100 item 2): only
+        when search gave none, once a product, and read like any page. The map is asked for the product's name only. A
+        map sent is one of enrich's searches (US-41: at most 6, Om 27 Nov); one kept in enrich's cache, or refused
+        before it left, is not."""
+        mapping = getattr(self.firecrawl, "map", None)
+        domains = self.research.maker_domains.get((product.brand or "").casefold(), ())
+        with run.lock:
+            if mapping is None or not domains or product.id in run.mapped or run.window.over():
+                return None
+            run.mapped.add(product.id)
+        key = ("fact_map", domains[0], product.name)
+        kept = self._kept_urls(key)
+        if kept is None:
+            if not run.take_search():
+                return None
+            found = mapping(
+                f"https://www.{domains[0]}", product.name, UntilWindowEnds(run.usage, run.window), until=run.window.ends
+            )
+            if isinstance(found, tuple):
+                if nothing_sent(found[0], found[1]):
+                    run.give_back()
+                log.info("enrich: a maker's site was not mapped (%s)", found[0])
+                return None
+            kept = [link.url for link in found if _maps_to(link, product, self.research)][:1]
+            self.cache.put_text(key, json.dumps(kept))
+        for url in kept:
+            page = self._page(url, UntilWindowEnds(run.usage, run.window))
+            if page is not None and names_product(page.text, product.name):
+                return page
+        return None
 
     def _kept_urls(self, key: tuple[str, ...]) -> list[str] | None:
         cached = self.cache.get_text(key)
