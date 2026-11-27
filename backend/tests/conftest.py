@@ -269,3 +269,17 @@ def _fresh_aliases() -> Iterator[None]:
     shared_memory_aliases().clear()
     yield
     shared_memory_aliases().clear()
+
+
+@pytest.fixture(autouse=True)
+def _no_real_result_cache(monkeypatch: pytest.MonkeyPatch, tmp_path_factory: pytest.TempPathFactory) -> None:
+    """US-34 (S5-7): no test reads or writes backend/.cache/results/, whatever the shell sets.
+
+    The API's searches see RESULT_CACHE=off, so a search a developer ran never answers a test, and no test leaves a
+    result behind. Tests of the cache build their own, in a folder of their own; the folder the app would use is a
+    fresh empty one, in case a test switches the cache on.
+    """
+    from app.cache import results
+
+    monkeypatch.setenv("RESULT_CACHE", "off")
+    monkeypatch.setattr(results, "RESULTS_DIR", tmp_path_factory.mktemp("results-cache"))

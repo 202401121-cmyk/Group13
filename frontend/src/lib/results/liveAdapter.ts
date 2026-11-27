@@ -360,6 +360,7 @@ export function resultFromSearch(
     // Only shown offers with a price say when prices were checked (S4-30).
     pricesCheckedAt: newestPriceTime(products),
     saved: result.saved,
+    cachedAt: result.cached ? result.cached_at : null,
     llmUnavailable: result.llm_unavailable,
     source: "live",
   };

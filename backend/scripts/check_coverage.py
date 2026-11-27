@@ -24,6 +24,7 @@ DECIDE_GATE = 80
 DECIDE_MODULE = "app/decide"
 CORE_MODULES = (
     "app/auth",  # sign-in (US-30)
+    "app/cache",  # whole searches kept for an exact repeat (US-34)
     "app/commerce",
     "app/contracts",
     "app/criteria",

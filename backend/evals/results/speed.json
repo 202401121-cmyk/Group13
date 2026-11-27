@@ -1,0 +1,800 @@
+{
+  "story": "US-34 (S5-7): speed on the 20 briefs",
+  "runner": "python -m evals.speed (live)",
+  "runs": [
+    {
+      "date": "2026-11-27",
+      "commit": "d5d7e22",
+      "stopped": "every brief has run"
+    }
+  ],
+  "briefs": [
+    {
+      "brief": "b01",
+      "category": "smartphone",
+      "turns": [
+        0.0,
+        0.094,
+        0.031,
+        0.0,
+        0.032,
+        0.0,
+        0.015,
+        0.0,
+        0.016
+      ],
+      "intake_seconds": 1.922,
+      "criteria_seconds": 6.578,
+      "search": {
+        "seconds": 93.094,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 15.389,
+          "extract": 63.593,
+          "match": 0.016,
+          "verify": 0.03,
+          "enrich": 11.875,
+          "decide": 0.015,
+          "explain": 0.953,
+          "commerce": 0.531
+        }
+      },
+      "repeat": {
+        "seconds": 88.0,
+        "status": "done",
+        "cached": false
+      },
+      "finished": true
+    },
+    {
+      "brief": "b02",
+      "category": "smartphone",
+      "turns": [
+        0.0,
+        0.063,
+        0.015,
+        0.016,
+        0.015,
+        0.016,
+        0.0,
+        0.016,
+        0.0
+      ],
+      "intake_seconds": 1.093,
+      "criteria_seconds": 9.141,
+      "search": {
+        "seconds": 101.265,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 4.53,
+          "extract": 71.469,
+          "match": 0.014,
+          "verify": 0.031,
+          "enrich": 10.796,
+          "decide": 0.016,
+          "explain": 0.0,
+          "commerce": 14.014
+        }
+      },
+      "repeat": {
+        "seconds": 0.563,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b03",
+      "category": "smartphone",
+      "turns": [
+        0.0,
+        0.062,
+        0.016,
+        0.015,
+        0.0,
+        0.016,
+        0.0,
+        0.016,
+        0.0
+      ],
+      "intake_seconds": 1.235,
+      "criteria_seconds": 2.797,
+      "search": {
+        "seconds": 86.687,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 14.578,
+          "extract": 61.485,
+          "match": 0.014,
+          "verify": 0.031,
+          "enrich": 9.796,
+          "decide": 0.0,
+          "explain": 0.0,
+          "commerce": 0.515
+        }
+      },
+      "repeat": {
+        "seconds": 87.172,
+        "status": "done",
+        "cached": false
+      },
+      "finished": true
+    },
+    {
+      "brief": "b04",
+      "category": "smartphone",
+      "turns": [
+        0.016,
+        0.203,
+        0.062,
+        0.016,
+        0.031,
+        0.032,
+        0.015,
+        0.016,
+        0.047
+      ],
+      "intake_seconds": 1.031,
+      "criteria_seconds": 4.906,
+      "search": {
+        "seconds": 79.578,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 8.453,
+          "extract": 67.561,
+          "match": 0.016,
+          "verify": 0.061,
+          "enrich": 2.078,
+          "decide": 0.014,
+          "explain": 0.016,
+          "commerce": 0.702
+        }
+      },
+      "repeat": {
+        "seconds": 76.812,
+        "status": "done",
+        "cached": false
+      },
+      "finished": true
+    },
+    {
+      "brief": "b05",
+      "category": "smartphone",
+      "turns": [
+        0.016,
+        0.172,
+        0.062,
+        0.016,
+        0.031,
+        0.032,
+        0.015,
+        0.016,
+        0.015
+      ],
+      "intake_seconds": 0.031,
+      "criteria_seconds": 0.031,
+      "search": {
+        "seconds": 87.36,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 6.906,
+          "extract": 69.11,
+          "match": 0.014,
+          "verify": 0.093,
+          "enrich": 4.469,
+          "decide": 0.0,
+          "explain": 0.0,
+          "commerce": 5.859
+        }
+      },
+      "repeat": {
+        "seconds": 0.625,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b06",
+      "category": "laptop",
+      "turns": [
+        0.016,
+        0.156,
+        0.047,
+        0.015,
+        0.016,
+        0.031,
+        0.031,
+        0.016,
+        0.016,
+        0.016
+      ],
+      "intake_seconds": 1.204,
+      "criteria_seconds": 6.984,
+      "search": {
+        "seconds": 96.547,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 6.671,
+          "extract": 69.328,
+          "match": 0.014,
+          "verify": 0.218,
+          "enrich": 5.437,
+          "decide": 0.016,
+          "explain": 0.0,
+          "commerce": 14.014
+        }
+      },
+      "repeat": {
+        "seconds": 0.609,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b07",
+      "category": "laptop",
+      "turns": [
+        0.015,
+        0.157,
+        0.047,
+        0.015,
+        0.031,
+        0.032,
+        0.015,
+        0.016,
+        0.016
+      ],
+      "intake_seconds": 1.469,
+      "criteria_seconds": 1.766,
+      "search": {
+        "seconds": 86.703,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 9.625,
+          "extract": 66.375,
+          "match": 0.015,
+          "verify": 0.063,
+          "enrich": 10.015,
+          "decide": 0.0,
+          "explain": 0.0,
+          "commerce": 0.0
+        }
+      },
+      "repeat": {
+        "seconds": 0.609,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b08",
+      "category": "laptop",
+      "turns": [
+        0.015,
+        0.141,
+        0.063,
+        0.015,
+        0.031,
+        0.016,
+        0.016,
+        0.031,
+        0.031,
+        0.016
+      ],
+      "intake_seconds": 0.937,
+      "criteria_seconds": 3.516,
+      "search": {
+        "seconds": 102.203,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 8.546,
+          "extract": 67.453,
+          "match": 0.014,
+          "verify": 0.078,
+          "enrich": 10.968,
+          "decide": 0.0,
+          "explain": 0.014,
+          "commerce": 14.015
+        }
+      },
+      "repeat": {
+        "seconds": 0.625,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b09",
+      "category": "laptop",
+      "turns": [
+        0.015,
+        0.157,
+        0.046,
+        0.016,
+        0.016,
+        0.031,
+        0.031,
+        0.016,
+        0.015,
+        0.016
+      ],
+      "intake_seconds": 1.187,
+      "criteria_seconds": 5.391,
+      "search": {
+        "seconds": 97.953,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 2.422,
+          "extract": 73.593,
+          "match": 0.014,
+          "verify": 0.078,
+          "enrich": 10.469,
+          "decide": 0.015,
+          "explain": 0.016,
+          "commerce": 10.625
+        }
+      },
+      "repeat": {
+        "seconds": 0.625,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b10",
+      "category": "laptop",
+      "turns": [
+        0.0,
+        0.203,
+        0.078,
+        0.015,
+        0.016,
+        0.031,
+        0.016,
+        0.031,
+        0.016
+      ],
+      "intake_seconds": 1.344,
+      "criteria_seconds": 2.625,
+      "search": {
+        "seconds": 88.0,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 28.561,
+          "extract": 47.438,
+          "match": 0.0,
+          "verify": 0.061,
+          "enrich": 10.969,
+          "decide": 0.0,
+          "explain": 0.0,
+          "commerce": 0.328
+        }
+      },
+      "repeat": {
+        "seconds": 0.625,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b11",
+      "category": "electric_kettle",
+      "turns": [
+        0.016,
+        0.172,
+        0.078,
+        0.015,
+        0.032,
+        0.031,
+        0.031,
+        0.016,
+        0.015
+      ],
+      "intake_seconds": 1.188,
+      "criteria_seconds": 8.953,
+      "search": {
+        "seconds": 82.719,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 30.843,
+          "extract": 45.156,
+          "match": 0.0,
+          "verify": 0.046,
+          "enrich": 6.016,
+          "decide": 0.0,
+          "explain": 0.0,
+          "commerce": 0.0
+        }
+      },
+      "repeat": {
+        "seconds": 0.625,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b12",
+      "category": "electric_kettle",
+      "turns": [
+        0.015,
+        0.203,
+        0.047,
+        0.016,
+        0.031,
+        0.031,
+        0.016,
+        0.031,
+        0.016
+      ],
+      "intake_seconds": 1.422,
+      "criteria_seconds": 7.078,
+      "search": {
+        "seconds": 82.969,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 4.562,
+          "extract": 71.453,
+          "match": 0.0,
+          "verify": 0.063,
+          "enrich": 6.03,
+          "decide": 0.014,
+          "explain": 0.0,
+          "commerce": 0.0
+        }
+      },
+      "repeat": {
+        "seconds": 0.625,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b13",
+      "category": "electric_kettle",
+      "turns": [
+        0.016,
+        0.156,
+        0.047,
+        0.016,
+        0.047,
+        0.015,
+        0.016,
+        0.015,
+        0.032
+      ],
+      "intake_seconds": 1.953,
+      "criteria_seconds": 2.922,
+      "search": {
+        "seconds": 81.64,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 7.156,
+          "extract": 68.858,
+          "match": 0.0,
+          "verify": 0.046,
+          "enrich": 4.733,
+          "decide": 0.016,
+          "explain": 0.0,
+          "commerce": 0.0
+        }
+      },
+      "repeat": {
+        "seconds": 0.641,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b14",
+      "category": "electric_kettle",
+      "turns": [
+        0.016,
+        0.172,
+        0.062,
+        0.016,
+        0.031,
+        0.047,
+        0.016,
+        0.015,
+        0.016
+      ],
+      "intake_seconds": 0.984,
+      "criteria_seconds": 0.031,
+      "search": {
+        "seconds": 76.375,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 3.875,
+          "extract": 72.109,
+          "match": 0.0,
+          "verify": 0.031,
+          "enrich": 0.0,
+          "decide": 0.0,
+          "explain": 0.0,
+          "commerce": 0.0
+        }
+      },
+      "repeat": {
+        "seconds": 0.609,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b15",
+      "category": "electric_kettle",
+      "turns": [
+        0.016,
+        0.203,
+        0.078,
+        0.015,
+        0.047,
+        0.032,
+        0.015,
+        0.016,
+        0.031
+      ],
+      "intake_seconds": 1.187,
+      "criteria_seconds": 0.016,
+      "search": {
+        "seconds": 87.938,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 4.188,
+          "extract": 71.828,
+          "match": 0.0,
+          "verify": 0.046,
+          "enrich": 10.983,
+          "decide": 0.0,
+          "explain": 0.0,
+          "commerce": 0.0
+        }
+      },
+      "repeat": {
+        "seconds": 0.625,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b16",
+      "category": "vacuum_cleaner",
+      "turns": [
+        0.016,
+        0.156,
+        0.063,
+        0.015,
+        0.016,
+        0.031,
+        0.031,
+        0.016,
+        0.016
+      ],
+      "intake_seconds": 1.047,
+      "criteria_seconds": 3.687,
+      "search": {
+        "seconds": 85.187,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 19.313,
+          "extract": 56.686,
+          "match": 0.0,
+          "verify": 0.046,
+          "enrich": 8.625,
+          "decide": 0.0,
+          "explain": 0.0,
+          "commerce": 0.0
+        }
+      },
+      "repeat": {
+        "seconds": 0.609,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b17",
+      "category": "vacuum_cleaner",
+      "turns": [
+        0.016,
+        0.141,
+        0.062,
+        0.016,
+        0.015,
+        0.032,
+        0.031,
+        0.016,
+        0.015
+      ],
+      "intake_seconds": 1.141,
+      "criteria_seconds": 2.343,
+      "search": {
+        "seconds": 82.141,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 8.968,
+          "extract": 67.046,
+          "match": 0.0,
+          "verify": 0.046,
+          "enrich": 5.656,
+          "decide": 0.016,
+          "explain": 0.0,
+          "commerce": 0.0
+        }
+      },
+      "repeat": {
+        "seconds": 0.625,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b18",
+      "category": "vacuum_cleaner",
+      "turns": [
+        0.016,
+        0.187,
+        0.047,
+        0.016,
+        0.015,
+        0.032,
+        0.031,
+        0.016
+      ],
+      "intake_seconds": 1.11,
+      "criteria_seconds": 2.234,
+      "search": {
+        "seconds": 81.578,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 4.625,
+          "extract": 71.389,
+          "match": 0.0,
+          "verify": 0.031,
+          "enrich": 5.093,
+          "decide": 0.0,
+          "explain": 0.0,
+          "commerce": 0.0
+        }
+      },
+      "repeat": {
+        "seconds": 0.656,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b19",
+      "category": "vacuum_cleaner",
+      "turns": [
+        0.016,
+        0.156,
+        0.047,
+        0.016,
+        0.015,
+        0.047,
+        0.016,
+        0.015,
+        0.016
+      ],
+      "intake_seconds": 1.891,
+      "criteria_seconds": 5.515,
+      "search": {
+        "seconds": 82.625,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 7.968,
+          "extract": 68.046,
+          "match": 0.0,
+          "verify": 0.031,
+          "enrich": 5.812,
+          "decide": 0.0,
+          "explain": 0.0,
+          "commerce": 0.0
+        }
+      },
+      "repeat": {
+        "seconds": 0.641,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    },
+    {
+      "brief": "b20",
+      "category": "vacuum_cleaner",
+      "turns": [
+        0.015,
+        0.203,
+        0.063,
+        0.031,
+        0.016,
+        0.031,
+        0.016,
+        0.031,
+        0.016,
+        0.015
+      ],
+      "intake_seconds": 1.14,
+      "criteria_seconds": 3.813,
+      "search": {
+        "seconds": 85.61,
+        "status": "done",
+        "cached": false,
+        "stages": {
+          "research": 4.781,
+          "extract": 71.235,
+          "match": 0.0,
+          "verify": 0.031,
+          "enrich": 8.906,
+          "decide": 0.0,
+          "explain": 0.0,
+          "commerce": 0.0
+        }
+      },
+      "repeat": {
+        "seconds": 0.625,
+        "status": "done",
+        "cached": true
+      },
+      "finished": true
+    }
+  ],
+  "summary": {
+    "briefs_recorded": 20,
+    "searches": 20,
+    "turns": 183,
+    "turns_within_5s": 1.0,
+    "searches_within_120s": 1.0,
+    "stage_median_seconds": {
+      "commerce": 0.0,
+      "decide": 0.0,
+      "enrich": 7.328,
+      "explain": 0.0,
+      "extract": 68.452,
+      "match": 0.0,
+      "research": 7.562,
+      "verify": 0.046
+    },
+    "slowest_stage": "extract",
+    "past_150s": [],
+    "not_measured": {},
+    "repeats_cached": 17,
+    "repeats_within_3s": 17,
+    "repeats": 20,
+    "not_finished": {}
+  }
+}

@@ -264,6 +264,8 @@ export interface ResearchResult {
   partial?: boolean;
   relaxation?: { hint: string; mustHave: string } | null;
   pricesCheckedAt?: string | null;
+  /** When the search this repeat was answered from was made (US-34); null for a fresh search. */
+  cachedAt?: string | null;
   saved: boolean;
   /** Every LLM provider failed (US-31): the page says so plainly and offers to try again. */
   llmUnavailable?: boolean;

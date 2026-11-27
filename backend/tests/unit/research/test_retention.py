@@ -833,8 +833,9 @@ def _uses(tree: ast.AST, path: Path) -> list[str]:
 
 def test_the_function_is_called_at_the_save_boundary_and_for_a_dropped_runs_last_event_only() -> None:
     uses = [use for p in Path(app.__file__).parent.rglob("*.py") for use in _uses(ast.parse(p.read_text("utf-8")), p)]
-    # The save, and the final event a stream still sends after its run went at its keep-time (D-53, US-12 fix).
-    assert sorted(uses) == ["pipeline.py: save", "search_runs.py: _as_saved"]
+    # The save, the final event a stream still sends after its run went at its keep-time (D-53, US-12 fix), and a
+    # finished search kept on disk for an exact repeat (US-34, S5-7): another copy that outlives the search.
+    assert sorted(uses) == ["pipeline.py: save", "results.py: keep", "search_runs.py: _as_saved"]
 
 
 @pytest.mark.parametrize(
