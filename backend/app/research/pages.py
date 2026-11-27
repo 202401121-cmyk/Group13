@@ -6,7 +6,10 @@ page: robots.txt first (kept 24 hours), then that site's limiter and our clear U
 limit, then clean_html and the per-source cap.
 
 A page the plain fetch can't read (an error, a refusal, not HTML, or too little text, which most likely means it needs
-JavaScript) goes to Jina Reader, then to Firecrawl when Jina fails or is thin too (readers.py). robots.txt has already
+JavaScript) goes to Jina Reader, then to Firecrawl when Jina fails or is thin too, and last to Firecrawl with the page
+rendered, when that scrape was thin (readers.py; D-100 item 1). The rendered step goes only with time for it before
+`ends`, the stage's own deadline, and is tried once. Each search's reader counts what it wanted, read, found
+thin and was refused, by reader (`tally`), for the coverage note and the live briefs. robots.txt has already
 said yes by then: a page it disallows never reaches a reader, and neither does one that asks for a login (HTTP 401).
 Reader text goes through the same cleaning and cap, and the Source says via jina or via firecrawl.
 
@@ -34,7 +37,7 @@ import re
 import socket
 import threading
 import time
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -124,6 +127,10 @@ def on_open_internet(host: str, resolve: Callable[[str], Sequence[str]] = addres
 # own failure, which its memory counts), both after the one retry.
 _Plain = httpx.Response | FailureReason | Literal["refused", "down"]
 _FOR_READERS = ("error", "timeout", "rate_limited", "down")  # and "refused", not HTML or too thin
+# The rendered step (D-100 item 1) follows only a Firecrawl scrape that was thin: never one that failed, as a failing
+# Firecrawl would spend a page on each step and its retries for one page, and rendering can't change a 404.
+_RENDER_AFTER = frozenset({"thin"})
+_NOT_SENT = ("no time left to render the page", "no time left to ask")  # the rendered step skipped, not failed
 # What a failed plain fetch says about its site (sites.py). Not found, or a reply we couldn't use, says nothing.
 _SITE_OUTCOMES: dict[str, SiteOutcome] = {
     "blocked": "blocked",
@@ -227,6 +234,8 @@ class ReviewPages:
         self.settings = settings
         self.other_pages = other_pages  # which page on a site no list names may be read (enrich's facts, D-102)
         self._resolve = resolve  # an other page's name, checked before anything goes to its site
+        self.ends: float | None = None  # the search's deadline (monotonic): the rendered step goes only before it
+        self._tally: Counter[str] = Counter()  # this search's pages: wanted, read, thin and refused, by reader
         self.cache = cache
         self.readers = readers if readers is not None else PageReaders()
         self._now = now
@@ -261,12 +270,24 @@ class ReviewPages:
             return None
         return site_of(url)
 
+    def tally(self) -> dict[str, int]:
+        """This search's pages so far: wanted; read, by reader (direct, jina, firecrawl, firecrawl_rendered, cache);
+        thin, by reader; and blocked (robots.txt, a refusal, or a page never read)."""
+        with self._lock:
+            return dict(self._tally)
+
+    def _count(self, key: str) -> None:
+        with self._lock:
+            self._tally[key] += 1
+
     def fetch(self, url: str, usage: SearchUsage) -> PageResult:
         found = self.kind_of(url)
         if found is None:
             return PageResult(reason="not_found")
+        self._count("wanted")
         cached = self.cache.get_sources(("page", url))
         if cached:
+            self._count("read_cache")
             return PageResult(source=cached[0], from_cache=True)
         attempt = self._follow(url, usage)
         result = attempt.result
@@ -278,8 +299,13 @@ class ReviewPages:
             if result.source.type is not SourceType.WEB_SEARCH:  # another site's page: the caller's to keep (D-102)
                 self.cache.put_sources(("page", url), [result.source])
             self.sites.record(url, "ok")  # read, by any route: the site works
-        elif attempt.site is not None:
-            self.sites.record(attempt.site_url or url, attempt.site)  # the site's own reply; never a reader's
+            if result.source.via == "direct":
+                self._count("read_direct")
+        else:
+            if attempt.site is not None:
+                self.sites.record(attempt.site_url or url, attempt.site)  # the site's own reply; never a reader's
+            if result.reason == "blocked":
+                self._count("blocked")
         return result
 
     def take_read(self, url: str, title: str, text: str, usage: SearchUsage) -> PageResult:
@@ -344,21 +370,42 @@ class ReviewPages:
         return PageResult(source=source)
 
     def _read_through(self, url: str, domain: str, kind: Kind, usage: SearchUsage, *, plain: PageResult) -> PageResult:
-        """Jina, then Firecrawl. The first with enough text wins. A reader that failed or was capped is named."""
+        """Jina, then Firecrawl, then Firecrawl with the page rendered (D-100 item 1). The first with enough text wins.
+        The rendered step follows only a Firecrawl scrape that was thin, and only with time for it before `ends`; one
+        skipped for time names nothing. A reader that failed or was capped is named; the rendered step as Firecrawl."""
         lost: list[SourceFailure] = []
-        readers = [r for r in (self.readers.jina, self.readers.firecrawl) if r is not None]
-        for reader in readers:
-            read = reader.read(url, usage) if isinstance(reader, JinaReader) else reader.scrape(url, usage)
+        steps: list[tuple[JinaReader | FirecrawlClient, bool]] = []
+        if self.readers.jina is not None:
+            steps.append((self.readers.jina, False))
+        if self.readers.firecrawl is not None:
+            steps += [(self.readers.firecrawl, False), (self.readers.firecrawl, True)]
+        why: str | None = None  # how the plain Firecrawl scrape ended, for the rendered step
+        for reader, rendered in steps:
+            if rendered and why not in _RENDER_AFTER:
+                break
+            if isinstance(reader, JinaReader):
+                read = reader.read(url, usage)
+            else:
+                read = reader.scrape(url, usage, rendered=rendered, until=self.ends if rendered else None)
+            name = reader.name  # the coverage note knows readers by name (app/pipeline.py)
+            detail = "rendered: " if rendered else ""
+            key = "firecrawl_rendered" if rendered else "jina" if isinstance(reader, JinaReader) else "firecrawl"
             if isinstance(read, ReaderText) and len(read.text) >= self.settings.min_page_chars:
                 via: Literal["jina", "firecrawl"] = "jina" if isinstance(reader, JinaReader) else "firecrawl"
                 source = self._source(url, domain, kind, read.title, read.text, via)
                 if source is None:
                     return PageResult(reason="error", lost_to=tuple(lost))
+                self._count(f"read_{key}")
                 return PageResult(source=source, lost_to=tuple(lost))  # Jina's failure is still named (criterion 5)
             if isinstance(read, ReaderText):
-                lost.append(reader_failure(reader.name, "not_found", "too little text", _TYPES[kind]))
+                self._count(f"thin_{key}")
+                lost.append(reader_failure(name, "not_found", f"{detail}too little text", _TYPES[kind]))
+                why = "thin"
+            elif rendered and read[1] in _NOT_SENT:
+                self._count("skipped_firecrawl_rendered")  # nothing sent, nothing spent: the thin scrape is named
             else:
-                lost.append(reader_failure(reader.name, read[0], read[1], _TYPES[kind]))
+                lost.append(reader_failure(name, read[0], f"{detail}{read[1]}", _TYPES[kind]))
+                why = read[0]
         return PageResult(reason=plain.reason or "not_found", lost_to=tuple(lost))
 
     def _follow(self, url: str, usage: SearchUsage) -> _Attempt:
@@ -591,6 +638,7 @@ class ReviewPages:
             response.close()
         page = clean_html(decode_page(data, encoding))
         if len(page.text) < self.settings.min_page_chars:
+            self._count("thin_direct")
             return _Attempt(PageResult(reason="not_found"), url)  # most likely a page that needs JavaScript
         source = self._source(url, domain, kind, page.title, page.text, "direct")
         return _Attempt(PageResult(source=source) if source is not None else PageResult(reason="error"))

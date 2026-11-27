@@ -37,9 +37,10 @@ before, while the session's research and extraction run from the first answer on
 questions the interview asked, so every brief gives the job the same time; the search then takes it over. Each brief
 records the time from the confirm to the result (`confirm_to_result_seconds`, in every run), its answers, whether the
 job was taken over, and the pages asked again for keys the interview added (`asked_again`), which `read` leaves out.
-The job's calls and the parser's drops count with the search's.
-`--compare BASE` prints, with no call, each brief's pages read, sources with claims, priced and ranked products and
-time from confirm to result, from BASE and from the record named by --out.
+The job's calls and the parser's drops count with the search's. Each brief also records research's pages by reader
+(`readers`, S5-22): wanted, read, thin and blocked. `--compare BASE` prints, with no call, each brief's pages read,
+sources with claims, priced and ranked products and time from confirm to result, from BASE and from the record named by
+--out.
 """
 
 from __future__ import annotations
@@ -769,6 +770,9 @@ def _search_brief(
     record["answer_sizes"] = answer_sizes(list(getattr(call_log, "records", [])), began)
     record["fact_call"] = fact_calls(list(getattr(call_log, "records", [])), began)
     record["began_utc"] = {"hour": began.hour, "minute": began.minute}  # numbers: the record holds no free text
+    # S5-22 (D-100 item 8): the pages research wanted, read, found thin and was refused, by reader (ReviewPages.tally).
+    by_reader = getattr(research, "reader_tally", None)
+    record["readers"] = dict(sorted(by_reader(result.search_id).items())) if callable(by_reader) else {}
     return record
 
 

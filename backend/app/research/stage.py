@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 import os
 import threading
+from collections import OrderedDict
 from collections.abc import Callable, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -71,6 +72,7 @@ from .youtube import YouTubeResult, YouTubeSource
 log = logging.getLogger(__name__)
 
 DEADLINE_MARGIN_S = 3.0  # the search's own limit may be nearer than ours; returning late would lose everything
+MAX_TALLIES = 64  # searches whose reader tally is kept at once (D-100 item 1)
 HELD_SLOT_WAIT_SHARE = 0.5  # of the deadline: long enough for a normal listing, with time left for the query and pages
 HELD_SLOT_MIN_SHARE = 0.1  # of the deadline: with less left, a reply would not arrive and the credit would be wasted
 REDDIT, WEB, REVIEW, YOUTUBE = SourceType.REDDIT, SourceType.WEB_SEARCH, SourceType.REVIEW_SITE, SourceType.YOUTUBE
@@ -173,6 +175,9 @@ class LiveResearchStage:
         # For the CLI's --claims (US-13), and kept off the report, which the log reads and which holds no URL.
         self.last_dropped_threads: tuple[ThreadScore, ...] = ()  # Reddit threads that scored too low
         self.last_estimated_threads: frozenset[str] = frozenset()  # the URLs of those scored with an unknown value
+        # Each search's reader tally (D-100 item 1): its note, and the live briefs' counts. The last MAX_KEPT only.
+        self._tallies: OrderedDict[str, dict[str, int]] = OrderedDict()
+        self._tallies_lock = threading.Lock()
 
     def fallback(self, inp: ResearchInput, ctx: StageContext, error: Exception) -> ResearchResult:
         return self.baseline.fallback(inp, ctx, error)
@@ -184,6 +189,9 @@ class LiveResearchStage:
         wiring = self._wire(settings)
         job = _Job(inp, ctx, settings, book.search(), pool, wiring)
         result = job.run()
+        tally = getattr(wiring.pages, "tally", None)
+        if callable(tally):
+            self._keep_tally(ctx.search_id, tally())
         self.last_report = job.report(book)
         self.last_dropped_threads = tuple(job.threads.dropped)
         self.last_estimated_threads = job.threads.estimated
@@ -191,6 +199,23 @@ class LiveResearchStage:
         if wiring.client is not None and not job.unfinished:
             wiring.client.close()  # one that a worker still holds at the deadline is left for it to finish with
         return result
+
+    def _keep_tally(self, search_id: str, tally: dict[str, int]) -> None:
+        with self._tallies_lock:
+            self._tallies[search_id] = dict(tally)
+            while len(self._tallies) > MAX_TALLIES:
+                self._tallies.popitem(last=False)
+
+    def reader_tally(self, search_id: str) -> dict[str, int]:
+        """The search's pages: wanted, read by each reader, thin by each reader, and blocked (ReviewPages.tally)."""
+        with self._tallies_lock:
+            return dict(self._tallies.get(search_id, {}))
+
+    def coverage_note(self, search_id: str) -> str | None:
+        """Which readers read the search's hard pages (D-100 item 1). The tally stays for reader_tally: the last
+        MAX_TALLIES searches are kept."""
+        tally = self.reader_tally(search_id)
+        return readers_note(tally) if tally else None
 
     def _wire(self, settings: ResearchSettings) -> _Wiring:
         """The real sources, unless a test gave its own. What can't be built is skipped, with a reason."""
@@ -311,6 +336,8 @@ class _Job:
         self.comparison: SearchQuery | None = None
         self.deadline_s = min(settings.deadline_s, max(0.0, ctx.seconds_left - DEADLINE_MARGIN_S))
         self.fetches = FetchRun(pool, self.deadline_s)
+        if wiring.pages is not None and hasattr(wiring.pages, "ends"):  # the rendered step goes only before it (D-100)
+            wiring.pages.ends = monotonic() + self.deadline_s
         if wiring.retry is not None:  # a retry must fit before this search's deadline (US-31)
             wiring.retry.time_left = self.fetches.time_left
         self.threads = ThreadProgress()
@@ -688,3 +715,19 @@ def _log_report(report: ResearchReport) -> None:
     per_source = ", ".join(f"{kind.value} {report.seconds[kind]:.1f}s ({report.counts[kind]})" for kind in LIVE_TYPES)
     used = ", ".join(f"{name} {count}" for name, count in report.used.items())
     log.info("research: %s; total %.1fs; used %s", per_source, report.total_seconds, used)
+
+
+def readers_note(tally: dict[str, int]) -> str | None:
+    """The coverage note's sentence on the readers that worked (D-100 item 1): "3 hard-to-read pages were read, 2 by
+    Jina Reader and 1 by Firecrawl (1 after the page's scripts ran)." None when no reader read a page."""
+    jina = tally.get("read_jina", 0)
+    rendered = tally.get("read_firecrawl_rendered", 0)
+    firecrawl = tally.get("read_firecrawl", 0) + rendered
+    if not jina and not firecrawl:
+        return None
+    parts = [f"{jina} by Jina Reader"] if jina else []
+    if firecrawl:
+        parts.append(f"{firecrawl} by Firecrawl" + (f" ({rendered} after the page's scripts ran)" if rendered else ""))
+    total = jina + firecrawl
+    verb = "page was" if total == 1 else "pages were"
+    return f"{total} hard-to-read {verb} read, {' and '.join(parts)}."

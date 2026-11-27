@@ -66,11 +66,13 @@ These shape how staging behaves. Check them again before the demo: free plans ch
   day and in total, but it keeps those counts in `backend/.cache/research/usage.json`, and that file goes too. The
   LLM providers' daily token budgets are kept in memory, so a restart resets them as well.
   - On staging the limits therefore hold only between two spin-downs. The Serper total of 2,400 can't build up, and
-    each start allows another day's worth: 60 Serper queries and 30 Firecrawl credits.
+    each start allows another day's worth: 60 Serper queries and 300 Firecrawl credits.
   - Staging has no login, so anyone with the address can start searches that spend the team's keys.
   - So:
     - give staging its own Serper key if you can;
-    - leave `JINA_API_KEY` and `FIRECRAWL_API_KEY` empty on staging (plain page reads still work);
+    - leave `JINA_API_KEY` empty on staging (plain page reads still work). `FIRECRAWL_API_KEY` is now the team's
+      student key (D-99, D-100 item 10), so the hosted demo reads hard pages through the reader ladder and finds stores'
+      own pages. The caps protect its credits (below);
     - suspend the service from its Settings page when nobody is checking it;
     - share the address only within the team until login exists (D-65, US-30).
 - **512 MB is shared by every search running at once**, so staging runs one search at a time (`SEARCH_RUN_WORKERS=1`).
@@ -115,7 +117,7 @@ and the file name the same ones.
 | `SERPER_API_KEY` | The team's Serper key | **yes** |
 | `YOUTUBE_API_KEY` | The team's YouTube Data API key, restricted to that API. Empty leaves YouTube out of every search (US-38). | **yes** |
 | `JINA_API_KEY` | Leave empty on staging (section 1). If set, the team's Jina key. | **yes** |
-| `FIRECRAWL_API_KEY` | Leave empty on staging: its 1,000 credits a month are the team's (section 1). | **yes** |
+| `FIRECRAWL_API_KEY` | The team's student key (D-99, D-100 item 10): 10,000 credits in all. **How the caps protect them:** every request's credits are counted before it is sent. Each stage of a search (research, enrich, commerce) may spend at most 30 credits and 8 pages, and staging runs one search at a time. On staging, research.yaml's day (300) and total (9,000) restart with each spin-down, as its counts live on the service's own disk. So suspend the service when nobody is checking it. When the account's credits run out, Firecrawl answers 402, which switches it off for the run, and every page is read the other ways. | **yes** |
 | `SAFE_BROWSING_API_KEY` | Optional (US-24, D-99): the team's Google Safe Browsing key, restricted to that API. Empty skips the check, said once in the log; store pages are still checked by code otherwise. | **yes** |
 | `REDDIT_SOURCE` | `archive` | no |
 | `REDDIT_USER_SALT` | A new random value for staging (`python -c "import secrets; print(secrets.token_hex(32))"`). Never the laptop's. | **yes** |
@@ -276,7 +278,8 @@ Run after both parts are deployed. The budget is D-65's (14 Nov 2026), for one s
 - `research.yaml` caps a search at 6 Serper queries and 14 Reddit archive requests (4 listings, 8 comment reads, 2
   retries).
 - `EXTRACT_MAX_SOURCES=5` keeps the LLM calls near 10.
-- Jina and Firecrawl are empty on staging (section 1), so they use nothing.
+- Jina is empty on staging (section 1), so it uses nothing. Firecrawl now has the team's student key (D-100 item 10),
+  so a search may spend some of its credits, inside the caps (section 1).
 
 The steps:
 1. **Health, timed:** `curl -s -w "\n%{time_total} s\n" https://<service>.onrender.com/api/health` should show

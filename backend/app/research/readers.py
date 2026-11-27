@@ -1,7 +1,16 @@
 """Readers for pages a plain fetch can't read (US-38, the page half; D-62, D-64), and Firecrawl search as a backup.
 
 - Jina Reader (r.jina.ai) is tried first: it keeps no request data, and works without a key (JINA_API_KEY raises its
-  limit). Then Firecrawl /v2/scrape, when Jina fails or its text is also thin.
+  limit). Then Firecrawl /v2/scrape, when Jina fails or its text is also thin, and then, the last step (D-100 item 1),
+  Firecrawl /v2/scrape with the page rendered: a wait for its scripts and scrolling down, never a click.
+- D-100 (Firecrawl's docs read 27 Nov 2026, docs.firecrawl.dev: billing, rate-limits, features/map, advanced scraping
+  guide, scrape and batch-scrape references): a scrape is 1 credit with or without actions and waitFor; /v2/map is 1
+  credit a call; a search 2 credits per 10 results (rounded up) and 1 for each page it scrapes; a batch scrape 1 a page.
+  Every request asks for the basic proxy: never Firecrawl's enhanced (anti-bot) proxy, which its default "auto" can
+  step up to. maxAge is our 24-hour page cache (Firecrawl caps it at 7 days); a rendered scrape is never kept in
+  Firecrawl's cache (actions turn storeInCache off).
+- map (D-100 items 2 and 9) finds a page's address on one site by the product's name, for 1 credit. Batch scrape is
+  here for a stage's several pages; under our plan's limits single calls never lose to it (docs/api-setup.md).
 - Firecrawl's limits (docs.firecrawl.dev/rate-limits, read 25 Nov 2026): the free plan allows 10 requests a minute
   and 2 at once. They live in research.yaml (firecrawl_limits), not here (D-99). A scrape is 1 credit; a search 2
   credits per 10 results. Our own caps (research.yaml) keep a search, a day and the plan's credits inside that.
@@ -18,6 +27,7 @@ a repr; only HTTP statuses do.
 from __future__ import annotations
 
 import contextlib
+import json
 import logging
 import re
 import threading
@@ -47,6 +57,8 @@ log = logging.getLogger(__name__)
 JINA_URL = "https://r.jina.ai/"
 FIRECRAWL_SCRAPE_URL = "https://api.firecrawl.dev/v2/scrape"
 FIRECRAWL_SEARCH_URL = "https://api.firecrawl.dev/v2/search"
+FIRECRAWL_MAP_URL = "https://api.firecrawl.dev/v2/map"
+FIRECRAWL_BATCH_URL = "https://api.firecrawl.dev/v2/batch/scrape"
 READER_TIMEOUT_S = 12.0  # inside the page's own limit, so a stuck reader can't cost the search
 FIRECRAWL_TIMEOUT_MS = 10_000  # what Firecrawl itself may take; our request waits a little longer
 MAX_AGE_MS = 86_400_000  # a copy of the page up to a day old is fine, and costs less
@@ -58,6 +70,19 @@ SNAPSHOT_MAX_CHARS = 1_500_000  # a page's HTML kept for commerce's checks, as r
 SEARCH_PAGES = 3  # D-101: the results a search has Firecrawl read in the same call (2 credits, and 1 a page)
 FIRECRAWL_MIN_S = 1.0  # Firecrawl's least timeout: a request due sooner isn't sent
 SEARCH_STEP_S = 2.0  # of a reading search's time, kept for Firecrawl's search itself and its reply, beyond the reads
+MAP_CREDITS = 1  # a map call, however many links come back (docs.firecrawl.dev/billing, read 27 Nov 2026)
+MAP_LIMIT = 20  # links a map gives back: the few that best match the product's name are all we read
+PROXY = "basic"  # D-100 item 7: never the enhanced (anti-bot) proxy that Firecrawl's default "auto" may step up to
+RENDER_WAIT_MS = 2_000  # the rendered step's wait for the page's scripts, before it scrolls
+RENDER_ACTIONS: tuple[dict[str, Any], ...] = (
+    {"type": "scroll", "direction": "down"},
+    {"type": "wait", "milliseconds": 1_000},
+    {"type": "scroll", "direction": "down"},
+    {"type": "wait", "milliseconds": 1_000},
+)  # scrolling only: a click on a section that isn't on the page fails the whole scrape (D-100 item 1)
+RENDER_MIN_S = 6.0  # with less than this left, the rendered step isn't sent: its waits alone take 4 seconds
+RENDER_MAX_S = 15.0  # the most a rendered scrape may take, deadline or not: waits, scrolling and the read
+BATCH_POLL_S = 1.0  # how often a batch scrape's progress is asked for
 JINA, FIRECRAWL = "Jina Reader", "Firecrawl"  # the names the coverage note uses (app/pipeline.py)
 
 _IMAGE = re.compile(r"!\[[^\]]*\]\([^)]*\)")
@@ -95,6 +120,14 @@ class SearchedPage:
     url: str
     title: str
     text: str
+
+
+@dataclass(frozen=True)
+class MappedLink:
+    """One address a map found on a site, with its title when Firecrawl gave one."""
+
+    url: str
+    title: str = ""
 
 
 @dataclass(frozen=True)
@@ -348,13 +381,19 @@ class FirecrawlClient:
         *,
         keep_in_their_cache: bool = True,
         before_cleaning: Callable[[str], str] | None = None,
+        rendered: bool = False,
+        until: float | None = None,
     ) -> ReaderText | tuple[FailureReason, str]:
         """One page as markdown, made plain. Reddit text passes keep_in_their_cache=False (D-53), and a filter that
-        runs on the markdown itself, while a profile link still shows whose name its words are."""
+        runs on the markdown itself, while a profile link still shows whose name its words are. `rendered` (D-100 item
+        1): the page's scripts are waited for and it is scrolled, never clicked; with less than RENDER_MIN_S before
+        `until` it isn't sent."""
         if not self._api_key:
             return "blocked", "FIRECRAWL_API_KEY is not set"
         if usage.left("firecrawl_pages") < 1 or usage.left("firecrawl") < SCRAPE_CREDITS:
             return "quota_exhausted", "a cap is reached"
+        if rendered and until is not None and until - time.monotonic() < RENDER_MIN_S:
+            return "timeout", "no time left to render the page"
         body: dict[str, Any] = {
             "url": url,
             "formats": ["markdown"],
@@ -362,23 +401,116 @@ class FirecrawlClient:
             "maxAge": MAX_AGE_MS,
             "location": {"country": COUNTRY},
             "timeout": FIRECRAWL_TIMEOUT_MS,
+            "proxy": PROXY,
         }
         if not keep_in_their_cache:
             body["storeInCache"] = False
-        reply = self._post(FIRECRAWL_SCRAPE_URL, body, usage, SCRAPE_CREDITS, page=True)
+        least = FIRECRAWL_MIN_S
+        retry = True
+        if rendered:
+            body["waitFor"] = RENDER_WAIT_MS
+            body["actions"] = [dict(action) for action in RENDER_ACTIONS]
+            body["maxAge"] = 0  # the plain scrape just read Firecrawl's copy: the rendered step asks for a fresh one
+            latest = time.monotonic() + RENDER_MAX_S
+            until = latest if until is None else min(until, latest)
+            least, retry = RENDER_MIN_S, False  # one try: a second would cost another page for the same page
+        reply = self._post(
+            FIRECRAWL_SCRAPE_URL, body, usage, SCRAPE_CREDITS, page=1, retry=retry, until=until, least_s=least
+        )
         if isinstance(reply, tuple):
             return reply
-        data = reply.get("data")
-        markdown = data.get("markdown") if isinstance(data, dict) else None
-        if not isinstance(markdown, str):
-            return "error", "the reply had no page text"
-        meta = data.get("metadata") if isinstance(data, dict) else None
-        title = meta.get("title") if isinstance(meta, dict) else ""
-        if isinstance(title, list):
-            title = next((t for t in title if isinstance(t, str)), "")
-        if before_cleaning is not None:
-            markdown = before_cleaning(markdown)
-        return ReaderText(title if isinstance(title, str) else "", plain_text(markdown))
+        return _page_text(reply.get("data"), before_cleaning)
+
+    def map(
+        self, site: str, search: str, usage: SearchUsage, *, until: float | None = None
+    ) -> list[MappedLink] | tuple[FailureReason, str]:
+        """The addresses on one site (`site`: its own https address) that best match `search`, the product's name
+        only, for MAP_CREDITS (D-100 items 2 and 9). Kept 24 hours, so a second ask that day costs nothing."""
+        if not self._api_key:
+            return "blocked", "FIRECRAWL_API_KEY is not set"
+        key = ("firecrawl_map", site, search)
+        kept = self.cache.get_text(key)
+        if kept is not None:
+            return _links(kept)
+        if usage.left("firecrawl") < MAP_CREDITS:
+            return "quota_exhausted", "a cap is reached"
+        body: dict[str, Any] = {
+            "url": site,
+            "search": search,
+            "limit": MAP_LIMIT,
+            "includeSubdomains": False,
+            "location": {"country": COUNTRY},
+        }
+        reply = self._post(FIRECRAWL_MAP_URL, body, usage, MAP_CREDITS, until=until)
+        if isinstance(reply, tuple):
+            return reply
+        found = reply.get("links")
+        if not isinstance(found, list):
+            return "error", "the reply had no links"
+        links = [link for item in found if (link := _mapped(item)) is not None]
+        self.cache.put_text(key, json.dumps([[link.url, link.title] for link in links]))
+        return links
+
+    def batch_scrape(
+        self, urls: Sequence[str], usage: SearchUsage, *, until: float
+    ) -> dict[str, ReaderText | tuple[FailureReason, str]]:
+        """Several pages in one request (D-100 item 4): every page and credit counted before it goes, all or none, its
+        progress asked for until `until`, then what was read. A page not read by then is cancelled with the job, so it
+        costs nothing more; one Firecrawl couldn't read says why. Never retried."""
+        wanted = list(dict.fromkeys(urls))
+        if not self._api_key:
+            return dict.fromkeys(wanted, ("blocked", "FIRECRAWL_API_KEY is not set"))
+        body: dict[str, Any] = {
+            "urls": wanted,
+            "formats": ["markdown"],
+            "onlyMainContent": True,
+            "maxAge": MAX_AGE_MS,
+            "location": {"country": COUNTRY},
+            "proxy": PROXY,
+            "maxConcurrency": firecrawl_limits().at_once,
+        }
+        reply = self._post(FIRECRAWL_BATCH_URL, body, usage, len(wanted), page=len(wanted), retry=False, until=until)
+        if isinstance(reply, tuple):
+            return dict.fromkeys(wanted, reply)
+        job = reply.get("id")
+        if not isinstance(job, str) or not job:
+            return dict.fromkeys(wanted, ("error", "the reply had no job"))
+        read: dict[str, ReaderText | tuple[FailureReason, str]] = {}
+        while True:
+            status = self._job(job, until)
+            for item in status.get("data", []) if isinstance(status.get("data"), list) else []:
+                url, page = _batched(item)
+                if url in wanted and url not in read and page is not None:
+                    read[url] = page
+            if status.get("status") in ("completed", "failed") or len(read) == len(wanted):
+                break
+            if time.monotonic() + BATCH_POLL_S >= until:
+                self._cancel(job)
+                break
+            time.sleep(BATCH_POLL_S)
+        return {url: read.get(url, ("timeout", "not read in time")) for url in wanted}
+
+    def _job(self, job: str, until: float) -> dict[str, Any]:
+        """A batch's progress, or nothing when it can't be read (the pages it has are then not waited for)."""
+        try:
+            response = self.http.get(
+                f"{FIRECRAWL_BATCH_URL}/{job}",
+                headers={"Authorization": f"Bearer {self._api_key or ''}"},
+                timeout=max(FIRECRAWL_MIN_S, until - time.monotonic()),
+            )
+            reply = response.json() if response.status_code == 200 else None
+        except (httpx.HTTPError, ValueError):
+            reply = None
+        return reply if isinstance(reply, dict) else {"status": "failed"}
+
+    def _cancel(self, job: str) -> None:
+        """A batch past its time: cancelled, so the pages it hasn't read cost nothing."""
+        with contextlib.suppress(httpx.HTTPError):
+            self.http.delete(
+                f"{FIRECRAWL_BATCH_URL}/{job}",
+                headers={"Authorization": f"Bearer {self._api_key or ''}"},
+                timeout=FIRECRAWL_MIN_S,
+            )
 
     def snapshot(self, url: str, usage: SearchUsage) -> PageSnapshot | tuple[FailureReason, str]:
         """The page's own status, its address after redirects, its title and its raw HTML (rawHtml keeps the page's
@@ -393,8 +525,9 @@ class FirecrawlClient:
             "maxAge": MAX_AGE_MS,
             "location": {"country": COUNTRY},
             "timeout": FIRECRAWL_TIMEOUT_MS,
+            "proxy": PROXY,
         }
-        reply = self._post(FIRECRAWL_SCRAPE_URL, body, usage, SCRAPE_CREDITS, page=True)
+        reply = self._post(FIRECRAWL_SCRAPE_URL, body, usage, SCRAPE_CREDITS, page=1)
         if isinstance(reply, tuple):
             return reply
         data = reply.get("data")
@@ -479,7 +612,13 @@ class FirecrawlClient:
             "limit": results,
             "country": region.upper() if len(region) == 2 else COUNTRY,
             # PDFs aren't parsed: a parsed PDF costs a credit a page, and only one a result is counted.
-            "scrapeOptions": {"formats": ["markdown"], "onlyMainContent": True, "maxAge": MAX_AGE_MS, "parsers": []},
+            "scrapeOptions": {
+                "formats": ["markdown"],
+                "onlyMainContent": True,
+                "maxAge": MAX_AGE_MS,
+                "parsers": [],
+                "proxy": PROXY,
+            },
         }
         if exclude:
             body["excludeDomains"] = list(exclude)
@@ -501,14 +640,16 @@ class FirecrawlClient:
         usage: SearchUsage,
         credits: int,
         *,
-        page: bool = False,
+        page: int = 0,
         retry: bool = True,
         until: float | None = None,
+        least_s: float = FIRECRAWL_MIN_S,
     ) -> dict[str, Any] | tuple[FailureReason, str]:
         """One request through the gate, its credits counted before it goes, all of them or none (D-78). `retry`: the
         one retry a failure may get (US-31). `until`: when its answer is due (D-101): the slot is waited for no longer,
-        Firecrawl's timeout fields become the time then left, and with less than FIRECRAWL_MIN_S left it isn't sent."""
-        least = FIRECRAWL_MIN_S + (SEARCH_STEP_S if "scrapeOptions" in body else 0.0)
+        Firecrawl's timeout fields become the time then left, and with less than `least_s` left, before or after the
+        wait for the slot, it isn't sent."""
+        least = least_s + (SEARCH_STEP_S if "scrapeOptions" in body else 0.0)
         if until is not None and until - time.monotonic() < least:
             return "timeout", "no time left to ask"
         slot_s = None if until is None else max(0.0, until - time.monotonic() - least)
@@ -567,16 +708,65 @@ class FirecrawlClient:
                 self.gate.unsent()
 
     @staticmethod
-    def _take(usage: SearchUsage, credits: int, page: bool) -> bool:
-        """A request's page (a scrape) and all its credits, or nothing: a page taken before the credits ran out is
-        given back, so a request that never goes counts nothing (D-78)."""
-        if page and not usage.take("firecrawl_pages"):
-            return False
-        if usage.take("firecrawl", count=credits):
+    def _take(usage: SearchUsage, credits: int, page: int) -> bool:
+        """A request's pages (1 for a scrape, one each for a batch's) and all its credits, or nothing: pages taken
+        before a cap said no are given back, so a request that never goes counts nothing (D-78)."""
+        taken = 0
+        while taken < int(page) and usage.take("firecrawl_pages"):
+            taken += 1
+        if taken == int(page) and usage.take("firecrawl", count=credits):
             return True
-        if page:
+        for _ in range(taken):
             usage.untake("firecrawl_pages")
         return False
+
+
+def _page_text(
+    data: object, before_cleaning: Callable[[str], str] | None = None
+) -> ReaderText | tuple[FailureReason, str]:
+    """A scraped page's markdown and title, made plain."""
+    markdown = data.get("markdown") if isinstance(data, dict) else None
+    if not isinstance(markdown, str):
+        return "error", "the reply had no page text"
+    meta = data.get("metadata") if isinstance(data, dict) else None
+    title = meta.get("title") if isinstance(meta, dict) else ""
+    if isinstance(title, list):
+        title = next((t for t in title if isinstance(t, str)), "")
+    if before_cleaning is not None:
+        markdown = before_cleaning(markdown)
+    return ReaderText(title if isinstance(title, str) else "", plain_text(markdown))
+
+
+def _batched(item: object) -> tuple[str, ReaderText | tuple[FailureReason, str] | None]:
+    """One page of a batch: the address it was asked as, and its text, why Firecrawl couldn't read it, or None."""
+    if not isinstance(item, dict):
+        return "", None
+    meta = item.get("metadata")
+    meta = meta if isinstance(meta, dict) else {}
+    url = meta.get("sourceURL") or meta.get("url") or ""
+    status = meta.get("statusCode")
+    if isinstance(status, int) and not isinstance(status, bool) and status != 200:
+        return str(url), (_reason(status), f"the page answered HTTP {status}")
+    if meta.get("error"):
+        return str(url), ("error", "Firecrawl couldn't read the page")
+    return str(url), _page_text(item)
+
+
+def _mapped(item: object) -> MappedLink | None:
+    """A map's link: an address, or an address and its title."""
+    if isinstance(item, str) and item.startswith("https://"):
+        return MappedLink(item)
+    if isinstance(item, dict) and isinstance(item.get("url"), str) and item["url"].startswith("https://"):
+        title = item.get("title")
+        return MappedLink(item["url"], title if isinstance(title, str) else "")
+    return None
+
+
+def _links(kept: str) -> list[MappedLink] | tuple[FailureReason, str]:
+    try:
+        return [MappedLink(str(url), str(title)) for url, title in json.loads(kept)]
+    except (ValueError, TypeError):
+        return "error", "a kept map could not be read"
 
 
 def _with_timeout(body: dict[str, Any], ms: int) -> dict[str, Any]:

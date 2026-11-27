@@ -41,10 +41,12 @@ caps:
   jina:
     per_search: 10
     per_day: 200
-  # Firecrawl (D-62): the pages Jina can't read either, and Reddit threads the archive lacks.
+  # Firecrawl (D-62): the pages Jina can't read either, and Reddit threads the archive lacks. D-100 (Om, 27 Nov 2026):
+  # the reader ladder's rendered step reads a page again from these, so 8 a search and 150 a day, inside the credits'
+  # 300 a day below (D-99).
   firecrawl_pages:
-    per_search: 4
-    per_day: 30
+    per_search: 8
+    per_day: 150
   # Firecrawl credits, for pages (1 each) and searches (2 a query): research's backup search and commerce's store-page
   # search and page checks (US-24, D-99). Om's student credits (D-99, 25 Nov 2026): 300 a day, and the total stops
   # Firecrawl for good once 9,000 have been used.

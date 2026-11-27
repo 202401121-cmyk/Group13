@@ -70,7 +70,7 @@ def _default_caps() -> dict[str, ProviderCap]:
         # The page readers (US-38, team's choice): Jina pages, Firecrawl pages, and Firecrawl credits (a page is 1, a
         # search 2), for research and for commerce's store pages (US-24).
         "jina": ProviderCap(per_search=10, per_day=200),
-        "firecrawl_pages": ProviderCap(per_search=4, per_day=30),
+        "firecrawl_pages": ProviderCap(per_search=8, per_day=150),  # D-100: the rendered step reads a page again
         # D-99 (Om's student credits): 300 a day, and the total stops Firecrawl for good.
         "firecrawl": ProviderCap(per_search=30, per_day=300, total=9000),
         # YouTube (US-38): search.list calls (YouTube allows 100 a day; the team's cap is 80), and quota units for
